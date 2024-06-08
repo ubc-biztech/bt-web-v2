@@ -36,11 +36,26 @@ const config: Config = {
       'light-green': '#AFE38C',
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
+      'black': "#000000",
     },
     fontFamily: {
       sans: ['Open Sans', 'sans-serif'],
       poppins: ['Poppins', 'sans-serif'],
       montserrat: ['Montserrat', 'sans-serif'],
+    },
+    fontWeight: {
+      '400': '400',
+      '500': '500',
+      '600': '600',
+    },
+    fontSize: {
+      'xs': '14px',
+      'sm': '16px',
+      'md': '20px',
+      'lg': '24px',
+      'xl': '32px',
+      '2xl': '40px',
+      '3xl': '48px',
     },
     extend: {
       backgroundImage: {

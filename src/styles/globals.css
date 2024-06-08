@@ -33,3 +33,34 @@ body {
     text-wrap: balance;
   }
 }
+
+
+@layer base {
+  h1 {
+    @apply font-poppins font-600 text-3xl text-black;
+  }
+  h2 {
+    @apply font-poppins font-600 text-2xl text-black;
+  }
+  h3 {
+    @apply font-poppins font-600 text-xl text-black;
+  }
+  h4 {
+    @apply font-poppins font-500 text-lg text-black;
+  }
+  h5 {
+    @apply font-poppins font-400 text-md text-black;
+  }
+  button {
+    @apply font-poppins font-600 text-sm text-black;
+  }
+  .p1 {
+    @apply font-poppins font-500 text-sm text-black;
+  }
+  .p2 {
+    @apply font-poppins font-400 text-sm text-black;
+  }
+  .p3 {
+    @apply font-poppins font-400 text-xs text-black;
+  }
+}
