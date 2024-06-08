@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+biztech-app/node_modules
 
 # testing
 /coverage
@@ -12,6 +13,7 @@
 # next.js
 /.next/
 /out/
+biztech-app/.next
 
 # production
 /build
