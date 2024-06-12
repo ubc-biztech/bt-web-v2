@@ -9,6 +9,7 @@ export default function Home() {
       <h1>
         amazing biztech app
       </h1>
+      <h3>devbranch deployed!</h3>
     </main>
   );
 }
