@@ -27,7 +27,7 @@ export const admin = [
 export const defaultUser = [
     {
         title: "Home",
-        link: "",
+        link: "/",
         icon: HomeIcon
     },
     {
