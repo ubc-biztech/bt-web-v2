@@ -1,32 +1,30 @@
 import Image from "next/image";
 import EditIcon from "../../../public/assets/icons/settings_icon.svg";
+import Link from "next/link";
 
 const NavbarTab = () => {
+  const isSelected = false;
   return (
-    <div
-      style={{
-        height: "36px",
-        display: "flex",
-        width: "100%",
-        marginTop: "18px",
-        marginBottom: "18px",
-      }}
+    <Link
+      href=""
+      className="h-9 flex w-full mb-4 mt-4 hover:opacity-60 cursor-pointer"
     >
-      <div style={{ width: "2px", backgroundColor: "#7AD040" }}></div>
+      <div className={`w-0.5 ${isSelected && "bg-biztech-green"}`} />
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          backgroundColor: "#1C253D",
-          padding: "8px",
-          flexGrow: 1,
-        }}
+        className={`flex items-center p-2 gap-2 grow ${
+          isSelected && "bg-events-active-tab-bg"
+        }`}
       >
-          <Image src={EditIcon} alt="BizTech Logo" width={20} height={20} style={{marginLeft: "8px"}}/>
-          <h6 style={{ color: "white" }}>Edit Events</h6>
+        <Image
+          src={EditIcon}
+          alt="BizTech Logo"
+          width={20}
+          height={20}
+          className="m-2"
+        />
+        <h6 className="text-white">Edit Events</h6>
       </div>
-    </div>
+    </Link>
   );
 };
 
