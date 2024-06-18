@@ -5,6 +5,7 @@ import { admin, defaultUser, logout } from "./Tabs";
 import HamburgerMenu from "../../../public/assets/icons/hamburger_menu.svg";
 import { isMobile } from "@/util/isMobile";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 const isAdmin = true; // TO DO: retrieve this data
 
@@ -16,21 +17,13 @@ export default function Navbar() {
     setIsMobileDevice(isMobile(userAgent));
   }, []);
 
-  useEffect(() => {
-    if (isOpen && isMobileDevice) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "visible";
-    }
-  }, [isOpen, isMobileDevice]);
-
   return (
     <>
       {isMobileDevice && (
-        <div className="p-4 fixed bg-events-navigation-bg w-full">
+        <div className="p-4 fixed bg-events-navigation-bg w-full top-0">
           <Image
             src={HamburgerMenu}
-            alt="BizTech Logo"
+            alt="Hamburger Menu Icon"
             width={20}
             height={20}
             onClick={() => setIsOpen(!isOpen)}
@@ -45,7 +38,12 @@ export default function Navbar() {
               : ""
           }`}
         >
-          <div className="pt-9 h-full w-[250px] bg-events-navigation-bg absolute flex flex-col justify-between p-6">
+          <motion.div
+            className="pt-9 h-full w-[250px] bg-events-navigation-bg absolute flex flex-col justify-between p-6 "
+            initial={isMobileDevice ? { x: "-100%" } : undefined}
+            animate={isMobileDevice ? { x: 0 } : undefined}
+            exit={isMobileDevice ? { x: "-100%" } : undefined}
+          >
             <div>
               <div className="items-center flex gap-2">
                 <Image
@@ -70,7 +68,7 @@ export default function Navbar() {
               ))}
             </div>
             <NavbarTab navbarItem={logout} />
-          </div>
+          </motion.div>
         </div>
       )}
     </>
