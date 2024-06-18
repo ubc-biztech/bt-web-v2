@@ -4,8 +4,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   return (
-    <main>
-      <h1>amazing biztech app</h1>
+    <main className="bg-primary-color min-h-screen">
+      {/* <h1>amazing biztech app</h1> */}
     </main>
   );
 }
