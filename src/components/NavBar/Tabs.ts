@@ -24,23 +24,25 @@ export const admin = [
     },
 ]
 
-export const defaultUser = [
-    {
+export const defaultUser = (isAdmin: boolean) => {
+    return [
+      {
         title: "Home",
         link: "/",
         icon: HomeIcon
-    },
-    {
+      },
+      {
         title: "Event Dashboard",
         link: "",
         icon: DashboardIcon
-    },
-    {
-        title: "Admin Profile",
+      },
+      {
+        title: `${isAdmin ? "Admin" : "User"} Profile`,
         link: "",
         icon: ProfileIcon
-    },
-]
+      },
+    ];
+  };
 
 export const logout = {
     title: "Logout",

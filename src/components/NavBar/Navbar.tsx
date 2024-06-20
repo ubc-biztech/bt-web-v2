@@ -41,10 +41,15 @@ export default function Navbar() {
           onClick={() => setIsOpen(!isOpen)}
         >
           <motion.div
-            className="pt-9 h-full w-[250px] bg-events-navigation-bg absolute flex flex-col justify-between p-6 "
+            className="pt-9 h-full w-[250px] bg-events-navigation-bg absolute flex flex-col justify-between p-6"
             initial={isMobileDevice ? { x: "-100%" } : undefined}
             animate={isMobileDevice ? { x: 0 } : undefined}
-            exit={isMobileDevice ? { x: "-100%" } : undefined}
+            transition={{
+              type: "tween",
+              ease: "easeInOut",
+              duration: 0.3,
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
             <div>
               <div className="items-center flex gap-2">
@@ -65,7 +70,7 @@ export default function Navbar() {
                   <div className="w-full h-px bg-navbar-tab-hover-bg mb-4 mt-4" />
                 </>
               )}
-              {defaultUser.map((navbarItem, index) => (
+              {defaultUser(isAdmin).map((navbarItem, index) => (
                 <NavbarTab key={index} navbarItem={navbarItem} />
               ))}
             </div>
