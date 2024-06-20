@@ -20,14 +20,15 @@ export default function Navbar() {
   return (
     <>
       {isMobileDevice && (
-        <div className="p-4 fixed bg-events-navigation-bg w-full top-0">
+        <div className="p-4 fixed bg-events-navigation-bg w-full top-0 justify-between flex">
           <Image
             src={HamburgerMenu}
             alt="Hamburger Menu Icon"
-            width={20}
-            height={20}
+            width={25}
+            height={25}
             onClick={() => setIsOpen(!isOpen)}
           />
+          <Image src={BiztechLogo} alt="Biztech Logo" width={30} height={30} />
         </div>
       )}
       {((isOpen && isMobileDevice) || !isMobileDevice) && (
@@ -37,6 +38,7 @@ export default function Navbar() {
               ? "fixed top-[52px] left-0 right-0 bottom-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"
               : ""
           }`}
+          onClick={() => setIsOpen(!isOpen)}
         >
           <motion.div
             className="pt-9 h-full w-[250px] bg-events-navigation-bg absolute flex flex-col justify-between p-6 "
