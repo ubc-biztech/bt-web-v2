@@ -1,7 +1,7 @@
 import BiztechLogo from "../../../public/assets/biztech_logo.svg";
 import Image from "next/image";
 import NavbarTab from "./NavbarTab";
-import { admin, defaultUser, logout } from "./Tabs";
+import { admin, defaultUser, logout } from "../../constants/tabs";
 import HamburgerMenu from "../../../public/assets/icons/hamburger_menu.svg";
 import { isMobile } from "@/util/isMobile";
 import { useState, useEffect } from "react";
