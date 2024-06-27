@@ -51,6 +51,9 @@ body {
   h5 {
     @apply font-poppins font-400 text-md text-black;
   }
+  h6 {
+    @apply font-poppins font-400 text-sm text-black;
+  }
   button {
     @apply font-poppins font-600 text-sm text-black;
   }
