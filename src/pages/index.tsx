@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Inter } from "next/font/google";
 import PieChart from '@/components/stats/PieChart';
 
@@ -16,14 +15,8 @@ const data = [
 
 export default function Home() {
   return (
-    <main className="bg-white">
-      <PieChart data={data} title="hello world" />
-      <div>
-        hello world
-      </div>
-      <h1>
-        amazing biztech app
-      </h1>
+    <main className="bg-primary-color min-h-screen">
+      {/* <h1>amazing biztech app</h1> */}
     </main>
   );
 }
