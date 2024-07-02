@@ -34,6 +34,8 @@ const config: Config = {
       'biztech-green': '#7AD040',
       'dark-navy': '#0C1221',
       'desat-navy': '#A2A7B3',
+      'dark-slate': "#324269",
+      'pale-blue': "#C4D5FF",
       'baby-blue': '#B2C9FC',
       'light-blue': '#E0E9FE',
       'white-blue': '#F7FAFF',
