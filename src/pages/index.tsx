@@ -1,5 +1,4 @@
 import { Inter } from "next/font/google";
-import PieChart from '@/components/stats/PieChart';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +15,7 @@ const data = [
 export default function Home() {
   return (
     <main className="bg-primary-color min-h-screen">
-      {/* <h1>amazing biztech app</h1> */}
+      <h1>amazing biztech app</h1>
     </main>
   );
 }
