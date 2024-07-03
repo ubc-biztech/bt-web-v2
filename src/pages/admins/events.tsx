@@ -1,7 +1,8 @@
 import EventCard from "@/components/EventCard/event-card"
+import MobileEventCard from "@/components/EventCard/mobile-event-card"
 import { useRouter } from 'next/router'
 import { useEffect, useState } from "react";
-import { GetServerSideProps } from 'next'
+import { isMobile } from "@/util/isMobile";
 
 import GridViewIcon from "../../../public/assets/icons/grid_view_icon.svg"
 import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg"
@@ -34,7 +35,13 @@ export default function AdminEventView({ initialData }: Props) {
     const router = useRouter() 
     const [isLoading, setLoading] = useState(!initialData)
     const [data, setData] = useState< BiztechEvent[] | null >(initialData);
+    // add a mobile state and change grid to block if mobile view
+    const [isMobileDevice, setIsMobileDevice] = useState(false);
 
+    useEffect(() => {
+        const userAgent = navigator.userAgent;
+        setIsMobileDevice(isMobile(userAgent));
+    }, []);
     // 
     useEffect(() => {
         if (!initialData && router.isReady) {
@@ -51,19 +58,26 @@ export default function AdminEventView({ initialData }: Props) {
 
     return (
         <main className="bg-primary-color min-h-screen">
-            <div className="container mx-auto pt-20 pl-15 pr-15 flex flex-col">
+            <div className="mx-auto pt-20 pl-20 pr-20 flex flex-col">
                 <span>
-                    <h2 className="text-white">Admin Event Portal</h2>
+                    {!isMobileDevice? (
+                        <h2 className="text-white">Admin Event Portal</h2>
+                    ) :
+                        <h3 className="text-white">Admin Event Portal</h3>
+                    }
                     <div className="flex items-center justify-between">
                         <p className="text-baby-blue font-poppins">Manage published Biztech events.</p>
-                        <div>
-                            <Button variant="ghost" className='bg-transparent'>
-                                <Image src={GridViewIcon} alt="Grid View Icon"/>
-                            </Button>
-                            <Button variant="ghost" className='bg-transparent'>
-                                <Image src={CompactViewIcon} alt="Compact View Icon"/>
-                            </Button>
-                        </div>
+                        {!isMobileDevice? ( 
+                            <div>
+                                <Button variant="ghost" className='bg-transparent'>
+                                    <Image src={GridViewIcon} alt="Grid View Icon"/>
+                                </Button>
+                                <Button variant="ghost" className='bg-transparent'>
+                                    <Image src={CompactViewIcon} alt="Compact View Icon"/>
+                                </Button>
+                            </div>
+                        ) : (<div></div>)
+                        }
                     </div>
                 </span>
                 {/*divider*/}
@@ -77,12 +91,17 @@ export default function AdminEventView({ initialData }: Props) {
                     <div className="flex justify-center items-center h-64">
                         <p className="text-white">Event not found</p>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-2 gap-6">
+                ) : (!isMobileDevice?
+                    <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data.map(event => (
                             <EventCard key={event.id} initialData={event} />
                         ))}
-                    </div>
+                    </div> :
+                    <div className="block md:grid md:grid-cols-2 md:gap-6">
+                    {data.map(event => (
+                        <MobileEventCard key={event.id} initialData={event} />
+                    ))}
+                </div>
                 )}
             </div>
         </main>
@@ -94,7 +113,7 @@ async function fetchEventData() {
     // TODO - fetch data from backend. This is just returning a Mock, likely won't be the final data struct format
 
     let data = []
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
         data.push({
             id: "existingEvent1",
             year: 2020,
@@ -102,7 +121,7 @@ async function fetchEventData() {
             createdAt: 1581227718674,
             description:	"I am a description",
             elocation: "UBC",   
-            ename: "amazing biztech event",   
+            ename: "cool event",   
             startDate: "2024-07-01T07:00:11.131Z",
             endDate:	"2024-07-01T21:00:11.131Z",
             imageUrl:	"https://i.picsum.photos/id/236/700/400.jpg",

@@ -45,16 +45,16 @@ export default function MobileEventCard({ initialData }: Props) {
 
 
     return (
-        <Card className="w-full border-none bg-events-card-bg">
+        <Card className="w-full h-[100px] border-none bg-events-card-bg flex p-2 mb-4 relative">
             <Image
                 src={placeHolderImage} 
                 alt="event-image"
-                className="w-1/2 h-9/10 rounded-lg"
+                className="w-2/5 h-9/10 rounded-lg"
                 />
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
-            <h5 className="text-white font-500">{initialData?.ename}</h5> 
-            <Button variant="ghost" className="text-white bg-transparent w-2 h-7">
+            <p className="p1 text-white font-500">{initialData?.ename}</p> 
+            <Button variant="ghost" className="text-white bg-transparent w-2 h-7 absolute top-6.5 right-3">
                 <MoreVertIcon/>
             </Button>
         </div>
