@@ -37,7 +37,8 @@ const PieChart: React.FC<PieChartProps> = ({
       alignment: 'center',
       textStyle: {
         color: 'white',
-        bold: false
+        bold: false,
+        fontName: 'Poppins'
       }
     },
     title,
@@ -45,18 +46,28 @@ const PieChart: React.FC<PieChartProps> = ({
       fontSize: '18rem',
       bold: true,
       alignment: 'left',
-      color: 'white'
+      color: 'white',
+      fontName: 'Poppins'
     },
-    tooltip: {textStyle: {color: 'black', bold: false}, showColorCode: true},
+    tooltip: {
+      textStyle: {
+        color: 'black', 
+        bold: false, 
+        fontName: 'Poppins'
+      }, 
+      showColorCode: true
+    },
     chartArea: {
       left: '10%',
       top: '20%',
       width: '80%',
       height: '70%',
     },
+    fontName: 'Poppins'
   };
+
   return (
-    <div className={`bg-login-form-card rounded-md`} style={{width: width + 'px'}}>
+    <div className={`bg-login-form-card rounded-md font-poppins`} style={{width: width + 'px'}}>
         <Chart  
           chartType="PieChart"
           data={chartData}
