@@ -37,7 +37,7 @@ type BiztechEvent = {
     updatedAt: number;
   };
 
-export default function EventCard({ initialData }: Props) {
+export default function MobileEventCard({ initialData }: Props) {
 
     // using regex functions to extract time and start date in a readable format
     const startTime = initialData? extractTime(initialData.startDate) : "Event not Found";
@@ -45,11 +45,11 @@ export default function EventCard({ initialData }: Props) {
 
 
     return (
-        <Card className="w-9/10 border-none bg-events-card-bg">
+        <Card className="w-full border-none bg-events-card-bg">
             <Image
                 src={placeHolderImage} 
                 alt="event-image"
-                className="w-full h-[250px] rounded-t-lg"
+                className="w-1/2 h-9/10 rounded-lg"
                 />
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
