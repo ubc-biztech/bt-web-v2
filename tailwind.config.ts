@@ -37,6 +37,7 @@ const config: Config = {
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
       'black': "#000000",
+      'placeholder': "#D9D9D9"
     },
     fontFamily: {
       sans: ['Open Sans', 'sans-serif'],
