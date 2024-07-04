@@ -73,7 +73,7 @@ const Login: React.FC = () => {
         console.error('Error signing in', error);
         setErrors({
           emailError: '',
-          passwordError: error.message,
+          passwordError: '',
           verificationCodeError: ''
         });
       }
