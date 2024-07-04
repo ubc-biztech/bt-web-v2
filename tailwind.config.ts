@@ -19,6 +19,11 @@ const config: Config = {
         'page-bg': '#11192E',
         'form-card': '#1C253D',
       },
+      // Navbar Page Colors
+      'navbar': {
+        'tab-hover-bg': "#324269",
+
+      },
       // Events Page Colors
       'events': {
         'navigation-bg': '#11192E',
@@ -37,6 +42,7 @@ const config: Config = {
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
       'black': "#000000",
+      'white': "#ffffff",
     },
     fontFamily: {
       sans: ['Open Sans', 'sans-serif'],
