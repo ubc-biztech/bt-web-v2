@@ -36,7 +36,7 @@ export default function Navbar() {
           className={`${
             isMobileDevice
               ? "fixed top-[52px] left-0 right-0 bottom-0 bg-black bg-opacity-50 backdrop-filter backdrop-blur-lg"
-              : ""
+              : "fixed top-0 left-0 bottom-0"
           }`}
           onClick={() => setIsOpen(!isOpen)}
         >
