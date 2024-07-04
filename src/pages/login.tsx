@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import { Amplify } from 'aws-amplify';
+import { signIn } from 'aws-amplify/auth';
+import outputs from '../../amplify_outputs.json';
+import { getCurrentUser } from 'aws-amplify/auth';
+
+Amplify.configure(outputs);
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -43,11 +49,34 @@ const Login: React.FC = () => {
     if (emailError || passwordError) {
       setErrors({ emailError, passwordError, verificationCodeError: '' });
     } else {
-      // TODO Logic to handle form submission
-      console.log('Attempting to sign in with:', {
-        username: email,
-        password
-      });
+      try {
+        const user = await signIn({
+          username: email,
+          password: password
+        });
+        console.log('Sign in successful:', user);
+        // Redirect or handle post-sign-in actions here
+
+        const { username, userId, signInDetails } = await getCurrentUser();
+        console.log('Current authenticated user:', username);
+        console.log(
+          'Current authenticated user:',
+
+          userId
+        );
+        console.log(
+          'Current authenticated user:',
+
+          signInDetails
+        );
+      } catch (error) {
+        console.error('Error signing in', error);
+        setErrors({
+          emailError: '',
+          passwordError: error.message,
+          verificationCodeError: ''
+        });
+      }
     }
     setIsLoading(false);
   };
