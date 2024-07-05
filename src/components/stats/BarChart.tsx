@@ -46,6 +46,7 @@ const BarChart: React.FC<BarChartProps> = ({
       showColorCode: true,
     },
     vAxis: {
+      baselineColor: "#C4D5FF",
       textStyle: {
         fontSize: "16rem",
         alignment: "left",
@@ -61,6 +62,7 @@ const BarChart: React.FC<BarChartProps> = ({
       },
     },
     hAxis: {
+      baselineColor: "#C4D5FF",
       textStyle: {
         fontSize: "16rem",
         alignment: "left",
