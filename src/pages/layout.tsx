@@ -10,10 +10,10 @@ export default function Layout({ children }: any) {
   }, []);
   return (
     <>
-      <Navbar />
       <main className={`${!isMobileDevice ? "ml-[250px]" : "mt-[52px]"}`}>
         {children}
       </main>
+      <Navbar />
     </>
   );
 }
