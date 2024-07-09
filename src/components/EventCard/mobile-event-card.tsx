@@ -1,14 +1,7 @@
 import React from "react";
-import { useEffect, useState } from "react";
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 // more-vert icon
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -19,7 +12,8 @@ import placeHolderImage from '../../assets/event-placeholder.jpeg';
 import Image from 'next/image';
 
 type Props = {
-    initialData: BiztechEvent | null
+    initialData: BiztechEvent | null,
+    clickEffect: (eventClicked?: string) => void;
 }
 
 // type definition for a BiztechEvent
@@ -35,10 +29,11 @@ type BiztechEvent = {
     endDate: string;
     imageUrl: string;
     updatedAt: number;
-  };
+};
 
-export default function MobileEventCard({ initialData }: Props) {
 
+
+export default function MobileEventCard({ initialData, clickEffect }: Props) {
     // using regex functions to extract time and start date in a readable format
     const startTime = initialData? extractTime(initialData.startDate) : "Event not Found";
     const dateTime = initialData? extractMonthDay(initialData.startDate): "Event not Found";
@@ -47,14 +42,14 @@ export default function MobileEventCard({ initialData }: Props) {
     return (
         <Card className="w-full h-[100px] border-none bg-events-card-bg flex p-2 mb-4 relative">
             <Image
-                src={placeHolderImage} 
+                src={placeHolderImage} // TODO: REPLACE WITH EVENT IMAGE WHEN FETCH DATA
                 alt="event-image"
                 className="w-2/5 h-9/10 rounded-lg"
                 />
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
             <p className="p1 text-white font-500">{initialData?.ename}</p> 
-            <Button variant="ghost" className="text-white bg-transparent w-2 h-7 absolute top-6.5 right-3">
+            <Button variant="ghost" className="text-white bg-transparent w-2 h-7 absolute top-6.5 right-3" onClick={() => clickEffect(initialData?.ename)}>
                 <MoreVertIcon/>
             </Button>
         </div>

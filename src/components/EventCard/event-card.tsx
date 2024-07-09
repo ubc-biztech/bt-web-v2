@@ -1,14 +1,9 @@
 import React from "react";
-import { useEffect, useState } from "react";
-import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
+import { useState } from "react";
+import PopupModal from './popup/edit-pop-up';
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 // more-vert icon
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -19,7 +14,9 @@ import placeHolderImage from '../../assets/event-placeholder.jpeg';
 import Image from 'next/image';
 
 type Props = {
-    initialData: BiztechEvent | null
+    initialData: BiztechEvent | null,
+    setIsDelete: React.Dispatch<React.SetStateAction<boolean>>,
+    clickEffect: (eventClicked?: string) => void;
 }
 
 // type definition for a BiztechEvent
@@ -35,10 +32,30 @@ type BiztechEvent = {
     endDate: string;
     imageUrl: string;
     updatedAt: number;
-  };
+};
 
-export default function EventCard({ initialData }: Props) {
+interface PopUpItem {
+   title: string;
+   link: string;
+}
 
+const popUpItems: PopUpItem[] = [
+    {
+     title: 'Edit Event',
+     link: 'javascript:void(0)',
+    },
+    {
+     title: 'View as Member',
+     link: 'javascript:void(0)',
+    },
+    {
+     title: 'Delete Event',
+     link: 'javascript:void(0)',
+    },
+];
+
+export default function EventCard({ initialData, setIsDelete, clickEffect }: Props) {
+    const [isModalOpen, setModal] = useState(false)
     // using regex functions to extract time and start date in a readable format
     const startTime = initialData? extractTime(initialData.startDate) : "Event not Found";
     const dateTime = initialData? extractMonthDay(initialData.startDate): "Event not Found";
@@ -54,8 +71,8 @@ export default function EventCard({ initialData }: Props) {
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
             <h5 className="text-white font-500">{initialData?.ename}</h5> 
-            <Button variant="ghost" className="text-white bg-transparent w-2 h-7">
-                <MoreVertIcon/>
+            <Button variant="ghost" className="text-white bg-transparent w-2 h-7" onClick={() => {clickEffect(initialData?.ename); setModal(!isModalOpen)}}>
+                {isModalOpen? <PopupModal popUpItems={popUpItems} setIsDelete={setIsDelete}/> : <MoreVertIcon/>}
             </Button>
         </div>
             <p className="p3 text-baby-blue mt-2 mb-2">{dateTime} {startTime}</p> 
