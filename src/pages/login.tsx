@@ -4,6 +4,7 @@ import { Amplify } from 'aws-amplify';
 import { signIn } from 'aws-amplify/auth';
 import outputs from '../../amplify_outputs.json';
 import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 Amplify.configure(outputs);
 
@@ -69,11 +70,17 @@ const Login: React.FC = () => {
 
           signInDetails
         );
+
+        //const session = await fetchAuthSession();
+
+        //console.log('id token', session.tokens.idToken);
+        //console.log('access token', session.tokens.accessToken);
+        //router.push('/dashboard');
       } catch (error) {
         console.error('Error signing in', error);
         setErrors({
           emailError: '',
-          passwordError: '',
+          passwordError: error.message,
           verificationCodeError: ''
         });
       }
