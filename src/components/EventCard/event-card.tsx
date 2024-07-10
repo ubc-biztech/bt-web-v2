@@ -83,7 +83,7 @@ export default function EventCard({ initialData, setIsDelete, clickEffect }: Pro
         return () => {
           document.removeEventListener('mousedown', handleClickOutside);
         };
-      }, [isModalOpen, ref]);
+      }, [ref]);
 
     return (
         <Card className="w-9/10 border-none bg-events-card-bg">
