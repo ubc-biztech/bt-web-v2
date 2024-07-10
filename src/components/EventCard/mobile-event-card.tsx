@@ -32,7 +32,11 @@ type BiztechEvent = {
 };
 
 
-
+// mobile event card display
+// initialData: contains the event passed in
+// clickEffect: the function which toggles the popUp to be rendered when the 'more' button is clicked
+// passes the event name to identify which event was clicked. 
+// Function is defined as 'clickEffect' in events.tsx
 export default function MobileEventCard({ initialData, clickEffect }: Props) {
     // using regex functions to extract time and start date in a readable format
     const startTime = initialData? extractTime(initialData.startDate) : "Event not Found";
@@ -59,6 +63,7 @@ export default function MobileEventCard({ initialData, clickEffect }: Props) {
     );
 };
 
+// Functions to extract a readable format of the event start times:
 function extractTime(dateTimeString: string): string {
     const date = new Date(dateTimeString); // Create date object from ISO 8601 string
     const hours = date.getUTCHours(); // Get hours in UTC

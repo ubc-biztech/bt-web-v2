@@ -6,6 +6,9 @@ interface Props {
     bizEvent: string
 }
 
+// The Popup that displays when the 'Delete Event' button is clicked
+// setIsDelete: is the state modifier passed in so that when the 'x' button is clicked
+// bizEvent: the name of the event which was clicked (string)
 const DeletePopup: React.FC<Props> = ({ setIsDelete, bizEvent}) => {
 
     return (
@@ -17,6 +20,7 @@ const DeletePopup: React.FC<Props> = ({ setIsDelete, bizEvent}) => {
             <h5 className='text-white my-3'>[ {bizEvent} ]</h5>
             <p className='p3 underline text-white'>This action cannot be undone</p>
             <button className="my-4" onClick={() => void (0)}>
+                {/* the import of the svg wasn't working for some reason so I just used the svg of the button * can change later if needed * */}
                 <svg width="256" height="40" viewBox="0 0 256 46" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect width="256" height="46" rx="10" fill="#FF8282" />
                     <path d="M38.4213 16.125H33.5776C33.4829 15.7555 33.474 15.3692 33.5514 14.9957C33.6288 14.6222 33.7905 14.2713 34.0242 13.9698C34.2579 13.6683 34.5574 13.4242 34.8999 13.2561C35.2423 13.0881 35.6186 13.0004 36.0001 13C36.3814 13.0006 36.7576 13.0884 37.0999 13.2565C37.4421 13.4247 37.7415 13.6688 37.9751 13.9703C38.2086 14.2717 38.3702 14.6226 38.4476 14.996C38.5249 15.3694 38.5159 15.7556 38.4213 16.125Z" fill="#324269" />

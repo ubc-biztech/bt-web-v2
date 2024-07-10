@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import PopupModal from './popup/edit-pop-up';
 import {
@@ -54,12 +54,36 @@ const popUpItems: PopUpItem[] = [
     },
 ];
 
+// desktop event-card display 
+// initialData: the event to be displayed on the card
+// setIsDelete: the state modifier for isDelete
+// clickEffect: the function which toggles the popUp to be rendered when the 'more' button is clicked
+// passes the event name to identify which event was clicked. 
 export default function EventCard({ initialData, setIsDelete, clickEffect }: Props) {
+    // state which toggles whether the popUp for this specific event should be rendered
+    // couldn't use the same state as mobile, because that opened the popup modal for every event 
+    // instead of the specific one which was clicked.
     const [isModalOpen, setModal] = useState(false)
     // using regex functions to extract time and start date in a readable format
     const startTime = initialData? extractTime(initialData.startDate) : "Event not Found";
     const dateTime = initialData? extractMonthDay(initialData.startDate): "Event not Found";
+    const ref = useRef<HTMLDivElement>(null);
 
+    // function to detect a click off
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (!isModalOpen && ref.current && !ref.current.contains(event.target as Node)) {
+                setModal(false);
+            }
+        }
+    
+        // Bind the event listener
+        document.addEventListener('mousedown', handleClickOutside);
+    
+        return () => {
+          document.removeEventListener('mousedown', handleClickOutside);
+        };
+      }, [isModalOpen, ref]);
 
     return (
         <Card className="w-9/10 border-none bg-events-card-bg">
@@ -70,9 +94,9 @@ export default function EventCard({ initialData, setIsDelete, clickEffect }: Pro
                 />
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
-            <h5 className="text-white font-500">{initialData?.ename}</h5> 
-            <Button variant="ghost" className="text-white bg-transparent w-2 h-7" onClick={() => {clickEffect(initialData?.ename); setModal(!isModalOpen)}}>
-                {isModalOpen? <PopupModal popUpItems={popUpItems} setIsDelete={setIsDelete}/> : <MoreVertIcon/>}
+            <h5 className="text-white font-500">{initialData?.ename}</h5>  
+            <Button variant="ghost" className="text-white bg-transparent w-2 h-7" onClick={() => {clickEffect(initialData?.ename); setModal(!isModalOpen)}} >
+                {isModalOpen? <PopupModal popUpItems={popUpItems} setIsDelete={setIsDelete} ref={ref} /> : <MoreVertIcon/>}
             </Button>
         </div>
             <p className="p3 text-baby-blue mt-2 mb-2">{dateTime} {startTime}</p> 

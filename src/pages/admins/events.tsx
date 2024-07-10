@@ -1,7 +1,7 @@
 import EventCard from "@/components/EventCard/event-card"
 import MobileEventCard from "@/components/EventCard/mobile-event-card"
 import { useRouter } from 'next/router'
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { isMobile } from "@/util/isMobile";
 import MobilePopup from "@/components/EventCard/popup/mobile-edit-popup";
 
@@ -32,6 +32,7 @@ type BiztechEvent = {
 
 export default function AdminEventView({ initialData }: Props) {
     const router = useRouter()
+    // state for if data is still loading or not
     const [isLoading, setLoading] = useState(!initialData)
     // data represents the BiztechEvent list
     const [data, setData] = useState<BiztechEvent[] | null>(initialData);
@@ -45,12 +46,11 @@ export default function AdminEventView({ initialData }: Props) {
     const [bizEvent, setBizEvent] = useState("Event Name")
 
 
-    // toggle the view when the 'more' icon is clicked (mobile only)
+    // toggle the view when the 'more' icon is clicked 
     const clickEffect = (eventClicked?: string) => {
         if (eventClicked)
             setBizEvent(eventClicked) // allows us to grab the specific event which was clicked
         setIsClicked(!isClicked);
-        //setIsDelete(false) // sets to false so when you click off it closes
     };
 
     // function to manage mobile device state
@@ -117,6 +117,7 @@ export default function AdminEventView({ initialData }: Props) {
                     </div>
                 )}
                 {/* 'edit event' pop up */}
+                {/* MobilePopup contains the delete popup which is used for both desktop and mobile * see file for more info * */}
                 <div className={(isClicked && (isMobileDevice || isDelete)) ? "fixed inset-0 flex items-center justify-center z-50 bg-events-navigation-bg bg-opacity-50 blur-background" : ""}>
                     <MobilePopup isClicked={isClicked} isMobile={isMobileDevice} isDelete={isDelete} setIsDelete={setIsDelete} bizEvent={bizEvent} />
                 </div>
