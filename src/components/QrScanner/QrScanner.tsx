@@ -4,7 +4,7 @@ import QrReader from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
 
 interface QrProps {
-  event: { id: string; year: string };
+  event: { id: string; year: number };
   rows?: { id: string; [x: string | number | symbol]: unknown }[];
 }
 
@@ -36,7 +36,7 @@ const CAMERA_FACING_MODE = {
   BACK: "environment",
 };
 
-const QrCheckIn: React.FC<QrProps> = (props) => {
+const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
   // const classes = useStyles(); this needs to be rewritten
   const [visible, setVisible] = useState(false);
   const defaultQrCode = {
@@ -76,7 +76,7 @@ const QrCheckIn: React.FC<QrProps> = (props) => {
   };
 
   // DONT NEED THIS IN NEW DEPENDENCY
-  const cycleQrScanStage = (stage, ms) => {
+  const cycleQrScanStage = (stage: string, ms: number) => {
     setQrScanStage(stage);
     setTimeout(() => {
       setQrScanStage(QR_SCAN_STAGE.SCANNING);
@@ -89,10 +89,10 @@ const QrCheckIn: React.FC<QrProps> = (props) => {
 
   // checks if the QR code is valid whenever the QR code is changed
   useEffect(() => {
-    const checkInUser = (id, fname) => {
+    const checkInUser = (id: string, fname: string) => {
       const body = {
-        eventID: props.event.id,
-        year: props.event.year,
+        eventID: event.id,
+        year: event.year,
         registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
       };
 
@@ -124,7 +124,7 @@ const QrCheckIn: React.FC<QrProps> = (props) => {
     const userFName = id[3];
 
     // validate event ID and year as the current event
-    if (eventIDAndYear !== props.event.id + ";" + props.event.year) {
+    if (eventIDAndYear !== event.id + ";" + event.year) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
 
       // if there are not 4 and first item is not an email, then the QR code is invalid
@@ -136,7 +136,7 @@ const QrCheckIn: React.FC<QrProps> = (props) => {
       return;
     }
 
-    const user = props.rows?.filter((row) => row.id === userID)[0];
+    const user = rows?.filter((row) => row.id === userID)[0];
 
     if (!user) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
