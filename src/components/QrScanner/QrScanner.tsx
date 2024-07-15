@@ -1,11 +1,19 @@
 import React from "react";
+import NoCamera from "assets/no_camera.png";
 import { useEffect, useState } from "react";
-import QrReader from "react-qr-reader";
+import { QrReader } from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
+import { Result } from "@zxing/library";
+import { isMobile } from "@/util/isMobile";
 
 interface QrProps {
-  event: { id: string; year: number };
-  rows?: { id: string; [x: string | number | symbol]: unknown }[];
+  event: { id: string; year: string };
+  rows?: {
+    id: string;
+    firstname: string;
+    lastname: string;
+    [x: string | number | symbol]: unknown;
+  }[];
 }
 
 // paperRoot: {
@@ -47,8 +55,45 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
   const [cameraFacingMode, setCameraFacingMode] = useState(
     CAMERA_FACING_MODE.BACK
   );
-  const [checkInName, setCheckInName] = useState("");
+  const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    setIsMobileDevice(isMobile(userAgent));
+  }, []);
+
+  const scanStateClassName = (scanStage: string) => {
+    switch (scanStage) {
+      case QR_SCAN_STAGE.SUCCESS:
+        return "bg-secondary-color";
+
+      case QR_SCAN_STAGE.SCANNING:
+        return "bg-secondary-color";
+
+      case QR_SCAN_STAGE.FAILED:
+        return "bg-red-300";
+
+      default:
+        return "bg-secondary-color";
+    }
+  };
+
+  const scanStateText = (scanStage: string) => {
+    switch (scanStage) {
+      case QR_SCAN_STAGE.SUCCESS:
+        return "Scan successful!";
+
+      case QR_SCAN_STAGE.SCANNING:
+        return "Ready to scan!";
+
+      case QR_SCAN_STAGE.FAILED:
+        return "Scan failed";
+
+      default:
+        return "Ready to scan!";
+    }
+  };
 
   const flipCamera = () => {
     if (cameraFacingMode === CAMERA_FACING_MODE.FRONT) {
@@ -58,24 +103,33 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
     }
   };
   const [qrCodeText, setQrCodeText] = useState<string>("");
-  const handleScanQR = (data: { text: string }) => {
+  const handleScanQR = (
+    result: Result | null | undefined,
+    error: Error | null | undefined
+  ) => {
     // conditional check may be necessary to prevent re-scans of the same QR code, but this implementation is unintuitive
     // when wanting to re-scan (requires a manual reset)
     // if (data.data !== qrCode.data) setQrCode(data);
-    if (data) {
-      console.log("Scanned QR Code Data: ", data);
-      if ("text" in data) {
-        console.log("Scanned QR Code Text: ", data.text);
-        setQrCodeText(data.text); // Update qrCodeText state
+
+    if (!!result) {
+      console.log("Scanned QR Code Data: ", result);
+      if ("text" in result) {
+        console.log("Scanned QR Code Text: ", result.getText());
+        setQrCodeText(result.getText()); // Update qrCodeText state
       } else {
         console.log("Scanned QR Code does not contain text property");
       }
     } else {
       console.log("No QR Code Scanned Data");
     }
+
+    if (!!error) {
+      console.error(error);
+    }
   };
 
-  // DONT NEED THIS IN NEW DEPENDENCY
+  // puts the QR code scanner in a scanning state after a grace period, like tapping your Compass Card
+  // stage is type QR_SCAN_STAGE
   const cycleQrScanStage = (stage: string, ms: number) => {
     setQrScanStage(stage);
     setTimeout(() => {
@@ -97,7 +151,8 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
       };
 
       // update the registration status of the user to checked in
-      fetchBackend(`/registrations/${id}/${fname}`, "PUT", body);
+      // fetchBackend(`/registrations/${id}/${fname}`, "PUT", body);
+      // TODO: connect backend
 
       setQrCode(defaultQrCode);
 
@@ -143,19 +198,6 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
       setError("Person is not registered for this event.");
       return;
     }
-    // fetchBackend(
-    //   `/events/${props.event.id}/${props.event.year.toString()}?${params}`,
-    //   "GET"
-    // )
-    //   .then((users) => {
-    //     // filter the users to get the one with the same id
-    //     const user = users.filter((user) => user.id === userID)[0];
-
-    //     if (!user) {
-    //       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
-    //       setError("Person is not registered for this event.");
-    //       return;
-    //     }
 
     // get the person's name
     setCheckInName(
@@ -184,79 +226,55 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
   }, [qrCodeText]);
 
   return (
-    <Paper className={classes.qrRoot}>
-      {/* Toggle QR Scanner */}
-      <div style={styles.toggleContainer}>
-        <Link
-          onClick={() => setVisible(!visible)}
-          style={styles.toggleQrScanner}
-        >
-          <img src={QRIcon} alt="QR Icon" style={styles.qrIcon} />
-          Toggle QR Scanner for Check-In
-        </Link>
-      </div>
-
-      {visible && (
-        <div className={classes.qrOutput}>
-          <Alert
-            variant="filled"
-            severity={
-              qrScanStage === QR_SCAN_STAGE.SUCCESS
-                ? "success"
-                : qrScanStage === QR_SCAN_STAGE.SCANNING
-                ? "info"
-                : "error"
-            }
-          >
-            {qrScanStage === QR_SCAN_STAGE.SUCCESS
-              ? `Checked-in successfully for ${checkInName}! Your attendance table will be updated shortly.`
-              : qrScanStage === QR_SCAN_STAGE.SCANNING
-              ? "Ready to scan a QR code to check-in. 😎"
-              : `🚨 ERROR: ${error}`}
-          </Alert>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+    <>
+      <div
+        className={`flex ${
+          isMobileDevice
+            ? "flex-col space-y-4 items-center"
+            : "flex-row space-x-4 justify-center"
+        } p-3`}
+      >
+        <div className="w-[300px] h-[300px] bg-contain bg-[url('../assets/no_camera.png')]">
+          <QrReader
+            onResult={handleScanQR}
+            className="object-cover w-[300px] h-[300px] flex justify-center items-center rounded-[10px]"
+            constraints={{
+              facingMode: cameraFacingMode,
             }}
-          >
-            <QrReader
-              containerStyle={styles.qrCodeVideo}
-              onResult={handleScanQR}
-              constraints={{
-                facingMode: cameraFacingMode,
-              }}
-              scanDelay={250}
-            />
-          </div>
+            videoStyle={{ objectFit: "cover" }}
+            scanDelay={250}
+          />
+        </div>
 
-          <div>
-            {/* Manually reset scanner */}
-            <Link
+        <div className="grow flex flex-col space-y-4">
+          <div
+            className={`${scanStateClassName(qrScanStage)} p-3 rounded-[10px]`}
+          >
+            <p className="font-600">{scanStateText(qrScanStage)}</p>
+          </div>
+          <div className="p-3 px-5 bg-navbar-tab-hover-bg rounded-[10px]">
+            <h2 className="text-white pb-3">QR Code Check-in</h2>
+            <p className="pb-3">Last Scanned: {checkInName}</p>
+            <p
+              className="text-secondary-color underline pb-2"
               onClick={() => {
                 setQrCode(defaultQrCode);
                 setQrScanStage(QR_SCAN_STAGE.SCANNING);
               }}
             >
-              Manually Reset Scanner
-            </Link>
-
-            <Link> | </Link>
-
-            {/* Flip camera */}
-            <Link onClick={() => flipCamera()}>Switch Camera</Link>
-          </div>
-
-          <div>
-            {/* Last person who was scanned */}
-            <Typography variant="body2">
-              Last scanned: {checkInName || "None"}
-            </Typography>
+              Reset Scanner
+            </p>
+            <p
+              className="text-secondary-color underline pb-2"
+              onClick={() => flipCamera()}
+            >
+              Flip Camera Horizontally
+            </p>
           </div>
         </div>
-      )}
-    </Paper>
+      </div>
+    </>
   );
 };
+
+export default QrCheckIn;
