@@ -1,10 +1,14 @@
-import React from "react";
-import NoCamera from "assets/no_camera.png";
+import React, { Dispatch, SetStateAction } from "react";
 import { useEffect, useState } from "react";
+import { CirclePlayIcon } from "lucide-react";
+import { CircleAlert } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import { ChevronsUp } from "lucide-react";
 import { QrReader } from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
 import { Result } from "@zxing/library";
 import { isMobile } from "@/util/isMobile";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface QrProps {
   event: { id: string; year: string };
@@ -14,22 +18,9 @@ interface QrProps {
     lastname: string;
     [x: string | number | symbol]: unknown;
   }[];
+  visible: boolean;
+  setVisible: Dispatch<SetStateAction<boolean>>;
 }
-
-// paperRoot: {
-//     borderRadius: "4px",
-//     marginBottom: "5px",
-//     overflowX: "auto"
-//   },
-//   qrRoot: {
-//     borderRadius: "4px",
-//     padding: "10px"
-//   },
-//   qrOutput: {
-//     marginTop: "10px",
-//     marginBottom: "10px",
-//     textAlign: "center"
-//   }
 
 // an enumeration for the stages of QR code scanning
 const QR_SCAN_STAGE = {
@@ -44,17 +35,17 @@ const CAMERA_FACING_MODE = {
   BACK: "environment",
 };
 
-const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
-  // const classes = useStyles(); this needs to be rewritten
-  const [visible, setVisible] = useState(false);
+const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
   const defaultQrCode = {
     data: "",
   };
   const [qrCode, setQrCode] = useState(defaultQrCode);
+  const [qrCodeText, setQrCodeText] = useState<string>("");
   const [qrScanStage, setQrScanStage] = useState(QR_SCAN_STAGE.SCANNING);
   const [cameraFacingMode, setCameraFacingMode] = useState(
     CAMERA_FACING_MODE.BACK
   );
+
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
   const [isMobileDevice, setIsMobileDevice] = useState(false);
@@ -72,15 +63,15 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
         return "bg-secondary-color";
 
       case QR_SCAN_STAGE.FAILED:
-        return "bg-red-300";
+        return "bg-[#cc0000]";
 
       default:
         return "bg-secondary-color";
     }
   };
 
-  const scanStateText = (scanStage: string) => {
-    switch (scanStage) {
+  const scanStateText = () => {
+    switch (qrScanStage) {
       case QR_SCAN_STAGE.SUCCESS:
         return "Scan successful!";
 
@@ -88,10 +79,26 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
         return "Ready to scan!";
 
       case QR_SCAN_STAGE.FAILED:
-        return "Scan failed";
+        return `Error: ${error}`;
 
       default:
         return "Ready to scan!";
+    }
+  };
+
+  const scanStateIcon = () => {
+    switch (qrScanStage) {
+      case QR_SCAN_STAGE.SUCCESS:
+        return <CirclePlayIcon width={40} height={40} />;
+
+      case QR_SCAN_STAGE.SCANNING:
+        return <CheckCircle2 width={40} height={40} />;
+
+      case QR_SCAN_STAGE.FAILED:
+        return <CircleAlert width={40} height={40} />;
+
+      default:
+        return <CheckCircle2 width={40} height={40} />;
     }
   };
 
@@ -102,7 +109,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
       setCameraFacingMode(CAMERA_FACING_MODE.FRONT);
     }
   };
-  const [qrCodeText, setQrCodeText] = useState<string>("");
+
   const handleScanQR = (
     result: Result | null | undefined,
     error: Error | null | undefined
@@ -158,9 +165,6 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
 
       // wait 10 seconds, then reset the scan stage
       cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
-
-      // refresh the entire table to reflect change
-      // props.refresh();
     };
 
     if (
@@ -227,51 +231,94 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows }) => {
 
   return (
     <>
-      <div
-        className={`flex ${
-          isMobileDevice
-            ? "flex-col space-y-4 items-center"
-            : "flex-row space-x-4 justify-center"
-        } p-3`}
-      >
-        <div className="w-[300px] h-[300px] bg-contain bg-[url('../assets/no_camera.png')]">
-          <QrReader
-            onResult={handleScanQR}
-            className="object-cover w-[300px] h-[300px] flex justify-center items-center rounded-[10px]"
-            constraints={{
-              facingMode: cameraFacingMode,
-            }}
-            videoStyle={{ objectFit: "cover" }}
-            scanDelay={250}
-          />
-        </div>
-
-        <div className="grow flex flex-col space-y-4">
-          <div
-            className={`${scanStateClassName(qrScanStage)} p-3 rounded-[10px]`}
-          >
-            <p className="font-600">{scanStateText(qrScanStage)}</p>
-          </div>
-          <div className="p-3 px-5 bg-navbar-tab-hover-bg rounded-[10px]">
-            <h2 className="text-white pb-3">QR Code Check-in</h2>
-            <p className="pb-3">Last Scanned: {checkInName}</p>
-            <p
-              className="text-secondary-color underline pb-2"
-              onClick={() => {
-                setQrCode(defaultQrCode);
-                setQrScanStage(QR_SCAN_STAGE.SCANNING);
+      <div className={`${isMobileDevice ? "" : "overflow-hidden"}`}>
+        <AnimatePresence mode="wait">
+          {visible && (
+            <motion.div
+              className={`flex ${
+                isMobileDevice
+                  ? "flex-col space-y-4 items-center"
+                  : "flex-row space-x-4 justify-center"
+              } p-3`}
+              initial={{ y: -100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -100, opacity: 0 }}
+              transition={{
+                type: "tween",
+                ease: "easeInOut",
+                duration: 0.3,
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              Reset Scanner
-            </p>
-            <p
-              className="text-secondary-color underline pb-2"
-              onClick={() => flipCamera()}
-            >
-              Flip Camera Horizontally
-            </p>
-          </div>
-        </div>
+              {isMobileDevice && (
+                <div
+                  className={`${scanStateClassName(
+                    qrScanStage
+                  )} w-[450px] font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
+                >
+                  {scanStateIcon()}
+                  <p className="font-600">{scanStateText()}</p>
+                </div>
+              )}
+
+              <div className="w-[450px] h-[450px] bg-contain bg-[url('../assets/no_camera.png')]">
+                <QrReader
+                  onResult={handleScanQR}
+                  className="object-cover w-[450px] h-[450px] flex justify-center items-center"
+                  constraints={{
+                    facingMode: cameraFacingMode,
+                  }}
+                  videoStyle={{ objectFit: "cover", borderRadius: "10px" }}
+                  scanDelay={250}
+                />
+              </div>
+
+              <div className="grow h-[450px] w-[450px] flex flex-col space-y-4">
+                {!isMobileDevice && (
+                  <div
+                    className={`${scanStateClassName(
+                      qrScanStage
+                    )} font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
+                  >
+                    {scanStateIcon()}
+                    <p className="font-600">{scanStateText()}</p>
+                  </div>
+                )}
+                <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
+                  <h2 className="text-white pb-2">QR Code Check-in</h2>
+                  <p className="pb-3">Last Scanned: {checkInName}</p>
+                  <p
+                    className="text-secondary-color underline pb-3"
+                    onClick={() => {
+                      setQrCode(defaultQrCode);
+                      setQrScanStage(QR_SCAN_STAGE.SCANNING);
+                    }}
+                  >
+                    Reset Scanner
+                  </p>
+                  <p
+                    className="text-secondary-color underline pb-3"
+                    onClick={() => flipCamera()}
+                  >
+                    Flip Camera Horizontally
+                  </p>
+                </div>
+                <div className="grow flex flex-row content-end justify-center items-end pb-3 space-x-2">
+                  <ChevronsUp width={20} height={20} />
+                  <div
+                    className="text-center underline"
+                    onClick={() => {
+                      setVisible(false);
+                    }}
+                  >
+                    Collapse Qr Scanner
+                  </div>
+                  <ChevronsUp width={20} height={20} />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );
