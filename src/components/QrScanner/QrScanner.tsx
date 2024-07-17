@@ -18,7 +18,7 @@ interface QrProps {
     lastname: string;
     [x: string | number | symbol]: unknown;
   }[];
-  visible: boolean;
+  visible: boolean; // requires useState from parent so the QR can be toggled from a button elsewhere in the parent
   setVisible: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -45,14 +45,77 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
   const [cameraFacingMode, setCameraFacingMode] = useState(
     CAMERA_FACING_MODE.BACK
   );
-
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
   }, []);
+
+  // checks if the QR code is valid whenever the QR code is changed
+  useEffect(() => {
+    if (
+      !qrCode ||
+      qrCodeText === "" ||
+      typeof qrCodeText !== "string" ||
+      qrScanStage !== QR_SCAN_STAGE.SCANNING
+    )
+      return;
+
+    // data is arranged: email;event_id;year
+    // id is the array of the data split by ";"
+    const id = qrCodeText.split(";");
+    const userID = id[0];
+    const eventIDAndYear = id[1] + ";" + id[2];
+    const userFName = id[3];
+
+    // validate event ID and year as the current event
+    if (eventIDAndYear !== event.id + ";" + event.year) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
+
+      // if there are not 4 and first item is not an email, then the QR code is invalid
+      if (id.length !== 4 && !emailCheck(userID)) {
+        setError("Invalid BizTech QR code.");
+      } else {
+        setError("Please check that your QR code is for this event.");
+      }
+      return;
+    }
+
+    const user = rows?.filter((row) => row.id === userID)[0];
+
+    if (!user) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
+      setError("Person is not registered for this event.");
+      return;
+    }
+
+    // get the person's name
+    setCheckInName(
+      `${user.firstName ? user.firstName : user.fname} ${
+        user.lastName ? user.lastName : user.lname
+      } (${userID})`
+    );
+
+    // If the user is already checked in, show an error
+    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person is already checked in.");
+      return;
+    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person had their registration cancelled. Cannot check-in.");
+      return;
+    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person is on the waitlist. Cannot check-in.");
+      return;
+    }
+
+    checkInUser(userID, userFName);
+  }, [qrCodeText]);
 
   const scanStateClassName = (scanStage: string) => {
     switch (scanStage) {
@@ -122,7 +185,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
       console.log("Scanned QR Code Data: ", result);
       if ("text" in result) {
         console.log("Scanned QR Code Text: ", result.getText());
-        setQrCodeText(result.getText()); // Update qrCodeText state
+        setQrCodeText(result.getText());
       } else {
         console.log("Scanned QR Code does not contain text property");
       }
@@ -148,86 +211,22 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
     return /(.+)@(.+){2,}\.(.+){2,}/.test(email);
   };
 
-  // checks if the QR code is valid whenever the QR code is changed
-  useEffect(() => {
-    const checkInUser = (id: string, fname: string) => {
-      const body = {
-        eventID: event.id,
-        year: event.year,
-        registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
-      };
-
-      // update the registration status of the user to checked in
-      // fetchBackend(`/registrations/${id}/${fname}`, "PUT", body);
-      // TODO: connect backend
-
-      setQrCode(defaultQrCode);
-
-      // wait 10 seconds, then reset the scan stage
-      cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
+  const checkInUser = (id: string, fname: string) => {
+    const body = {
+      eventID: event.id,
+      year: event.year,
+      registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
     };
 
-    if (
-      !qrCode ||
-      qrCodeText === "" ||
-      typeof qrCodeText !== "string" ||
-      qrScanStage !== QR_SCAN_STAGE.SCANNING
-    )
-      return;
+    // update the registration status of the user to checked in
+    // fetchBackend(`/registrations/${id}/${fname}`, "PUT", body);
+    // TODO: connect backend
 
-    // data is arranged: email;event_id;year
-    // id is the array of the data split by ";"
-    const id = qrCodeText.split(";");
-    const userID = id[0];
-    const eventIDAndYear = id[1] + ";" + id[2];
-    const userFName = id[3];
+    setQrCode(defaultQrCode);
 
-    // validate event ID and year as the current event
-    if (eventIDAndYear !== event.id + ";" + event.year) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
-
-      // if there are not 4 and first item is not an email, then the QR code is invalid
-      if (id.length !== 4 && !emailCheck(userID)) {
-        setError("Invalid BizTech QR code.");
-      } else {
-        setError("Please check that your QR code is for this event.");
-      }
-      return;
-    }
-
-    const user = rows?.filter((row) => row.id === userID)[0];
-
-    if (!user) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
-      setError("Person is not registered for this event.");
-      return;
-    }
-
-    // get the person's name
-    setCheckInName(
-      `${user.firstName ? user.firstName : user.fname} ${
-        user.lastName ? user.lastName : user.lname
-      } (${userID})`
-    );
-
-    // If the user is already checked in, show an error
-    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person is already checked in.");
-      return;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person had their registration cancelled. Cannot check-in.");
-      return;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person is on the waitlist. Cannot check-in.");
-      return;
-    }
-    checkInUser(userID, userFName);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [qrCodeText]);
+    // wait 10 seconds, then reset the scan stage
+    cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
+  };
 
   return (
     <>
