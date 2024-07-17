@@ -58,6 +58,8 @@ const Login: React.FC = () => {
         // Redirect or handle post-sign-in actions here
 
         const { username, userId, signInDetails } = await getCurrentUser();
+
+        // Logging for current auth user
         console.log('Current authenticated user:', username);
         console.log(
           'Current authenticated user:',
@@ -83,7 +85,7 @@ const Login: React.FC = () => {
 
   return (
     <div className='flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg'>
-      <div className='mt-4 sm:mx-auto sm:w-full sm:max-w-[480px] bg-login-form-card rounded-lg'>
+      <div className='mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-login-form-card rounded-lg'>
         <div className='bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12'>
           <div className='sm:mx-auto sm:w-full sm:max-w-md'>
             <img
