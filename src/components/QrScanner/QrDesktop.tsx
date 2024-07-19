@@ -166,10 +166,7 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
     }
   };
 
-  const handleScanQR = (
-    result: Result | null | undefined,
-    error: Error | null | undefined
-  ) => {
+  const handleScanQR = (result: Result | null | undefined) => {
     // conditional check may be necessary to prevent re-scans of the same QR code, but this implementation is unintuitive
     // when wanting to re-scan (requires a manual reset)
     // if (data.data !== qrCode.data) setQrCode(data);
@@ -184,10 +181,6 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
       }
     } else {
       console.log("No QR Code Scanned Data");
-    }
-
-    if (!!error) {
-      console.error(error);
     }
   };
 
