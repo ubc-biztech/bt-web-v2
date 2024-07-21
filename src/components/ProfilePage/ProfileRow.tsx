@@ -8,23 +8,13 @@ export const ProfileField = ({
   className?: string;
 }) => {
   return (
-    <div className={`w-1/2 text-white ${className}`}>
-      <h6 style={{ color: "#B2C9FC", fontSize: "16px" }}>{field}</h6>
-      <p style={{ fontSize: "14px" }}>{value}</p>
+    <div className={`w-1/2 font-poppins ${className}`}>
+      <h6 className="text-baby-blue text-sm">{field}</h6>
+      <p className="text-white text-xs">{value}</p>
     </div>
   );
 };
 
 export const ProfileRow = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div
-      style={{
-        display: "flex",
-        marginTop: "12px",
-        marginBottom: "12px",
-      }}
-    >
-      {children}
-    </div>
-  );
+  return <div className="flex my-3">{children}</div>;
 };

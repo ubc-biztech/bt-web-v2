@@ -40,6 +40,12 @@ const config: Config = {
       'events': {
         'navigation-bg': '#11192E',
         'active-tab-bg': '#1C253D',
+        'card-bg': '#263354',
+      },
+      // Profile Page Colors
+      'profile': {
+        'card-bg': "#1E2B4D",
+        'separator-bg': "#394971"
       },
       // Selected Color Palette
       'biztech-navy': '#162039',

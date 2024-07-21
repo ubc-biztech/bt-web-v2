@@ -17,11 +17,8 @@ const TextIcon: React.FC<TextIconProps> = ({
 }) => {
   return (
     <div
-      className={`${className}`}
+      className={`flex items-center gap-3 ${className}`}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "12px",
         flexDirection: iconAtEnd ? "row" : "row-reverse",
         justifyContent: "start",
       }}
