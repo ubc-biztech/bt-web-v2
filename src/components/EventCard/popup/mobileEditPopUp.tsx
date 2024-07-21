@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import PopupButton from './popup-button';
+import PopupButton from './popupButton';
 import { motion } from "framer-motion";
-import DeletePopup from './delete-pop-up';
-import PopupModal from './edit-pop-up';
+import DeletePopup from './deletePopUp';
+import PopupModal from './editPopUp';
 
 type Props = {
     isClicked: boolean,

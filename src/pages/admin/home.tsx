@@ -1,9 +1,9 @@
-import EventCard from "@/components/EventCard/event-card"
-import MobileEventCard from "@/components/EventCard/mobile-event-card"
+import EventCard from "@/components/EventCard/eventCard"
+import MobileEventCard from "@/components/EventCard/mobileEventCard"
 import { useRouter } from 'next/router'
 import { useEffect, useState } from "react";
 import { isMobile } from "@/util/isMobile";
-import MobilePopup from "@/components/EventCard/popup/mobile-edit-popup";
+import MobilePopup from "@/components/EventCard/popup/mobileEditPopUp";
 
 import GridViewIcon from "../../../public/assets/icons/grid_view_icon.svg"
 import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg"

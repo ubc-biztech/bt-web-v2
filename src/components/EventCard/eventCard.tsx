@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
-import PopupModal from './popup/edit-pop-up';
+import PopupModal from './popup/editPopUp';
 import {
   Card,
   CardFooter,

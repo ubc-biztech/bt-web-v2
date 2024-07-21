@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import PopupButton from './popup-button';
+import PopupButton from './popupButton';
 
 interface PopUpItem {
   title: string;
