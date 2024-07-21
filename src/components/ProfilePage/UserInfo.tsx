@@ -28,7 +28,7 @@ const extractInitials = (name: string) => {
 
 export const UserInfo = ({ profile }: { profile: Profile | null }) => {
   return (
-    <div className=" bg-profile-card-bg flex p-6 rounded-md gap-6 w-[45%]">
+    <div className=" bg-profile-card-bg flex p-6 rounded-md gap-6 w-full flex-col lg:w-[45%] lg:flex-row">
       <div className="flex flex-col items-center">
         <Avatar className="h-24 w-24">
           <AvatarImage src={profile?.image || ""} />
@@ -72,11 +72,11 @@ export const UserInfo = ({ profile }: { profile: Profile | null }) => {
         </ProfileRow>
         <Separator.Root className="SeparatorRoot my-2 mx-0 bg-profile-separator-bg h-[0.5px]" />
         <ProfileField
-          className="mt-3 mb-3"
+          className="mt-3 mb-3 w-full"
           field="Email"
           value={profile?.email || ""}
         />
-        <div className="w-1/2 text-white my-3">
+        <div className="text-white my-3 w-full">
           <h6 className="text-sm text-baby-blue">Membership Status</h6>
           {profile?.status && (
             <TextIcon

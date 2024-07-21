@@ -2,11 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import * as Separator from "@radix-ui/react-separator";
 import TextIcon from "./TextIcon";
-import EventCard from "./EventCard";
+import EventCard from "./ProfileEventCard";
 import RegisteredIcon from "../../../public/assets/icons/registered_events_icon.svg";
 import SavedIcon from "../../../public/assets/icons/bookmark_icon.svg";
 import BizBot from "../../../public/assets/bizbot_peeking.svg";
 import { BiztechEvent } from "@/types";
+import { isMobile } from "@/util/isMobile";
+import { useState, useEffect } from "react";
 
 interface UserEventsProps {
   registeredEvents: BiztechEvent[];
@@ -17,12 +19,17 @@ export const UserEvents: React.FC<UserEventsProps> = ({
   registeredEvents,
   savedEvents,
 }) => {
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  useEffect(() => {
+    const userAgent = navigator.userAgent;
+    setIsMobileDevice(isMobile(userAgent));
+  }, []);
   return (
-    <div className="relative w-[55%] bg-profile-card-bg rounded-md p-6">
+    <div className="relative bg-profile-card-bg rounded-md p-6 w-full lg:w-[55%]">
       <Image
         src={BizBot}
         alt="BizBot"
-        className="absolute top-[-150px] right-[-10px] h-[150px] z-10"
+        className="absolute top-[-150px] right-[-10px] h-[150px] hidden lg:block"
       />
       <h4 className="text-biztech-green">Your Events</h4>
       <Separator.Root className="SeparatorRoot my-3 mx-0 bg-profile-separator-bg h-[0.5px]" />
@@ -34,13 +41,15 @@ export const UserEvents: React.FC<UserEventsProps> = ({
       />
       <div
         className="flex items-center justify-center gap-6 mb-6"
-        style={{ flexDirection: registeredEvents.length === 0 ? "column" : "row" }}
+        style={{
+          flexDirection: registeredEvents.length === 0 ? "column" : "row",
+        }}
       >
         {registeredEvents.length === 0 ? (
           <h6 className="text-baby-blue text-center">No registered events</h6>
         ) : (
           registeredEvents
-            .slice(-3)
+            .slice(isMobileDevice ? -2 : -3)
             .map((event) => <EventCard initialData={event} key={event.id} />)
         )}
       </div>
@@ -59,7 +68,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
           <h6 className="text-baby-blue text-center">No saved events</h6>
         ) : (
           savedEvents
-            .slice(-3)
+            .slice(isMobileDevice ? -2 : -3)
             .map((event) => <EventCard initialData={event} key={event.id} />)
         )}
       </div>

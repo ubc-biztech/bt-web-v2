@@ -3,6 +3,8 @@ import { BiztechEvent, MemberStatus, Profile } from "@/types";
 import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
 
+// Mock event and profile data
+// TO DO: replace these with calls to backend
 const fetchEventData = async () => {
   let data = [];
   for (let i = 0; i < 10; i++) {
@@ -35,6 +37,7 @@ const fetchProfileData = async () => {
     faculty: "Commerce",
     major: "BTM",
     status: MemberStatus.Member,
+    // image: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg",
   };
   return profile;
 };
@@ -57,11 +60,13 @@ const ProfilePage = () => {
 
   return (
     <main className="bg-primary-color min-h-screen">
-      <div className="container mx-auto p-10 pt-24">
-        <h3 className="text-white">
-          {profile?.name ? `Welcome back, ${profile.name}!` : "Welcome back!"}
+      <div className="container mx-auto p-6 lg:p-10 pt-16 lg:pt-24">
+        <h3 className="text-white text-lg lg:text-xl">
+          {profile?.name
+            ? `Welcome back, ${profile.name.split(" ")[0]}!`
+            : "Welcome back!"}
         </h3>
-        <div className="flex gap-6 mt-6">
+        <div className="flex flex-col gap-6 mt-6 lg:flex-row">
           <UserInfo profile={profile} />
           <UserEvents
             registeredEvents={registeredEvents}
