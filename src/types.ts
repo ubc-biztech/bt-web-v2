@@ -8,3 +8,9 @@ export type BasicInformation = {
     heardFrom: string
     faculty: string
 }
+
+export enum MemberStatus {
+    Member = "Member",
+    NonMember = "Non-member",
+    BizTechExec = "BizTech Exec"
+}
