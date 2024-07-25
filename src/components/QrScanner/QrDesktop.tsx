@@ -6,6 +6,8 @@ import { CircleAlert } from "lucide-react";
 import { CheckCircle2 } from "lucide-react";
 import { ChevronsUp } from "lucide-react";
 import { QrReader } from "react-qr-reader";
+import Image from "next/image";
+import NoCamera from "../../../public/assets/icons/nocamera_icon.svg";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
@@ -220,7 +222,8 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-[450px] h-[450px] bg-contain bg-[url('../assets/no_camera.png')]">
+              <div className="w-[450px] h-[450px]] relative">
+                <Image src={NoCamera} fill alt="no-camera" />
                 <QrReader
                   onResult={handleScanQR}
                   className="object-cover w-[450px] h-[450px] flex justify-center items-center"

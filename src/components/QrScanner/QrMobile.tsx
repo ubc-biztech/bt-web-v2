@@ -7,8 +7,10 @@ import { CheckCircle2 } from "lucide-react";
 import { ChevronsUp } from "lucide-react";
 import { QrReader } from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
+import NoCamera from "../../../public/assets/icons/nocamera_icon.svg";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 // an enumeration for the stages of QR code scanning
 const QR_SCAN_STAGE = {
@@ -228,7 +230,8 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
               <p className="font-600">{scanStateText()}</p>
             </div>
 
-            <div className="w-[80vw] h-[80vw] bg-contain bg-[url('../assets/no_camera.png')]">
+            <div className="w-[80vw] h-[80vw]] relative">
+              <Image src={NoCamera} fill alt="no-camera" />
               <QrReader
                 onResult={handleScanQR}
                 className="object-cover w-[80vw] h-[80vw] flex justify-center items-center"
