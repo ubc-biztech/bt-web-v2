@@ -17,7 +17,10 @@ interface TableButtonProps {
   toggleQr: Dispatch<SetStateAction<boolean>>;
 }
 
-export const TableIconButtons: React.FC<TableButtonProps> = ({qr, toggleQr}) => {
+export const TableIconButtons: React.FC<TableButtonProps> = ({
+  qr,
+  toggleQr,
+}) => {
   const handleIconClick = (action: string) => {
     console.log(`${action} action triggered`);
   };
