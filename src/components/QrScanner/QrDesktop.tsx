@@ -1,4 +1,5 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
+import { QrProps } from "./types";
 import { useEffect, useState } from "react";
 import { CirclePlayIcon } from "lucide-react";
 import { CircleAlert } from "lucide-react";
@@ -8,18 +9,6 @@ import { QrReader } from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
-
-interface QrProps {
-  event: { id: string; year: string };
-  rows?: {
-    id: string;
-    firstname: string;
-    lastname: string;
-    [x: string | number | symbol]: unknown;
-  }[];
-  visible: boolean;
-  setVisible: Dispatch<SetStateAction<boolean>>;
-}
 
 // an enumeration for the stages of QR code scanning
 const QR_SCAN_STAGE = {

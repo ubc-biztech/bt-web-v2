@@ -1,4 +1,5 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
+import { QrProps } from "./types";
 import { useEffect, useState } from "react";
 import { CirclePlayIcon } from "lucide-react";
 import { CircleAlert } from "lucide-react";
@@ -8,18 +9,6 @@ import { QrReader } from "react-qr-reader";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
-
-interface QrProps {
-  event: { id: string; year: string };
-  rows?: {
-    id: string;
-    firstname: string;
-    lastname: string;
-    [x: string | number | symbol]: unknown;
-  }[];
-  visible: boolean;
-  setVisible: Dispatch<SetStateAction<boolean>>;
-}
 
 // an enumeration for the stages of QR code scanning
 const QR_SCAN_STAGE = {
@@ -216,79 +205,77 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
 
   return (
     <>
-      <div className="overflow-hidden">
-        <AnimatePresence mode="wait">
-          {visible && (
-            <motion.div
-              className={`flex flex-col space-y-4 items-center p-3`}
-              initial={{ y: -100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -100, opacity: 0 }}
-              transition={{
-                type: "tween",
-                ease: "easeInOut",
-                duration: 0.3,
-              }}
-              onClick={(e) => e.stopPropagation()}
+      <AnimatePresence mode="wait">
+        {visible && (
+          <motion.div
+            className={`flex flex-col space-y-4 items-center p-3`}
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -100, opacity: 0 }}
+            transition={{
+              type: "tween",
+              ease: "easeInOut",
+              duration: 0.3,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              className={`${scanStateClassName(
+                qrScanStage
+              )} w-[90vw] font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
             >
-              <div
-                className={`${scanStateClassName(
-                  qrScanStage
-                )} w-[90vw] font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
-              >
-                {scanStateIcon()}
-                <p className="font-600">{scanStateText()}</p>
-              </div>
+              {scanStateIcon()}
+              <p className="font-600">{scanStateText()}</p>
+            </div>
 
-              <div className="w-[90vw] h-[90vw] bg-contain bg-[url('../assets/no_camera.png')]">
-                <QrReader
-                  onResult={handleScanQR}
-                  className="object-cover w-[90vw] h-[90vw] flex justify-center items-center"
-                  constraints={{
-                    facingMode: cameraFacingMode,
+            <div className="w-[90vw] h-[90vw] bg-contain bg-[url('../assets/no_camera.png')]">
+              <QrReader
+                onResult={handleScanQR}
+                className="object-cover w-[90vw] h-[90vw] flex justify-center items-center"
+                constraints={{
+                  facingMode: cameraFacingMode,
+                }}
+                videoStyle={{ objectFit: "cover", borderRadius: "10px" }}
+                scanDelay={250}
+              />
+            </div>
+
+            <div className="grow w-[90vw] flex flex-col space-y-4">
+              <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
+                <h2 className="text-white pb-2 text-lg">QR Code Check-in</h2>
+                <p className="pb-3">Last Scanned: {checkInName}</p>
+                <p
+                  className="text-secondary-color underline pb-3"
+                  onClick={() => {
+                    setQrCode(defaultQrCode);
+                    setQrScanStage(QR_SCAN_STAGE.SCANNING);
                   }}
-                  videoStyle={{ objectFit: "cover", borderRadius: "10px" }}
-                  scanDelay={250}
-                />
+                >
+                  Reset Scanner
+                </p>
+                <p
+                  className="text-secondary-color underline pb-3"
+                  onClick={() => flipCamera()}
+                >
+                  Flip Camera Horizontally
+                </p>
               </div>
-
-              <div className="grow w-[90vw] flex flex-col space-y-4">
-                <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
-                  <h2 className="text-white pb-2 text-lg">QR Code Check-in</h2>
-                  <p className="pb-3">Last Scanned: {checkInName}</p>
-                  <p
-                    className="text-secondary-color underline pb-3"
-                    onClick={() => {
-                      setQrCode(defaultQrCode);
-                      setQrScanStage(QR_SCAN_STAGE.SCANNING);
-                    }}
-                  >
-                    Reset Scanner
-                  </p>
-                  <p
-                    className="text-secondary-color underline pb-3"
-                    onClick={() => flipCamera()}
-                  >
-                    Flip Camera Horizontally
-                  </p>
+              <div className="grow flex flex-row content-end justify-center pb-3 space-x-2">
+                <ChevronsUp width={20} height={20} />
+                <div
+                  className="text-center underline"
+                  onClick={() => {
+                    setVisible(false);
+                  }}
+                >
+                  Collapse Qr Scanner
                 </div>
-                <div className="grow flex flex-row content-end justify-center pb-3 space-x-2">
-                  <ChevronsUp width={20} height={20} />
-                  <div
-                    className="text-center underline"
-                    onClick={() => {
-                      setVisible(false);
-                    }}
-                  >
-                    Collapse Qr Scanner
-                  </div>
-                  <ChevronsUp width={20} height={20} />
-                </div>
+                <ChevronsUp width={20} height={20} />
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

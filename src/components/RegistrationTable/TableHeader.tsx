@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { Dispatch, SetStateAction, useState } from "react"
 import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -19,9 +19,11 @@ interface TableHeaderProps {
     table: Table<any>
     filterButtonRef: React.RefObject<HTMLButtonElement>
     rowSelection: Record<string, boolean>
+    qr: boolean;
+    toggleQr: Dispatch<SetStateAction<boolean>>;
 }
 
-export const TableHeader: React.FC<TableHeaderProps> = ({ table, filterButtonRef, rowSelection }) => {
+export const TableHeader: React.FC<TableHeaderProps> = ({ table, filterButtonRef, rowSelection, qr, toggleQr }) => {
     const selectedRowsCount = Object.keys(rowSelection).length
     const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false)
     const [showCreateTeam, setShowCreateTeam] = useState(false)
@@ -119,7 +121,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({ table, filterButtonRef
             )}
 
             <div className="flex flex-col sm:flex-row items-center justify-between space-x-2">
-                <TableIconButtons />
+                <TableIconButtons qr={qr} toggleQr={toggleQr}/>
                 <Select>
                     <SelectTrigger className="w-[180px] bg-login-form-card text-white">
                         <SelectValue placeholder="Attendees"/>
