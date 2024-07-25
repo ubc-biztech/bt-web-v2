@@ -222,16 +222,16 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
             <div
               className={`${scanStateClassName(
                 qrScanStage
-              )} w-[90vw] font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
+              )} w-[80vw] font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3`}
             >
               {scanStateIcon()}
               <p className="font-600">{scanStateText()}</p>
             </div>
 
-            <div className="w-[90vw] h-[90vw] bg-contain bg-[url('../assets/no_camera.png')]">
+            <div className="w-[80vw] h-[80vw] bg-contain bg-[url('../assets/no_camera.png')]">
               <QrReader
                 onResult={handleScanQR}
-                className="object-cover w-[90vw] h-[90vw] flex justify-center items-center"
+                className="object-cover w-[80vw] h-[80vw] flex justify-center items-center"
                 constraints={{
                   facingMode: cameraFacingMode,
                 }}
@@ -240,7 +240,7 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
               />
             </div>
 
-            <div className="grow w-[90vw] flex flex-col space-y-4">
+            <div className="grow w-[80vw] flex flex-col space-y-4">
               <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
                 <h2 className="text-white pb-2 text-lg">QR Code Check-in</h2>
                 <p className="pb-3">Last Scanned: {checkInName}</p>

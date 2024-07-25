@@ -209,7 +209,7 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
         <AnimatePresence mode="wait">
           {visible && (
             <motion.div
-              className={`flex flex-row space-x-4 justify-center p-3`}
+              className={`flex flex-row space-x-4 justify-center`}
               initial={{ y: -100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -100, opacity: 0 }}

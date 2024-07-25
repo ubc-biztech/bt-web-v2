@@ -10,7 +10,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
-  }, []);
+  }, [navigator.userAgent]);
 
   return (
     <>
