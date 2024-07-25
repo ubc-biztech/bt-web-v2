@@ -5,7 +5,7 @@ interface StatsTableProps {
 
 const StatsTable: React.FC<StatsTableProps> = ({ title, data }) => {
   const renderData = (data: Object, marginValue: number = 0): JSX.Element[] => {
-    return Object.entries(data).map(([restriction, count]) => {
+    return Object.entries(data).map(([label, count]) => {
       if (typeof count === "number" || typeof count === "string") {
         return (
           <>
@@ -13,7 +13,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ title, data }) => {
               className="col-span-2"
               style={{ marginLeft: `${marginValue}px` }}
             >
-              {restriction}
+              {label}
             </div>
             <div className="col-span-1 text-right">{count}</div>
           </>
@@ -25,7 +25,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ title, data }) => {
               className="col-span-2"
               style={{ marginLeft: `${marginValue}px` }}
             >
-              {restriction}
+              {label}
             </div>
             {renderData(count, marginValue + 16)}
           </>
