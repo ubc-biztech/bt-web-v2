@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Amplify } from 'aws-amplify';
-import { signIn } from 'aws-amplify/auth';
+import { signIn, getCurrentUser } from '@aws-amplify/auth';
 import outputs from '../../amplify_outputs.json';
-import { getCurrentUser } from 'aws-amplify/auth';
 
 Amplify.configure(outputs);
 
@@ -13,11 +12,9 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<{
     emailError: string;
     passwordError: React.ReactNode;
-    verificationCodeError: string;
   }>({
     emailError: '',
-    passwordError: '',
-    verificationCodeError: ''
+    passwordError: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -47,7 +44,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     if (emailError || passwordError) {
-      setErrors({ emailError, passwordError, verificationCodeError: '' });
+      setErrors({ emailError, passwordError: '' });
     } else {
       try {
         const user = await signIn({
@@ -55,32 +52,43 @@ const Login: React.FC = () => {
           password: password
         });
         console.log('Sign in successful:', user);
-        // Redirect or handle post-sign-in actions here
 
         const { username, userId, signInDetails } = await getCurrentUser();
 
-        // Logging for current auth user
-        console.log('Current authenticated user:', username);
         console.log(
           'Current authenticated user:',
-
-          userId
-        );
-        console.log(
-          'Current authenticated user:',
-
+          username,
+          userId,
           signInDetails
         );
-      } catch (error) {
+
+        // Redirect to a specific page or take other actions
+        router.push('/');
+      } catch (error: any) {
         console.error('Error signing in', error);
-        setErrors({
-          emailError: '',
-          passwordError: '',
-          verificationCodeError: ''
-        });
+        handleAuthErrors(error);
       }
     }
     setIsLoading(false);
+  };
+
+  const handleAuthErrors = (error: any) => {
+    let emailError = '';
+    let passwordError: React.ReactNode = '';
+
+    switch (error.code) {
+      case 'UserNotFoundException':
+        emailError = 'Incorrect username or password.';
+        break;
+      case 'NotAuthorizedException':
+        passwordError = 'Incorrect username or password.';
+        break;
+      default:
+        passwordError = error.message;
+        break;
+    }
+
+    setErrors({ emailError, passwordError });
   };
 
   return (
