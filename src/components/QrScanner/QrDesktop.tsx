@@ -25,7 +25,12 @@ const CAMERA_FACING_MODE = {
   BACK: "environment",
 };
 
-const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
+const QrDesktop: React.FC<QrProps> = ({
+  event,
+  rows,
+  isQrReaderToggled,
+  setQrReaderToggled,
+}) => {
   const defaultQrCode = {
     data: "",
   };
@@ -209,7 +214,7 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
     <>
       <div className="overflow-hidden">
         <AnimatePresence mode="wait">
-          {visible && (
+          {isQrReaderToggled && (
             <motion.div
               className={`flex flex-row space-x-4 justify-center`}
               initial={{ y: -100, opacity: 0 }}
@@ -268,7 +273,7 @@ const QrDesktop: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
                   <div
                     className="text-center underline"
                     onClick={() => {
-                      setVisible(false);
+                      setQrReaderToggled(false);
                     }}
                   >
                     Collapse Qr Scanner

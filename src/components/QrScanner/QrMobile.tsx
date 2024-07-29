@@ -25,7 +25,12 @@ const CAMERA_FACING_MODE = {
   BACK: "environment",
 };
 
-const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
+const QrMobile: React.FC<QrProps> = ({
+  event,
+  rows,
+  isQrReaderToggled,
+  setQrReaderToggled,
+}) => {
   const defaultQrCode = {
     data: "",
   };
@@ -208,7 +213,7 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
   return (
     <>
       <AnimatePresence mode="wait">
-        {visible && (
+        {isQrReaderToggled && (
           <motion.div
             className={`flex flex-col space-y-1 items-center p-3`}
             initial={{ y: -100, opacity: 0 }}
@@ -273,7 +278,7 @@ const QrMobile: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
                 <div
                   className="text-center underline"
                   onClick={() => {
-                    setVisible(false);
+                    setQrReaderToggled(false);
                   }}
                 >
                   Collapse Qr Scanner

@@ -5,7 +5,12 @@ import { isMobile } from "@/util/isMobile";
 import QrDesktop from "./QrDesktop";
 import QrMobile from "./QrMobile";
 
-const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
+const QrCheckIn: React.FC<QrProps> = ({
+  event,
+  rows,
+  isQrReaderToggled,
+  setQrReaderToggled,
+}) => {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -18,15 +23,15 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, visible, setVisible }) => {
         <QrMobile
           event={event}
           rows={rows}
-          visible={visible}
-          setVisible={setVisible}
+          isQrReaderToggled={isQrReaderToggled}
+          setQrReaderToggled={setQrReaderToggled}
         />
       ) : (
         <QrDesktop
           event={event}
           rows={rows}
-          visible={visible}
-          setVisible={setVisible}
+          isQrReaderToggled={isQrReaderToggled}
+          setQrReaderToggled={setQrReaderToggled}
         />
       )}
     </>

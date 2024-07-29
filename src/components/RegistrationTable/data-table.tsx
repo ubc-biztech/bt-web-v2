@@ -29,7 +29,7 @@ export function DataTable({
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [pageSize, setPageSize] = useState(10);
   const [isClient, setIsClient] = useState(false);
-  const [qr, setQr] = useState(false);
+  const [isQrReaderToggled, setQrReaderToggled] = useState(false);
 
   const allColumns = [...defaultColumns, ...dynamicColumns];
 
@@ -90,15 +90,15 @@ export function DataTable({
       <QrCheckIn
         event={{ id: eventId, year: year }}
         rows={data}
-        visible={qr}
-        setVisible={setQr}
+        isQrReaderToggled={isQrReaderToggled}
+        setQrReaderToggled={setQrReaderToggled}
       />
       <TableActionsHeader
         table={table}
         filterButtonRef={filterButtonRef}
         rowSelection={rowSelection}
-        qr={qr}
-        toggleQr={setQr}
+        isQrReaderToggled={isQrReaderToggled}
+        setQrReaderToggled={setQrReaderToggled}
       />
 
       <TableComponent>
