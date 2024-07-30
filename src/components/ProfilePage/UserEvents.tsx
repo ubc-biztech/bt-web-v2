@@ -5,7 +5,7 @@ import TextIcon from "./TextIcon";
 import EventCard from "./ProfileEventCard";
 import RegisteredIcon from "../../../public/assets/icons/registered_events_icon.svg";
 import SavedIcon from "../../../public/assets/icons/bookmark_icon.svg";
-import BizBot from "../../../public/assets/bizbot_peeking.svg";
+import BizBot from "../../../public/assets/bizbot_peeking.png";
 import { BiztechEvent } from "@/types";
 import { isMobile } from "@/util/isMobile";
 import { useState, useEffect } from "react";
@@ -29,7 +29,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
       <Image
         src={BizBot}
         alt="BizBot"
-        className="absolute top-[-150px] right-[-10px] h-[150px] hidden lg:block"
+        className="absolute top-[-150px] right-[-10px] h-[150px] w-[auto] hidden lg:block"
       />
       <h4 className="text-biztech-green">Your Events</h4>
       <Separator.Root className="SeparatorRoot my-3 mx-0 bg-profile-separator-bg h-[0.5px]" />
