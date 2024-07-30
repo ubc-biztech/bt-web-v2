@@ -54,7 +54,14 @@ const eventFormSchema = z.object({
     customQuestions: z.array(customQuestionSchema),
 });
 
-export const EventForm = ({ initialData, onSubmit }) => {
+type EventFormSchema = z.infer<typeof eventFormSchema>;
+
+interface EventFormProps {
+    initialData?: Partial<EventFormSchema>;
+    onSubmit: (data: EventFormSchema) => void;
+}
+
+export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit }) => {
     const form = useForm({
         resolver: zodResolver(eventFormSchema),
         defaultValues: initialData || {
@@ -66,7 +73,7 @@ export const EventForm = ({ initialData, onSubmit }) => {
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
+    const { append, remove } = useFieldArray({
         control: form.control,
         name: "customQuestions",
     });
@@ -76,13 +83,15 @@ export const EventForm = ({ initialData, onSubmit }) => {
         name: "customQuestions",
     });
 
-    const handleSubmit = (data) => {
-        onSubmit(data);
+    const handleSubmit = (data: Partial<EventFormSchema>) => {
+        // Type assertion to EventFormSchema
+        onSubmit(data as EventFormSchema);
         toast({
             title: "Event Created",
             description: "Your event has been successfully created.",
         });
     };
+
 
     const addCustomQuestion = () => {
         append({
@@ -113,6 +122,7 @@ export const EventForm = ({ initialData, onSubmit }) => {
                                             <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                                                 {form.watch('imageUrl') ? (
                                                     <img src={form.watch('imageUrl')} alt="Event Cover" className="w-full h-full object-cover" />
+                                                    // TODO - Next's <Image> doesn't easily work here, would prefer to replace
                                                 ) : (
                                                     <span className="text-gray-400">Event Cover Photo</span>
                                                 )}
@@ -303,7 +313,7 @@ export const EventForm = ({ initialData, onSubmit }) => {
                                                 )}
                                             />
                                             {/* Custom Questions */}
-                                            {form.watch('customQuestions').map((question, index) => (
+                                            {form.watch('customQuestions')?.map((question, index) => (
                                                 <div key={index} className="space-y-2">
                                                     <FormField
                                                         name={`previewCustom${index}`}
@@ -624,15 +634,16 @@ export const EventForm = ({ initialData, onSubmit }) => {
                                     <h4 className="text-baby-blue">
                                         Attendee Form Custom Questions
                                     </h4>
-                                    {customQuestions.map((field, index) => (
-                                        <div key={field.id} className="my-4 p-4 border rounded-lg bg-[#3A4A70]">
+                                    {customQuestions?.map((field, index) => (
+                                        <div key={index} className="my-4 p-4 border rounded-lg bg-[#3A4A70]">
                                             <FormField
                                                 control={form.control}
                                                 name={`customQuestions.${index}.type`}
                                                 render={({field}) => (
                                                     <FormItem>
                                                         <FormLabel>Question Type</FormLabel>
-                                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <Select onValueChange={field.onChange}
+                                                                defaultValue={field.value}>
                                                             <FormControl>
                                                                 <SelectTrigger className="text-white">
                                                                     <SelectValue placeholder="Select question type"/>
@@ -643,7 +654,8 @@ export const EventForm = ({ initialData, onSubmit }) => {
                                                                 <SelectItem value="checkbox">Checkbox</SelectItem>
                                                                 <SelectItem value="select">Selection</SelectItem>
                                                                 <SelectItem value="upload">Upload</SelectItem>
-                                                                <SelectItem value="workshopSelection">Workshop Selection</SelectItem>
+                                                                <SelectItem value="workshopSelection">Workshop
+                                                                    Selection</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                         <FormMessage/>
@@ -734,7 +746,9 @@ export const EventForm = ({ initialData, onSubmit }) => {
                                                     )}
                                                 />
                                             )}
-                                            <Button type="button" variant="destructive" onClick={() => remove(index)}>Remove Question</Button>
+                                            <Button type="button" variant="destructive" onClick={() => remove(index)}>Remove
+                                                Question
+                                            </Button>
                                         </div>
                                     ))}
                                     <Button type="button" onClick={addCustomQuestion} className="mt-2">
