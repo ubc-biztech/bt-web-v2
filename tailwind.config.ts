@@ -54,6 +54,7 @@ const config: Config = {
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
       'black': "#000000",
+      'placeholder': "#D9D9D9"
       'white': "#ffffff",
       border: "hsl(var(--border))",
       input: "hsl(var(--input))",
