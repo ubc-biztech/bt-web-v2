@@ -11,6 +11,8 @@ import { Row, Table } from "@tanstack/react-table"
 import { Attendee } from "./columns"
 import Image from "next/image";
 import PopoutIcon from "../../../public/assets/icons/popout_icon.svg";
+import UserInfo from "./editCellPopUp.tsx/userInfo"
+import UserResponses from './editCellPopUp.tsx/userResponses'
 
 interface EditCellProps {
     row: Row<Attendee>
@@ -32,17 +34,20 @@ export const EditCell: React.FC<EditCellProps> = ({ row }) => {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
+            <DialogContent className="max-w-[750px] max-h-lg bg-events-active-tab-bg border-0">
                 <DialogHeader>
                     <DialogTitle className="text-white">{row.original.firstName} {row.original.lastName}</DialogTitle>
-                    <span className="italic">Form Responses</span>
+                    <span className="italic text-white">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}
-
                 <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
-
+                <div className="max-h-[300px] overflow-y-auto">
+                <UserInfo row={row} />
+                <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
+                <UserResponses />
+                </div>
+                <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
                 <Button onClick={handleEdit}>Save changes</Button>
-
             </DialogContent>
         </Dialog>
     )
