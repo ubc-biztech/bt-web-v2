@@ -26,7 +26,7 @@ export default function AdminEvent({ initialData }: Props) {
     const router = useRouter()
     const [isLoading, setLoading] = useState(!initialData)
     const [data, setData] = useState<Attendee[] | null>(initialData);
-
+ 
     useEffect(() => {
         if (!initialData && router.isReady) {
             const eventId = router.query.eventId as string;

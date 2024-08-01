@@ -32,6 +32,10 @@ const config: Config = {
         'page-bg': '#11192E',
         'form-card': '#1C253D',
       },
+      'signup': {
+        'input-bg': '#3A496D',
+        'input-border': '#7187B8',
+      },
       // Navbar Page Colors
       'navbar': {
         'tab-hover-bg': "#324269",
