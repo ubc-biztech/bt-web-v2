@@ -43,7 +43,6 @@ const QrCheckIn: React.FC<QrProps> = ({
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
 
-  // checks if the QR code is valid whenever the QR code is changed
   useEffect(() => {
     if (
       !qrCode ||
@@ -60,46 +59,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     const eventIDAndYear = id[1] + ";" + id[2];
     const userFName = id[3];
 
-    // validate event ID and year as the current event
-    if (eventIDAndYear !== event.id + ";" + event.year) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
-
-      // if there are not 4 and first item is not an email, then the QR code is invalid
-      if (id.length !== 4 && !emailCheck(userID)) {
-        setError("Invalid BizTech QR code.");
-      } else {
-        setError("Please check that your QR code is for this event.");
-      }
-      return;
-    }
-
-    const user = rows?.filter((row) => row.id === userID)[0];
-
-    if (!user) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
-      setError("Person is not registered for this event.");
-      return;
-    }
-
-    // get the person's name
-    setCheckInName(
-      `${user.firstName ? user.firstName : user.fname} ${
-        user.lastName ? user.lastName : user.lname
-      } (${userID})`
-    );
-
-    // If the user is already checked in, show an error
-    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person is already checked in.");
-      return;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person had their registration cancelled. Cannot check-in.");
-      return;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
-      setError("Person is on the waitlist. Cannot check-in.");
+    if (!isCheckInValid(id, userID, eventIDAndYear)) {
       return;
     }
 
@@ -120,6 +80,56 @@ const QrCheckIn: React.FC<QrProps> = ({
       default:
         return "bg-secondary-color";
     }
+  };
+
+  const isCheckInValid = (
+    id: string[],
+    userID: string,
+    eventIDAndYear: string
+  ): boolean => {
+    if (eventIDAndYear !== event.id + ";" + event.year) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
+
+      // if there are not 4 and first item is not an email, then the QR code is invalid
+      if (id.length !== 4 && !emailCheck(userID)) {
+        setError("Invalid BizTech QR code.");
+      } else {
+        setError("Please check that your QR code is for this event.");
+      }
+      return false;
+    }
+
+    const user = rows?.filter((row) => row.id === userID)[0];
+
+    if (!user) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 6000);
+      setError("Person is not registered for this event.");
+      return false;
+    }
+
+    // get the person's name
+    setCheckInName(
+      `${user.firstName ? user.firstName : user.fname} ${
+        user.lastName ? user.lastName : user.lname
+      } (${userID})`
+    );
+
+    // If the user is already checked in, show an error
+    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person is already checked in.");
+      return false;
+    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person had their registration cancelled. Cannot check-in.");
+      return false;
+    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      setError("Person is on the waitlist. Cannot check-in.");
+      return false;
+    }
+
+    return true;
   };
 
   const scanStateText = () => {
