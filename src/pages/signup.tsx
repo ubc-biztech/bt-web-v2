@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import SignUpForm from "@/components/SignupForm/form";
+import SignUpForm from "@/components/SignupForm/SignUpForm";
 
 //Create SignUp Page
 export default function SignUp() {
