@@ -17,8 +17,7 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
         // tableMeta?.updateData(row.index, column.id, newValue)
     }
 
-    // Handle input changes
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         // Update the state with the new value
         setValue(e.target.value);
     };
@@ -49,7 +48,7 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
                     className="p3 rounded-none bg-events-active-tab-bg text-white p-0 border-0 border-b-2 border-b-baby-blue"
                     type="number"
                     value={value}
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                 />
             )}
         </div>

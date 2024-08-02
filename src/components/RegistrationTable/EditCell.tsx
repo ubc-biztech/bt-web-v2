@@ -40,14 +40,17 @@ export const EditCell: React.FC<EditCellProps> = ({ row }) => {
                     <span className="italic text-white">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}
-                <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
+                <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
                 <div className="max-h-[300px] overflow-y-auto">
-                <UserInfo row={row} />
-                <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
-                <UserResponses />
+                    <UserInfo row={row} />
+                    <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+                    <UserResponses row={row} />
                 </div>
-                <div className="w-full h-[1px] bg-[#8DA1D1] my-3"/>
-                <Button onClick={handleEdit}>Save changes</Button>
+                <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+                {/* Added DialogTrigger here to close dialog upon button click */}
+                <DialogTrigger asChild>
+                    <Button onClick={handleEdit}>Save changes</Button>
+                </DialogTrigger>
             </DialogContent>
         </Dialog>
     )

@@ -18,11 +18,7 @@ interface EditCellProps {
 }
 
 const UserInfo: React.FC<EditCellProps> = ({ row }) => {
-    // const handleEdit = () => {
-    //     // Handle edit logic here
-    //     console.log("Editing row:", row.original)
-    //     // close the dialog
-    // }
+
     const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay');
 
     const fieldLabels: { [key: string]: string } = {
