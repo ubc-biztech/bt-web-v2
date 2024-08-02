@@ -1,10 +1,10 @@
-import { BasicInformation } from "@/types";
+import { AttendeeBasicInformation } from "@/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
 
 type Props = {
-    initialData: BasicInformation[] | null
+    initialData: AttendeeBasicInformation[] | null
 }
 
 export default function Statistics( { initialData }: Props) {
