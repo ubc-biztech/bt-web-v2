@@ -1,19 +1,36 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { fetchUserAttributes } from "@aws-amplify/auth";
+// import { Amplify } from "aws-amplify";
+import { getCurrentUser } from "@aws-amplify/auth/server";
+import { runWithAmplifyServerContext } from "./util/amplify-utils";
+// import outputs from "../amplify_outputs.json";
 
 export async function middleware(request: NextRequest) {
-  try {
-    const { email } = await fetchUserAttributes();
-    if (
-      !email ||
-      email.substring(email.indexOf("@") + 1, email.length) !== "ubcbiztech.com"
-    ) {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  } catch (e) {
-    return NextResponse.redirect(new URL("/", request.url));
+  const response = NextResponse.next();
+
+  const isAdmin = await runWithAmplifyServerContext({
+    nextServerContext: { request, response },
+    operation: async (contextSpec) => {
+      try {
+        const { signInDetails } = await getCurrentUser(contextSpec);
+        const email = signInDetails?.loginId;
+        return (
+          email &&
+          email.substring(email.indexOf("@") + 1, email.length) ===
+            "ubcbiztech.com"
+        );
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    },
+  });
+
+  if (isAdmin) {
+    return response;
   }
+
+  return NextResponse.redirect(new URL("/", request.url));
 }
 
 export const config = {
