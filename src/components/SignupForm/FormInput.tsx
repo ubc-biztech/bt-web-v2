@@ -55,7 +55,7 @@ interface FormSelectProps {
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
     ({ className, type, title, ...props }, ref) => (
-        <FormItem className="mb-2 mt-2 w-full">
+        <FormItem className="w-full">
             <FormLabel className="text-baby-blue font-poppins">
                 {title}
             </FormLabel>
@@ -87,8 +87,8 @@ FormInput.displayName = "FormInput";
 export const FormRadio = React.forwardRef<HTMLDivElement, FormRadioProps>(
     ({ items, title }, ref) => {
         return (
-            <FormItem className="space-y-3" ref={ref}>
-                <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>
+            <FormItem className="space-y-3 mr-auto" ref={ref}>
+                <FormLabel className="text-baby-blue font-poppins mr-auto">{title}</FormLabel>
                 <FormControl>
                     <RadioGroup className="flex flex-col space-y-2">
                         {items.map((item) => (
@@ -122,7 +122,7 @@ export const FormMultiSelect = React.forwardRef<HTMLDivElement, FormMultiSelectP
             <div className="mr-auto">
                 <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>
                 {items.map((item) => (
-                        <FormItem key={item.value} className="flex items-center space-x-3 space-y-0 mb-3 mt-3">
+                        <FormItem key={item.value} className="flex items-center space-x-3 space-y-0 mt-5">
                             <FormControl>
                                 <Checkbox className="border-2 mr-1">
                                 </Checkbox>
@@ -160,7 +160,7 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
                  </FormControl>
                  <SelectContent>
                     {items.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
+                        <SelectItem key={item.label} value={item.value}>
                             {item.label}
                         </SelectItem>
                     ))

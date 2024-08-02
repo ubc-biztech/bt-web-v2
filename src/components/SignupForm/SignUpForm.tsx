@@ -28,6 +28,26 @@ enum Pronouns {
     Other = "Others"
 }
 
+enum LevelOfStudy {
+    First = "1st Year",
+    Second = "2nd Year",
+    Third = "3rd Year",
+    Fourth = "4th Year",
+    Fifth = "5th Year",
+    Other = "Other",
+    NotApplicable = "Not Applicable"
+}
+
+enum dietaryRestrictions {
+    Vegetarian = "Vegetarian",
+    Vegan = "Vegan",
+    GlutenFree = "Gluten Free",
+    Pescetarian = "Pescetarian",
+    Halal = "Halal",
+    Kosher = "Kosher",
+    None = "None"
+}
+
 enum Faculty {
     Arts = "Arts",
     Science = "Science",
@@ -39,6 +59,28 @@ enum Faculty {
     NotApplicable = "Not Applicable"
 }
 
+enum TopicsOfInterest {
+    CyberSecurity = "Cyber Security",
+    AI = "Artificial Intelligence",
+    Startups = "Tech Startups",
+    eCommerce = "eCommerce",
+    HealthTech = "Health Tech",
+    CareersInTech  = "Careers in the Tech Industry",
+}
+
+enum HowDidYouHearAboutUs {
+    Facebook = "Facebook",
+    Instagram = "Instagram",
+    LinkedIn = "LinkedIn",
+    Boothing = "Boothing",
+    FriendsWordOfMouth = "Friends/Word of Mouth",
+    BizTechNewsletter = "BizTech Newsletter",
+    FacultyNewsletter = "Faculty Newsletter",
+    Posters = "Posters",
+    Events = "Events",
+    Other = "Other"
+}
+
 const schema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
@@ -48,7 +90,14 @@ const schema = z.object({
     studentNumber: z.string().length(8),
     educationLevel: z.nativeEnum(EducationLevel),
     pronouns: z.nativeEnum(Pronouns),
+    levelOfStudy: z.nativeEnum(LevelOfStudy),
     faculty: z.nativeEnum(Faculty),
+    major: z.string(),
+    internationalStudent: z.boolean(),
+    dietaryRestrictions: z.nativeEnum(dietaryRestrictions),
+    biztechPast: z.boolean(),
+    topicsOfInterest: z.nativeEnum(TopicsOfInterest),
+    howDidYouHearAboutUs: z.nativeEnum(HowDidYouHearAboutUs),
 })
 
 type FormSchema = z.infer<typeof schema>;
@@ -88,7 +137,15 @@ export default function SignUp() {
         { value: Faculty.NotApplicable, label: "Not Applicable" },
     ]
 
-
+    const levelOfStudyOptions = [
+        { value: LevelOfStudy.First, label: "1st Year" },
+        { value: LevelOfStudy.Second, label: "2nd Year" },
+        { value: LevelOfStudy.Third, label: "3rd Year" },
+        { value: LevelOfStudy.Fourth, label: "4th Year" },
+        { value: LevelOfStudy.Fifth, label: "5th Year" },
+        { value: LevelOfStudy.Other, label: "Other" },
+        { value: LevelOfStudy.NotApplicable, label: "Not Applicable" },
+    ]
     const onSubmit = (data: FormSchema) => { console.log(data) }
 
     return (
@@ -103,7 +160,7 @@ export default function SignUp() {
             </div>
 
             <Form {...form}>
-            <form className="flex flex-col items-center w-fit mx-auto" onSubmit={form.handleSubmit(onSubmit)}>
+            <form className="flex flex-col items-center gap-4 w-fit mx-auto" onSubmit={form.handleSubmit(onSubmit)}>
                 {/* University Select */}
                 <FormField
                     control={form.control}
@@ -175,10 +232,121 @@ export default function SignUp() {
                             title="Faculty"
                             field={field} />  
                     )}/>
+                <FormField
+                    control={form.control}
+                    name="levelOfStudy"
+                    render={({field}) => (
+                        <FormSelect
+                            items={levelOfStudyOptions}
+                            title="Level of Study"
+                            field={field} />  
+                    )}/>
 
+                <FormField
+                    control={form.control}
+                    name="major"
+                    render={({ field }) => (
+                        <FormInput type='text' title='Major'/>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="internationalStudent"
+                    render={({ field }) => (
+                        <FormSelect
+                            items={[
+                                { value: "true", label: "Yes" },
+                                { value: "false", label: "No" },
+                            ]}
+                            title="Are you an international student?"
+                            field={field}
+                        />
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="internationalStudent"
+                    render={({ field }) => (
+                        <FormSelect
+                            items={[
+                                { value: "true", label: "Yes" },
+                                { value: "false", label: "No" },
+                            ]}
+                            title="Are you an international student?"
+                            field={field}
+                        />
+                    )}/>
+                <FormField
+                    control={form.control}
+                    name={"biztechPast"}
+                    render={({ field }) => (
+                        <FormSelect
+                            items={[
+                                { value: "true", label: "Yes" },
+                                { value: "false", label: "No" },
+                            ]}
+                            title="Have you been involved with BizTech in the past?"
+                            field={field}
+                        />
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name={"dietaryRestrictions"}
+                    render={({ field }) => (
+                        <FormSelect
+                            items={[
+                                { value: dietaryRestrictions.Vegetarian, label: "Vegetarian" },
+                                { value: dietaryRestrictions.Vegan, label: "Vegan" },
+                                { value: dietaryRestrictions.GlutenFree, label: "Gluten Free" },
+                                { value: dietaryRestrictions.Pescetarian, label: "Pescetarian" },
+                                { value: dietaryRestrictions.Halal, label: "Halal" },
+                                { value: dietaryRestrictions.Kosher, label: "Kosher" },
+                                { value: dietaryRestrictions.None, label: "None" },
+                            ]}
+                            title="Dietary Restrictions"
+                            field={field}
+                        />
+                    )}/>
+                <FormField
+                    control={form.control}
+                    name={"topicsOfInterest"}
+                    render={({ field }) => (
+                        <FormMultiSelect
+                            items={[
+                                { value: TopicsOfInterest.CyberSecurity, label: "Cyber Security" },
+                                { value: TopicsOfInterest.AI, label: "Artificial Intelligence" },
+                                { value: TopicsOfInterest.Startups, label: "Tech Startups" },
+                                { value: TopicsOfInterest.eCommerce, label: "eCommerce" },
+                                { value: TopicsOfInterest.HealthTech, label: "Health Tech" },
+                                { value: TopicsOfInterest.CareersInTech, label: "Careers in the Tech Industry" },
+                            ]}
+                            title="Topics of Interest"
+                        />
+                    )}/>
+                <FormField
+                    control={form.control}
+                    name={"howDidYouHearAboutUs"}
+                    render={({ field }) => (
+                        <FormSelect
+                            items={[
+                                { value: HowDidYouHearAboutUs.Facebook, label: "Facebook" },
+                                { value: HowDidYouHearAboutUs.Instagram, label: "Instagram" },
+                                { value: HowDidYouHearAboutUs.LinkedIn, label: "LinkedIn" },
+                                { value: HowDidYouHearAboutUs.Boothing, label: "Boothing" },
+                                { value: HowDidYouHearAboutUs.FriendsWordOfMouth, label: "Friends/Word of Mouth" },
+                                { value: HowDidYouHearAboutUs.BizTechNewsletter, label: "BizTech Newsletter" },
+                                { value: HowDidYouHearAboutUs.FacultyNewsletter, label: "Faculty Newsletter" },
+                                { value: HowDidYouHearAboutUs.Posters, label: "Posters" },
+                                { value: HowDidYouHearAboutUs.Events, label: "Events" },
+                                { value: HowDidYouHearAboutUs.Other, label: "Other" },
+                            ]}
+                            title="How did you hear about us?"
+                            field={field}
+                        />
+                    )}/>
                 <button type="submit">Submit</button>
             </form>
         </Form>
-        </main>
-    )
+        </main>)
 }
