@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-// import { Amplify } from "aws-amplify";
 import { getCurrentUser } from "@aws-amplify/auth/server";
 import { runWithAmplifyServerContext } from "./util/amplify-utils";
-// import outputs from "../amplify_outputs.json";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
