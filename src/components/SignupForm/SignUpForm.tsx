@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useForm } from "react-hook-form"
-import { z } from 'zod';
+import { Schema, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from "next/image";
 
@@ -13,12 +13,12 @@ import {
     FormField
 } from "@/components/ui/form"
 
-// create an Enum for multi-select options
+//ENUMS for the Zod Schema
 enum EducationLevel {
     HighSchool = "High School",
     University = "University",
     UBC = "UBC",
-    NoneAbove = "NoneAbove"
+    NoneAbove = "None of the Above"
 }
 
 enum Pronouns {
@@ -83,70 +83,44 @@ enum HowDidYouHearAboutUs {
 
 const schema = z.object({
     email: z.string().email(),
-    password: z.string().min(8),
-    confirmPassword: z.string().min(8),
-    firstName: z.string(),
-    lastName: z.string(),
-    studentNumber: z.string().length(8),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string(),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    studentNumber: z.string().length(8, "Student number must be 8 characters"),
     educationLevel: z.nativeEnum(EducationLevel),
-    pronouns: z.nativeEnum(Pronouns),
+    pronouns: z.array(z.nativeEnum(Pronouns)),
     levelOfStudy: z.nativeEnum(LevelOfStudy),
     faculty: z.nativeEnum(Faculty),
     major: z.string(),
-    internationalStudent: z.boolean(),
+    internationalStudent: z.string(),
     dietaryRestrictions: z.nativeEnum(dietaryRestrictions),
-    biztechPast: z.boolean(),
-    topicsOfInterest: z.nativeEnum(TopicsOfInterest),
+    biztechPast: z.string(),
+    topicsOfInterest: z.array(z.nativeEnum(TopicsOfInterest)),
     howDidYouHearAboutUs: z.nativeEnum(HowDidYouHearAboutUs),
-})
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirm"],
+});
 
 type FormSchema = z.infer<typeof schema>;
-
 
 export default function SignUp() {
     const form = useForm<FormSchema>({
         resolver: zodResolver(schema),
-        defaultValues: {
-            password: "",
-            confirmPassword: "",
-        },
+        mode: "onBlur"
     })
 
-    const uniOptions = [
-        { value: EducationLevel.HighSchool, label: "High School" },
-        { value: EducationLevel.University, label: "University" },
-        { value: EducationLevel.UBC, label: "UBC" },
-        { value: EducationLevel.NoneAbove, label: "None of the above" },
-    ]
-
-    const pronounOptions = [
-        { value: Pronouns.HeHim, label: "He/Him" },
-        { value: Pronouns.SheHer, label: "She/Her" },
-        { value: Pronouns.TheyThem, label: "They/Them" },
-        { value: Pronouns.Other, label: "Others" },
-    ]
-
-    const facultyOptions = [
-        { value: Faculty.Arts, label: "Arts" },
-        { value: Faculty.Science, label: "Science" },
-        { value: Faculty.Engineering, label: "Engineering" },
-        { value: Faculty.Commerce, label: "Commerce" },
-        { value: Faculty.Kinesiology, label: "Kinesiology" },
-        { value: Faculty.Forestry, label: "Forestry" },
-        { value: Faculty.Other, label: "Other" },
-        { value: Faculty.NotApplicable, label: "Not Applicable" },
-    ]
-
-    const levelOfStudyOptions = [
-        { value: LevelOfStudy.First, label: "1st Year" },
-        { value: LevelOfStudy.Second, label: "2nd Year" },
-        { value: LevelOfStudy.Third, label: "3rd Year" },
-        { value: LevelOfStudy.Fourth, label: "4th Year" },
-        { value: LevelOfStudy.Fifth, label: "5th Year" },
-        { value: LevelOfStudy.Other, label: "Other" },
-        { value: LevelOfStudy.NotApplicable, label: "Not Applicable" },
-    ]
-    const onSubmit = (data: FormSchema) => { console.log(data) }
+    const onSubmit = async (data: FormSchema) => {
+        console.log('onsubmit called')
+        try {
+            //TODO : Currently just printing
+          console.log(data);
+        } catch (error) {
+          console.error("Form submission error:", error);
+          // Handle error (e.g., show error message to user)
+        }
+      };
 
     return (
         <main className="bg-primary-color min-h-screen">
@@ -161,14 +135,14 @@ export default function SignUp() {
 
             <Form {...form}>
             <form className="flex flex-col items-center gap-4 w-fit mx-auto" onSubmit={form.handleSubmit(onSubmit)}>
-                {/* University Select */}
                 <FormField
                     control={form.control}
                     name="educationLevel"
                     render={({ field }) => (
                         <FormRadio
-                            items={uniOptions}
+                            items={Object.entries(EducationLevel).map(([key, value]) => ({ value, label: value }))}
                             title="Please select the option most relevant to you."
+                            field={field}
                         />
                     )}
                 />
@@ -176,42 +150,42 @@ export default function SignUp() {
                     control={form.control}
                     name="email"
                     render={({ field }) => (
-                        <FormInput type='email' title='Email Address*' />
+                        <FormInput type='email' title='Email Address*' field={field} />
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="password"
                     render={({ field }) => (
-                        <FormInput type='password' title='Password*' />
+                        <FormInput type='password' title='Password*' field={field} />
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="confirmPassword"
                     render={({ field }) => (
-                        <FormInput type='password' title='Confirm Password*' />
+                        <FormInput type='password' title='Confirm Password*' field={field} />
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
-                        <FormInput type='text' title='First Name*'/>
+                        <FormInput type='text' title='First Name*' field={field}/>
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="lastName"
                     render={({ field }) => (
-                        <FormInput type='text' title='Last Name*' name="lastName" />
+                        <FormInput type='text' title='Last Name*' name="lastName" field={field} />
                     )}
                 />
                 <FormField
                     control={form.control}
                     name="studentNumber"
                     render={({ field }) => (
-                        <FormInput type='text' title='Student Number*'/>
+                        <FormInput type='text' title='Student Number*' field={field}/>
                     )}
                 />
                 <FormField
@@ -219,8 +193,9 @@ export default function SignUp() {
                     name="pronouns"
                     render={({ field }) => (
                         <FormMultiSelect 
-                            items={pronounOptions}
-                            title="Preferred Pronouns"/>
+                            items={Object.entries(Pronouns).map(([key, value]) => ({ value, label: value }))}
+                            title="Preferred Pronouns"
+                            field={field}/>
                     )}
                 />
                 <FormField
@@ -228,7 +203,7 @@ export default function SignUp() {
                     name="faculty"
                     render={({field}) => (
                         <FormSelect
-                            items={facultyOptions}
+                            items={Object.entries(Faculty).map(([key, value]) => ({ value, label: value }))}
                             title="Faculty"
                             field={field} />  
                     )}/>
@@ -237,16 +212,15 @@ export default function SignUp() {
                     name="levelOfStudy"
                     render={({field}) => (
                         <FormSelect
-                            items={levelOfStudyOptions}
+                            items={Object.entries(LevelOfStudy).map(([key, value]) => ({ value, label: value }))}
                             title="Level of Study"
                             field={field} />  
                     )}/>
-
                 <FormField
                     control={form.control}
                     name="major"
                     render={({ field }) => (
-                        <FormInput type='text' title='Major'/>
+                        <FormInput type='text' title='Major' field={field}/>
                     )}
                 />
                 <FormField
@@ -255,27 +229,14 @@ export default function SignUp() {
                     render={({ field }) => (
                         <FormSelect
                             items={[
-                                { value: "true", label: "Yes" },
-                                { value: "false", label: "No" },
+                                { value: 'true', label: "Yes" },
+                                { value: 'false', label: "No" },
                             ]}
                             title="Are you an international student?"
                             field={field}
                         />
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="internationalStudent"
-                    render={({ field }) => (
-                        <FormSelect
-                            items={[
-                                { value: "true", label: "Yes" },
-                                { value: "false", label: "No" },
-                            ]}
-                            title="Are you an international student?"
-                            field={field}
-                        />
-                    )}/>
                 <FormField
                     control={form.control}
                     name={"biztechPast"}
@@ -295,15 +256,7 @@ export default function SignUp() {
                     name={"dietaryRestrictions"}
                     render={({ field }) => (
                         <FormSelect
-                            items={[
-                                { value: dietaryRestrictions.Vegetarian, label: "Vegetarian" },
-                                { value: dietaryRestrictions.Vegan, label: "Vegan" },
-                                { value: dietaryRestrictions.GlutenFree, label: "Gluten Free" },
-                                { value: dietaryRestrictions.Pescetarian, label: "Pescetarian" },
-                                { value: dietaryRestrictions.Halal, label: "Halal" },
-                                { value: dietaryRestrictions.Kosher, label: "Kosher" },
-                                { value: dietaryRestrictions.None, label: "None" },
-                            ]}
+                            items={Object.entries(dietaryRestrictions).map(([key, value]) => ({ value, label: value }))}
                             title="Dietary Restrictions"
                             field={field}
                         />
@@ -313,15 +266,9 @@ export default function SignUp() {
                     name={"topicsOfInterest"}
                     render={({ field }) => (
                         <FormMultiSelect
-                            items={[
-                                { value: TopicsOfInterest.CyberSecurity, label: "Cyber Security" },
-                                { value: TopicsOfInterest.AI, label: "Artificial Intelligence" },
-                                { value: TopicsOfInterest.Startups, label: "Tech Startups" },
-                                { value: TopicsOfInterest.eCommerce, label: "eCommerce" },
-                                { value: TopicsOfInterest.HealthTech, label: "Health Tech" },
-                                { value: TopicsOfInterest.CareersInTech, label: "Careers in the Tech Industry" },
-                            ]}
+                            items={Object.entries(TopicsOfInterest).map(([key, value]) => ({ value, label: value }))}
                             title="Topics of Interest"
+                            field={field}
                         />
                     )}/>
                 <FormField
@@ -329,24 +276,17 @@ export default function SignUp() {
                     name={"howDidYouHearAboutUs"}
                     render={({ field }) => (
                         <FormSelect
-                            items={[
-                                { value: HowDidYouHearAboutUs.Facebook, label: "Facebook" },
-                                { value: HowDidYouHearAboutUs.Instagram, label: "Instagram" },
-                                { value: HowDidYouHearAboutUs.LinkedIn, label: "LinkedIn" },
-                                { value: HowDidYouHearAboutUs.Boothing, label: "Boothing" },
-                                { value: HowDidYouHearAboutUs.FriendsWordOfMouth, label: "Friends/Word of Mouth" },
-                                { value: HowDidYouHearAboutUs.BizTechNewsletter, label: "BizTech Newsletter" },
-                                { value: HowDidYouHearAboutUs.FacultyNewsletter, label: "Faculty Newsletter" },
-                                { value: HowDidYouHearAboutUs.Posters, label: "Posters" },
-                                { value: HowDidYouHearAboutUs.Events, label: "Events" },
-                                { value: HowDidYouHearAboutUs.Other, label: "Other" },
-                            ]}
+                            items={Object.entries(HowDidYouHearAboutUs).map(([key, value]) => ({ value, label: value }))}
                             title="How did you hear about us?"
                             field={field}
                         />
                     )}/>
-                <button type="submit">Submit</button>
+
+                {/* DIVIDER */}
+                <div className="w-full h-0.5 bg-white-blue my-6"></div>
+                <button type="submit" className="bg-biztech-green py-1 px-4 rounded mr-auto text-login-form-card" aria-label="Submit Form">Submit</button>
             </form>
         </Form>
-        </main>)
+        </main>
+    )
 }
