@@ -55,8 +55,8 @@ interface FormSelectProps {
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
     ({ className, type, title, field, ...props }, ref) => (
-        <FormItem className="w-full">
-            <FormLabel className="text-baby-blue font-poppins">
+        <FormItem className="w-full font-poppins">
+            <FormLabel className="text-baby-blue">
                 {title}
             </FormLabel>
             <FormControl>
@@ -67,7 +67,6 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
                         "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
                         "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:shadow-none",
                         "focus:border-biztech-green focus:border-opacity-50",
-                        "!ring-0 !ring-offset-0 !shadow-none",
                         "transition-colors duration-200",
                         className
                     )}
@@ -154,33 +153,31 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
     ({ title, items, field }, ref) => {
         return (
             <FormItem className="w-full">
-               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>   
-                 <FormControl className={cn(
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>   
+                    <FormControl className={cn(
                         "bg-signup-input-bg border-2 border-signup-input-border mt-2",
-                        "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
-                        "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:shadow-none",
-                        "focus:border-biztech-green focus:border-opacity-50 text-white-blue",
-                        "!ring-0 !ring-offset-0 !shadow-none",
+                        "text-white-blue",
                         "transition-colors duration-200",
+                        "focus:border-biztech-green focus:border-opacity-50",
+                        "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
                     )}>
-                   <SelectTrigger ref={ref} {...field}>
-                     <SelectValue placeholder="-Select-" />
-                   </SelectTrigger>
-                 </FormControl>
-                 <SelectContent>
-                {items.map((item) => 
-                    <SelectItem key={item.value} value={item.value}>
-                        {item.label}
-                    </SelectItem>
-                    )
-                }
-                </SelectContent>
-               </Select>
-               <FormMessage/>
-             </FormItem>
+                        <SelectTrigger ref={ref} {...field}>
+                            <SelectValue placeholder="-Select-" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {items.map((item) => (
+                            <SelectItem key={item.value} value={item.value}>
+                                {item.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
         );
     }
 );
 
-FormSelect.displayName = "FormSelect";
+FormSelect.displayName = 'FormSelect';

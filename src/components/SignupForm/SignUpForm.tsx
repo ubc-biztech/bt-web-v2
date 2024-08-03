@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form"
 import { Schema, z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Image from "next/image";
+import { useRouter } from 'next/router';
 
 import { FormInput, FormRadio, FormMultiSelect, FormSelect } from './FormInput'
 import backArrowSvg from '../../../public/assets/icons/back_icon.svg';
@@ -106,35 +107,40 @@ const schema = z.object({
 type FormSchema = z.infer<typeof schema>;
 
 export default function SignUp() {
+    const router = useRouter();
+
+    const returnLogin = () => {
+        router.push('/login')
+    }
+
     const form = useForm<FormSchema>({
         resolver: zodResolver(schema),
         mode: "onBlur"
     })
 
-    const onSubmit = async (data: FormSchema) => {
+    const submitForm = async (data: FormSchema) => {
         console.log('onsubmit called')
         try {
             //TODO : Currently just printing
           console.log(data);
         } catch (error) {
           console.error("Form submission error:", error);
-          // Handle error (e.g., show error message to user)
         }
       };
 
     return (
-        <main className="bg-primary-color min-h-screen">
-            <div className="flex flex-col items-center mb-12 pt-6">
+        <main className="bg-primary-color min-h-screen px-4 py-6">
+            <div className="flex flex-col items-center mb-12 pt-6 w-10/ text-center">
                 <h3 className="text-white-blue pb-3">Create your Account</h3>
-                <p className="text-white-blue pb-5">Create an account to sign up for our events and become a BizTech member.</p>
+                <p className="text-white-blue pb-5 px-4 text-sm sm:text-md">Create an account to sign up for our events and become a BizTech member.</p>
                 <span className="flex flex-row items-center">
-                    <button className="text-biztech-green underline pr-1">Back to Login Page</button>
+                    <button className="text-biztech-green underline pr-1" onClick={returnLogin}>Back to Login Page</button>
                     <Image src={backArrowSvg} alt="Back Arrow"/>
                 </span>
             </div>
 
             <Form {...form}>
-            <form className="flex flex-col items-center gap-4 w-fit mx-auto" onSubmit={form.handleSubmit(onSubmit)}>
+            <form className="flex flex-col items-center gap-4 w-fit mx-auto" onSubmit={form.handleSubmit(submitForm)}>
                 <FormField
                     control={form.control}
                     name="educationLevel"
@@ -194,7 +200,7 @@ export default function SignUp() {
                     render={({ field }) => (
                         <FormMultiSelect 
                             items={Object.entries(Pronouns).map(([key, value]) => ({ value, label: value }))}
-                            title="Preferred Pronouns"
+                            title="Preferred Pronouns*"
                             field={field}/>
                     )}
                 />
@@ -204,7 +210,7 @@ export default function SignUp() {
                     render={({field}) => (
                         <FormSelect
                             items={Object.entries(Faculty).map(([key, value]) => ({ value, label: value }))}
-                            title="Faculty"
+                            title="Faculty*"
                             field={field} />  
                     )}/>
                 <FormField
@@ -213,14 +219,14 @@ export default function SignUp() {
                     render={({field}) => (
                         <FormSelect
                             items={Object.entries(LevelOfStudy).map(([key, value]) => ({ value, label: value }))}
-                            title="Level of Study"
+                            title="Level of Study*"
                             field={field} />  
                     )}/>
                 <FormField
                     control={form.control}
                     name="major"
                     render={({ field }) => (
-                        <FormInput type='text' title='Major' field={field}/>
+                        <FormInput type='text' title='Major*' field={field}/>
                     )}
                 />
                 <FormField
@@ -232,7 +238,7 @@ export default function SignUp() {
                                 { value: 'true', label: "Yes" },
                                 { value: 'false', label: "No" },
                             ]}
-                            title="Are you an international student?"
+                            title="Are you an international student?*"
                             field={field}
                         />
                     )}
@@ -246,7 +252,7 @@ export default function SignUp() {
                                 { value: "true", label: "Yes" },
                                 { value: "false", label: "No" },
                             ]}
-                            title="Have you been involved with BizTech in the past?"
+                            title="Have you been involved with BizTech in the past?*"
                             field={field}
                         />
                     )}
@@ -257,7 +263,7 @@ export default function SignUp() {
                     render={({ field }) => (
                         <FormSelect
                             items={Object.entries(dietaryRestrictions).map(([key, value]) => ({ value, label: value }))}
-                            title="Dietary Restrictions"
+                            title="Dietary Restrictions*"
                             field={field}
                         />
                     )}/>
@@ -267,7 +273,7 @@ export default function SignUp() {
                     render={({ field }) => (
                         <FormMultiSelect
                             items={Object.entries(TopicsOfInterest).map(([key, value]) => ({ value, label: value }))}
-                            title="Topics of Interest"
+                            title="Topics of Interest*"
                             field={field}
                         />
                     )}/>
@@ -277,7 +283,7 @@ export default function SignUp() {
                     render={({ field }) => (
                         <FormSelect
                             items={Object.entries(HowDidYouHearAboutUs).map(([key, value]) => ({ value, label: value }))}
-                            title="How did you hear about us?"
+                            title="How did you hear about us*?"
                             field={field}
                         />
                     )}/>
