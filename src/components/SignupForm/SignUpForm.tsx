@@ -82,6 +82,7 @@ enum HowDidYouHearAboutUs {
     Other = "Other"
 }
 
+//Currently biztechPast is a string, but it should be a boolean`
 const schema = z.object({
     email: z.string().email(),
     password: z.string().min(8, "Password must be at least 8 characters long"),
