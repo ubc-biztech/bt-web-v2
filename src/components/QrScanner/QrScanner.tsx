@@ -6,25 +6,18 @@ import { CircleAlert } from "lucide-react";
 import { CheckCircle2 } from "lucide-react";
 import { ChevronsUp } from "lucide-react";
 import { QrReader } from "react-qr-reader";
-import { REGISTRATION_STATUS } from "@/constants/registrations";
+import {
+  REGISTRATION_STATUS,
+  QR_SCAN_STAGE,
+  CAMERA_FACING_MODE,
+  SCAN_CYCLE_DELAY,
+} from "@/constants/registrations";
 import NoCamera from "../../../public/assets/icons/nocamera_icon.svg";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 
 // an enumeration for the stages of QR code scanning
-const QR_SCAN_STAGE = {
-  SCANNING: "SCANNING",
-  FAILED: "FAILED",
-  SUCCESS: "SUCCESS",
-};
-
-// facing mode for the camera
-const CAMERA_FACING_MODE = {
-  FRONT: "user",
-  BACK: "environment",
-};
-
 const QrCheckIn: React.FC<QrProps> = ({
   event,
   rows,
@@ -116,15 +109,15 @@ const QrCheckIn: React.FC<QrProps> = ({
 
     // If the user is already checked in, show an error
     if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is already checked in.");
       return false;
     } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person had their registration cancelled. Cannot check-in.");
       return false;
     } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
-      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 5000);
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is on the waitlist. Cannot check-in.");
       return false;
     }

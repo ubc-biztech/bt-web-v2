@@ -4,12 +4,27 @@ export const APPLICATION_TABLE_TYPE = "applicationView";
 export const REGISTRATION_STATUS_KEY = "registrationStatus";
 export const APPLICATION_STATUS_KEY = "applicationStatus";
 
+export const QR_SCAN_STAGE = {
+  SCANNING: "SCANNING",
+  FAILED: "FAILED",
+  SUCCESS: "SUCCESS",
+};
+
+// facing mode for the camera
+export const CAMERA_FACING_MODE = {
+  FRONT: "user",
+  BACK: "environment",
+};
+
+// cycle delay in MS
+export const SCAN_CYCLE_DELAY = 5000;
+
 export const REGISTRATION_STATUS = {
   REGISTERED: "registered",
   CHECKED_IN: "checkedIn",
   WAITLISTED: "waitlist",
   CANCELLED: "cancelled",
-  INCOMPLETE: "incomplete"
+  INCOMPLETE: "incomplete",
 };
 export const REGISTRATION_LABELS = {
   registered: "Registered",
@@ -21,7 +36,8 @@ export const REGISTRATION_LABELS = {
   2: "2nd Year",
   3: "3rd Year",
   4: "4th Year",
-  5: "5th+ Year"
+  5: "5th+ Year",
 };
 
-export const EMAIL_REGEX = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+export const EMAIL_REGEX =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
