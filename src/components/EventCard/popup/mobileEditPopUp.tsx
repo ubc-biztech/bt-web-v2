@@ -3,39 +3,29 @@ import PopupButton from './popupButton';
 import { motion } from "framer-motion";
 import DeletePopup from './deletePopUp';
 import PopupModal from './editPopUp';
+import { BiztechEvent } from '@/types/biztechEvent';
 
 type Props = {
     isClicked: boolean,
     isMobile: boolean,
     isDelete: boolean,
-    bizEvent: string,
+    bizEvent: BiztechEvent | null | undefined,
     setIsDelete: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const popUpItems = [
     {
         title: 'Edit Event',
-        link: 'javascript:void(0)',
     },
     {
         title: 'View as Member',
-        link: 'javascript:void(0)',
     },
     {
         title: 'Delete Event',
-        link: 'javascript:void(0)',
     },
 ];
 
 
-// file that contains the pop up which displays when the 'more' icon is clicked on mobile screens
-// this file also contains the popup that displays for BOTH desktop and mobile when the 'delete event' button
-// is clicked.
-// isClicked: boolean state for if the 'more' icon is clicked
-// isMobile: boolean state for if on a mobile device
-// isDelete: boolean state for if the delete button is clicked
-// setIsDelete: state modifier for isDelete
-// bizEvent: the event name that the 'more' icon was clicked on (string)
 export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete, bizEvent }: Props) {
 
     // toggle the view when the 'delete' icon is clicked 
@@ -51,7 +41,6 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
     return (
         <div>
             {!isDelete ?
-                // only render the div below if we are on mobile screen
                 // (represents the mobile edit popup)
                 (isMobile ?
                     <motion.div
@@ -71,7 +60,6 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
                     :
                     <div></div>
                 ) :
-                // the below is only rendered if the delete button is clicked
                 // (used for both desktop and mobile)
                 <div className="fixed inset-0 flex items-center justify-center z-50 bg-events-navigation-bg bg-opacity-50 blur-background" onClick={() => setIsDelete(false)}>
                     <motion.div

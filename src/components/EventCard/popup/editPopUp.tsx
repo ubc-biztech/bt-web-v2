@@ -3,7 +3,6 @@ import PopupButton from './popupButton';
 
 interface PopUpItem {
   title: string;
-  link: string;
 }
 
 interface PopupModalProps {
@@ -12,12 +11,9 @@ interface PopupModalProps {
 }
 
 
-// PopUpModal used only in the Desktop display.
-// popUpItems: the buttons to be displayed on the PopUp
-// setIsDelete: the state modifier passed in from event-card to that when the delete button is clicked, 
-// the delete popup will be rendered
+
 const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(({ popUpItems, setIsDelete }, ref) => {
-  // toggle the view when the 'delete' icon is clicked 
+ 
   const handleButtonClick = (item: any) => {
     if (item.title === 'Delete Event') {
         setIsDelete(true)

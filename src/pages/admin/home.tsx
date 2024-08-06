@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from "react";
 import { isMobile } from "@/util/isMobile";
 import MobilePopup from "@/components/EventCard/popup/mobileEditPopUp";
-
+import { BiztechEvent } from "@/types/biztechEvent";
 import GridViewIcon from "../../../public/assets/icons/grid_view_icon.svg"
 import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg"
 import { Button } from "@/components/ui/button"
@@ -15,41 +15,20 @@ type Props = {
     initialData: BiztechEvent[] | null
 }
 
-// type definition for a BiztechEvent
-type BiztechEvent = {
-    id: string;
-    year: number;
-    capac: number;
-    createdAt: number;
-    description: string;
-    elocation: string;
-    ename: string;
-    startDate: string;
-    endDate: string;
-    imageUrl: string;
-    updatedAt: number;
-};
-
 export default function AdminEventView({ initialData }: Props) {
     const router = useRouter()
-    // state for if data is still loading or not
     const [isLoading, setLoading] = useState(!initialData)
-    // data represents the BiztechEvent list
     const [data, setData] = useState<BiztechEvent[] | null>(initialData);
-    // add a mobile state and change grid to block if mobile view
     const [isMobileDevice, setIsMobileDevice] = useState(false);
-    // isClicked state for when the "more" icon is clicked (mobile only)
     const [isClicked, setIsClicked] = useState(false);
-    // isDelete state for when the "delete event" button is pressed
     const [isDelete, setIsDelete] = useState(false)
-    // bizEvent is a state to know which event has been clicked
-    const [bizEvent, setBizEvent] = useState("Event Name")
+    const [bizEvent, setBizEvent] = useState<BiztechEvent | null>()
 
 
     // toggle the view when the 'more' icon is clicked 
-    const clickEffect = (eventClicked?: string) => {
-        if (eventClicked)
-            setBizEvent(eventClicked) // allows us to grab the specific event which was clicked
+    const eventClick = (event: BiztechEvent) => {
+        if (event)
+            setBizEvent(event) // allows us to grab the specific event which was clicked
         setIsClicked(!isClicked);
     };
 
@@ -57,17 +36,13 @@ export default function AdminEventView({ initialData }: Props) {
     useEffect(() => {
         const userAgent = navigator.userAgent;
         setIsMobileDevice(isMobile(userAgent)); 
-    }, []);
-
-    // grabbing the data to render (unfinished)
-    useEffect(() => {
-        if (!initialData && router.isReady) {
+        if (!initialData) {
             fetchEventData().then(d => {
                 setData(d)
                 setLoading(false)
             })
         }
-    }, [router.isReady, initialData]);
+    }, [initialData]);
 
     // ** had to comment this line out or else get a 'hydration' error
     // if (!router.isReady) return null;
@@ -107,12 +82,12 @@ export default function AdminEventView({ initialData }: Props) {
                 ) : (!isMobileDevice ?
                     <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data?.map(event => (
-                            <EventCard key={event.id} initialData={event} setIsDelete={setIsDelete} clickEffect={clickEffect}/>
+                            <EventCard key={event.id} initialData={event} setIsDelete={setIsDelete} eventClick={eventClick}/>
                         ))}
                     </div> :
                     <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data?.map(event => (
-                            <MobileEventCard key={event.id} initialData={event} clickEffect={clickEffect} />
+                            <MobileEventCard key={event.id} initialData={event} eventClick={eventClick} />
                         ))}
                     </div>
                 )}
