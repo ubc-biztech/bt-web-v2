@@ -39,7 +39,7 @@ enum LevelOfStudy {
     NotApplicable = "Not Applicable"
 }
 
-enum dietaryRestrictions {
+enum DietaryRestrictions {
     Vegetarian = "Vegetarian",
     Vegan = "Vegan",
     GlutenFree = "Gluten Free",
@@ -96,7 +96,7 @@ const schema = z.object({
     faculty: z.nativeEnum(Faculty),
     major: z.string(),
     internationalStudent: z.string(),
-    dietaryRestrictions: z.nativeEnum(dietaryRestrictions),
+    dietaryRestrictions: z.nativeEnum(DietaryRestrictions),
     biztechPast: z.string(),
     topicsOfInterest: z.array(z.nativeEnum(TopicsOfInterest)),
     howDidYouHearAboutUs: z.nativeEnum(HowDidYouHearAboutUs),
@@ -263,7 +263,7 @@ export default function SignUp() {
                     name={"dietaryRestrictions"}
                     render={({ field }) => (
                         <FormSelect
-                            items={Object.entries(dietaryRestrictions).map(([key, value]) => ({ value, label: value }))}
+                            items={Object.entries(DietaryRestrictions).map(([key, value]) => ({ value, label: value }))}
                             title="Dietary Restrictions*"
                             field={field}
                         />
