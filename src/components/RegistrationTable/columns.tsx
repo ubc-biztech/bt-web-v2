@@ -74,7 +74,7 @@ export const columns: ColumnDef<Attendee>[] = [
         cell: TableCell,
         meta: {
             type: "select",
-            options: [ // These values were inferred from the 
+            options: [ // These values were inferred from the database
                 { value: "Accepted", label: "Accepted" },
                 { value: "Reviewing", label: "Reviewing" },
                 { value: "Waitlist", label: "Waitlist" },
