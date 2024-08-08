@@ -14,11 +14,9 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
     const onSelectChange = (newValue: string) => {
         setValue(newValue)
         console.log("TODO - update data")
-        // tableMeta?.updateData(row.index, column.id, newValue)
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Update the state with the new value
         setValue(e.target.value);
     };
 

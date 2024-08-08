@@ -1,56 +1,62 @@
-import React, { ChangeEvent, useState } from 'react'
-import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { Row, Table } from "@tanstack/react-table"
 import { Attendee } from "../columns"
-import { ColumnMeta } from "../columns"
-import { Input } from "@/components/ui/input"
 import SelectCell from './userPopupEdit'
+import { ColumnMeta } from '../columns'
 
 interface EditCellProps {
     row: Row<Attendee>,
+    table: Table<Attendee>
 }
 
-const UserInfo: React.FC<EditCellProps> = ({ row }) => {
+const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
+    const [fieldLabels, setFieldLabels] = useState<{ [key: string]: string }>({});
+    const [dropDownList, setDropDownList] = useState<{ [key: string]: string[] }>({});
 
-    const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay');
+    useEffect(() => {
+        const generateFieldLabels = () => {
+            const columns = table.getAllColumns();
+            const labels: { [key: string]: string } = {};
 
-    const fieldLabels: { [key: string]: string } = {
-        appStatus: "Application Status",
-        dynamicField1: "Dynamic Field",
-        email: "Email",
-        faculty: "Faculty",
-        firstName: "First Name",
-        id: "ID",
-        lastName: "Last Name",
-        points: "Points",
-        regStatus: "Registration Status",
-        studentNumber: "Student Number"
-    };
+            columns.forEach((column) => {
+                const accessorKey = column.id;
+                const header = column.columnDef.header;
 
-    const dropDownList: { [key: string]: string[] } = {
-        regStatus: [
-            "Registered",
-            "Checked-In",
-            "Cancelled",
-            "Incomplete"
-        ],
-        appStatus: [
-            "Accepted",
-            "Rejected"
-        ],
-    };
+                if (accessorKey && typeof header === 'string') {
+                    labels[accessorKey] = header;
+                }
+            });
+            return labels;
+        };
+
+        setFieldLabels(generateFieldLabels());
+
+        const generateDropDownList = () => {
+            const columns = table.getAllColumns();
+            const options: { [key: string]: string[] } = {};
+            columns.forEach(column => {
+                // had to import meta as Column Meta or else encountered errors
+                const meta = column.columnDef.meta as ColumnMeta | undefined;
+        
+                if (meta?.type === 'select') {
+                    options[column.id] = meta.options?.map(opt => opt.value) || [];
+                }
+            });
+        
+            return options;
+        };
+
+        setDropDownList(generateDropDownList());
+
+    }, [table]);
+    console.log(fieldLabels);
+    
+    const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay' && key !== 'id');
 
 
     return (
-        <div className="text-white grid grid-cols-2 gap-4 m-3">
-            {fieldsToDisplay.map((key) => (
+        <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
+            {fieldsToDisplay?.map((key) => (
                 <div key={key}>
                     <label className="block font-bold text-baby-blue">{fieldLabels[key]}:</label>
                     {key === 'regStatus' || key === 'appStatus' ? (
