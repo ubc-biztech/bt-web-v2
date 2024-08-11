@@ -9,7 +9,7 @@ type Props = {
     isClicked: boolean,
     isMobile: boolean,
     isDelete: boolean,
-    bizEvent: BiztechEvent | null | undefined,
+    bizEvent: BiztechEvent | null,
     setIsDelete: React.Dispatch<React.SetStateAction<boolean>>
 }
 

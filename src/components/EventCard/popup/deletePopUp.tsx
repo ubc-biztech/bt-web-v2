@@ -5,7 +5,7 @@ import { BiztechEvent } from '@/types/biztechEvent';
 
 interface Props {
     setIsDelete: React.Dispatch<React.SetStateAction<boolean>>,
-    bizEvent: BiztechEvent | null | undefined,
+    bizEvent: BiztechEvent | null,
 }
 
 

@@ -18,24 +18,25 @@ type Props = {
 export default function AdminEventView({ initialData }: Props) {
     const router = useRouter()
     const [isLoading, setLoading] = useState(!initialData)
-    const [data, setData] = useState<BiztechEvent[] | null>(initialData);
+    const [data, setData] = useState<BiztechEvent[] | null>(initialData)
     const [isMobileDevice, setIsMobileDevice] = useState(false);
-    const [isClicked, setIsClicked] = useState(false);
+    const [isClicked, setIsClicked] = useState(false)
     const [isDelete, setIsDelete] = useState(false)
-    const [bizEvent, setBizEvent] = useState<BiztechEvent | null>()
+    const [bizEvent, setBizEvent] = useState<BiztechEvent | null>(null)
 
 
     // toggle the view when the 'more' icon is clicked 
     const eventClick = (event: BiztechEvent) => {
-        if (event)
+        if (event) {
             setBizEvent(event) // allows us to grab the specific event which was clicked
-        setIsClicked(!isClicked);
+        }
+        setIsClicked(!isClicked)
     };
 
     // function to manage mobile device state
     useEffect(() => {
-        const userAgent = navigator.userAgent;
-        setIsMobileDevice(isMobile(userAgent)); 
+        const userAgent = navigator.userAgent
+        setIsMobileDevice(isMobile(userAgent))
         if (!initialData) {
             fetchEventData().then(d => {
                 setData(d)
