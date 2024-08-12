@@ -1,0 +1,1 @@
+export const statsColors = ['#A0C86E', '#75CFF5', '#E75A7C', '#FFC960', '#C082D6', '#7F94FF', '#EB8273']
