@@ -5,18 +5,30 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     for (let i = 0; i < 200; i++) {
         data.push({
             id: i.toString(),
-            regStatus: "Checked-In",
-            appStatus: "Accepted",
-            firstName: "John",
-            lastName: "Smith",
-            email: "testing@ubcbiztech.com",
-            points: 0,
-            studentNumber: "12345678",
-            faculty: "Comm...",
-            dynamicField1: "aa...",
-            shouldNotDisplay: "THIS SHOULD NOT BE DISPLAYING."
+            applicationStatus: getRandomValue(["accepted", "reviewing", "waitlist"]),
+            registrationStatus: getRandomValue(["registered", "checkedIn", "waitlist", "incomplete", "cancelled"]),
+            basicInfo: {
+                diet: getRandomValue(["None", "Gluten Free", "Halal", "Vegetarian", "Vegan"]),
+                faculty: getRandomValue(["Arts", "Commerce", "Engineering", "Foresty", "Science", "Other"]),
+                fname: "John",
+                gender: getRandomValue([["They/Them/Their"], ["She/Her/Hers"], ["Other/Prefer not to say"], ["He/Him/His"]].flat()),
+                heardFrom: getRandomValue(["Facebook", "Instagram", "Biztech Newsletter", "LinkedIn", "Biztech Boothing", "Friends/Word of Mouth", "Other"]),
+                lname: "Smith",
+                major: "",
+                year: getRandomValue(["1st year", "2nd year", "3rd year", "4th year", "5+ year", "Other"])
+            },
+            checkoutLink: "",
+            dynamicResponses: {},
+            fname: "John",
+            isPartner: "false",
+            poinsts: 0,
+            scannedQRs: [],
+            updatedAt: new Date().toString(),
         })
     }
-
     return data
+}
+
+function getRandomValue(field: String[]) {
+    return field[Math.floor(Math.random() * field.length)];
 }
