@@ -10,9 +10,9 @@ interface PieChartProps {
 
 const PieChart: React.FC<PieChartProps> = ({
   data,
-  title = 'Pie Chart',
-  width = 600,
-  height = 400,
+  title,
+  width = "100%",
+  height = "100%",
 }) => {
   // Format the data for Google Charts
   const chartData = [
@@ -58,24 +58,22 @@ const PieChart: React.FC<PieChartProps> = ({
       showColorCode: true
     },
     chartArea: {
-      left: '10%',
-      top: '20%',
-      width: '80%',
-      height: '70%',
+      left: "0%",
+      top: "5%",
+      width: "100%",
+      height: "100%",
     },
     fontName: 'Poppins'
   };
 
   return (
-    <div className={`bg-login-form-card rounded-md font-poppins`} style={{width: width + 'px'}}>
-        <Chart  
-          chartType="PieChart"
-          data={chartData}
-          options={options}
-          width={width + 'px'}
-          height={height + 'px'}
-        />
-    </div>
+    <Chart
+      chartType="PieChart"
+      data={chartData}
+      options={options}
+      width={width}
+      height={height}
+    />
   );
 };
 

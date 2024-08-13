@@ -10,9 +10,9 @@ interface BarChartProps {
 
 const BarChart: React.FC<BarChartProps> = ({
   data,
-  title = "Bar Chart",
-  width = 600,
-  height = 400,
+  title,
+  width = "100%",
+  height = "100%",
 }) => {
   const chartData = [
     ["Label", "Value"],
@@ -22,8 +22,6 @@ const BarChart: React.FC<BarChartProps> = ({
   const options = {
     backgroundColor: "transparent",
     chartArea: {
-      left: "10%",
-      top: "20%",
       width: "80%",
       height: "70%",
     },
@@ -81,18 +79,13 @@ const BarChart: React.FC<BarChartProps> = ({
   };
 
   return (
-    <div
-      className={`bg-login-form-card rounded-md font-poppins`}
-      style={{ width: width + "px" }}
-    >
-      <Chart
-        chartType="ColumnChart"
-        data={chartData}
-        options={options}
-        width={width + "px"}
-        height={height + "px"}
-      />
-    </div>
+    <Chart
+      chartType="ColumnChart"
+      data={chartData}
+      options={options}
+      width={width}
+      height={height}
+    />
   );
 };
 

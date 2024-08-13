@@ -80,8 +80,8 @@ const PercentageBars = () => {
             </div>
           ))}
         </div>
-        <p className="ml-auto self-end">
-          Total registered: <span className="font-bold">{total}</span>
+        <p className="ml-auto self-end font-600">
+          Total registered: {total}
         </p>
       </div>
     </div>

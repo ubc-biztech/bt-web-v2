@@ -4,9 +4,31 @@ import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
 import PercentageBars from "@/components/stats/PercentageBars";
 import ChartBox from "@/components/stats/ChartBox";
+import BarChart from "@/components/stats/BarChart";
+import PieChart from "@/components/stats/PieChart";
+import StatsTable from "@/components/stats/StatsTable";
 
 type Props = {
   initialData: BasicInformation[] | null;
+};
+
+const getFieldCounts = (data: BasicInformation[], field: string) => {
+  const counts: Record<string, number> = {};
+  data.forEach((item) => {
+    const keys = field.split(".");
+    let value: any = item;
+    keys.forEach((key) => {
+      value = value ? value[key] : undefined;
+    });
+
+    if (value !== undefined) {
+      counts[value] = (counts[value] || 0) + 1;
+    }
+  });
+  return Object.entries(counts).map(([label, value]) => ({
+    label,
+    value,
+  }));
 };
 
 export default function Statistics({ initialData }: Props) {
@@ -21,13 +43,48 @@ export default function Statistics({ initialData }: Props) {
             Statistics {">"} {router.query.eventId} {router.query.year}
           </p>
           <br />
-          <ChartBox height="200px">
+          <ChartBox height="200px" title="Registration Status">
             <PercentageBars />
           </ChartBox>
           <div className="flex gap-4">
-            <ChartBox width="33%" height="300px"></ChartBox>
-            <ChartBox width="66%" height="300px"></ChartBox>
+            <ChartBox width="33%" height="300px" title="Attendee Year Level">
+              {initialData && (
+                <BarChart
+                  data={getFieldCounts(initialData, "basicInfo.year")}
+                />
+              )}
+            </ChartBox>
+            <ChartBox width="66%" height="300px" title="Heard Event From">
+              {initialData && (
+                <PieChart
+                  data={getFieldCounts(initialData, "basicInfo.heardFrom")}
+                />
+              )}
+            </ChartBox>
           </div>
+          <div className="flex gap-4">
+            <ChartBox width="66%" height="300px" title="Faculty">
+              {initialData && (
+                <PieChart
+                  data={getFieldCounts(initialData, "basicInfo.faculty")}
+                />
+              )}
+            </ChartBox>
+            <ChartBox width="33%" height="300px" title="Dietary Restrictions">
+              {initialData && (
+                <StatsTable
+                  data={getFieldCounts(initialData, "basicInfo.diet")}
+                />
+              )}
+            </ChartBox>
+          </div>
+          <ChartBox width="66%" height="300px" title="Pronouns">
+              {initialData && (
+                <PieChart
+                  data={getFieldCounts(initialData, "basicInfo.gender")}
+                />
+              )}
+            </ChartBox>
         </span>
       </div>
     </main>
