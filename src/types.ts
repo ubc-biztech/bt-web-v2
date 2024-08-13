@@ -11,19 +11,18 @@ export type BiztechEvent = {
     imageUrl: string;
     updatedAt: number;
     isPublished: boolean;
-    latitude: number;
-    longitude: number;
-    facebookUrl: string;
+    latitude?: number;
+    longitude?: number;
+    facebookUrl?: string;
     deadline: string;
-    registrationStatus: DBRegistrationStatus;
-    registrationQuestion: RegistrationQuestion[];
-    pricing: Map<string, Map<string, string>>;
+    registrationQuestions: RegistrationQuestion[];
+    pricing: any;
     partnerRegistrationQuestions: RegistrationQuestion[];
     feedback: string;
     partnerDescription: string;
     isApplicationBased: boolean;
     isCompleted: boolean;
-    hasDomainSpecificQuestions: boolean;
+    hasDomainSpecificQuestions?: boolean;
 };
 
 export type RegistrationQuestion = {
@@ -31,9 +30,10 @@ export type RegistrationQuestion = {
     questionId: string;
     type: string;
     required: boolean;
-    choices?: string[];
+    choices?: string;
     charLimit?: number;
     questionImageUrl?: string;
+    participantCap?: string;
 }
 
 export enum DBRegistrationStatus {
