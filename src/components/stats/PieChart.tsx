@@ -1,5 +1,6 @@
-import React from 'react';
-import { Chart } from 'react-google-charts';
+import React, { useEffect, useState } from "react";
+import { Chart } from "react-google-charts";
+import { debounce } from "lodash";
 
 interface PieChartProps {
   data: { label: string; value: number }[];
@@ -19,6 +20,25 @@ const PieChart: React.FC<PieChartProps> = ({
     ['Label', 'Value'],
     ...data.map(item => [item.label, item.value]),
   ];
+
+  // Re-render the chart component when window is resized horizontally
+  const [key, setKey] = useState(0);
+  const [prevWidth, setPrevWidth] = useState(0);
+
+  useEffect(() => {
+    setPrevWidth(window.innerWidth);
+
+    const handleResize = debounce(() => {
+      const newWidth = window.innerWidth;
+      if (newWidth < prevWidth) {
+        setKey(key + 1);
+      }
+      setPrevWidth(newWidth);
+    }, 25);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [prevWidth]);
 
   const options = {
     backgroundColor: 'transparent',
@@ -68,6 +88,7 @@ const PieChart: React.FC<PieChartProps> = ({
 
   return (
     <Chart
+      key={key}
       chartType="PieChart"
       data={chartData}
       options={options}

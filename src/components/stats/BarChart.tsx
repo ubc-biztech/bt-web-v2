@@ -1,4 +1,5 @@
-import React from "react";
+import { debounce } from "lodash";
+import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
 interface BarChartProps {
@@ -18,6 +19,25 @@ const BarChart: React.FC<BarChartProps> = ({
     ["Label", "Value"],
     ...data.map((item) => [item.label, item.value]),
   ];
+
+  // Re-render the chart component when window is resized horizontally
+  const [key, setKey] = useState(0);
+  const [prevWidth, setPrevWidth] = useState(0);
+
+  useEffect(() => {
+    setPrevWidth(window.innerWidth);
+
+    const handleResize = debounce(() => {
+      const newWidth = window.innerWidth;
+      if (newWidth < prevWidth) {
+        setKey(key + 1);
+      }
+      setPrevWidth(newWidth);
+    }, 25);
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [prevWidth]);
 
   const options = {
     backgroundColor: "transparent",
@@ -80,6 +100,7 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <Chart
+      key={key}
       chartType="ColumnChart"
       data={chartData}
       options={options}
