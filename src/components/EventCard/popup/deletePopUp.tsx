@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import DeleteSharpIcon from '@mui/icons-material/DeleteSharp';
-import { BiztechEvent } from '@/types/biztechEvent';
+import { BiztechEvent } from '@/types/types';
 
 
 interface Props {

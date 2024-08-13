@@ -12,7 +12,7 @@ import { extractTime, extractMonthDay } from '../../util/extractDate';
 // this is placeholder if no event image is found
 import placeHolderImage from '../../assets/event-placeholder.jpeg';
 import Image from 'next/image';
-import { BiztechEvent } from "@/types/biztechEvent";
+import { BiztechEvent } from "@/types/types";
 
 type Props = {
     initialData: BiztechEvent | null,

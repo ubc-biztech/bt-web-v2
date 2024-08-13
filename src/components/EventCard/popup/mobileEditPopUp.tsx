@@ -3,7 +3,7 @@ import PopupButton from './popupButton';
 import { motion } from "framer-motion";
 import DeletePopup from './deletePopUp';
 import PopupModal from './editPopUp';
-import { BiztechEvent } from '@/types/biztechEvent';
+import { BiztechEvent } from '@/types/types';
 
 type Props = {
     isClicked: boolean,
