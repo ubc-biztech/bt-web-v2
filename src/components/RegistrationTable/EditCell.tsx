@@ -25,6 +25,9 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
     const [questions, setQuestions] = useState<RegQuestionData[]>([]);
     const [responses, setResponses] = useState<{ [key: string]: UserResponse }>({});
 
+    // TESTING
+    console.log(row.original);
+
     useEffect(() => {
         if (router.isReady) {
             const eventId = router.query.eventId as string;
@@ -63,14 +66,17 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
                     <span className="italic text-white">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}
-                <div className="max-w-full h-[1px] bg-[#8DA1D1] my-3" />
+                <div className="max-w-full h-[1px] bg-divider my-3" />
+                
                 <div className="max-h-[300px] max-w-full overflow-y-auto">
                     <UserInfo row={row} table={table} />
-                    <div className="max-w-full h-[1px] bg-[#8DA1D1] my-3">
+                    {/* divider */}
+                    <div className="max-w-full h-[1px] bg-divider my-3">
                     <UserResponses questions={questions} responses={responses} />
                     </div>
                 </div>
-                <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+                {/* divider */}
+                <div className="w-full h-[1px] bg-divider my-3" />
                 {/* Added DialogTrigger here to close dialog upon button click */}
                 <DialogTrigger asChild>
                     <Button onClick={handleEdit}>Save changes</Button>

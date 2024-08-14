@@ -7,7 +7,6 @@ interface UserResponsesProps {
 }
 
 const UserResponses: React.FC<UserResponsesProps> = ({ questions, responses }) => {
-    console.log(questions);
     return (
         <div className="text-white p-2">
             {questions.map((question, index) => {

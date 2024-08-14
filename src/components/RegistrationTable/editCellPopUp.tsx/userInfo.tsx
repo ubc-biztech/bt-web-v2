@@ -49,7 +49,6 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
         setDropDownList(generateDropDownList());
 
     }, [table]);
-    console.log(fieldLabels);
     
     const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay' && key !== 'id');
 

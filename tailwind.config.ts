@@ -55,6 +55,7 @@ const config: Config = {
       'light-red': '#FF8686',
       'black': "#000000",
       'white': "#ffffff",
+      'divider': '#8DA1D1',
       border: "hsl(var(--border))",
       input: "hsl(var(--input))",
       ring: "hsl(var(--ring))",
