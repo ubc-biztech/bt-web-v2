@@ -16,9 +16,9 @@ export type BiztechEvent = {
     longitude: number;
     facebookUrl: string;
     deadline: string;
-    registrationStatus: DBRegistrationStatus;
-    registrationQuestion: RegistrationQuestion[];
-    pricing: Map<string, Map<string, string>>;
+    registrationStatus: any;
+    registrationQuestion: any;
+    pricing: any;
     partnerRegistrationQuestions: RegistrationQuestion[];
     feedback: string;
     partnerDescription: string;
