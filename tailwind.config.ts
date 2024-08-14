@@ -39,7 +39,9 @@ const config: Config = {
       // Events Page Colors
       events: {
         'navigation-bg': '#11192E',
-        'active-tab-bg': '#1C253D'
+        'active-tab-bg': '#1C253D',
+        'card-bg': '#263354',
+        'edit-hover-bg': '#2B395B',
       },
       // Selected Color Palette
       'biztech-navy': '#162039',

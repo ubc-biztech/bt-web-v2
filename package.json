@@ -9,6 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.21",
+    "@mui/material": "^5.15.21",
     "@aws-amplify/adapter-nextjs": "^1.2.10",
     "@aws-amplify/auth": "^6.3.7",
     "@aws-amplify/ui-react": "^6.1.12",
