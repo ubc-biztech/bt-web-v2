@@ -44,7 +44,7 @@
     }
 
     const createDynamicSchema = (event: BiztechEvent) => {
-        const dynamicSchema = event.registrationQuestions.reduce((acc, question) => {
+        const dynamicSchema = event.registrationQuestions?.reduce((acc, question) => {
         acc[question.questionId] = question.required 
             ? z.string().min(1, "This field is required")
             : z.string().optional();

@@ -42,7 +42,7 @@ interface PartnerEventRegistrationFormProps {
 }
 
 const createDynamicSchema = (event: BiztechEvent) => {
-  const dynamicSchema = event.partnerRegistrationQuestions.reduce((acc, question) => {
+  const dynamicSchema = event.partnerRegistrationQuestions?.reduce((acc, question) => {
     acc[question.questionId] = question.required 
       ? z.string().min(1, "This field is required")
       : z.string().optional();
