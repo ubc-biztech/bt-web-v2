@@ -10,12 +10,12 @@ interface ChartBoxProps {
 const ChartBox: React.FC<ChartBoxProps> = ({
   children,
   title,
-  height = "auto",
+  height = "100%",
   width = "100%",
 }) => {
   return (
     <div
-      className="bg-dark-slate my-2 p-4 flex flex-col rounded"
+      className="bg-dark-slate my-2 p-4 flex flex-col rounded !w-full lg:w-auto"
       style={{ height: height, width: width }}
     >
       <p className="text-white font-600 mb-2">{title}</p>

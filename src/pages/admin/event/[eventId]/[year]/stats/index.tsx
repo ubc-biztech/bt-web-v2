@@ -46,7 +46,7 @@ export default function Statistics({ initialData }: Props) {
           <ChartBox height="200px" title="Registration Status">
             <PercentageBars />
           </ChartBox>
-          <div className="flex gap-4">
+          <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
             <ChartBox width="33%" height="300px" title="Attendee Year Level">
               {initialData && (
                 <BarChart
@@ -62,7 +62,7 @@ export default function Statistics({ initialData }: Props) {
               )}
             </ChartBox>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
             <ChartBox width="66%" height="300px" title="Faculty">
               {initialData && (
                 <PieChart
