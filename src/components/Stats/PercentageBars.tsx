@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { statsColors as colors } from "@/constants/statsColors";
 
-interface DataItem {
-  [key: string]: number;
+interface PercentageBarsProps {
+  data: { label: string; value: number }[];
 }
 
-const mockData: DataItem[] = [
-  { checkedIn: 110 },
-  { registered: 200 },
-  { incomplete: 18 },
-  { cancelled: 10 },
-];
-
 const calculateBarPercentages = (
-  data: DataItem[],
+  data: { label: string; value: number }[],
   total: number
 ): { [key: string]: number } => {
   const percentages: { [key: string]: number } = {};
 
   data.forEach((item) => {
-    const [key, value] = Object.entries(item)[0];
-    percentages[key] = (value / total) * 100;
+    const { label, value } = item;
+    percentages[label] = (value / total) * 100;
   });
   return percentages;
 };
@@ -29,25 +22,22 @@ const getColorForIndex = (index: number): string => {
   return colors[index % colors.length];
 };
 
-const PercentageBars = () => {
+const PercentageBars: React.FC<PercentageBarsProps> = ({ data }) => {
   const [total, setTotal] = useState(0);
   const [percentages, setPercentages] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
-    const totalValue = mockData.reduce(
-      (sum, obj) => sum + Object.values(obj)[0],
-      0
-    );
+    const totalValue = data.reduce((sum, item) => sum + item.value, 0);
     setTotal(totalValue);
-    setPercentages(calculateBarPercentages(mockData, totalValue));
-  }, []);
+    setPercentages(calculateBarPercentages(data, totalValue));
+  }, [data]);
 
   return (
     <div>
       <div className="flex h-[50px] w-full mb-3 pt-6">
-        {Object.entries(percentages).map(([key, percentage], index) => (
+        {Object.entries(percentages).map(([label, percentage], index) => (
           <div
-            key={key}
+            key={label}
             className="flex items-center justify-center relative"
             style={{
               flex: `0 0 ${percentage}%`,
@@ -68,15 +58,15 @@ const PercentageBars = () => {
       </div>
       <div className="flex items-center w-full text-white">
         <div className="flex flex-wrap">
-          {Object.keys(percentages).map((key, index) => (
-            <div key={key} className="flex items-center mr-5 text-xs">
+          {Object.keys(percentages).map((label, index) => (
+            <div key={label} className="flex items-center mr-5 text-xs">
               <div
                 className="w-4 h-4 mr-2 rounded-[2px]"
                 style={{
                   backgroundColor: getColorForIndex(index),
                 }}
               />
-              <span>{key}</span>
+              <span>{label}</span>
             </div>
           ))}
         </div>

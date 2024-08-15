@@ -19,25 +19,20 @@ const BarChart: React.FC<BarChartProps> = ({
     ["Label", "Value"],
     ...data.map((item) => [item.label, item.value]),
   ];
-
+  
   // Re-render the chart component when window is resized horizontally
-  const [key, setKey] = useState(0);
-  const [prevWidth, setPrevWidth] = useState(0);
-
+  const [windowWidth, setWindowWidth] = useState<number | null>(null);
   useEffect(() => {
-    setPrevWidth(window.innerWidth);
-
+    setWindowWidth(window.innerWidth);
     const handleResize = debounce(() => {
-      const newWidth = window.innerWidth;
-      if (newWidth < prevWidth) {
-        setKey(key + 1);
-      }
-      setPrevWidth(newWidth);
+      setWindowWidth(window.innerWidth);
     }, 25);
+    window.addEventListener('resize', handleResize);
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [prevWidth]);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const options = {
     backgroundColor: "transparent",
@@ -100,7 +95,7 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <Chart
-      key={key}
+      key={windowWidth}
       chartType="ColumnChart"
       data={chartData}
       options={options}

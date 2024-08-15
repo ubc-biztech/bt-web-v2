@@ -44,7 +44,7 @@ export default function Statistics({ initialData }: Props) {
           </p>
           <br />
           <ChartBox height="200px" title="Registration Status">
-            <PercentageBars />
+            <PercentageBars data={getFieldCounts(initialData, "registrationStatus")}/>
           </ChartBox>
           <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
             <ChartBox width="33%" height="300px" title="Attendee Year Level">
