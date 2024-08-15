@@ -34,6 +34,7 @@ export type RegistrationQuestion = {
     charLimit?: number;
     questionImageUrl?: string;
     participantCap?: string;
+    isSkillsQuestion?: boolean;
 }
 
 export enum DBRegistrationStatus {

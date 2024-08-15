@@ -1,48 +1,29 @@
-import React from 'react';
-import {useForm, useFieldArray, useWatch} from 'react-hook-form';
+import React, { useMemo, useState } from 'react';
+import {useForm, useFieldArray, useWatch, SubmitHandler} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
-    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Plus } from 'lucide-react';
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast"
 import { BiztechEvent } from '@/types';
 import { QuestionTypes } from '@/constants/questionTypes';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
-const customQuestionSchema = z.record(z.string(), z.string().min(1, "This field is required"))
-
-const eventRegistrationFormSchema = z.object({
+const partnerEventRegistrationFormSchema = z.object({
     emailAddress: z.string().email({
       message: "Please enter a valid email address",
     }),
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
-    yearLevel: z.string().min(1, "Year level is required"),
-    faculty: z.string().min(1, "Faculty is required"),
-    majorSpecialization: z.string().min(1, "Major/Specialization is required"),
     preferredPronouns: z.enum([
       "He/Him/His",
       "She/Her/Hers",
@@ -50,53 +31,55 @@ const eventRegistrationFormSchema = z.object({
       "Other/Prefer not to say"
     ]),
     dietaryRestrictions: z.string().optional(),
-    howDidYouHear: z.string().min(1, "Please specify how you heard about this event"),
-    customQuestions: z.array(customQuestionSchema)
+    companyName: z.string().min(1, "Please specify your company"),
+    roleAtCompany: z.string().min(1, "Please specify your role/occupation"),
   });
- 
-type EventRegistrationFormSchema = z.infer<typeof eventRegistrationFormSchema>;
 
-interface EventRegistrationFormProps {
+interface PartnerEventRegistrationFormProps {
     event: BiztechEvent;
-    initialData?: Partial<EventRegistrationFormSchema>;
-    onSubmit: (data: EventRegistrationFormSchema) => void;
+    initialData?: Partial<z.infer<ReturnType<typeof createDynamicSchema>>>;
+    onSubmit: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => void;
 }
 
-export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({ event, initialData, onSubmit }) => {
-    const form = useForm({
-        resolver: zodResolver(eventRegistrationFormSchema),
-        defaultValues: initialData || {
-            emailAddress: "", 
-            firstName: "",
-            lastName: "",
-            yearLevel: "",
-            faculty: "",
-            majorSpecialization: "",
-            preferredPronouns: "He/Him/His",
-            dietaryRestrictions: "",
-            howDidYouHear: "",
-            customQuestions: [],
-        },
+const createDynamicSchema = (event: BiztechEvent) => {
+  const dynamicSchema = event.partnerRegistrationQuestions.reduce((acc, question) => {
+    acc[question.questionId] = question.required 
+      ? z.string().min(1, "This field is required")
+      : z.string().optional();
+    return acc;
+  }, {} as Record<string, z.ZodTypeAny>);
+
+  return partnerEventRegistrationFormSchema.extend({
+    customQuestions: z.object(dynamicSchema),
+  });
+};
+
+export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationFormProps> = ({ event, initialData, onSubmit }) => {
+    const [otherCheckedStates, setOtherCheckedStates] = useState({});
+    const schema = useMemo(() => createDynamicSchema(event), [event]);
+    type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
+
+    const form = useForm<FormValues>({
+      resolver: zodResolver(schema),
+      defaultValues: initialData || {
+        emailAddress: "",
+        firstName: "",
+        lastName: "",
+        companyName: "",
+        roleAtCompany: "",
+        preferredPronouns: "He/Him/His",
+        dietaryRestrictions: "",
+        customQuestions: {},
+      },
     });
 
-    const { append, remove } = useFieldArray({
-        control: form.control,
-        name: "customQuestions",
-    });
-
-    const customQuestions = useWatch({
-        control: form.control,
-        name: "customQuestions",
-    });
-
-    const handleSubmit = (data: Partial<EventRegistrationFormSchema>) => {
-        // Type assertion to EventFormSchema
-        onSubmit(data as EventRegistrationFormSchema);
+    const handleSubmit: SubmitHandler<FormValues> = (data) => {
+        onSubmit(data);
         toast({
-            title: "Event Created",
-            description: "Your event has been successfully created.",
+          title: "Registration Submitted",
+          description: "Your registration has been successfully submitted.",
         });
-        console.log(data)
+        console.log(data);
     };
 
     return (
@@ -159,65 +142,6 @@ export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({ ev
                                     )}
                                 />
                                 <FormField
-                                    control={form.control}
-                                    name="yearLevel"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Year Level*</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="text-white">
-                                                        <SelectValue placeholder="Select year level" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="year1">Year 1</SelectItem>
-                                                    <SelectItem value="year2">Year 2</SelectItem>
-                                                    <SelectItem value="year3">Year 3</SelectItem>
-                                                    <SelectItem value="year4">Year 4</SelectItem>
-                                                    <SelectItem value="year5+">Year 5+</SelectItem>
-                                                    <SelectItem value="notApplicable">Not Applicable</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="faculty"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Faculty*</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="text-white">
-                                                        <SelectValue placeholder="Select faculty" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="arts">Arts</SelectItem>
-                                                    <SelectItem value="science">Science</SelectItem>
-                                                    <SelectItem value="commerce">Commerce</SelectItem>
-                                                    <SelectItem value="landFoodSystems">Land and Food Systems</SelectItem>
-                                                    <SelectItem value="other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="majorSpecialization"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Major / Specialization*</FormLabel>
-                                            <FormControl>
-                                                <Input placeholder="Enter your major" {...field} />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
                                 control={form.control}
                                 name="preferredPronouns"
                                 render={({ field }) => (
@@ -265,32 +189,35 @@ export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({ ev
                                 />
                                 <FormField
                                     control={form.control}
-                                    name="howDidYouHear"
+                                    name="companyName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>How did you hear about this event?*</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                    <SelectTrigger className="text-white">
-                                                        <SelectValue placeholder="Select how you heard about the event" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="friends">Friends / Word of mouth</SelectItem>
-                                                    <SelectItem value="social">Social media</SelectItem>
-                                                    <SelectItem value="email">Email</SelectItem>
-                                                    <SelectItem value="other">Other</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <FormLabel>Company Name*</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Company" {...field} />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="roleAtCompany"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Role/Occupation at Company*</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Role/Occupation at company" {...field} />
+                                            </FormControl>
                                         </FormItem>
                                     )}
                                 />
 
                                 {/* Custom Questions */}
-                                {event?.registrationQuestions.map((question, index) => (
+                                {event?.partnerRegistrationQuestions.map((question) => (
                                         <FormField
+                                        key={question.questionId}
                                         control={form.control}
-                                        name={`customQuestions.${index}.${question.questionId}`} // Use question.id instead of index
+                                        name={`customQuestions.${question.questionId}`} // Use question.id instead of index
                                         render={({ field }) => (
                                             <FormItem>
                                             <FormLabel>{question.label}{question.required && '*'}</FormLabel>
@@ -308,7 +235,7 @@ export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({ ev
                                                         {question?.choices?.split(',').map((choice) => (
                                                             <FormField
                                                                 key={choice}
-                                                                name={`customQuestions.${index}.${question.questionId}`}
+                                                                name={`customQuestions.${question.questionId}`}
                                                                 render={({ field }) => {
                                                                     // Ensure that the field.value is an array of selected choices
                                                                     const selectedChoices = field.value ? field.value.split(', ') : [];
@@ -385,6 +312,83 @@ export const EventRegistrationForm: React.FC<EventRegistrationFormProps> = ({ ev
                                                     </SelectContent>
                                                 </Select>
                                                 </FormControl>
+                                            )}
+                                            {question.type === QuestionTypes.SKILLS && (
+                                            <FormControl>
+                                                <div className="space-y-2">
+                                                {question?.choices?.split(',').map((choice) => (
+                                                    <FormField
+                                                    key={choice}
+                                                    name={`customQuestions.${question.questionId}`}
+                                                    render={({ field }) => {
+                                                        const selectedChoices = field.value ? field.value.split(', ') : [];
+                                                        const isChecked = selectedChoices.includes(choice);
+                                                        const isOtherChecked = otherCheckedStates[question.questionId] || false;
+
+                                                        return (
+                                                        <FormItem className="flex items-center space-x-2">
+                                                            <FormControl>
+                                                            {choice.toLowerCase() === 'other' ? (
+                                                                <>
+                                                                <Checkbox
+                                                                    checked={isOtherChecked}
+                                                                    onCheckedChange={(checked) => {
+                                                                    setOtherCheckedStates(prev => ({
+                                                                        ...prev,
+                                                                        [question.questionId]: checked
+                                                                    }));
+                                                                    if (!checked) {
+                                                                        // Remove 'Other' and any custom skills from the field value
+                                                                        const newValue = selectedChoices
+                                                                        .filter(v => v !== 'Other' && !v.startsWith('Other:'))
+                                                                        .join(', ');
+                                                                        field.onChange(newValue);
+                                                                    }
+                                                                    }}
+                                                                />
+                                                                {isOtherChecked && (
+                                                                    <Input
+                                                                    placeholder="Enter custom skills (comma-separated)"
+                                                                    value={selectedChoices.find(v => v.startsWith('Other:'))?.substring(6) || ''}
+                                                                    onChange={(e) => {
+                                                                        const customSkills = e.target.value;
+                                                                        let newValue = selectedChoices
+                                                                        .filter(v => v !== 'Other' && !v.startsWith('Other:'))
+                                                                        .concat(`Other:${customSkills}`)
+                                                                        .join(', ');
+                                                                        field.onChange(newValue);
+                                                                    }}
+                                                                    className="mt-2"
+                                                                    />
+                                                                )}
+                                                                </>
+                                                            ) : (
+                                                                <Checkbox
+                                                                checked={isChecked}
+                                                                onCheckedChange={(checked) => {
+                                                                    let newValue;
+                                                                    if (checked) {
+                                                                    newValue = selectedChoices.length
+                                                                        ? `${field.value}, ${choice}`
+                                                                        : choice;
+                                                                    } else {
+                                                                    newValue = selectedChoices
+                                                                        .filter(v => v !== choice)
+                                                                        .join(', ');
+                                                                    }
+                                                                    field.onChange(newValue);
+                                                                }}
+                                                                />
+                                                            )}
+                                                            </FormControl>
+                                                            <FormLabel className="font-normal">{choice}</FormLabel>
+                                                        </FormItem>
+                                                        );
+                                                    }}
+                                                    />
+                                                ))}
+                                                </div>
+                                            </FormControl>
                                             )}
                                             </FormItem>
                                         )}
