@@ -4,49 +4,15 @@
 //     : aws_exports
 
 export const API_URL =
-process.env.REACT_APP_STAGE === "production"
+process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
   ? "https://api.ubcbiztech.com"
-  : process.env.REACT_APP_STAGE === "local"
+  : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
     ? "http://localhost:4000"
     : "https://api-dev.ubcbiztech.com";
 
 export const CLIENT_URL =
-  process.env.REACT_APP_STAGE === "production"
+  process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
     ? "https://app.ubcbiztech.com/"
-    : process.env.REACT_APP_STAGE === "local"
+    : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
       ? "http://localhost:3000/"
       : "https://dev.app.ubcbiztech.com/";
-
-export const AWS_CONFIG = {
-  Auth: {
-    aws_project_region: "us-west-2",
-    aws_cognito_identity_pool_id:
-      "us-west-2:0bfef155-88d4-40cb-9805-de9d366d6650",
-    aws_cognito_region: "us-west-2",
-    aws_user_pools_id: "us-west-2_w0R176hhp",
-    aws_user_pools_web_client_id: "5tc2jshu03i3bmtl1clsov96dt",
-    oauth: {
-      domain: "auth.ubcbiztech.com",
-      scope: [
-        "phone",
-        "email",
-        "openid",
-        "profile",
-        "aws.cognito.signin.user.admin"
-      ],
-      redirectSignIn: CLIENT_URL + "login-redirect/",
-      redirectSignOut: CLIENT_URL,
-      responseType: "code"
-    },
-    federationTarget: "COGNITO_USER_POOLS",
-    identityPoolId: "us-west-2:0bfef155-88d4-40cb-9805-de9d366d6650",
-    region: "us-west-2",
-    userPoolId: "us-west-2_w0R176hhp",
-    userPoolWebClientId: "5tc2jshu03i3bmtl1clsov96dt"
-  },
-  Storage: {
-    bucket: process.env.REACT_APP_BUCKET_NAME,
-    region: "us-west-2",
-    identityPoolId: "us-west-2:0bfef155-88d4-40cb-9805-de9d366d6650"
-  }
-};

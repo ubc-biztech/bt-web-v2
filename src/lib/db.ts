@@ -34,7 +34,7 @@ export async function fetchBackend({
   if (authenticatedCall) {
     const session = await currentSession();
     if (session) {
-      headers['Authorization'] = `Bearer ${session.accessToken}`;
+      headers['Authorization'] = `Bearer ${session.idToken}`;
     } else {
       throw new Error('Failed to retrieve authentication session.');
     }
