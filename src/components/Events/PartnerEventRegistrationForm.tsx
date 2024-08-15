@@ -55,7 +55,7 @@ const createDynamicSchema = (event: BiztechEvent) => {
 };
 
 export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationFormProps> = ({ event, initialData, onSubmit }) => {
-    const [otherCheckedStates, setOtherCheckedStates] = useState({});
+    const [otherCheckedStates, setOtherCheckedStates] = useState<{ [key: string]: any }>({});
     const schema = useMemo(() => createDynamicSchema(event), [event]);
     type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
 
@@ -256,7 +256,7 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                                                         } else {
                                                                                             // Remove the choice from the comma-separated string
                                                                                             newValue = selectedChoices
-                                                                                                .filter(v => v !== choice)
+                                                                                                .filter((v: string) => v !== choice)
                                                                                                 .join(', ');
                                                                                         }
                                                                                         field.onChange(newValue);
@@ -340,7 +340,7 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                                     if (!checked) {
                                                                         // Remove 'Other' and any custom skills from the field value
                                                                         const newValue = selectedChoices
-                                                                        .filter(v => v !== 'Other' && !v.startsWith('Other:'))
+                                                                        .filter((v: string) => v !== 'Other' && !v.startsWith('Other:'))
                                                                         .join(', ');
                                                                         field.onChange(newValue);
                                                                     }
@@ -349,11 +349,11 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                                 {isOtherChecked && (
                                                                     <Input
                                                                     placeholder="Enter custom skills (comma-separated)"
-                                                                    value={selectedChoices.find(v => v.startsWith('Other:'))?.substring(6) || ''}
+                                                                    value={selectedChoices.find((v: string) => v.startsWith('Other:'))?.substring(6) || ''}
                                                                     onChange={(e) => {
                                                                         const customSkills = e.target.value;
                                                                         let newValue = selectedChoices
-                                                                        .filter(v => v !== 'Other' && !v.startsWith('Other:'))
+                                                                        .filter((v: string) => v !== 'Other' && !v.startsWith('Other:'))
                                                                         .concat(`Other:${customSkills}`)
                                                                         .join(', ');
                                                                         field.onChange(newValue);
@@ -373,7 +373,7 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                                         : choice;
                                                                     } else {
                                                                     newValue = selectedChoices
-                                                                        .filter(v => v !== choice)
+                                                                        .filter((v: string) => v !== choice)
                                                                         .join(', ');
                                                                     }
                                                                     field.onChange(newValue);

@@ -316,8 +316,8 @@
                                                                                             } else {
                                                                                                 // Remove the choice from the comma-separated string
                                                                                                 newValue = selectedChoices
-                                                                                                    .filter(v => v !== choice)
-                                                                                                    .join(', ');
+                                                                                                .filter((v: string) => v !== choice)
+                                                                                                .join(', ');
                                                                                             }
                                                                                             field.onChange(newValue);
                                                                                         }}
