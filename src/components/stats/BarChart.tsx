@@ -1,9 +1,10 @@
+import { StatsChartData } from "@/types";
 import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 
 interface BarChartProps {
-  data: { label: string; value: number }[];
+  data: StatsChartData[];
   title?: string;
   width?: number;
   height?: number;

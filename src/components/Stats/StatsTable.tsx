@@ -1,11 +1,13 @@
+import { StatsChartData } from "@/types";
+
 interface StatsTableProps {
-  data: { label: string; value: number }[];
+  data: StatsChartData[];
 }
 
 const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
-  const renderData = (): JSX.Element[] => {
-    const result: JSX.Element[] = [];
-    const groupedData: { [key: string]: { label: string; value: number }[] } =
+  const renderData = () => {
+    const simpleData: JSX.Element[] = [];
+    const groupedData: { [key: string]: StatsChartData[] } =
       {};
 
     data.forEach((item) => {
@@ -16,7 +18,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
         }
         groupedData[parent].push({ label: child, value: item.value });
       } else {
-        result.push(
+        simpleData.push(
           <>
             <div className="col-span-2">{item.label}</div>
             <div className="col-span-1 text-right">{item.value}</div>
@@ -26,7 +28,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
     });
 
     Object.entries(groupedData).forEach(([parent, children]) => {
-      result.push(
+      simpleData.push(
         <>
           <div className="col-span-3 font-bold">{parent}</div>
           {children.map(({ label, value }) => (
@@ -39,7 +41,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
       );
     });
 
-    return result;
+    return simpleData;
   };
 
   return (

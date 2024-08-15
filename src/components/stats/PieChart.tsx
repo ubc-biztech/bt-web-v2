@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 import { debounce } from "lodash";
-
+import { StatsChartData } from "@/types";
 interface PieChartProps {
-  data: { label: string; value: number }[];
+  data: StatsChartData[];
   title?: string;
   width?: number;
   height?: number;

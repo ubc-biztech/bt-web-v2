@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { statsColors as colors } from "@/constants/statsColors";
+import { StatsChartData } from "@/types";
 
 interface PercentageBarsProps {
-  data: { label: string; value: number }[];
+  data: StatsChartData[];
 }
 
+export const barColors = ['#A0C86E', '#75CFF5', '#E75A7C', '#FFC960', '#C082D6', '#7F94FF', '#EB8273']
+
 const calculateBarPercentages = (
-  data: { label: string; value: number }[],
+  data: StatsChartData[],
   total: number
-): { [key: string]: number } => {
+) => {
   const percentages: { [key: string]: number } = {};
 
   data.forEach((item) => {
@@ -19,7 +21,7 @@ const calculateBarPercentages = (
 };
 
 const getColorForIndex = (index: number): string => {
-  return colors[index % colors.length];
+  return barColors[index % barColors.length];
 };
 
 const PercentageBars: React.FC<PercentageBarsProps> = ({ data }) => {
@@ -70,9 +72,7 @@ const PercentageBars: React.FC<PercentageBarsProps> = ({ data }) => {
             </div>
           ))}
         </div>
-        <p className="ml-auto self-end font-600">
-          Total registered: {total}
-        </p>
+        <p className="ml-auto self-end font-600">Total registered: {total}</p>
       </div>
     </div>
   );
