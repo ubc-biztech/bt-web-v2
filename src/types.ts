@@ -9,40 +9,25 @@ export type BasicInformation = {
     faculty: string
 }
 
-export type RegQuestionAttributes = {
-    label: {
-        S: string;
-    };
-    charLimit?: {
-        N: string;
-    },
-    questionId: {
-        S: string;
-    };
-    type: {
-        S: string;
-    };
-    choices: {
-        S: string;
-    };
-    required: {
-        BOOL: boolean;
-    };
-    questionImageUrl?: {
-        S?: string;
-    };
+export type RegistrationQuestion = {
+    label: string;
+    questionId: string;
+    type: string;
+    required: boolean;
+    choices?: string[];
+    charLimit?: number;
+    questionImageUrl?: string;
+    participantCap?: string;
+    isSkillsQuestion?: boolean;
 }
 
-export type RegQuestionData = {
-    M: RegQuestionAttributes;
-}
-
-export type UserResponse = {
+type UserResponse = {
     S: string;
 };
 
-export type UserQuestionIDs = {
-    [key: string]: UserResponse;
+// Type for the mapping of question IDs to responses
+export type UserResponseList = {
+    [questionId: string]: UserResponse;
 };
 
 

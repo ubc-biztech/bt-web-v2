@@ -1,19 +1,18 @@
 import React from 'react';
-import { RegQuestionData, UserResponse } from '../../../types';
+import { RegistrationQuestion, UserResponseList } from '../../../types';
 
 interface UserResponsesProps {
-    questions: RegQuestionData[];
-    responses: { [key: string]: UserResponse };
+    questions: RegistrationQuestion[];
+    responses: UserResponseList;
 }
 
 const UserResponses: React.FC<UserResponsesProps> = ({ questions, responses }) => {
     return (
         <div className="text-white p-2">
             {questions.map((question, index) => {
-                const questionData = question.M;
 
-                const label = questionData.label.S;
-                const questionId = questionData.questionId.S;
+                const label = question.label;
+                const questionId = question.questionId;
                 const answer = responses[questionId]?.S || 'No response';
 
                 return (

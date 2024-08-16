@@ -50,8 +50,8 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
 
     }, [table]);
     
-    const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay' && key !== 'id');
-
+    const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay' && key !== 'id' && key != 'dynamicResponses');
+    
 
     return (
         <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
