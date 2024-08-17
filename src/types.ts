@@ -21,13 +21,9 @@ export type RegistrationQuestion = {
     isSkillsQuestion?: boolean;
 }
 
-type UserResponse = {
-    S: string;
-};
-
 // Type for the mapping of question IDs to responses
 export type UserResponseList = {
-    [questionId: string]: UserResponse;
+    [questionId: string]: string;
 };
 
 
