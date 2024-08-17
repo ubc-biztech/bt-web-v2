@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import * as Separator from "@radix-ui/react-separator";
 import TextIcon from "./TextIcon";
-import EventCard from "./ProfileEventCard";
+import ProfileEventCard from "./ProfileEventCard";
 import RegisteredIcon from "../../../public/assets/icons/registered_events_icon.svg";
 import SavedIcon from "../../../public/assets/icons/bookmark_icon.svg";
 import BizBot from "../../../public/assets/bizbot_peeking.png";
@@ -50,7 +50,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         ) : (
           registeredEvents
             .slice(isMobileDevice ? -2 : -3)
-            .map((event) => <EventCard initialData={event} key={event.id} />)
+            .map((event) => <ProfileEventCard initialData={event} key={event.id} />)
         )}
       </div>
 
@@ -69,7 +69,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         ) : (
           savedEvents
             .slice(isMobileDevice ? -2 : -3)
-            .map((event) => <EventCard initialData={event} key={event.id} />)
+            .map((event) => <ProfileEventCard initialData={event} key={event.id} />)
         )}
       </div>
       <Separator.Root className="SeparatorRoot my-6 mx-0 bg-profile-separator-bg h-[0.5px]" />
