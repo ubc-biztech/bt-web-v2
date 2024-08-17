@@ -1,4 +1,4 @@
-import { StatsChartData } from "@/types";
+import { StatsChartData } from "@/types/types";
 
 interface StatsTableProps {
   data: StatsChartData[];

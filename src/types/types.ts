@@ -71,3 +71,20 @@ export type AttendeeBasicInformation = BasicInformation & {
     heardFrom: string;
     faculty: string;
   };
+
+export type AttendeeDetailedInformation = {
+    id: string,
+    applicationStatus: string,
+    registrationStatus: string,
+    basicInfo: AttendeeBasicInformation,
+    checkoutLink: string,
+    dynamicResponses: {[key: string]: string},
+    fname: string,
+    isPartner: string,
+    points: number,
+    scannedQRs: string[],
+    updatedAt: string,
+
+}
+
+export type StatsChartData = { label: string; value: number };

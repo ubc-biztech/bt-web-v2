@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 import { debounce } from "lodash";
-import { StatsChartData } from "@/types";
+import { StatsChartData } from "@/types/types";
 interface PieChartProps {
   data: StatsChartData[];
   title?: string;

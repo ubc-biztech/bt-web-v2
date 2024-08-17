@@ -1,4 +1,4 @@
-import { UserEventData } from "@/types";
+import { AttendeeDetailedInformation } from "@/types/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
@@ -9,10 +9,10 @@ import PieChart from "@/components/stats/PieChart";
 import StatsTable from "@/components/stats/StatsTable";
 
 type Props = {
-  initialData: UserEventData[] | null;
+  initialData: AttendeeDetailedInformation[] | null;
 };
 
-const getFieldCounts = (data: UserEventData[], field: string) => {
+const getFieldCounts = (data: AttendeeDetailedInformation[], field: string) => {
   const counts: Record<string, number> = {};
 
   for (const userData of data) {

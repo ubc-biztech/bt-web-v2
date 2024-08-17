@@ -1,4 +1,4 @@
-import { StatsChartData } from "@/types";
+import { StatsChartData } from "@/types/types";
 import { debounce } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
