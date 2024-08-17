@@ -36,17 +36,12 @@ export const UserInfo = ({ profile }: { profile: Profile | null }) => {
             {profile?.name ? extractInitials(profile?.name) : ""}
           </AvatarFallback>
         </Avatar>
-        <Link href="">
+        {/* <Link href="">
           <p className="text-center text-baby-blue mt-2 text-xs">Edit</p>
-        </Link>
+        </Link> TO DO: add edit profile functionality */} 
       </div>
       <div className="flex flex-col grow">
-        <TextIcon
-          text={<h4 className="text-biztech-green">User Profile</h4>}
-          icon={EditIcon}
-          iconSize={28}
-          iconAtEnd={true}
-        />
+        <h4 className="text-biztech-green">User Profile</h4> {/* TO DO: add back edit icon and functionality */}
         <Separator.Root className="SeparatorRoot my-3 mx-0 bg-profile-separator-bg h-[0.5px]" />
         <ProfileRow>
           <ProfileField field="Name" value={profile?.name || ""} />
