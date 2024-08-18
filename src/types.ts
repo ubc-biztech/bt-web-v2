@@ -8,3 +8,22 @@ export type BasicInformation = {
     heardFrom: string
     faculty: string
 }
+
+export type RegistrationQuestion = {
+    label: string;
+    questionId: string;
+    type: string;
+    required: boolean;
+    choices?: string[];
+    charLimit?: number;
+    questionImageUrl?: string;
+    participantCap?: string;
+    isSkillsQuestion?: boolean;
+}
+
+// Type for the mapping of question IDs to responses
+export type UserResponseList = {
+    [questionId: string]: string;
+};
+
+
