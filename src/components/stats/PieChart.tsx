@@ -78,18 +78,24 @@ const PieChart: React.FC<PieChartProps> = ({
       width: "100%",
       height: "100%",
     },
-    fontName: 'Poppins'
+    fontName: "Poppins",
   };
 
   return (
-    <Chart
-      key={windowWidth}
-      chartType="PieChart"
-      data={chartData}
-      options={options}
-      width={width}
-      height={height}
-    />
+    <>
+      {data.length === 0 ? (
+        <div className="flex justify-center text-white">No data available</div>
+      ) : (
+        <Chart
+          key={windowWidth}
+          chartType="PieChart"
+          data={chartData}
+          options={options}
+          width={width}
+          height={height}
+        />
+      )}
+    </>
   );
 };
 

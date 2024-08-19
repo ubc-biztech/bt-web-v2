@@ -36,44 +36,56 @@ const PercentageBars: React.FC<PercentageBarsProps> = ({ data }) => {
 
   return (
     <div>
-      <div className="flex h-[50px] w-full mb-3 pt-6">
-        {Object.entries(percentages).map(([label, percentage], index) => (
-          <div
-            key={label}
-            className="flex items-center justify-center relative"
-            style={{
-              flex: `0 0 ${percentage}%`,
-              backgroundColor: getColorForIndex(index),
-              borderTopLeftRadius: index === 0 ? "4px" : "0",
-              borderBottomLeftRadius: index === 0 ? "4px" : "0",
-              borderTopRightRadius:
-                index === Object.entries(percentages).length - 1 ? "4px" : "0",
-              borderBottomRightRadius:
-                index === Object.entries(percentages).length - 1 ? "4px" : "0",
-            }}
-          >
-            <div className="absolute top-[-25px] left-[50%] text-white text-sm font-medium translate-x-[-50%]">
-              {percentage.toFixed(1)}%
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex items-center w-full text-white">
-        <div className="flex flex-wrap">
-          {Object.keys(percentages).map((label, index) => (
-            <div key={label} className="flex items-center mr-5 text-xs">
+      {data.length === 0 ? (
+        <div className="flex justify-center text-white">No data available</div>
+      ) : (
+        <>
+          <div className="flex h-[50px] w-full mb-3 pt-6">
+            {Object.entries(percentages).map(([label, percentage], index) => (
               <div
-                className="w-4 h-4 mr-2 rounded-[2px]"
+                key={label}
+                className="flex items-center justify-center relative"
                 style={{
+                  flex: `0 0 ${percentage}%`,
                   backgroundColor: getColorForIndex(index),
+                  borderTopLeftRadius: index === 0 ? "4px" : "0",
+                  borderBottomLeftRadius: index === 0 ? "4px" : "0",
+                  borderTopRightRadius:
+                    index === Object.entries(percentages).length - 1
+                      ? "4px"
+                      : "0",
+                  borderBottomRightRadius:
+                    index === Object.entries(percentages).length - 1
+                      ? "4px"
+                      : "0",
                 }}
-              />
-              <span>{label}</span>
+              >
+                <div className="absolute top-[-25px] left-[50%] text-white text-sm font-medium translate-x-[-50%]">
+                  {percentage.toFixed(1)}%
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex items-center w-full text-white">
+            <div className="flex flex-wrap">
+              {Object.keys(percentages).map((label, index) => (
+                <div key={label} className="flex items-center mr-5 text-xs">
+                  <div
+                    className="w-4 h-4 mr-2 rounded-[2px]"
+                    style={{
+                      backgroundColor: getColorForIndex(index),
+                    }}
+                  />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        <p className="ml-auto self-end font-600">Total registered: {total}</p>
-      </div>
+            <p className="ml-auto self-end font-600">
+              Total registered: {total}
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 };

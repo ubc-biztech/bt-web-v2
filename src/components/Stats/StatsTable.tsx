@@ -45,7 +45,15 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2 text-pale-blue">{renderData()}</div>
+    <>
+      {data.length === 0 ? (
+        <div className="flex justify-center text-white">No data available</div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2 text-pale-blue">
+          {renderData()}
+        </div>
+      )}
+    </>
   );
 };
 

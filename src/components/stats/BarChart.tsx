@@ -95,14 +95,20 @@ const BarChart: React.FC<BarChartProps> = ({
   };
 
   return (
-    <Chart
-      key={windowWidth}
-      chartType="ColumnChart"
-      data={chartData}
-      options={options}
-      width={width}
-      height={height}
-    />
+    <>
+      {data.length === 0 ? (
+        <div className="flex justify-center text-white">No data available</div>
+      ) : (
+        <Chart
+          key={windowWidth}
+          chartType="ColumnChart"
+          data={chartData}
+          options={options}
+          width={width}
+          height={height}
+        />
+      )}
+    </>
   );
 };
 
