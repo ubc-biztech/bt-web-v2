@@ -34,6 +34,7 @@ const config: Config = {
       },
       // Events Page Colors
       events: {
+        "coming-up": "#EC722D",
         "baby-blue": "#B2C9FC",
         "user-card-bg": "#304068",
         "navigation-bg": "#11192E",
