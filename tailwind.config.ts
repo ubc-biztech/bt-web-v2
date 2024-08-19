@@ -61,6 +61,7 @@ const config: Config = {
       'light-green': '#AFE38C',
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
+      'divider': '#8DA1D1',
       black: '#000000',
       placeholder: '#D9D9D9',
       white: '#ffffff',
