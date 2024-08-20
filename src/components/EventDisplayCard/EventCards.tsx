@@ -24,8 +24,8 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
 
   return (
     <>
-      <AnimatePresence mode="popLayout">
-        {currentEvents.length > 0 && (
+      {currentEvents.length > 0 && (
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={"CurrentEvents"}
             initial={{ y: -10, opacity: 0 }}
@@ -40,18 +40,26 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
           >
             <h4 className="text-white mb-3">Current Events</h4>
           </motion.div>
-        )}
-        <div className="flex flex-col space-y-5 mb-5">
+        </AnimatePresence>
+      )}
+      <div className="flex flex-col space-y-5 mb-5">
+        <AnimatePresence mode="wait">
           {currentEvents &&
             currentEvents
               .filter((e) => {
                 return e.isPublished;
               })
-              .map((event) => {
-                return <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />;
+              .map((event, i) => {
+                return (
+                  <div key={`${event.id};${event.ename};${event.year}${i}`}>
+                    <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                  </div>
+                );
               })}
-        </div>
-        {pastEvents.length > 0 && (
+        </AnimatePresence>
+      </div>
+      {pastEvents.length > 0 && (
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={"PastEvents"}
             initial={{ y: -10, opacity: 0 }}
@@ -66,18 +74,24 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
           >
             <h4 className="text-white mb-3 opacity-40">Past Events</h4>
           </motion.div>
-        )}
-        <div className="flex flex-col space-y-5 opacity-40">
+        </AnimatePresence>
+      )}
+      <div className="flex flex-col space-y-5 opacity-40">
+        <AnimatePresence mode="wait">
           {pastEvents &&
             pastEvents
               .filter((e) => {
                 return e.isPublished;
               })
-              .map((event) => {
-                return <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />;
+              .map((event, i) => {
+                return (
+                  <div key={`${event.id};${event.ename};${event.year}${i}`}>
+                    <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                  </div>
+                );
               })}
-        </div>
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </>
   );
 };

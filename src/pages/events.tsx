@@ -75,7 +75,7 @@ export default function Page({ events }: EventProps) {
     return filteredEvents;
   };
 
-  const displayedEvents = useMemo(() => uiStateFilter(), [filterState, searchField, saved]);
+  const displayedEvents = useMemo(() => uiStateFilter(), [uiStateFilter, filterState, searchField, saved]);
 
   return (
     <main className="bg-primary-color min-h-screen w-full">
@@ -180,7 +180,7 @@ const events = [
     description: "asdf",
     feedback: "",
     createdAt: 1714507569426,
-    ename: "BLUEPRINT + SAVED + REGISTERED",
+    ename: "all ui states applied",
     capac: 123,
     elocation: "asdf",
     imageUrl: "https://www.wikihow.com/images/thumb/d/db/Get-the-URL-for-Pictures-Step-2-Version-6.jpg/v4-460px-Get-the-URL-for-Pictures-Step-2-Version-6.jpg",

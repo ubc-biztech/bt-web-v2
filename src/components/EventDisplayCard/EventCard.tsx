@@ -54,13 +54,13 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
     const deadline = new Date(event.deadline);
     if (new Date() >= deadline && startDate >= new Date()) {
       return (
-        <div className="rounded-full font-poppin font-[700] px-2 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
+        <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
           COMING UP
         </div>
       );
     } else if (startDate > new Date()) {
       return (
-        <div className="rounded-full px-2 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px]  flex items-center">
+        <div className="rounded-full px-3 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px] flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
         </div>
       );
@@ -72,14 +72,14 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
   return (
     <>
       <motion.div
-        key={event.id + event.ename + event.year}
-        initial={{ y: -10, opacity: 0 }}
+        key={`${event.id};${event.ename};${event.year}`}
+        initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{
           type: "tween",
           ease: "easeInOut",
-          duration: 0.5,
+          duration: 0.3,
         }}
         onClick={(e) => e.stopPropagation()}
       >
