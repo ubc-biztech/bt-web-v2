@@ -1,9 +1,7 @@
 import { EventCards } from "@/components/EventDisplayCard/EventCards";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
-import { runWithAmplifyServerContext } from "@/util/amplify-utils";
-import { getCurrentUser } from "@aws-amplify/auth/server";
-import { getCurrentUser as getCurrentUserClient } from "@aws-amplify/auth";
+import { getCurrentUser } from "@aws-amplify/auth";
 import { ListIcon, SearchIcon, Bookmark } from "lucide-react";
 import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 
@@ -38,7 +36,7 @@ export default function Page({ events }: EventProps) {
 
   const fetchData = async () => {
     try {
-      const { signInDetails } = await getCurrentUserClient();
+      const { signInDetails } = await getCurrentUser();
       const email = signInDetails?.loginId;
       const user = await fetchBackend({ endpoint: `/users/${email}`, method: "GET" });
       const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET" });
