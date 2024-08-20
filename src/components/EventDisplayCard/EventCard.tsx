@@ -72,8 +72,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
   return (
     <>
       <motion.div
-        key={`${event.id};${event.ename};${event.year}`}
-        initial={{ y: 100, opacity: 0 }}
+        layout
+        initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{
@@ -83,7 +83,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="bg-events-user-card-bg w-full p-3 rounded-[10px]">
+        <div className="bg-events-user-card-bg w-full p-3 rounded-[10px] my-2">
           <div className="flex flex-row space-x-5 relative">
             <div className="relative lg:w-[200px] lg:h-[130px] w-[100px] h-[75px] overflow-hidden rounded-lg shrink-0">
               <Image className="object-cover" fill src={event.imageUrl} alt={event.ename} />

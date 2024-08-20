@@ -1,17 +1,16 @@
 import { BiztechEvent } from "@/types/types";
 import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { EventCard } from "./EventCard";
 
-interface UserCardProps {
+interface EventDashboardProps {
   events: BiztechEvent[];
   user: string;
   saved: string[];
   setSaved: Dispatch<SetStateAction<string[]>>;
 }
 
-export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSaved }) => {
+export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, saved, setSaved }) => {
   const currentEvents = events.filter((event) => {
     const time = new Date(event.startDate);
     return new Date() < time;
@@ -25,8 +24,9 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
   return (
     <>
       {currentEvents.length > 0 && (
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="wait">
           <motion.div
+            layout
             key={"CurrentEvents"}
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -42,25 +42,22 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
           </motion.div>
         </AnimatePresence>
       )}
-      <div className="flex flex-col space-y-5 mb-5">
-        <AnimatePresence mode="wait">
-          {currentEvents &&
-            currentEvents
-              .filter((e) => {
-                return e.isPublished;
-              })
-              .map((event, i) => {
-                return (
-                  <div key={`${event.id};${event.ename};${event.year}${i}`}>
-                    <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
-                  </div>
-                );
-              })}
+      <div className="flex flex-col mb-5">
+        <AnimatePresence mode="popLayout">
+          {currentEvents.length > 0 &&
+            currentEvents.map((event, i) => {
+              return (
+                <div key={`${event.toString()}`}>
+                  <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                </div>
+              );
+            })}
         </AnimatePresence>
       </div>
       {pastEvents.length > 0 && (
         <AnimatePresence mode="popLayout">
           <motion.div
+            layout
             key={"PastEvents"}
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -68,7 +65,7 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
             transition={{
               type: "tween",
               ease: "easeInOut",
-              duration: 0.5,
+              duration: 0.3,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -76,20 +73,16 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
           </motion.div>
         </AnimatePresence>
       )}
-      <div className="flex flex-col space-y-5 opacity-40">
-        <AnimatePresence mode="wait">
-          {pastEvents &&
-            pastEvents
-              .filter((e) => {
-                return e.isPublished;
-              })
-              .map((event, i) => {
-                return (
-                  <div key={`${event.id};${event.ename};${event.year}${i}`}>
-                    <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
-                  </div>
-                );
-              })}
+      <div className="flex flex-col opacity-40">
+        <AnimatePresence mode="popLayout">
+          {pastEvents.length > 0 &&
+            pastEvents.map((event) => {
+              return (
+                <div key={`${event.toString()}`}>
+                  <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                </div>
+              );
+            })}
         </AnimatePresence>
       </div>
     </>

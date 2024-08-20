@@ -1,4 +1,4 @@
-import { EventCards } from "@/components/EventDisplayCard/EventCards";
+import { EventDashboard } from "@/components/EventDisplayCard/EventDashboard";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
 import { getCurrentUser } from "@aws-amplify/auth";
@@ -22,6 +22,7 @@ const filterStates = {
 export default function Page({ events }: EventProps) {
   const [searchField, setSearchField] = useState("");
   const [filterState, setFilterState] = useState("");
+  // these useStates will be empty arrays by default, but currently have mocks before i verify backend integration works
   const [saved, setSaved] = useState<string[]>(user["favedEventsID;year"]);
   const [registered, setRegistered] = useState<string[]>(
     registeredEvents.data.map((event: registeredEvent) => {
@@ -29,28 +30,6 @@ export default function Page({ events }: EventProps) {
     })
   );
   const [email, setEmail] = useState<string>("");
-
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchField(e.target.value);
-  };
-
-  const fetchData = async () => {
-    try {
-      const { signInDetails } = await getCurrentUser();
-      const email = signInDetails?.loginId;
-      const user = await fetchBackend({ endpoint: `/users/${email}`, method: "GET" });
-      const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET" });
-      setEmail(email ? email : "");
-      setSaved(user["favedEventsID;year"] ? user["favedEventsID;year"] : []);
-      setRegistered(
-        registeredEvents.data.map((event: registeredEvent) => {
-          return event["eventID;year"];
-        })
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   useEffect(() => {
     fetchData();
@@ -76,6 +55,36 @@ export default function Page({ events }: EventProps) {
   };
 
   const displayedEvents = useMemo(() => uiStateFilter(), [uiStateFilter, filterState, searchField, saved]);
+
+  const fetchData = async () => {
+    try {
+      const { signInDetails } = await getCurrentUser();
+      const email = signInDetails?.loginId;
+      const user = await fetchBackend({ endpoint: `/users/${email}`, method: "GET" });
+      const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET" });
+      setEmail(email ? email : "");
+      setSaved(user["favedEventsID;year"] ? user["favedEventsID;year"] : []);
+      setRegistered(
+        registeredEvents.data.map((event: registeredEvent) => {
+          return event["eventID;year"];
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUiClick = (s: string) => {
+    if (filterState != s) {
+      setFilterState(s);
+    } else {
+      setFilterState("");
+    }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchField(e.target.value);
+  };
 
   return (
     <main className="bg-primary-color min-h-screen w-full">
@@ -104,13 +113,7 @@ export default function Page({ events }: EventProps) {
             className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer ${
               filterState === filterStates.registered ? "!bg-events-baby-blue" : ""
             }`}
-            onClick={() => {
-              if (filterState != filterStates.registered) {
-                setFilterState(filterStates.registered);
-              } else {
-                setFilterState("");
-              }
-            }}
+            onClick={() => handleUiClick(filterStates.registered)}
           >
             <ListIcon height={20} width={20} className={`${filterState === filterStates.registered ? "text-events-user-card-bg fill-current" : ""}`} />{" "}
             <p className={`${filterState === filterStates.registered ? "text-events-user-card-bg" : ""}`}>Registered</p>
@@ -119,13 +122,7 @@ export default function Page({ events }: EventProps) {
             className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer ${
               filterState === filterStates.saved ? "!bg-events-baby-blue" : ""
             }`}
-            onClick={() => {
-              if (filterState != filterStates.saved) {
-                setFilterState(filterStates.saved);
-              } else {
-                setFilterState("");
-              }
-            }}
+            onClick={() => handleUiClick(filterStates.saved)}
           >
             <Bookmark height={20} width={20} className={`${filterState === filterStates.saved ? "text-events-user-card-bg fill-current" : ""}`} />
             <p className={`${filterState === filterStates.saved ? "text-events-user-card-bg" : ""}`}>Saved</p>
@@ -136,13 +133,7 @@ export default function Page({ events }: EventProps) {
             className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 shrink flex grow lg:hidden cursor-pointer ${
               filterState === filterStates.registered ? "!bg-events-baby-blue" : ""
             }`}
-            onClick={() => {
-              if (filterState != filterStates.registered) {
-                setFilterState(filterStates.registered);
-              } else {
-                setFilterState("");
-              }
-            }}
+            onClick={() => handleUiClick(filterStates.registered)}
           >
             <ListIcon height={20} width={20} className={`${filterState === filterStates.registered ? "text-events-user-card-bg fill-current" : ""}`} />
             <p className={`${filterState === filterStates.registered ? "text-events-user-card-bg" : ""}`}>Registered</p>
@@ -151,27 +142,21 @@ export default function Page({ events }: EventProps) {
             className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 shrink flex grow lg:hidden cursor-pointer ${
               filterState === filterStates.saved ? "!bg-events-baby-blue" : ""
             }`}
-            onClick={() => {
-              if (filterState != filterStates.saved) {
-                setFilterState(filterStates.saved);
-              } else {
-                setFilterState("");
-              }
-            }}
+            onClick={() => handleUiClick(filterStates.saved)}
           >
             <Bookmark height={20} width={20} className={`${filterState === filterStates.saved ? "text-events-user-card-bg fill-current" : ""}`} />
             <p className={`${filterState === filterStates.saved ? "text-events-user-card-bg" : ""}`}>Saved</p>
           </div>
         </div>
 
-        <EventCards events={displayedEvents} user={email} saved={saved} setSaved={setSaved} />
+        <EventDashboard events={displayedEvents} user={email} saved={saved} setSaved={setSaved} />
       </div>
     </main>
   );
 }
 
 // MOCKS FOR TESTING
-const events = [
+let events = [
   {
     endDate: "2024-04-30T20:05:34.931Z",
     year: 2024,
@@ -451,17 +436,19 @@ const user = {
 };
 
 export async function getStaticProps() {
-  // const events = await fetchBackend({ endpoint: "/events", method: "GET", authenticatedCall: false });
+  // let events = await fetchBackend({ endpoint: "/events", method: "GET", authenticatedCall: false });
 
   events.sort((a: BiztechEvent, b: BiztechEvent) => {
     return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
   });
 
+  events = events.filter((e: BiztechEvent) => {
+    return e.isPublished;
+  });
+
   return {
     props: {
-      events: events.filter((e: BiztechEvent) => {
-        return e.isPublished;
-      }),
+      events,
     },
   };
 }
