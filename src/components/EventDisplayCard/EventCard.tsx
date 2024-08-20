@@ -53,10 +53,14 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
     const startDate = new Date(event.startDate);
     const deadline = new Date(event.deadline);
     if (new Date() >= deadline && startDate >= new Date()) {
-      return <div className="rounded-full font-poppin font-[700] px-2 py-1 text-white bg-secondary-color text-[12px] flex items-center">COMING UP</div>;
+      return (
+        <div className="rounded-full font-poppin font-[700] px-2 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
+          COMING UP
+        </div>
+      );
     } else if (startDate > new Date()) {
       return (
-        <div className="rounded-full px-2 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[12px] flex items-center">
+        <div className="rounded-full px-2 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px]  flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
         </div>
       );
@@ -81,11 +85,11 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
       >
         <div className="bg-events-user-card-bg w-full p-3 rounded-[10px]">
           <div className="flex flex-row space-x-5 relative">
-            <div className="relative w-[200px] h-[130px] overflow-hidden rounded-lg">
+            <div className="relative lg:w-[200px] lg:h-[130px] w-[100px] h-[75px] overflow-hidden rounded-lg shrink-0">
               <Image className="object-cover" fill src={event.imageUrl} alt={event.ename} />
             </div>
             <div className="flex flex-col space-y-1 grow">
-              <div className="font-600 text-[24px] py-2 flex flex-row space-x-3 items-center w-full">
+              <div className="font-600 text-sm lg:text-[24px] py-0.5 lg:py-2 flex flex-row space-x-3 items-center w-full">
                 <div>{event.ename}</div>
                 <div className="hidden lg:block">{timeStateIndicator(event)}</div>
                 <div className="grow flex justify-end">
@@ -97,11 +101,11 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
                   />
                 </div>
               </div>
-              <p className="text-sm text-events-baby-blue">
+              <p className="text-[10px] lg:text-sm text-events-baby-blue">
                 {`${months[dateString.getMonth()]} ${dateString.getDate()}, ${event.year}`}, {dateString.toTimeString().slice(0, 5)}
               </p>
               <div className="flex flex-row items-center justify-between w-full">
-                <p className="text-sm text-events-baby-blue">
+                <p className="text-[10px] lg:text-sm text-events-baby-blue">
                   {`${event.pricing ? "$" + event.pricing.members.toFixed(2) : "Free!"}`}{" "}
                   {event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}
                 </p>

@@ -78,8 +78,8 @@ export default function Page({ events }: EventProps) {
   const displayedEvents = useMemo(() => uiStateFilter(), [filterState, searchField, saved]);
 
   return (
-    <main className="bg-primary-color min-h-screen">
-      <div className="mx-auto pt-8 p-5 md:pt-20 md:l-20 md:pr-20  flex flex-col">
+    <main className="bg-primary-color min-h-screen w-full">
+      <div className="mx-auto pt-8 p-5 lg:pt-20 lg:l-20 lg:pr-20  flex flex-col">
         <span>
           <h2 className="text-white text-xl lg:text-[40px]">Event Dashboard</h2>
           <div className="flex items-center justify-between h-[40px]">
@@ -133,7 +133,7 @@ export default function Page({ events }: EventProps) {
         </div>
         <div className="flex flex-row space-x-3 mb-6 lg:hidden">
           <div
-            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink flex grow lg:hidden cursor-pointer ${
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 shrink flex grow lg:hidden cursor-pointer ${
               filterState === filterStates.registered ? "!bg-events-baby-blue" : ""
             }`}
             onClick={() => {
@@ -148,7 +148,7 @@ export default function Page({ events }: EventProps) {
             <p className={`${filterState === filterStates.registered ? "text-events-user-card-bg" : ""}`}>Registered</p>
           </div>
           <div
-            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink flex grow lg:hidden cursor-pointer ${
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 shrink flex grow lg:hidden cursor-pointer ${
               filterState === filterStates.saved ? "!bg-events-baby-blue" : ""
             }`}
             onClick={() => {
