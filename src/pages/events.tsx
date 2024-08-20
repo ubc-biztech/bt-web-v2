@@ -3,7 +3,7 @@ import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
 import { getCurrentUser } from "@aws-amplify/auth";
 import { ListIcon, SearchIcon, Bookmark } from "lucide-react";
-import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 interface registeredEvent {
   "eventID;year": string;
@@ -22,6 +22,7 @@ const filterStates = {
 export default function Page({ events }: EventProps) {
   const [searchField, setSearchField] = useState("");
   const [filterState, setFilterState] = useState("");
+  const isCooldownRef = useRef(false);
   // these useStates will be empty arrays by default, but currently have mocks before i verify backend integration works
   const [saved, setSaved] = useState<string[]>(user["favedEventsID;year"]);
   const [registered, setRegistered] = useState<string[]>(
@@ -75,10 +76,18 @@ export default function Page({ events }: EventProps) {
   };
 
   const handleUiClick = (s: string) => {
-    if (filterState != s) {
-      setFilterState(s);
+    if (isCooldownRef.current) {
+      //return
     } else {
-      setFilterState("");
+      if (filterState != s) {
+        setFilterState(s);
+      } else {
+        setFilterState("");
+      }
+      isCooldownRef.current = true;
+      setTimeout(() => {
+        isCooldownRef.current = false;
+      }, 400);
     }
   };
 

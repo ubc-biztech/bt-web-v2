@@ -47,7 +47,7 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, sa
           {currentEvents.length > 0 &&
             currentEvents.map((event, i) => {
               return (
-                <div key={`${event.toString()}`}>
+                <div key={`${event.id + event.year + event.createdAt}`}>
                   <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
                 </div>
               );
@@ -78,7 +78,7 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, sa
           {pastEvents.length > 0 &&
             pastEvents.map((event) => {
               return (
-                <div key={`${event.toString()}`}>
+                <div key={`${event.id + event.year}`}>
                   <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
                 </div>
               );
