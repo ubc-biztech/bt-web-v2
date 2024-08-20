@@ -1,9 +1,11 @@
-import { UserEventCard } from "@/components/EventUserCard/UserEventCard";
+import { EventCards } from "@/components/EventDisplayCard/EventCards";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
-import { getCurrentUser } from "@aws-amplify/auth";
+import { runWithAmplifyServerContext } from "@/util/amplify-utils";
+import { getCurrentUser } from "@aws-amplify/auth/server";
+import { getCurrentUser as getCurrentUserClient } from "@aws-amplify/auth";
 import { ListIcon, SearchIcon, Bookmark } from "lucide-react";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useMemo, useState } from "react";
 
 interface registeredEvent {
   "eventID;year": string;
@@ -12,8 +14,6 @@ interface registeredEvent {
 
 interface EventProps {
   events: BiztechEvent[];
-  registeredEvents: registeredEvent[];
-  savedEvents: string[];
 }
 
 const filterStates = {
@@ -21,12 +21,63 @@ const filterStates = {
   saved: "saved",
 };
 
-export default function Page({ events, registeredEvents, savedEvents }: EventProps) {
+export default function Page({ events }: EventProps) {
   const [searchField, setSearchField] = useState("");
   const [filterState, setFilterState] = useState("");
+  const [saved, setSaved] = useState<string[]>(user["favedEventsID;year"]);
+  const [registered, setRegistered] = useState<string[]>(
+    registeredEvents.data.map((event: registeredEvent) => {
+      return event["eventID;year"];
+    })
+  );
+  const [email, setEmail] = useState<string>("");
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchField(e.target.value);
   };
+
+  const fetchData = async () => {
+    try {
+      const { signInDetails } = await getCurrentUserClient();
+      const email = signInDetails?.loginId;
+      const user = await fetchBackend({ endpoint: `/users/${email}`, method: "GET" });
+      const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET" });
+      setEmail(email ? email : "");
+      setSaved(user["favedEventsID;year"] ? user["favedEventsID;year"] : []);
+      setRegistered(
+        registeredEvents.data.map((event: registeredEvent) => {
+          return event["eventID;year"];
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const uiStateFilter = () => {
+    let filteredEvents: BiztechEvent[] = events;
+    if (filterState === filterStates.registered && user) {
+      filteredEvents = filteredEvents.filter((ev) => {
+        return registered.includes(`${ev.id};${ev.year}`);
+      });
+    } else if (filterState === filterStates.saved && user) {
+      filteredEvents = filteredEvents.filter((ev) => {
+        return saved.includes(`${ev.id};${ev.year}`);
+      });
+    }
+
+    filteredEvents = filteredEvents.filter((ev) => {
+      return ev.ename.startsWith(searchField);
+    });
+
+    return filteredEvents;
+  };
+
+  const displayedEvents = useMemo(() => uiStateFilter(), [filterState, searchField]);
 
   return (
     <main className="bg-primary-color min-h-screen">
@@ -52,38 +103,76 @@ export default function Page({ events, registeredEvents, savedEvents }: EventPro
             />
           </div>
           <div
-            className="bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer"
-            onClick={() => setFilterState(filterStates.registered)}
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer ${
+              filterState === filterStates.registered ? "!bg-events-baby-blue" : ""
+            }`}
+            onClick={() => {
+              if (filterState != filterStates.registered) {
+                setFilterState(filterStates.registered);
+              } else {
+                setFilterState("");
+              }
+            }}
           >
-            <ListIcon height={20} width={20} /> <p>Registered</p>
+            <ListIcon height={20} width={20} className={`${filterState === filterStates.registered ? "text-events-user-card-bg fill-current" : ""}`} />{" "}
+            <p className={`${filterState === filterStates.registered ? "text-events-user-card-bg" : ""}`}>Registered</p>
           </div>
           <div
-            className="bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer"
-            onClick={() => setFilterState(filterStates.saved)}
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink hidden lg:flex cursor-pointer ${
+              filterState === filterStates.saved ? "!bg-events-baby-blue" : ""
+            }`}
+            onClick={() => {
+              if (filterState != filterStates.saved) {
+                setFilterState(filterStates.saved);
+              } else {
+                setFilterState("");
+              }
+            }}
           >
-            <Bookmark height={20} width={20} /> <p>Saved</p>
+            <Bookmark height={20} width={20} className={`${filterState === filterStates.saved ? "text-events-user-card-bg fill-current" : ""}`} />
+            <p className={`${filterState === filterStates.saved ? "text-events-user-card-bg" : ""}`}>Saved</p>
           </div>
         </div>
         <div className="flex flex-row space-x-3 mb-6 lg:hidden">
           <div
-            className="bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 flex grow cursor-pointer"
-            onClick={() => setFilterState(filterStates.registered)}
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink flex grow lg:hidden cursor-pointer ${
+              filterState === filterStates.registered ? "!bg-events-baby-blue" : ""
+            }`}
+            onClick={() => {
+              if (filterState != filterStates.registered) {
+                setFilterState(filterStates.registered);
+              } else {
+                setFilterState("");
+              }
+            }}
           >
-            <ListIcon height={20} width={20} /> <p>Registered</p>
+            <ListIcon height={20} width={20} className={`${filterState === filterStates.registered ? "text-events-user-card-bg fill-current" : ""}`} />
+            <p className={`${filterState === filterStates.registered ? "text-events-user-card-bg" : ""}`}>Registered</p>
           </div>
           <div
-            className="bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 flex grow cursor-pointer"
-            onClick={() => setFilterState(filterStates.saved)}
+            className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex-row justify-center items-center space-x-1 px-20 shrink flex grow lg:hidden cursor-pointer ${
+              filterState === filterStates.saved ? "!bg-events-baby-blue" : ""
+            }`}
+            onClick={() => {
+              if (filterState != filterStates.saved) {
+                setFilterState(filterStates.saved);
+              } else {
+                setFilterState("");
+              }
+            }}
           >
-            <Bookmark height={20} width={20} /> <p>Saved</p>
+            <Bookmark height={20} width={20} className={`${filterState === filterStates.saved ? "text-events-user-card-bg fill-current" : ""}`} />
+            <p className={`${filterState === filterStates.saved ? "text-events-user-card-bg" : ""}`}>Saved</p>
           </div>
         </div>
-        <UserEventCard title="Current Events" events={events} />
+
+        <EventCards events={displayedEvents} user={email} saved={saved} setSaved={setSaved} />
       </div>
     </main>
   );
 }
 
+// MOCKS FOR TESTING
 const events = [
   {
     endDate: "2024-04-30T20:05:34.931Z",
@@ -93,7 +182,7 @@ const events = [
     description: "asdf",
     feedback: "",
     createdAt: 1714507569426,
-    ename: "asdf",
+    ename: "BLUEPRINT + SAVED + REGISTERED",
     capac: 123,
     elocation: "asdf",
     imageUrl: "https://www.wikihow.com/images/thumb/d/db/Get-the-URL-for-Pictures-Step-2-Version-6.jpg/v4-460px-Get-the-URL-for-Pictures-Step-2-Version-6.jpg",
@@ -130,6 +219,34 @@ const events = [
     partnerDescription: "asdf",
     isApplicationBased: false,
     startDate: "2024-09-30T20:10:35.991Z",
+    pricing: { members: 0 },
+    registrationQuestions: [],
+    updatedAt: 1714507851023,
+    latitude: 23.133333,
+    longitude: 21.33333,
+    isCompleted: false,
+    facebookUrl: "idk doesnt matter",
+    registrationStatus: false,
+    registrationQuestion: null,
+    hasDomainSpecificQuestions: false,
+  },
+  {
+    endDate: "2024-04-30T20:10:35.991Z",
+    year: 2024,
+    isPublished: true,
+    partnerRegistrationQuestions: [],
+    description: "asdf",
+    feedback: "",
+    createdAt: 1714507851023,
+    ename: "calendar",
+    capac: 123,
+    elocation: "123",
+    imageUrl: "https://www.wikihow.com/images/thumb/d/db/Get-the-URL-for-Pictures-Step-2-Version-6.jpg/v4-460px-Get-the-URL-for-Pictures-Step-2-Version-6.jpg",
+    id: "calendar",
+    deadline: "2024-04-30T20:10:35.991Z",
+    partnerDescription: "asdf",
+    isApplicationBased: false,
+    startDate: "2024-07-30T20:10:35.991Z",
     pricing: { members: 0 },
     registrationQuestions: [],
     updatedAt: 1714507851023,
@@ -202,7 +319,7 @@ const registeredEvents = {
     },
     {
       studentId: "52062585",
-      "eventID;year": "calendar;2022",
+      "eventID;year": "calendar;2024",
       basicInformation: {
         fname: "Alvin",
         lname: "Kam",
@@ -337,22 +454,6 @@ const user = {
 
 export async function getStaticProps() {
   // const events = await fetchBackend({ endpoint: "/events", method: "GET", authenticatedCall: false });
-  const { signInDetails } = await getCurrentUser();
-  const email = signInDetails?.loginId;
-
-  if (!email) {
-    return {
-      props: {
-        events: events,
-        registeredEvents: [],
-        savedEvents: [],
-      },
-    };
-  }
-  // const user = await fetchBackend({endpoint: `/users/${email}`, method: "GET"})
-  // const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET"});
-
-  // mocks for testing
 
   events.sort((a: BiztechEvent, b: BiztechEvent) => {
     return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
@@ -360,9 +461,9 @@ export async function getStaticProps() {
 
   return {
     props: {
-      events: events,
-      registeredEvents: registeredEvents.data,
-      savedEvents: user["favedEventsID;year"] ? user["favedEventsID;year"] : [],
+      events: events.filter((e: BiztechEvent) => {
+        return e.isPublished;
+      }),
     },
   };
 }
