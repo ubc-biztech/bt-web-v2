@@ -4,26 +4,15 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TableCell } from "./TableCell"
 import { EditCell } from "./EditCell"
-
-export type Attendee = {
-    id: string
-    regStatus: string
-    appStatus: string
-    firstName: string
-    lastName: string
-    email: string
-    points: number
-    studentNumber: string
-    faculty: string
-    [key: string]: any // This allows for dynamic properties
-}
+import { Registration } from "@/types/types"
+import { DBRegistrationStatus } from "@/types/types"
 
 export type ColumnMeta = {
     type?: "select" | "number";
     options?: { value: string; label: string }[];
 }
 
-export const columns: ColumnDef<Attendee>[] = [
+export const columns: ColumnDef<Registration>[] = [
     {
         id: 'edit',
         size: 30,
@@ -54,37 +43,38 @@ export const columns: ColumnDef<Attendee>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "regStatus",
+        accessorKey: "registrationStatus",
         header: "Reg. Status",
         cell: TableCell,
         meta: {
             type: "select",
             options: [
-                { value: "Registered", label: "Registered" },
-                { value: "Checked-In", label: "Checked-In" },
-                { value: "Cancelled", label: "Cancelled" },
-                { value: "Incomplete", label: "Incomplete" },
+                { value: DBRegistrationStatus.REGISTERED, label: "Registered" },
+                { value: DBRegistrationStatus.CHECKED_IN, label: "Checked-In" },
+                { value: DBRegistrationStatus.CANCELLED, label: "Cancelled" },
+                { value: DBRegistrationStatus.INCOMPLETE, label: "Incomplete" },
+                { value: DBRegistrationStatus.WAITLISTED, label: "Waitlisted" },
             ],
         } as ColumnMeta,
         size: 200,
     },
     {
-        accessorKey: "appStatus",
+        accessorKey: "applicationStatus",
         header: "App. Status",
         cell: TableCell,
     },
     {
-        accessorKey: "firstName",
+        accessorKey: "basicInformation.fname",
         header: "First Name",
         cell: TableCell,
     },
     {
-        accessorKey: "lastName",
+        accessorKey: "basicInformation.lname",
         header: "Last Name",
         cell: TableCell,
     },
     {
-        accessorKey: "email",
+        accessorKey: "id",
         header: "Email",
         cell: TableCell,
     },
@@ -102,7 +92,7 @@ export const columns: ColumnDef<Attendee>[] = [
         cell: TableCell,
     },
     {
-        accessorKey: "faculty",
+        accessorKey: "basicInformation.faculty",
         header: "Faculty",
         cell: TableCell,
     }

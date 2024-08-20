@@ -45,14 +45,6 @@ export enum DBRegistrationStatus {
     INCOMPLETE = "incomplete",
 }
 
-export enum RegistrationStatusField {
-    WAITLISTED = "Waitlisted",
-    REGISTERED = "Registered",
-    CHECKED_IN = "Checked In",
-    CANCELLED = "Cancelled",
-    INCOMPLETE = "Incomplete",
-}
-
 export type BasicInformation = {
     fname: string;
     lname: string;
@@ -72,15 +64,15 @@ export type AttendeeBasicInformation = BasicInformation & {
     faculty: string;
   };
 
-export type AttendeeDetailedInformation = {
+export type Registration = {
     id: string,
     applicationStatus: string,
     registrationStatus: string,
-    basicInfo: AttendeeBasicInformation,
+    basicInformation: AttendeeBasicInformation,
     checkoutLink: string,
     dynamicResponses: {[key: string]: string},
     fname: string,
-    isPartner: string,
+    isPartner: boolean,
     points: number,
     scannedQRs: string[],
     updatedAt: string,

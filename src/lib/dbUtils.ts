@@ -5,26 +5,26 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     for (let i = 0; i < 200; i++) {
         data.push({
             id: i.toString(),
-            applicationStatus: getRandomValue(["accepted", "reviewing", "waitlist"]),
-            registrationStatus: getRandomValue(["registered", "checkedIn", "waitlist", "incomplete", "cancelled"]),
-            basicInfo: {
-                diet: getRandomValue(["None", "Gluten Free", "Halal", "Vegetarian", "Vegan"]),
-                faculty: getRandomValue(["Arts", "Commerce", "Engineering", "Foresty", "Science", "Other"]),
-                fname: "John",
-                gender: getRandomValue([["They/Them/Their"], ["She/Her/Hers"], ["Other/Prefer not to say"], ["He/Him/His"]].flat()),
-                heardFrom: getRandomValue(["Facebook", "Instagram", "Biztech Newsletter", "LinkedIn", "Biztech Boothing", "Friends/Word of Mouth", "Other"]),
-                lname: "Smith",
-                major: "",
-                year: getRandomValue(["1st year", "2nd year", "3rd year", "4th year", "5+ year", "Other"])
+            applicationStatus: getRandomValue(["accepted", "reviewing", "waitlist"]).toString(),
+            registrationStatus: getRandomValue(["registered", "checkedIn", "waitlist", "incomplete", "cancelled"]).toString(),
+            basicInformation: {
+              diet: getRandomValue(["None", "Gluten Free", "Halal", "Vegetarian", "Vegan"]).toString(),
+              faculty: getRandomValue(["Arts", "Commerce", "Engineering", "Forestry", "Science", "Other"]).toString(),
+              fname: "John",
+              gender: getRandomValue([["They/Them/Their"], ["She/Her/Hers"], ["Other/Prefer not to say"], ["He/Him/His"]].flat()).toString(),
+              heardFrom: getRandomValue(["Facebook", "Instagram", "Biztech Newsletter", "LinkedIn", "Biztech Boothing", "Friends/Word of Mouth", "Other"]).toString(),
+              lname: "Smith",
+              major: "",
+              year: getRandomValue(["1st year", "2nd year", "3rd year", "4th year", "5+ year", "Other"]).toString(),
             },
             checkoutLink: "",
             dynamicResponses: {},
             fname: "John",
-            isPartner: "false",
-            poinsts: 0,
+            isPartner: false,
+            points: 0,
             scannedQRs: [],
             updatedAt: new Date().toString(),
-        })
+          })
     }
     return data
 }

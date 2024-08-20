@@ -8,13 +8,13 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Row, Table } from "@tanstack/react-table"
-import { Attendee } from "./columns"
 import Image from "next/image";
 import PopoutIcon from "../../../public/assets/icons/popout_icon.svg";
+import { Registration } from '@/types/types'
 
 interface EditCellProps {
-    row: Row<Attendee>
-    table: Table<Attendee>
+    row: Row<Registration>
+    table: Table<Registration>
 }
 
 export const EditCell: React.FC<EditCellProps> = ({ row }) => {
@@ -34,7 +34,7 @@ export const EditCell: React.FC<EditCellProps> = ({ row }) => {
 
             <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
                 <DialogHeader>
-                    <DialogTitle className="text-white">{row.original.firstName} {row.original.lastName}</DialogTitle>
+                    <DialogTitle className="text-white">{row.original.basicInformation.fname} {row.original.basicInformation.lname}</DialogTitle>
                     <span className="italic">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}

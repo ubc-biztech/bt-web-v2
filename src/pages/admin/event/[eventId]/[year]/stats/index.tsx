@@ -1,4 +1,4 @@
-import { AttendeeDetailedInformation } from "@/types/types";
+import { Registration } from "@/types/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
@@ -9,10 +9,10 @@ import PieChart from "@/components/stats/PieChart";
 import StatsTable from "@/components/stats/StatsTable";
 
 type Props = {
-  initialData: AttendeeDetailedInformation[] | null;
+  initialData: Registration[] | null;
 };
 
-const getFieldCounts = (data: AttendeeDetailedInformation[], field: string) => {
+const getFieldCounts = (data: Registration[], field: string) => {
   const counts: Record<string, number> = {};
 
   for (const userData of data) {
@@ -56,14 +56,14 @@ export default function Statistics({ initialData }: Props) {
             <ChartBox width="33%" height="300px" title="Attendee Year Level">
               {initialData && (
                 <BarChart
-                  data={getFieldCounts(initialData, "basicInfo.year")}
+                  data={getFieldCounts(initialData, "basicInformation.year")}
                 />
               )}
             </ChartBox>
             <ChartBox width="66%" height="300px" title="Heard Event From">
               {initialData && (
                 <PieChart
-                  data={getFieldCounts(initialData, "basicInfo.heardFrom")}
+                  data={getFieldCounts(initialData, "basicInformation.heardFrom")}
                 />
               )}
             </ChartBox>
@@ -72,14 +72,14 @@ export default function Statistics({ initialData }: Props) {
             <ChartBox width="66%" height="300px" title="Faculty">
               {initialData && (
                 <PieChart
-                  data={getFieldCounts(initialData, "basicInfo.faculty")}
+                  data={getFieldCounts(initialData, "basicInformation.faculty")}
                 />
               )}
             </ChartBox>
             <ChartBox width="33%" height="300px" title="Dietary Restrictions">
               {initialData && (
                 <StatsTable
-                  data={getFieldCounts(initialData, "basicInfo.diet")}
+                  data={getFieldCounts(initialData, "basicInformation.diet")}
                 />
               )}
             </ChartBox>
@@ -87,7 +87,7 @@ export default function Statistics({ initialData }: Props) {
           <ChartBox width="66%" height="300px" title="Pronouns">
             {initialData && (
               <PieChart
-                data={getFieldCounts(initialData, "basicInfo.gender")}
+                data={getFieldCounts(initialData, "basicInformation.gender")}
               />
             )}
           </ChartBox>

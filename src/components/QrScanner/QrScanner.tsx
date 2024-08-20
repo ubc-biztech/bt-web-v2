@@ -102,9 +102,7 @@ const QrCheckIn: React.FC<QrProps> = ({
 
     // get the person's name
     setCheckInName(
-      `${user.firstName ? user.firstName : user.fname} ${
-        user.lastName ? user.lastName : user.lname
-      } (${userID})`
+      `${user.basicInformation.fname} ${user.basicInformation.lname} (${userID})`
     );
 
     // If the user is already checked in, show an error
