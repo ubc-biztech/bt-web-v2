@@ -75,7 +75,7 @@ export default function Page({ events }: EventProps) {
     return filteredEvents;
   };
 
-  const displayedEvents = useMemo(() => uiStateFilter(), [filterState, searchField]);
+  const displayedEvents = useMemo(() => uiStateFilter(), [filterState, searchField, saved]);
 
   return (
     <main className="bg-primary-color min-h-screen">

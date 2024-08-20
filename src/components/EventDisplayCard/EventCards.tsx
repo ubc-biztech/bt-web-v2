@@ -22,8 +22,6 @@ export const EventCards: React.FC<UserCardProps> = ({ events, user, saved, setSa
     return new Date() > time;
   });
 
-  console.log(pastEvents);
-
   return (
     <>
       <AnimatePresence mode="popLayout">

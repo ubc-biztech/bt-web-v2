@@ -16,7 +16,6 @@ interface EventCardProps {
 const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
 
 export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSaved }) => {
-  console.log(event);
   const [fill, setFill] = useState(false);
   let dateString = new Date(event.startDate);
 
