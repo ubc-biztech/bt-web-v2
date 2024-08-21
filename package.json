@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.21",
+    "@mui/material": "^5.15.21",
     "@aws-amplify/adapter-nextjs": "^1.2.10",
     "@aws-amplify/auth": "^6.3.7",
     "@aws-amplify/ui-react": "^6.1.12",
@@ -20,6 +25,7 @@
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-radio-group": "^1.2.0",
     "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.1",
     "@tanstack/react-table": "^8.17.3",
