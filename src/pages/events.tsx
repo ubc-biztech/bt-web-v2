@@ -1,4 +1,4 @@
-import { EventDashboard } from "@/components/EventDisplayCard/EventDashboard";
+import { EventDashboard } from "@/components/EventsDashboard/EventDashboard";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
 import { getCurrentUser } from "@aws-amplify/auth";
