@@ -10,13 +10,14 @@ import Link from "next/link";
 interface EventCardProps {
   event: BiztechEvent;
   user: string;
+  registered: string[];
   saved: string[];
   setSaved: Dispatch<SetStateAction<string[]>>;
 }
 
 const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
 
-export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSaved }) => {
+export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, saved, setSaved }) => {
   const [fill, setFill] = useState(false);
   let dateString = new Date(event.startDate);
 
@@ -36,6 +37,11 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
       isFavourite = true;
       setFill(true);
     }
+    setSaved(newSaved);
+
+    if (!user) {
+      return;
+    }
 
     const body = {
       eventID: id,
@@ -48,19 +54,18 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
     } catch (err) {
       console.error(err);
     }
-    setSaved(newSaved);
   };
 
-  const timeStateIndicator = (event: BiztechEvent) => {
-    const startDate = new Date(event.startDate);
-    const deadline = new Date(event.deadline);
+  const timeStateIndicator = (ev: BiztechEvent) => {
+    const startDate = new Date(ev.startDate);
+    const deadline = new Date(ev.deadline);
     if (new Date() >= deadline && startDate >= new Date()) {
       return (
         <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
           COMING UP
         </div>
       );
-    } else if (startDate > new Date()) {
+    } else if (startDate > new Date() && !registered.includes(`${ev.id};${ev.year}`)) {
       return (
         <div className="rounded-full px-3 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px] flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
@@ -71,10 +76,19 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
     }
   };
 
+  const registeredIndicator = (ev: BiztechEvent) => {
+    if (registered.includes(`${ev.id};${ev.year}`)) {
+      return <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-black text-[8px] lg:text-[12px]  flex items-center">REGISTERED</div>;
+    } else {
+      return <></>;
+    }
+  };
+
   return (
     <>
-      <Link href={`/events/${event.id}/${event.year}`}>
+      <Link href={`/event/${event.id}/${event.year}`}>
         <motion.div
+          key={`${event.id + event.year + event.createdAt}`}
           layout
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -94,8 +108,10 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
               <div className="flex flex-col space-y-1 grow">
                 <div className="font-600 text-sm lg:text-[24px] py-0.5 lg:py-2 flex flex-row space-x-3 items-center w-full">
                   <div>{event.ename}</div>
+                  <div className="grow"></div>
+                  <div className="hidden lg:block">{registeredIndicator(event)}</div>
                   <div className="hidden lg:block">{timeStateIndicator(event)}</div>
-                  <div className="grow flex justify-end">
+                  <div className="">
                     <Bookmark
                       height={30}
                       width={30}
@@ -112,7 +128,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, saved, setSav
                     {`${event.pricing ? "$" + event.pricing.members.toFixed(2) : "Free!"}`}{" "}
                     {event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}
                   </p>
-                  <div className="lg:hidden">{timeStateIndicator(event)}</div>
+                  <div className="lg:hidden flex grow justify-end">{registeredIndicator(event)}</div>
+                  <div className="lg:hidden ml-0.5">{timeStateIndicator(event)}</div>
                 </div>
               </div>
             </div>

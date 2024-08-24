@@ -6,11 +6,12 @@ import { EventCard } from "./EventCard";
 interface EventDashboardProps {
   events: BiztechEvent[];
   user: string;
+  registered: string[];
   saved: string[];
   setSaved: Dispatch<SetStateAction<string[]>>;
 }
 
-export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, saved, setSaved }) => {
+export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, registered, saved, setSaved }) => {
   const currentEvents = events.filter((event) => {
     const time = new Date(event.startDate);
     return new Date() < time;
@@ -48,7 +49,7 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, sa
             currentEvents.map((event, i) => {
               return (
                 <div key={`${event.id + event.year + event.createdAt}`}>
-                  <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                  <EventCard event={event} user={user} registered={registered} saved={saved} setSaved={setSaved} />
                 </div>
               );
             })}
@@ -79,7 +80,7 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ events, user, sa
             pastEvents.map((event) => {
               return (
                 <div key={`${event.id + event.year}`}>
-                  <EventCard event={event} user={user} saved={saved} setSaved={setSaved} />
+                  <EventCard event={event} user={user} registered={registered} saved={saved} setSaved={setSaved} />
                 </div>
               );
             })}
