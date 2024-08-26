@@ -8,17 +8,17 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Row, Table } from "@tanstack/react-table"
-import { Attendee } from "./columns"
 import Image from "next/image";
 import PopoutIcon from "../../../public/assets/icons/popout_icon.svg";
 import UserInfo from "./editCellPopUp.tsx/userInfo"
 import UserResponses from './editCellPopUp.tsx/userResponses'
 import { RegistrationQuestion } from '@/types'
 import router from 'next/router'
+import { Registration } from '@/types/types'
 
 interface EditCellProps {
-    row: Row<Attendee>
-    table: Table<Attendee>
+    row: Row<Registration>
+    table: Table<Registration>
 }
 
 export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
@@ -63,8 +63,8 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
 
             <DialogContent className="max-w-[750px] w-full max-h-lg bg-events-active-tab-bg border-0">
                 <DialogHeader>
-                    <DialogTitle className="text-white">{row.original.firstName} {row.original.lastName}</DialogTitle>
-                    <span className="italic text-white">Form Responses</span>
+                    <DialogTitle className="text-white">{row.original.basicInformation.fname} {row.original.basicInformation.lname}</DialogTitle>
+                    <span className="italic">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}
                 <div className="max-w-full h-[1px] bg-divider my-3" />

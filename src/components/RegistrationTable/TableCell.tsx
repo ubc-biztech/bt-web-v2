@@ -2,9 +2,11 @@ import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
-import { Attendee, ColumnMeta } from "./columns"
+import { ColumnMeta } from "./columns"
+import { Registration } from '@/types/types'
+import { DBRegistrationStatus } from '@/types/types'
 
-type TableCellProps = CellContext<Attendee, unknown>
+type TableCellProps = CellContext<Registration, unknown>
 
 export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
     const initialValue = getValue()
@@ -28,20 +30,22 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
 
     const getColor = (value: string) => {
         switch(value) {
-            case 'Registered':
+            case DBRegistrationStatus.REGISTERED:
                 return '#7F94FF';
-            case 'Checked-In':
+            case DBRegistrationStatus.CHECKED_IN:
                 return '#7AD040';
-            case 'Incomplete':
+            case DBRegistrationStatus.INCOMPLETE:
                 return '#E6CA68';
-            case 'Cancelled':
-                return '#FF8282';
+            case DBRegistrationStatus.CANCELLED:
+                return '#E24D83';
+            case DBRegistrationStatus.WAITLISTED: 
+                return '#FF8181';
             default:
                 return '#ffffff';
         }
     }
 
-    if (column.id === 'regStatus' || column.id === 'points') {
+    if (column.id === 'registrationStatus' || column.id === 'points') {
         if (columnMeta?.type === "select") {
             return (
                 <Select onValueChange={onSelectChange} defaultValue={initialValue as string}>
