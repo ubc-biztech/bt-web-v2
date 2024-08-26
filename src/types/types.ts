@@ -75,7 +75,6 @@ export type Registration = {
     points: number,
     scannedQRs: string[],
     updatedAt: string,
-
 }
 
 export type StatsChartData = { label: string; value: number };
