@@ -14,7 +14,7 @@ export const FilterTab: React.FC<{
   Icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
 }> = ({ title, filter, filterState, handleUiClick, Icon }) => (
   <div
-    className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex flex-row grow shrink justify-center space-x-2 items-center px-20 cursor-pointer ${
+    className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex flex-row grow shrink justify-center space-x-2 items-center lg:px-20 cursor-pointer ${
       filterState === filter ? "!bg-events-baby-blue" : ""
     }`}
     onClick={() => handleUiClick(filter)}

@@ -128,8 +128,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, s
                     {`${event.pricing ? "$" + event.pricing.members.toFixed(2) : "Free!"}`}{" "}
                     {event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}
                   </p>
-                  <div className="lg:hidden flex grow justify-end">{registeredIndicator(event)}</div>
-                  <div className="lg:hidden ml-0.5">{timeStateIndicator(event)}</div>
+                  <div className="lg:hidden flex grow justify-end mr-0.5">{registeredIndicator(event)}</div>
+                  <div className="lg:hidden">{timeStateIndicator(event)}</div>
                 </div>
               </div>
             </div>

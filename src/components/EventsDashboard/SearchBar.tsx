@@ -5,7 +5,7 @@ export const SearchBar: React.FC<{
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
   searchField: string;
 }> = ({ handleChange, searchField }) => (
-  <div className="basis-[100%] lg:basis-1/3 relative lg:mb-6 mb-3 w-full lg:w-[400px]">
+  <div className="basis-[100%] xl:basis-1/3 mt-3 relative w-full lg:w-[400px]">
     <div className="absolute inset-y-0 start-0 flex items-center ps-3.5">
       <SearchIcon width={15} height={15} color="#6578A8" />
     </div>
