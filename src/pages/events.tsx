@@ -6,7 +6,6 @@ import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
 import { AuthError, getCurrentUser } from "@aws-amplify/auth";
 import { ListIcon, Bookmark } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
 interface registeredEvent {
@@ -115,7 +114,7 @@ export default function Page({ events }: EventProps) {
             <SearchBar handleChange={handleChange} searchField={searchField} />
             <div className="flex flex-row flex-nowrap w-full gap-x-3">
               <FilterTab title="All Events" filter={filterStates.all} filterState={filterState} handleUiClick={handleUiClick} Icon={ListIcon} />
-              <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />
+              {signedIn && <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />}
             </div>
           </div>
 
