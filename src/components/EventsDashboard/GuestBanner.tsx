@@ -37,12 +37,12 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
               <Link className="underline" href={`/signup`}>
                 register here
               </Link>{" "}
-              if you don't have an account.
+              {`if you don't have an account.`}
             </div>
             <X
               height={20}
               width={20}
-              className="absolute left-[50%-20] bottom-2.5 md:right-5 md:top-[50%-20]"
+              className="absolute left-[calc(50%-20px)] bottom-2 md:left-auto md:right-5 md:top-[calc(50%-20px)]"
               onClick={() => {
                 setVisible(false);
               }}
