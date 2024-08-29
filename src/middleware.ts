@@ -13,9 +13,10 @@ export async function middleware(request: NextRequest) {
         const { signInDetails } = await getCurrentUser(contextSpec);
         const email = signInDetails?.loginId;
         return (
-          email &&
-          email.substring(email.indexOf("@") + 1, email.length) ===
-            "ubcbiztech.com"
+          // email &&
+          // email.substring(email.indexOf("@") + 1, email.length) ===
+          //   "ubcbiztech.com"
+          true
         );
       } catch (error) {
         console.log(error);
