@@ -183,7 +183,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, isQrReaderToggled, setQrRea
       // wait 10 seconds, then reset the scan stage
       cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
     } catch (e) {
-      console.error("Registration failed:" + e);
+      setError("Internal Server Error, Registration Failed");
       // wait 10 seconds, then reset the scan stage
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
     }
