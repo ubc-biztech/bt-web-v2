@@ -114,7 +114,8 @@ export default function Page({ events }: EventProps) {
             <SearchBar handleChange={handleChange} searchField={searchField} />
             <div className="flex flex-row flex-nowrap w-full gap-x-3">
               <FilterTab title="All Events" filter={filterStates.all} filterState={filterState} handleUiClick={handleUiClick} Icon={ListIcon} />
-              {signedIn && <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />}
+              {/* TODO: awaiting backend API fix */}
+              {/* {signedIn && <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />} */}
             </div>
           </div>
 

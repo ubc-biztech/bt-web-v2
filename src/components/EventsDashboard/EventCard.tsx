@@ -84,6 +84,12 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, s
     }
   };
 
+  const dateText = `${months[dateString.getMonth()]} ${dateString.getDate()}, ${event.year}` + " " + `${dateString.toTimeString().slice(0, 5)}`;
+
+  const eventPricingText =
+    `${event.pricing && event.pricing > 0 ? "$" + event.pricing.members.toFixed(2) : "Free!"} ` +
+    `${event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}`;
+
   return (
     <>
       <Link href={`/event/${event.id}/${event.year}`}>
@@ -112,22 +118,18 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, s
                   <div className="hidden lg:block">{registeredIndicator(event)}</div>
                   <div className="hidden lg:block">{timeStateIndicator(event)}</div>
                   <div className="">
-                    <Bookmark
+                    {/* TODO: awaiting backend favEvent fix */}
+                    {/* <Bookmark
                       height={30}
                       width={30}
                       onClick={(e) => handleSaveClick(e, event.id, event.year)}
                       className={`cursor-pointer ${saved.includes(`${event.id};${event.year}`) || fill ? "fill-white" : ""}`}
-                    />
+                    /> */}
                   </div>
                 </div>
-                <p className="text-[10px] lg:text-sm text-events-baby-blue">
-                  {`${months[dateString.getMonth()]} ${dateString.getDate()}, ${event.year}`}, {dateString.toTimeString().slice(0, 5)}
-                </p>
+                <p className="text-[10px] lg:text-sm text-events-baby-blue">{dateText}</p>
                 <div className="flex flex-row items-center justify-between w-full">
-                  <p className="text-[10px] lg:text-sm text-events-baby-blue">
-                    {`${event.pricing ? "$" + event.pricing.members.toFixed(2) : "Free!"}`}{" "}
-                    {event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}
-                  </p>
+                  <p className="text-[10px] lg:text-sm text-events-baby-blue">{eventPricingText}</p>
                   <div className="lg:hidden flex grow justify-end mr-0.5">{registeredIndicator(event)}</div>
                   <div className="lg:hidden">{timeStateIndicator(event)}</div>
                 </div>
