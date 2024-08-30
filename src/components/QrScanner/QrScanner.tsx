@@ -172,9 +172,16 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, isQrReaderToggled, setQrRea
   };
 
   const checkInUser = (id: string, fname: string) => {
+    let year;
+    try {
+      year = parseInt(event.year);
+    } catch (e) {
+      year = -1;
+    }
+
     const body = {
       eventID: event.id,
-      year: parseInt(event.year),
+      year: year,
       registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
     };
 
