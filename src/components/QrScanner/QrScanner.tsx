@@ -174,7 +174,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, isQrReaderToggled, setQrRea
   const checkInUser = (id: string, fname: string) => {
     const body = {
       eventID: event.id,
-      year: event.year,
+      year: parseInt(event.year),
       registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
     };
 
