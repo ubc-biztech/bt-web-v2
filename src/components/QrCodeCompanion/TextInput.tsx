@@ -1,14 +1,16 @@
 import { UseFormReturn } from "react-hook-form";
 import { FormField, FormItem, FormMessage, FormControl, FormDescription } from "../ui/form";
 import { Input } from "../ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 const TextInput: React.FC<{
   form: UseFormReturn<any>;
   name: string;
   placeholder: string;
   description?: string;
+  tooltip: string;
   className?: string;
-}> = ({ form, name, placeholder, description, className }) => {
+}> = ({ form, name, placeholder, description, className, tooltip }) => {
   return (
     <FormField
       control={form.control}
@@ -23,7 +25,17 @@ const TextInput: React.FC<{
             />
           </FormControl>
           <div className='flex flex-row items-center space-x-4'>
-            <FormDescription>{description}</FormDescription>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FormDescription>{description}</FormDescription>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{tooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <FormMessage className='text-baby-blue text-xs' />
           </div>
         </FormItem>

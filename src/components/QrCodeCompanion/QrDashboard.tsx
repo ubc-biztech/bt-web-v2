@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, Dispatch, FC, SetStateAction, useEffect, useMemo, useState } from "react";
 import { SearchBar } from "./SearchBar";
 
 import { QR, QrType } from "./types";
@@ -8,22 +8,29 @@ import Image from "next/image";
 import QrCard from "./QrCard";
 import { AnimatePresence } from "framer-motion";
 
-interface QrDashboardProps {}
+interface QrDashboardProps {
+  qrs: QR[];
+  setQRs: Dispatch<SetStateAction<QR[]>>;
+}
 
-export const QrDashboard: FC<QrDashboardProps> = () => {
-  const [qrs, setQRs] = useState<QR[]>([]);
+export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
+  const [renderedQRs, setRenderedQRs] = useState<QR[]>(qrs.slice(0, 5));
+  const [viewMore, setViewMore] = useState(qrs.length > 4);
   const [searchField, setSearchField] = useState("");
   const [qrTypeFilter, setQrTypeFilter] = useState(QrType.any);
   const [yearFilter, setYearFilter] = useState(QrType.any);
 
   const fetchData = async () => {
     const data = await fetchBackend({ endpoint: "/qr", method: "GET" });
-    console.log(data);
     setQRs(data);
   };
 
   useEffect(() => {
-    fetchData();
+    try {
+      fetchData();
+    } catch (error) {
+      console.error(error);
+    }
   }, []);
 
   const filterQrs = () => {
@@ -54,6 +61,8 @@ export const QrDashboard: FC<QrDashboardProps> = () => {
       });
     }
 
+    setRenderedQRs(filteredQRs.slice(0, 5));
+    setViewMore(filteredQRs.length < 4);
     return filteredQRs;
   };
 
@@ -91,11 +100,23 @@ export const QrDashboard: FC<QrDashboardProps> = () => {
           />
         </div>
       </div>
-      <div className='space-y-4 mt-4'>
-        {filteredQRs.map((qr) => (
-          <QrCard qr={qr} />
+      <div className='space-y-4 my-4'>
+        {renderedQRs.map((qr) => (
+          <div key={qr.id}>
+            <QrCard qr={qr} />
+          </div>
         ))}
       </div>
+      {!viewMore && (
+        <div
+          className='text-lg flex flex-row items-center justify-center text-baby-blue my-12 cursor-pointer'
+          onClick={(e) => {
+            setRenderedQRs(filteredQRs);
+          }}
+        >
+          Load More
+        </div>
+      )}
     </div>
   );
 };

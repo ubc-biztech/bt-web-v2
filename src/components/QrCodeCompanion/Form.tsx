@@ -1,16 +1,19 @@
-import { FC } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { QrType } from "./types";
+import { QR, QrType } from "./types";
 import { Button } from "../ui/button";
 import { Form, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import TextInput from "./TextInput";
 import NumberInput from "./NumberInput";
 import DropDownTab from "./DropDown";
 import CheckBox from "./CheckBox";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { fetchBackend } from "@/lib/db";
-interface FormProps {}
+interface FormProps {
+  setQRs: Dispatch<SetStateAction<QR[]>>;
+}
 
 const formSchema = z
   .object({
@@ -36,7 +39,7 @@ const formSchema = z
     }
   });
 
-export const CompanionForm: FC<FormProps> = () => {
+export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -51,6 +54,7 @@ export const CompanionForm: FC<FormProps> = () => {
       workshopID: ""
     }
   });
+  const [submitState, setSubmitState] = useState("");
 
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const generateIDString = (length: number) => {
@@ -61,6 +65,12 @@ export const CompanionForm: FC<FormProps> = () => {
     }
     return result + "-";
   };
+
+  const fetchData = async () => {
+    const data = await fetchBackend({ endpoint: "/qr", method: "GET" });
+    setQRs(data);
+  };
+
   const type = useWatch({ control: form.control, name: "type" });
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -87,24 +97,46 @@ export const CompanionForm: FC<FormProps> = () => {
         })()
       };
       const res = await fetchBackend({ endpoint: "/qr", method: "POST", data: data });
-      alert(res.message);
-      // fetchQRs();
-    } catch (err) {
-      console.log(err);
+      setSubmitState(res.message);
+      fetchData();
+    } catch (err: any) {
+      if (err.status && err.status === 406) {
+        setSubmitState(err.message.message ? err.message.message : "Invalid Inputs");
+      }
+      console.error(err);
     }
-    console.log(values);
   }
 
-  // Inputs must be hidden with classes instead of conditionally rendered, otherwise react-hook onSubmit will not be validated
+  // Inputs must be hidden with classes instead of conditionally rendered, otherwise react-hook onSubmit values are not instantiated
+  // causes validation error
   return (
     <div className='w-full'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           <CheckBox form={form} name='isUnlimitedScans' description='Unlimited Scans?' />
-          <TextInput form={form} name='name' placeholder='Name*' description='QR Name' className='col-start-1' />
-          <TextInput form={form} name='eventID' placeholder='Event ID*' description='Event ID' />
-          <NumberInput form={form} name='year' placeholder='Year*' description='Event Year' />
-          <NumberInput form={form} name='points' placeholder='Points*' description='Points' />
+          <TextInput
+            form={form}
+            name='name'
+            placeholder='Name*'
+            description='QR Name'
+            className='col-start-1'
+            tooltip='To prevent cheating, a random 5-character string will be attached to the front of the name upon creation.'
+          />
+          <TextInput form={form} name='eventID' placeholder='Event ID*' description='Event ID' tooltip='Refers to the slug of the event.' />
+          <NumberInput
+            form={form}
+            name='year'
+            placeholder='Year*'
+            description='Event Year'
+            tooltip='Specify year for the event QR companion'
+          />
+          <NumberInput
+            form={form}
+            name='points'
+            placeholder='Points*'
+            description='Points'
+            tooltip='Negative values are allowed, which will deduct points (e.g. making a shop).'
+          />
           <FormField
             control={form.control}
             name='type'
@@ -118,7 +150,19 @@ export const CompanionForm: FC<FormProps> = () => {
                   options={[QrType.booth, QrType.partner, QrType.workshop]}
                   className='w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-baby-blue font-400 p-2 px-4 placeholder:text-muted-foreground'
                 />
-                <FormDescription>QR Type</FormDescription>
+                <div className='flex flex-row items-center space-x-4'>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <FormDescription className='p-1'>Qr Type</FormDescription>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Select the type of QR code.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <FormMessage className='text-baby-blue text-xs' />
+                </div>
               </FormItem>
             )}
           />
@@ -128,6 +172,7 @@ export const CompanionForm: FC<FormProps> = () => {
             placeholder='Partner Email'
             description='Partner Email'
             className={`${type === QrType.partner ? "" : "hidden"}`}
+            tooltip="Specify the partner's email."
           />
           <TextInput
             form={form}
@@ -135,6 +180,7 @@ export const CompanionForm: FC<FormProps> = () => {
             placeholder='Linkedin URL'
             description='Partner Linkedin'
             className={`${type === QrType.partner ? "" : "hidden"}`}
+            tooltip="Specify the partner's linkedin url."
           />
           <TextInput
             form={form}
@@ -142,11 +188,14 @@ export const CompanionForm: FC<FormProps> = () => {
             placeholder='Workshop*'
             description='Workshop ID'
             className={`${type === QrType.workshop ? "" : "hidden"}`}
+            tooltip='Specifiy the Workshop ID'
           />
-          <Button className='col-start-1 w-[150px] bg-biztech-green text-login-form-card font-400' type='submit'>
-            ADD QR
-          </Button>
-          <FormMessage />
+          <div className='flex flex-row items-center space-x-3 h-min'>
+            <Button className='col-start-1 w-[150px] bg-biztech-green text-login-form-card font-400' type='submit'>
+              ADD QR
+            </Button>
+            <p className='text-nowrap text-xs'>{submitState}</p>
+          </div>
         </form>
       </Form>
     </div>
