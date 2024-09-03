@@ -4,30 +4,10 @@ export type QR = {
   id: string;
   isActive: boolean;
   "eventID;year": string;
-  data?: {} | PartnerData | WorkshopData;
+  data?: { partnerID?: string; linkedin?: string; workshopID?: string };
   points: number;
   updatedAt: number;
   isUnlimitedScans: boolean;
   createdAt: number;
   type?: "Partner" | "Workshop" | "Booth";
 };
-
-interface PartnerData {
-  partnerID: string;
-  linkedin: string;
-}
-
-interface WorkshopData {
-  workshopID: string;
-}
-// {
-//   "isActive": true,
-//   "eventID;year": "blueprint;2024",
-//   "data": {},
-//   "points": 50,
-//   "updatedAt": 1705979716359,
-//   "isUnlimitedScans": true,
-//   "createdAt": 1705979716359,
-//   "id": "IPfx5-multi-test",
-//   "type": "Booth"
-// }
