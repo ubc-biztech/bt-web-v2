@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
         console.log(error);
         return false;
       }
-    },
+    }
   });
 
   if (isAdmin) {
@@ -32,5 +32,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: "/admin/:path*",
+  matcher: "/admin/:path*"
 };

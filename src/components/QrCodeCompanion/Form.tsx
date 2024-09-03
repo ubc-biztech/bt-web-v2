@@ -4,13 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { QR, QrType } from "./types";
 import { Button } from "../ui/button";
-import { Form, FormDescription, FormField, FormItem, FormMessage } from "@/components/ui/form";
-import TextInput from "./TextInput";
-import NumberInput from "./NumberInput";
-import DropDownTab from "./DropDown";
-import CheckBox from "./CheckBox";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Form } from "@/components/ui/form";
+import TextInput from "./FormTextInput";
+import NumberInput from "./FormNumberInput";
+import CheckBox from "./FormCheckBox";
 import { fetchBackend } from "@/lib/db";
+import DropDown from "./FormDropDown";
 interface FormProps {
   setQRs: Dispatch<SetStateAction<QR[]>>;
 }
@@ -137,34 +136,13 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
             description='Points'
             tooltip='Negative values are allowed, which will deduct points (e.g. making a shop).'
           />
-          <FormField
-            control={form.control}
+          <DropDown
+            form={form}
             name='type'
-            render={({ field }) => (
-              <FormItem>
-                <DropDownTab
-                  value={field.value}
-                  valueChange={field.onChange}
-                  nullVal={null}
-                  placeholder='Type*'
-                  options={[QrType.booth, QrType.partner, QrType.workshop]}
-                  className='w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-baby-blue font-400 p-2 px-4 placeholder:text-muted-foreground'
-                />
-                <div className='flex flex-row items-center space-x-4'>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <FormDescription className='p-1'>Qr Type</FormDescription>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Select the type of QR code.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <FormMessage className='text-baby-blue text-xs' />
-                </div>
-              </FormItem>
-            )}
+            placeholder='Type*'
+            options={[QrType.booth, QrType.partner, QrType.workshop]}
+            tooltip='Select the type of QR code.'
+            description='Qr Type'
           />
           <TextInput
             form={form}

@@ -4,9 +4,7 @@ import { SearchBar } from "./SearchBar";
 import { QR, QrType } from "./types";
 import DropDownTab from "./DropDown";
 import { fetchBackend } from "@/lib/db";
-import Image from "next/image";
 import QrCard from "./QrCard";
-import { AnimatePresence } from "framer-motion";
 
 interface QrDashboardProps {
   qrs: QR[];
