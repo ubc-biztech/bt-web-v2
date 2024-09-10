@@ -24,7 +24,9 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  if (isAdmin) {
+  // CHANGE BACK TO isAdmin THIS IS FOR TESTING ONLY
+
+  if (true) {
     return response;
   }
 

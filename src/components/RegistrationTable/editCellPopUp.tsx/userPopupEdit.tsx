@@ -14,6 +14,7 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
     const onSelectChange = (newValue: string) => {
         setValue(newValue)
         console.log("TODO - update data")
+        // pass it up to UserInfo with what was changed, and then we can update the whole row from there
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

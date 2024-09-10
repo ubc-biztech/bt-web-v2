@@ -4,9 +4,12 @@ import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
 import { Attendee, ColumnMeta } from "./columns"
 
-type TableCellProps = CellContext<Attendee, unknown>
+// type TableCellProps = CellContext<Attendee, unknown>
+interface TableCellProps extends CellContext<Attendee, unknown> {
+    row: any; // CHANGE THIS TO THE REGISTRATION TYPE?
+}
 
-export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
+export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) => {
     const initialValue = getValue()
     const columnMeta = column.columnDef.meta as ColumnMeta
     const [value, setValue] = useState(initialValue)
@@ -23,7 +26,10 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
     const onSelectChange = (newValue: string) => {
         setValue(newValue)
         console.log("TODO - update data")
-        // tableMeta?.updateData(row.index, column.id, newValue)
+        // change the row value that was updated
+        row.original[column.id] = newValue;
+        // send PUT request to update the row in the backend
+       
     }
 
     const getColor = (value: string) => {

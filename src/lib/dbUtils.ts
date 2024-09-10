@@ -1,3 +1,5 @@
+import { fetchBackend } from "./db";
+
 export async function fetchRegistrationData(eventId: string, year: string) {
     // TODO - fetch data registration data from backend. This is just returning a Mock, likely won't be the final data struct format
 
@@ -19,4 +21,21 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     }
 
     return data
+}
+
+export async function updateRegistrationData(email: string, data: any) {
+    await fetchBackend({ endpoint: `/registrations/${email}`, method: "PUT", authenticatedCall: false, 
+        data: { 
+            id: "1",
+            regStatus: "Checked-In",
+            appStatus: "Accepted",
+            firstName: "John",
+            lastName: "Smith",
+            email: "testing@ubcbiztech.com",
+            points: 0,
+            studentNumber: "12345678",
+            faculty: "Comm...",
+            dynamicField1: "aa...",
+            shouldNotDisplay: "THIS SHOULD NOT BE DISPLAYING."
+        } });
 }

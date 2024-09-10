@@ -4,6 +4,7 @@ import { DataTable } from "@/components/RegistrationTable/data-table";
 import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
+import { fetchBackend } from "@/lib/db";
 
 // Dynamic columns
 const dynamicColumns: ColumnDef<Attendee>[] = [
@@ -92,7 +93,13 @@ async function fetchRegistationData(eventId: string, year: string) {
   // TODO - fetch data from backend. This is just returning a Mock, likely won't be the final data struct format
 
     let data = []
-    for (let i = 0; i < 200; i++) {
+    
+    // this may return {size, data} not just the data
+    data = await fetchBackend({ endpoint: `/registrations/${eventId}/${year}`, method: "GET", authenticatedCall: false });
+
+    // ADDING EXTRA REGISTRANTS FOR TESTING 
+
+    for (let i = 0; i < 100; i++) {
         data.push({
             id: i.toString(),
             regStatus: "Checked-In",
