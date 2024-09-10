@@ -22,6 +22,28 @@
       "require_uppercase": true,
       "require_symbols": true
     },
+    "oauth": {
+      "identity_providers": [
+        "GOOGLE"
+      ],
+      "redirect_sign_in_uri": [
+        "http://localhost:3000/login",
+        "https://app.ubcbiztech.com/login"
+      ],
+      "redirect_sign_out_uri": [
+        "http://localhost:3000/",
+        "https://app.ubcbiztech.com/"
+      ],
+      "response_type": "code",
+      "scopes": [
+        "phone",
+        "email",
+        "openid",
+        "profile",
+        "aws.cognito.signin.user.admin"
+      ],
+      "domain": "bt-web-staging.auth.us-west-2.amazoncognito.com"
+    },
     "unauthenticated_identities_enabled": true
   },
   "data": {
