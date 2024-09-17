@@ -23,8 +23,8 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     return data
 }
 
-export async function updateRegistrationData(email: string, data: any) {
-    await fetchBackend({ endpoint: `/registrations/${email}`, method: "PUT", authenticatedCall: false, 
+export async function updateRegistrationData(email: string, fname: string, data: any) {
+    await fetchBackend({ endpoint: `/registrations/${email}/${fname}`, method: "PUT", authenticatedCall: false, 
         data: { 
             id: "1",
             regStatus: "Checked-In",

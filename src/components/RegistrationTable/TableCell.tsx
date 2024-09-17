@@ -21,6 +21,8 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
     const onBlur = () => {
         // tableMeta?.updateData(row.index, column.id, value)
         console.log("TODO - update data")
+        // do the same as for on Select Change now that you have access to the row
+        // column.id should tell you what was changed
     }
 
     const onSelectChange = (newValue: string) => {
@@ -29,7 +31,9 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
         // change the row value that was updated
         row.original[column.id] = newValue;
         // send PUT request to update the row in the backend
-       
+        // edit the row object with what was changed
+        // then pass that as the body for the api call
+        // 
     }
 
     const getColor = (value: string) => {
