@@ -6,44 +6,27 @@ import { CircleAlert } from "lucide-react";
 import { CheckCircle2 } from "lucide-react";
 import { ChevronsUp } from "lucide-react";
 import { QrReader } from "react-qr-reader";
-import {
-  REGISTRATION_STATUS,
-  QR_SCAN_STAGE,
-  CAMERA_FACING_MODE,
-  SCAN_CYCLE_DELAY,
-} from "@/constants/registrations";
+import { REGISTRATION_STATUS, QR_SCAN_STAGE, CAMERA_FACING_MODE, SCAN_CYCLE_DELAY } from "@/constants/registrations";
 import NoCamera from "../../../public/assets/icons/nocamera_icon.svg";
 import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import { fetchBackend } from "@/lib/db";
 
 // an enumeration for the stages of QR code scanning
-const QrCheckIn: React.FC<QrProps> = ({
-  event,
-  rows,
-  isQrReaderToggled,
-  setQrReaderToggled,
-}) => {
+const QrCheckIn: React.FC<QrProps> = ({ event, rows, isQrReaderToggled, setQrReaderToggled }) => {
   const defaultQrCode = {
     data: "",
   };
   const [qrCode, setQrCode] = useState(defaultQrCode);
   const [qrCodeText, setQrCodeText] = useState<string>("");
   const [qrScanStage, setQrScanStage] = useState(QR_SCAN_STAGE.SCANNING);
-  const [cameraFacingMode, setCameraFacingMode] = useState(
-    CAMERA_FACING_MODE.BACK
-  );
+  const [cameraFacingMode, setCameraFacingMode] = useState(CAMERA_FACING_MODE.BACK);
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (
-      !qrCode ||
-      qrCodeText === "" ||
-      typeof qrCodeText !== "string" ||
-      qrScanStage !== QR_SCAN_STAGE.SCANNING
-    )
-      return;
+    if (!qrCode || qrCodeText === "" || typeof qrCodeText !== "string" || qrScanStage !== QR_SCAN_STAGE.SCANNING) return;
 
     // data is arranged: email;event_id;year
     // id is the array of the data split by ";"
@@ -75,11 +58,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
-  const isCheckInValid = (
-    id: string[],
-    userID: string,
-    eventIDAndYear: string
-  ): boolean => {
+  const isCheckInValid = (id: string[], userID: string, eventIDAndYear: string): boolean => {
     if (eventIDAndYear !== event.id + ";" + event.year) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
 
@@ -101,11 +80,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
 
     // get the person's name
-    setCheckInName(
-      `${user.firstName ? user.firstName : user.fname} ${
-        user.lastName ? user.lastName : user.lname
-      } (${userID})`
-    );
+    setCheckInName(`${user.firstName ? user.firstName : user.fname} ${user.lastName ? user.lastName : user.lname} (${userID})`);
 
     // If the user is already checked in, show an error
     if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
@@ -199,18 +174,21 @@ const QrCheckIn: React.FC<QrProps> = ({
   const checkInUser = (id: string, fname: string) => {
     const body = {
       eventID: event.id,
-      year: event.year,
+      year: parseInt(event.year),
       registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
     };
 
-    // update the registration status of the user to checked in
-    // fetchBackend(`/registrations/${id}/${fname}`, "PUT", body);
-    // TODO: connect backend
+    try {
+      fetchBackend({ endpoint: `/registrations/${id}/${fname}`, method: "PUT", data: body });
+      // wait 10 seconds, then reset the scan stage
+      cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
+    } catch (e) {
+      setError("Internal Server Error, Registration Failed");
+      // wait 10 seconds, then reset the scan stage
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
+    }
 
     setQrCode(defaultQrCode);
-
-    // wait 10 seconds, then reset the scan stage
-    cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
   };
 
   return (
@@ -229,22 +207,13 @@ const QrCheckIn: React.FC<QrProps> = ({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className={`${scanStateClassName(
-                qrScanStage
-              )} w-full font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3 md:hidden`}
-            >
+            <div className={`${scanStateClassName(qrScanStage)} w-full font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3 md:hidden`}>
               {scanStateIcon()}
               <p className="font-600">{scanStateText()}</p>
             </div>
 
             <div className="w-full md:w-[450px] relative">
-              <Image
-                className="rounded-[10px]"
-                src={NoCamera}
-                fill
-                alt="no-camera"
-              />
+              <Image className="rounded-[10px]" src={NoCamera} fill alt="no-camera" />
               <QrReader
                 onResult={handleScanQR}
                 className="object-cover w-full md:w-[450px] flex justify-center items-center"
@@ -257,18 +226,12 @@ const QrCheckIn: React.FC<QrProps> = ({
             </div>
 
             <div className="grow w-full md:h-[450px] flex flex-col md:justify-between md:space-y-3">
-              <div
-                className={`${scanStateClassName(
-                  qrScanStage
-                )} w-full font-size text-lg p-3 rounded-[10px] hidden space-x-3 md:flex md:flex-row`}
-              >
+              <div className={`${scanStateClassName(qrScanStage)} w-full font-size text-lg p-3 rounded-[10px] hidden space-x-3 md:flex md:flex-row`}>
                 {scanStateIcon()}
                 <p className="font-600">{scanStateText()}</p>
               </div>
               <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
-                <h2 className="text-white pb-2 text-lg md:text-xl">
-                  QR Code Check-in
-                </h2>
+                <h2 className="text-white pb-2 text-lg md:text-xl">QR Code Check-in</h2>
                 <p className="pb-3">Last Scanned: {checkInName}</p>
                 <p
                   className="text-secondary-color underline pb-3"
@@ -279,10 +242,7 @@ const QrCheckIn: React.FC<QrProps> = ({
                 >
                   Reset Scanner
                 </p>
-                <p
-                  className="text-secondary-color underline pb-3"
-                  onClick={() => flipCamera()}
-                >
+                <p className="text-secondary-color underline pb-3" onClick={() => flipCamera()}>
                   Flip Camera Horizontally
                 </p>
               </div>
