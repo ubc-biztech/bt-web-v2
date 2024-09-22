@@ -19,7 +19,7 @@ interface EventProps {
 
 const filterStates = {
   all: "all",
-  saved: "saved",
+  saved: "saved"
 };
 
 export default function Page({ events }: EventProps) {
@@ -33,7 +33,6 @@ export default function Page({ events }: EventProps) {
   const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
-    console.log(events);
     fetchData();
   }, []);
 
@@ -99,27 +98,33 @@ export default function Page({ events }: EventProps) {
   };
 
   return (
-    <main className="bg-primary-color min-h-screen w-full">
-      <div className="w-full">
-        {!signedIn && <GuestBanner message="To keep your saved events or view your registered events you need to be signed in." />}
-        <div className="mx-auto pt-8 md:px-20 px-5 flex flex-col">
+    <main className='bg-primary-color min-h-screen w-full'>
+      <div className='w-full'>
+        {!signedIn && <GuestBanner message='To keep your saved events or view your registered events you need to be signed in.' />}
+        <div className='mx-auto pt-8 md:px-20 px-5 flex flex-col'>
           <span>
-            <h2 className="text-white text-xl lg:text-[40px]">Event Dashboard</h2>
-            <div className="flex items-center justify-between h-[40px]">
-              <p className="text-baby-blue font-poppins">View and register for our events!</p>
+            <h2 className='text-white text-xl lg:text-[40px]'>Event Dashboard</h2>
+            <div className='flex items-center justify-between h-[40px]'>
+              <p className='text-baby-blue font-poppins'>View and register for our events!</p>
             </div>
           </span>
-          <div className="bg-navbar-tab-hover-bg h-[1px] my-4" />
-          <div className="flex flex-row gap-x-3 space-y-3 flex-wrap md:flex-nowrap mb-8">
+          <div className='bg-navbar-tab-hover-bg h-[1px] my-4' />
+          <div className='flex flex-row gap-x-3 space-y-3 flex-wrap md:flex-nowrap mb-8'>
             <SearchBar handleChange={handleChange} searchField={searchField} />
-            <div className="flex flex-row flex-nowrap w-full gap-x-3">
-              <FilterTab title="All Events" filter={filterStates.all} filterState={filterState} handleUiClick={handleUiClick} Icon={ListIcon} />
+            <div className='flex flex-row flex-nowrap w-full gap-x-3'>
+              <FilterTab
+                title='All Events'
+                filter={filterStates.all}
+                filterState={filterState}
+                handleUiClick={handleUiClick}
+                Icon={ListIcon}
+              />
               {/* TODO: awaiting backend API fix */}
               {/* {signedIn && <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />} */}
             </div>
           </div>
 
-          {displayedEvents.length === 0 ? <div className="text-[20px] text-white flex-row items-center">No events found...</div> : <></>}
+          {displayedEvents.length === 0 ? <div className='text-[20px] text-white flex-row items-center'>No events found...</div> : <></>}
           <EventDashboard events={displayedEvents} user={email} saved={saved} registered={registered} setSaved={setSaved} />
         </div>
       </div>
@@ -141,14 +146,14 @@ export async function getStaticProps() {
 
     return {
       props: {
-        events,
-      },
+        events
+      }
     };
   } catch (error) {
     return {
       props: {
-        events: [],
-      },
+        events: []
+      }
     };
   }
 }
