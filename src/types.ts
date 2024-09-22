@@ -62,23 +62,28 @@ export enum ApplicationStatus {
 }
 
 export type BasicInformation = {
-    fname: string;
-    lname: string;
-    gender: string;
-  };
-  
+    fname: string
+    lname: string
+    major: string
+    gender: string
+    year: string
+    diet: string
+    heardFrom: string
+    faculty: string
+}
+
 export type PartnerBasicInformation = BasicInformation & {
     role: string;
     companyName: string;
-  };
-  
+};
+
 export type AttendeeBasicInformation = BasicInformation & {
     major: string;
     year: string;
     diet: string;
     heardFrom: string;
     faculty: string;
-  };
+};
 
 export type User = {
     id: string;
@@ -97,3 +102,28 @@ export type User = {
     updatedAt?: number;
     email?: string;
 }
+
+export enum MemberStatus {
+    Member = "Member",
+    NonMember = "Non-member",
+    BizTechExec = "BizTech Exec"
+}
+
+export type Profile = {
+    name: string,
+    image?: string,
+    email: string,
+    pronouns: string,
+    school: string,
+    studentId: string,
+    year: string,
+    dietary: string,
+    faculty: string,
+    major: string,
+    status: MemberStatus,
+};
+
+// Type for the mapping of question IDs to responses
+export type UserResponseList = {
+    [questionId: string]: string;
+};
