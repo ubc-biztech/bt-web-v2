@@ -1,5 +1,5 @@
 import { BiztechEvent } from "@/types/types";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { Bookmark } from "lucide-react";
 import { getCurrentUser } from "@aws-amplify/auth";
@@ -97,52 +97,54 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, s
 
   return (
     <>
-      <Link href={`/event/${event.id}/${event.year}`}>
-        <motion.div
-          key={`${event.id + event.year + event.createdAt}`}
-          layout
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{
-            type: "tween",
-            ease: "easeInOut",
-            duration: 0.3
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className='bg-events-user-card-bg w-full p-3 rounded-[10px] my-2'>
-            <div className='flex flex-row space-x-5 relative'>
-              <div className='relative lg:w-[200px] lg:h-[130px] w-[100px] h-[75px] overflow-hidden rounded-lg shrink-0'>
-                <Image className='object-cover' fill src={event.imageUrl} alt={event.ename} />
-              </div>
-              <div className='flex flex-col space-y-1 grow'>
-                <div className='font-600 text-sm lg:text-[24px] py-0.5 lg:py-2 flex flex-row space-x-3 items-center w-full'>
-                  <div>{event.ename}</div>
-                  <div className='grow'></div>
-                  <div className='hidden lg:block'>{registeredIndicator(event)}</div>
-                  <div className='hidden lg:block'>{timeStateIndicator(event)}</div>
-                  <div className=''>
-                    {/* TODO: awaiting backend favEvent fix */}
-                    {/* <Bookmark
+      <AnimatePresence mode='popLayout'>
+        <Link href={`/event/${event.id}/${event.year}`}>
+          <motion.div
+            key={`${event.id + event.year + event.createdAt}`}
+            layout
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{
+              type: "tween",
+              ease: "easeInOut",
+              duration: 0.3
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='bg-events-user-card-bg w-full p-3 rounded-[10px] my-2'>
+              <div className='flex flex-row space-x-5 relative'>
+                <div className='relative lg:w-[200px] lg:h-[130px] w-[100px] h-[75px] overflow-hidden rounded-lg shrink-0'>
+                  <Image className='object-cover' fill src={event.imageUrl} alt={event.ename} />
+                </div>
+                <div className='flex flex-col space-y-1 grow'>
+                  <div className='font-600 text-sm lg:text-[24px] py-0.5 lg:py-2 flex flex-row space-x-3 items-center w-full'>
+                    <div>{event.ename}</div>
+                    <div className='grow'></div>
+                    <div className='hidden lg:block'>{registeredIndicator(event)}</div>
+                    <div className='hidden lg:block'>{timeStateIndicator(event)}</div>
+                    <div className=''>
+                      {/* TODO: awaiting backend favEvent fix */}
+                      {/* <Bookmark
                       height={30}
                       width={30}
                       onClick={(e) => handleSaveClick(e, event.id, event.year)}
                       className={`cursor-pointer ${saved.includes(`${event.id};${event.year}`) || fill ? "fill-white" : ""}`}
-                    /> */}
+                      /> */}
+                    </div>
                   </div>
-                </div>
-                <p className='text-[10px] lg:text-sm text-events-baby-blue'>{dateText}</p>
-                <div className='flex flex-row items-center justify-between w-full'>
-                  <p className='text-[10px] lg:text-sm text-events-baby-blue'>{eventPricingText}</p>
-                  <div className='lg:hidden flex grow justify-end mr-0.5'>{registeredIndicator(event)}</div>
-                  <div className='lg:hidden'>{timeStateIndicator(event)}</div>
+                  <p className='text-[10px] lg:text-sm text-events-baby-blue'>{dateText}</p>
+                  <div className='flex flex-row items-center justify-between w-full'>
+                    <p className='text-[10px] lg:text-sm text-events-baby-blue'>{eventPricingText}</p>
+                    <div className='lg:hidden flex grow justify-end mr-0.5'>{registeredIndicator(event)}</div>
+                    <div className='lg:hidden'>{timeStateIndicator(event)}</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      </Link>
+          </motion.div>
+        </Link>
+      </AnimatePresence>
     </>
   );
 };
