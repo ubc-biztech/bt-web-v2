@@ -54,6 +54,13 @@ export enum RegistrationStatusField {
     INCOMPLETE = "Incomplete",
 }
 
+export enum ApplicationStatus {
+    ACCEPTED = "accepted",
+    REJECTED = "rejected",
+    WAITLIST = "waitlist",
+    REVIEWING = "reviewing"
+}
+
 export type BasicInformation = {
     fname: string;
     lname: string;
@@ -72,3 +79,21 @@ export type AttendeeBasicInformation = BasicInformation & {
     heardFrom: string;
     faculty: string;
   };
+
+export type User = {
+    id: string;
+    isMember?: boolean;
+    fname?: string;
+    education?: string;
+    gender?: string;
+    year?: string;
+    admin?: boolean;
+    faculty?: string;
+    studentId?: number;
+    createdAt?: number;
+    lname?: string;
+    major?: string;
+    diet?: string;
+    updatedAt?: number;
+    email?: string;
+}

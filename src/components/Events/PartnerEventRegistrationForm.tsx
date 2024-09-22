@@ -237,31 +237,69 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                                 key={choice}
                                                                 name={`customQuestions.${question.questionId}`}
                                                                 render={({ field }) => {
-                                                                    // Ensure that the field.value is an array of selected choices
                                                                     const selectedChoices = field.value ? field.value.split(', ') : [];
                                                                     const isChecked = selectedChoices.includes(choice);
+                                                                    const isOtherChecked = otherCheckedStates[question.questionId] || false;
 
                                                                     return (
-                                                                        <FormItem className="flex items-center space-x-2">
+                                                                            <FormItem className="flex items-center space-x-2">
                                                                             <FormControl>
-                                                                                <Checkbox
-                                                                                    checked={isChecked}
-                                                                                    onCheckedChange={(checked) => {
-                                                                                        let newValue;
-                                                                                        if (checked) {
-                                                                                            // Add the choice to the comma-separated string
-                                                                                            newValue = selectedChoices.length
-                                                                                                ? `${field.value}, ${choice}`
-                                                                                                : choice;
-                                                                                        } else {
-                                                                                            // Remove the choice from the comma-separated string
-                                                                                            newValue = selectedChoices
-                                                                                                .filter((v: string) => v !== choice)
-                                                                                                .join(', ');
-                                                                                        }
-                                                                                        field.onChange(newValue);
-                                                                                    }}
-                                                                                />
+                                                                                {choice.toLowerCase() === 'other' ? (
+                                                                                    <>
+                                                                                        <Checkbox
+                                                                                            checked={isOtherChecked}
+                                                                                            onCheckedChange={(checked) => {
+                                                                                                setOtherCheckedStates(prev => ({
+                                                                                                    ...prev,
+                                                                                                    [question.questionId]: checked as boolean
+                                                                                                }));
+                                                                                                if (!checked) {
+                                                                                                    // Remove 'Other' and any custom input from the field value
+                                                                                                    const newValue = selectedChoices
+                                                                                                        .filter((v: string) => v !== 'Other' && !v.startsWith('Other:'))
+                                                                                                        .join(', ');
+                                                                                                    field.onChange(newValue);
+                                                                                                } else {
+                                                                                                    // Add 'Other' to the field value
+                                                                                                    const newValue = [...selectedChoices, 'Other'].join(', ');
+                                                                                                    field.onChange(newValue);
+                                                                                                }
+                                                                                            }}
+                                                                                        />
+                                                                                        {isOtherChecked && (
+                                                                                            <Input
+                                                                                                placeholder="Enter other option"
+                                                                                                value={selectedChoices.find((v: string) => v.startsWith('Other:'))?.substring(6) || ''}
+                                                                                                onChange={(e) => {
+                                                                                                    const otherValue = e.target.value;
+                                                                                                    let newValue = selectedChoices
+                                                                                                        .filter((v: string) => v !== 'Other' && !v.startsWith('Other:'))
+                                                                                                        .concat(`Other:${otherValue}`)
+                                                                                                        .join(', ');
+                                                                                                    field.onChange(newValue);
+                                                                                                }}
+                                                                                                className="mt-2"
+                                                                                            />
+                                                                                        )}
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <Checkbox
+                                                                                        checked={isChecked}
+                                                                                        onCheckedChange={(checked) => {
+                                                                                            let newValue;
+                                                                                            if (checked) {
+                                                                                                newValue = selectedChoices.length
+                                                                                                    ? `${field.value}, ${choice}`
+                                                                                                    : choice;
+                                                                                            } else {
+                                                                                                newValue = selectedChoices
+                                                                                                    .filter((v: string) => v !== choice)
+                                                                                                    .join(', ');
+                                                                                            }
+                                                                                            field.onChange(newValue);
+                                                                                        }}
+                                                                                    />
+                                                                                )}
                                                                             </FormControl>
                                                                             <FormLabel className="font-normal">{choice}</FormLabel>
                                                                         </FormItem>
@@ -405,3 +443,5 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
         </div>
     );
 };
+
+

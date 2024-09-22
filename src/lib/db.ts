@@ -32,6 +32,7 @@ export async function fetchBackend({
   }
 
   if (authenticatedCall) {
+    console.log(endpoint)
     const session = await currentSession();
     if (session) {
       headers['Authorization'] = `Bearer ${session.idToken}`;
