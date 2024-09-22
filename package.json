@@ -12,6 +12,7 @@
     "@aws-amplify/adapter-nextjs": "^1.2.10",
     "@aws-amplify/auth": "^6.3.7",
     "@aws-amplify/ui-react": "^6.1.12",
+    "@radix-ui/react-avatar": "^1.1.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@hookform/resolvers": "^3.9.0",

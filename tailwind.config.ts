@@ -40,7 +40,11 @@ const config: Config = {
         'navigation-bg': '#11192E',
         'active-tab-bg': '#1C253D',
         'card-bg': '#263354',
-        'edit-hover-bg': '#2B395B',
+      },
+      // Profile Page Colors
+      'profile': {
+        'card-bg': "#1E2B4D",
+        'separator-bg': "#394971"
       },
       // Selected Color Palette
       'biztech-navy': '#162039',
@@ -56,6 +60,7 @@ const config: Config = {
       'light-green': '#AFE38C',
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
+      'divider': '#8DA1D1',
       black: '#000000',
       placeholder: '#D9D9D9',
       white: '#ffffff',

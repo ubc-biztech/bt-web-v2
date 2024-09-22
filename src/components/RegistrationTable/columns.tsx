@@ -72,6 +72,16 @@ export const columns: ColumnDef<Attendee>[] = [
         accessorKey: "appStatus",
         header: "App. Status",
         cell: TableCell,
+        meta: {
+            type: "select",
+            options: [ // These values were inferred from the database
+                { value: "Accepted", label: "Accepted" },
+                { value: "Reviewing", label: "Reviewing" },
+                { value: "Waitlist", label: "Waitlist" },
+                { value: "Rejected", label: "Rejected" },
+            ],
+        } as ColumnMeta,
+        size: 200,
     },
     {
         accessorKey: "firstName",

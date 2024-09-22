@@ -38,7 +38,7 @@ export const defaultUser = (isAdmin: boolean) => {
       },
       {
         title: `${isAdmin ? "Admin" : "User"} Profile`,
-        link: "",
+        link: "/profile",
         icon: ProfileIcon
       },
     ];
