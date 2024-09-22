@@ -1,6 +1,5 @@
 import { EventDashboard } from "@/components/EventsDashboard/EventDashboard";
 import { FilterTab } from "@/components/EventsDashboard/FilterTab";
-import GuestBanner from "@/components/EventsDashboard/GuestBanner";
 import { SearchBar } from "@/components/EventsDashboard/SearchBar";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
@@ -100,7 +99,6 @@ export default function Page({ events }: EventProps) {
   return (
     <main className='bg-primary-color min-h-screen w-full'>
       <div className='w-full'>
-        {!signedIn && <GuestBanner message='To keep your saved events or view your registered events you need to be signed in.' />}
         <div className='mx-auto pt-8 md:px-20 px-5 flex flex-col'>
           <span>
             <h2 className='text-white text-xl lg:text-[40px]'>Event Dashboard</h2>
