@@ -3,6 +3,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
 import { Attendee, ColumnMeta } from "./columns"
+import { updateRegistrationData } from '@/lib/dbUtils'
 
 // type TableCellProps = CellContext<Attendee, unknown>
 interface TableCellProps extends CellContext<Attendee, unknown> {
@@ -15,33 +16,49 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
     const [value, setValue] = useState(initialValue)
 
     useEffect(() => {
-        setValue(initialValue)
+        setValue(getLabel(initialValue as string))
+
     }, [initialValue])
 
     const onBlur = () => {
-        // tableMeta?.updateData(row.index, column.id, value)
-        console.log("TODO - update data")
-        // do the same as for on Select Change now that you have access to the row
-        // column.id should tell you what was changed
+        row.original[column.id] = value;
+        let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
+        let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
+
+        const body = {
+            eventID: eventId,
+            year: parseInt(year),
+            [column.id]: parseInt(value as string), // use value instead because it should be what's already inside
+        };
+
+        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
+        updateRegistrationData(row.original.id, row.original.fname, body);
     }
 
     const onSelectChange = (newValue: string) => {
         setValue(newValue)
-        console.log("TODO - update data")
-        // change the row value that was updated
         row.original[column.id] = newValue;
-        // send PUT request to update the row in the backend
-        // edit the row object with what was changed
-        // then pass that as the body for the api call
-        // 
+        let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
+        let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
+
+        const body = {
+            eventID: eventId,
+            year: parseInt(year),
+            [column.id]: newValue,
+        };
+
+        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
+        updateRegistrationData(row.original.id, row.original.fname, body);
     }
 
     const getColor = (value: string) => {
-        switch(value) {
+        switch (value) {
             case 'Registered':
                 return '#7F94FF';
             case 'Checked-In':
                 return '#7AD040';
+            case 'Waitlist':
+                return '#E6CA68';
             case 'Incomplete':
                 return '#E6CA68';
             case 'Cancelled':
@@ -50,12 +67,35 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
                 return '#ffffff';
         }
     }
+    // this can probably be defined and imported
+    const getLabel = (value: string) => {
+        switch (value) {
+            case 'registered':
+                return 'Registered';
+            case 'checkedIn':
+                return 'Checked-In';
+            case 'incomplete':
+                return 'Incomplete';
+            case 'cancelled':
+                return 'Cancelled';
+            case 'accepted':
+                return 'Accepted';
+            case 'waitlist':
+                return 'Waitlist';
+            case 'reviewing':
+                return 'Reviewing';
+            case 'rejected':
+                return 'Rejected';
+            default:
+                return value;
+        }
+    }
 
-    if (column.id === 'regStatus' || column.id === 'points') {
+    if (column.id === 'registrationStatus' || column.id === 'points') {
         if (columnMeta?.type === "select") {
             return (
                 <Select onValueChange={onSelectChange} defaultValue={initialValue as string}>
-                    <SelectTrigger style={{color: getColor(value as string)}}>
+                    <SelectTrigger style={{ color: getColor(value as string) }}>
                         <SelectValue>{value as string}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>

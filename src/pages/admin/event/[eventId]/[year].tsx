@@ -82,7 +82,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   try {
     const data = await fetchRegistationData(eventId, year);
-    // let data: Attendee[] = []
     return { props: { initialData: data } };
   } catch (error) {
     console.error("Failed to fetch initial data:", error);
@@ -93,50 +92,49 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 async function fetchRegistationData(eventId: string, year: string) {
   // TODO - fetch data from backend. This is just returning a Mock, likely won't be the final data struct format
 
-  let data = []
+  let data: Attendee[] = [];
 
   // FOR TESTING
   // console.log(`/registrations?eventID=${eventId}&year=${year}`)
   // this may return {size, data} not just the data
-  const queryParams = new URLSearchParams({ eventID: "blueprint", year: String(2024) }).toString();
+  //const queryParams = new URLSearchParams({ eventID: "hello-hacks", year: String(2023) }).toString();
 
-  data = await fetchBackend({
-    endpoint: `/registrations?${queryParams}`,
+  let registrationData = await fetchBackend({
+    endpoint: `/registrations?eventID=${eventId}&year=2024`,
     method: "GET",
     authenticatedCall: false
   });
 
   // ADDING EXTRA REGISTRANTS FOR TESTING 
 
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      id: i.toString(),
-      regStatus: "Checked-In",
-      appStatus: "Accepted",
-      firstName: "John",
-      lastName: "Smith",
-      email: "testing@ubcbiztech.com",
-      points: 0,
-      studentNumber: "12345678",
-      faculty: "Comm...",
-      dynamicField1: "aa...",
-      shouldNotDisplay: "THIS SHOULD NOT BE DISPLAYING.",
-      dynamicResponses:
-      {
-        "ee2b5b93-3792-4332-ba83-24b995f12094": "asdf",
-        "04f58eea-1861-4da3-8e4c-8d8e994ce8ba": "asdf",
-        "bede9713-17cf-4bb9-b362-8c30a1e5b543": "UBC",
-        "cb1a1e83-f581-473c-97e0-48e9a88d7d20": "I would not like to participate",
-        "ea4a8fa7-7bcf-4f86-af60-27ac61c7680b": "https://drive.google.com/file/d/1Q60JBkifak4gSrZL65KvafCPVA2HwcZ4/view?usp=drivesdk",
-        "013bb98c-4286-4649-bbb9-fbc27185925c": "asdf",
-        "24f0b385-d92e-43be-92a3-2b225964a778": "No",
-        "a04e1064-65b2-4873-bede-9c4d5cbd32c3": "No",
-        "49512eca-eec6-4639-b70c-f60f2e0a9371": "No",
-        "f33ba987-6a5f-4ea2-9ba9-ca5f087e6fef": "No",
-        "f83944a8-97e2-421c-903c-aac91106fe34": "I didn't submit a project"
-      },
-    })
-  }
+  let testApps = [{
+    'eventID;year': 'blueprint;2024',
+    applicationStatus: 'accepted',
+    dynamicResponses: {
+      '0a34f9d2-12a5-4aed-abe5-d7d897f2fb5e': 'yes',
+      'bede9713-17cf-4bb9-b362-8c30a1e5b543': 'UBC'
+    },
+    fname: 'Eliana',
+    studentId: '54263975',
+    points: 800,
+    updatedAt: 1706341269746,
+    scannedQRs: ["WEJdk-workshop1","oAcaI-inifnite","oAcaI-inifnite","oAcaI-inifnite","oAcaI-inifnite"],
+    basicInformation: {
+      fname: 'Eliana',
+      lname: 'Barbosa',
+      major: 'N/A',
+      gender: ['She/Her/Hers'],
+      year: '2nd Year',
+      diet: 'None',
+      heardFrom: 'Instagram',
+      faculty: 'Commerce'
+    },
+    isPartner: false,
+    id: 'eliana@ubcbiztech.com',
+    registrationStatus: 'checkedIn'
+  }];
 
-  return data;
+  testApps = testApps.concat(registrationData.data);
+
+  return testApps;
 }

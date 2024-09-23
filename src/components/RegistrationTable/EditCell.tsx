@@ -63,14 +63,14 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
 
             <DialogContent className="max-w-[750px] w-full max-h-lg bg-events-active-tab-bg border-0">
                 <DialogHeader>
-                    <DialogTitle className="text-white">{row.original.firstName} {row.original.lastName}</DialogTitle>
+                    <DialogTitle className="text-white">{row.original.fname} {row.original.basicInformation.lname}</DialogTitle>
                     <span className="italic text-white">Form Responses</span>
                 </DialogHeader>
                 {/* divider */}
                 <div className="max-w-full h-[1px] bg-divider my-3" />
                 
-                <div className="max-h-[300px] max-w-full overflow-y-auto">
-                    <UserInfo row={row} table={table} />
+                <div className="max-h-[500px] max-w-full overflow-y-auto">
+                    <UserInfo row={row.original} table={table} />
                     {/* divider */}
                     <div className="max-w-full h-[1px] bg-divider my-3">
                     <UserResponses questions={questions} responses={row.original.dynamicResponses} />
@@ -80,7 +80,8 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
                 <div className="w-full h-[1px] bg-divider my-3" />
                 {/* Added DialogTrigger here to close dialog upon button click */}
                 <DialogTrigger asChild>
-                    <Button onClick={handleEdit}>Save changes</Button>
+                {/* Do we want this to be a save changes button instead? */}
+                    <Button onClick={handleEdit}>Close</Button> 
                 </DialogTrigger>
             </DialogContent>
         </Dialog>

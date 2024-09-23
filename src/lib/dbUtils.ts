@@ -23,19 +23,11 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     return data
 }
 
-export async function updateRegistrationData(email: string, fname: string, data: any) {
+export async function updateRegistrationData(email: string, fname: string, body: any) {
+    try {
     await fetchBackend({ endpoint: `/registrations/${email}/${fname}`, method: "PUT", authenticatedCall: false, 
-        data: { 
-            id: "1",
-            regStatus: "Checked-In",
-            appStatus: "Accepted",
-            firstName: "John",
-            lastName: "Smith",
-            email: "testing@ubcbiztech.com",
-            points: 0,
-            studentNumber: "12345678",
-            faculty: "Comm...",
-            dynamicField1: "aa...",
-            shouldNotDisplay: "THIS SHOULD NOT BE DISPLAYING."
-        } });
+        data: body });
+    } catch (e) {
+        console.error("Internal Server Error, Update Failed");
+    }
 }

@@ -5,7 +5,7 @@ import SelectCell from './userPopupEdit'
 import { ColumnMeta } from '../columns'
 
 interface EditCellProps {
-    row: Row<Attendee>,
+    row: Attendee,
     table: Table<Attendee>
 }
 
@@ -37,33 +37,45 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
             columns.forEach(column => {
                 // had to import meta as Column Meta or else encountered errors
                 const meta = column.columnDef.meta as ColumnMeta | undefined;
-        
                 if (meta?.type === 'select') {
                     options[column.id] = meta.options?.map(opt => opt.value) || [];
                 }
             });
-        
             return options;
         };
 
         setDropDownList(generateDropDownList());
 
     }, [table]);
-    
-    const fieldsToDisplay = Object.keys(row.original).filter(key => key !== 'shouldNotDisplay' && key !== 'id' && key != 'dynamicResponses');
-    
+
+    let fieldsToDisplay = Object.keys(row).filter(key => key !== 'shouldNotDisplay'
+        && key != 'dynamicResponses'
+        && key != 'scannedQRs'
+        && key != 'basicInformation'
+        && key != 'updatedAt'
+        && key != 'eventID;year'
+        && key != 'isPartner'
+        && key != 'fname');
+
+    fieldsToDisplay = fieldsToDisplay.concat(
+        Object.keys(row.basicInformation)
+            .filter(key => key !== 'fname' && key !== 'lname' && key != 'heardFrom')
+            .map(key => 'basicInformation_' + key)
+    );
 
     return (
         <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
-            {fieldsToDisplay?.map((key) => (
+            {fieldsToDisplay?.map((key: string) => (
                 <div key={key}>
                     <label className="block font-bold text-baby-blue">{fieldLabels[key]}:</label>
-                    {key === 'regStatus' || key === 'appStatus' ? (
-                        <SelectCell originalValue={row.original[key]} dropDownList={dropDownList[key]}/>
+                    {key === 'registrationStatus' || key === 'applicationStatus' ? (
+                        <SelectCell column={key} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
                     ) : key === 'points' ? (
-                        <SelectCell originalValue={row.original[key]} dropDownList={dropDownList[key]}/>
+                        <SelectCell column={key} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
+                    ) : key.startsWith("basicInformation_") ? (
+                        <span>{row.basicInformation[key.slice(key.indexOf("basicInformation_") + "basicInformation_".length)]}</span>
                     ) : (
-                        <span>{row.original[key]}</span>
+                        <span>{row[key]}</span>
                     )}
                 </div>
             ))}

@@ -1,28 +1,75 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import React, { useState } from 'react'
+import { updateRegistrationData } from "@/lib/dbUtils"
+import { Attendee } from "../columns"
 
 
 interface SelectCellProps {
+    row: Attendee,
+    column: string,
     originalValue: string | number,
     dropDownList: string[]
 }
 
-const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) => {
+const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dropDownList }) => {
     const [value, setValue] = useState(originalValue)
+
+    const onBlur = () => {
+        let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
+        let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
+
+        const body = {
+            eventID: eventId,
+            year: parseInt(year),
+            [column]: parseInt(value as string),
+        };
+
+        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
+        updateRegistrationData(row.id, row.fname, body);
+    }
 
     const onSelectChange = (newValue: string) => {
         setValue(newValue)
-        console.log("TODO - update data")
-        // pass it up to UserInfo with what was changed, and then we can update the whole row from there
-        // can change this component to take the key so we know what was changed
-        // also change the component to take in a function to call so that when the select or input is changed it updates that part
+        let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
+        let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
+
+        const body = {
+            eventID: eventId,
+            year: parseInt(year),
+            [column]: newValue,
+        };
+
+        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
+        updateRegistrationData(row.id, row.fname, body);
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setValue(e.target.value);
     };
 
+    const getLabel = (value: string) => {
+        switch (value) {
+            case 'registered':
+                return 'Registered';
+            case 'checkedIn':
+                return 'Checked-In';
+            case 'incomplete':
+                return 'Incomplete';
+            case 'cancelled':
+                return 'Cancelled';
+            case 'accepted':
+                return 'Accepted';
+            case 'waitlist':
+                return 'Waitlist';
+            case 'reviewing':
+                return 'Reviewing';
+            case 'rejected':
+                return 'Rejected';
+            default:
+                return value;
+        }
+    }
 
     return (
         <div>
@@ -30,7 +77,7 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
                 <Select onValueChange={onSelectChange} defaultValue="Not Found">
                     <SelectTrigger className="p3 rounded-none bg-events-active-tab-bg text-white p-0 border-0 border-b-2 border-b-baby-blue">
                         <SelectValue>
-                            {value}
+                            {getLabel(value as string)}
                         </SelectValue>
                     </SelectTrigger>
                     <SelectContent className='focus:border-0 bg-white'>
@@ -50,6 +97,7 @@ const SelectCell: React.FC<SelectCellProps> = ({ originalValue, dropDownList }) 
                     type="number"
                     value={value}
                     onChange={handleInputChange}
+                    onBlur={onBlur}
                 />
             )}
         </div>
