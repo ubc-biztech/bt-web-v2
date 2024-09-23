@@ -100,7 +100,7 @@ async function fetchRegistationData(eventId: string, year: string) {
   //const queryParams = new URLSearchParams({ eventID: "hello-hacks", year: String(2023) }).toString();
 
   let registrationData = await fetchBackend({
-    endpoint: `/registrations?eventID=${eventId}&year=2024`,
+    endpoint: `/registrations?eventID=${eventId}&year=${year}`,
     method: "GET",
     authenticatedCall: false
   });
