@@ -40,8 +40,8 @@ const attendeeEventRegistrationFormSchema = z.object({
 interface AttendeeEventRegistrationFormProps {
     event: BiztechEvent;
     initialData?: Partial<z.infer<ReturnType<typeof createDynamicSchema>>>;
-    onSubmit: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => void;
-    onSubmitPayment: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => void;
+    onSubmit: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => Promise<Boolean>;
+    onSubmitPayment: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => Promise<Boolean>;
     user: User;
 }
 
@@ -79,20 +79,22 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
         },
     });
 
-    const handleSubmit: SubmitHandler<FormValues> = (data) => {
-        onSubmit(data);
-        toast({
-            title: "Registration Submitted",
-            description: "Your registration has been successfully submitted.",
-        });
+    const handleSubmit: SubmitHandler<FormValues> = async (data) => {
+        if (await onSubmit(data)) {
+            toast({
+              title: "Registration Submitted",
+              description: "Your registration has been successfully submitted.",
+            });
+        }
     };
 
-    const handlePaymentSubmit: SubmitHandler<FormValues> = (data) => {
-        onSubmitPayment(data);
-        toast({
-            title: "Registration Submitted",
-            description: "Your registration has been successfully submitted.",
-        });
+    const handlePaymentSubmit: SubmitHandler<FormValues> = async (data) => {
+        if (await onSubmitPayment(data)) {
+            toast({ 
+              title: "Registration Submitted",
+              description: "Your registration has been successfully submitted.",
+            });
+        }
     };
 
     interface UploadedFile {

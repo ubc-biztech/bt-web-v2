@@ -45,12 +45,16 @@ export default function AttendeeFormRegister() {
         return false;
     };
 
-    const checkRegistered = async (email: string) => {
+    const checkRegistered = async (email: string): Promise<Boolean> => {
         const registrations = await fetchBackend({
             endpoint: `/registrations?email=${email}`,
             method: "GET",
+            authenticatedCall: false,
         })
-        setUserRegistered(registrations.data.some((reg: any) => reg["eventID;year"] === (event.id + ";" + event.year)))
+        const exists: boolean = registrations.data.some((reg: any) => reg["eventID;year"] === (event.id + ";" + event.year));
+        setUserRegistered(exists);
+        return exists;
+        
     }
 
     useEffect(() => {
@@ -150,13 +154,11 @@ export default function AttendeeFormRegister() {
         }
     }
 
-    const handleSubmit = async (data: any) => {
+    const handleSubmit = async (data: any): Promise<Boolean> => {
         cleanFormData(data);
 
-        if (!userLoggedIn) checkRegistered(data["emailAddress"]);
-
-        if (userRegistered) {
-            return;
+        if (!userLoggedIn && await checkRegistered(data["emailAddress"])) {
+            return false;
         }
 
         const registrationData = {
@@ -190,20 +192,20 @@ export default function AttendeeFormRegister() {
                 authenticatedCall: false
             });
             router.push(`/event/${eventId}/${year}/register/success`);
+            return true;
         } catch (error) {
             alert(
                 `An error has occured: ${error} Please contact an exec for support. 4`
             );
+            return false;
         }
     };
 
-    const handlePaymentSubmit = async (data: any) => {
+    const handlePaymentSubmit = async (data: any): Promise<Boolean> => {
         cleanFormData(data);
 
-        if (!userLoggedIn) checkRegistered(data["emailAddress"]);
-
-        if (userRegistered) {
-            return;
+        if (!userLoggedIn && await checkRegistered(data["emailAddress"])) {
+            return false;
         }
         
         const registrationData = {
@@ -238,6 +240,7 @@ export default function AttendeeFormRegister() {
             });
             if (res.url) {
                 window.open(res.url, "_self");
+                return true;
             } else {
                 const paymentData = {
                     paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"
@@ -274,16 +277,19 @@ export default function AttendeeFormRegister() {
                     } else {
                         window.open(res, "_self");
                     }
+                    return true;
                 } catch (error) {
                     alert(
                         `An error has occured: ${error} Please contact an exec for support.`
                     );
+                    return false;
                 }
             }
         } catch (error) {
             alert(
                 `An error has occured: ${error} Please contact an exec for support.`
             );
+            return false;
         }
     }
 

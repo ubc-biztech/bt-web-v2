@@ -1,4 +1,5 @@
 export const cleanOtherQuestions = (answer: string) => {
+    if (!answer) return answer;
     let otherIdx = answer.indexOf("Other:");
     if (otherIdx < 0) {
         otherIdx = answer.indexOf("Other");

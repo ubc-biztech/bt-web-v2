@@ -38,7 +38,7 @@ const partnerEventRegistrationFormSchema = z.object({
 interface PartnerEventRegistrationFormProps {
     event: BiztechEvent;
     initialData?: Partial<z.infer<ReturnType<typeof createDynamicSchema>>>;
-    onSubmit: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => void;
+    onSubmit: (data: z.infer<ReturnType<typeof createDynamicSchema>>) => Promise<Boolean>;
 }
 
 const createDynamicSchema = (event: BiztechEvent) => {
@@ -73,13 +73,13 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
       },
     });
 
-    const handleSubmit: SubmitHandler<FormValues> = (data) => {
-        onSubmit(data);
-        toast({
-          title: "Registration Submitted",
-          description: "Your registration has been successfully submitted.",
-        });
-        console.log(data);
+    const handleSubmit: SubmitHandler<FormValues> = async (data) => {
+        if (await onSubmit(data)) {
+            toast({
+              title: "Registration Submitted",
+              description: "Your registration has been successfully submitted.",
+            });
+        }
     };
 
     return (

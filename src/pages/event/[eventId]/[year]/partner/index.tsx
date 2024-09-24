@@ -14,7 +14,7 @@ export default function PartnerFormRegister() {
     const [userRegistered, setUserRegistered] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchEvent = async() => {
+        const fetchEvent = async () => {
             if (!eventId || !year) {
                 return;
             }
@@ -29,12 +29,15 @@ export default function PartnerFormRegister() {
         fetchEvent();
     }, [eventId, year]);
 
-    const checkRegistered = async (email: string) => {
+    const checkRegistered = async (email: string): Promise<Boolean> => {
         const registrations = await fetchBackend({
             endpoint: `/registrations?email=${email}`,
             method: "GET",
+            authenticatedCall: false,
         })
-        return registrations.data.some((reg: any) => reg["eventID;year"] === (event.id + ";" +event.year));
+        const exists: boolean = registrations.data.some((reg: any) => reg["eventID;year"] === (event.id + ";" + event.year));
+        setUserRegistered(exists);
+        return exists;
     }
 
     const cleanFormData = (data: any) => {
@@ -49,26 +52,26 @@ export default function PartnerFormRegister() {
         cleanFormData(data);
 
         // check if email is already associated with a registration
+        if (await checkRegistered(data["emailAddress"])) return;
 
-        if (await checkRegistered(data["emailAddress"])) {
-
-        }
         const registrationData = {
-            email: responseData[0],
-            fname: responseData[1],
-            eventID: currEvent.id,
-            year: currEvent.year,
-            registrationStatus: "registered",
+            email: data["emailAddress"],
+            fname: data["firstName"],
+            eventID: eventId,
+            year: parseInt(year as string),
+            registrationStatus: DBRegistrationStatus.REGISTERED,
             isPartner: true,
             basicInformation: {
-              fname: responseData[1],
-              lname: responseData[2],
-              gender: responseData[3],
-              companyName: responseData[4],
-              role: responseData[5],
+                fname: data["firstName"],
+                lname: data["lastName"],
+                gender: data["preferredPronouns"],
+                companyName: data["companyName"],
+                role: data["roleAtCompany"],
             },
-            dynamicResponses,
-          };
+            dynamicResponses: data["customQuestions"],
+        };
+
+        console.log(registrationData)
 
         try {
             await fetchBackend({
@@ -85,11 +88,27 @@ export default function PartnerFormRegister() {
         }
     };
 
+    const renderErrorText = (children: JSX.Element) => {
+        return (
+            <div className="flex text-white">
+                <div className="space-y-4 p-4 max-w-lg mx-auto py-10">
+                    <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                        {event?.imageUrl ?
+                            <img src={event.imageUrl} alt="Event Cover" className="w-full h-full object-cover" /> :
+                            <span className="text-gray-400">Event Cover Photo</span>
+                        }
+                    </div>
+                    {children}
+                </div>
+            </div>
+        )
+    }
+
     if (userRegistered) {
         return renderErrorText(
             <div className="text-center">
                 <p className="text-l mb-4">You've already registered!</p>
-                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href="/"}>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                     Upcoming Events
                 </button>
             </div>
@@ -99,7 +118,9 @@ export default function PartnerFormRegister() {
     return (
         <main className="bg-primary-color min-h-screen">
             <div className="mx-auto flex flex-col">
-                <PartnerEventRegistrationForm onSubmit={handleSubmit} event={event}/>
+                {
+                    event && event.partnerRegistrationQuestions && <PartnerEventRegistrationForm onSubmit={handleSubmit} event={event} />
+                }
             </div>
         </main>
     );
