@@ -82,24 +82,20 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
     const handleSubmit: SubmitHandler<FormValues> = async (data) => {
         if (await onSubmit(data)) {
             toast({
-              title: "Registration Submitted",
-              description: "Your registration has been successfully submitted.",
+                title: "Registration Submitted",
+                description: "Your registration has been successfully submitted.",
             });
         }
     };
 
     const handlePaymentSubmit: SubmitHandler<FormValues> = async (data) => {
         if (await onSubmitPayment(data)) {
-            toast({ 
-              title: "Registration Submitted",
-              description: "Your registration has been successfully submitted.",
+            toast({
+                title: "Registration Submitted",
+                description: "Your registration has been successfully submitted.",
             });
         }
     };
-
-    interface UploadedFile {
-        url: string;
-    }
 
     const uploadFile = async (
         questionId: string,
@@ -127,38 +123,62 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
     const uploadFileToGoogleDrive = async (
         file: File,
         folderId: string
-    ): Promise<UploadedFile> => {
-        const rawLog = await convertToBase64(file);
-        const response = await fetch(
-            'https://script.google.com/macros/s/AKfycbzLif9Uypau-R54Ob-g3bs9jqWujIzfXFvZEMKx7k5m3KfZZNlPUwj-dIdKh7dMaxTotA/exec',
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    dataReq: {
-                        data: rawLog,
-                        name: file.name,
-                        type: file.type,
-                        folderId,
-                    },
-                    fname: 'uploadFilesToGoogleDrive',
-                }),
-            }
-        );
-        const { url } = await response.json();
-        return { url };
-    };
+    ): Promise<string> => {
+        // Function to read file as base64
+        const readFileAsBase64 = (file: File): Promise<string> => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    if (typeof reader.result === 'string') {
+                        const base64 = reader.result.split(',')[1];
+                        resolve(base64);
+                    } else {
+                        reject(new Error('Failed to read file as base64'));
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        };
 
-    const convertToBase64 = (file: File): Promise<string> =>
-        new Promise((resolve, reject) => {
-            const fileReader = new FileReader();
-            fileReader.readAsDataURL(file);
-            fileReader.onload = () => {
-                resolve(fileReader.result as string);
+        try {
+            // Read file as base64
+            const rawLog = await readFileAsBase64(file);
+
+            // Prepare data to send to API
+            const dataSend = {
+                dataReq: {
+                    data: rawLog,
+                    name: file.name,
+                    type: file.type,
+                    folderId: folderId // Changed from event.id to folderId
+                },
+                fname: "uploadFilesToGoogleDrive",
             };
-            fileReader.onerror = (error) => {
-                reject(error);
-            };
-        });
+
+            // Make the API call
+            const response = await fetch(
+                "https://script.google.com/macros/s/AKfycbzLif9Uypau-R54Ob-g3bs9jqWujIzfXFvZEMKx7k5m3KfZZNlPUwj-dIdKh7dMaxTotA/exec",
+                {
+                    method: "POST",
+                    body: JSON.stringify(dataSend)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            // Assuming the API returns a URL, otherwise adjust accordingly
+            return result.url || "";
+
+        } catch (error) {
+            console.error('Error in uploadFileToGoogleDrive:', error);
+            throw error;
+        }
+    };
 
     return (
         <div className="flex text-white">
@@ -462,11 +482,6 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                    </FormControl>
-                                                )}
-                                                {question.type === QuestionTypes.UPLOAD && (
-                                                    <FormControl>
-                                                        <Input {...field} placeholder="File URL" />
                                                     </FormControl>
                                                 )}
                                                 {question.type === QuestionTypes.WORKSHOP_SELECTION && (

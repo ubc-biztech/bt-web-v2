@@ -40,9 +40,8 @@ export default function AttendeeFormRegister() {
     };
 
     const isDeadlinePassed = () => {
-        // const deadline = new Date(event.deadline).getTime();
-        // return deadline < new Date().getTime();
-        return false;
+        const deadline = new Date(event.deadline).getTime();
+        return deadline < new Date().getTime();
     };
 
     const checkRegistered = async (email: string): Promise<Boolean> => {
@@ -62,7 +61,6 @@ export default function AttendeeFormRegister() {
             try {
                 // Check if the user is authenticated
                 const { tokens } = await fetchAuthSession();
-                // console.log()
                 if (tokens) {
                     // User is authenticated, fetch user data
                     const { username, userId } = await getCurrentUser();
@@ -92,6 +90,7 @@ export default function AttendeeFormRegister() {
                 data: undefined,
                 authenticatedCall: false
             });
+            console.log(eventData)
 
             const params = new URLSearchParams({
                 count: String(true)

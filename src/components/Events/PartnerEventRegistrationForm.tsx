@@ -82,6 +82,89 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
         }
     };
 
+    const uploadFile = async (
+        questionId: string,
+        e: React.ChangeEvent<HTMLInputElement>
+    ): Promise<void> => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        try {
+            const url = await uploadFileToGoogleDrive(file, event.id);
+            form.setValue(`customQuestions.${questionId}`, url);
+            toast({
+                title: 'File uploaded successfully',
+                description: `${file.name} has been uploaded.`,
+                variant: 'default',
+            });
+        } catch (error) {
+            toast({
+                title: 'Error uploading file',
+                description: 'Please try again later.',
+                variant: 'destructive',
+            });
+        }
+    };
+
+    const uploadFileToGoogleDrive = async (
+        file: File,
+        folderId: string
+      ): Promise<string> => {
+        // Function to read file as base64
+        const readFileAsBase64 = (file: File): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              if (typeof reader.result === 'string') {
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+              } else {
+                reject(new Error('Failed to read file as base64'));
+              }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+        };
+      
+        try {
+          // Read file as base64
+          const rawLog = await readFileAsBase64(file);
+      
+          // Prepare data to send to API
+          const dataSend = {
+            dataReq: {
+              data: rawLog,
+              name: file.name,
+              type: file.type,
+              folderId: folderId // Changed from event.id to folderId
+            },
+            fname: "uploadFilesToGoogleDrive",
+          };
+      
+          // Make the API call
+          const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbzLif9Uypau-R54Ob-g3bs9jqWujIzfXFvZEMKx7k5m3KfZZNlPUwj-dIdKh7dMaxTotA/exec",
+            {
+              method: "POST",
+              body: JSON.stringify(dataSend)
+            }
+          );
+      
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+      
+          const result = await response.json();
+      
+          // Assuming the API returns a URL, otherwise adjust accordingly
+          return result.url || "";
+      
+        } catch (error) {
+          console.error('Error in uploadFileToGoogleDrive:', error);
+          throw error;
+        }
+      };
+
     return (
         <div className="flex text-white">
             {/* Main content */}
@@ -328,10 +411,14 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                 </Select>
                                                 </FormControl>
                                             )}
-                                            {question.type === QuestionTypes.UPLOAD && (
-                                                <FormControl>
-                                                <Input {...field} placeholder="File URL" />
-                                                </FormControl>
+                                           {question.type === QuestionTypes.UPLOAD && (
+                                                    <FormControl>
+                                                        <input
+                                                            type="file"
+                                                            onChange={(e) => uploadFile(question.questionId, e)}
+                                                            placeholder="Upload file"
+                                                        />
+                                                    </FormControl>
                                             )}
                                             {question.type === QuestionTypes.WORKSHOP_SELECTION && (
                                                 <FormControl>

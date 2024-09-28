@@ -52,7 +52,7 @@ export default function PartnerFormRegister() {
         cleanFormData(data);
 
         // check if email is already associated with a registration
-        if (await checkRegistered(data["emailAddress"])) return;
+        if (await checkRegistered(data["emailAddress"])) return false;
 
         const registrationData = {
             email: data["emailAddress"],
@@ -71,8 +71,6 @@ export default function PartnerFormRegister() {
             dynamicResponses: data["customQuestions"],
         };
 
-        console.log(registrationData)
-
         try {
             await fetchBackend({
                 endpoint: "/registrations",
@@ -81,10 +79,12 @@ export default function PartnerFormRegister() {
                 authenticatedCall: false
             });
             router.push(`/event/${eventId}/${year}/register/success`);
+            return true;
         } catch (error) {
             alert(
                 `An error has occured: ${error} Please contact an exec for support. 4`
             );
+            return false;
         }
     };
 
