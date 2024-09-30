@@ -5,7 +5,7 @@ import { UserEvents } from "@/components/ProfilePage/UserEvents";
 
 // Mock event and profile data
 // TO DO: replace these with calls to backend
-const fetchEventData = async () => {
+const fetchEventData = async () : Promise<BiztechEvent[]> => {
   let data = [];
   for (let i = 0; i < 10; i++) {
     data.push({
@@ -20,7 +20,7 @@ const fetchEventData = async () => {
       endDate: "2024-07-01T21:00:11.131Z",
       imageUrl: "https://i.picsum.photos/id/236/700/400.jpg",
       updatedAt: 1581227718674,
-    });
+    } as BiztechEvent);
   }
   return data;
 };
@@ -51,7 +51,7 @@ const ProfilePage = () => {
     const fetchData = async () => {
       const profile = await fetchProfileData();
       setProfile(profile);
-      const events = await fetchEventData();
+      const events: BiztechEvent[] = await fetchEventData();
       setRegisteredEvents(events);
       setSavedEvents(events);
     };
