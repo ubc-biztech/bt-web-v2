@@ -26,10 +26,10 @@ const SuccessPage = () => {
                 {
                     isApplicationBasedBoolean ? (
                         <>
-                            <h1 className="text-white text-4xl font-bold mb-4">We've got your application!</h1>
+                            <h1 className="text-white text-4xl font-bold mb-4">We&apos;ve got your application!</h1>
 
                             <div className="rounded-lg p-6 mb-8">
-                                <p className="mb-2">Thanks for applying! We'll be reviewing your application soon and will email you soon about your application status!</p>
+                                <p className="mb-2">Thanks for applying! We&apos;ll be reviewing your application soon and will email you soon about your application status!</p>
                                 <p className="mb-4">Click here to view your application status.</p>
                             </div>
                         </>
@@ -40,8 +40,8 @@ const SuccessPage = () => {
                                 <h1 className="text-white text-4xl font-bold mb-4">See you soon!</h1>
 
                                 <div className="rounded-lg p-6 mb-8">
-                                    <p className="mb-2">You've successfully registered to the event.</p>
-                                    <p className="mb-4">We've sent you two emails, one with a calendar invite and one with a QR code to check-in to our event!</p>
+                                    <p className="mb-2">You&apos;ve successfully registered to the event.</p>
+                                    <p className="mb-4">We&apos;ve sent you two emails, one with a calendar invite and one with a QR code to check-in to our event!</p>
                                     <p className="font-semibold">Please be sure to check your Spam or Promotions inboxes as well.</p>
                                 </div>
                             </>
@@ -50,7 +50,7 @@ const SuccessPage = () => {
                 }
 
                 <div className="text-white rounded-lg">
-                    <h2 className="text-white text-3xl font-bold mb-4 border-green-500">What's next?</h2>
+                    <h2 className="text-white text-3xl font-bold mb-4 border-green-500">What&apos;s next?</h2>
                     <div className="mb-4">
                         <button
                             onClick={copyLinkToClipboard}

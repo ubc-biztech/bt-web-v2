@@ -316,8 +316,8 @@ export default function AttendeeFormRegister() {
                         <DialogTitle className="text-2xl font-bold">Hey there!</DialogTitle>
                         <DialogDescription className="mt-2 space-y-4">
                             <p>
-                                We noticed you aren't a member yet. This may be because you
-                                aren't signed in, or your account hasn't been registered to
+                                We noticed you aren&apos;t a member yet. This may be because you
+                                aren&apos;t signed in, or your account hasn&apos;t been registered to
                                 become a member for this academic year.
                             </p>
                             <p>
@@ -358,7 +358,7 @@ export default function AttendeeFormRegister() {
         if (userRegistered) {
             return renderErrorText(
                 <div className="text-center">
-                    <p className="text-l mb-4">You've already registered!</p>
+                    <p className="text-l mb-4">You&apos;ve already registered!</p>
                     <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                         Upcoming Events
                     </button>

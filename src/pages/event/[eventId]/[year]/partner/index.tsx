@@ -107,7 +107,7 @@ export default function PartnerFormRegister() {
     if (userRegistered) {
         return renderErrorText(
             <div className="text-center">
-                <p className="text-l mb-4">You've already registered!</p>
+                <p className="text-l mb-4">You&apos;ve already registered!</p>
                 <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                     Upcoming Events
                 </button>
