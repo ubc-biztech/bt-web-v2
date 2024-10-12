@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { signIn, getCurrentUser } from "@aws-amplify/auth";
+import { signIn, getCurrentUser, fetchAuthSession, } from "@aws-amplify/auth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +50,6 @@ const Login: React.FC = () => {
         console.log("Sign in successful:", user);
 
         const { username, userId, signInDetails } = await getCurrentUser();
-
         console.log(
           "Current authenticated user:",
           username,
