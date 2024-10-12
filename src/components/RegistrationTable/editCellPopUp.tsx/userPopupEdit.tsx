@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import React, { useState } from 'react'
 import { updateRegistrationData } from "@/lib/dbUtils"
 import { Attendee } from "../columns"
+import { Row, Table } from "@tanstack/react-table"
 
 
 interface SelectCellProps {
@@ -10,12 +11,14 @@ interface SelectCellProps {
     column: string,
     originalValue: string | number,
     dropDownList: string[]
+    table: Table<Attendee>,
 }
 
-const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dropDownList }) => {
+const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dropDownList, table }) => {
     const [value, setValue] = useState(originalValue)
 
     const onBlur = () => {
+        // table.options.meta?.updateData(row.index, column, value);
         let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
         let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
 
@@ -27,9 +30,13 @@ const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dro
 
         // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
         updateRegistrationData(row.id, row.fname, body);
+        // Reload to get it to re-fetch data 
+        // - potentially change to useState which re-triggers useEffect()?
+        window.location.reload();
     }
 
     const onSelectChange = (newValue: string) => {
+        // table.options.meta?.updateData(row.index, column, newValue);
         setValue(newValue)
         let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
         let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
@@ -42,6 +49,8 @@ const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dro
 
         // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
         updateRegistrationData(row.id, row.fname, body);
+        // Reload to get it to re-fetch data
+        window.location.reload();
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -49,6 +49,7 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
 
 
   const handleEdit = () => {
+    // table.options.meta?.updateData(row.index, column, value);
     // Handle edit logic here
     console.log("Editing row:", row.original)
     // close the dialog

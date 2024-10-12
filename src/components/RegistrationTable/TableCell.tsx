@@ -10,7 +10,7 @@ interface TableCellProps extends CellContext<Attendee, unknown> {
     row: any; // CHANGE THIS TO THE REGISTRATION TYPE?
 }
 
-export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) => {
+export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row}) => {
     const initialValue = getValue()
     const columnMeta = column.columnDef.meta as ColumnMeta
     const [value, setValue] = useState(initialValue)
@@ -21,7 +21,7 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
     }, [initialValue])
 
     const onBlur = () => {
-        row.original[column.id] = value;
+        // table.options.meta.updateData(row.index, column.id, value);
         let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
         let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
 
@@ -33,10 +33,13 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
 
         // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
         updateRegistrationData(row.original.id, row.original.fname, body);
+         // Reload to get it to re-fetch data 
+        // - potentially change to useState which re-triggers useEffect()?
+
     }
 
     const onSelectChange = (newValue: string) => {
-        setValue(newValue)
+        // table.options.meta.updateData(row.index, column.id, newValue);
         row.original[column.id] = newValue;
         let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
         let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
@@ -49,6 +52,8 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row }) =
 
         // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
         updateRegistrationData(row.original.id, row.original.fname, body);
+         // Reload to get it to re-fetch data 
+         window.location.reload();
     }
 
     const getColor = (value: string) => {

@@ -69,9 +69,9 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
                 <div key={key}>
                     <label className="block font-bold text-baby-blue">{fieldLabels[key]}:</label>
                     {key === 'registrationStatus' || key === 'applicationStatus' ? (
-                        <SelectCell column={key} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
+                        <SelectCell column={key} table={table} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
                     ) : key === 'points' ? (
-                        <SelectCell column={key} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
+                        <SelectCell column={key} table={table} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
                     ) : key.startsWith("basicInformation_") ? (
                         <span>{row.basicInformation[key.slice(key.indexOf("basicInformation_") + "basicInformation_".length)]}</span>
                     ) : (

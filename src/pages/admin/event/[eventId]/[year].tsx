@@ -27,7 +27,7 @@ export default function AdminEvent({ initialData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
   const [data, setData] = useState<Attendee[] | null>(initialData);
-
+  
   useEffect(() => {
     if (!initialData && router.isReady) {
       const eventId = router.query.eventId as string;
@@ -90,14 +90,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 async function fetchRegistationData(eventId: string, year: string) {
-  // TODO - fetch data from backend. This is just returning a Mock, likely won't be the final data struct format
-
-  let data: Attendee[] = [];
-
-  // FOR TESTING
-  // console.log(`/registrations?eventID=${eventId}&year=${year}`)
-  // this may return {size, data} not just the data
-  //const queryParams = new URLSearchParams({ eventID: "hello-hacks", year: String(2023) }).toString();
 
   let registrationData = await fetchBackend({
     endpoint: `/registrations?eventID=${eventId}&year=${year}`,
@@ -105,36 +97,5 @@ async function fetchRegistationData(eventId: string, year: string) {
     authenticatedCall: false
   });
 
-  // ADDING EXTRA REGISTRANTS FOR TESTING 
-
-  let testApps = [{
-    'eventID;year': 'blueprint;2024',
-    applicationStatus: 'accepted',
-    dynamicResponses: {
-      '0a34f9d2-12a5-4aed-abe5-d7d897f2fb5e': 'yes',
-      'bede9713-17cf-4bb9-b362-8c30a1e5b543': 'UBC'
-    },
-    fname: 'Eliana',
-    studentId: '54263975',
-    points: 800,
-    updatedAt: 1706341269746,
-    scannedQRs: ["WEJdk-workshop1","oAcaI-inifnite","oAcaI-inifnite","oAcaI-inifnite","oAcaI-inifnite"],
-    basicInformation: {
-      fname: 'Eliana',
-      lname: 'Barbosa',
-      major: 'N/A',
-      gender: ['She/Her/Hers'],
-      year: '2nd Year',
-      diet: 'None',
-      heardFrom: 'Instagram',
-      faculty: 'Commerce'
-    },
-    isPartner: false,
-    id: 'eliana@ubcbiztech.com',
-    registrationStatus: 'checkedIn'
-  }];
-
-  testApps = testApps.concat(registrationData.data);
-
-  return testApps;
+  return registrationData.data;
 }

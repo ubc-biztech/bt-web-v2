@@ -3,10 +3,11 @@ import { TableBody, TableRow, TableCell } from "@/components/ui/table"
 import { flexRender, Table } from "@tanstack/react-table"
 
 interface RegistrationsTableBodyProps<T> {
-    table: Table<T>
+    table: Table<T>,
+    refreshTable: any
 }
 
-export const RegistrationsTableBody = <T,>({ table }: RegistrationsTableBodyProps<T>) => (
+export const RegistrationsTableBody = <T,>({ table, refreshTable }: RegistrationsTableBodyProps<T>) => (
     <TableBody className="text-baby-blue font-400">
         {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
