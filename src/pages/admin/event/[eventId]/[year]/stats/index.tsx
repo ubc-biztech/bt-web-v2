@@ -2,11 +2,11 @@ import { AttendeeBasicInformation } from "@/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
-import PercentageBars from "@/components/stats/PercentageBars";
-import ChartBox from "@/components/stats/ChartBox";
-import StatsTable from "@/components/stats/StatsTable";
-import BarChart from "@/components/stats/BarChart";
-import PieChart from "@/components/stats/PieChart";
+import PercentageBars from "@/components/Stats/PercentageBars";
+import ChartBox from "@/components/Stats/ChartBox";
+import StatsTable from "@/components/Stats/StatsTable";
+import BarChart from "@/components/Stats/BarChart";
+import PieChart from "@/components/Stats/PieChart";
 
 type Props = {
   initialData: AttendeeBasicInformation[] | null;
