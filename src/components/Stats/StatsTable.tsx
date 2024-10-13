@@ -1,46 +1,59 @@
+import { StatsChartData } from "@/types/types";
+
 interface StatsTableProps {
-  title: string;
-  data: Object;
+  data: StatsChartData[];
 }
 
-const StatsTable: React.FC<StatsTableProps> = ({ title, data }) => {
-  const renderData = (data: Object, marginValue: number = 0): JSX.Element[] => {
-    return Object.entries(data).map(([label, count]) => {
-      if (typeof count === "number" || typeof count === "string") {
-        return (
-          <>
-            <div
-              className="col-span-2"
-              style={{ marginLeft: `${marginValue}px` }}
-            >
-              {label}
-            </div>
-            <div className="col-span-1 text-right">{count}</div>
-          </>
-        );
+const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
+  const renderData = () => {
+    const simpleData: JSX.Element[] = [];
+    const groupedData: { [key: string]: StatsChartData[] } =
+      {};
+
+    data.forEach((item) => {
+      const [parent, child] = item.label.split(":");
+      if (child) {
+        if (!groupedData[parent]) {
+          groupedData[parent] = [];
+        }
+        groupedData[parent].push({ label: child, value: item.value });
       } else {
-        return (
+        simpleData.push(
           <>
-            <div
-              className="col-span-2"
-              style={{ marginLeft: `${marginValue}px` }}
-            >
-              {label}
-            </div>
-            {renderData(count, marginValue + 16)}
+            <div className="col-span-2">{item.label}</div>
+            <div className="col-span-1 text-right">{item.value}</div>
           </>
         );
       }
     });
+
+    Object.entries(groupedData).forEach(([parent, children]) => {
+      simpleData.push(
+        <>
+          <div className="col-span-3 font-bold">{parent}</div>
+          {children.map(({ label, value }) => (
+            <>
+              <div className="col-span-2 pl-4">{label}</div>
+              <div className="col-span-1 text-right">{value}</div>
+            </>
+          ))}
+        </>
+      );
+    });
+
+    return simpleData;
   };
+
   return (
-    <div className="bg-dark-slate p-8 w-1/3 rounded-md">
-      <h5 className="text-white">{title}</h5>
-      <br />
-      <div className="grid grid-cols-3 gap-2 text-pale-blue">
-        {renderData(data)}
-      </div>
-    </div>
+    <>
+      {data.length === 0 ? (
+        <div className="flex justify-center text-white">No data available</div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2 text-pale-blue">
+          {renderData()}
+        </div>
+      )}
+    </>
   );
 };
 
