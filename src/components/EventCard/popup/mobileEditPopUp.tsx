@@ -60,8 +60,8 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
                             duration: 0.3,
                         }}
                         onClick={(e) => e.stopPropagation()} >
-                        {editEventPopupItems?.map(item => (
-                            <PopupButton popUpItem={item} clickEffect={handleButtonClick} />
+                        {editEventPopupItems?.map((item, idx) => (
+                            <PopupButton key={idx} popUpItem={item} clickEffect={handleButtonClick} />
                         ))}
                     </motion.div>
                     :
