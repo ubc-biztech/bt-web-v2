@@ -43,7 +43,8 @@ export function DataTable({
   }, []);
 
   const refreshTable = async () => {
-    setData(await fetchRegistationData(eventId, year));
+    // TODO: fix the update refresh
+    //setData(await fetchRegistrationData(eventId, year));
   };
 
 
