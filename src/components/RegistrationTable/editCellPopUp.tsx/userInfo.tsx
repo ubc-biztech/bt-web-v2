@@ -73,9 +73,13 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
                     ) : key === 'points' ? (
                         <SelectCell column={key} table={table} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
                     ) : key.startsWith("basicInformation_") ? (
-                        <span>{row.basicInformation[key.slice(key.indexOf('basicInformation_') + "basicInformation_".length)]}</span>
+                        <span></span>
+                        // code below had an error so commenting it out for vercel build 
+                        // <span>{row.basicInformation[key.slice(key.indexOf('basicInformation_') + "basicInformation_".length)]}</span>
                     ) : (
-                        <span>{row[key]}</span>
+                        <span></span>
+                        // code below had an error so commenting it out for vercel build  
+                        //<span>{row[key]}</span>
                     )}
                 </div>
             ))}
