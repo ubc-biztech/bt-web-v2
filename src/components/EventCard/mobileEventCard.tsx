@@ -15,33 +15,35 @@ import Image from 'next/image';
 import { BiztechEvent } from "@/types/types";
 
 type Props = {
-    initialData: BiztechEvent | null,
+    event: BiztechEvent | null,
     eventClick: (event: BiztechEvent) => void;
 }
 
 
-export default function MobileEventCard({ initialData, eventClick }: Props) {
+export default function MobileEventCard({ event, eventClick }: Props) {
 
-    const startTime = initialData ? extractTime(initialData.startDate) : "";
-    const dateTime = initialData ? extractMonthDay(initialData.startDate) : "";
-    const displayDate = initialData ? startTime + ' ' + dateTime : "Event not Found";
+    const startTime = event ? extractTime(event.startDate) : "";
+    const dateTime = event ? extractMonthDay(event.startDate) : "";
+    const displayDate = event ? startTime + ' ' + dateTime : "Event not Found";
 
     const handleMobileMoreClick = () => {
-        if (initialData) {
-            eventClick(initialData)
+        if (event) {
+            eventClick(event)
         }
     }
 
     return (
         <Card className="w-full h-[100px] border-none bg-events-card-bg flex p-2 mb-4 relative">
             <Image
-                src={placeHolderImage} // TODO: REPLACE WITH EVENT IMAGE WHEN FETCH DATA
+                src={event?.imageUrl ?? placeHolderImage}
                 alt="event-image"
                 className="w-2/5 h-9/10 rounded-lg"
+                width={100}
+                height={100}
             />
             <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
                 <div className="flex items-center justify-between">
-                    <p className="p1 text-white font-500">{initialData?.ename}</p>
+                    <p className="p1 text-white font-500">{event?.ename}</p>
                     <Button variant="ghost" className="text-white bg-transparent w-2 h-7 absolute top-6.5 right-3" onClick={handleMobileMoreClick}>
                         <MoreVertIcon />
                     </Button>
