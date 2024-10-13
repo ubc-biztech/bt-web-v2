@@ -1,42 +1,49 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PopupButton from './popupButton';
 import { motion } from "framer-motion";
 import DeletePopup from './deletePopUp';
-import PopupModal from './editPopUp';
 import { BiztechEvent } from '@/types/types';
+import { ModalHandlers } from '@/pages/admin/home';
 
 type Props = {
     isClicked: boolean,
     isMobile: boolean,
     isDelete: boolean,
-    bizEvent: BiztechEvent | null,
+    event: BiztechEvent | null,
     setIsDelete: React.Dispatch<React.SetStateAction<boolean>>
+    modalHandlers: ModalHandlers;
 }
 
-const popUpItems = [
-    {
-        title: 'Edit Event',
-    },
-    {
-        title: 'View as Member',
-    },
-    {
-        title: 'Delete Event',
-    },
+const enum PopUpItem {
+    EditEvent = 'Edit Event',
+    ViewAsMember = 'View as Member',
+    DeleteEvent = 'Delete Event',
+}
+
+const editEventPopupItems: String[] = [
+    PopUpItem.EditEvent,
+    PopUpItem.ViewAsMember,
+    PopUpItem.DeleteEvent,
 ];
 
+export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete, event, modalHandlers }: Props) {
 
-export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete, bizEvent }: Props) {
-
-    // toggle the view when the 'delete' icon is clicked 
-    const handleButtonClick = (item: any) => {
-        if (item.title === 'Delete Event') {
-            setIsDelete(true)
-            console.log('Delete button clicked here');
-        } else {
-            console.log(`${item.title} button clicked`);
+    const handleButtonClick = (item: String) => {
+        switch (item) {
+          case PopUpItem.DeleteEvent:
+            modalHandlers.handleEventDelete();
+            break;
+          case PopUpItem.EditEvent:
+            modalHandlers.handleEditEvent();
+            break;
+          case PopUpItem.ViewAsMember:
+            modalHandlers.handleViewAsMember();
+            break;
+          default:
+            console.log(`${item} button clicked`);
+            break;   
         }
-    };
+      };
 
     return (
         <div>
@@ -53,8 +60,8 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
                             duration: 0.3,
                         }}
                         onClick={(e) => e.stopPropagation()} >
-                        {popUpItems?.map(item => (
-                            <PopupButton key={item.title} popUpItem={item} clickEffect={handleButtonClick} />
+                        {editEventPopupItems?.map((item, idx) => (
+                            <PopupButton key={idx} popUpItem={item} clickEffect={handleButtonClick} />
                         ))}
                     </motion.div>
                     :
@@ -70,7 +77,7 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
                             duration: 0.3,
                         }}
                         onClick={(e) => e.stopPropagation()} >
-                        <DeletePopup setIsDelete={setIsDelete} bizEvent={bizEvent} />
+                        <DeletePopup setIsDelete={setIsDelete} event={event} />
                     </motion.div>
                 </div>}
         </div>

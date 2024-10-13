@@ -13,42 +13,34 @@ import { extractTime, extractMonthDay } from '../../util/extractDate';
 import placeHolderImage from '../../assets/event-placeholder.jpeg';
 import Image from 'next/image';
 import { BiztechEvent } from "@/types/types";
+import { ModalHandlers } from "@/pages/admin/home";
+import { PopUpItem } from "./types";
 
 type Props = {
-    initialData: BiztechEvent | null,
-    setIsDelete: React.Dispatch<React.SetStateAction<boolean>>,
+    event: BiztechEvent | null,
     eventClick: (event: BiztechEvent) => void;
+    modalHandlers: ModalHandlers;
 }
 
-interface PopUpItem {
-   title: string;
-}
-
-const popUpItems: PopUpItem[] = [
-    {
-     title: 'Edit Event',
-    },
-    {
-     title: 'View as Member',
-    },
-    {
-     title: 'Delete Event',
-    },
+const editEventPopupItems: PopUpItem[] = [
+    PopUpItem.EditEvent,
+    PopUpItem.ViewAsMember,
+    PopUpItem.DeleteEvent,
 ];
 
-export default function EventCard({ initialData, setIsDelete, eventClick }: Props) {
+export default function EventCard({ event, eventClick, modalHandlers }: Props) {
     // couldn't use the same state as mobile, because that opened the popup modal for every event 
     // instead of the specific one which was clicked.
     const [isModalOpen, setModal] = useState(false)
-    const startTime = initialData? extractTime(initialData.startDate) : "";
-    const dateTime = initialData? extractMonthDay(initialData.startDate): "";
-    const displayDate = initialData? startTime + ' ' + dateTime : "Event not Found";
+    const startTime = event? extractTime(event.startDate) : "";
+    const dateTime = event? extractMonthDay(event.startDate): "";
+    const displayDate = event? startTime + ' ' + dateTime : "Event not Found";
 
     const ref = useRef<HTMLDivElement>(null);
 
     const handlePopUpModalClick = () => {
-        if (initialData) {
-        eventClick(initialData)
+        if (event) {
+        eventClick(event)
         }
         setModal(!isModalOpen)
     }
@@ -70,15 +62,17 @@ export default function EventCard({ initialData, setIsDelete, eventClick }: Prop
     return (
         <Card className="w-9/10 border-none bg-events-card-bg">
             <Image
-                src={placeHolderImage} 
+                src={event?.imageUrl || placeHolderImage} 
                 alt="event-image"
                 className="w-full h-[250px] rounded-t-lg"
-                />
+                width={100}
+                height={100}
+            />
         <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
-            <h5 className="text-white font-500">{initialData?.ename}</h5>  
+            <h5 className="text-white font-500">{event?.ename}</h5>  
             <Button variant="ghost" className="text-white bg-transparent w-2 h-7" onClick={handlePopUpModalClick} >
-                {isModalOpen? <PopupModal popUpItems={popUpItems} setIsDelete={setIsDelete} ref={ref} /> : <MoreVertIcon/>}
+                {isModalOpen? <PopupModal editEventPopupItems={editEventPopupItems} ref={ref} modalHandlers={modalHandlers} eventID={event?.id} eventYear={event?.year} /> : <MoreVertIcon/>}
             </Button>
         </div>
             <p className="p3 text-baby-blue mt-2 mb-2">{displayDate}</p> 

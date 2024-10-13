@@ -1,18 +1,18 @@
-import { Registration } from "@/types/types";
+import { AttendeeBasicInformation } from "@/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
-import PercentageBars from "@/components/stats/PercentageBars";
-import ChartBox from "@/components/stats/ChartBox";
-import BarChart from "@/components/stats/BarChart";
-import PieChart from "@/components/stats/PieChart";
-import StatsTable from "@/components/stats/StatsTable";
+import PercentageBars from "@/components/Stats/PercentageBars";
+import ChartBox from "@/components/Stats/ChartBox";
+import BarChart from "@/components/Stats/BarChart";
+import PieChart from "@/components/Stats/PieChart";
+import StatsTable from "@/components/Stats/StatsTable";
 
 type Props = {
-  initialData: Registration[] | null;
+  initialData: AttendeeBasicInformation[] | null;
 };
 
-const getFieldCounts = (data: Registration[], field: string) => {
+const getFieldCounts = (data: AttendeeBasicInformation[], field: string) => {
   const counts: Record<string, number> = {};
 
   for (const userData of data) {
