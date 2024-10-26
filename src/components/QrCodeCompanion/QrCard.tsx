@@ -31,7 +31,7 @@ const QrCard: FC<{
       );
       const blob = await result.blob();
       const url = URL.createObjectURL(blob);
-      download("test", url);
+      download(`${qr["eventID;year"]}-${qr["type"]}`, url);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
