@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchRegistrationData } from "@/lib/dbUtils";
+import { Button } from "@/components/ui/button";
 
 // Dynamic columns
 const dynamicColumns: ColumnDef<Attendee>[] = [
@@ -47,12 +48,21 @@ export default function AdminEvent({ initialData }: Props) {
   return (
     <main className="bg-primary-color min-h-screen">
       <div className="container mx-auto p-10 flex flex-col">
-        <span>
-          <h2 className="text-white">Event Overview</h2>
-          <p className="text-baby-blue font-poppins">
-            Manage Events {">"} {router.query.eventId} {router.query.year}
-          </p>
-        </span>
+        <div className="flex justify-between items-center">
+          <span>
+            <h2 className="text-white">Event Overview</h2>
+            <p className="text-baby-blue font-poppins">
+              Manage Events {">"} {router.query.eventId} {router.query.year}
+            </p>
+          </span>
+          <Button 
+            onClick={() => router.push(`/admin/event/${router.query.eventId}/${router.query.year}/edit`)}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            Edit Event
+          </Button>
+        </div>
+        
         {/*divider*/}
         <div className="w-full h-[2px] bg-login-form-card my-6" />
 

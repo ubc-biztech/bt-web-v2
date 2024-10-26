@@ -18,7 +18,7 @@ import { PopUpItem } from "./types";
 
 type Props = {
     event: BiztechEvent | null,
-    eventClick: (event: BiztechEvent) => void;
+    eventClick: (event: BiztechEvent, isOptionsClick?: boolean) => void;
     modalHandlers: ModalHandlers;
 }
 
@@ -29,8 +29,6 @@ const editEventPopupItems: PopUpItem[] = [
 ];
 
 export default function EventCard({ event, eventClick, modalHandlers }: Props) {
-    // couldn't use the same state as mobile, because that opened the popup modal for every event 
-    // instead of the specific one which was clicked.
     const [isModalOpen, setModal] = useState(false)
     const startTime = event? extractTime(event.startDate) : "";
     const dateTime = event? extractMonthDay(event.startDate): "";
@@ -38,12 +36,18 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
 
     const ref = useRef<HTMLDivElement>(null);
 
-    const handlePopUpModalClick = () => {
+    const handleCardClick = () => {
         if (event) {
-        eventClick(event)
+            eventClick(event, false);
         }
-        setModal(!isModalOpen)
-    }
+    };
+
+    const handleOptionsClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent the card click from firing
+        if (event) {
+            setModal(!isModalOpen);
+        }
+    };
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -57,10 +61,13 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
         return () => {
           document.removeEventListener('mousedown', handleClickOutside);
         };
-      }, [ref]);
+    }, [ref, isModalOpen]);
 
     return (
-        <Card className="w-9/10 border-none bg-events-card-bg">
+        <Card 
+            className="w-9/10 border-none bg-events-card-bg cursor-pointer"
+            onClick={handleCardClick}
+        >
             <Image
                 src={event?.imageUrl || placeHolderImage} 
                 alt="event-image"
@@ -68,15 +75,27 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
                 width={100}
                 height={100}
             />
-        <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
-        <div className="flex items-center justify-between">
-            <h5 className="text-white font-500">{event?.ename}</h5>  
-            <Button variant="ghost" className="text-white bg-transparent w-2 h-7" onClick={handlePopUpModalClick} >
-                {isModalOpen? <PopupModal editEventPopupItems={editEventPopupItems} ref={ref} modalHandlers={modalHandlers} eventID={event?.id} eventYear={event?.year} /> : <MoreVertIcon/>}
-            </Button>
-        </div>
-            <p className="p3 text-baby-blue mt-2 mb-2">{displayDate}</p> 
-        </CardFooter>
+            <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
+                <div className="flex items-center justify-between">
+                    <h5 className="text-white font-500">{event?.ename}</h5>  
+                    <Button 
+                        variant="ghost" 
+                        className="text-white bg-transparent w-2 h-7" 
+                        onClick={handleOptionsClick}
+                        onMouseLeave={() => setModal(false)}
+                    >
+                        {isModalOpen ? 
+                            <PopupModal 
+                                editEventPopupItems={editEventPopupItems} 
+                                ref={ref} 
+                                modalHandlers={modalHandlers} 
+                                eventID={event?.id} 
+                                eventYear={event?.year} 
+                            /> : <MoreVertIcon/>}
+                    </Button>
+                </div>
+                <p className="p3 text-baby-blue mt-2 mb-2">{displayDate}</p> 
+            </CardFooter>
         </Card>
     );
 };
