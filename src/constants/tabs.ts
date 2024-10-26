@@ -9,13 +9,13 @@ import QrCodeIcon from "../../public/assets/icons/qrcode_icon.svg"
 
 export const admin = [
     {
-        title: "Edit Events",
-        link: "",
+        title: "Manage Events",
+        link: "/admin/home",
         icon: EditIcon
     },
     {
         title: "New Event",
-        link: "",
+        link: "/admin/event/new",
         icon: NewIcon
     },
     {
