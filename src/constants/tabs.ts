@@ -5,7 +5,7 @@ import HomeIcon from "../../public/assets/icons/home_icon.svg"
 import DashboardIcon from "../../public/assets/icons/event_icon.svg"
 import ProfileIcon from "../../public/assets/icons/profile_icon.svg"
 import ExitIcon from "../../public/assets/icons/exit_icon.svg"
-import QrCodeIcon from "../../public/assets/icons/qrcode_icon.svg"
+import QrCodeIcon from "../../public/assets/icons/qr_icon.svg"
 
 export const admin = [
     {
