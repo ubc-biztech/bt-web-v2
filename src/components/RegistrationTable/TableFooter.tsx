@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Table } from "@tanstack/react-table"
-import { exportToCSV } from "@/util/exportHelpers"
+import { exportToCSV, exportToPDF } from "@/util/exportHelpers"
 
 import DownloadIcon from "../../../public/assets/icons/download_icon.svg"
 import { Attendee } from "./columns"
@@ -39,7 +39,8 @@ export const TableFooter: React.FC<TableFooterProps> = ({ table, pageSize, setPa
             }
             csvRows.push(attendeeTemplate);
         }
-        exportToCSV(csvRows);
+        // exportToCSV(csvRows);
+        exportToPDF(csvRows);
         console.log(`Exporting as ${format}... (STUB)`);
     }
 

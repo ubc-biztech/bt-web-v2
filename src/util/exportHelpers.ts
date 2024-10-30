@@ -1,4 +1,9 @@
 import { Attendee } from "@/components/RegistrationTable/columns";
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { PageOrientation } from "pdfmake/interfaces";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export function exportToCSV(data: Attendee[], fileName = 'data.csv') {
     if (!data.length) {
@@ -23,4 +28,25 @@ export function exportToCSV(data: Attendee[], fileName = 'data.csv') {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+export function exportToPDF(data: Attendee[], fileName = 'data.pdf') {
+    const columns = Object.keys(data[0]);
+    const rows = data.map(row => 
+        Object.values(row).map(value => value === undefined ? "" : value)
+    );
+    const docDefinition = {
+        pageOrientation: 'landscape' as PageOrientation,
+        content: [
+          {
+            table: {
+              body: [
+                columns,
+                ...rows
+              ],
+            },
+          },
+        ],
+      };
+      pdfMake.createPdf(docDefinition).download(fileName);
 }
