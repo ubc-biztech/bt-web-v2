@@ -1,4 +1,5 @@
 import { Attendee } from "@/components/RegistrationTable/columns";
+import { Table } from "@tanstack/react-table";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { PageOrientation } from "pdfmake/interfaces";
@@ -49,4 +50,30 @@ export function exportToPDF(data: Attendee[], fileName = 'data.pdf') {
         ],
       };
       pdfMake.createPdf(docDefinition).download(fileName);
+}
+
+function createAttendeeTemplate(keys: string[]): Attendee {
+    return keys.reduce((template, key) => {
+        template[key] = null;
+        return template;
+    }, {} as Attendee);
+}
+
+export function formatTableForExport(table: Table<any>) {
+    const cols = [];
+    const rows: Attendee[] = [];
+    const headerCols = table.getRowModel().rows[0].getVisibleCells();
+    for (let i = 2; i < headerCols.length; i++) {
+        cols.push(headerCols[i].column.id);
+    }
+    const tableRows = Object.values(table.getCoreRowModel().rowsById);
+    for (const row of tableRows) {
+        const rowData = row.getVisibleCells();
+        const attendeeTemplate: Attendee = createAttendeeTemplate(cols);
+        for (let i = 2; i < rowData.length; i++) {
+            attendeeTemplate[rowData[i].column.id] = rowData[i].getValue();
+        }
+        rows.push(attendeeTemplate);
+    }
+    return rows;
 }
