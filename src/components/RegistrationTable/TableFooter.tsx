@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Table } from "@tanstack/react-table"
+import { exportToCSV } from "@/util/exportHelpers"
 
 import DownloadIcon from "../../../public/assets/icons/download_icon.svg"
+import { Attendee } from "./columns"
 
 interface TableFooterProps {
     table: Table<any>
@@ -13,8 +15,31 @@ interface TableFooterProps {
     setPageSize: (size: number) => void
 }
 
+function createAttendeeTemplate(keys: string[]): Attendee {
+    return keys.reduce((template, key) => {
+        template[key] = null;
+        return template;
+    }, {} as Attendee);
+}
+
 export const TableFooter: React.FC<TableFooterProps> = ({ table, pageSize, setPageSize }) => {
     const handleExport = (format: string) => {
+        const csvCols = [];
+        const csvRows: Attendee[] = [];
+        const headerCols = table.getRowModel().rows[0].getVisibleCells();
+        for (let i = 2; i < headerCols.length; i++) {
+            csvCols.push(headerCols[i].column.id);
+        }
+        const tableRows = Object.values(table.getCoreRowModel().rowsById);
+        for (const row of tableRows) {
+            const rowData = row.getVisibleCells();
+            const attendeeTemplate: Attendee = createAttendeeTemplate(csvCols);
+            for (let i = 2; i < rowData.length; i++) {
+                attendeeTemplate[rowData[i].column.id] = rowData[i].getValue();
+            }
+            csvRows.push(attendeeTemplate);
+        }
+        exportToCSV(csvRows);
         console.log(`Exporting as ${format}... (STUB)`);
     }
 
