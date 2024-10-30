@@ -4,8 +4,7 @@ import { DataTable } from "@/components/RegistrationTable/data-table";
 import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
-import { fetchRegistrationData } from "@/lib/dbUtils";
-import { Button } from "@/components/ui/button";
+import { fetchBackend } from "@/lib/db";
 
 // Dynamic columns
 const dynamicColumns: ColumnDef<Attendee>[] = [
@@ -28,16 +27,15 @@ export default function AdminEvent({ initialData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
   const [data, setData] = useState<Attendee[] | null>(initialData);
-
+  
   useEffect(() => {
     if (!initialData && router.isReady) {
       const eventId = router.query.eventId as string;
       const year = router.query.year as string;
 
       if (eventId && year) {
-        fetchRegistrationData(eventId, year).then((d) => {
-          // below code works when npm run dev, but has a type error so commenting out for vercel build
-          // setData(d);
+        fetchRegistationData(eventId, year).then((d) => {
+          setData(d);
           setLoading(false);
         });
       }
@@ -49,21 +47,12 @@ export default function AdminEvent({ initialData }: Props) {
   return (
     <main className="bg-primary-color min-h-screen">
       <div className="container mx-auto p-10 flex flex-col">
-        <div className="flex justify-between items-center">
-          <span>
-            <h2 className="text-white">Event Overview</h2>
-            <p className="text-baby-blue font-poppins">
-              Manage Events {">"} {router.query.eventId} {router.query.year}
-            </p>
-          </span>
-          <Button 
-            onClick={() => router.push(`/admin/event/${router.query.eventId}/${router.query.year}/edit`)}
-            className="bg-blue-500 hover:bg-blue-600"
-          >
-            Edit Event
-          </Button>
-        </div>
-        
+        <span>
+          <h2 className="text-white">Event Overview</h2>
+          <p className="text-baby-blue font-poppins">
+            Manage Events {">"} {router.query.eventId} {router.query.year}
+          </p>
+        </span>
         {/*divider*/}
         <div className="w-full h-[2px] bg-login-form-card my-6" />
 
@@ -92,10 +81,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { eventId, year } = context.params as { eventId: string; year: string };
 
   try {
-    const data = await fetchRegistrationData(eventId, year);
+    const data = await fetchRegistationData(eventId, year);
     return { props: { initialData: data } };
   } catch (error) {
     console.error("Failed to fetch initial data:", error);
     return { props: { initialData: null } };
   }
 };
+
+async function fetchRegistationData(eventId: string, year: string) {
+
+  let registrationData = await fetchBackend({
+    endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+    method: "GET",
+    authenticatedCall: false
+  });
+
+  return registrationData.data;
+}

@@ -5,18 +5,43 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { TableCell } from "./TableCell"
 import { EditCell } from "./EditCell"
 
+// export type Attendee = {
+//     id: string
+//     regStatus: string
+//     appStatus: string
+//     firstName: string
+//     lastName: string
+//     email: string
+//     points: number
+//     studentNumber: string
+//     faculty: string
+//     [key: string]: any // This allows for dynamic properties
+// }
+
 export type Attendee = {
-    id: string
-    regStatus: string
-    appStatus: string
-    firstName: string
-    lastName: string
-    email: string
-    points: number
-    studentNumber: string
-    faculty: string
-    [key: string]: any // This allows for dynamic properties
-}
+    'eventID;year': string;
+    applicationStatus: string;
+    basicInformation: {
+      diet: string;
+      faculty: string;
+      fname: string;
+      gender: string[];
+      heardFrom: string;
+      lname: string;
+      major: string;
+      year: string;
+    };
+    dynamicResponses: Record<string, string>;
+    eventID: string;
+    fname: string;
+    id: string;
+    isPartner: boolean;
+    points: number;
+    registrationStatus: string;
+    scannedQRs: string[];
+    studentId: string;
+    updatedAt: number;
+  }
 
 export type ColumnMeta = {
     type?: "select" | "number";
@@ -54,7 +79,7 @@ export const columns: ColumnDef<Attendee>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "regStatus",
+        accessorKey: "registrationStatus",
         header: "Reg. Status",
         cell: TableCell,
         meta: {
@@ -69,7 +94,7 @@ export const columns: ColumnDef<Attendee>[] = [
         size: 200,
     },
     {
-        accessorKey: "appStatus",
+        accessorKey: "applicationStatus",
         header: "App. Status",
         cell: TableCell,
         meta: {
@@ -84,17 +109,17 @@ export const columns: ColumnDef<Attendee>[] = [
         size: 200,
     },
     {
-        accessorKey: "firstName",
+        accessorKey: "fname",
         header: "First Name",
         cell: TableCell,
     },
     {
-        accessorKey: "lastName",
+        accessorKey: "basicInformation.lname",
         header: "Last Name",
         cell: TableCell,
     },
     {
-        accessorKey: "email",
+        accessorKey: "id",
         header: "Email",
         cell: TableCell,
     },
@@ -107,13 +132,43 @@ export const columns: ColumnDef<Attendee>[] = [
         } as ColumnMeta,
     },
     {
-        accessorKey: "studentNumber",
+        accessorKey: "studentId",
         header: "Student Number",
         cell: TableCell,
     },
     {
-        accessorKey: "faculty",
+        accessorKey: "basicInformation.faculty",
         header: "Faculty",
+        cell: TableCell,
+    },
+    {
+        accessorKey: "basicInformation.gender",
+        header: "Gender",
+        cell: TableCell,
+    },
+    {
+        accessorKey: "basicInformation.diet",
+        header: "Diet",
+        cell: TableCell,
+    },
+    {
+        accessorKey: "basicInformation.major",
+        header: "Major",
+        cell: TableCell,
+    }, 
+    {
+        accessorKey: "basicInformation.year",
+        header: "Year",
+        cell: TableCell,
+    },
+    {
+        accessorKey: "basicInformation.companyName",
+        header: "Company",
+        cell: TableCell,
+    },
+    {
+        accessorKey: "basicInformation.role",
+        header: "Role",
         cell: TableCell,
     }
 ]

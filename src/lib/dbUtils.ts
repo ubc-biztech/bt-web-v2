@@ -1,3 +1,5 @@
+import { fetchBackend } from "./db";
+
 export async function fetchRegistrationData(eventId: string, year: string) {
     // TODO - fetch data registration data from backend. This is just returning a Mock, likely won't be the final data struct format
 
@@ -19,4 +21,13 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     }
 
     return data
+}
+
+export async function updateRegistrationData(email: string, fname: string, body: any) {
+    try {
+    await fetchBackend({ endpoint: `/registrations/${email}/${fname}`, method: "PUT", authenticatedCall: false, 
+        data: body });
+    } catch (e) {
+        console.error("Internal Server Error, Update Failed");
+    }
 }

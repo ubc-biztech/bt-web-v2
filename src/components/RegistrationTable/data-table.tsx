@@ -42,6 +42,12 @@ export function DataTable({
     setIsClient(true);
   }, []);
 
+  const refreshTable = async () => {
+    // TODO: fix the update refresh
+    //setData(await fetchRegistrationData(eventId, year));
+  };
+
+
   const table = useReactTable<Attendee>({
     data,
     columns: allColumns,
@@ -103,7 +109,7 @@ export function DataTable({
 
       <TableComponent>
         <TableHeader table={table} />
-        <RegistrationsTableBody table={table} />
+        <RegistrationsTableBody table={table} refreshTable={refreshTable} />
       </TableComponent>
 
       <TableFooter
