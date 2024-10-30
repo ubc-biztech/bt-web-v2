@@ -60,20 +60,15 @@ function createAttendeeTemplate(keys: string[]): Attendee {
 }
 
 export function formatTableForExport(table: Table<any>) {
-    const cols = [];
-    const rows: Attendee[] = [];
-    const headerCols = table.getRowModel().rows[0].getVisibleCells();
-    for (let i = 2; i < headerCols.length; i++) {
-        cols.push(headerCols[i].column.id);
-    }
+    const tableHeader = table.getRowModel().rows[0].getVisibleCells();
     const tableRows = Object.values(table.getCoreRowModel().rowsById);
-    for (const row of tableRows) {
-        const rowData = row.getVisibleCells();
+    const cols = tableHeader.slice(2).map(cell => cell.column.id); // slice from 2 because first 2 cols don't have data values 
+    const rows: Attendee[] = tableRows.map(row => {
         const attendeeTemplate: Attendee = createAttendeeTemplate(cols);
-        for (let i = 2; i < rowData.length; i++) {
-            attendeeTemplate[rowData[i].column.id] = rowData[i].getValue();
-        }
-        rows.push(attendeeTemplate);
-    }
+        row.getVisibleCells().slice(2).forEach(cell => {
+            attendeeTemplate[cell.column.id] = cell.getValue();
+        });
+        return attendeeTemplate;
+    })
     return rows;
 }
