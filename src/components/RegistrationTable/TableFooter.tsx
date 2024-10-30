@@ -7,7 +7,7 @@ import { Table } from "@tanstack/react-table"
 import { exportToCSV, exportToPDF, formatTableForExport } from "@/util/exportHelpers"
 
 import DownloadIcon from "../../../public/assets/icons/download_icon.svg"
-import { Attendee } from "./columns"
+import { useRouter } from "next/router"
 
 interface TableFooterProps {
     table: Table<any>
@@ -16,12 +16,14 @@ interface TableFooterProps {
 }
 
 export const TableFooter: React.FC<TableFooterProps> = ({ table, pageSize, setPageSize }) => {
-    const rows = formatTableForExport(table);
+    const router = useRouter();
+    
     const handleExport = (format: string) => {
+        const rows = formatTableForExport(table);
         if (format === "pdf") {
-            exportToPDF(rows);
+            exportToPDF(rows, `${router.query.eventId}_${router.query.year}`);
         } else {
-            exportToCSV(rows);
+            exportToCSV(rows, `${router.query.eventId}_${router.query.year}`);
         }
         console.log(`Exporting as ${format}... (STUB)`);
     }

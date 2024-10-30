@@ -6,7 +6,7 @@ import { PageOrientation } from "pdfmake/interfaces";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-export function exportToCSV(data: Attendee[], fileName = 'data.csv') {
+export function exportToCSV(data: Attendee[], fileName = 'data') {
     if (!data.length) {
         console.error("No data to export");
         return;
@@ -24,14 +24,14 @@ export function exportToCSV(data: Attendee[], fileName = 'data.csv') {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', fileName);
+    link.setAttribute('download', fileName + ".csv");
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
 
-export function exportToPDF(data: Attendee[], fileName = 'data.pdf') {
+export function exportToPDF(data: Attendee[], fileName = 'data') {
     const columns = Object.keys(data[0]);
     const rows = data.map(row => 
         Object.values(row).map(value => value === undefined ? "" : value)
@@ -49,7 +49,7 @@ export function exportToPDF(data: Attendee[], fileName = 'data.pdf') {
           },
         ],
       };
-      pdfMake.createPdf(docDefinition).download(fileName);
+      pdfMake.createPdf(docDefinition).download(fileName + ".pdf");
 }
 
 function createAttendeeTemplate(keys: string[]): Attendee {
