@@ -81,7 +81,7 @@ export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Atte
     {
         accessorKey: "registrationStatus",
         header: "Reg. Status",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "select",
             options: [
@@ -96,7 +96,7 @@ export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Atte
     {
         accessorKey: "applicationStatus",
         header: "App. Status",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "select",
             options: [ // These values were inferred from the database
@@ -111,22 +111,22 @@ export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Atte
     {
         accessorKey: "fname",
         header: "First Name",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.lname",
         header: "Last Name",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "id",
         header: "Email",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "points",
         header: "Points",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "number",
         } as ColumnMeta,
@@ -134,31 +134,31 @@ export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Atte
     {
         accessorKey: "studentId",
         header: "Student Number",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.faculty",
         header: "Faculty",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.gender",
         header: "Gender",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.diet",
         header: "Diet",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.major",
         header: "Major",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     }, 
     {
         accessorKey: "basicInformation.year",
         header: "Year",
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     }
 ]

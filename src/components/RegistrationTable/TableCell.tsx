@@ -5,13 +5,11 @@ import { CellContext } from "@tanstack/react-table"
 import { Attendee, ColumnMeta } from "./columns"
 import { updateRegistrationData, prepareUpdatePayload } from '@/lib/dbUtils'
 
-// type TableCellProps = CellContext<Attendee, unknown>
 interface TableCellProps extends CellContext<Attendee, unknown> {
-    row: any; // CHANGE THIS TO THE REGISTRATION TYPE?
     refreshTable: () => Promise<void>;
 }
 
-export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row, refreshTable}) => {
+export const TableCell = ({ getValue, column, row, refreshTable}: TableCellProps) => {
     const initialValue = getValue()
     const columnMeta = column.columnDef.meta as ColumnMeta
     const [value, setValue] = useState(initialValue)
@@ -36,7 +34,6 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row, ref
     }
 
     const onSelectChange = async (newValue: string) => {
-        row.original[column.id] = newValue;
         let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
         let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
 
@@ -45,6 +42,7 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row, ref
         try {
             await updateRegistrationData(row.original.id, row.original.fname, body);
             await refreshTable();
+            setValue(newValue);
         } catch (error) {
             console.error("Failed to update registration:", error);
         }

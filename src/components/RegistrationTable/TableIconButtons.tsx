@@ -23,6 +23,10 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
   setQrReaderToggled,
   refreshTable,
 }) => {
+  const handleIconClick = (action: string) => {
+    // TODO - add a redirect to the stats page
+  };
+
   return (
     <div>
       <TooltipProvider>

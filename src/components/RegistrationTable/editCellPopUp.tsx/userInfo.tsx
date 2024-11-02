@@ -10,6 +10,11 @@ interface EditCellProps {
     refreshTable: () => Promise<void>
 }
 
+const isBasicInfoKey = (key: string): key is keyof Attendee['basicInformation'] => {
+    const validKeys = ['diet', 'faculty', 'fname', 'gender', 'heardFrom', 'lname', 'major', 'year'];
+    return validKeys.includes(key);
+};
+
 const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
     const [fieldLabels, setFieldLabels] = useState<{ [key: string]: string }>({});
     const [dropDownList, setDropDownList] = useState<{ [key: string]: string[] }>({});
@@ -89,10 +94,16 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
                         />
                     ) : key.startsWith("basicInformation_") ? (
                         <span>
-                            {row.basicInformation[key.replace("basicInformation_", "")]}
+                            {(() => {
+                                const basicInfoKey = key.replace("basicInformation_", "");
+                                if (isBasicInfoKey(basicInfoKey)) {
+                                    return row.basicInformation[basicInfoKey];
+                                }
+                                return '';
+                            })()}
                         </span>
                     ) : (
-                        <span>{row[key]}</span>
+                        <span>{key in row ? String(row[key as keyof Attendee]) : ''}</span>
                     )}
                 </div>
             ))}
