@@ -7,19 +7,6 @@ import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 
-// Dynamic columns
-const dynamicColumns: ColumnDef<Attendee>[] = [
-  {
-    accessorKey: "dynamicField1",
-    header: "Dynamic Field 1",
-  },
-  {
-    accessorKey: "dynamicField2",
-    header: "Dynamic Field 2",
-  },
-  // Fetch dynamic columns from events DB - backend to do.
-];
-
 type Props = {
   initialData: Attendee[] | null;
 };
@@ -28,20 +15,32 @@ export default function AdminEvent({ initialData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
   const [data, setData] = useState<Attendee[] | null>(initialData);
+  const [dynamicColumns, setDynamicColumns] = useState<ColumnDef<Attendee>[]>([]);
   
   useEffect(() => {
-    if (!initialData && router.isReady) {
+    if (router.isReady) {
       const eventId = router.query.eventId as string;
       const year = router.query.year as string;
 
       if (eventId && year) {
-        fetchRegistationData(eventId, year).then((d) => {
-          setData(d);
-          setLoading(false);
+        fetchBackend({
+          endpoint: `/events/${eventId}/${year}`,
+          method: "GET",
+          authenticatedCall: false
+        }).then((eventDetails) => {
+          const questionColumns = eventDetails.registrationQuestions?.map((q: any) => ({
+            id: q.label,
+            header: q.label,
+            accessorFn: (row: any) => {
+              return row.dynamicResponses?.[q.questionId] || '';
+            }
+          })) || [];
+
+          setDynamicColumns(questionColumns);
         });
       }
     }
-  }, [router.isReady, router.query.eventId, router.query.year, initialData]);
+  }, [router.isReady, router.query.eventId, router.query.year]);
 
   if (!router.isReady) return null;
 

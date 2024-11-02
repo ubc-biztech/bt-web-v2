@@ -160,15 +160,5 @@ export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Atte
         accessorKey: "basicInformation.year",
         header: "Year",
         cell: TableCell,
-    },
-    {
-        accessorKey: "basicInformation.companyName",
-        header: "Company",
-        cell: TableCell,
-    },
-    {
-        accessorKey: "basicInformation.role",
-        header: "Role",
-        cell: TableCell,
     }
 ]
