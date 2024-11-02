@@ -20,9 +20,10 @@ import { fetchBackend } from '@/lib/db'
 interface EditCellProps {
   row: Row<Attendee>
   table: Table<Attendee>
+  refreshTable: () => Promise<void>
 }
 
-export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
+export const EditCell: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
   const [questions, setQuestions] = useState<RegistrationQuestion[]>([]);
 
   useEffect(() => {
@@ -72,7 +73,11 @@ export const EditCell: React.FC<EditCellProps> = ({ row, table }) => {
         <div className="max-w-full h-[1px] bg-divider my-3" />
 
         <div className="max-h-[500px] max-w-full overflow-y-auto">
-          <UserInfo row={row.original} table={table} />
+          <UserInfo 
+            row={row.original} 
+            table={table} 
+            refreshTable={refreshTable}
+          />
           {/* divider */}
           <div className="max-w-full h-[1px] bg-divider my-3">
             <UserResponses questions={questions} responses={row.original.dynamicResponses} />

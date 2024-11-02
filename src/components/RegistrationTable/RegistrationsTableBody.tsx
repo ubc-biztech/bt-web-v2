@@ -4,7 +4,7 @@ import { flexRender, Table } from "@tanstack/react-table"
 
 interface RegistrationsTableBodyProps<T> {
     table: Table<T>,
-    refreshTable: any
+    refreshTable: () => Promise<void>
 }
 
 export const RegistrationsTableBody = <T,>({ table, refreshTable }: RegistrationsTableBodyProps<T>) => (
@@ -18,7 +18,10 @@ export const RegistrationsTableBody = <T,>({ table, refreshTable }: Registration
                 >
                     {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {flexRender(cell.column.columnDef.cell, {
+                                ...cell.getContext(),
+                                refreshTable
+                            })}
                         </TableCell>
                     ))}
                 </TableRow>

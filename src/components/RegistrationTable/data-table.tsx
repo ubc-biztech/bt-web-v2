@@ -14,8 +14,9 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { columns as defaultColumns, Attendee } from "./columns";
+import { Attendee, createColumns } from "./columns";
 import QrCheckIn from "../QrScanner/QrScanner";
+import { fetchBackend } from "@/lib/db";
 
 export function DataTable({
   initialData,
@@ -31,7 +32,20 @@ export function DataTable({
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
 
-  const allColumns = [...defaultColumns, ...dynamicColumns];
+  const refreshTable = async () => {
+    try {
+      const registrationData = await fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+      });
+      setData(registrationData.data);
+    } catch (error) {
+      console.error("Failed to refresh table data:", error);
+    }
+  };
+
+  const allColumns = [...createColumns(refreshTable), ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);
@@ -41,12 +55,6 @@ export function DataTable({
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const refreshTable = async () => {
-    // TODO: fix the update refresh
-    //setData(await fetchRegistrationData(eventId, year));
-  };
-
 
   const table = useReactTable<Attendee>({
     data,
@@ -105,6 +113,7 @@ export function DataTable({
         rowSelection={rowSelection}
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
+        refreshTable={refreshTable}
       />
 
       <TableComponent>

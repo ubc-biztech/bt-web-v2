@@ -48,11 +48,11 @@ export type ColumnMeta = {
     options?: { value: string; label: string }[];
 }
 
-export const columns: ColumnDef<Attendee>[] = [
+export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Attendee>[] => [
     {
         id: 'edit',
         size: 30,
-        cell: ({ row, table }) => <EditCell row={row} table={table} />,
+        cell: ({ row, table }) => <EditCell row={row} table={table} refreshTable={refreshTable} />,
     },
     {
         id: "select",

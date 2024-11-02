@@ -13,18 +13,16 @@ import QrIcon from "../../../public/assets/icons/qr_icon.svg";
 import RefreshIcon from "../../../public/assets/icons/refresh_icon.svg";
 
 interface TableButtonProps {
-  isQrReaderToggled: boolean; // requires useState from parent so the QR can be toggled from a button elsewhere in the parent
+  isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
+  refreshTable: () => Promise<void>;
 }
 
 export const TableIconButtons: React.FC<TableButtonProps> = ({
   isQrReaderToggled,
   setQrReaderToggled,
+  refreshTable,
 }) => {
-  const handleIconClick = (action: string) => {
-    console.log(`${action} action triggered`);
-  };
-
   return (
     <div>
       <TooltipProvider>
@@ -49,7 +47,7 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <Button variant="ghost" onClick={() => handleIconClick("refresh")}>
+            <Button variant="ghost" onClick={refreshTable}>
               <Image
                 src={RefreshIcon}
                 alt="Refresh Icon"

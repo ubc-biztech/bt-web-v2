@@ -1,9 +1,9 @@
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import React, { useState } from 'react'
-import { updateRegistrationData } from "@/lib/dbUtils"
+import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils"
 import { Attendee } from "../columns"
-import { Row, Table } from "@tanstack/react-table"
+import { Table } from "@tanstack/react-table"
 
 
 interface SelectCellProps {
@@ -12,45 +12,39 @@ interface SelectCellProps {
     originalValue: string | number,
     dropDownList: string[]
     table: Table<Attendee>,
+    refreshTable: () => Promise<void>
 }
 
-const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dropDownList, table }) => {
+const SelectCell: React.FC<SelectCellProps> = ({ row, column, originalValue, dropDownList, table, refreshTable }) => {
     const [value, setValue] = useState(originalValue)
 
-    const onBlur = () => {
-        // table.options.meta?.updateData(row.index, column, value);
+    const onBlur = async () => {
         let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
         let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
 
-        const body = {
-            eventID: eventId,
-            year: parseInt(year),
-            [column]: parseInt(value as string),
-        };
+        const body = prepareUpdatePayload(column, value, eventId, year);
 
-        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
-        updateRegistrationData(row.id, row.fname, body);
-        // Reload to get it to re-fetch data 
-        // - potentially change to useState which re-triggers useEffect()?
-        window.location.reload();
+        try {
+            await updateRegistrationData(row.id, row.fname, body);
+            await refreshTable();
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
-    const onSelectChange = (newValue: string) => {
-        // table.options.meta?.updateData(row.index, column, newValue);
+    const onSelectChange = async (newValue: string) => {
         setValue(newValue)
         let eventId = row['eventID;year'].slice(0, row['eventID;year'].indexOf(";"))
         let year = row['eventID;year'].slice(row['eventID;year'].indexOf(";") + 1)
 
-        const body = {
-            eventID: eventId,
-            year: parseInt(year),
-            [column]: newValue,
-        };
+        const body = prepareUpdatePayload(column, newValue, eventId, year);
 
-        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
-        updateRegistrationData(row.id, row.fname, body);
-        // Reload to get it to re-fetch data
-        window.location.reload();
+        try {
+            await updateRegistrationData(row.id, row.fname, body);
+            await refreshTable();
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

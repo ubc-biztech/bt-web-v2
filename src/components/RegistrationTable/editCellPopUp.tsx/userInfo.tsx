@@ -6,10 +6,11 @@ import { ColumnMeta } from '../columns'
 
 interface EditCellProps {
     row: Attendee,
-    table: Table<Attendee>
+    table: Table<Attendee>,
+    refreshTable: () => Promise<void>
 }
 
-const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
+const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
     const [fieldLabels, setFieldLabels] = useState<{ [key: string]: string }>({});
     const [dropDownList, setDropDownList] = useState<{ [key: string]: string[] }>({});
 
@@ -69,17 +70,29 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table }) => {
                 <div key={key}>
                     <label className="block font-bold text-baby-blue">{fieldLabels[key]}:</label>
                     {key === 'registrationStatus' || key === 'applicationStatus' ? (
-                        <SelectCell column={key} table={table} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
+                        <SelectCell 
+                            column={key} 
+                            table={table} 
+                            row={row} 
+                            originalValue={row[key]} 
+                            dropDownList={dropDownList[key]}
+                            refreshTable={refreshTable}
+                        />
                     ) : key === 'points' ? (
-                        <SelectCell column={key} table={table} row={row} originalValue={row[key]} dropDownList={dropDownList[key]} />
+                        <SelectCell 
+                            column={key} 
+                            table={table} 
+                            row={row} 
+                            originalValue={row[key]} 
+                            dropDownList={dropDownList[key]}
+                            refreshTable={refreshTable}
+                        />
                     ) : key.startsWith("basicInformation_") ? (
-                        <span></span>
-                        // code below had an error so commenting it out for vercel build 
-                        // <span>{row.basicInformation[key.slice(key.indexOf('basicInformation_') + "basicInformation_".length)]}</span>
+                        <span>
+                            {row.basicInformation[key.replace("basicInformation_", "")]}
+                        </span>
                     ) : (
-                        <span></span>
-                        // code below had an error so commenting it out for vercel build  
-                        //<span>{row[key]}</span>
+                        <span>{row[key]}</span>
                     )}
                 </div>
             ))}

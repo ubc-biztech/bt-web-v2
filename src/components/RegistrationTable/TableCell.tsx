@@ -3,14 +3,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
 import { Attendee, ColumnMeta } from "./columns"
-import { updateRegistrationData } from '@/lib/dbUtils'
+import { updateRegistrationData, prepareUpdatePayload } from '@/lib/dbUtils'
 
 // type TableCellProps = CellContext<Attendee, unknown>
 interface TableCellProps extends CellContext<Attendee, unknown> {
     row: any; // CHANGE THIS TO THE REGISTRATION TYPE?
+    refreshTable: () => Promise<void>;
 }
 
-export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row}) => {
+export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row, refreshTable}) => {
     const initialValue = getValue()
     const columnMeta = column.columnDef.meta as ColumnMeta
     const [value, setValue] = useState(initialValue)
@@ -20,40 +21,33 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column, row}) =>
 
     }, [initialValue])
 
-    const onBlur = () => {
-        // table.options.meta.updateData(row.index, column.id, value);
+    const onBlur = async () => {
         let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
         let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
 
-        const body = {
-            eventID: eventId,
-            year: parseInt(year),
-            [column.id]: parseInt(value as string), // use value instead because it should be what's already inside
-        };
+        const body = prepareUpdatePayload(column.id, value, eventId, year);
 
-        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
-        updateRegistrationData(row.original.id, row.original.fname, body);
-         // Reload to get it to re-fetch data 
-        // - potentially change to useState which re-triggers useEffect()?
-
+        try {
+            await updateRegistrationData(row.original.id, row.original.fname, body);
+            await refreshTable();
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
-    const onSelectChange = (newValue: string) => {
-        // table.options.meta.updateData(row.index, column.id, newValue);
+    const onSelectChange = async (newValue: string) => {
         row.original[column.id] = newValue;
         let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
         let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
 
-        const body = {
-            eventID: eventId,
-            year: parseInt(year),
-            [column.id]: newValue,
-        };
+        const body = prepareUpdatePayload(column.id, newValue, eventId, year);
 
-        // UNCOMMENT IF YOU WANT THIS TO ACTUALLY CHANGE
-        updateRegistrationData(row.original.id, row.original.fname, body);
-         // Reload to get it to re-fetch data 
-         window.location.reload();
+        try {
+            await updateRegistrationData(row.original.id, row.original.fname, body);
+            await refreshTable();
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
     const getColor = (value: string) => {

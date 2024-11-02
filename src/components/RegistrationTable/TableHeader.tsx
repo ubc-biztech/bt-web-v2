@@ -44,6 +44,7 @@ interface TableHeaderProps {
   rowSelection: Record<string, boolean>;
   isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
+  refreshTable: () => Promise<void>;
 }
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
@@ -52,6 +53,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   rowSelection,
   isQrReaderToggled,
   setQrReaderToggled,
+  refreshTable,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
@@ -161,6 +163,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <TableIconButtons
           isQrReaderToggled={isQrReaderToggled}
           setQrReaderToggled={setQrReaderToggled}
+          refreshTable={refreshTable}
         />
         <Select>
           <SelectTrigger className="w-[180px] bg-login-form-card text-white">
