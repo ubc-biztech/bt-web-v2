@@ -56,7 +56,7 @@ export default function AdminEvent({ initialData }: Props) {
           </span>
           <Button 
             onClick={() => router.push(`/admin/event/${router.query.eventId}/${router.query.year}/edit`)}
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-biztech-green"
           >
             Edit Event
           </Button>
