@@ -20,19 +20,20 @@ export const TableFooter: React.FC<TableFooterProps> = ({ table, pageSize, setPa
     
     const handleExport = (format: string) => {
         const rows = formatTableForExport(table);
+        const fileName = `${router.query.eventId}_${router.query.year}`;
         if (format === "pdf") {
-            exportToPDF(rows, `${router.query.eventId}_${router.query.year}`);
+            exportToPDF(rows, fileName);
         } else {
-            exportToCSV(rows, `${router.query.eventId}_${router.query.year}`);
+            exportToCSV(rows, fileName);
         }
-        console.log(`Exporting as ${format}... (STUB)`);
+        console.log(`Exporting as ${format}...`);
     }
 
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-4">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-white-blue">
+                    <Button variant="ghost" className="text-white-blue" disabled={!table.getRowCount()}>
                         <div className="flex items-center space-x-3">
                             <Image src={DownloadIcon} alt="Download Icon" width={25} height={25} className={"min-w-6"}/>
                             <div className="font-400">
