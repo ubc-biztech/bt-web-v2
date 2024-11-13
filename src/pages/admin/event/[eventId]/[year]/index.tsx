@@ -6,16 +6,17 @@ import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchRegistrationData } from "@/lib/dbUtils";
 import { Button } from "@/components/ui/button";
+import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 
 // Dynamic columns
 const dynamicColumns: ColumnDef<Attendee>[] = [
   {
     accessorKey: "dynamicField1",
-    header: "Dynamic Field 1",
+    header: ({ column }) => (<SortableHeader title="Dynamic Field 1" column={column} />),
   },
   {
     accessorKey: "dynamicField2",
-    header: "Dynamic Field 2",
+    header: ({ column }) => (<SortableHeader title="Dynamic Field 2" column={column} />),
   },
   // Fetch dynamic columns from events DB - backend to do.
 ];
