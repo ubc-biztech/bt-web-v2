@@ -1,3 +1,4 @@
+import { DBRegistrationStatus } from "@/types"; 
 export async function fetchRegistrationData(eventId: string, year: string) {
     // TODO - fetch data registration data from backend. This is just returning a Mock, likely won't be the final data struct format
 
@@ -5,8 +6,8 @@ export async function fetchRegistrationData(eventId: string, year: string) {
     for (let i = 0; i < 200; i++) {
         data.push({
             id: i.toString(),
-            applicationStatus: getRandomValue(["accepted", "reviewing", "waitlist"]).toString(),
-            registrationStatus: getRandomValue(["registered", "checkedIn", "waitlist", "incomplete", "cancelled"]).toString(),
+            applicationStatus: getRandomValue(["Accepted", "Reviewing", "Waitlist", "Rejected"]).toString(),
+            registrationStatus: getRandomValue(Object.values(DBRegistrationStatus)).toString(),
             basicInformation: {
               diet: getRandomValue(["None", "Gluten Free", "Halal", "Vegetarian", "Vegan"]).toString(),
               faculty: getRandomValue(["Arts", "Commerce", "Engineering", "Forestry", "Science", "Other"]).toString(),
@@ -22,6 +23,7 @@ export async function fetchRegistrationData(eventId: string, year: string) {
             fname: "John",
             isPartner: false,
             points: 0,
+            studentId: 12345678,
             scannedQRs: [],
             updatedAt: new Date().toString(),
           })

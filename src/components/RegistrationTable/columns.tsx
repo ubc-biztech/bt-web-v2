@@ -1,20 +1,34 @@
-"use client"
+"use client";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { TableCell } from "./TableCell"
-import { EditCell } from "./EditCell"
+import { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { TableCell } from "./TableCell";
+import { EditCell } from "./EditCell";
+import { SortableHeader } from "./SortableHeader";
 import { Registration } from "@/types/types"
 import { DBRegistrationStatus } from "@/types/types"
+
+export type Attendee = {
+    id: string;
+    regStatus: string;
+    appStatus: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    points: number;
+    studentNumber: string;
+    faculty: string;
+    [key: string]: any; // This allows for dynamic properties
+};
 
 export type ColumnMeta = {
     type?: "select" | "number";
     options?: { value: string; label: string }[];
-}
+};
 
 export const columns: ColumnDef<Registration>[] = [
     {
-        id: 'edit',
+        id: "edit",
         size: 30,
         cell: ({ row, table }) => <EditCell row={row} table={table} />,
     },
@@ -24,7 +38,9 @@ export const columns: ColumnDef<Registration>[] = [
             <div className="flex items-center">
                 <Checkbox
                     checked={table.getIsAllPageRowsSelected()}
-                    onCheckedChange={(value: any) => table.toggleAllPageRowsSelected(!!value)}
+                    onCheckedChange={(value: any) =>
+                        table.toggleAllPageRowsSelected(!!value)
+                    }
                     aria-label="Select all"
                 />
             </div>
@@ -34,17 +50,21 @@ export const columns: ColumnDef<Registration>[] = [
             <div className="flex items-center">
                 <Checkbox
                     checked={row.getIsSelected()}
-                    onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+                    onCheckedChange={(value: any) =>
+                        row.toggleSelected(!!value)
+                    }
                     aria-label="Select row"
                 />
             </div>
         ),
-        enableSorting: false,
+        enableSorting: true,
         enableHiding: false,
     },
     {
         accessorKey: "registrationStatus",
-        header: "Reg. Status",
+        header: ({ column }) => (
+            <SortableHeader title="Reg. Status" column={column} />
+        ),
         cell: TableCell,
         meta: {
             type: "select",
@@ -57,14 +77,23 @@ export const columns: ColumnDef<Registration>[] = [
             ],
         } as ColumnMeta,
         size: 200,
+        enableSorting: true, 
+        sortingFn: (rowA, rowB) => {
+            const order = [DBRegistrationStatus.CHECKED_IN, DBRegistrationStatus.REGISTERED, DBRegistrationStatus.INCOMPLETE, DBRegistrationStatus.CANCELLED];
+            return (
+                order.indexOf(rowA.getValue("registrationStatus")) -
+                order.indexOf(rowB.getValue("registrationStatus"))
+            );
+        },
     },
     {
         accessorKey: "applicationStatus",
-        header: "App. Status",
+        header: ({ column }) => (<SortableHeader title="App. Status" column={column} />),
         cell: TableCell,
         meta: {
             type: "select",
-            options: [ // These values were inferred from the database
+            options: [
+                // These values were inferred from the database
                 { value: "Accepted", label: "Accepted" },
                 { value: "Reviewing", label: "Reviewing" },
                 { value: "Waitlist", label: "Waitlist" },
@@ -72,38 +101,46 @@ export const columns: ColumnDef<Registration>[] = [
             ],
         } as ColumnMeta,
         size: 200,
+        enableSorting: true, 
+        sortingFn: (rowA, rowB) => {
+            const order = ["Accepted", "Reviewing", "Waitlist", "Rejected"];
+            return (
+                order.indexOf(rowA.getValue("applicationStatus")) -
+                order.indexOf(rowB.getValue("applicationStatus"))
+            );
+        },
     },
     {
         accessorKey: "basicInformation.fname",
-        header: "First Name",
+        header: ({ column }) => (<SortableHeader title="First Name" column={column} />),
         cell: TableCell,
     },
     {
         accessorKey: "basicInformation.lname",
-        header: "Last Name",
+        header: ({ column }) => (<SortableHeader title="Last Name" column={column} />),
         cell: TableCell,
     },
     {
         accessorKey: "id",
-        header: "Email",
+        header: ({ column }) => (<SortableHeader title="Email" column={column} />),
         cell: TableCell,
     },
     {
         accessorKey: "points",
-        header: "Points",
+        header: ({ column }) => (<SortableHeader title="Points" column={column} />),
         cell: TableCell,
         meta: {
             type: "number",
         } as ColumnMeta,
     },
     {
-        accessorKey: "studentNumber",
-        header: "Student Number",
+        accessorKey: "studentId",
+        header: ({ column }) => (<SortableHeader title="Student Number" column={column} />),
         cell: TableCell,
     },
     {
         accessorKey: "basicInformation.faculty",
-        header: "Faculty",
+        header: ({ column }) => (<SortableHeader title="Faculty" column={column} />),
         cell: TableCell,
-    }
-]
+    },
+];

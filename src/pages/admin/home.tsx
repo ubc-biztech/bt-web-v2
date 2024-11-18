@@ -42,12 +42,16 @@ export default function AdminEventView({ events }: Props) {
         console.log('View as Member button clicked');
     }
 
-    // toggle the view when the 'more' icon is clicked 
-    const eventClick = (event: BiztechEvent) => {
-        if (event) {
-            setEvent(event) // allows us to grab the specific event which was clicked
+    // Update event click to navigate to registration table view
+    const eventClick = (event: BiztechEvent, isOptionsClick: boolean = false) => {
+        if (isOptionsClick) {
+            // Only set popup state if clicking options button
+            setEvent(event)
+            setIsClicked(!isClicked)
+        } else {
+            // Navigate to registration table view when clicking card
+            router.push(`/admin/event/${event.id}/${event.year}`)
         }
-        setIsClicked(!isClicked)
     };
 
     // function to manage mobile device state
@@ -100,7 +104,7 @@ export default function AdminEventView({ events }: Props) {
                                 eventClick={eventClick}
                                 modalHandlers={{
                                     handleEventDelete: handleEventDelete,
-                                    handleEditEvent: handleEditEvent,
+                                    handleEditEvent: () => router.push(`/admin/event/${event.id}/${event.year}/edit`),
                                     handleViewAsMember: handleViewAsMember
                                 }}
                             />

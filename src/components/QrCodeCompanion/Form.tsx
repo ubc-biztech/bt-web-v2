@@ -80,6 +80,7 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
         points: Number(values.points),
         isActive: true,
         type: values.type,
+        isUnlimitedScans: values.isUnlimitedScans,
         data: (() => {
           if (values.type === "Partner") {
             return {
