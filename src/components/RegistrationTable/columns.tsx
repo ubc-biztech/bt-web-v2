@@ -5,6 +5,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
+import { Registration } from "@/types/types"
+import { DBRegistrationStatus } from "@/types/types"
 
 export type Attendee = {
     id: string;
@@ -24,7 +26,7 @@ export type ColumnMeta = {
     options?: { value: string; label: string }[];
 };
 
-export const columns: ColumnDef<Attendee>[] = [
+export const columns: ColumnDef<Registration>[] = [
     {
         id: "edit",
         size: 30,
@@ -59,7 +61,7 @@ export const columns: ColumnDef<Attendee>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "regStatus",
+        accessorKey: "registrationStatus",
         header: ({ column }) => (
             <SortableHeader title="Reg. Status" column={column} />
         ),
@@ -67,24 +69,25 @@ export const columns: ColumnDef<Attendee>[] = [
         meta: {
             type: "select",
             options: [
-                { value: "Registered", label: "Registered" },
-                { value: "Checked-In", label: "Checked-In" },
-                { value: "Cancelled", label: "Cancelled" },
-                { value: "Incomplete", label: "Incomplete" },
+                { value: DBRegistrationStatus.REGISTERED, label: "Registered" },
+                { value: DBRegistrationStatus.CHECKED_IN, label: "Checked-In" },
+                { value: DBRegistrationStatus.CANCELLED, label: "Cancelled" },
+                { value: DBRegistrationStatus.INCOMPLETE, label: "Incomplete" },
+                { value: DBRegistrationStatus.WAITLISTED, label: "Waitlisted" },
             ],
         } as ColumnMeta,
         size: 200,
         enableSorting: true, 
         sortingFn: (rowA, rowB) => {
-            const order = ["Checked-In", "Registered", "Incomplete", "Cancelled"];
+            const order = [DBRegistrationStatus.CHECKED_IN, DBRegistrationStatus.REGISTERED, DBRegistrationStatus.INCOMPLETE, DBRegistrationStatus.CANCELLED];
             return (
-                order.indexOf(rowA.getValue("regStatus")) -
-                order.indexOf(rowB.getValue("regStatus"))
+                order.indexOf(rowA.getValue("registrationStatus")) -
+                order.indexOf(rowB.getValue("registrationStatus"))
             );
         },
     },
     {
-        accessorKey: "appStatus",
+        accessorKey: "applicationStatus",
         header: ({ column }) => (<SortableHeader title="App. Status" column={column} />),
         cell: TableCell,
         meta: {
@@ -102,23 +105,23 @@ export const columns: ColumnDef<Attendee>[] = [
         sortingFn: (rowA, rowB) => {
             const order = ["Accepted", "Reviewing", "Waitlist", "Rejected"];
             return (
-                order.indexOf(rowA.getValue("appStatus")) -
-                order.indexOf(rowB.getValue("appStatus"))
+                order.indexOf(rowA.getValue("applicationStatus")) -
+                order.indexOf(rowB.getValue("applicationStatus"))
             );
         },
     },
     {
-        accessorKey: "firstName",
+        accessorKey: "basicInformation.fname",
         header: ({ column }) => (<SortableHeader title="First Name" column={column} />),
         cell: TableCell,
     },
     {
-        accessorKey: "lastName",
+        accessorKey: "basicInformation.lname",
         header: ({ column }) => (<SortableHeader title="Last Name" column={column} />),
         cell: TableCell,
     },
     {
-        accessorKey: "email",
+        accessorKey: "id",
         header: ({ column }) => (<SortableHeader title="Email" column={column} />),
         cell: TableCell,
     },
@@ -131,12 +134,12 @@ export const columns: ColumnDef<Attendee>[] = [
         } as ColumnMeta,
     },
     {
-        accessorKey: "studentNumber",
+        accessorKey: "studentId",
         header: ({ column }) => (<SortableHeader title="Student Number" column={column} />),
         cell: TableCell,
     },
     {
-        accessorKey: "faculty",
+        accessorKey: "basicInformation.faculty",
         header: ({ column }) => (<SortableHeader title="Faculty" column={column} />),
         cell: TableCell,
     },

@@ -1,15 +1,15 @@
 import { useRouter } from "next/router";
-import { Attendee } from "@/components/RegistrationTable/columns";
 import { DataTable } from "@/components/RegistrationTable/data-table";
 import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchRegistrationData } from "@/lib/dbUtils";
+import { Registration } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 
 // Dynamic columns
-const dynamicColumns: ColumnDef<Attendee>[] = [
+const dynamicColumns: ColumnDef<Registration>[] = [
   {
     accessorKey: "dynamicField1",
     header: ({ column }) => (<SortableHeader title="Dynamic Field 1" column={column} />),
@@ -22,13 +22,13 @@ const dynamicColumns: ColumnDef<Attendee>[] = [
 ];
 
 type Props = {
-  initialData: Attendee[] | null;
+  initialData: Registration[] | null;
 };
 
 export default function AdminEvent({ initialData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Attendee[] | null>(initialData);
+  const [data, setData] = useState<Registration[] | null>(initialData);
 
   useEffect(() => {
     if (!initialData && router.isReady) {
