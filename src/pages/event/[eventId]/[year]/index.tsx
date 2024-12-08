@@ -248,7 +248,7 @@ export default function AttendeeFormRegister() {
                     paymentPrice:
                         (user?.isMember
                             ? event.pricing?.members
-                            : event.pricing.nonMembers) * 100,
+                            : event.pricing?.nonMembers) * 100,
                     paymentType: "Event",
                     success_url: `${process.env.REACT_APP_STAGE === "local"
                         ? "http://localhost:3000/"
@@ -323,7 +323,7 @@ export default function AttendeeFormRegister() {
                             <p>
                                 This event is available to non-members, but please note that you
                                 will be paying ${event?.pricing?.nonMembers && event?.pricing?.members
-                                    ? (event.pricing.nonMembers - event.pricing.members).toFixed(2)
+                                    ? (event.pricing?.nonMembers - event.pricing?.members).toFixed(2)
                                     : '7.00'} more.
                             </p>
                             <p>
