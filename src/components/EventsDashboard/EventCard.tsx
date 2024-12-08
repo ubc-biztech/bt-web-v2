@@ -92,8 +92,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, user, registered, s
     `${months[dateString.getMonth()]} ${dateString.getDate()}, ${event.year}` + " " + `${dateString.toTimeString().slice(0, 5)}`;
 
   const eventPricingText =
-    `${event.pricing && event.pricing > 0 ? "$" + event.pricing.members.toFixed(2) : "Free!"} ` +
-    `${event.pricing.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}`;
+    `${event.pricing && event.pricing > 0 ? "$" + event.pricing?.members.toFixed(2) : "Free!"} ` +
+    `${event.pricing?.nonMembers ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})` : "(Members only)"}`;
 
   return (
     <>
