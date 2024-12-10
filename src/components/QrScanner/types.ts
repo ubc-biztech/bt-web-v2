@@ -1,9 +1,9 @@
 import { Dispatch, SetStateAction } from "react";
-import { Registration } from "@/types/types";
+import { Attendee } from "../RegistrationTable/columns";
 
 export interface QrProps {
   event: { id: string; year: string };
-  rows: Registration[];
+  rows: Attendee[];
   isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
 }

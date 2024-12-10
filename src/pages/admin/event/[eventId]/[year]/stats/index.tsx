@@ -7,6 +7,8 @@ import StatsTable from "@/components/Stats/StatsTable";
 import BarChart from "@/components/Stats/BarChart";
 import PieChart from "@/components/Stats/PieChart";
 import PercentageBars from "@/components/Stats/PercentageBars";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 type Props = {
   initialData: AttendeeBasicInformation[] | null;
@@ -38,10 +40,24 @@ const getNestedValue = (userData: Record<string, any>, field: string) => {
 export default function Statistics({ initialData }: Props) {
   const router = useRouter();
 
+  const handleBack = () => {
+    const currentPath = window.location.pathname;
+    const parentPath = currentPath.split('/stats')[0];
+    router.push(parentPath);
+  };
+
   return (
     <main className='bg-primary-color min-h-screen'>
       <div className='container mx-auto p-10 flex flex-col'>
         <span>
+          <Button 
+            variant="ghost" 
+            onClick={handleBack}
+            className="text-white mb-4 hover:text-baby-blue"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
           <h2 className='text-white'>Event Statistics</h2>
           <p className='text-baby-blue font-poppins'>
             Statistics {">"} {router.query.eventId} {router.query.year}

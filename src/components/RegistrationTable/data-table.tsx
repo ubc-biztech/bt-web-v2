@@ -14,16 +14,16 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { columns as defaultColumns } from "./columns";
+import { Attendee, createColumns } from "./columns";
 import QrCheckIn from "../QrScanner/QrScanner";
-import { Registration } from "@/types/types";
+import { fetchBackend } from "@/lib/db";
 
 export function DataTable({
   initialData,
   dynamicColumns = [],
   eventId,
   year,
-}: DataTableProps<Registration>) {
+}: DataTableProps<Attendee>) {
   const [data, setData] = useState(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -32,7 +32,20 @@ export function DataTable({
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
 
-  const allColumns = [...defaultColumns, ...dynamicColumns];
+  const refreshTable = async () => {
+    try {
+      const registrationData = await fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+      });
+      setData(registrationData.data);
+    } catch (error) {
+      console.error("Failed to refresh table data:", error);
+    }
+  };
+
+  const allColumns = [...createColumns(refreshTable), ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);
@@ -43,7 +56,7 @@ export function DataTable({
     setIsClient(true);
   }, []);
 
-  const table = useReactTable<Registration>({
+  const table = useReactTable<Attendee>({
     data,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -100,11 +113,12 @@ export function DataTable({
         rowSelection={rowSelection}
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
+        refreshTable={refreshTable}
       />
 
       <TableComponent>
         <TableHeader table={table} />
-        <RegistrationsTableBody table={table} />
+        <RegistrationsTableBody table={table} refreshTable={refreshTable} />
       </TableComponent>
 
       <TableFooter

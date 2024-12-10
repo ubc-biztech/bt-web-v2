@@ -80,9 +80,7 @@ const QrCheckIn: React.FC<QrProps> = ({ event, rows, isQrReaderToggled, setQrRea
     }
 
     // get the person's name
-    setCheckInName(
-      `${user.basicInformation.fname} ${user.basicInformation.lname} (${userID})`
-    );
+    setCheckInName(`${user.fname} ${user.basicInformation.lname} (${userID})`);
 
     // If the user is already checked in, show an error
     if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
