@@ -5,7 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
-import { DBRegistrationStatus } from "@/types/types"
+import { BiztechEvent, DBRegistrationStatus } from "@/types/types"
 
 export type Attendee = {
     'eventID;year': string;
@@ -37,11 +37,20 @@ export type ColumnMeta = {
     options?: { value: string; label: string }[];
 };
 
-export const createColumns = (refreshTable: () => Promise<void>): ColumnDef<Attendee>[] => [
+export const createColumns = (
+  refreshTable: () => Promise<void>, 
+  eventData: BiztechEvent
+): ColumnDef<Attendee>[] => [
     {
         id: "edit",
         size: 30,
-        cell: (props) => <EditCell {...props} refreshTable={refreshTable} />,
+        cell: (props) => (
+            <EditCell 
+                {...props} 
+                refreshTable={refreshTable} 
+                eventData={eventData as BiztechEvent}
+            />
+        ),
     },
     {
         id: "select",

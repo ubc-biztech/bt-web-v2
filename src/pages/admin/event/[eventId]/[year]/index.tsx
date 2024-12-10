@@ -10,9 +10,10 @@ import { Attendee } from "@/components/RegistrationTable/columns";
 
 type Props = {
   initialData: Attendee[] | null;
+  eventData: any | null;
 };
 
-export default function AdminEvent({ initialData }: Props) {
+export default function AdminEvent({ initialData, eventData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
   const [data, setData] = useState<Attendee[] | null>(initialData);
@@ -80,6 +81,7 @@ export default function AdminEvent({ initialData }: Props) {
             dynamicColumns={dynamicColumns}
             eventId={router.query.eventId as string}
             year={router.query.year as string}
+            eventData={eventData}
           />
         )}
       </div>
@@ -91,14 +93,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { eventId, year } = context.params as { eventId: string; year: string };
 
   try {
-    const registrationData = await fetchBackend({
-      endpoint: `/registrations?eventID=${eventId}&year=${year}`,
-      method: "GET",
-      authenticatedCall: false
-    });
-    return { props: { initialData: registrationData.data } };
+    const [registrationData, eventData] = await Promise.all([
+      fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+      }),
+      fetchBackend({
+        endpoint: `/events/${eventId}/${year}`,
+        method: "GET",
+        authenticatedCall: false
+      })
+    ]);
+
+    if (!eventData.registrationQuestions) {
+      eventData.registrationQuestions = [];
+    }
+    if (!eventData.counts) {
+      eventData.counts = {};
+    }
+
+    return { 
+      props: { 
+        initialData: registrationData.data,
+        eventData: eventData
+      } 
+    };
   } catch (error) {
     console.error("Failed to fetch initial data:", error);
-    return { props: { initialData: null } };
+    return { props: { initialData: null, eventData: null } };
   }
 };

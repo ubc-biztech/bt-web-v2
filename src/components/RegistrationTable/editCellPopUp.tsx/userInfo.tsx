@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Table } from "@tanstack/react-table"
+import { Row, Table } from "@tanstack/react-table"
+import { AttendeeBasicInformation } from "@/types/types";
 import SelectCell from './userPopupEdit'
-import { ColumnMeta } from '../columns'
-import { Attendee } from '../columns'
+import { Attendee, ColumnMeta } from '../columns'
 
 interface EditCellProps {
-    row: Attendee,
-    table: Table<Attendee>,
-    refreshTable: () => Promise<void>
+  row: Row<Attendee>;
+  table: Table<Attendee>;
+  refreshTable: () => Promise<void>;
 }
-
-const isBasicInfoKey = (key: string): key is keyof Attendee['basicInformation'] => {
-    const validKeys = ['diet', 'faculty', 'fname', 'gender', 'heardFrom', 'lname', 'major', 'year'];
-    return validKeys.includes(key);
-};
 
 const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
     const [fieldLabels, setFieldLabels] = useState<{ [key: string]: string }>({});
@@ -43,71 +38,61 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
             columns.forEach(column => {
                 // had to import meta as Column Meta or else encountered errors
                 const meta = column.columnDef.meta as ColumnMeta | undefined;
+        
                 if (meta?.type === 'select') {
                     options[column.id] = meta.options?.map(opt => opt.value) || [];
                 }
             });
+        
             return options;
         };
 
         setDropDownList(generateDropDownList());
     }, [table]);
-
-    let fieldsToDisplay = Object.keys(row).filter(key => key !== 'shouldNotDisplay'
-        && key != 'dynamicResponses'
-        && key != 'scannedQRs'
-        && key != 'basicInformation'
-        && key != 'updatedAt'
-        && key != 'eventID;year'
-        && key != 'isPartner'
-        && key != 'fname');
-
-    fieldsToDisplay = fieldsToDisplay.concat(
-        Object.keys(row.basicInformation)
-            .filter(key => key !== 'fname' && key !== 'lname' && key != 'heardFrom')
-            .map(key => 'basicInformation_' + key)
-    );
-
-    return (
-        <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
-            {fieldsToDisplay?.map((key: string) => (
-                <div key={key}>
-                    <label className="block font-bold text-baby-blue">{fieldLabels[key]}:</label>
-                    {key === 'registrationStatus' || key === 'applicationStatus' ? (
-                        <SelectCell 
-                            column={key} 
-                            table={table} 
-                            row={row} 
-                            originalValue={row[key]} 
-                            dropDownList={dropDownList[key]}
-                            refreshTable={refreshTable}
-                        />
-                    ) : key === 'points' ? (
-                        <SelectCell 
-                            column={key} 
-                            table={table} 
-                            row={row} 
-                            originalValue={row[key]} 
-                            dropDownList={dropDownList[key]}
-                            refreshTable={refreshTable}
-                        />
-                    ) : key.startsWith("basicInformation_") ? (
-                        <span>
-                            {(() => {
-                                const basicInfoKey = key.replace("basicInformation_", "");
-                                if (isBasicInfoKey(basicInfoKey)) {
-                                    return row.basicInformation[basicInfoKey];
-                                }
-                                return '';
-                            })()}
-                        </span>
-                    ) : (
-                        <span>{key in row ? String(row[key as keyof Attendee]) : ''}</span>
-                    )}
-                </div>
-            ))}
+  const fieldsToDisplay = Object.keys(row.original).filter(
+    (key) =>
+      key !== "shouldNotDisplay" &&
+      key !== "id" &&
+      key !== "dynamicResponses" &&
+      key !== "basicInformation"
+  ) as Array<keyof Attendee>;
+  
+  return (
+    <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
+      {fieldsToDisplay.map((key) => (
+        <div key={key}>
+          <label className="block font-bold text-baby-blue">{fieldLabels[key] || key}:</label>
+          {key === "registrationStatus" || key === "applicationStatus" ? (
+            <SelectCell
+              row={row.original}
+              column={key}
+              originalValue={row.original[key]}
+              dropDownList={dropDownList[key]}
+              table={table}
+              refreshTable={refreshTable}
+            />
+          ) : key === "points" ? (
+            <SelectCell
+              row={row.original}
+              column={key}
+              originalValue={row.original[key]}
+              dropDownList={dropDownList[key]}
+              table={table}
+              refreshTable={refreshTable}
+            />
+          ) : (
+            <span>{String(row.original[key])}</span>
+          )}
         </div>
-    );
+      ))}
+      {(Object.keys(row.original.basicInformation || {}) as Array<keyof AttendeeBasicInformation>).map((key) => (
+        <div key={key}>
+          <label className="block font-bold text-baby-blue">{key}:</label>
+          <span>{String(row.original.basicInformation[key])}</span>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default UserInfo;

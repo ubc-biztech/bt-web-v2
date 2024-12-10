@@ -41,6 +41,7 @@ export default function PartnerFormRegister() {
     }
 
     const cleanFormData = (data: any) => {
+        if (!event?.registrationQuestions) return;
         for (let question of event?.registrationQuestions) {
             if (question.type === QuestionTypes.CHECKBOX && data.customQuestions) {
                 data.customQuestions[question.questionId] = cleanOtherQuestions(data?.customQuestions[question.questionId])

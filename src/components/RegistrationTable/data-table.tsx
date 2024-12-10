@@ -20,6 +20,7 @@ import { fetchBackend } from "@/lib/db";
 
 export function DataTable({
   initialData,
+  eventData,
   dynamicColumns = [],
   eventId,
   year,
@@ -45,7 +46,7 @@ export function DataTable({
     }
   };
 
-  const allColumns = [...createColumns(refreshTable), ...dynamicColumns];
+  const allColumns = [...createColumns(refreshTable, eventData), ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);

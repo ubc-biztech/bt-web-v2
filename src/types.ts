@@ -15,7 +15,7 @@ export type BiztechEvent = {
     longitude?: number;
     facebookUrl?: string;
     deadline: string;
-    registrationQuestions: RegistrationQuestion[];
+    registrationQuestions?: RegistrationQuestion[];
     pricing: any;
     partnerRegistrationQuestions: RegistrationQuestion[];
     feedback: string;
@@ -23,7 +23,7 @@ export type BiztechEvent = {
     isApplicationBased: boolean;
     isCompleted: boolean;
     hasDomainSpecificQuestions?: boolean;
-    counts: any;
+    counts?: any;
 };
 
 export type RegistrationQuestion = {
