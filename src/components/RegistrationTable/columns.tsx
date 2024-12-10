@@ -5,32 +5,52 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
-import { Registration } from "@/types/types"
-import { DBRegistrationStatus } from "@/types/types"
+import { BiztechEvent, DBRegistrationStatus } from "@/types/types"
 
 export type Attendee = {
+    'eventID;year': string;
+    applicationStatus: string;
+    basicInformation: {
+      diet: string;
+      faculty: string;
+      fname: string;
+      gender: string[];
+      heardFrom: string;
+      lname: string;
+      major: string;
+      year: string;
+    };
+    dynamicResponses: Record<string, string>;
+    eventID: string;
+    fname: string;
     id: string;
-    regStatus: string;
-    appStatus: string;
-    firstName: string;
-    lastName: string;
-    email: string;
+    isPartner: boolean;
     points: number;
-    studentNumber: string;
-    faculty: string;
-    [key: string]: any; // This allows for dynamic properties
-};
+    registrationStatus: string;
+    scannedQRs: string[];
+    studentId: string;
+    updatedAt: number;
+}
 
 export type ColumnMeta = {
     type?: "select" | "number";
     options?: { value: string; label: string }[];
 };
 
-export const columns: ColumnDef<Registration>[] = [
+export const createColumns = (
+  refreshTable: () => Promise<void>, 
+  eventData: BiztechEvent
+): ColumnDef<Attendee>[] => [
     {
         id: "edit",
         size: 30,
-        cell: ({ row, table }) => <EditCell row={row} table={table} />,
+        cell: (props) => (
+            <EditCell 
+                {...props} 
+                refreshTable={refreshTable} 
+                eventData={eventData as BiztechEvent}
+            />
+        ),
     },
     {
         id: "select",
@@ -65,7 +85,7 @@ export const columns: ColumnDef<Registration>[] = [
         header: ({ column }) => (
             <SortableHeader title="Reg. Status" column={column} />
         ),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "select",
             options: [
@@ -77,7 +97,7 @@ export const columns: ColumnDef<Registration>[] = [
             ],
         } as ColumnMeta,
         size: 200,
-        enableSorting: true, 
+        enableSorting: true,
         sortingFn: (rowA, rowB) => {
             const order = [DBRegistrationStatus.CHECKED_IN, DBRegistrationStatus.REGISTERED, DBRegistrationStatus.INCOMPLETE, DBRegistrationStatus.CANCELLED];
             return (
@@ -89,11 +109,10 @@ export const columns: ColumnDef<Registration>[] = [
     {
         accessorKey: "applicationStatus",
         header: ({ column }) => (<SortableHeader title="App. Status" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "select",
             options: [
-                // These values were inferred from the database
                 { value: "Accepted", label: "Accepted" },
                 { value: "Reviewing", label: "Reviewing" },
                 { value: "Waitlist", label: "Waitlist" },
@@ -101,7 +120,7 @@ export const columns: ColumnDef<Registration>[] = [
             ],
         } as ColumnMeta,
         size: 200,
-        enableSorting: true, 
+        enableSorting: true,
         sortingFn: (rowA, rowB) => {
             const order = ["Accepted", "Reviewing", "Waitlist", "Rejected"];
             return (
@@ -113,22 +132,22 @@ export const columns: ColumnDef<Registration>[] = [
     {
         accessorKey: "basicInformation.fname",
         header: ({ column }) => (<SortableHeader title="First Name" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.lname",
         header: ({ column }) => (<SortableHeader title="Last Name" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "id",
         header: ({ column }) => (<SortableHeader title="Email" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "points",
         header: ({ column }) => (<SortableHeader title="Points" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
         meta: {
             type: "number",
         } as ColumnMeta,
@@ -136,11 +155,11 @@ export const columns: ColumnDef<Registration>[] = [
     {
         accessorKey: "studentId",
         header: ({ column }) => (<SortableHeader title="Student Number" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
     {
         accessorKey: "basicInformation.faculty",
         header: ({ column }) => (<SortableHeader title="Faculty" column={column} />),
-        cell: TableCell,
+        cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     },
 ];

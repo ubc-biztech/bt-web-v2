@@ -1,36 +1,71 @@
-import { DBRegistrationStatus } from "@/types"; 
-export async function fetchRegistrationData(eventId: string, year: string) {
-    // TODO - fetch data registration data from backend. This is just returning a Mock, likely won't be the final data struct format
+import { fetchBackend } from "./db";
+import { DBRegistrationStatus, ApplicationStatus } from '@/types';
 
-    let data = []
-    for (let i = 0; i < 200; i++) {
-        data.push({
-            id: i.toString(),
-            applicationStatus: getRandomValue(["Accepted", "Reviewing", "Waitlist", "Rejected"]).toString(),
-            registrationStatus: getRandomValue(Object.values(DBRegistrationStatus)).toString(),
-            basicInformation: {
-              diet: getRandomValue(["None", "Gluten Free", "Halal", "Vegetarian", "Vegan"]).toString(),
-              faculty: getRandomValue(["Arts", "Commerce", "Engineering", "Forestry", "Science", "Other"]).toString(),
-              fname: "John",
-              gender: getRandomValue([["They/Them/Their"], ["She/Her/Hers"], ["Other/Prefer not to say"], ["He/Him/His"]].flat()).toString(),
-              heardFrom: getRandomValue(["Facebook", "Instagram", "Biztech Newsletter", "LinkedIn", "Biztech Boothing", "Friends/Word of Mouth", "Other"]).toString(),
-              lname: "Smith",
-              major: "",
-              year: getRandomValue(["1st year", "2nd year", "3rd year", "4th year", "5+ year", "Other"]).toString(),
-            },
-            checkoutLink: "",
-            dynamicResponses: {},
-            fname: "John",
-            isPartner: false,
-            points: 0,
-            studentId: 12345678,
-            scannedQRs: [],
-            updatedAt: new Date().toString(),
-          })
-    }
-    return data
+export async function fetchRegistrationData(eventId: string, year: string) {
+    let registrationData = await fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+    });
+
+    return registrationData.data;
 }
 
-function getRandomValue(field: String[]) {
-    return field[Math.floor(Math.random() * field.length)];
+// Helper to convert UI registration status to DB format
+export function convertRegistrationStatusToDB(uiStatus: string): string {
+    switch (uiStatus.toLowerCase()) {
+        case 'registered':
+            return DBRegistrationStatus.REGISTERED;
+        case 'checked-in':
+            return DBRegistrationStatus.CHECKED_IN;
+        case 'cancelled':
+            return DBRegistrationStatus.CANCELLED;
+        case 'incomplete':
+            return DBRegistrationStatus.INCOMPLETE;
+        case 'waitlisted':
+            return DBRegistrationStatus.WAITLISTED;
+        default:
+            return uiStatus.toLowerCase();
+    }
+}
+
+// Helper to prepare update payload
+export function prepareUpdatePayload(column: string, value: any, eventId: string, year: string) {
+    const basePayload = {
+        eventID: eventId,
+        year: parseInt(year),
+    };
+
+    if (column === 'registrationStatus') {
+        return {
+            ...basePayload,
+            [column]: convertRegistrationStatusToDB(value as string),
+        };
+    }
+
+    if (column === 'points') {
+        return {
+            ...basePayload,
+            [column]: parseInt(value as string),
+        };
+    }
+
+    return {
+        ...basePayload,
+        [column]: value,
+    };
+}
+
+export async function updateRegistrationData(email: string, fname: string, body: any) {
+    console.log("Updating registration data", body);
+    try {
+        await fetchBackend({ 
+            endpoint: `/registrations/${email}/${fname}`, 
+            method: "PUT", 
+            authenticatedCall: false, 
+            data: body 
+        });
+    } catch (e) {
+        console.error("Internal Server Error, Update Failed");
+    }
 }

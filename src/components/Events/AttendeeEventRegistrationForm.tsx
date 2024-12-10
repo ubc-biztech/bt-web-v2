@@ -51,7 +51,7 @@ const createDynamicSchema = (event: BiztechEvent) => {
             ? z.string().min(1, "This field is required")
             : z.string().optional();
         return acc;
-    }, {} as Record<string, z.ZodTypeAny>);
+    }, {} as Record<string, z.ZodTypeAny>) || {};
 
     return attendeeEventRegistrationFormSchema.extend({
         customQuestions: z.object(dynamicSchema),
@@ -369,7 +369,7 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                 />
 
                                 {/* Custom Questions */}
-                                {event?.registrationQuestions.map((question) => (
+                                {event?.registrationQuestions?.map((question) => (
                                     <FormField
                                         key={question.questionId}
                                         control={form.control}

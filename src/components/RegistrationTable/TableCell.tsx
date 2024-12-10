@@ -2,39 +2,62 @@ import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
-import { ColumnMeta } from "./columns"
-import { Registration } from '@/types/types'
-import { DBRegistrationStatus } from '@/types/types'
+import { Attendee, ColumnMeta } from "./columns"
+import { updateRegistrationData, prepareUpdatePayload } from '@/lib/dbUtils'
+import { DBRegistrationStatus } from '@/types'
 
-type TableCellProps = CellContext<Registration, unknown>
+interface TableCellProps extends CellContext<Attendee, unknown> {
+    refreshTable: () => Promise<void>;
+}
 
-export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
+export const TableCell = ({ getValue, column, row, refreshTable}: TableCellProps) => {
     const initialValue = getValue()
     const columnMeta = column.columnDef.meta as ColumnMeta
     const [value, setValue] = useState(initialValue)
 
     useEffect(() => {
-        setValue(initialValue)
+        setValue(getLabel(initialValue as string))
+
     }, [initialValue])
 
-    const onBlur = () => {
-        // tableMeta?.updateData(row.index, column.id, value)
-        console.log("TODO - update data")
+    const onBlur = async () => {
+        let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
+        let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
+
+        const body = prepareUpdatePayload(column.id, value, eventId, year);
+
+        try {
+            await updateRegistrationData(row.original.id, row.original.fname, body);
+            await refreshTable();
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
-    const onSelectChange = (newValue: string) => {
-        setValue(newValue)
-        console.log("TODO - update data")
-        // tableMeta?.updateData(row.index, column.id, newValue)
+    const onSelectChange = async (newValue: string) => {
+        let eventId = row.original['eventID;year'].slice(0, row.original['eventID;year'].indexOf(";"))
+        let year = row.original['eventID;year'].slice(row.original['eventID;year'].indexOf(";") + 1)
+
+        const body = prepareUpdatePayload(column.id, newValue, eventId, year);
+
+        try {
+            await updateRegistrationData(row.original.id, row.original.fname, body);
+            await refreshTable();
+            setValue(newValue);
+        } catch (error) {
+            console.error("Failed to update registration:", error);
+        }
     }
 
     const getColor = (value: string) => {
-        switch(value) {
-            case DBRegistrationStatus.REGISTERED:
+        switch (value) {
+            case 'Registered':
                 return '#7F94FF';
             case DBRegistrationStatus.CHECKED_IN:
                 return '#7AD040';
-            case DBRegistrationStatus.INCOMPLETE:
+            case 'Waitlist':
+                return '#E6CA68';
+            case 'Incomplete':
                 return '#E6CA68';
             case DBRegistrationStatus.CANCELLED:
                 return '#E24D83';
@@ -44,12 +67,35 @@ export const TableCell: React.FC<TableCellProps> = ({ getValue, column }) => {
                 return '#ffffff';
         }
     }
+    // this can probably be defined and imported
+    const getLabel = (value: string) => {
+        switch (value) {
+            case 'registered':
+                return 'Registered';
+            case 'checkedIn':
+                return 'Checked-In';
+            case 'incomplete':
+                return 'Incomplete';
+            case 'cancelled':
+                return 'Cancelled';
+            case 'accepted':
+                return 'Accepted';
+            case 'waitlist':
+                return 'Waitlist';
+            case 'reviewing':
+                return 'Reviewing';
+            case 'rejected':
+                return 'Rejected';
+            default:
+                return value;
+        }
+    }
 
     if (column.id === 'registrationStatus' || column.id === 'points') {
         if (columnMeta?.type === "select") {
             return (
                 <Select onValueChange={onSelectChange} defaultValue={initialValue as string}>
-                    <SelectTrigger style={{color: getColor(value as string)}}>
+                    <SelectTrigger style={{ color: getColor(value as string) }}>
                         <SelectValue>{value as string}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>

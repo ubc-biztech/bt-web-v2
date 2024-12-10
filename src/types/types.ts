@@ -16,7 +16,7 @@ export type BiztechEvent = {
     facebookUrl: string;
     deadline: string;
     registrationStatus: any;
-    registrationQuestion: any;
+    registrationQuestions?: RegistrationQuestion[];
     pricing: any;
     partnerRegistrationQuestions: RegistrationQuestion[];
     feedback: string;
@@ -24,6 +24,7 @@ export type BiztechEvent = {
     isApplicationBased: boolean;
     isCompleted: boolean;
     hasDomainSpecificQuestions: boolean;
+    counts?: any;
 };
 
 export type RegistrationQuestion = {

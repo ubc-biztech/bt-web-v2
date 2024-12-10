@@ -15,7 +15,7 @@ export function exportToCSV(data: Attendee[], fileName = 'data') {
     const header = columns.join(',');
     const csvRows = data.map(row => 
         columns.map(col => {
-            const value = row[col];
+            const value = row[col as keyof Attendee];
             return (value !== null && value !== undefined) ? `"${value}"` : '""';
         }).join(',')
     );
@@ -54,7 +54,7 @@ export function exportToPDF(data: Attendee[], fileName = 'data') {
 
 function createAttendeeTemplate(keys: string[]): Attendee {
     return keys.reduce((template, key) => {
-        template[key] = null;
+        template[key as keyof Attendee] = null as never;
         return template;
     }, {} as Attendee);
 }
@@ -66,7 +66,7 @@ export function formatTableForExport(table: Table<any>) {
     const rows: Attendee[] = tableRows.map(row => {
         const attendeeTemplate: Attendee = createAttendeeTemplate(cols);
         row.getVisibleCells().slice(2).forEach(cell => {
-            attendeeTemplate[cell.column.id] = cell.getValue();
+            attendeeTemplate[cell.column.id as keyof Attendee] = cell.getValue() as never;
         });
         return attendeeTemplate;
     })

@@ -3,46 +3,46 @@ import { DataTable } from "@/components/RegistrationTable/data-table";
 import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
-import { fetchRegistrationData } from "@/lib/dbUtils";
-import { Registration } from "@/types/types";
+import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
-
-// Dynamic columns
-const dynamicColumns: ColumnDef<Registration>[] = [
-  {
-    accessorKey: "dynamicField1",
-    header: ({ column }) => (<SortableHeader title="Dynamic Field 1" column={column} />),
-  },
-  {
-    accessorKey: "dynamicField2",
-    header: ({ column }) => (<SortableHeader title="Dynamic Field 2" column={column} />),
-  },
-  // Fetch dynamic columns from events DB - backend to do.
-];
+import { Attendee } from "@/components/RegistrationTable/columns";
 
 type Props = {
-  initialData: Registration[] | null;
+  initialData: Attendee[] | null;
+  eventData: any | null;
 };
 
-export default function AdminEvent({ initialData }: Props) {
+export default function AdminEvent({ initialData, eventData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Registration[] | null>(initialData);
-
+  const [data, setData] = useState<Attendee[] | null>(initialData);
+  const [dynamicColumns, setDynamicColumns] = useState<ColumnDef<Attendee>[]>([]);
+  
   useEffect(() => {
-    if (!initialData && router.isReady) {
+    if (router.isReady) {
       const eventId = router.query.eventId as string;
       const year = router.query.year as string;
 
       if (eventId && year) {
-        fetchRegistrationData(eventId, year).then((d) => {
-          setData(d);
-          setLoading(false);
+        fetchBackend({
+          endpoint: `/events/${eventId}/${year}`,
+          method: "GET",
+          authenticatedCall: false
+        }).then((eventDetails) => {
+          const questionColumns = eventDetails.registrationQuestions?.map((q: any) => ({
+            id: q.label,
+            header: q.label,
+            accessorFn: (row: any) => {
+              return row.dynamicResponses?.[q.questionId] || '';
+            }
+          })) || [];
+
+          setDynamicColumns(questionColumns);
         });
       }
     }
-  }, [router.isReady, router.query.eventId, router.query.year, initialData]);
+  }, [router.isReady, router.query.eventId, router.query.year]);
 
   if (!router.isReady) return null;
 
@@ -58,7 +58,7 @@ export default function AdminEvent({ initialData }: Props) {
           </span>
           <Button 
             onClick={() => router.push(`/admin/event/${router.query.eventId}/${router.query.year}/edit`)}
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-biztech-green"
           >
             Edit Event
           </Button>
@@ -81,6 +81,7 @@ export default function AdminEvent({ initialData }: Props) {
             dynamicColumns={dynamicColumns}
             eventId={router.query.eventId as string}
             year={router.query.year as string}
+            eventData={eventData}
           />
         )}
       </div>
@@ -92,10 +93,34 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { eventId, year } = context.params as { eventId: string; year: string };
 
   try {
-    const data = await fetchRegistrationData(eventId, year);
-    return { props: { initialData: data } };
+    const [registrationData, eventData] = await Promise.all([
+      fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+      }),
+      fetchBackend({
+        endpoint: `/events/${eventId}/${year}`,
+        method: "GET",
+        authenticatedCall: false
+      })
+    ]);
+
+    if (!eventData.registrationQuestions) {
+      eventData.registrationQuestions = [];
+    }
+    if (!eventData.counts) {
+      eventData.counts = {};
+    }
+
+    return { 
+      props: { 
+        initialData: registrationData.data,
+        eventData: eventData
+      } 
+    };
   } catch (error) {
     console.error("Failed to fetch initial data:", error);
-    return { props: { initialData: null } };
+    return { props: { initialData: null, eventData: null } };
   }
 };
