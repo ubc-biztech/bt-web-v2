@@ -250,7 +250,7 @@ export default function AttendeeFormRegister() {
                             ? event.pricing?.members
                             : event.pricing?.nonMembers) * 100,
                     paymentType: "Event",
-                    success_url: `${process.env.REACT_APP_STAGE === "local"
+                    success_url: `${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
                         ? "http://localhost:3000/"
                         : CLIENT_URL
                         }event/${event.id}/${event.year}/register/success`,

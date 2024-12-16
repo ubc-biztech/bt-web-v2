@@ -20,9 +20,9 @@ const QrCard: FC<{
     try {
       const result = await fetch(
         `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${
-          process.env.REACT_APP_STAGE === "local"
+          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
             ? "http://localhost:3000"
-            : `https://${process.env.REACT_APP_STAGE === "production" ? "" : "dev."}app.ubcbiztech.com`
+            : `https://${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production" ? "" : "dev."}app.ubcbiztech.com`
         }/redeem/${qr["eventID;year"].split(";")[0]}/${qr["eventID;year"].split(";")[1]}/${qr.id}`,
         {
           method: "GET",
@@ -52,9 +52,9 @@ const QrCard: FC<{
               <div className='relative size-[70px] lg:size-[120px]'>
                 <Image
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${
-                    process.env.REACT_APP_STAGE === "local"
+                    process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
                       ? "http://localhost:3000"
-                      : `https://${process.env.REACT_APP_STAGE === "production" ? "" : "dev."}app.ubcbiztech.com`
+                      : `https://${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production" ? "" : "dev."}app.ubcbiztech.com`
                   }/redeem/${qr["eventID;year"].split(";")[0]}/${qr["eventID;year"].split(";")[1]}/${qr.id}`}
                   alt='QR'
                   fill
