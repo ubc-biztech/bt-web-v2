@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Handle production redirect to /companion
-  if (process.env.REACT_APP_STAGE === 'production') {
+  if (process.env.NEXT_PUBLIC_REACT_APP_STAGE === 'production') {
     url.pathname = '/companion';
     return NextResponse.rewrite(url);
   }
