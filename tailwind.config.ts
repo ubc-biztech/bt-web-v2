@@ -55,6 +55,7 @@ const config: Config = {
       'pale-blue': '#C4D5FF',
       'baby-blue': '#B2C9FC',
       'light-blue': '#E0E9FE',
+      'light-grey': '#B3B3B3',
       'white-blue': '#F7FAFF',
       'dark-green': '#55922D',
       'light-green': '#AFE38C',
@@ -94,6 +95,7 @@ const config: Config = {
       sans: ['Open Sans', 'sans-serif'],
       poppins: ['Poppins', 'sans-serif'],
       montserrat: ['Montserrat', 'sans-serif'],
+      mono: ['"Red Hat Mono"', 'monospace'], 
     },
     fontWeight: {
       '400': '400',
