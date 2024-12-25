@@ -58,6 +58,7 @@ const Companion = () => {
       setError("");
       setUserRegistration(reg);
       localStorage.setItem("companionEmail", reg.id);
+      localStorage.setItem("externalUserId", reg.externalUserId);
     } else {
       setError("This email does not match an existing entry in our records.");
       setIsLoading(false);
@@ -71,6 +72,7 @@ const Companion = () => {
         method: "GET",
         authenticatedCall: false
       });
+      console.log("Registrations: ", response);
       setRegistrations(response.data);
     } catch (err) {
       setPageError(err as string);
