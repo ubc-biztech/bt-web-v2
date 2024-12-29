@@ -243,7 +243,7 @@ const CompanionLayout = ({
   return (
     <div className={(!email || !userRegistration) ? "p-0" : ""} style={styles.container}>
       {(!email || !userRegistration) ? (
-        <Card className="flex justify-center overflow-hidden">
+        <Card className="flex justify-center overflow-hidden border-none">
           {!transition && (
             <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
@@ -255,10 +255,9 @@ const CompanionLayout = ({
                 <Image 
                   src={options.BiztechLogo} 
                   alt={`${options.title} Logo`}
-                  width={500}
-                  height={200}
+                  width={1000}
+                  height={400}
                   quality={100}
-                  sizes="100vw"
                   className="w-1/2 sm:w-3/5 mb-5"
                   priority
                 />
