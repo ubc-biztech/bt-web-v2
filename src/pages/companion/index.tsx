@@ -117,7 +117,7 @@ const Companion = () => {
       setEmail(savedEmail);
     }
     setIsLoading(false);
-  });
+  }, []);
 
   useEffect(() => {
     setError("");

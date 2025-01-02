@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
 import { Loader2, XCircleIcon } from "lucide-react";
-import { set } from "lodash";
+import Events from "@/constants/companion-events";
 
 interface Registration {
     id: string;
@@ -19,9 +19,6 @@ interface Qr {
 }
 
 const Index = () => {
-    const eventID = "blueprint";
-    const year = "2025";
-
     const router = useRouter();
     const [qrData, setQrData] = useState<Qr | null>(null);
     const [qrPath, setQrPath] = useState<string>();
@@ -31,6 +28,18 @@ const Index = () => {
     const [loading, setLoading] = useState(true);
     const [loadingQr, setQrLoading] = useState(true);
     const [pageError, setPageError] = useState("");
+
+    const events = Events.sort((a, b) => {
+        return a.activeUntil.getTime() - b.activeUntil.getTime();
+    });
+
+    const currentEvent =
+        events.find((event) => {
+            const today = new Date();
+            return event.activeUntil > today;
+        }) || events[0];
+
+    const { eventID, year } = currentEvent || {};
 
     // fetching user data from qr code
     const fetchUserID = async (qrId: string) => {
@@ -107,7 +116,7 @@ const Index = () => {
             setPageError("");
             setUserId(savedId);
         }
-    }, [registrations, localUser, userId, loading, loadingQr, qrData]);
+    }, [registrations, localUser, userId]);
 
     if (loading) {
         return (

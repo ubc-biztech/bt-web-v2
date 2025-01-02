@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
-import { fetchAuthSession } from "@aws-amplify/auth";
 import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
+import Events from "@/constants/companion-events";
 
 interface Qr {
     data: Record<string, any>;
@@ -15,13 +15,22 @@ const Index = () => {
     const router = useRouter();
     const { qrId } = router.query;
 
-    const eventID = "blueprint";
-    const year = "2025";
-
     const [pageError, setPageError] = useState("");
     const [qrData, setQrData] = useState<Qr | null>(null);
     const [loadingQr, setQrLoading] = useState(true);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
+
+    const events = Events.sort((a, b) => {
+        return a.activeUntil.getTime() - b.activeUntil.getTime();
+    });
+
+    const currentEvent =
+        events.find((event) => {
+            const today = new Date();
+            return event.activeUntil > today;
+        }) || events[0];
+
+    const { eventID, year } = currentEvent || {};
 
     // fetching QR data
     const fetchQR = async () => {
@@ -42,8 +51,8 @@ const Index = () => {
 
     const fetchUser = async () => {
         try {
-            const { tokens } = await fetchAuthSession();
-            if (tokens) {
+            const email = localStorage.getItem("companionEmail")
+            if (email) {
                 setUserLoggedIn(true);
             }
         } catch (err: any) {
@@ -52,7 +61,7 @@ const Index = () => {
     };
 
     useEffect(() => {
-        if (typeof qrId === 'string' && qrId.trim() !== '') {
+        if (typeof qrId === "string" && qrId.trim() !== "") {
             fetchQR();
             fetchUser();
         }
@@ -69,7 +78,7 @@ const Index = () => {
     useEffect(() => {
         if (qrData) {
             const { type, id } = qrData;
-    
+
             switch (type) {
                 case "NFC_ATTENDEE":
                     handleRedirect(`/companion/profile/${id}`);
