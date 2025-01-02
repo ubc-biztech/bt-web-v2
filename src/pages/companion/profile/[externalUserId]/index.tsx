@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
-import Blueprint2025 from "@/components/companion/events/Blueprint2025";
+import PageError from "@/components/companion/PageError";
+import { Loader2, XCircleIcon } from "lucide-react";
+import { set } from "lodash";
 
 interface Registration {
     id: string;
@@ -10,20 +12,52 @@ interface Registration {
     [key: string]: any;
 }
 
+interface Qr {
+    data: Record<string, any>;
+    id: string;
+    type: string;
+}
+
 const index = () => {
     const eventID = "blueprint";
     const year = "2025";
 
     const router = useRouter();
-    const { externalUserId } = router.query;
-
+    const [qrData, setQrData] = useState<Qr | null>(null);
+    const [qrPath, setQrPath] = useState<string>();
+    const [localUser, setLocalUser] = useState<string>();
     const [userId, setUserId] = useState("");
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(true);
+    const [loadingQr, setQrLoading] = useState(true);
     const [pageError, setPageError] = useState("");
-    const [error, setError] = useState("");
 
-    // fetching user data
+    // fetching user data from qr code
+    const fetchUserID = async (qrId: string) => {
+        try {
+            console.log(qrId);
+            const response = await fetchBackend({
+                endpoint: `/qr/${qrId}/${eventID}/${year}`,
+                method: "GET",
+                authenticatedCall: false,
+            });
+
+            const res = await response;
+            if (res) {
+                setQrData(res);
+                setUserId(res.data.registrationID);
+            } else if (qrPath) {
+                setPageError("NFC data not found. Try scanning your NFC card again.");
+            }
+            setQrLoading(false);
+        } catch (err) {
+            setPageError(
+                (err as Error)?.message || "An unexpected error occurred"
+            );
+        }
+    };
+
+    // fetching registrations data
     const fetchRegistrations = async () => {
         try {
             const response = await fetchBackend({
@@ -31,47 +65,81 @@ const index = () => {
                 method: "GET",
                 authenticatedCall: false,
             });
-            console.log("Registrations: ", response);
             setRegistrations(response.data);
         } catch (err) {
-            setPageError(err as string);
+            setPageError(
+                (err as Error)?.message || "An unexpected error occurred"
+            );
         }
     };
 
     useEffect(() => {
+        const newQrPath = router.asPath.split("/").pop() || "";
+        setQrPath(newQrPath);
         fetchRegistrations();
-    }, []);
+        if (newQrPath && newQrPath !== "[externalUserId]") {
+            fetchUserID(newQrPath);
+        }
+        setLocalUser(localStorage.getItem("companionEmail") || undefined);
+    }, [router]);
 
     useEffect(() => {
-        const savedId = localStorage.getItem("externalUserId") || "";
+        const savedId = qrData?.data.registrationID || "";
+
         const reg = registrations.find(
-            (entry) =>
-                entry.externalUserId.toLowerCase() === savedId.toLowerCase()
+            (entry) => entry.id.toLowerCase() === localUser?.toLowerCase()
         );
-        if (registrations.length != 0) {
+
+        if (registrations.length != 0 && !loadingQr) {
             setLoading(false);
         }
-        if (!reg) {
-            setError(
+
+        if (!qrData && !loading) { 
+            setPageError("NFC data not found. Try scanning your NFC card again.");
+        } 
+        if (!reg && !loading) {
+            setPageError(
                 "Your UUID does not match an existing entry in our records. Log in to track your connections."
             );
-            console.log(
-                "Your UUID does not match an existing entry in our records. Log in to track your connections."
-            );
-        } else {
+        } 
+
+        if (savedId && reg) {
+            setPageError("");
             setUserId(savedId);
-            console.log("User email: ", userId);
         }
-    }, [registrations]);
+    }, [registrations, localUser, userId]);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="w-screen h-screen flex items-center justify-center">
+                <Loader2 className="animate-spin" size={50} />
+            </div>
+        );
+    }
+    
+    if (pageError) {
+        return (
+            <PageError
+                icon={<XCircleIcon size={64} color="#F87171" />}
+                title="Page Error"
+                subtitle={pageError}
+                message="Try scanning your NFC card again."
+            />
+        );
     }
 
-    if (userId == externalUserId) {
-        return <div>your profile</div>; // redirect to your profile
+    if (userId == localUser) {
+        return (
+            <div className="w-screen h-screen flex flex-row items-center justify-center">
+                your profile
+            </div>
+        ); // TODO : redirect to your profile
     } else {
-        return <div>their profile</div>; // redir to their profile
+        return (
+            <div className="w-screen h-screen flex flex-row items-center justify-center">
+                their profile
+            </div>
+        ); // TODO : redir to their profile
     }
 };
 
