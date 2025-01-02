@@ -11,7 +11,7 @@ interface Qr {
     type: string;
 }
 
-const index = () => {
+const Index = () => {
     const router = useRouter();
     const { qrId } = router.query;
 
@@ -20,6 +20,7 @@ const index = () => {
 
     const [pageError, setPageError] = useState("");
     const [qrData, setQrData] = useState<Qr | null>(null);
+    const [loadingQr, setQrLoading] = useState(true);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
 
     // fetching QR data
@@ -33,6 +34,7 @@ const index = () => {
 
             const data = await response;
             setQrData(data);
+            setQrLoading(false);
         } catch (err) {
             setPageError(err as string);
         }
@@ -50,7 +52,7 @@ const index = () => {
     };
 
     useEffect(() => {
-        if (qrId) {
+        if (typeof qrId === 'string' && qrId.trim() !== '') {
             fetchQR();
             fetchUser();
         }
@@ -67,7 +69,7 @@ const index = () => {
     useEffect(() => {
         if (qrData) {
             const { type, id } = qrData;
-
+    
             switch (type) {
                 case "NFC_ATTENDEE":
                     handleRedirect(`/companion/profile/${id}`);
@@ -85,8 +87,11 @@ const index = () => {
     }, [qrData, userLoggedIn, router]);
 
     if (
-        !qrData ||
-        !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP"].includes(qrData.type)
+        !loadingQr &&
+        (!qrData ||
+            !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP"].includes(
+                qrData.type
+            ))
     ) {
         return (
             <PageError
@@ -106,6 +111,7 @@ const index = () => {
         );
     }
 
+    // loading spinner
     return (
         <div className="w-screen h-screen flex items-center justify-center">
             <Loader2 className="animate-spin" size={50} />
@@ -113,4 +119,4 @@ const index = () => {
     );
 };
 
-export default index;
+export default Index;

@@ -57,16 +57,16 @@ const Companion = () => {
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
-      setError("");
-      setUserRegistration(reg);
-      localStorage.setItem("companionEmail", reg.id);
+        setError("");
+        setUserRegistration(reg);
+        localStorage.setItem("companionEmail", reg.id);
 
-      if (decodedRedirect != "") {
-        router.push(decodedRedirect);
-      }
+        if (decodedRedirect !== "") {
+            router.push(decodedRedirect);
+        }
     } else {
-      setError("This email does not match an existing entry in our records.");
-      setIsLoading(false);
+        setError("This email does not match an existing entry in our records.");
+        setIsLoading(false);
     }
   };
 
@@ -97,14 +97,15 @@ const Companion = () => {
   };
 
   useEffect(() => {
-    const search = window.location.search;
-    
-    if (search.startsWith('?=')) {
-      setDecodedRedirect(decodeURIComponent(search.slice(2)));
-    } else {
-      console.log("Malformed redirect URL");
-    }
-  }, [router]);
+    if (typeof window !== 'undefined') {
+      const search = window.location.search;
+      
+      if (search.startsWith('?=')) {
+        setDecodedRedirect(decodeURIComponent(search.slice(2)));
+      } else {
+        console.log("Malformed redirect URL");
+      }
+  }}, [router]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -116,7 +117,7 @@ const Companion = () => {
       setEmail(savedEmail);
     }
     setIsLoading(false);
-  }, []);
+  });
 
   useEffect(() => {
     setError("");

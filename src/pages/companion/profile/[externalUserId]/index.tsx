@@ -18,7 +18,7 @@ interface Qr {
     type: string;
 }
 
-const index = () => {
+const Index = () => {
     const eventID = "blueprint";
     const year = "2025";
 
@@ -107,7 +107,7 @@ const index = () => {
             setPageError("");
             setUserId(savedId);
         }
-    }, [registrations, localUser, userId]);
+    }, [registrations, localUser, userId, loading, loadingQr, qrData]);
 
     if (loading) {
         return (
@@ -143,4 +143,4 @@ const index = () => {
     }
 };
 
-export default index;
+export default Index;
