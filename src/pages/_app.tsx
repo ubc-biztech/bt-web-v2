@@ -35,7 +35,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="twitter:description" content="UBC BizTech - Bridging the gap between business, technology and you. UBC's largest business technology club." />
 
         {/* Theme and Colors */}
-        <meta name="theme-color" content="#2A5298" />
+        <meta name="theme-color" content={isCompanionPath ? "#000000" : "#2A5298"} />
         
         {/* Favicon */}
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
@@ -48,8 +48,10 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* Canonical URL */}
         <link rel="canonical" href="https://ubcbiztech.com" />
       </Head>
-      <main className={redHatMono.className}>
-        <Component {...pageProps} />
+      <main className={`${redHatMono.className} ${isCompanionPath ? 'dark' : ''}`}>
+        <div className={isCompanionPath ? 'min-h-screen bg-black' : ''}>
+          <Component {...pageProps} />
+        </div>
       </main>
     </>
   );

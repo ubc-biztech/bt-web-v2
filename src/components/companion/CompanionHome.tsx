@@ -73,7 +73,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-black text-white font-satoshi p-8">
+    <div className="relative flex flex-col min-h-screen bg-black text-white font-satoshi md:p-8">
       <style jsx global>{`
         @keyframes nameGradient {
           0% { background-position: 0% 50% }

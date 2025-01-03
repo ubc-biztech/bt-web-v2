@@ -145,7 +145,7 @@ const Companion = () => {
 
   if (!email || !userRegistration) {
     return (
-      <Card className="flex justify-center overflow-hidden border-none bg-[#0A0A0A]">
+      <Card className="flex justify-center overflow-hidden border-none bg-black">
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -167,7 +167,7 @@ const Companion = () => {
               Please enter the email you used to register for {currentEvent.options.title}
             </p>
             <Input
-              className="mb-4 w-64 font-satoshi"
+              className="mb-4 w-64 font-satoshi text-white"
               onChange={(e) => setInput(e.target.value)}
               value={input}
               placeholder="Email"
