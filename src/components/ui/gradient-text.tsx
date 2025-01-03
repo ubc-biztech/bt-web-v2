@@ -13,11 +13,11 @@ export const GradientText: React.FC<GradientTextProps> = ({
   ...props
 }) => {
   const gradientStyle: React.CSSProperties = {
-    background: gradient,
-    backgroundSize: '400% 400%',
+    backgroundImage: gradient,
     WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
+    color: 'transparent',
+    backgroundSize: '400% 400%',
     animation: 'nameGradient 6s ease infinite',
     display: 'inline-block',
     fontWeight: 700
@@ -26,7 +26,7 @@ export const GradientText: React.FC<GradientTextProps> = ({
   return (
     <span 
       style={gradientStyle}
-      className={cn(className)} 
+      className={cn(className)}
       {...props}
     >
       {children}

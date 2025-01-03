@@ -41,7 +41,7 @@ const Events: Event[] = [
       location: "Robson Square, Vancouver",
       colors: {
         primary: "linear-gradient(180deg, white, white)",
-        background: "#00071D",
+        background: "linear-gradient(180deg, #040C12, #030608)",
       },
       getScheduleData: (regData) => [],
       welcomeData: [],

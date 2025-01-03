@@ -58,7 +58,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-black text-white font-satoshi md:p-8">
+    <div className="relative flex flex-col min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white font-satoshi p-2 md:p-8">
       <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
 

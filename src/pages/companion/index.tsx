@@ -145,46 +145,48 @@ const Companion = () => {
 
   if (!email || !userRegistration) {
     return (
-      <Card className="flex justify-center overflow-hidden border-none bg-black">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-          className="fixed z-10"
-        >
-          <div className="flex flex-col items-center justify-center min-h-screen w-full">
-            <Image 
-              src={currentEvent.options.BiztechLogo} 
-              alt={`${currentEvent.options.title} Logo`}
-              width={1000}
-              height={400}
-              quality={100}
-              className="w-1/2 sm:w-3/5 mb-5"
-              priority
-            />
-            <h1 className="text-2xl font-bold mb-2 text-white font-satoshi">Welcome!</h1>
-            <p className="text-center mb-4 text-white p1 font-satoshi">
-              Please enter the email you used to register for {currentEvent.options.title}
-            </p>
-            <Input
-              className="mb-4 w-64 font-satoshi text-white"
-              onChange={(e) => setInput(e.target.value)}
-              value={input}
-              placeholder="Email"
-              type="email"
-            />
-            <Button
-              onClick={() => setEmail(input)}
-              className="mb-4 font-satoshi"
-            >
-              Confirm
-            </Button>
-            {error && (
-              <p className="text-red-500 text-center w-4/5 font-satoshi">{error}</p>
-            )}
-          </div>
-        </motion.div>
-      </Card>
+      <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608]">
+        <Card className="flex justify-center overflow-hidden border-none bg-transparent">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1 }}
+            className="fixed z-10"
+          >
+            <div className="flex flex-col items-center justify-center min-h-screen w-full">
+              <Image 
+                src={currentEvent.options.BiztechLogo} 
+                alt={`${currentEvent.options.title} Logo`}
+                width={1000}
+                height={400}
+                quality={100}
+                className="w-1/2 sm:w-3/5 mb-5"
+                priority
+              />
+              <h1 className="text-2xl font-bold mb-2 text-white font-satoshi">Welcome!</h1>
+              <p className="text-center mb-4 text-white p1 font-satoshi">
+                Please enter the email you used to register for {currentEvent.options.title}
+              </p>
+              <Input
+                className="mb-4 w-64 font-satoshi text-white"
+                onChange={(e) => setInput(e.target.value)}
+                value={input}
+                placeholder="Email"
+                type="email"
+              />
+              <Button
+                onClick={() => setEmail(input)}
+                className="mb-4 font-satoshi"
+              >
+                Confirm
+              </Button>
+              {error && (
+                <p className="text-red-500 text-center w-4/5 font-satoshi">{error}</p>
+              )}
+            </div>
+          </motion.div>
+        </Card>
+      </div>
     );
   }
 

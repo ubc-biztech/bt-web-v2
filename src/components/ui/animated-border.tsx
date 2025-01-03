@@ -1,6 +1,5 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import styles from './styles/animations.module.css';
 
 interface AnimatedBorderProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
@@ -16,8 +15,22 @@ export const AnimatedBorder: React.FC<AnimatedBorderProps> = ({
   ...props
 }) => {
   return (
-    <div className={cn(rounded, styles.animatedBorder, `p-[${padding}]`, className)} {...props}>
-      {children}
+    <div className={cn('relative p-[2px]', rounded, className)} {...props}>
+      {/* Animated gradient border */}
+      <div
+        className="absolute inset-0 rounded-[inherit]"
+        style={{
+          background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.5))',
+          backgroundSize: '200% 100%',
+          animation: 'borderAnimation 6s linear infinite',
+          opacity: 0.8
+        }}
+      />
+      
+      {/* Content */}
+      <div className="relative rounded-[inherit] bg-black" style={{ padding }}>
+        {children}
+      </div>
     </div>
   );
 }; 
