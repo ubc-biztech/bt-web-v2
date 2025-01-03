@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchBackend } from '@/lib/db';
 import CompanionLayout from '@/components/companion/CompanionLayout';
 import Events from '@/constants/companion-events';
+import { useRouter } from "next/router";
 
 interface Registration {
   id: string;
@@ -32,6 +33,7 @@ const styles = {
 };
 
 const Companion = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [pageError, setPageError] = useState("");
   const [error, setError] = useState("");
@@ -40,7 +42,7 @@ const Companion = () => {
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [scheduleData, setScheduleData] = useState<Array<{ date: string; title: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [decodedRedirect, setDecodedRedirect] = useState("");
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
   });
@@ -55,12 +57,16 @@ const Companion = () => {
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
-      setError("");
-      setUserRegistration(reg);
-      localStorage.setItem("companionEmail", reg.id);
+        setError("");
+        setUserRegistration(reg);
+        localStorage.setItem("companionEmail", reg.id);
+
+        if (decodedRedirect !== "") {
+            router.push(decodedRedirect);
+        }
     } else {
-      setError("This email does not match an existing entry in our records.");
-      setIsLoading(false);
+        setError("This email does not match an existing entry in our records.");
+        setIsLoading(false);
     }
   };
 
@@ -86,10 +92,20 @@ const Companion = () => {
       });
       setEvent(response);
     } catch (err) {
-      console.log("Error while fetching event info: ", err);
       setPageError(err as string);
     }
   };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const search = window.location.search;
+      
+      if (search.startsWith('?=')) {
+        setDecodedRedirect(decodeURIComponent(search.slice(2)));
+      } else {
+        console.log("Malformed redirect URL");
+      }
+  }}, [router]);
 
   useEffect(() => {
     setIsLoading(true);
