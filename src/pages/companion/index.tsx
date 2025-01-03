@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
 import { fetchBackend } from '@/lib/db';
-import CompanionLayout from '@/components/companion/CompanionLayout';
-import Events from '@/constants/companion-events';
 import { useRouter } from "next/router";
+import CompanionHome from "@/components/companion/CompanionHome";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Events from '@/constants/companion-events';
+import type { Event } from '@/constants/companion-events';
+import Loading from "@/components/Loading";
 
 interface Registration {
   id: string;
@@ -19,19 +26,6 @@ interface EventData {
   [key: string]: any;
 }
 
-const styles = {
-  error: {
-    backgroundColor: "transparent",
-    background: "white",
-    overflow: "hidden",
-    minHeight: "100vh",
-    display: "flex",
-    padding: "10px",
-    flexDirection: "column",
-    width: "100%",
-  } as const,
-};
-
 const Companion = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -40,33 +34,34 @@ const Companion = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [event, setEvent] = useState<EventData | null>(null);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
-  const [scheduleData, setScheduleData] = useState<Array<{ date: string; title: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [decodedRedirect, setDecodedRedirect] = useState("");
+  const [input, setInput] = useState("");
+
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
   });
 
-  const currentEvent = events.find(event => {
+  const currentEvent: Event | undefined = events.find(event => {
     const today = new Date();
     return event.activeUntil > today;
   }) || events[0];
 
-  const { options, eventID, year, ChildComponent } = currentEvent || {};
+  const { eventID, year } = currentEvent || {};
 
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
-        setError("");
-        setUserRegistration(reg);
-        localStorage.setItem("companionEmail", reg.id);
+      setError("");
+      setUserRegistration(reg);
+      localStorage.setItem("companionEmail", reg.id);
 
-        if (decodedRedirect !== "") {
-            router.push(decodedRedirect);
-        }
+      if (decodedRedirect !== "") {
+        router.push(decodedRedirect);
+      }
     } else {
-        setError("This email does not match an existing entry in our records.");
-        setIsLoading(false);
+      setError("This email does not match an existing entry in our records.");
+      setIsLoading(false);
     }
   };
 
@@ -102,56 +97,104 @@ const Companion = () => {
       
       if (search.startsWith('?=')) {
         setDecodedRedirect(decodeURIComponent(search.slice(2)));
-      } else {
-        console.log("Malformed redirect URL");
       }
-  }}, [router]);
+    }
+  }, [router]);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetchRegistrations();
-    fetchEvent();
+    const initializeData = async () => {
+      setIsLoading(true);
+      const savedEmail = localStorage.getItem("companionEmail");
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      await Promise.all([fetchRegistrations(), fetchEvent()]);
+      setIsLoading(false);
+    };
 
-    const savedEmail = localStorage.getItem("companionEmail");
-    if (savedEmail) {
-      setEmail(savedEmail);
-    }
-    setIsLoading(false);
+    initializeData();
   }, []);
 
   useEffect(() => {
-    setError("");
     if (email && registrations.length > 0) {
       fetchUserData();
     }
   }, [email, registrations]);
 
-  useEffect(() => {
-    if (userRegistration && options?.getScheduleData) {
-      setScheduleData(options.getScheduleData(userRegistration));
-    }
-  }, [userRegistration, options]);
+  if (isLoading) return <Loading />;
 
   if (pageError) {
     return (
-      <div style={styles.error}>
+      <div className="w-screen h-screen flex items-center justify-center">
         <div>A page error occurred, please refresh the page. If the problem persists, contact a BizTech exec for support.</div>
       </div>
     );
   }
 
+  // Mock data for the CompanionHome component
+  const mockBadges = [
+    { name: "KEYNOTER", description: "Attend the keynote speech" },
+    { name: "COMPLETIONIST", description: "Attend all BluePrint events" },
+    { name: "LINKEDIN WARRIOR", description: "Network with 5+ delegates" }
+  ];
+
+  const mockConnections = [
+    { id: "1", name: "Hikaru Un", role: "BUCS, YEAR 4", avatarInitials: "HU", avatarColor: "green-500" },
+    { id: "2", name: "Elon Musk", role: "FOUNDER / CEO, TESLA", avatarInitials: "EM", avatarColor: "red-500" }
+  ];
+
+  if (!email || !userRegistration) {
+    return (
+      <Card className="flex justify-center overflow-hidden border-none bg-[#0A0A0A]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1 }}
+          className="fixed z-10"
+        >
+          <div className="flex flex-col items-center justify-center min-h-screen w-full">
+            <Image 
+              src={currentEvent.options.BiztechLogo} 
+              alt={`${currentEvent.options.title} Logo`}
+              width={1000}
+              height={400}
+              quality={100}
+              className="w-1/2 sm:w-3/5 mb-5"
+              priority
+            />
+            <h1 className="text-2xl font-bold mb-2 text-white font-satoshi">Welcome!</h1>
+            <p className="text-center mb-4 text-white p1 font-satoshi">
+              Please enter the email you used to register for {currentEvent.options.title}
+            </p>
+            <Input
+              className="mb-4 w-64 font-satoshi"
+              onChange={(e) => setInput(e.target.value)}
+              value={input}
+              placeholder="Email"
+              type="email"
+            />
+            <Button
+              onClick={() => setEmail(input)}
+              className="mb-4 font-satoshi"
+            >
+              Confirm
+            </Button>
+            {error && (
+              <p className="text-red-500 text-center w-4/5 font-satoshi">{error}</p>
+            )}
+          </div>
+        </motion.div>
+      </Card>
+    );
+  }
+
   return (
-    <CompanionLayout 
-      options={options}
-      email={email}
-      setEmail={setEmail}
-      registrations={registrations}
-      userRegistration={userRegistration}
-      event={event}
-      isLoading={isLoading}
-      error={error}
-      scheduleData={scheduleData}
-      ChildComponent={ChildComponent}
+    <CompanionHome
+      userName={userRegistration.fname}
+      connectionCount={20}
+      badgeCount={3}
+      badges={mockBadges}
+      recentConnections={mockConnections}
     />
   );
 };

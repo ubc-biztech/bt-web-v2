@@ -2,7 +2,7 @@ import { ComponentType } from "react";
 import Blueprint2025 from "@/components/companion/events/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 
-interface Event {
+export interface Event {
   activeUntil: Date;
   eventID: string;
   year: number;
