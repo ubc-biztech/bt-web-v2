@@ -2,7 +2,7 @@ import { ComponentType } from "react";
 import Blueprint2025 from "@/components/companion/events/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 
-interface Event {
+export interface Event {
   activeUntil: Date;
   eventID: string;
   year: number;
@@ -41,7 +41,7 @@ const Events: Event[] = [
       location: "Robson Square, Vancouver",
       colors: {
         primary: "linear-gradient(180deg, white, white)",
-        background: "#00071D",
+        background: "linear-gradient(180deg, #040C12, #030608)",
       },
       getScheduleData: (regData) => [],
       welcomeData: [],
