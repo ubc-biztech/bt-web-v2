@@ -4,7 +4,6 @@ import { Users2, Trophy } from 'lucide-react';
 import { GradientText } from '@/components/ui/gradient-text';
 import { TopNav } from './navigation/top-nav';
 import { SideNav } from './navigation/side-nav';
-import { BottomNav } from './navigation/bottom-nav';
 import { BadgesList } from './badges/badges-list';
 import { ConnectionsList } from './connections/connections-list';
 
@@ -101,8 +100,6 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
           />
         </motion.div>
       </motion.div>
-
-      <BottomNav />
     </div>
   );
 };
