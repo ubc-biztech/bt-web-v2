@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users2, Trophy } from 'lucide-react';
 import { GradientText } from '@/components/ui/gradient-text';
@@ -32,6 +32,10 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   recentConnections,
 }) => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
