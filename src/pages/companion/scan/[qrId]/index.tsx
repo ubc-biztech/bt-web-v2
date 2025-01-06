@@ -4,6 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 interface Qr {
     data: Record<string, any>;
@@ -51,7 +52,7 @@ const Index = () => {
 
     const fetchUser = async () => {
         try {
-            const email = localStorage.getItem("companionEmail")
+            const email = localStorage.getItem(COMPANION_EMAIL_KEY)
             if (email) {
                 setUserLoggedIn(true);
             }

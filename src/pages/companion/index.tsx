@@ -10,6 +10,7 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 interface Registration {
   id: string;
@@ -54,7 +55,7 @@ const Companion = () => {
     if (reg) {
       setError("");
       setUserRegistration(reg);
-      localStorage.setItem("companionEmail", reg.id);
+      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
@@ -104,7 +105,7 @@ const Companion = () => {
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
-      const savedEmail = localStorage.getItem("companionEmail");
+      const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (savedEmail) {
         setEmail(savedEmail);
       }
