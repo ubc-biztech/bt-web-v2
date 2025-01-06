@@ -1,6 +1,8 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { X } from 'lucide-react';
+import { motion, useAnimation, PanInfo } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import NavbarLogo from '@/assets/2025/blueprint/navbar_logo.png';
 
@@ -18,6 +20,31 @@ const navLinks = [
 ];
 
 export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
+  const controls = useAnimation();
+  
+  React.useEffect(() => {
+    controls.start({
+      x: isOpen ? 0 : "100%",
+      transition: { duration: 0.3, ease: "easeInOut" }
+    });
+  }, [isOpen, controls]);
+
+  const handleDragEnd = async (_: any, info: PanInfo): Promise<void> => {
+    const threshold = 100; // pixels to determine swipe
+    if (info.offset.x > threshold) {
+      await controls.start({ 
+        x: "100%",
+        transition: { duration: 0.3, ease: "easeInOut" }
+      });
+      onClose();
+    } else {
+      await controls.start({ 
+        x: 0,
+        transition: { duration: 0.3, ease: "easeInOut" }
+      });
+    }
+  };
+
   return (
     <>
       <div 
@@ -27,12 +54,27 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
         )}
         onClick={onClose}
       />
-      <div 
+      <motion.div 
         className={cn(
-          "fixed top-0 right-0 w-80 h-full bg-black/60 backdrop-blur-xl border-l border-white/10 z-50 transform transition-transform duration-300 ease-in-out",
-          isOpen ? "translate-x-0" : "translate-x-full"
+          "fixed top-0 right-0 w-80 h-full bg-black/60 backdrop-blur-xl border-l border-white/10 z-50 touch-pan-y",
+          !isOpen && "pointer-events-none"
         )}
+        initial={{ x: "100%" }}
+        animate={controls}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+        dragDirectionLock
       >
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors"
+          aria-label="Close navigation"
+        >
+          <X className="w-6 h-6 text-white" strokeWidth={1.5} />
+        </button>
+
         <div className="flex flex-col justify-center h-full p-8">
           <div className="flex justify-end mb-8">
             <div className="relative w-40 h-8">
@@ -62,7 +104,7 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
             ))}
           </nav>
         </div>
-      </div>
+      </motion.div>
     </>
   );
 }; 
