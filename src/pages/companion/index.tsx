@@ -10,6 +10,7 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 interface Registration {
   id: string;
@@ -49,12 +50,90 @@ const Companion = () => {
 
   const { eventID, year } = currentEvent || {};
 
+  // Animation variants
+  const fadeInUpVariant = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: 0.8,
+      ease: [0.6, -0.05, 0.01, 0.99]
+    }
+  };
+
+  const backgroundOrbVariants = {
+    blue: {
+      animate: {
+        scale: [1, 1.2, 1],
+        opacity: [0.3, 0.5, 0.3],
+        y: [0, -20, 0]
+      },
+      transition: {
+        duration: 8,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    },
+    purple: {
+      animate: {
+        scale: [1.2, 1, 1.2],
+        opacity: [0.4, 0.6, 0.4],
+        y: [0, 20, 0]
+      },
+      transition: {
+        duration: 10,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const shineAnimation = {
+    animate: {
+      x: ['-100%', '100%']
+    },
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "linear",
+      repeatDelay: 0.5
+    }
+  };
+
+  const logoGlowAnimation = {
+    animate: {
+      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+    },
+    transition: {
+      duration: 15,
+      repeat: Infinity,
+      ease: "linear"
+    }
+  };
+
+  // Styles
+  const styles = {
+    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
+    card: "flex justify-center items-center min-h-screen overflow-hidden border-none bg-transparent relative z-10",
+    blueOrb: "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
+    purpleOrb: "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
+    contentWrapper: "w-full max-w-2xl px-4",
+    logoWrapper: "w-full flex justify-center relative",
+    logoGlow: "absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-lg blur-xl",
+    logo: "w-1/2 sm:w-3/5 mb-5 relative",
+    title: "text-2xl font-bold mb-2 text-white font-satoshi",
+    description: "text-center mb-4 text-white p1 font-satoshi",
+    input: "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
+    button: "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
+    buttonShine: "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent",
+    error: "text-red-500 text-center w-4/5 font-satoshi"
+  };
+
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
       setError("");
       setUserRegistration(reg);
-      localStorage.setItem("companionEmail", reg.id);
+      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
@@ -104,7 +183,7 @@ const Companion = () => {
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
-      const savedEmail = localStorage.getItem("companionEmail");
+      const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (savedEmail) {
         setEmail(savedEmail);
       }
@@ -145,43 +224,91 @@ const Companion = () => {
 
   if (!email || !userRegistration) {
     return (
-      <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608]">
-        <Card className="flex justify-center overflow-hidden border-none bg-transparent">
+      <div className={styles.container}>
+        <motion.div
+          className={styles.blueOrb}
+          {...backgroundOrbVariants.blue}
+        />
+        <motion.div
+          className={styles.purpleOrb}
+          {...backgroundOrbVariants.purple}
+        />
+        <Card className={styles.card}>
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1 }}
-            className="fixed z-10"
+            {...fadeInUpVariant}
+            className={styles.contentWrapper}
           >
-            <div className="flex flex-col items-center justify-center min-h-screen w-full">
-              <Image 
-                src={currentEvent.options.BiztechLogo} 
-                alt={`${currentEvent.options.title} Logo`}
-                width={1000}
-                height={400}
-                quality={100}
-                className="w-1/2 sm:w-3/5 mb-5"
-                priority
-              />
-              <h1 className="text-2xl font-bold mb-2 text-white font-satoshi">Welcome!</h1>
-              <p className="text-center mb-4 text-white p1 font-satoshi">
-                Please enter the email you used to register for {currentEvent.options.title}
-              </p>
-              <Input
-                className="mb-4 w-64 font-satoshi text-white"
-                onChange={(e) => setInput(e.target.value)}
-                value={input}
-                placeholder="Email"
-                type="email"
-              />
-              <Button
-                onClick={() => setEmail(input)}
-                className="mb-4 font-satoshi"
+            <div className="flex flex-col items-center justify-center">
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.2}}
+                className={styles.logoWrapper}
               >
-                Confirm
-              </Button>
+                <motion.div
+                  className={styles.logoGlow}
+                  {...logoGlowAnimation}
+                />
+                <Image 
+                  src={currentEvent.options.BiztechLogo} 
+                  alt={`${currentEvent.options.title} Logo`}
+                  width={1000}
+                  height={400}
+                  quality={100}
+                  className={styles.logo}
+                  priority
+                />
+              </motion.div>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.4}}
+              >
+                <h1 className={styles.title}>Welcome!</h1>
+              </motion.div>
+              <motion.p
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.6}}
+                className={styles.description}
+              >
+                Please enter the email you used to register for {currentEvent.options.title}
+              </motion.p>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.8}}
+              >
+                <Input
+                  className={styles.input}
+                  onChange={(e) => setInput(e.target.value)}
+                  value={input}
+                  placeholder="Email"
+                  type="email"
+                />
+              </motion.div>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 1}}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  onClick={() => setEmail(input)}
+                  className={styles.button}
+                >
+                  <motion.span
+                    className={styles.buttonShine}
+                    {...shineAnimation}
+                  />
+                  <span className="relative z-10">Confirm</span>
+                </Button>
+              </motion.div>
               {error && (
-                <p className="text-red-500 text-center w-4/5 font-satoshi">{error}</p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={styles.error}
+                >
+                  {error}
+                </motion.p>
               )}
             </div>
           </motion.div>
@@ -192,7 +319,7 @@ const Companion = () => {
 
   return (
     <CompanionHome
-      userName={userRegistration.fname}
+      userName={userRegistration?.fname ?? ""}
       connectionCount={20}
       badgeCount={3}
       badges={mockBadges}
