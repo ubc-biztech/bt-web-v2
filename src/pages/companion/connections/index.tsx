@@ -3,10 +3,12 @@ import { CompanionConnectionRow } from "@/components/companion/connections/conne
 import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
+import { Connection } from "@/components/companion/connections/connections-list";
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
   const [connections, setConnections] = useState([]);
+  const filterOptions = ["All", "Attendees", "Delegates"];
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -33,15 +35,24 @@ const Connections = () => {
           {/* TO DO: search bar */}
           {/* <div className="bg-white rounded-full h-10 w-full"></div> */}
           <Filter
-            options={["All", "Attendees", "Delegates"]}
+            options={filterOptions}
             setOption={setFilter}
             option={filter}
           />
         </div>
         {connections &&
-          connections.map((connection, index) => (
-            <CompanionConnectionRow key={index} connection={connection} />
-          ))}
+          connections
+            .filter((connection: Connection) => {
+              if (filterOptions[filter] === "Attendees") {
+                return connection?.year && connection?.major; // Only show if both year and major are present
+              } else if (filterOptions[filter] === "Delegates") {
+                return !connection?.year && !connection?.major; // Only show if neither year nor major are present
+              }
+              return true; // For "All", show all connections
+            })
+            .map((connection, index) => (
+              <CompanionConnectionRow key={index} connection={connection} />
+            ))}
       </div>
     </NavBarContainer>
   );
