@@ -10,6 +10,7 @@ const config: Config = {
       padding: '2rem',
       screens: {
         '2xl': '1400px',
+        'xs': '376x',
       },
     },
     colors: {
@@ -95,12 +96,19 @@ const config: Config = {
       sans: ['Open Sans', 'sans-serif'],
       poppins: ['Poppins', 'sans-serif'],
       montserrat: ['Montserrat', 'sans-serif'],
-      mono: ['"Red Hat Mono"', 'monospace'], 
+      satoshi: ['Satoshi', 'sans-serif'],
+      redhat: ['Red Hat Mono', 'monospace'],
     },
     fontWeight: {
+      '100': '100',
+      '200': '200',
+      '300': '300',
       '400': '400',
       '500': '500',
       '600': '600',
+      '700': '700',
+      '800': '800',
+      bold: '700',
     },
     fontSize: {
       xs: '14px',
@@ -134,6 +142,7 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'gradient': 'nameGradient 6s ease infinite',
       },
     },
   },

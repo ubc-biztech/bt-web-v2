@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { AnimatedBorder } from '../../ui/animated-border';
 
 interface UserProfile {
     additionalLinks: string[];
@@ -10,7 +11,8 @@ interface AdditionalLinksProps {
 
 const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
     return (
-        <div className="border border-white rounded-lg p-3 sm:p-4">
+        <AnimatedBorder className="w-full mb-3 sm:mb-4">
+        <div className="rounded-lg p-3 sm:p-4">
             <span className="text-xs sm:text-sm text-light-grey font-mono mb-1 sm:mb-2">ADDITIONAL LINKS</span>
             {userData.additionalLinks.map((link: string, index: number) => (
                 <div key={index} className="flex justify-between items-center">
@@ -24,6 +26,7 @@ const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
                 </div>
             ))}
         </div>
+        </ AnimatedBorder>
     );
 };
 
