@@ -232,9 +232,9 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                             companies.map((company) => (
                                 <CompanionItemRow
                                     href={`/companion/company/${company.profile_url}`}
+                                    key={company.id}
                                 >
                                     <CompanyCard
-                                        key={company.id}
                                         company={company}
                                     />
                                 </CompanionItemRow>
