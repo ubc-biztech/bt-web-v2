@@ -105,8 +105,10 @@ const UserProfilePage = () => {
     if (!userData) return <div>Error loading profile</div>;
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto mb-[50px] md:p-8">
-            <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
+        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto mb-[100px] md:p-8">
+            <div className="sticky top-0 left-0 right-0 z-50 px-2 md:px-8 pt-2 md:pt-8 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
+                <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
+            </div>
             <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
             <motion.div
                 className="flex-1"
@@ -191,5 +193,5 @@ const data2: UserProfile = {
 };
 
 async function getUserProfile(user: string) {
-    return data2;
+    return data1;
 }
