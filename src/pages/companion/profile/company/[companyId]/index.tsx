@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import Profile from '../../../../components/profile';
-import AdditionalLinks from '../../../../components/additionalLinks';
+import Profile from '../../../../../components/companion/blueprintProfiles/profile';
+import AdditionalLinks from '../../../../../components/companion/blueprintProfiles/additionalLinks';
 import { AnimatedBorder } from '../../../../../components/ui/animated-border';
 import { useRouter } from 'next/router';
 import { TopNav } from '../../../../../components/companion/navigation/top-nav';
@@ -23,14 +23,18 @@ export default function CompanyPage() {
   const [userData, setUserData] = useState<CompanyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+  const [companyId, setCompanyId] = useState<string | undefined>(undefined);
+
 
   const router = useRouter();
-  const name: string = router.query.companyId ? router.query.companyId as string : 'ubcbiztech'; // this might need to be companyid?
 
   useEffect(() => {
+    if (!router.isReady) return;
+    setCompanyId(router.query.companyId as string);
+
     const fetchUserData = async () => {
       try {
-        setUserData(await getCompanyProfile(name));
+        setUserData(await getCompanyProfile(companyId? companyId :'ubcbiztech'));
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
@@ -39,7 +43,7 @@ export default function CompanyPage() {
     };
 
     fetchUserData();
-  }, [name]);
+  }, [companyId, router]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -64,7 +68,10 @@ export default function CompanyPage() {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (!router.isReady || !companyId || isLoading) {
+    return <div>Loading...</div>;
+  }
+
   if (!userData) return <div>Error loading profile</div>;
 
   return (
@@ -96,6 +103,7 @@ export default function CompanyPage() {
           <AdditionalLinks userData={userData} />
         </motion.div>
       </motion.div>
+      <BottomNav />
     </div>
   );
 }

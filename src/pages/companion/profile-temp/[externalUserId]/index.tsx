@@ -57,9 +57,11 @@ const UserProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSideNavOpen, setIsSideNavOpen] = useState(false);
     const router = useRouter();
-    const user: string = router.query.user ? router.query.user as string : 'ubcbiztech';
+    const [user, setUser] = useState<string>('ubcbiztech');  // Default user fallback
 
     useEffect(() => {
+        if (!router.isReady) return;
+        setUser(router.query.user as string | undefined ?? 'ubcbiztech');
         const fetchUserData = async () => {
             try {
                 // const response = await fetch('/api/user-profile');
@@ -74,7 +76,7 @@ const UserProfilePage = () => {
         };
 
         fetchUserData();
-    }, [user, userData]);
+    }, [user, userData, router]);
 
     let isDelegate = userData?.role == "Delegate"
 
@@ -101,7 +103,7 @@ const UserProfilePage = () => {
         }
     };
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading || !router.isReady || !user) return <div>Loading...</div>;
     if (!userData) return <div>Error loading profile</div>;
 
     return (

@@ -1,5 +1,3 @@
-import { Router } from 'express';
-import { useRouter } from 'next/router';
 import { CompanionButton } from '../../ui/companion-button';
 import { AnimatedBorder } from '../../ui/animated-border';
 
@@ -26,7 +24,6 @@ interface CompanyInfoProps {
 
 
 const CompanyInfo: FC<CompanyInfoProps> = ({ userData }) => {
-    const router = useRouter();
     const placeholderLogo = "https://static.vecteezy.com/system/resources/previews/020/336/735/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg";
     const visitPageLink = `/companion/profile/company/${userData.company}`
     return (

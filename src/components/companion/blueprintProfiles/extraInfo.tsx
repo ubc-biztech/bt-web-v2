@@ -17,6 +17,12 @@ interface ExtraInfoProps {
 }
 
 const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
+    const handleVisitPage = () => {
+        if (typeof window !== 'undefined') {
+            window.location.href = "https://www." + userData.linkedIn;
+        }
+    };
+
     return (
         <>
             {/* LinkedIn Section */}
@@ -33,7 +39,8 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         </div>
                     </div>
                     <div className='px-4 py-2'>
-                    <CompanionButton onClick={() => { window.location.href = "https://www." + userData.linkedIn }}>
+                        {/* may need to refactor linkedin urls */}
+                    <CompanionButton onClick={handleVisitPage}>
                         {/* TODO: make hidden on xs screens */}
                         <span className="text-[12px] translate-y-[1px]">VISIT PAGE</span> 
                         <span className="text-lg translate-y-[-3px]">↗</span>
