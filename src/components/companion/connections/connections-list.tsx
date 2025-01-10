@@ -3,6 +3,8 @@ import { SectionCard } from '@/components/ui/section-card';
 import { CompanionConnectionRow } from './connection-row';
 
 export interface Connection {
+  userID: string;
+  connID: string;
   obfuscatedID: string;
   createdAt: Date;
   fname: string;

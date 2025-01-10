@@ -36,9 +36,9 @@ const Connections = () => {
           {/* TO DO: search bar */}
           {/* <div className="bg-white rounded-full h-10 w-full"></div> */}
           <Filter
-            options={filterOptions}
-            setOption={setFilter}
-            option={filter}
+            filterOptions={filterOptions}
+            setSelectedFilterOption={setFilter}
+            selectedFilterOption={filter}
           />
         </div>
         {connections &&

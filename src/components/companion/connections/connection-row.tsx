@@ -8,9 +8,9 @@ export const CompanionConnectionRow: React.FC<{
   connection: Connection;
 }> = ({ connection }) => {
   const role =
-    connection?.major && connection?.year
+    connection?.major && connection?.year // check if connection is attendee (has major and year)
       ? `${connection?.major}, ${connection?.year}`
-      : connection?.title && connection?.company
+      : connection?.title && connection?.company // else check if connection is delegate
       ? `${connection?.title}, ${connection?.company}`
       : "";
   const avatarInitials =

@@ -233,11 +233,6 @@ const Companion = () => {
     { name: "LINKEDIN WARRIOR", description: "Network with 5+ delegates" }
   ];
 
-  const mockConnections = [
-    { id: "1", name: "Hikaru Un", role: "BUCS, YEAR 4", avatarInitials: "HU", avatarColor: "green-500" },
-    { id: "2", name: "Elon Musk", role: "FOUNDER / CEO, TESLA", avatarInitials: "EM", avatarColor: "red-500" }
-  ];
-
   if (!email || !userRegistration) {
     return (
       <div className={styles.container}>
