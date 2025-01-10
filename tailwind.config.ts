@@ -10,7 +10,6 @@ const config: Config = {
       padding: '2rem',
       screens: {
         '2xl': '1400px',
-        'xs': '376x',
       },
     },
     colors: {
@@ -120,6 +119,10 @@ const config: Config = {
       '3xl': '48px',
     },
     extend: {
+      screens: {
+        'xs': '370px',
+        'mxs': '410px' // medium xs (could prob rename)
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',

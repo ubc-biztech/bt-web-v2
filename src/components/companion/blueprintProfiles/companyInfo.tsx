@@ -28,11 +28,11 @@ const CompanyInfo: FC<CompanyInfoProps> = ({ userData }) => {
     const visitPageLink = `/companion/profile/company/${userData.company}`
     return (
         <AnimatedBorder className="w-full mb-3">
-        <div className="border rounded-lg py-6">
+        <div className="rounded-lg py-6">
             <div className="flex flex-col items-center justify-center">
                 {/* Logo and Info Section */}
                 {/* TODO: make flex-col on xs screens */}
-                <div className="flex flex-row items-center gap-4">
+                <div className="flex flex-col xs:flex-row items-center gap-4">
                     <div className="">
                         <img
                             src={placeholderLogo}
@@ -63,7 +63,7 @@ const CompanyInfo: FC<CompanyInfoProps> = ({ userData }) => {
                                     {userData.role}
                                 </span>
                             </div>
-                            <div className="flex flex-col items-end ml-4 sm:ml-6 md:ml-8">
+                            <div className="flex flex-col items-end ml-4 sm:ml-6 md:ml-8 mr-3">
                                 <span className="text-xs text-light-grey font-mono">FAVOURITE HOBBY</span>
                                 <span className="text-sm font-satoshi">
                                     {userData.hobby}

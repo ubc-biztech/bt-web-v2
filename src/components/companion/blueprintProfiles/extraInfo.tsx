@@ -32,8 +32,8 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         <img src="/assets/icons/linkedin_bp_user.svg" alt="linkedin-logo" className="w-8 h-8 sm:w-10 sm:h-10" />
                         <div className="flex flex-col">
                             <span className="text-xs sm:text-sm text-light-grey font-redhat">LINKEDIN</span>
-                            {/* TODO: truncate link on smaller screens */}
-                            <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px]">
+                            {/* TODO: truncate link on smaller screens - 410*/}
+                            <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px] mxs:max-w-none">
                                 {userData.linkedIn}
                             </span>
                         </div>
@@ -42,7 +42,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         {/* may need to refactor linkedin urls */}
                     <CompanionButton onClick={handleVisitPage}>
                         {/* TODO: make hidden on xs screens */}
-                        <span className="text-[12px] translate-y-[1px]">VISIT PAGE</span> 
+                        <span className="text-[12px] translate-y-[1px] hidden xs:inline">VISIT PAGE</span> 
                         <span className="text-lg translate-y-[-3px]">↗</span>
                     </CompanionButton>
                     </div>
