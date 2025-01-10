@@ -34,7 +34,7 @@ const NavBarContainer: React.FC<{ children: ReactNode }> = ({ children }) => {
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-col px-6 gap-y-3 mt-4 mb-8">{children}</div>
+        <div className="flex flex-col px-2 gap-y-3 mt-4 mb-8">{children}</div>
       </motion.div>
     </div>
   );

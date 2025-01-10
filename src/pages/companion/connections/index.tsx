@@ -14,13 +14,14 @@ const Connections = () => {
     const fetchConnections = async () => {
       try {
         const data = await fetchBackend({
+          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
           endpoint: `/interactions/TestDudeOne`,
           method: "GET",
           authenticatedCall: false,
         });
         setConnections(data.data);
       } catch (error) {
-        console.error("Error fetching leaderboard:", error);
+        console.error("Error fetching connections:", error);
       }
     };
 
