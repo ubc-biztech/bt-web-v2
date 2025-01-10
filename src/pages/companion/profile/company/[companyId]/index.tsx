@@ -19,20 +19,13 @@ interface CompanyProfile {
   additionalLinks: string[];
 }
 
-/*
- THIS IS THE COMPANY PAGE
- 
- CURRENTLY IN TESTING MODE BUT SEE 'studentProfile.tsx' for plan on rendering
-
-*/
-
 export default function CompanyPage() {
   const [userData, setUserData] = useState<CompanyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
 
   const router = useRouter();
-  const name: string = router.query.name ? router.query.name as string : 'ubcbiztech'; // this might need to be companyid?
+  const name: string = router.query.companyId ? router.query.companyId as string : 'ubcbiztech'; // this might need to be companyid?
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -76,7 +69,9 @@ export default function CompanyPage() {
 
   return (
     <div className="min-h-screen bg-black text-white p-6 sm:p-4 max-w-4xl mx-auto">
+      <div className="sticky top-0 left-0 right-0 z-50 px-2 pt-2 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
       <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
+        </div>
       <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
       <motion.div
         className="flex-1"
@@ -90,9 +85,9 @@ export default function CompanyPage() {
         <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
           <motion.div variants={itemVariants}>
             <AnimatedBorder className="w-full mb-3 sm:mb-4">
-              <div className="rounded-lg p-3 sm:p-4">
+              <div className="rounded-lg p-3 sm:p-4 font-redhat">
                 <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">ABOUT</p>
-                {userData.about}
+                <p className='font-satoshi'>{userData.about}</p>
               </div>
             </AnimatedBorder>
           </motion.div>

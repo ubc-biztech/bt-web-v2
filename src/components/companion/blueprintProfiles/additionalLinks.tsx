@@ -18,7 +18,7 @@ const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
                 <div key={index} className="flex justify-between items-center">
                     <a
                         href={link}
-                        className="text-xs sm:text-sm font-sans underline break-all hover:text-purple-400 transition-colors max-w-[200px] sm:max-w-none truncate flex"
+                        className="text-xs sm:text-sm font-satoshi underline break-all hover:text-purple-400 transition-colors max-w-[200px] sm:max-w-none truncate flex"
                     >
                         <img src="/assets/icons/chain_link.svg" alt="chain-link" className="mx-1 w-4 h-6 sm:w-4 sm:h-6" />
                         {link}

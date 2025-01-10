@@ -27,7 +27,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         <div className="flex flex-col">
                             <span className="text-xs sm:text-sm text-light-grey font-redhat">LINKEDIN</span>
                             {/* TODO: truncate link on smaller screens */}
-                            <span className="text-xs sm:text-sm font-sans truncate max-w-[135px]">
+                            <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px]">
                                 {userData.linkedIn}
                             </span>
                         </div>
@@ -52,7 +52,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         </span>
                         <ul className="list-inside">
                             {userData.funFacts.map((fact, index) => (
-                                <li key={index} className="text-xs sm:text-sm font-sans mb-1 sm:mb-2">
+                                <li key={index} className="text-xs sm:text-sm font-satoshi mb-1 sm:mb-2">
                                     {fact}
                                 </li>
                             ))}
@@ -66,7 +66,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">INTERESTS</span>
                         <ul className="list-inside">
                             {userData.interests.map((interest, index) => (
-                                <li key={index} className="text-xs sm:text-sm font-sans mb-1 sm:mb-2">
+                                <li key={index} className="text-xs sm:text-sm font-satoshi mb-1 sm:mb-2">
                                     {interest}
                                 </li>
                             ))}

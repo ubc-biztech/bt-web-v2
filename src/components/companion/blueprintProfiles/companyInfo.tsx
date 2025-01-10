@@ -47,7 +47,7 @@ const CompanyInfo: FC<CompanyInfoProps> = ({ userData }) => {
                         <div className="flex justify-between items-center">
                             <div className="flex flex-col">
                                 <span className="text-xs text-light-grey font-redhat">COMPANY</span>
-                                <span className="text-sm font-sans">
+                                <span className="text-sm font-satoshi">
                                     {userData.company}
                                 </span>
                             </div>
@@ -62,13 +62,13 @@ const CompanyInfo: FC<CompanyInfoProps> = ({ userData }) => {
                         <div className="flex justify-between gap-8 items-center">
                             <div className="flex flex-col">
                                 <span className="text-xs text-light-grey font-mono">ROLE</span>
-                                <span className="text-sm font-sans">
+                                <span className="text-sm font-satoshi">
                                     {userData.role}
                                 </span>
                             </div>
                             <div className="flex flex-col items-end ml-4 sm:ml-6 md:ml-8">
                                 <span className="text-xs text-light-grey font-mono">FAVOURITE HOBBY</span>
-                                <span className="text-sm font-sans">
+                                <span className="text-sm font-satoshi">
                                     {userData.hobby}
                                 </span>
                             </div>

@@ -33,7 +33,7 @@ const AttendeeInfo: FC<AttendeeInfoProps> = ({ userData }) => {
                             <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
                                 MAJOR
                             </p>
-                            <p className="text-xs sm:text-sm font-sans">{userData.major}</p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.major}</p>
                         </div>
                     )}
 
@@ -43,7 +43,7 @@ const AttendeeInfo: FC<AttendeeInfoProps> = ({ userData }) => {
                             <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
                                 YEAR
                             </p>
-                            <p className="text-xs sm:text-sm font-sans">{userData.year}</p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.year}</p>
                         </div>
                     )}
 
@@ -53,7 +53,7 @@ const AttendeeInfo: FC<AttendeeInfoProps> = ({ userData }) => {
                             <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
                                 FAVOURITE HOBBY
                             </p>
-                            <p className="text-xs sm:text-sm font-sans">{userData.hobby}</p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.hobby}</p>
                         </div>
                     )}
                 </div>
