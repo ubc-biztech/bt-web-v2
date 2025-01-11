@@ -154,8 +154,11 @@ const CompanyCard = ({ company }: { company: Company }) => {
                         {company.description}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {company.tags.map((tag) => (
-                            <div className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]">
+                        {company.tags.map((tag, index) => (
+                            <div
+                                key={`${tag}-${index}`}
+                                className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
+                            >
                                 {tag}
                             </div>
                         ))}
