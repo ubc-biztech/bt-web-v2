@@ -137,6 +137,7 @@ const data2: UserProfile = {
     hobby: "Basketball",
     linkedIn: "linkedin.com/in/daniellee",
     profilePicUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTe8Qr5TK-ehPu0lZsZxhmTM1eGAdMVgApwSzYSKFOeQPGbukpuICsAwLQMKQJeuDpgpLU&usqp=CAU",
+    companyLogoUrl: "https://static.vecteezy.com/system/resources/previews/020/336/735/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg",
     funFacts: [
         "Has visited 23 countries around the world even though I've never flown first class.",
         "Can speak 3 languages",

@@ -6,17 +6,16 @@ import { UserProfile } from '@/types';
 
 
 const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
-    const placeholderLogo = "https://static.vecteezy.com/system/resources/previews/020/336/735/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg";
     const visitPageLink = `/companion/profile/company/${userData.company}`
     return (
         <AnimatedBorder className="w-full mb-3">
-            <div className="rounded-lg py-6">
+            <div className="rounded-lg py-6 pl-2">
                 <div className="flex flex-col items-center justify-center">
                     {/* Logo and Info Section */}
                     <div className="flex flex-col xs:flex-row items-center gap-4">
                         <div className="">
                             <img
-                                src={placeholderLogo}
+                                src={userData.companyLogoUrl}
                                 alt={`${userData.company}-logo`}
                                 className="w-24 h-24 sm:w-48 sm:h-48 rounded-full object-cover"
                             />
