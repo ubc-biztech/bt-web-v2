@@ -272,12 +272,8 @@ const CompanionLayout = ({
                   placeholder="Email"
                   type="email"
                 />
-                {/* Temporarily routing this to temp-user/index.tsx */}
                 <Button
-                  // onClick={() => setEmail(input)}
-                  onClick={() => {
-                    window.location.href = '/temp-user';
-                  }}
+                  onClick={() => setEmail(input)}
                   className="mb-4"
                 >
                   Confirm

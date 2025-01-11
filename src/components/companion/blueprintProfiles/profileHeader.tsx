@@ -20,7 +20,7 @@ const Profile: FC<ProfileProps> = ({ userData }) => {
                     className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover mb-3 sm:mb-4 scale-125"
                 />
             ) : (
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-baby-blue flex items-center justify-center text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-white">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-baby-blue flex items-center justify-center text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-black">
                     {userData.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
             )}

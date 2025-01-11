@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Profile from '../../../../../components/companion/blueprintProfiles/profile';
+import Profile from '../../../../../components/companion/blueprintProfiles/profileHeader';
 import AdditionalLinks from '../../../../../components/companion/blueprintProfiles/additionalLinks';
 import { AnimatedBorder } from '../../../../../components/ui/animated-border';
 import { useRouter } from 'next/router';
@@ -16,7 +16,7 @@ interface CompanyProfile {
   role: string;
   profilePicUrl: string;
   about: string;
-  additionalLinks: string[];
+  additionalLink: string;
 }
 
 export default function CompanyPage() {
@@ -75,7 +75,7 @@ export default function CompanyPage() {
   if (!userData) return <div>Error loading profile</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 sm:p-4 max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-white p-6 sm:p-4 max-w-4xl mx-auto pb-[100px]">
       <div className="sticky top-0 left-0 right-0 z-50 px-2 pt-2 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
       <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
         </div>
@@ -117,7 +117,7 @@ async function getCompanyProfile(name: string) {
     "role": "Company",
     "profilePicUrl": "https://static.vecteezy.com/system/resources/previews/020/336/735/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg",
     "about": "Tesla is an American multinational automotive and clean energy company. Headquartered in Austin, Texas, it designs, manufactures and sells battery electric vehicle, stationary battery energy storage devices from home to grid-scale, solar panels and solar shingles, and related products and services. ",
-    "additionalLinks": [`https://${name}.com`, "https://linkedin.com/company/tesla"]
+    "additionalLink": "https://linkedin.com/company/tesla"
   };
   return data;
 }

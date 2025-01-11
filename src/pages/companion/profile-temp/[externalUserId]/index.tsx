@@ -1,76 +1,40 @@
 import { use, useEffect, useState } from "react";
-import Profile from '../../../../components/companion/blueprintProfiles/profile' // update these once done testing
+import Profile from '../../../../components/companion/blueprintProfiles/profileHeader' // update these once done testing
 import ExtraInfo from "../../../../components/companion/blueprintProfiles/extraInfo";
 import { useRouter } from "next/router";
-import CompanyInfo from "../../../../components/companion/blueprintProfiles/companyInfo";
+import CompanyInfo from "../../../../components/companion/blueprintProfiles/delegateInfo";
 import AttendeeInfo from "../../../../components/companion/blueprintProfiles/attendeeInfo";
 import { TopNav } from '../../../../components/companion/navigation/top-nav';
 import { SideNav } from '../../../../components/companion/navigation/side-nav';
 import { BottomNav } from '../../../../components/companion/navigation/bottom-nav';
 import { motion } from 'framer-motion';
-
-
-
-interface UserProfile {
-    name: string;
-    role: string;
-    hobby: string;
-    linkedIn: string;
-    funFacts: string[];
-    interests: string[];
-    additionalLinks: string[];
-    profilePicUrl: string;
-    companyLogoUrl?: string;
-    company?: string;
-    major?: string;
-    year?: string;
-}
-
-// THEN GO THROUGH AND TEST IT WITH MUTLIPLE INTERESTS AND DIFFERENT LENGTHS FOR EACH TO CHECK BOUNDARIES
-// FIX RESPONSIVENESS FOR S8+, 
-
-// NOTES FOR PR:
-// - S8+ mobile screens needed to reformat the desing because it was too squished
-// - right now, the linkedin page links are expecting with the https://www included, but we can also do some simple regex to 
-//   refactor them
-// - did not include the bullet points on the fun facts and interests because it made the spacing weird when the word lengths became longer
-// - figma design font was smaller, but I think it may not be readable on all screens so I increased the size. It may look a little more squished as a result
-// - edited animated border to have the children match the sizing of the border - can revert if it breaks anything else
-
-/*
- THIS IS THE COMPONENT FOR A STUDENT USER PROFILE
-
- MY PLAN FOR THE UI IS TO HAVE OUR INDEX.TSX PAGE RENDER BASED ON THE USER RETURNED BY THE API CALL
-
- EX FLOW. 
- - USER TAPS NFC CARD WHICH LOADS THIS LINK WITH ENDPOINT OF A USERID ** still need to implement the grabbing from url
- - MAKE API CALL FOR INFO ON USER 
- - IF STUDENT PROFILE, RENDER THIS COMPONENT, ELSE RENDER DELEGATE PROFILE
-
- *Note* - on a delegate profile, if the 'visit-page' button is clicked for the company, route to company profile 
- - turn both company and user into this component and conditionally render based on role
- - could make a company page route? or make this one conditionally render even more - i think i like own route better though
-*/
+import { UserProfile } from "@/types";
 
 const UserProfilePage = () => {
     const [userData, setUserData] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSideNavOpen, setIsSideNavOpen] = useState(false);
     const router = useRouter();
-    const [user, setUser] = useState<string>('ubcbiztech');  // Default user fallback
+    const [user, setUser] = useState<string | null>(null);
 
     useEffect(() => {
         if (!router.isReady) return;
-        setUser(router.query.user as string | undefined ?? 'ubcbiztech');
+        const userQuery = router.query.externalUserId as string | undefined;
+        console.log(userQuery)
+        if (userQuery) {
+            setUser(userQuery);
+        }
         const fetchUserData = async () => {
             try {
                 // const response = await fetch('/api/user-profile');
                 // const data = await response.json();
                 // setUserData(data);
-                setUserData(await getUserProfile(user));
-                setIsLoading(false);
+                if (userQuery) {
+                    setUserData(await getUserProfile(userQuery));
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error);
+            } finally {
                 setIsLoading(false);
             }
         };
@@ -107,7 +71,7 @@ const UserProfilePage = () => {
     if (!userData) return <div>Error loading profile</div>;
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto mb-[100px]">
+        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto pb-[100px]">
             <div className="sticky top-0 left-0 right-0 z-50 px-2 pt-2 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
                 <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
             </div>
@@ -162,11 +126,8 @@ const data1: UserProfile = {
         "Sustainable Design",
         "Hiking"
     ],
-    additionalLinks: [
-        "https://dlee.com",
-        "https://github.com/dlee",
-        "https://behance.net/dlee"
-    ],
+    additionalLink: "https://github.com/dlee",
+
 };
 
 const data2: UserProfile = {
@@ -185,13 +146,8 @@ const data2: UserProfile = {
         "UX/UI Design",
         "Photography",
         "Sustainable Design",
-        "Generative Automation"
     ],
-    additionalLinks: [
-        "https://dlee.com",
-        "https://github.com/dlee",
-        "https://behance.net/dlee"
-    ],
+    additionalLink: "https://github.com/dlee",
 };
 
 async function getUserProfile(user: string) {

@@ -38,6 +38,21 @@ export type RegistrationQuestion = {
     isSkillsQuestion?: boolean;
 }
 
+export type UserProfile = {
+    name: string;
+    role: string;
+    hobby: string;
+    linkedIn: string;
+    funFacts: string[];
+    interests: string[];
+    additionalLink: string;
+    profilePicUrl?: string;
+    companyLogoUrl?: string;
+    company?: string;
+    major?: string;
+    year?: string;
+}
+
 export enum DBRegistrationStatus {
     WAITLISTED = "waitlist",
     REGISTERED = "registered",

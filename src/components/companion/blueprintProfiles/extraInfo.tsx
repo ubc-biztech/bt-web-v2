@@ -2,24 +2,22 @@ import { FC } from 'react';
 import AdditionalLinks from './additionalLinks';
 import { CompanionButton } from '../../ui/companion-button';
 import { AnimatedBorder } from '../../ui/animated-border';
+import { UserProfile } from '@/types';
 
+const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
 
-interface UserProfile {
-    name: string;
-    linkedIn: string;
-    funFacts: string[];
-    interests: string[];
-    additionalLinks: string[];
-}
-
-interface ExtraInfoProps {
-    userData: UserProfile;
-}
-
-const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
     const handleVisitPage = () => {
         if (typeof window !== 'undefined') {
-            window.location.href = "https://www." + userData.linkedIn;
+            // Normalize the LinkedIn URL
+            let linkedInUrl = userData.linkedIn.trim();
+    
+            // Ensure the URL starts with "https://"
+            if (!/^https?:\/\//i.test(linkedInUrl)) {
+                linkedInUrl = "https://" + linkedInUrl;
+            }
+    
+            // Redirect to the normalized URL
+            window.location.href = linkedInUrl;
         }
     };
 
@@ -32,19 +30,16 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                         <img src="/assets/icons/linkedin_bp_user.svg" alt="linkedin-logo" className="w-8 h-8 sm:w-10 sm:h-10" />
                         <div className="flex flex-col">
                             <span className="text-xs sm:text-sm text-light-grey font-redhat">LINKEDIN</span>
-                            {/* TODO: truncate link on smaller screens - 410*/}
                             <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px] mxs:max-w-none">
                                 {userData.linkedIn}
                             </span>
                         </div>
                     </div>
                     <div className='px-4 py-2'>
-                        {/* may need to refactor linkedin urls */}
-                    <CompanionButton onClick={handleVisitPage}>
-                        {/* TODO: make hidden on xs screens */}
-                        <span className="text-[12px] translate-y-[1px] hidden xs:inline">VISIT PAGE</span> 
-                        <span className="text-lg translate-y-[-3px]">↗</span>
-                    </CompanionButton>
+                        <CompanionButton onClick={handleVisitPage}>
+                            <span className="text-[12px] translate-y-[1px] hidden xs:inline">VISIT PAGE</span>
+                            <span className="text-lg translate-y-[-3px]">↗</span>
+                        </CompanionButton>
                     </div>
                 </div>
             </ AnimatedBorder>
@@ -52,7 +47,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
             {/* Fun Facts and Interests Grid */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {/* Fun Facts */}
-                <AnimatedBorder className="w-full mb-3 sm:mb-4">
+                <AnimatedBorder className="w-full mb-3 sm:mb-4" innerClassName='h-full w-full'>
                     <div className="relative rounded-lg p-3 sm:p-4">
                         <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">
                             FUN FACTS ABOUT {userData.name.split(' ')[0].toUpperCase()}
@@ -68,7 +63,7 @@ const ExtraInfo: FC<ExtraInfoProps> = ({ userData }) => {
                 </AnimatedBorder>
 
                 {/* Interests */}
-                <AnimatedBorder className="w-full mb-3 sm:mb-4">
+                <AnimatedBorder className="w-full mb-3 sm:mb-4" innerClassName='h-full w-full'>
                     <div className="rounded-lg p-3 sm:p-4">
                         <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">INTERESTS</span>
                         <ul className="list-inside">

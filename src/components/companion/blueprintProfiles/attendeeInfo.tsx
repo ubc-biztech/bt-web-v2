@@ -1,27 +1,9 @@
 import { FC } from 'react';
 import { AnimatedBorder } from '../../ui/animated-border';
-
-interface UserProfile {
-    name: string;
-    role: string;
-    hobby: string;
-    linkedIn: string;
-    funFacts: string[];
-    interests: string[];
-    additionalLinks: string[];
-    profilePicUrl: string;
-    companyLogoUrl?: string;
-    company?: string;
-    major?: string;
-    year?: string;
-}
-
-interface AttendeeInfoProps {
-    userData: UserProfile;
-}
+import { UserProfile } from '@/types';
 
 
-const AttendeeInfo: FC<AttendeeInfoProps> = ({ userData }) => {
+const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
 
     return (
         <AnimatedBorder className="w-full mb-3 ">
