@@ -3,8 +3,6 @@
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TopNav } from "./navigation/top-nav";
-import { SideNav } from "./navigation/side-nav";
 import {
     MapIcon,
     ListIcon,
@@ -20,9 +18,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
 import MapPlaceholder from "@/assets/2025/blueprint/map_placeholder.svg";
 import { CompanionItemRow } from "../ui/companion-item-row";
+import NavBarContainer from "./navigation/NavBarContainer";
 
 interface Company {
     id: number;
@@ -157,10 +155,7 @@ const CompanyCard = ({ company }: { company: Company }) => {
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
                         {company.tags.map((tag) => (
-                            <div
-                                key={tag}
-                                className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
-                            >
+                            <div className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]">
                                 {tag}
                             </div>
                         ))}
@@ -194,62 +189,55 @@ interface CompanyListProps {
 }
 
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
-    const [isSideNavOpen, setIsSideNavOpen] = useState(false);
     const [selectedView, setSelectedView] = useState<View>("list");
     return (
         <div className="min-h-screen bg-black text-white p-6 font-satoshi">
-            <div className="fixed top-0 left-0 right-0 z-50 px-2 md:px-8 pt-2 md:pt-8 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
-                <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
-            </div>
-            <SideNav
-                isOpen={isSideNavOpen}
-                onClose={() => setIsSideNavOpen(false)}
-            />
+            <NavBarContainer>
+                <div className="max-w-4xl mx-auto space-y-6">
+                    <header className="mt-20 text-lg">Companies</header>
 
-            <div className="max-w-4xl mx-auto space-y-6">
-                <header className="mt-20 text-lg">Companies</header>
+                    <div className="w-full h-[1px] bg-[#1D262F]" />
 
-                <div className="w-full h-[1px] bg-[#1D262F]" />
-
-                <div className="flex items-center justify-between gap-2 mb-6 h-8">
-                    <SearchBar />
-                    <FilterDropdown options={["Name", "Size"]} />
-                    <SwapView
-                        selectedView={selectedView}
-                        setSelectedView={setSelectedView}
-                    />
-                </div>
-
-                <div className="space-y-4">
-                    <div
-                        className={`transition-opacity duration-500 ${
-                            selectedView === "list"
-                                ? "opacity-100"
-                                : "opacity-0"
-                        }`}
-                    >
-                        {selectedView === "list" &&
-                            companies.map((company) => (
-                                <CompanionItemRow
-                                    href={`/companion/company/${company.profile_url}`}
-                                    key={company.id}
-                                >
-                                    <CompanyCard
-                                        company={company}
-                                    />
-                                </CompanionItemRow>
-                            ))}
+                    <div className="flex items-center justify-between gap-2 mb-6 h-8">
+                        <SearchBar />
+                        <FilterDropdown options={["Name", "Size"]} />
+                        <SwapView
+                            selectedView={selectedView}
+                            setSelectedView={setSelectedView}
+                        />
                     </div>
 
-                    <div
-                        className={`transition-opacity duration-500 ${
-                            selectedView === "map" ? "opacity-100" : "opacity-0"
-                        }`}
-                    >
-                        {selectedView === "map" && <Map />}
+                    <div className="space-y-4">
+                        <div
+                            className={`transition-opacity duration-500 ${
+                                selectedView === "list"
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                            }`}
+                        >
+                            {selectedView === "list" &&
+                                companies.map((company) => (
+                                    <CompanionItemRow
+                                        href={`/companion/company/${company.profile_url}`}
+                                        key={company.id}
+                                    >
+                                        <CompanyCard company={company} />
+                                    </CompanionItemRow>
+                                ))}
+                        </div>
+
+                        <div
+                            className={`transition-opacity duration-500 ${
+                                selectedView === "map"
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                            }`}
+                        >
+                            {selectedView === "map" && <Map />}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </NavBarContainer>
         </div>
     );
 };
