@@ -38,6 +38,7 @@ const Companion = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
+  const [connections, setConnections] = useState([]);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -170,6 +171,21 @@ const Companion = () => {
     }
   };
 
+  const fetchConnections = async () => {
+    try {
+      const data = await fetchBackend({
+        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
+        endpoint: `/interactions/TestDudeOne`, 
+        method: "GET",
+        authenticatedCall: false,
+      });
+      setConnections(data.data);
+    } catch (err) {
+      setPageError(err as string);
+      console.error("Error fetching connections:", error);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const search = window.location.search;
@@ -187,7 +203,7 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
-      await Promise.all([fetchRegistrations(), fetchEvent()]);
+      await Promise.all([fetchRegistrations(), fetchEvent(), fetchConnections()]);
       setIsLoading(false);
     };
 
@@ -215,11 +231,6 @@ const Companion = () => {
     { name: "KEYNOTER", description: "Attend the keynote speech" },
     { name: "COMPLETIONIST", description: "Attend all BluePrint events" },
     { name: "LINKEDIN WARRIOR", description: "Network with 5+ delegates" }
-  ];
-
-  const mockConnections = [
-    { id: "1", name: "Hikaru Un", role: "BUCS, YEAR 4", avatarInitials: "HU", avatarColor: "green-500" },
-    { id: "2", name: "Elon Musk", role: "FOUNDER / CEO, TESLA", avatarInitials: "EM", avatarColor: "red-500" }
   ];
 
   if (!email || !userRegistration) {
@@ -320,10 +331,10 @@ const Companion = () => {
   return (
     <CompanionHome
       userName={userRegistration?.fname ?? ""}
-      connectionCount={20}
+      connectionCount={connections?.length || 0}
       badgeCount={3}
       badges={mockBadges}
-      recentConnections={mockConnections}
+      recentConnections={connections}
     />
   );
 };
