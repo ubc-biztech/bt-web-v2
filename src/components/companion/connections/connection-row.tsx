@@ -14,13 +14,13 @@ export const CompanionConnectionRow: React.FC<{
       ? `${connection?.title}, ${connection?.company}`
       : "";
   const avatarInitials =
-    connection?.fname && connection?.lname
-      ? `${connection?.fname[0]}${connection?.lname[0]}`
+    connection.fname && connection.lname
+      ? `${connection.fname[0].toUpperCase()}${connection.lname[0].toUpperCase()}`
       : "";
-  const fullName = `${connection?.fname || ""} ${connection?.lname || ""}`;
+  const fullName = `${connection.fname} ${connection.lname}`;
   return (
     <CompanionItemRow
-      href={`/companion/profile/${connection?.obfuscatedID || ""}`}
+      href={`/companion/profile/${connection.obfuscatedID}`}
     >
       <div className="flex items-center space-x-3">
         <Avatar
