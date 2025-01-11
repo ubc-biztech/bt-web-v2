@@ -135,7 +135,6 @@ const SearchBar = () => {
 const CompanyCard = ({ company }: { company: Company }) => {
     return (
         <>
-            {" "}
             <div className="flex items-center gap-4">
                 <div className="relative w-16 h-16 mr-1 bg-gray-800 rounded-lg overflow-hidden">
                     <Image
@@ -197,7 +196,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
         <div className="min-h-screen bg-black text-white p-6 font-satoshi">
             <NavBarContainer>
                 <div className="max-w-4xl mx-auto space-y-6">
-                    <header className="mt-20 text-lg">Companies</header>
+                    <header className="text-lg">Companies</header>
 
                     <div className="w-full h-[1px] bg-[#1D262F]" />
 
