@@ -6,14 +6,12 @@ import Image, { StaticImageData } from "next/image";
 
 interface BadgeRowProps {
   badge: Badge;
-  isComplete: Boolean;
   isHidden: Boolean;
   badgeIcon: StaticImageData;
 }
 
 export const BadgeRow: React.FC<BadgeRowProps> = ({
   badge,
-  isComplete,
   isHidden,
   badgeIcon,
 }) => {

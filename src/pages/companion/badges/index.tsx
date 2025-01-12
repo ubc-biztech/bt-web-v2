@@ -16,6 +16,7 @@ export interface Badge {
   badgeName: string;
   description: string;
   userID: string;
+  isComplete: Boolean;
 }
 
 const badgeIcons: { [key: string]: StaticImageData } = {
@@ -30,6 +31,7 @@ const Badges = () => {
   const [filter, setFilter] = useState(0);
   const filterOptions = ["All", "Collected", "Incomplete", "Hidden"];
   const [badges, setBadges] = useState([]);
+  const [completedBadges, setCompletedBadges] = useState(0);
 
   useEffect(() => {
     const fetchBadges = async () => {
@@ -40,7 +42,17 @@ const Badges = () => {
           method: "GET",
           authenticatedCall: true,
         });
-        setBadges(data.data);
+        const dataWithCompleteStatus = data.data.map(
+            (badge: Omit<Badge, "isComplete">) => ({
+              ...badge,
+              isComplete: badge.progress >= badge.threshold,
+            })
+          );
+        setBadges(dataWithCompleteStatus);
+        const completedCount = dataWithCompleteStatus.filter(
+            (badge: Badge) => badge.isComplete
+          ).length;
+          setCompletedBadges(completedCount)
       } catch (error) {
         console.error("Error fetching badges:", error);
       }
@@ -57,7 +69,7 @@ const Badges = () => {
             Badge Collection
           </p>
           <p className="text-[12px] text-[rgba(255,255,255,0.8)] font-redhat translate-y-[3px]">
-            3/10 COLLECTED
+            {completedBadges}/{badges.length} COLLECTED
           </p>
         </div>
         <div className="h-[1px] my-3 bg-[#1D262F]"></div>
@@ -75,15 +87,14 @@ const Badges = () => {
           badges
             .filter((badge: Badge) => {
               const isHidden = hiddenBadges.includes(badge.questID);
-              const isComplete = badge.progress >= badge.threshold;
               if (filterOptions[filter] === "Hidden") {
-                return isHidden && isComplete;
+                return isHidden && badge.isComplete;
               } else if (filterOptions[filter] === "Collected") {
-                return isComplete;
+                return badge.isComplete;
               } else if (filterOptions[filter] === "Incomplete") {
-                return !isComplete && !isHidden;
+                return !badge.isComplete && !isHidden;
               } else {
-                return (!isHidden && !isComplete) || isComplete;
+                return (!isHidden && !badge.isComplete) || badge.isComplete;
               }
             })
             .map((badge: Badge, index: number) => (
@@ -91,7 +102,6 @@ const Badges = () => {
                 key={index}
                 badge={badge}
                 isHidden={hiddenBadges.includes(badge.questID)}
-                isComplete={badge.progress >= badge.threshold}
                 badgeIcon={badgeIcons[badge.questID]}
               />
             ))}

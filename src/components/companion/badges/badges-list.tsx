@@ -9,7 +9,9 @@ export const BadgesList: React.FC<BadgesListProps> = ({ badges }) => {
   return (
     <SectionCard title="Badges" viewAllLink="/companion/badges">
       <div className="space-y-3">
-        {badges.slice(0, 3).map((badge, index) => (
+        {badges
+        .sort((a, b) => Number(b.isComplete) - Number(a.isComplete))
+        .slice(0, 3).map((badge, index) => (
           <div key={index} className="flex items-start space-x-3">
             <span className="text-base mt-1 text-white">✦</span>
             <div className="flex flex-col sm:flex-row sm:items-center w-full sm:justify-between gap-1">

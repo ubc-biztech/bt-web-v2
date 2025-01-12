@@ -10,7 +10,8 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
+import { Badge } from "./badges";
 
 interface Registration {
   id: string;
@@ -39,7 +40,8 @@ const Companion = () => {
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
   const [connections, setConnections] = useState([]);
-  const [badges, setBadges] = useState([])
+  const [badges, setBadges] = useState([]);
+  const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -195,7 +197,17 @@ const Companion = () => {
         method: "GET",
         authenticatedCall: true,
       });
-      setBadges(data.data);
+      const dataWithCompleteStatus = data.data.map(
+        (badge: Omit<Badge, "isComplete">) => ({
+          ...badge,
+          isComplete: badge.progress >= badge.threshold,
+        })
+      );
+      setBadges(dataWithCompleteStatus);
+      const completedCount = dataWithCompleteStatus.filter(
+        (badge: Badge) => badge.isComplete
+      ).length;
+      setCompletedBadges(completedCount)
     } catch (err) {
       setPageError(err as string);
       console.error("Error fetching badges:", error);
@@ -219,7 +231,12 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
-      await Promise.all([fetchRegistrations(), fetchEvent(), fetchConnections(), fetchBadges()]);
+      await Promise.all([
+        fetchRegistrations(),
+        fetchEvent(),
+        fetchConnections(),
+        fetchBadges(),
+      ]);
       setIsLoading(false);
     };
 
@@ -340,8 +357,8 @@ const Companion = () => {
   return (
     <CompanionHome
       userName={userRegistration?.fname ?? ""}
-      connectionCount={connections?.length || 0}
-      badgeCount={3}
+      connectionCount={connections?.length}
+      badgeCount={completedBadges}
       badges={badges}
       recentConnections={connections}
     />
