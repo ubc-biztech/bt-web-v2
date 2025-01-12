@@ -55,6 +55,7 @@ const config: Config = {
       'pale-blue': '#C4D5FF',
       'baby-blue': '#B2C9FC',
       'light-blue': '#E0E9FE',
+      'light-grey': '#B3B3B3',
       'white-blue': '#F7FAFF',
       'dark-green': '#55922D',
       'light-green': '#AFE38C',
@@ -118,6 +119,10 @@ const config: Config = {
       '3xl': '48px',
     },
     extend: {
+      screens: {
+        'xs': '370px',
+        'mxs': '445px' // medium xs (could prob rename)
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
