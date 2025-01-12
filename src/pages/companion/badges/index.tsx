@@ -26,7 +26,7 @@ const badgeIcons: { [key: string]: StaticImageData } = {
   QUEST_SNACK: StartupExplorerIcon,
 };
 
-const hiddenBadges = ["QUEST_BT_BOOTH_H"];
+const hiddenBadges = ["QUEST_BT_BOOTH_H", "QUEST_CONNECT_TEN_H", "QUEST_CONNECT_EXEC_H"];
 
 const Badges = () => {
   const [filter, setFilter] = useState(0);
