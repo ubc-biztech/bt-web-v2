@@ -39,6 +39,7 @@ const Companion = () => {
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
   const [connections, setConnections] = useState([]);
+  const [badges, setBadges] = useState([])
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -175,7 +176,7 @@ const Companion = () => {
     try {
       const data = await fetchBackend({
         // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/TestDudeOne`, 
+        endpoint: `/interactions/journal/TestDudeOne`, 
         method: "GET",
         authenticatedCall: false,
       });
@@ -183,6 +184,21 @@ const Companion = () => {
     } catch (err) {
       setPageError(err as string);
       console.error("Error fetching connections:", error);
+    }
+  };
+
+  const fetchBadges = async () => {
+    try {
+      const data = await fetchBackend({
+        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
+        endpoint: `/interactions/quests/TestDudeOne`, 
+        method: "GET",
+        authenticatedCall: true,
+      });
+      setBadges(data.data);
+    } catch (err) {
+      setPageError(err as string);
+      console.error("Error fetching badges:", error);
     }
   };
 
@@ -203,7 +219,7 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
-      await Promise.all([fetchRegistrations(), fetchEvent(), fetchConnections()]);
+      await Promise.all([fetchRegistrations(), fetchEvent(), fetchConnections(), fetchBadges()]);
       setIsLoading(false);
     };
 
@@ -225,13 +241,6 @@ const Companion = () => {
       </div>
     );
   }
-
-  // Mock data for the CompanionHome component
-  const mockBadges = [
-    { name: "KEYNOTER", description: "Attend the keynote speech" },
-    { name: "COMPLETIONIST", description: "Attend all BluePrint events" },
-    { name: "LINKEDIN WARRIOR", description: "Network with 5+ delegates" }
-  ];
 
   if (!email || !userRegistration) {
     return (
@@ -333,7 +342,7 @@ const Companion = () => {
       userName={userRegistration?.fname ?? ""}
       connectionCount={connections?.length || 0}
       badgeCount={3}
-      badges={mockBadges}
+      badges={badges}
       recentConnections={connections}
     />
   );

@@ -15,7 +15,7 @@ const Connections = () => {
       try {
         const data = await fetchBackend({
           // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-          endpoint: `/interactions/TestDudeOne`,
+          endpoint: `/interactions/journal/TestDudeOne`,
           method: "GET",
           authenticatedCall: false,
         });

@@ -1,11 +1,12 @@
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Filter from "@/components/companion/Filter";
 import { BadgeRow } from "@/components/companion/badges/badge-row";
 import SnackSeekerIcon from "@/assets/2025/blueprint/badgeIcons/snack_seeker.png";
 import FirstImpressionistIcon from "@/assets/2025/blueprint/badgeIcons/first_impressionist.png";
 import StartupExplorerIcon from "@/assets/2025/blueprint/badgeIcons/startup_explorer.png";
 import { StaticImageData } from "next/image";
+import { fetchBackend } from "@/lib/db";
 
 export interface Badge {
   questID: string;
@@ -14,42 +15,8 @@ export interface Badge {
   progress: Number;
   badgeName: string;
   description: string;
+  userID: string;
 }
-
-const mockBadges = [
-  {
-    questID: "QUEST_CONNECT_ONE",
-    "eventID;year": "blueprint;2025",
-    threshold: 1,
-    progress: 0,
-    badgeName: "First Impressionist",
-    description: "Make your first impression",
-  },
-  {
-    questID: "QUEST_CONNECT_FOUR",
-    "eventID;year": "blueprint;2025",
-    threshold: 4,
-    progress: 2,
-    badgeName: "Networking Pro",
-    description: "Make 4 Connections",
-  },
-  {
-    questID: "QUEST_SNACK",
-    "eventID;year": "blueprint;2025",
-    threshold: 1,
-    progress: 1,
-    badgeName: "Snack Seeker",
-    description: "Grab a bite to eat at the buffet line.",
-  },
-  {
-    questID: "QUEST_BT_BOOTH_H",
-    "eventID;year": "blueprint;2025",
-    threshold: 1,
-    progress: 1,
-    badgeName: "Director's Circle",
-    description: "Connect with a Biztech Exec.",
-  },
-];
 
 const badgeIcons: { [key: string]: StaticImageData } = {
   QUEST_CONNECT_ONE: SnackSeekerIcon,
@@ -62,6 +29,25 @@ const hiddenBadges = ["QUEST_BT_BOOTH_H"];
 const Badges = () => {
   const [filter, setFilter] = useState(0);
   const filterOptions = ["All", "Collected", "Incomplete", "Hidden"];
+  const [badges, setBadges] = useState([]);
+
+  useEffect(() => {
+    const fetchBadges = async () => {
+      try {
+        const data = await fetchBackend({
+          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
+          endpoint: `/interactions/quests/TestDudeOne`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+        setBadges(data.data);
+      } catch (error) {
+        console.error("Error fetching badges:", error);
+      }
+    };
+
+    fetchBadges();
+  }, []);
 
   return (
     <NavBarContainer>
@@ -85,8 +71,8 @@ const Badges = () => {
             selectedFilterOption={filter}
           />
         </div>
-        {mockBadges &&
-          mockBadges
+        {badges &&
+          badges
             .filter((badge: Badge) => {
               const isHidden = hiddenBadges.includes(badge.questID);
               const isComplete = badge.progress >= badge.threshold;
@@ -97,7 +83,7 @@ const Badges = () => {
               } else if (filterOptions[filter] === "Incomplete") {
                 return !isComplete && !isHidden;
               } else {
-                return (!isHidden && !isComplete) || isComplete;
+                return (!isHidden && !isComplete) || isComplete;
               }
             })
             .map((badge: Badge, index: number) => (
