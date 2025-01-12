@@ -7,6 +7,7 @@ import FirstImpressionistIcon from "@/assets/2025/blueprint/badgeIcons/first_imp
 import StartupExplorerIcon from "@/assets/2025/blueprint/badgeIcons/startup_explorer.png";
 import { StaticImageData } from "next/image";
 import { fetchBackend } from "@/lib/db";
+import { CompanionItemRow } from "@/components/ui/companion-item-row";
 
 export interface Badge {
   questID: string;
@@ -32,6 +33,7 @@ const Badges = () => {
   const filterOptions = ["All", "Collected", "Incomplete", "Hidden"];
   const [badges, setBadges] = useState([]);
   const [completedBadges, setCompletedBadges] = useState(0);
+  const [completedHiddenBadges, setCompletedHiddenBadges] = useState(0);
 
   useEffect(() => {
     const fetchBadges = async () => {
@@ -43,16 +45,21 @@ const Badges = () => {
           authenticatedCall: true,
         });
         const dataWithCompleteStatus = data.data.map(
-            (badge: Omit<Badge, "isComplete">) => ({
-              ...badge,
-              isComplete: badge.progress >= badge.threshold,
-            })
-          );
+          (badge: Omit<Badge, "isComplete">) => ({
+            ...badge,
+            isComplete: badge.progress >= badge.threshold,
+          })
+        );
         setBadges(dataWithCompleteStatus);
         const completedCount = dataWithCompleteStatus.filter(
-            (badge: Badge) => badge.isComplete
+          (badge: Badge) => badge.isComplete
+        ).length;
+        const completedHiddenCount = dataWithCompleteStatus.filter(
+            (badge: Badge) => badge.isComplete && hiddenBadges.includes(badge.questID)
           ).length;
-          setCompletedBadges(completedCount)
+        
+        setCompletedBadges(completedCount);
+        setCompletedHiddenBadges(completedHiddenCount);
       } catch (error) {
         console.error("Error fetching badges:", error);
       }
@@ -105,6 +112,18 @@ const Badges = () => {
                 badgeIcon={badgeIcons[badge.questID]}
               />
             ))}
+        {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && 
+          <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
+            <div className="flex justify-center flex-col text-center">
+              <p className="font-medium text-white">
+                {`+${hiddenBadges.length - completedHiddenBadges} more hidden ${hiddenBadges.length - completedHiddenBadges === 1 ? "badge" : "badges"} to collect`}
+              </p>
+              <p className="text-[#808080] text-[12px] font-redhat">
+                Details will be revealed at the end of the event
+              </p>
+            </div>
+          </CompanionItemRow>
+        }
       </div>
     </NavBarContainer>
   );

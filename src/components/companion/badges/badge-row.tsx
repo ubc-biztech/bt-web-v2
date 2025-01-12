@@ -3,6 +3,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/pages/companion/badges";
 import React from "react";
 import Image, { StaticImageData } from "next/image";
+import BadgeCompletedIcon from "@/assets/2025/blueprint/badgeCompleted.png"
 
 interface BadgeRowProps {
   badge: Badge;
@@ -32,6 +33,15 @@ export const BadgeRow: React.FC<BadgeRowProps> = ({
           </p>
         </div>
       </div>
+      {badge.isComplete ? (
+        <Avatar
+          className={`flex w-6 h-6 items-center justify-center`}
+        >
+          <Image src={BadgeCompletedIcon} alt="" className="rounded-full" />
+        </Avatar>
+      ) : (
+        <span className="text-base text-white/70">{`${badge.progress}/${badge.threshold}`}</span>
+      )}
     </CompanionItemRow>
   );
 };
