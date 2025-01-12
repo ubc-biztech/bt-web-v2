@@ -4,9 +4,7 @@ import ExtraInfo from "../../../../components/companion/blueprintProfiles/extraI
 import { useRouter } from "next/router";
 import CompanyInfo from "../../../../components/companion/blueprintProfiles/delegateInfo";
 import AttendeeInfo from "../../../../components/companion/blueprintProfiles/attendeeInfo";
-import { TopNav } from '../../../../components/companion/navigation/top-nav';
-import { SideNav } from '../../../../components/companion/navigation/side-nav';
-import { BottomNav } from '../../../../components/companion/navigation/bottom-nav';
+import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { motion } from 'framer-motion';
 import { UserProfile } from "@/types";
 
@@ -72,10 +70,7 @@ const UserProfilePage = () => {
 
     return (
         <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto pb-[100px]">
-            <div className="sticky top-0 left-0 right-0 z-50 px-2 pt-2 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
-                <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
-            </div>
-            <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
+            <NavBarContainer>
             <motion.div
                 className="flex-1"
                 variants={containerVariants}
@@ -98,8 +93,7 @@ const UserProfilePage = () => {
                     <ExtraInfo userData={userData} />
                 </motion.div>
             </motion.div>
-
-            <BottomNav />
+            </NavBarContainer>
         </div >
     );
 };

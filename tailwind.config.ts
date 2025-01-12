@@ -121,7 +121,7 @@ const config: Config = {
     extend: {
       screens: {
         'xs': '370px',
-        'mxs': '410px' // medium xs (could prob rename)
+        'mxs': '445px' // medium xs (could prob rename)
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

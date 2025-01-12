@@ -3,9 +3,7 @@ import Profile from '../../../../../components/companion/blueprintProfiles/profi
 import AdditionalLinks from '../../../../../components/companion/blueprintProfiles/additionalLinks';
 import { AnimatedBorder } from '../../../../../components/ui/animated-border';
 import { useRouter } from 'next/router';
-import { TopNav } from '../../../../../components/companion/navigation/top-nav';
-import { SideNav } from '../../../../../components/companion/navigation/side-nav';
-import { BottomNav } from '../../../../../components/companion/navigation/bottom-nav';
+import NavBarContainer from '@/components/companion/navigation/NavBarContainer';
 import { motion } from 'framer-motion';
 
 
@@ -34,7 +32,7 @@ export default function CompanyPage() {
 
     const fetchUserData = async () => {
       try {
-        setUserData(await getCompanyProfile(companyId? companyId :'ubcbiztech'));
+        setUserData(await getCompanyProfile(companyId ? companyId : 'ubcbiztech'));
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
@@ -76,34 +74,31 @@ export default function CompanyPage() {
 
   return (
     <div className="min-h-screen bg-black text-white p-6 sm:p-4 max-w-4xl mx-auto pb-[100px]">
-      <div className="sticky top-0 left-0 right-0 z-50 px-2 pt-2 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
-      <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
-        </div>
-      <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
-      <motion.div
-        className="flex-1"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div variants={itemVariants}>
-          <Profile userData={userData} />
-        </motion.div>
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
+      <NavBarContainer>
+        <motion.div
+          className="flex-1"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <motion.div variants={itemVariants}>
-            <AnimatedBorder className="w-full mb-3 sm:mb-4">
-              <div className="rounded-lg p-3 sm:p-4 font-redhat">
-                <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">ABOUT</p>
-                <p className='font-satoshi'>{userData.about}</p>
-              </div>
-            </AnimatedBorder>
+            <Profile userData={userData} />
           </motion.div>
-        </div>
-        <motion.div variants={itemVariants}>
-          <AdditionalLinks userData={userData} />
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
+            <motion.div variants={itemVariants}>
+              <AnimatedBorder className="w-full mb-3 sm:mb-4">
+                <div className="rounded-lg p-3 sm:p-4 font-redhat">
+                  <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">ABOUT</p>
+                  <p className='font-satoshi'>{userData.about}</p>
+                </div>
+              </AnimatedBorder>
+            </motion.div>
+          </div>
+          <motion.div variants={itemVariants}>
+            <AdditionalLinks userData={userData} />
+          </motion.div>
         </motion.div>
-      </motion.div>
-      <BottomNav />
+      </NavBarContainer>
     </div>
   );
 }
