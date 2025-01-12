@@ -4,6 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
 import { Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 interface Registration {
     id: string;
@@ -89,7 +90,7 @@ const Index = () => {
         if (newQrPath && newQrPath !== "[externalUserId]") {
             fetchUserID(newQrPath);
         }
-        setLocalUser(localStorage.getItem("companionEmail") || undefined);
+        setLocalUser(localStorage.getItem(COMPANION_EMAIL_KEY) || undefined);
     }, [router]);
 
     useEffect(() => {

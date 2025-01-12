@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Users2, Trophy } from 'lucide-react';
 import { GradientText } from '@/components/ui/gradient-text';
-import { TopNav } from './navigation/top-nav';
-import { SideNav } from './navigation/side-nav';
-import { BottomNav } from './navigation/bottom-nav';
 import { BadgesList } from './badges/badges-list';
-import { ConnectionsList } from './connections/connections-list';
+import { Connection, ConnectionsList } from './connections/connections-list';
+import NavBarContainer from './navigation/NavBarContainer';
 
 interface CompanionHomeProps {
   userName: string;
@@ -16,13 +14,7 @@ interface CompanionHomeProps {
     name: string;
     description: string;
   }>;
-  recentConnections: Array<{
-    id: string;
-    name: string;
-    role: string;
-    avatarInitials: string;
-    avatarColor?: string;
-  }>;
+  recentConnections: Connection[];
 }
 
 const CompanionHome: React.FC<CompanionHomeProps> = ({
@@ -32,18 +24,6 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   badges,
   recentConnections,
 }) => {
-  const [isSideNavOpen, setIsSideNavOpen] = useState(false);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.1
-      }
-    }
-  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -58,16 +38,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white font-satoshi p-2 md:p-8">
-      <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
-      <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
-
-      <motion.div 
-        className="flex-1 px-2 pb-24 space-y-8"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
+    <NavBarContainer>
         {/* Welcome Section */}
         <motion.div className="p-5 rounded-3xl" variants={itemVariants}>
           <div className="text-[28px] font-medium mb-3 text-white">
@@ -100,10 +71,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
             totalCount={connectionCount} 
           />
         </motion.div>
-      </motion.div>
-
-      <BottomNav />
-    </div>
+      </NavBarContainer>
   );
 };
 

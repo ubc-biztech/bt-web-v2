@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 const LogoutButton = () => {
   const handleLogout = () => {
-    localStorage.removeItem("companionEmail");
+    localStorage.removeItem(COMPANION_EMAIL_KEY);
     window.location.reload();
   };
 
