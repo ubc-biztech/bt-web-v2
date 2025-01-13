@@ -4,7 +4,7 @@ interface FilterProps {
   selectedFilterOption: number;
 }
 
-const selectedStyle = "bg-white text-[#00071D]";
+const selectedStyle = "bg-white text-[#00071D] h-6";
 const unselectedStyle = "text-white";
 
 const Filter: React.FC<FilterProps> = ({
@@ -16,12 +16,12 @@ const Filter: React.FC<FilterProps> = ({
     <div className="justify-center flex">
       <div
         className="flex bg-gradient-to-b from-[#11151F] to-[#1E2939] 
-                    rounded-full h-12 gap-2 px-4 items-center"
+                    rounded-full items-center text-[12px] h-8"
       >
         {filterOptions.map((option, index) => (
           <div
             key={index}
-            className={`px-3 rounded-full py-1 ${
+            className={`px-[10px] rounded-full py-1 ${
               index === selectedFilterOption ? selectedStyle : unselectedStyle
             }`}
             onClick={() => setSelectedFilterOption(index)}

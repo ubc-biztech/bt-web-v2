@@ -4,16 +4,14 @@ import { Users2, Trophy } from 'lucide-react';
 import { GradientText } from '@/components/ui/gradient-text';
 import { BadgesList } from './badges/badges-list';
 import { Connection, ConnectionsList } from './connections/connections-list';
+import { Badge } from '@/pages/companion/badges';
 import NavBarContainer from './navigation/NavBarContainer';
 
 interface CompanionHomeProps {
   userName: string;
   connectionCount: number;
   badgeCount: number;
-  badges: Array<{
-    name: string;
-    description: string;
-  }>;
+  badges: Badge[];
   recentConnections: Connection[];
 }
 
