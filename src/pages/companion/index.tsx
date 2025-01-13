@@ -149,6 +149,11 @@ const Companion = () => {
 
         if (profileResponse.profileID) {
           localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+          // After setting profile ID, fetch connections and badges
+          await Promise.all([
+            fetchConnections(),
+            fetchBadges(),
+          ]);
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
@@ -256,12 +261,12 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
+      
       await Promise.all([
         fetchRegistrations(),
         fetchEvent(),
-        fetchConnections(),
-        fetchBadges(),
       ]);
+      
       setIsLoading(false);
     };
 
