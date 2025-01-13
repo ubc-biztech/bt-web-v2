@@ -195,7 +195,7 @@ const Companion = () => {
         // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
         endpoint: `/interactions/quests/TestDudeOne`, 
         method: "GET",
-        authenticatedCall: true,
+        authenticatedCall: false,
       });
       const dataWithCompleteStatus = data.data.map(
         (badge: Omit<Badge, "isComplete">) => ({

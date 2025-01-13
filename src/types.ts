@@ -142,3 +142,23 @@ export type Profile = {
 export type UserResponseList = {
     [questionId: string]: string;
 };
+
+export type BackendProfile = {
+    profileID: string;
+    fname: string;
+    lname: string;
+    pronouns: string;
+    type: string;
+    major: string;
+    year: string;
+    hobby1: string;
+    hobby2: string;
+    funQuestion1: string;
+    funQuestion2: string;
+    linkedIn: string;
+    profilePictureURL: string;
+    additionalLink: string;
+    "eventID;year": string;
+    createdAt: number;
+    updatedAt: number;
+}
