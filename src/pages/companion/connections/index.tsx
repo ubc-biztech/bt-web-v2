@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import Events from '@/constants/companion-events';
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
@@ -13,43 +13,18 @@ const Connections = () => {
   const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
 
-  const events = Events.sort((a, b) => {
-    return a.activeUntil.getTime() - b.activeUntil.getTime();
-  });
-
-  const currentEvent =
-    events.find((event) => {
-      const today = new Date();
-      return event.activeUntil > today;
-    }) || events[0];
-
-  const { eventID, year } = currentEvent || {};
-
   useEffect(() => {
     const fetchConnections = async () => {
       try {
-        // Get email from local storage
-        const email = localStorage.getItem(COMPANION_EMAIL_KEY);
-        if (!email) {
+        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        if (!profileId) {
           setError("Please log in to view your connections");
-          return;
-        }
-
-        // Get profileID
-        const profileResponse = await fetchBackend({
-          endpoint: `/profiles/email/${email}/${eventID}/${year}`,
-          method: "GET",
-          authenticatedCall: false,
-        });
-
-        if (!profileResponse.profileID) {
-          setError("Could not find your profile");
           return;
         }
 
         // Fetch connections using the profileID
         const data = await fetchBackend({
-          endpoint: `/interactions/journal/${profileResponse.profileID}`,
+          endpoint: `/interactions/journal/${profileId}`,
           method: "GET",
           authenticatedCall: false,
         });
@@ -60,10 +35,8 @@ const Connections = () => {
       }
     };
 
-    if (eventID && year) {
-      fetchConnections();
-    }
-  }, [eventID, year]);
+    fetchConnections();
+  }, []);
 
   return (
     <NavBarContainer>

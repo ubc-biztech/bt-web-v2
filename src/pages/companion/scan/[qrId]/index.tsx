@@ -4,7 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 interface Qr {
     data: Record<string, any>;
@@ -65,14 +65,8 @@ const Index = () => {
 
     const recordConnection = async (scannedProfileId: string) => {
         try {
-            // First get our own profileID
-            const profileResponse = await fetchBackend({
-                endpoint: `/profiles/email/${userEmail}/${eventID}/${year}`,
-                method: "GET",
-                authenticatedCall: false,
-            });
-
-            if (!profileResponse.profileID) {
+            const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+            if (!profileId) {
                 throw new Error("Could not find your profile");
             }
 
@@ -82,7 +76,7 @@ const Index = () => {
                 method: "POST",
                 authenticatedCall: false,
                 data: {
-                    userID: profileResponse.profileID,
+                    userID: profileId,
                     eventType: "CONNECTION",
                     eventParam: scannedProfileId
                 }

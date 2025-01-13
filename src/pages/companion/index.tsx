@@ -10,7 +10,7 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
-import { COMPANION_EMAIL_KEY } from "@/constants/companion";
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
 
 interface Registration {
@@ -139,6 +139,21 @@ const Companion = () => {
       setUserRegistration(reg);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
+      // Fetch and store profileID
+      try {
+        const profileResponse = await fetchBackend({
+          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        if (profileResponse.profileID) {
+          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+        }
+      } catch (err) {
+        console.error("Error fetching profile ID:", err);
+      }
+
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
       }
@@ -176,26 +191,14 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
-      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!email) {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
         setPageError("Please log in to view your connections");
         return;
       }
 
-      // Get profileID
-      const profileResponse = await fetchBackend({
-        endpoint: `/profiles/email/${email}/${eventID}/${year}`,
-        method: "GET",
-        authenticatedCall: false,
-      });
-
-      if (!profileResponse.profileID) {
-        setPageError("Could not find your profile");
-        return;
-      }
-
       const data = await fetchBackend({
-        endpoint: `/interactions/journal/${profileResponse.profileID}`,
+        endpoint: `/interactions/journal/${profileId}`,
         method: "GET",
         authenticatedCall: false,
       });
@@ -208,26 +211,14 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
-      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!email) {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
         setPageError("Please log in to view your badges");
         return;
       }
 
-      // Get profileID
-      const profileResponse = await fetchBackend({
-        endpoint: `/profiles/email/${email}/${eventID}/${year}`,
-        method: "GET",
-        authenticatedCall: false,
-      });
-
-      if (!profileResponse.profileID) {
-        setPageError("Could not find your profile");
-        return;
-      }
-
       const data = await fetchBackend({
-        endpoint: `/interactions/quests/${profileResponse.profileID}`,
+        endpoint: `/interactions/quests/${profileId}`,
         method: "GET",
         authenticatedCall: false,
       });

@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { useRouter } from 'next/router';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 export default function ResetCompanion() {
   const [isReset, setIsReset] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
+    // Clear both email and profileID from local storage
     localStorage.removeItem(COMPANION_EMAIL_KEY);
+    localStorage.removeItem(COMPANION_PROFILE_ID_KEY);
     setIsReset(true);
+
+    // Redirect after showing the reset message
+    const timer = setTimeout(() => {
+      router.push('/companion');
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

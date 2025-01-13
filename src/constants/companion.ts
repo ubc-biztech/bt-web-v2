@@ -7,4 +7,5 @@ export const constantStyles = {
   headerHeight: "60px",
 } as const;
 
-export const COMPANION_EMAIL_KEY = "companionEmail" as const; 
+export const COMPANION_EMAIL_KEY = "companion_email";
+export const COMPANION_PROFILE_ID_KEY = "companion_profile_id"; 
