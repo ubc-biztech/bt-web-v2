@@ -4,7 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
-import { BOOTH_EVENT, COMPANION_EMAIL_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
+import { BOOTH_EVENT, COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
 
 interface Qr {
     data: Record<string, any>;
