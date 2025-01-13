@@ -1,33 +1,21 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
 import { Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from '@/constants/companion';
-
-interface Registration {
-    id: string;
-    fname: string;
-    points?: number;
-    [key: string]: any;
-}
-
-interface Qr {
-    data: Record<string, any>;
-    id: string;
-    type: string;
-}
+import { BackendProfile, UserProfile } from "@/types";
+import Profile from '@/components/companion/blueprintProfiles/profileHeader';
+import ExtraInfo from "@/components/companion/blueprintProfiles/extraInfo";
+import AttendeeInfo from "@/components/companion/blueprintProfiles/attendeeInfo";
+import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
+import { motion } from 'framer-motion';
 
 const Index = () => {
+    const [userData, setUserData] = useState<UserProfile | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const [qrData, setQrData] = useState<Qr | null>(null);
-    const [qrPath, setQrPath] = useState<string>();
-    const [localUser, setLocalUser] = useState<string>();
-    const [userId, setUserId] = useState("");
-    const [registrations, setRegistrations] = useState<Registration[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [loadingQr, setQrLoading] = useState(true);
     const [pageError, setPageError] = useState("");
 
     const events = Events.sort((a, b) => {
@@ -42,91 +30,85 @@ const Index = () => {
 
     const { eventID, year } = currentEvent || {};
 
-    // fetching user data from qr code
-    const fetchUserID = async (qrId: string) => {
-        try {
-            console.log(qrId);
-            const response = await fetchBackend({
-                endpoint: `/qr/${qrId}/${eventID}/${year}`,
-                method: "GET",
-                authenticatedCall: false,
-            });
+    useEffect(() => {
+        if (!router.isReady) return;
+        const profileId = router.query.externalUserId as string;
+        
+        const fetchUserData = async () => {
+            try {
+                const response = await fetchBackend({
+                    endpoint: `/profiles/${profileId}`,
+                    method: "GET",
+                    authenticatedCall: false,
+                });
 
-            const res = await response;
-            if (res) {
-                setQrData(res);
-                setUserId(res.data.registrationID);
-            } else if (qrPath) {
-                setPageError("NFC data not found. Try scanning your NFC card again.");
+                const backendProfile = response as BackendProfile;
+                
+                // Transform backend profile to match our frontend interface
+                const transformedProfile: UserProfile = {
+                    name: `${backendProfile.fname} ${backendProfile.lname}`,
+                    role: backendProfile.type,
+                    hobby: backendProfile.hobby1,
+                    linkedIn: backendProfile.linkedIn,
+                    funFacts: [
+                        backendProfile.funQuestion1,
+                        backendProfile.funQuestion2,
+                    ].filter(Boolean),
+                    interests: [
+                        backendProfile.hobby1,
+                        backendProfile.hobby2,
+                    ].filter(Boolean),
+                    additionalLink: backendProfile.additionalLink,
+                    profilePicUrl: backendProfile.profilePictureURL,
+                    major: backendProfile.major,
+                    year: backendProfile.year,
+                };
+
+                setUserData(transformedProfile);
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                setPageError(
+                    (error as Error)?.message || "An unexpected error occurred"
+                );
+                setIsLoading(false);
             }
-            setQrLoading(false);
-        } catch (err) {
-            setPageError(
-                (err as Error)?.message || "An unexpected error occurred"
-            );
+        };
+
+        fetchUserData();
+    }, [router.isReady, router.query.externalUserId]);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2,
+                delayChildren: 0.1
+            }
         }
     };
 
-    // fetching registrations data
-    const fetchRegistrations = async () => {
-        try {
-            const response = await fetchBackend({
-                endpoint: `/registrations?eventID=${eventID}&year=${year}`,
-                method: "GET",
-                authenticatedCall: false,
-            });
-            setRegistrations(response.data);
-        } catch (err) {
-            setPageError(
-                (err as Error)?.message || "An unexpected error occurred"
-            );
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.75,
+                ease: "easeOut"
+            }
         }
     };
 
-    useEffect(() => {
-        const newQrPath = router.asPath.split("/").pop() || "";
-        setQrPath(newQrPath);
-        fetchRegistrations();
-        if (newQrPath && newQrPath !== "[externalUserId]") {
-            fetchUserID(newQrPath);
-        }
-        setLocalUser(localStorage.getItem(COMPANION_EMAIL_KEY) || undefined);
-    }, [router]);
-
-    useEffect(() => {
-        const savedId = qrData?.data.registrationID || "";
-
-        const reg = registrations.find(
-            (entry) => entry.id.toLowerCase() === localUser?.toLowerCase()
-        );
-
-        if (registrations.length != 0 && !loadingQr) {
-            setLoading(false);
-        }
-
-        if (!qrData && !loading) { 
-            setPageError("NFC data not found. Try scanning your NFC card again.");
-        } 
-        if (!reg && !loading) {
-            setPageError(
-                "Your UUID does not match an existing entry in our records. Log in to track your connections."
-            );
-        } 
-
-        if (savedId && reg) {
-            setPageError("");
-            setUserId(savedId);
-        }
-    }, [registrations, localUser, userId]);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="w-screen h-screen flex items-center justify-center">
                 <Loader2 className="animate-spin" size={50} />
             </div>
         );
     }
-    
+
     if (pageError) {
         return (
             <PageError
@@ -138,19 +120,39 @@ const Index = () => {
         );
     }
 
-    if (userId == localUser) {
+    if (!userData) {
         return (
-            <div className="w-screen h-screen flex flex-row items-center justify-center">
-                your profile
-            </div>
-        ); // TODO : redirect to your profile
-    } else {
-        return (
-            <div className="w-screen h-screen flex flex-row items-center justify-center">
-                their profile
-            </div>
-        ); // TODO : redir to their profile
+            <PageError
+                icon={<XCircleIcon size={64} color="#F87171" />}
+                title="Profile Not Found"
+                subtitle="Could not find the requested profile"
+                message="Try scanning your NFC card again."
+            />
+        );
     }
+
+    return (
+        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto pb-[100px]">
+            <NavBarContainer>
+                <motion.div
+                    className="flex-1"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    <motion.div variants={itemVariants}>
+                        <Profile userData={userData} />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                        <AttendeeInfo userData={userData} />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                        <ExtraInfo userData={userData} />
+                    </motion.div>
+                </motion.div>
+            </NavBarContainer>
+        </div>
+    );
 };
 
 export default Index;

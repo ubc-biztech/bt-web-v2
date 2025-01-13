@@ -4,7 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 interface Qr {
     data: Record<string, any>;
@@ -20,6 +20,7 @@ const Index = () => {
     const [qrData, setQrData] = useState<Qr | null>(null);
     const [loadingQr, setQrLoading] = useState(true);
     const [userLoggedIn, setUserLoggedIn] = useState(false);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
 
     const events = Events.sort((a, b) => {
         return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -54,10 +55,35 @@ const Index = () => {
         try {
             const email = localStorage.getItem(COMPANION_EMAIL_KEY)
             if (email) {
+                setUserEmail(email);
                 setUserLoggedIn(true);
             }
         } catch (err: any) {
             setUserLoggedIn(false);
+        }
+    };
+
+    const recordConnection = async (scannedProfileId: string) => {
+        try {
+            const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+            if (!profileId) {
+                throw new Error("Could not find your profile");
+            }
+
+            // Record the connection
+            await fetchBackend({
+                endpoint: `/interactions`,
+                method: "POST",
+                authenticatedCall: false,
+                data: {
+                    userID: profileId,
+                    eventType: "CONNECTION",
+                    eventParam: scannedProfileId
+                }
+            });
+        } catch (err) {
+            console.error('Error recording connection:', err);
+            // We don't want to block the redirect if connection recording fails
         }
     };
 
@@ -68,8 +94,12 @@ const Index = () => {
         }
     }, [qrId]);
 
-    const handleRedirect = (path: string) => {
+    const handleRedirect = async (path: string, scannedProfileId?: string) => {
         if (userLoggedIn) {
+            // If this is a profile scan, record the connection
+            if (scannedProfileId && userEmail) {
+                await recordConnection(scannedProfileId);
+            }
             router.push(path);
         } else {
             router.push(`/companion/login/redirect?=${path}`);
@@ -82,7 +112,7 @@ const Index = () => {
 
             switch (type) {
                 case "NFC_ATTENDEE":
-                    handleRedirect(`/companion/profile/${id}`);
+                    handleRedirect(`/companion/profile/${id}`, id);
                     break;
                 case "NFC_BOOTH":
                     handleRedirect(`/companion/booth/${id}`);
@@ -94,7 +124,7 @@ const Index = () => {
                     console.error("Unsupported QR Data type:", type);
             }
         }
-    }, [qrData, userLoggedIn, router]);
+    }, [qrData, userLoggedIn, userEmail]);
 
     if (
         !loadingQr &&
