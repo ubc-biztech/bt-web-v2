@@ -35,39 +35,6 @@ const Badges = () => {
   const [completedBadges, setCompletedBadges] = useState(0);
   const [completedHiddenBadges, setCompletedHiddenBadges] = useState(0);
 
-  useEffect(() => {
-    const fetchBadges = async () => {
-      try {
-        const data = await fetchBackend({
-          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-          endpoint: `/interactions/quests/TestDudeOne`,
-          method: "GET",
-          authenticatedCall: true,
-        });
-        const dataWithCompleteStatus = data.data.map(
-          (badge: Omit<Badge, "isComplete">) => ({
-            ...badge,
-            isComplete: badge.progress >= badge.threshold,
-          })
-        );
-        setBadges(dataWithCompleteStatus);
-        const completedCount = dataWithCompleteStatus.filter(
-          (badge: Badge) => badge.isComplete
-        ).length;
-        const completedHiddenCount = dataWithCompleteStatus.filter(
-            (badge: Badge) => badge.isComplete && hiddenBadges.includes(badge.questID)
-          ).length;
-        
-        setCompletedBadges(completedCount);
-        setCompletedHiddenBadges(completedHiddenCount);
-      } catch (error) {
-        console.error("Error fetching badges:", error);
-      }
-    };
-
-    fetchBadges();
-  }, []);
-
   return (
     <NavBarContainer>
       <div>

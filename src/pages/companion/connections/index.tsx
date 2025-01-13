@@ -4,29 +4,40 @@ import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
+import Events from '@/constants/companion-events';
+import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
   const [connections, setConnections] = useState([]);
+  const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
 
   useEffect(() => {
     const fetchConnections = async () => {
       try {
+        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        if (!profileId) {
+          setError("Please log in to view your connections");
+          return;
+        }
+
+        // Fetch connections using the profileID
         const data = await fetchBackend({
-          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-          endpoint: `/interactions/journal/TestDudeOne`,
+          endpoint: `/interactions/journal/${profileId}`,
           method: "GET",
           authenticatedCall: false,
         });
         setConnections(data.data);
       } catch (error) {
         console.error("Error fetching connections:", error);
+        setError("Error fetching your connections");
       }
     };
 
     fetchConnections();
   }, []);
+
   return (
     <NavBarContainer>
       <div>
@@ -41,7 +52,10 @@ const Connections = () => {
             selectedFilterOption={filter}
           />
         </div>
-        {connections &&
+        {error ? (
+          <div className="text-red-500 text-center mt-4">{error}</div>
+        ) : (
+          connections &&
           connections
             .filter((connection: Connection) => {
               if (filterOptions[filter] === "Attendees") {
@@ -53,10 +67,11 @@ const Connections = () => {
             })
             .map((connection, index) => (
               <CompanionConnectionRow key={index} connection={connection} />
-            ))}
+            ))
+        )}
       </div>
     </NavBarContainer>
   );
-};
+}
 
 export default Connections;

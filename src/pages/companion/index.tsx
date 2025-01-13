@@ -10,7 +10,7 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
-import { COMPANION_EMAIL_KEY } from "@/constants/companion";
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
 
 interface Registration {
@@ -139,6 +139,26 @@ const Companion = () => {
       setUserRegistration(reg);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
+      // Fetch and store profileID
+      try {
+        const profileResponse = await fetchBackend({
+          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        if (profileResponse.profileID) {
+          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+          // After setting profile ID, fetch connections and badges
+          await Promise.all([
+            fetchConnections(),
+            fetchBadges(),
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching profile ID:", err);
+      }
+
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
       }
@@ -176,9 +196,14 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your connections");
+        return;
+      }
+
       const data = await fetchBackend({
-        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/journal/TestDudeOne`, 
+        endpoint: `/interactions/journal/${profileId}`,
         method: "GET",
         authenticatedCall: false,
       });
@@ -191,11 +216,16 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your badges");
+        return;
+      }
+
       const data = await fetchBackend({
-        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/quests/TestDudeOne`, 
+        endpoint: `/interactions/quests/${profileId}`,
         method: "GET",
-        authenticatedCall: true,
+        authenticatedCall: false,
       });
       const dataWithCompleteStatus = data.data.map(
         (badge: Omit<Badge, "isComplete">) => ({
@@ -231,12 +261,12 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
+      
       await Promise.all([
         fetchRegistrations(),
         fetchEvent(),
-        fetchConnections(),
-        fetchBadges(),
       ]);
+      
       setIsLoading(false);
     };
 
