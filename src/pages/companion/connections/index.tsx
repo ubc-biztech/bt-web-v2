@@ -4,29 +4,67 @@ import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
+import Events from '@/constants/companion-events';
+import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
   const [connections, setConnections] = useState([]);
+  const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
+
+  const events = Events.sort((a, b) => {
+    return a.activeUntil.getTime() - b.activeUntil.getTime();
+  });
+
+  const currentEvent =
+    events.find((event) => {
+      const today = new Date();
+      return event.activeUntil > today;
+    }) || events[0];
+
+  const { eventID, year } = currentEvent || {};
 
   useEffect(() => {
     const fetchConnections = async () => {
       try {
+        // Get email from local storage
+        const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+        if (!email) {
+          setError("Please log in to view your connections");
+          return;
+        }
+
+        // Get profileID
+        const profileResponse = await fetchBackend({
+          endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        if (!profileResponse.profileID) {
+          setError("Could not find your profile");
+          return;
+        }
+
+        // Fetch connections using the profileID
         const data = await fetchBackend({
-          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-          endpoint: `/interactions/journal/TestDudeOne`,
+          endpoint: `/interactions/journal/${profileResponse.profileID}`,
           method: "GET",
           authenticatedCall: false,
         });
         setConnections(data.data);
       } catch (error) {
         console.error("Error fetching connections:", error);
+        setError("Error fetching your connections");
       }
     };
 
-    fetchConnections();
-  }, []);
+    if (eventID && year) {
+      fetchConnections();
+    }
+  }, [eventID, year]);
+
   return (
     <NavBarContainer>
       <div>
@@ -41,7 +79,10 @@ const Connections = () => {
             selectedFilterOption={filter}
           />
         </div>
-        {connections &&
+        {error ? (
+          <div className="text-red-500 text-center mt-4">{error}</div>
+        ) : (
+          connections &&
           connections
             .filter((connection: Connection) => {
               if (filterOptions[filter] === "Attendees") {
@@ -53,10 +94,11 @@ const Connections = () => {
             })
             .map((connection, index) => (
               <CompanionConnectionRow key={index} connection={connection} />
-            ))}
+            ))
+        )}
       </div>
     </NavBarContainer>
   );
-};
+}
 
 export default Connections;

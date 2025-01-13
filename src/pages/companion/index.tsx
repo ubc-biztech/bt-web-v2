@@ -176,9 +176,26 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
+      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+      if (!email) {
+        setPageError("Please log in to view your connections");
+        return;
+      }
+
+      // Get profileID
+      const profileResponse = await fetchBackend({
+        endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+
+      if (!profileResponse.profileID) {
+        setPageError("Could not find your profile");
+        return;
+      }
+
       const data = await fetchBackend({
-        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/journal/TestDudeOne`, 
+        endpoint: `/interactions/journal/${profileResponse.profileID}`,
         method: "GET",
         authenticatedCall: false,
       });
@@ -191,9 +208,26 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
+      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+      if (!email) {
+        setPageError("Please log in to view your badges");
+        return;
+      }
+
+      // Get profileID
+      const profileResponse = await fetchBackend({
+        endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+
+      if (!profileResponse.profileID) {
+        setPageError("Could not find your profile");
+        return;
+      }
+
       const data = await fetchBackend({
-        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/quests/TestDudeOne`, 
+        endpoint: `/interactions/quests/${profileResponse.profileID}`,
         method: "GET",
         authenticatedCall: false,
       });
