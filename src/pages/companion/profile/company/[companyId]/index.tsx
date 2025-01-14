@@ -20,7 +20,6 @@ interface CompanyProfile {
 export default function CompanyPage() {
   const [userData, setUserData] = useState<CompanyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [companyId, setCompanyId] = useState<string | undefined>(undefined);
 
 

@@ -30,7 +30,7 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                         <img src="/assets/icons/linkedin_bp_user.svg" alt="linkedin-logo" className="w-8 h-8 sm:w-10 sm:h-10" />
                         <div className="flex flex-col">
                             <span className="text-xs sm:text-sm text-light-grey font-redhat">LINKEDIN</span>
-                            <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px] xs:max-w-[170px]">
+                            <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px] xs:max-w-[180px] sm:max-w-none">
                                 {userData.linkedIn}
                             </span>
                         </div>
