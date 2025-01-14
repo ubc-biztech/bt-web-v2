@@ -152,7 +152,8 @@ const Index = () => {
         if (qrData) {
             const { type, id } = qrData;
             console.log(qrData);
-            postInteraction("TestDudeOne", type, id); // TODO integrate profiles
+            const currentUser = localStorage.getitem(COMPANION_PROFILE_ID_KEY);
+            postInteraction(currentUser, type, id); // TODO integrate profiles
         }
     }, [qrData, userLoggedIn, userEmail]);
 
