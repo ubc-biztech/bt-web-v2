@@ -33,7 +33,7 @@ const Index = () => {
     useEffect(() => {
         if (!router.isReady) return;
         const profileId = router.query.externalUserId as string;
-        
+
         const fetchUserData = async () => {
             try {
                 const response = await fetchBackend({
@@ -43,7 +43,7 @@ const Index = () => {
                 });
 
                 const backendProfile = response as BackendProfile;
-                
+
                 // Transform backend profile to match our frontend interface
                 const transformedProfile: UserProfile = {
                     name: `${backendProfile.fname} ${backendProfile.lname}`,
