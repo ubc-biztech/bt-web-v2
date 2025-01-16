@@ -27,7 +27,7 @@ export const ConnectionsList: React.FC<ConnectionsListProps> = ({
   totalCount
 }) => {
   return (
-    <SectionCard title="Recent Connections" viewAllLink="/companion/connections">
+    <SectionCard title="Connections" viewAllLink="/companion/connections">
       <div className="space-y-4">
         {totalCount && totalCount > 0 ? (
           <>

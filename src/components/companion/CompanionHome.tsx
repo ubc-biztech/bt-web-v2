@@ -62,7 +62,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
           <BadgesList badges={badges} />
         </motion.div>
 
-        {/* Recent Connections Section */}
+        {/* Connections Section */}
         <motion.div variants={itemVariants}>
           <ConnectionsList 
             connections={recentConnections} 
