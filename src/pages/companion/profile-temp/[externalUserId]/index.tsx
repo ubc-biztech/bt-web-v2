@@ -108,10 +108,8 @@ const data1: UserProfile = {
     linkedIn: `linkedin.com/in/daniellee`,
     profilePicUrl: "https://hoopshype.com/wp-content/uploads/sites/92/2024/11/i_7b_e3_c7_lebron-james.png?w=1000&h=600&crop=1",
     funFacts: [
-        "Has visited 23 countries",
-        "Can speak 3 languages",
-        "Former competitive swimmer",
-
+        "Steve Jobs",
+        "Clap on clap off lights"
     ],
     interests: [
         "UX/UI Design",

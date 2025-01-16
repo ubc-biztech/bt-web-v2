@@ -24,7 +24,7 @@ const Profile: FC<ProfileProps> = ({ userData }) => {
                     {userData.name.split(' ').map((n: string) => n[0]).join('')}
                 </div>
             )}
-            <h5 className="text-xl sm:text-2xl text-white font-sans mb-1">{userData.name}</h5>
+            <h5 className="text-xl sm:text-2xl text-center text-white font-sans mb-1">{userData.name}</h5>
             <p className="text-xs sm:text-sm text-light-grey uppercase font-redhat">{userData.role}</p>
         </div>
     );

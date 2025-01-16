@@ -10,12 +10,12 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
         if (typeof window !== 'undefined') {
             // Normalize the LinkedIn URL
             let linkedInUrl = userData.linkedIn.trim();
-    
+
             // Ensure the URL starts with "https://"
             if (!/^https?:\/\//i.test(linkedInUrl)) {
                 linkedInUrl = "https://" + linkedInUrl;
             }
-    
+
             // Redirect to the normalized URL
             window.location.href = linkedInUrl;
         }
@@ -49,7 +49,23 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                 {/* Fun Facts */}
                 <AnimatedBorder className="w-full mb-3 sm:mb-4" innerClassName='h-full w-full'>
                     <div className="relative rounded-lg p-3 sm:p-4">
-                        <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">
+                        {userData?.funFacts[0] && (
+                            <div>
+                                <p className="text-xs sm:text-sm text-light-grey font-redhat ">
+                                    ISLAND COMPANION
+                                </p>
+                                <p className="text-xs sm:text-sm font-satoshi mb-1">{userData.funFacts[0]}</p>
+                            </div>
+                        )}
+                        {userData?.funFacts[1] && (
+                            <div>
+                                <p className="text-xs sm:text-sm text-light-grey font-redhat">
+                                    INVENTION FOR ALIENS
+                                </p>
+                                <p className="text-xs sm:text-sm font-satoshi">{userData.funFacts[1]}</p>
+                            </div>
+                        )}
+                        {/* <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">
                             FUN FACTS ABOUT {userData.name.split(' ')[0].toUpperCase()}
                         </span>
                         <ul className="list-inside">
@@ -58,7 +74,7 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                                     {fact}
                                 </li>
                             ))}
-                        </ul>
+                        </ul> */}
                     </div>
                 </AnimatedBorder>
 
