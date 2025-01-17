@@ -43,11 +43,12 @@ export type UserProfile = {
     role: string;
     hobby: string;
     linkedIn: string;
-    funFacts: string[];
+    // funFacts: string[];
     interests: string[];
     additionalLink: string;
     profilePicUrl?: string;
     companyLogoUrl?: string;
+    responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
     company?: string;
     major?: string;
     year?: string;

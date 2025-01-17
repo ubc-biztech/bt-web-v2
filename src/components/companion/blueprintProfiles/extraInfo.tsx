@@ -3,6 +3,7 @@ import AdditionalLinks from './additionalLinks';
 import { CompanionButton } from '../../ui/companion-button';
 import { AnimatedBorder } from '../../ui/animated-border';
 import { UserProfile } from '@/types';
+import ResponseSection from './responseSection';
 
 const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
 
@@ -44,54 +45,18 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                 </div>
             </ AnimatedBorder>
 
-            {/* Fun Facts and Interests Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                {/* Fun Facts */}
-                <AnimatedBorder className="w-full mb-3 sm:mb-4" innerClassName='h-full w-full'>
-                    <div className="relative rounded-lg p-3 sm:p-4">
-                        {userData?.funFacts[0] && (
-                            <div>
-                                <p className="text-xs sm:text-sm text-light-grey font-redhat ">
-                                    ISLAND COMPANION
-                                </p>
-                                <p className="text-xs sm:text-sm font-satoshi mb-1">{userData.funFacts[0]}</p>
-                            </div>
-                        )}
-                        {userData?.funFacts[1] && (
-                            <div>
-                                <p className="text-xs sm:text-sm text-light-grey font-redhat">
-                                    INVENTION FOR ALIENS
-                                </p>
-                                <p className="text-xs sm:text-sm font-satoshi">{userData.funFacts[1]}</p>
-                            </div>
-                        )}
-                        {/* <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">
-                            FUN FACTS ABOUT {userData.name.split(' ')[0].toUpperCase()}
-                        </span>
-                        <ul className="list-inside">
-                            {userData.funFacts.map((fact, index) => (
-                                <li key={index} className="text-xs sm:text-sm font-satoshi mb-1 sm:mb-2">
-                                    {fact}
-                                </li>
-                            ))}
-                        </ul> */}
-                    </div>
-                </AnimatedBorder>
+            {/* Interests */}
+            {userData.interests && (
+                <ResponseSection title="HOBBIES & INTERESTS" list={userData.interests} />
+            )}
 
-                {/* Interests */}
-                <AnimatedBorder className="w-full mb-3 sm:mb-4" innerClassName='h-full w-full'>
-                    <div className="rounded-lg p-3 sm:p-4">
-                        <span className="text-xs sm:text-sm text-light-grey font-redhat mb-2 sm:mb-3">INTERESTS</span>
-                        <ul className="list-inside">
-                            {userData.interests.map((interest, index) => (
-                                <li key={index} className="text-xs sm:text-sm font-satoshi mb-1 sm:mb-2">
-                                    {interest}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </AnimatedBorder>
-            </div>
+            {userData.responseList && userData.responseList[1] && (
+                <ResponseSection title="IF I WAS STRANDED ON AN ISLAND, THE TECH FIGURE I WOULD WANT TO BE STRANDED WITH WOULD BE..." text={userData.responseList[1]} />
+            )}
+
+            {userData.responseList && userData.responseList[2] && (
+                <ResponseSection title="IF I COULD PRESENT ONE EARTHLY INVENTION TO AN ALIEN, I WOULD PRESENT..." text={userData.responseList[2]} />
+            )}
 
             <AdditionalLinks userData={userData} />
         </>
