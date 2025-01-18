@@ -71,7 +71,7 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
             <Image
                 src={event?.imageUrl || placeHolderImage} 
                 alt="event-image"
-                className="w-full h-[250px] rounded-t-lg"
+                className="w-full h-[250px] rounded-t-lg object-cover"
                 width={100}
                 height={100}
             />

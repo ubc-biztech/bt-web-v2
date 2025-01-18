@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 import { fetchBackend } from '@/lib/db';
-import CompanionLayout from '@/components/companion/CompanionLayout';
+import { useRouter } from "next/router";
+import CompanionHome from "@/components/companion/CompanionHome";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import Events from '@/constants/companion-events';
+import type { Event } from '@/constants/companion-events';
+import Loading from "@/components/Loading";
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
+import { Badge } from "./badges";
 
 interface Registration {
   id: string;
@@ -18,46 +28,140 @@ interface EventData {
   [key: string]: any;
 }
 
-const styles = {
-  error: {
-    backgroundColor: "transparent",
-    background: "white",
-    overflow: "hidden",
-    minHeight: "100vh",
-    display: "flex",
-    padding: "10px",
-    flexDirection: "column",
-    width: "100%",
-  } as const,
-};
-
 const Companion = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [pageError, setPageError] = useState("");
   const [error, setError] = useState("");
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [event, setEvent] = useState<EventData | null>(null);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
-  const [scheduleData, setScheduleData] = useState<Array<{ date: string; title: string }>>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [decodedRedirect, setDecodedRedirect] = useState("");
+  const [input, setInput] = useState("");
+  const [connections, setConnections] = useState([]);
+  const [badges, setBadges] = useState([]);
+  const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
   });
 
-  const currentEvent = events.find(event => {
+  const currentEvent: Event | undefined = events.find(event => {
     const today = new Date();
     return event.activeUntil > today;
   }) || events[0];
 
-  const { options, eventID, year, ChildComponent } = currentEvent || {};
+  const { eventID, year } = currentEvent || {};
+
+  // Animation variants
+  const fadeInUpVariant = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: {
+      duration: 0.8,
+      ease: [0.6, -0.05, 0.01, 0.99]
+    }
+  };
+
+  const backgroundOrbVariants = {
+    blue: {
+      animate: {
+        scale: [1, 1.2, 1],
+        opacity: [0.3, 0.5, 0.3],
+        y: [0, -20, 0]
+      },
+      transition: {
+        duration: 8,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    },
+    purple: {
+      animate: {
+        scale: [1.2, 1, 1.2],
+        opacity: [0.4, 0.6, 0.4],
+        y: [0, 20, 0]
+      },
+      transition: {
+        duration: 10,
+        repeat: Infinity,
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const shineAnimation = {
+    animate: {
+      x: ['-100%', '100%']
+    },
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: "linear",
+      repeatDelay: 0.5
+    }
+  };
+
+  const logoGlowAnimation = {
+    animate: {
+      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+    },
+    transition: {
+      duration: 15,
+      repeat: Infinity,
+      ease: "linear"
+    }
+  };
+
+  // Styles
+  const styles = {
+    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
+    card: "flex justify-center items-center min-h-screen overflow-hidden border-none bg-transparent relative z-10",
+    blueOrb: "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
+    purpleOrb: "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
+    contentWrapper: "w-full max-w-2xl px-4",
+    logoWrapper: "w-full flex justify-center relative",
+    logoGlow: "absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-lg blur-xl",
+    logo: "w-1/2 sm:w-3/5 mb-5 relative",
+    title: "text-2xl font-bold mb-2 text-white font-satoshi",
+    description: "text-center mb-4 text-white p1 font-satoshi",
+    input: "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
+    button: "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
+    buttonShine: "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent",
+    error: "text-red-500 text-center w-4/5 font-satoshi"
+  };
 
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
       setError("");
       setUserRegistration(reg);
-      localStorage.setItem("companionEmail", reg.id);
+      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
+
+      // Fetch and store profileID
+      try {
+        const profileResponse = await fetchBackend({
+          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        if (profileResponse.profileID) {
+          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+          // After setting profile ID, fetch connections and badges
+          await Promise.all([
+            fetchConnections(),
+            fetchBadges(),
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching profile ID:", err);
+      }
+
+      if (decodedRedirect !== "") {
+        router.push(decodedRedirect);
+      }
     } else {
       setError("This email does not match an existing entry in our records.");
       setIsLoading(false);
@@ -86,56 +190,207 @@ const Companion = () => {
       });
       setEvent(response);
     } catch (err) {
-      console.log("Error while fetching event info: ", err);
       setPageError(err as string);
     }
   };
 
-  useEffect(() => {
-    setIsLoading(true);
-    fetchRegistrations();
-    fetchEvent();
+  const fetchConnections = async () => {
+    try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your connections");
+        return;
+      }
 
-    const savedEmail = localStorage.getItem("companionEmail");
-    if (savedEmail) {
-      setEmail(savedEmail);
+      const data = await fetchBackend({
+        endpoint: `/interactions/journal/${profileId}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      setConnections(data.data);
+    } catch (err) {
+      setPageError(err as string);
+      console.error("Error fetching connections:", error);
     }
-    setIsLoading(false);
+  };
+
+  const fetchBadges = async () => {
+    try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your badges");
+        return;
+      }
+
+      const data = await fetchBackend({
+        endpoint: `/interactions/quests/${profileId}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      const dataWithCompleteStatus = data.data.map(
+        (badge: Omit<Badge, "isComplete">) => ({
+          ...badge,
+          isComplete: badge.progress >= badge.threshold,
+        })
+      );
+      setBadges(dataWithCompleteStatus);
+      const completedCount = dataWithCompleteStatus.filter(
+        (badge: Badge) => badge.isComplete
+      ).length;
+      setCompletedBadges(completedCount)
+    } catch (err) {
+      setPageError(err as string);
+      console.error("Error fetching badges:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const search = window.location.search;
+      
+      if (search.startsWith('?=')) {
+        setDecodedRedirect(decodeURIComponent(search.slice(2)));
+      }
+    }
+  }, [router]);
+
+  useEffect(() => {
+    const initializeData = async () => {
+      setIsLoading(true);
+      const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      
+      await Promise.all([
+        fetchRegistrations(),
+        fetchEvent(),
+      ]);
+      
+      setIsLoading(false);
+    };
+
+    initializeData();
   }, []);
 
   useEffect(() => {
-    setError("");
     if (email && registrations.length > 0) {
       fetchUserData();
     }
   }, [email, registrations]);
 
-  useEffect(() => {
-    if (userRegistration && options?.getScheduleData) {
-      setScheduleData(options.getScheduleData(userRegistration));
-    }
-  }, [userRegistration, options]);
+  if (isLoading) return <Loading />;
 
   if (pageError) {
     return (
-      <div style={styles.error}>
+      <div className="w-screen h-screen flex items-center justify-center">
         <div>A page error occurred, please refresh the page. If the problem persists, contact a BizTech exec for support.</div>
       </div>
     );
   }
 
+  if (!email || !userRegistration) {
+    return (
+      <div className={styles.container}>
+        <motion.div
+          className={styles.blueOrb}
+          {...backgroundOrbVariants.blue}
+        />
+        <motion.div
+          className={styles.purpleOrb}
+          {...backgroundOrbVariants.purple}
+        />
+        <Card className={styles.card}>
+          <motion.div
+            {...fadeInUpVariant}
+            className={styles.contentWrapper}
+          >
+            <div className="flex flex-col items-center justify-center">
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.2}}
+                className={styles.logoWrapper}
+              >
+                <motion.div
+                  className={styles.logoGlow}
+                  {...logoGlowAnimation}
+                />
+                <Image 
+                  src={currentEvent.options.BiztechLogo} 
+                  alt={`${currentEvent.options.title} Logo`}
+                  width={1000}
+                  height={400}
+                  quality={100}
+                  className={styles.logo}
+                  priority
+                />
+              </motion.div>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.4}}
+              >
+                <h1 className={styles.title}>Welcome!</h1>
+              </motion.div>
+              <motion.p
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.6}}
+                className={styles.description}
+              >
+                Please enter the email you used to register for {currentEvent.options.title}
+              </motion.p>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 0.8}}
+              >
+                <Input
+                  className={styles.input}
+                  onChange={(e) => setInput(e.target.value)}
+                  value={input}
+                  placeholder="Email"
+                  type="email"
+                />
+              </motion.div>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{...fadeInUpVariant.transition, delay: 1}}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  onClick={() => setEmail(input)}
+                  className={styles.button}
+                >
+                  <motion.span
+                    className={styles.buttonShine}
+                    {...shineAnimation}
+                  />
+                  <span className="relative z-10">Confirm</span>
+                </Button>
+              </motion.div>
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={styles.error}
+                >
+                  {error}
+                </motion.p>
+              )}
+            </div>
+          </motion.div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <CompanionLayout 
-      options={options}
-      email={email}
-      setEmail={setEmail}
-      registrations={registrations}
-      userRegistration={userRegistration}
-      event={event}
-      isLoading={isLoading}
-      error={error}
-      scheduleData={scheduleData}
-      ChildComponent={ChildComponent}
+    <CompanionHome
+      userName={userRegistration?.fname ?? ""}
+      connectionCount={connections?.length}
+      badgeCount={completedBadges}
+      badges={badges}
+      recentConnections={connections}
     />
   );
 };

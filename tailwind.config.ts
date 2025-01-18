@@ -55,6 +55,7 @@ const config: Config = {
       'pale-blue': '#C4D5FF',
       'baby-blue': '#B2C9FC',
       'light-blue': '#E0E9FE',
+      'light-grey': '#B3B3B3',
       'white-blue': '#F7FAFF',
       'dark-green': '#55922D',
       'light-green': '#AFE38C',
@@ -94,11 +95,19 @@ const config: Config = {
       sans: ['Open Sans', 'sans-serif'],
       poppins: ['Poppins', 'sans-serif'],
       montserrat: ['Montserrat', 'sans-serif'],
+      satoshi: ['Satoshi', 'sans-serif'],
+      redhat: ['Red Hat Mono', 'monospace'],
     },
     fontWeight: {
+      '100': '100',
+      '200': '200',
+      '300': '300',
       '400': '400',
       '500': '500',
       '600': '600',
+      '700': '700',
+      '800': '800',
+      bold: '700',
     },
     fontSize: {
       xs: '14px',
@@ -110,6 +119,10 @@ const config: Config = {
       '3xl': '48px',
     },
     extend: {
+      screens: {
+        'xs': '370px',
+        'mxs': '445px' // medium xs (could prob rename)
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
@@ -132,6 +145,7 @@ const config: Config = {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'gradient': 'nameGradient 6s ease infinite',
       },
     },
   },
