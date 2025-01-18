@@ -119,7 +119,7 @@ const SwapView: React.FC<{
     );
 };
 
-const SearchBar = () => {
+export const SearchBar = () => {
     return (
         <div className="relative flex-1 h-full">
             <Input

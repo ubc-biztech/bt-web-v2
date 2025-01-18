@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
+import { SearchBar } from "@/components/companion/CompaniesList";
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
@@ -42,9 +43,8 @@ const Connections = () => {
       <div>
         <p className="text-[22px] font-satoshi text-white">Connections</p>
         <div className="h-[1px] my-3 bg-[#1D262F]"></div>
-        <div className="flex flex-col gap-4 mb-2">
-          {/* TO DO: search bar */}
-          {/* <div className="bg-white rounded-full h-10 w-full"></div> */}
+        <div className="flex flex-row gap-4 mb-2">
+          <SearchBar />
           <Filter
             filterOptions={filterOptions}
             setSelectedFilterOption={setFilter}
