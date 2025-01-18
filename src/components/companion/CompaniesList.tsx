@@ -31,14 +31,15 @@ interface Company {
     profile_url: string;
 }
 
-type SortOption = "Name" | "Date" | "Size";
+export type SortOption = "Name" | "Date" | "Size" | "Progress";
 
 interface FilterDropdownProps {
     options: SortOption[];
+    sortBy: SortOption;
+    setSortBy: (sortOption: SortOption) => void;
 }
 
-const FilterDropdown = ({ options }: FilterDropdownProps) => {
-    const [sortBy, setSortBy] = useState<SortOption>("Name");
+export const FilterDropdown = ({ options, sortBy, setSortBy }: FilterDropdownProps) => {
 
     const handleSort = (option: SortOption) => {
         setSortBy(option);
@@ -46,8 +47,8 @@ const FilterDropdown = ({ options }: FilterDropdownProps) => {
     };
 
     return (
-        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full">
-            <span className="text-[10px] text-white">Sort by:</span>
+        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full gap-1">
+            <span className="text-[10px] text-white">Sort</span>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
@@ -192,6 +193,7 @@ interface CompanyListProps {
 
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
     const [selectedView, setSelectedView] = useState<View>("list");
+    const [sortBy, setSortBy] = useState<SortOption>("Name");
     return (
         <div className="min-h-screen bg-black text-white p-6 font-satoshi">
             <NavBarContainer>
@@ -202,7 +204,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
 
                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
                         <SearchBar />
-                        <FilterDropdown options={["Name", "Size"]} />
+                        <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
                         <SwapView
                             selectedView={selectedView}
                             setSelectedView={setSelectedView}

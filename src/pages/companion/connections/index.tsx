@@ -4,7 +4,6 @@ import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
-import Events from '@/constants/companion-events';
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 
 const Connections = () => {
