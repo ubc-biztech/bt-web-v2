@@ -22,6 +22,19 @@ const nextConfig = {
           {
             key: 'Access-Control-Allow-Origin',
             value: '*'
+          },
+          {
+            key: 'Content-Type',
+            value: 'font/woff2; charset=utf-8'
+          }
+        ]
+      },
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "font-src 'self' data: https://v2.ubcbiztech.com https://fonts.googleapis.com https://fonts.gstatic.com;"
           }
         ]
       }
