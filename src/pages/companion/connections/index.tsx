@@ -6,6 +6,7 @@ import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 import { SearchBar } from "@/components/companion/SearchBar";
+import Loading from "@/components/Loading";
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
@@ -13,13 +14,16 @@ const Connections = () => {
   const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchConnections = async () => {
       try {
+        setIsLoading(true);
         const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
         if (!profileId) {
           setError("Please log in to view your connections");
+          setIsLoading(false);
           return;
         }
 
@@ -33,6 +37,8 @@ const Connections = () => {
       } catch (error) {
         console.error("Error fetching connections:", error);
         setError("Error fetching your connections");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -45,6 +51,7 @@ const Connections = () => {
 
   return (
     <NavBarContainer>
+      {isLoading ? <div className="mt-[-90px]"><Loading /></div>: ( 
       <div>
         <p className="text-[22px] font-satoshi text-white">Connections</p>
         <div className="h-[1px] my-3 bg-[#1D262F]"></div>
@@ -81,6 +88,7 @@ const Connections = () => {
             ))
         )}
       </div>
+      )}
     </NavBarContainer>
   );
 }

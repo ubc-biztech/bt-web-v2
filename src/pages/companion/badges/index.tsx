@@ -11,6 +11,7 @@ import { CompanionItemRow } from "@/components/ui/companion-item-row";
 import { COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { FilterDropdown } from "@/components/companion/CompaniesList";
 import { SortOption } from "@/components/companion/CompaniesList";
+import Loading from "@/components/Loading";
 
 export interface Badge {
   questID: string;
@@ -39,13 +40,16 @@ const Badges = () => {
   const [completedHiddenBadges, setCompletedHiddenBadges] = useState(0);
   const [error, setError] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("Name");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchBadges = async () => {
       try {
+        setIsLoading(true);
         const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
         if (!profileId) {
           setError("Please log in to view your connections");
+          setIsLoading(false);
           return;
         }
 
@@ -73,6 +77,8 @@ const Badges = () => {
       } catch (error) {
         console.error("Error fetching badges:", error);
         setError("Error fetching your badges");
+      } finally  {
+        setIsLoading(false);
       }
     };
 
@@ -103,6 +109,7 @@ const Badges = () => {
 
   return (
     <NavBarContainer>
+      {isLoading ? <div className="mt-[-90px]"><Loading /></div>: (
       <div>
         <div className="flex flex-row items-center justify-between">
           <p className="text-[22px] font-satoshi text-white">
@@ -153,6 +160,7 @@ const Badges = () => {
           </>
         )}
       </div>
+      )}
     </NavBarContainer>
   );
 };
