@@ -43,7 +43,7 @@ export type UserProfile = {
     role: string;
     hobby: string;
     linkedIn: string;
-    // funFacts: string[];
+    funFacts: string[];
     interests: string[];
     additionalLink: string;
     profilePicUrl?: string;

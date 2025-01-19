@@ -123,7 +123,10 @@ const data1: UserProfile = {
         "Hiking"
     ],
     additionalLink: "https://github.com/dlee",
-
+    funFacts: [
+        "I love playing basketball",
+        "I'm a huge tech enthusiast"
+    ]
 };
 
 const data2: UserProfile = {
@@ -143,7 +146,11 @@ const data2: UserProfile = {
         "UX/UI Design",
         "Photography"
     ],
-    additionalLink: "https://github.com/dlee",
+    funFacts: [
+        "I'm passionate about electric vehicles",
+        "I speak three languages"
+    ],
+    additionalLink: "https://github.com/yilongmah"
 };
 
 async function getUserProfile(user: string) {
