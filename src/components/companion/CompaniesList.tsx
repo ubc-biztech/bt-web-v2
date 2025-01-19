@@ -210,7 +210,21 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                             }`}
                         >
                             {selectedView === "list" &&
-                                companies.map((company) => (
+                                companies
+                                .filter((company) => {
+                                    return (!searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                })
+                                .sort((a: Company, b: Company) => {
+                                      if (sortBy === "Size") {
+                                        // Assumes that the first character of the description will contain the number of delegates
+                                        // e.g. "3 delegates in attendance"
+                                        return parseInt(a.description[0]) - parseInt(b.description[0]);
+                                      } else if (sortBy === "Name") {
+                                        return a.name.localeCompare(b.name);
+                                      }
+                                      return 0;
+                                })
+                                .map((company) => (
                                     <CompanionItemRow
                                         href={`/companion/company/${company.profile_url}`}
                                         key={company.id}
