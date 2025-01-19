@@ -6,6 +6,7 @@ import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import Events from '@/constants/companion-events';
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
+import { getCookie } from 'cookies-next';
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
@@ -16,7 +17,7 @@ const Connections = () => {
   useEffect(() => {
     const fetchConnections = async () => {
       try {
-        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
         if (!profileId) {
           setError("Please log in to view your connections");
           return;

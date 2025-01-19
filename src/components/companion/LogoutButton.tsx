@@ -1,24 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { useRouter } from 'next/router';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
+import { deleteCookie } from 'cookies-next';
 
-const LogoutButton = () => {
+const COMPANION_FNAME_KEY = 'companion_fname';
+
+export default function LogoutButton() {
+  const router = useRouter();
+
   const handleLogout = () => {
-    localStorage.removeItem(COMPANION_EMAIL_KEY);
-    window.location.reload();
+    // Clear all companion cookies
+    deleteCookie(COMPANION_EMAIL_KEY);
+    deleteCookie(COMPANION_FNAME_KEY);
+    deleteCookie(COMPANION_PROFILE_ID_KEY);
+    
+    router.push('/companion');
   };
 
   return (
-    <Button 
-      variant="ghost" 
-      size="sm" 
+    <button
       onClick={handleLogout}
-      className="absolute top-2 right-2"
+      className="text-white hover:text-gray-300 transition-colors"
     >
-      <LogOut className="h-4 w-4 mr-2" />
       Logout
-    </Button>
+    </button>
   );
-};
-
-export default LogoutButton; 
+} 

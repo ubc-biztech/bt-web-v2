@@ -31,6 +31,11 @@ interface EventData {
 
 const COMPANION_FNAME_KEY = 'companion_fname';
 
+const COOKIE_OPTIONS = {
+  maxAge: 60 * 60 * 24 * 3, // 3 days in seconds
+  path: '/',
+};
+
 const Companion = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -147,10 +152,8 @@ const Companion = () => {
         setError("");
         setUserRegistration(reg);
         
-        // Store in localStorage and cookies
-        localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
-        setCookie(COMPANION_EMAIL_KEY, reg.id);
-        setCookie(COMPANION_FNAME_KEY, reg.fname);
+        setCookie(COMPANION_EMAIL_KEY, reg.id, COOKIE_OPTIONS);
+        setCookie(COMPANION_FNAME_KEY, reg.fname, COOKIE_OPTIONS);
 
         // Fetch and store profileID
         try {
@@ -161,7 +164,7 @@ const Companion = () => {
           });
 
           if (profileResponse.profileID) {
-            localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+            setCookie(COMPANION_PROFILE_ID_KEY, profileResponse.profileID, COOKIE_OPTIONS);
             // After setting profile ID, fetch connections and badges
             await Promise.all([
               fetchConnections(),
@@ -200,7 +203,7 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       if (!profileId) {
         setPageError("Please log in to view your connections");
         return;
@@ -220,7 +223,7 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       if (!profileId) {
         setPageError("Please log in to view your badges");
         return;
@@ -262,8 +265,7 @@ const Companion = () => {
     const initializeData = async () => {
       setIsLoading(true);
       
-      // Check for existing email in cookies first, then localStorage
-      const savedEmail = getCookie(COMPANION_EMAIL_KEY) as string || localStorage.getItem(COMPANION_EMAIL_KEY);
+      const savedEmail = getCookie(COMPANION_EMAIL_KEY) as string;
       const savedFname = getCookie(COMPANION_FNAME_KEY) as string;
       
       if (savedEmail) {
@@ -275,7 +277,7 @@ const Companion = () => {
             fname: savedFname
           });
           // Fetch connections and badges
-          const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+          const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
           if (profileId) {
             await Promise.all([
               fetchConnections(),
