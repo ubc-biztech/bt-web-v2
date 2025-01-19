@@ -1,14 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
     MapIcon,
     ListIcon,
     ArrowUpRight,
     ChevronDown,
-    SearchIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -21,6 +19,7 @@ import {
 import MapPlaceholder from "@/assets/2025/blueprint/map_placeholder.svg";
 import { CompanionItemRow } from "../ui/companion-item-row";
 import NavBarContainer from "./navigation/NavBarContainer";
+import { SearchBar } from "./SearchBar";
 
 interface Company {
     id: number;
@@ -119,20 +118,6 @@ const SwapView: React.FC<{
     );
 };
 
-export const SearchBar = () => {
-    return (
-        <div className="relative flex-1 h-full">
-            <Input
-                type="text"
-                placeholder="Search by name"
-                className="bg-white text-black pl-8 h-full rounded-full placeholder:text-[12px] text-[12px] placeholder:text-black pr-4 pb-2"
-            />
-
-            <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-black w-4 h-4" />
-        </div>
-    );
-};
-
 const CompanyCard = ({ company }: { company: Company }) => {
     return (
         <>
@@ -194,6 +179,11 @@ interface CompanyListProps {
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
     const [selectedView, setSelectedView] = useState<View>("list");
     const [sortBy, setSortBy] = useState<SortOption>("Name");
+    const [searchQuery, setSearchQuery] = useState("");
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+      };
+
     return (
         <div className="min-h-screen bg-black text-white p-6 font-satoshi">
             <NavBarContainer>
@@ -203,7 +193,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                     <div className="w-full h-[1px] bg-[#1D262F]" />
 
                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
-                        <SearchBar />
+                        <SearchBar onSearch={handleSearch}/>
                         <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
                         <SwapView
                             selectedView={selectedView}

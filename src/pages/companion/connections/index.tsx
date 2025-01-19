@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
-import { SearchBar } from "@/components/companion/CompaniesList";
+import { SearchBar } from "@/components/companion/SearchBar";
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
   const [connections, setConnections] = useState([]);
   const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -38,13 +39,17 @@ const Connections = () => {
     fetchConnections();
   }, []);
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <NavBarContainer>
       <div>
         <p className="text-[22px] font-satoshi text-white">Connections</p>
         <div className="h-[1px] my-3 bg-[#1D262F]"></div>
         <div className="flex flex-row gap-4 mb-2">
-          <SearchBar />
+          <SearchBar onSearch={handleSearch}/>
           <Filter
             filterOptions={filterOptions}
             setSelectedFilterOption={setFilter}
@@ -64,6 +69,13 @@ const Connections = () => {
               }
               return true; // For "All", show all connections
             })
+            .filter((connection: Connection) => {
+              return (
+                  !searchQuery ||
+                  connection.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  connection.lname.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+          })
             .map((connection, index) => (
               <CompanionConnectionRow key={index} connection={connection} />
             ))
