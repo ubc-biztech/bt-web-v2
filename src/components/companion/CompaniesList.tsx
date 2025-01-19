@@ -1,14 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
     MapIcon,
     ListIcon,
     ArrowUpRight,
     ChevronDown,
-    SearchIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -21,6 +19,7 @@ import {
 import MapPlaceholder from "@/assets/2025/blueprint/map_placeholder.svg";
 import { CompanionItemRow } from "../ui/companion-item-row";
 import NavBarContainer from "./navigation/NavBarContainer";
+import { SearchBar } from "./SearchBar";
 
 interface Company {
     id: number;
@@ -31,14 +30,15 @@ interface Company {
     profile_url: string;
 }
 
-type SortOption = "Name" | "Date" | "Size";
+export type SortOption = "Name" | "Date" | "Size" | "Progress";
 
 interface FilterDropdownProps {
     options: SortOption[];
+    sortBy: SortOption;
+    setSortBy: (sortOption: SortOption) => void;
 }
 
-const FilterDropdown = ({ options }: FilterDropdownProps) => {
-    const [sortBy, setSortBy] = useState<SortOption>("Name");
+export const FilterDropdown = ({ options, sortBy, setSortBy }: FilterDropdownProps) => {
 
     const handleSort = (option: SortOption) => {
         setSortBy(option);
@@ -46,8 +46,8 @@ const FilterDropdown = ({ options }: FilterDropdownProps) => {
     };
 
     return (
-        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full">
-            <span className="text-[10px] text-white">Sort by:</span>
+        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full gap-1">
+            <span className="text-[10px] text-white">Sort</span>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
@@ -118,20 +118,6 @@ const SwapView: React.FC<{
     );
 };
 
-const SearchBar = () => {
-    return (
-        <div className="relative flex-1 h-full">
-            <Input
-                type="text"
-                placeholder="Search by name"
-                className="bg-white text-black pl-8 h-full rounded-full placeholder:text-[12px] text-[12px] placeholder:text-black pr-4 pb-2"
-            />
-
-            <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-black w-4 h-4" />
-        </div>
-    );
-};
-
 const CompanyCard = ({ company }: { company: Company }) => {
     return (
         <>
@@ -192,6 +178,12 @@ interface CompanyListProps {
 
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
     const [selectedView, setSelectedView] = useState<View>("list");
+    const [sortBy, setSortBy] = useState<SortOption>("Name");
+    const [searchQuery, setSearchQuery] = useState("");
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+      };
+
     return (
         <div className="min-h-screen bg-black text-white p-6 font-satoshi">
             <NavBarContainer>
@@ -201,8 +193,8 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                     <div className="w-full h-[1px] bg-[#1D262F]" />
 
                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
-                        <SearchBar />
-                        <FilterDropdown options={["Name", "Size"]} />
+                        <SearchBar onSearch={handleSearch}/>
+                        <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
                         <SwapView
                             selectedView={selectedView}
                             setSelectedView={setSelectedView}
@@ -218,7 +210,21 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                             }`}
                         >
                             {selectedView === "list" &&
-                                companies.map((company) => (
+                                companies
+                                .filter((company) => {
+                                    return (!searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                })
+                                .sort((a: Company, b: Company) => {
+                                      if (sortBy === "Size") {
+                                        // Assumes that the first character of the description will contain the number of delegates
+                                        // e.g. "3 delegates in attendance"
+                                        return parseInt(a.description[0]) - parseInt(b.description[0]);
+                                      } else if (sortBy === "Name") {
+                                        return a.name.localeCompare(b.name);
+                                      }
+                                      return 0;
+                                })
+                                .map((company) => (
                                     <CompanionItemRow
                                         href={`/companion/company/${company.profile_url}`}
                                         key={company.id}
