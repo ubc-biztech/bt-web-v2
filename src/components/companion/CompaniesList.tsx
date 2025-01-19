@@ -46,35 +46,37 @@ const FilterDropdown = ({ options }: FilterDropdownProps) => {
     };
 
     return (
-        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full">
-            <span className="text-[10px] text-white">Sort by:</span>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="h-6 w-12 px-1 text-[10px] font-normal text-white hover:bg-white/10 text-center focus:ring-0 focus:ring-offset-0"
-                        onFocus={(e) => e.target.blur()}
-                        onMouseDown={(e) => e.preventDefault()}
-                    >
-                        <span className="w-full text-left">{sortBy}</span>
-                        <ChevronDown className="ml-1 h-3 w-2 shrink-0" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    align="center"
-                    className="min-w-[6rem] mr-6 mt-2"
-                >
-                    {options.map((option) => (
-                        <DropdownMenuItem
-                            key={option}
-                            className="text-[10px] justify-between"
-                            onSelect={() => handleSort(option)}
+        <div className="rounded-full bg-gradient-to-r from-[#BCC5E3] via-[rgba(200,212,251,0.2)] to-[#BCC5E3] bg-clip-border px-[1px] py-[1px]">
+            <div className="inline-flex items-center justify-center rounded-full bg-black pl-2 px-1 py-1 h-full">
+                <span className="text-[10px] text-white">Sort by:</span>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            className="h-5 w-12 px-1 text-[10px] font-normal text-white hover:bg-white/10 text-center focus:ring-0 focus:ring-offset-0"
+                            onFocus={(e) => e.target.blur()}
+                            onMouseDown={(e) => e.preventDefault()}
                         >
-                            {option}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
+                            <span className="w-full text-left">{sortBy}</span>
+                            <ChevronDown className="ml-1 h-3 w-2 shrink-0" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="center"
+                        className="min-w-[6rem] mr-6 mt-2"
+                    >
+                        {options.map((option) => (
+                            <DropdownMenuItem
+                                key={option}
+                                className="text-[10px] justify-between"
+                                onSelect={() => handleSort(option)}
+                            >
+                                {option}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </div>
     );
 };
@@ -86,7 +88,7 @@ const SwapView: React.FC<{
     setSelectedView: React.Dispatch<React.SetStateAction<View>>;
 }> = ({ selectedView, setSelectedView }) => {
     return (
-        <div className="relative flex items-center justify-between border border-gray-800 rounded-full w-16 h-8 p-0.5">
+        <div className="relative flex items-center justify-between rounded-full w-16 h-8 p-0.5 bg-[#1E2939]">
             <motion.div
                 className="absolute bg-white rounded-full w-8 h-7"
                 animate={{ x: selectedView === "list" ? "-5%" : "85%" }}
