@@ -48,6 +48,7 @@ export type UserProfile = {
     additionalLink: string;
     profilePicUrl?: string;
     companyLogoUrl?: string;
+    responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
     company?: string;
     major?: string;
     year?: string;

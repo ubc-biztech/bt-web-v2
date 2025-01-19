@@ -12,7 +12,9 @@ export async function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/companion') ||
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/static')
+    pathname.startsWith('/static') ||
+    pathname.startsWith('/fonts') ||
+    pathname.match(/\.(woff|woff2|ttf|otf)$/)
   ) {
     return NextResponse.next();
   }
