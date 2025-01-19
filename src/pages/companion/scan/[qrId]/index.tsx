@@ -107,12 +107,12 @@ const Index = () => {
   };
 
   useEffect(() => {
+    let redirect = "";
     const postInteraction = async (userID: string, type: string, eventParam: string) => {
       let body = {
         userID,
         eventParam
       };
-      let redirect = "";
       switch (type) {
         case "NFC_ATTENDEE":
           Object.assign(body, { eventType: CONNECTION_EVENT });
@@ -144,8 +144,6 @@ const Index = () => {
           console.log((error as any).message);
         }
       }
-
-      router.push(redirect);
     };
 
     if (qrData) {
@@ -153,6 +151,7 @@ const Index = () => {
       console.log(qrData);
       const userID = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
       postInteraction(userID || "", type, id); // TODO integrate profiles
+      handleRedirect(`/companion/profile/${id}`, id);
     }
   }, [qrData, userLoggedIn, userEmail]);
 
