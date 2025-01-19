@@ -27,15 +27,28 @@ export const ConnectionsList: React.FC<ConnectionsListProps> = ({
   totalCount
 }) => {
   return (
-    <SectionCard title="Recent Connections" viewAllLink="/companion/connections">
+    <SectionCard title="Connections" viewAllLink="/companion/connections">
       <div className="space-y-4">
-        {connections.map((connection, index) => (
-          <CompanionConnectionRow key={index} connection={connection}/>
-        ))}
-        {totalCount && totalCount > connections.length && (
-          <p className="text-center text-[#808080] text-xs mt-2 font-redhat">
-            + {totalCount - connections.length} MORE
-          </p>
+        {totalCount && totalCount > 0 ? (
+          <>
+            {connections.map((connection, index) => (
+              <CompanionConnectionRow key={index} connection={connection} />
+            ))}
+            {totalCount && totalCount > connections.length && (
+              <p className="text-center text-[#808080] text-xs mt-2 font-redhat">
+                + {totalCount - connections.length} MORE
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="font-redhat font-thin text-[14px] flex justify-center text-center">
+              NO CONNECTIONS YET
+            </p>
+            <p className="font-redhat font-thin text-[14px] flex justify-center text-center">
+              TAP YOUR FIRST NFC TO START
+            </p>
+          </>
         )}
       </div>
     </SectionCard>

@@ -38,6 +38,22 @@ export type RegistrationQuestion = {
     isSkillsQuestion?: boolean;
 }
 
+export type UserProfile = {
+    name: string;
+    role: string;
+    hobby: string;
+    linkedIn: string;
+    funFacts: string[];
+    interests: string[];
+    additionalLink: string;
+    profilePicUrl?: string;
+    companyLogoUrl?: string;
+    responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
+    company?: string;
+    major?: string;
+    year?: string;
+}
+
 export enum DBRegistrationStatus {
     WAITLISTED = "waitlist",
     REGISTERED = "registered",
@@ -127,3 +143,23 @@ export type Profile = {
 export type UserResponseList = {
     [questionId: string]: string;
 };
+
+export type BackendProfile = {
+    profileID: string;
+    fname: string;
+    lname: string;
+    pronouns: string;
+    type: string;
+    major: string;
+    year: string;
+    hobby1: string;
+    hobby2: string;
+    funQuestion1: string;
+    funQuestion2: string;
+    linkedIn: string;
+    profilePictureURL: string;
+    additionalLink: string;
+    "eventID;year": string;
+    createdAt: number;
+    updatedAt: number;
+}

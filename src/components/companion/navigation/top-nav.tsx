@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Menu } from 'lucide-react';
 import NavbarLogo from '@/assets/2025/blueprint/navbar_logo.png';
-
+import Link from 'next/link';
 interface TopNavProps {
   onMenuClick: () => void;
 }
@@ -12,8 +12,7 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
   return (
     <motion.div 
       className="flex justify-between items-center p-6"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.6,
         ease: "easeOut",
@@ -21,13 +20,15 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
       }}
     >
       <div className="relative w-32 h-8">
-        <Image
-          src={NavbarLogo}
-          alt="BluePrint Logo"
-          fill
-          className="object-contain"
-          priority
-        />
+        <Link href="/companion">
+          <Image
+            src={NavbarLogo}
+            alt="BluePrint Logo"
+            fill
+            className="object-contain"
+            priority
+          />
+        </Link>
       </div>
       <button 
         onClick={onMenuClick}

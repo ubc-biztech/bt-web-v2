@@ -14,6 +14,7 @@ interface SideNavProps {
 const navLinks = [
   { href: '/companion', label: 'Home' },
   { href: '/companion/profile', label: 'User Profile' },
+  { href: '/companion/badges', label: 'Badges' },
   { href: '/companion/connections', label: 'Connections' },
   { href: '/companion/companies', label: 'Companies' },
   { href: '/companion/faq', label: 'FAQ' }

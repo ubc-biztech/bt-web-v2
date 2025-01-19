@@ -10,7 +10,8 @@ import Image from "next/image";
 import Events from '@/constants/companion-events';
 import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
+import { Badge } from "./badges";
 
 interface Registration {
   id: string;
@@ -39,6 +40,8 @@ const Companion = () => {
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
   const [connections, setConnections] = useState([]);
+  const [badges, setBadges] = useState([]);
+  const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -136,6 +139,26 @@ const Companion = () => {
       setUserRegistration(reg);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
+      // Fetch and store profileID
+      try {
+        const profileResponse = await fetchBackend({
+          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        if (profileResponse.profileID) {
+          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+          // After setting profile ID, fetch connections and badges
+          await Promise.all([
+            fetchConnections(),
+            fetchBadges(),
+          ]);
+        }
+      } catch (err) {
+        console.error("Error fetching profile ID:", err);
+      }
+
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
       }
@@ -173,9 +196,14 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your connections");
+        return;
+      }
+
       const data = await fetchBackend({
-        // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-        endpoint: `/interactions/TestDudeOne`, 
+        endpoint: `/interactions/journal/${profileId}`,
         method: "GET",
         authenticatedCall: false,
       });
@@ -183,6 +211,36 @@ const Companion = () => {
     } catch (err) {
       setPageError(err as string);
       console.error("Error fetching connections:", error);
+    }
+  };
+
+  const fetchBadges = async () => {
+    try {
+      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      if (!profileId) {
+        setPageError("Please log in to view your badges");
+        return;
+      }
+
+      const data = await fetchBackend({
+        endpoint: `/interactions/quests/${profileId}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      const dataWithCompleteStatus = data.data.map(
+        (badge: Omit<Badge, "isComplete">) => ({
+          ...badge,
+          isComplete: badge.progress >= badge.threshold,
+        })
+      );
+      setBadges(dataWithCompleteStatus);
+      const completedCount = dataWithCompleteStatus.filter(
+        (badge: Badge) => badge.isComplete
+      ).length;
+      setCompletedBadges(completedCount)
+    } catch (err) {
+      setPageError(err as string);
+      console.error("Error fetching badges:", error);
     }
   };
 
@@ -203,7 +261,12 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
-      await Promise.all([fetchRegistrations(), fetchEvent(), fetchConnections()]);
+      
+      await Promise.all([
+        fetchRegistrations(),
+        fetchEvent(),
+      ]);
+      
       setIsLoading(false);
     };
 
@@ -225,13 +288,6 @@ const Companion = () => {
       </div>
     );
   }
-
-  // Mock data for the CompanionHome component
-  const mockBadges = [
-    { name: "KEYNOTER", description: "Attend the keynote speech" },
-    { name: "COMPLETIONIST", description: "Attend all BluePrint events" },
-    { name: "LINKEDIN WARRIOR", description: "Network with 5+ delegates" }
-  ];
 
   if (!email || !userRegistration) {
     return (
@@ -331,9 +387,9 @@ const Companion = () => {
   return (
     <CompanionHome
       userName={userRegistration?.fname ?? ""}
-      connectionCount={connections?.length || 0}
-      badgeCount={3}
-      badges={mockBadges}
+      connectionCount={connections?.length}
+      badgeCount={completedBadges}
+      badges={badges}
       recentConnections={connections}
     />
   );

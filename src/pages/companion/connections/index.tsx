@@ -4,44 +4,69 @@ import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
+import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
+import { SearchBar } from "@/components/companion/SearchBar";
+import Loading from "@/components/Loading";
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
   const [connections, setConnections] = useState([]);
+  const [error, setError] = useState("");
   const filterOptions = ["All", "Attendees", "Delegates"];
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchConnections = async () => {
       try {
+        setIsLoading(true);
+        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        if (!profileId) {
+          setError("Please log in to view your connections");
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch connections using the profileID
         const data = await fetchBackend({
-          // TO DO: currently hardcoded. Need GET call to Profile table to get obsfucatedID
-          endpoint: `/interactions/TestDudeOne`,
+          endpoint: `/interactions/journal/${profileId}`,
           method: "GET",
           authenticatedCall: false,
         });
         setConnections(data.data);
       } catch (error) {
         console.error("Error fetching connections:", error);
+        setError("Error fetching your connections");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchConnections();
   }, []);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
     <NavBarContainer>
+      {isLoading ? <div className="mt-[-90px]"><Loading /></div>: ( 
       <div>
         <p className="text-[22px] font-satoshi text-white">Connections</p>
         <div className="h-[1px] my-3 bg-[#1D262F]"></div>
-        <div className="flex flex-col gap-4 mb-2">
-          {/* TO DO: search bar */}
-          {/* <div className="bg-white rounded-full h-10 w-full"></div> */}
+        <div className="flex flex-row gap-4 mb-2">
+          <SearchBar onSearch={handleSearch}/>
           <Filter
             filterOptions={filterOptions}
             setSelectedFilterOption={setFilter}
             selectedFilterOption={filter}
           />
         </div>
-        {connections &&
+        {error ? (
+          <div className="text-red-500 text-center mt-4">{error}</div>
+        ) : (
+          connections &&
           connections
             .filter((connection: Connection) => {
               if (filterOptions[filter] === "Attendees") {
@@ -51,12 +76,21 @@ const Connections = () => {
               }
               return true; // For "All", show all connections
             })
+            .filter((connection: Connection) => {
+              return (
+                  !searchQuery ||
+                  connection.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  connection.lname.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+          })
             .map((connection, index) => (
               <CompanionConnectionRow key={index} connection={connection} />
-            ))}
+            ))
+        )}
       </div>
+      )}
     </NavBarContainer>
   );
-};
+}
 
 export default Connections;
