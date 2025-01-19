@@ -120,7 +120,7 @@ const config: Config = {
     },
     extend: {
       screens: {
-        'xs': '370px',
+        'xs': '412px', // originally 370
         'mxs': '445px' // medium xs (could prob rename)
       },
       backgroundImage: {

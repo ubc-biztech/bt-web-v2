@@ -5,6 +5,7 @@ import { AnimatedBorder } from '../../../../../components/ui/animated-border';
 import { useRouter } from 'next/router';
 import NavBarContainer from '@/components/companion/navigation/NavBarContainer';
 import { motion } from 'framer-motion';
+import ResponseSection from '@/components/companion/blueprintProfiles/responseSection';
 
 
 interface CompanyProfile {
@@ -20,7 +21,6 @@ interface CompanyProfile {
 export default function CompanyPage() {
   const [userData, setUserData] = useState<CompanyProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [companyId, setCompanyId] = useState<string | undefined>(undefined);
 
 
@@ -86,12 +86,7 @@ export default function CompanyPage() {
           </motion.div>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <motion.div variants={itemVariants}>
-              <AnimatedBorder className="w-full mb-3 sm:mb-4">
-                <div className="rounded-lg p-3 sm:p-4 font-redhat">
-                  <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">ABOUT</p>
-                  <p className='font-satoshi'>{userData.about}</p>
-                </div>
-              </AnimatedBorder>
+              <ResponseSection title='ABOUT' text={userData.about} />
             </motion.div>
           </div>
           <motion.div variants={itemVariants}>
