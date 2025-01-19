@@ -133,8 +133,8 @@ const CompanyCard = ({ company }: { company: Company }) => {
                         className="w-full h-full"
                     />
                 </div>
-                <div className="h-24 flex flex-col items-start justify-start">
-                    <span className="text-white text-lg font-satoshi">
+                <div className="xxs:h-26 h-30 flex flex-col items-start justify-start">
+                    <span className="text-white text-md xxs:text-lg text-nowrap  font-satoshi">
                         {company.name}
                     </span>
                     <p className="text-[14px] text-[#A0AEC0]">
@@ -144,7 +144,7 @@ const CompanyCard = ({ company }: { company: Company }) => {
                         {company.tags.map((tag, index) => (
                             <div
                                 key={`${tag}-${index}`}
-                                className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
+                                className="px-2 py-0.5 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
                             >
                                 {tag}
                             </div>
@@ -187,7 +187,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
       };
 
     return (
-        <div className="min-h-screen bg-black text-white p-6 font-satoshi">
+        <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-6 font-satoshi">
             <NavBarContainer>
                 <div className="max-w-4xl mx-auto space-y-6">
                     <header className="text-lg">Companies</header>

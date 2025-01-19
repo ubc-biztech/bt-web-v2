@@ -120,6 +120,7 @@ const config: Config = {
     },
     extend: {
       screens: {
+        'xxs': '360px', // minimum width for mobile
         'xs': '412px', // originally 370
         'mxs': '445px' // medium xs (could prob rename)
       },
