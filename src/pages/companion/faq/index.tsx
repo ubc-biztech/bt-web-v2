@@ -54,7 +54,7 @@ const FAQItem: React.FC<{
     );
 };
 
-const index: React.FC = () => {
+const Index: React.FC = () => {
     const [openIndices, setOpenIndices] = useState<number[]>(
         faqData.map((_, index) => index)
     );
@@ -89,4 +89,4 @@ const index: React.FC = () => {
     );
 };
 
-export default index;
+export default Index;
