@@ -147,7 +147,7 @@ const Badges = () => {
               ))}
             {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && (
               <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
-                <div className="flex justify-center flex-col text-center">
+                <div className="flex flex-col items-center justify-center w-full">
                   <p className="font-medium text-white">
                     {`+${hiddenBadges.length - completedHiddenBadges} more hidden ${hiddenBadges.length - completedHiddenBadges === 1 ? "badge" : "badges"} to collect`}
                   </p>
