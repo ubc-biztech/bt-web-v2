@@ -100,15 +100,19 @@ const Index = () => {
   }, [qrId]);
 
   useEffect(() => {
-    if (qrData) {
-      const { type, id } = qrData;
-      const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!userID) {
-        router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
-        return;
-      }
-      postInteraction(userID || "", type, id); // TODO integrate profiles
+    if (!qrData) {
+      return;
     }
+
+    const { type, id } = qrData;
+    const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
+
+    if (!userID) {
+      router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
+      return;
+    }
+
+    postInteraction(userID || "", type, id); // TODO integrate profiles
   }, [qrData]);
 
   if (!loadingQr && (!qrData || !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP"].includes(qrData.type))) {
