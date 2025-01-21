@@ -49,6 +49,50 @@ const Index = () => {
     }
   };
 
+  const postInteraction = async (userID: string, type: string, eventParam: string) => {
+    let redirect = "";
+    let body = {
+      userID,
+      eventParam
+    };
+    switch (type) {
+      case "NFC_ATTENDEE":
+        Object.assign(body, { eventType: CONNECTION_EVENT });
+        redirect = `/companion/profile/${eventParam}`;
+        break;
+      case "NFC_EXEC":
+        Object.assign(body, { eventType: CONNECTION_EVENT });
+        redirect = `/companion/profile/${eventParam}`;
+        break;
+      case "NFC_BOOTH":
+        Object.assign(body, { eventType: BOOTH_EVENT });
+        // TODO: company pages
+        // redirect = `/companion/booth/${eventParam}`;
+        redirect = `/companion/`;
+        break;
+      case "NFC_WORKSHOP":
+        Object.assign(body, { eventType: WORKSHOP_EVENT });
+        // TODO: workshop pages
+        // redirect = `/companion/workshop/${eventParam}`;
+        redirect = `/companion/`;
+        break;
+      default:
+        console.error("Unsupported QR Data type:", type);
+    }
+
+    try {
+      await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
+    } catch (error) {
+      if (Number.parseInt((error as any).status) >= 500) {
+        console.error("Backend call failed", (error as any).message);
+      } else {
+        console.log((error as any).message);
+      }
+    }
+
+    router.push(redirect);
+  };
+
   useEffect(() => {
     if (typeof qrId === "string" && qrId.trim() !== "") {
       fetchQR();
@@ -56,58 +100,13 @@ const Index = () => {
   }, [qrId]);
 
   useEffect(() => {
-    let redirect = "";
-    const postInteraction = async (userID: string, type: string, eventParam: string) => {
-      let body = {
-        userID,
-        eventParam
-      };
-      switch (type) {
-        case "NFC_ATTENDEE":
-          Object.assign(body, { eventType: CONNECTION_EVENT });
-          redirect = `/companion/profile/${eventParam}`;
-          break;
-        case "NFC_EXEC":
-          Object.assign(body, { eventType: CONNECTION_EVENT });
-          redirect = `/companion/profile/${eventParam}`;
-          break;
-        case "NFC_BOOTH":
-          Object.assign(body, { eventType: BOOTH_EVENT });
-          // TODO: company pages
-          // redirect = `/companion/booth/${eventParam}`;
-          redirect = `/companion/`;
-          break;
-        case "NFC_WORKSHOP":
-          Object.assign(body, { eventType: WORKSHOP_EVENT });
-          // TODO: workshop pages
-          // redirect = `/companion/workshop/${eventParam}`;
-          redirect = `/companion/`;
-          break;
-        default:
-          console.error("Unsupported QR Data type:", type);
-      }
-
-      if (!userID) {
-        await router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
-        return;
-      }
-
-      try {
-        await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
-      } catch (error) {
-        if (Number.parseInt((error as any).status) >= 500) {
-          console.error("Backend call failed", (error as any).message);
-        } else {
-          console.log((error as any).message);
-        }
-      }
-
-      router.push(redirect);
-    };
-
     if (qrData) {
       const { type, id } = qrData;
       const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
+      if (!userID) {
+        router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
+        return;
+      }
       postInteraction(userID || "", type, id); // TODO integrate profiles
     }
   }, [qrData]);
