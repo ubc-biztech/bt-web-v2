@@ -276,21 +276,26 @@ const Companion = () => {
             id: savedEmail,
             fname: savedFname
           });
-          // Fetch connections and badges
+          // Fetch connections, badges, and event data concurrently
           const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
           if (profileId) {
             await Promise.all([
               fetchConnections(),
               fetchBadges(),
+              fetchEvent(),
             ]);
+          } else {
+            await fetchEvent();
           }
         } else {
           // If we don't have fname, we need to fetch the registration
           await fetchUserRegistration(savedEmail);
+          await fetchEvent();
         }
+      } else {
+        await fetchEvent();
       }
       
-      await fetchEvent();
       setIsLoading(false);
     };
 
