@@ -241,13 +241,18 @@ const Companion = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const search = window.location.search;
+    const { query } = router;
+    const redirectParam = query[""] ? decodeURIComponent(query[""] as string) : "";
+    setDecodedRedirect(redirectParam);
 
-      if (search.startsWith("?=")) {
-        setDecodedRedirect(decodeURIComponent(search.slice(2)));
-      }
-    }
+    // I personally think this is hacky but equally viable
+    // if (typeof window !== "undefined") {
+    //   const search = window.location.search;
+
+    //   if (search.startsWith("?=")) {
+    //     setDecodedRedirect(decodeURIComponent(search.slice(2)));
+    //   }
+    // }
   }, [router]);
 
   useEffect(() => {

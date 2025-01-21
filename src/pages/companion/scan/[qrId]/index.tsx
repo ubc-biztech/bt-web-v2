@@ -102,19 +102,19 @@ const Index = () => {
           console.error("Unsupported QR Data type:", type);
       }
 
+      if (!userID || userID.length == 0) {
+        await router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
+        return;
+      }
+
       try {
-        const response = await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
+        await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
       } catch (error) {
         if (Number.parseInt((error as any).status) >= 500) {
           console.error("Backend call failed", (error as any).message);
         } else {
           console.log((error as any).message);
         }
-      }
-
-      if (!userID) {
-        console.log("pushing to redirect");
-        router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
       }
 
       router.push(redirect);
