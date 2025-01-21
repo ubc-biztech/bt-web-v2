@@ -10,7 +10,7 @@ import SnackSeekerIcon from "@/assets/2025/blueprint/badgeIcons/snack-seeker.svg
 import StartupExplorerIcon from "@/assets/2025/blueprint/badgeIcons/startup-explorer.svg";
 import WorkshopIcon from "@/assets/2025/blueprint/badgeIcons/workshop-wonder-1.svg";
 
-export const badgeIcons: { [key: string]: StaticImageData } = {
+export const blueprintBadgeIcons: { [key: string]: StaticImageData } = {
     QUEST_BIGTECH: BigLeagueScoutIcon,
     QUEST_BT_BOOTH_H: LoyalistLegacyIcon,
     QUEST_CONNECT_EXEC_H: DirectorsCircleIcon,

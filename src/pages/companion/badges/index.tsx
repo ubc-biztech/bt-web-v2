@@ -8,7 +8,7 @@ import { COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { FilterDropdown } from "@/components/companion/CompaniesList";
 import { SortOption } from "@/components/companion/CompaniesList";
 import Loading from "@/components/Loading";
-import { badgeIcons } from "./badgeIcons";
+import { blueprintBadgeIcons } from "@/constants/blueprint-badgeIcons";
 
 export interface Badge {
   questID: string;
@@ -133,7 +133,7 @@ const Badges = () => {
                   key={index}
                   badge={badge}
                   isHidden={hiddenBadges.includes(badge.questID)}
-                  badgeIcon={badgeIcons[badge.questID]}
+                  badgeIcon={blueprintBadgeIcons[badge.questID]}
                 />
               ))}
             {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && 
