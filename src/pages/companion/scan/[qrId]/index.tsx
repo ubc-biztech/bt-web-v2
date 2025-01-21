@@ -19,7 +19,6 @@ const Index = () => {
   const [pageError, setPageError] = useState("");
   const [qrData, setQrData] = useState<Qr | null>(null);
   const [loadingQr, setQrLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
