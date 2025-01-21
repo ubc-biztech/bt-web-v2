@@ -65,7 +65,7 @@ const Index = () => {
 
   const recordConnection = async (scannedProfileId: string) => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (!profileId) {
         throw new Error("Could not find your profile");
       }
@@ -149,7 +149,7 @@ const Index = () => {
     if (qrData) {
       const { type, id } = qrData;
       console.log(qrData);
-      const userID = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
       postInteraction(userID || "", type, id); // TODO integrate profiles
       handleRedirect(`/companion/profile/${id}`, id);
     }
