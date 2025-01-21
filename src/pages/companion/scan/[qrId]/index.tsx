@@ -19,7 +19,6 @@ const Index = () => {
   const [pageError, setPageError] = useState("");
   const [qrData, setQrData] = useState<Qr | null>(null);
   const [loadingQr, setQrLoading] = useState(true);
-  const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const events = Events.sort((a, b) => {
@@ -51,22 +50,9 @@ const Index = () => {
     }
   };
 
-  const fetchUser = async () => {
-    try {
-      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (email) {
-        setUserEmail(email);
-        setUserLoggedIn(true);
-      }
-    } catch (err: any) {
-      setUserLoggedIn(false);
-    }
-  };
-
   useEffect(() => {
     if (typeof qrId === "string" && qrId.trim() !== "") {
       fetchQR();
-      fetchUser();
     }
   }, [qrId]);
 
@@ -102,7 +88,7 @@ const Index = () => {
           console.error("Unsupported QR Data type:", type);
       }
 
-      if (!userID || userID.length == 0) {
+      if (!userID) {
         await router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
         return;
       }
@@ -125,7 +111,7 @@ const Index = () => {
       const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
       postInteraction(userID || "", type, id); // TODO integrate profiles
     }
-  }, [qrData, userLoggedIn, userEmail]);
+  }, [qrData]);
 
   if (!loadingQr && (!qrData || !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP"].includes(qrData.type))) {
     return (
