@@ -7,6 +7,7 @@ import { Connection } from "@/components/companion/connections/connections-list"
 import { COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 import { SearchBar } from "@/components/companion/SearchBar";
 import Loading from "@/components/Loading";
+import { getCookie } from 'cookies-next';
 
 const Connections = () => {
   const [filter, setFilter] = useState(0);
@@ -20,7 +21,7 @@ const Connections = () => {
     const fetchConnections = async () => {
       try {
         setIsLoading(true);
-        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
         if (!profileId) {
           setError("Please log in to view your connections");
           setIsLoading(false);

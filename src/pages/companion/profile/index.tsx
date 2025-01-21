@@ -5,6 +5,7 @@ import { Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 import PageError from "@/components/companion/PageError";
+import { getCookie } from 'cookies-next';
 
 const CompanionProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,8 +27,8 @@ const CompanionProfile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Get email from local storage
-        const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+        // Get email from cookies
+        const email = getCookie(COMPANION_EMAIL_KEY) as string;
         if (!email) {
           router.push('/companion');
           return;

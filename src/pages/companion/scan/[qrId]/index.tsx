@@ -5,6 +5,7 @@ import { Loader2, QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
 import { BOOTH_EVENT, COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
+import { getCookie } from 'cookies-next';
 
 interface Qr {
   data: Record<string, any>;
@@ -53,7 +54,7 @@ const Index = () => {
 
   const fetchUser = async () => {
     try {
-      const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+      const email = getCookie(COMPANION_EMAIL_KEY) as string;
       if (email) {
         setUserEmail(email);
         setUserLoggedIn(true);
@@ -65,7 +66,7 @@ const Index = () => {
 
   const recordConnection = async (scannedProfileId: string) => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       if (!profileId) {
         throw new Error("Could not find your profile");
       }
@@ -149,7 +150,7 @@ const Index = () => {
     if (qrData) {
       const { type, id } = qrData;
       console.log(qrData);
-      const userID = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const userID = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       postInteraction(userID || "", type, id); // TODO integrate profiles
       handleRedirect(`/companion/profile/${id}`, id);
     }

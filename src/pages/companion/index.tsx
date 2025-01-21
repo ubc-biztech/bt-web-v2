@@ -12,6 +12,7 @@ import type { Event } from '@/constants/companion-events';
 import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
+import { getCookie, setCookie } from 'cookies-next';
 
 interface Registration {
   id: string;
@@ -28,14 +29,20 @@ interface EventData {
   [key: string]: any;
 }
 
+const COMPANION_FNAME_KEY = 'companion_fname';
+
+const COOKIE_OPTIONS = {
+  maxAge: 60 * 60 * 24 * 3, // 3 days in seconds
+  path: '/',
+};
+
 const Companion = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [pageError, setPageError] = useState("");
   const [error, setError] = useState("");
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [event, setEvent] = useState<EventData | null>(null);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
+  const [event, setEvent] = useState<EventData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
@@ -132,53 +139,53 @@ const Companion = () => {
     error: "text-red-500 text-center w-4/5 font-satoshi"
   };
 
-  const fetchUserData = async () => {
-    const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
-    if (reg) {
-      setError("");
-      setUserRegistration(reg);
-      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
-
-      // Fetch and store profileID
-      try {
-        const profileResponse = await fetchBackend({
-          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
-          method: "GET",
-          authenticatedCall: false,
-        });
-
-        if (profileResponse.profileID) {
-          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
-          // After setting profile ID, fetch connections and badges
-          await Promise.all([
-            fetchConnections(),
-            fetchBadges(),
-          ]);
-        }
-      } catch (err) {
-        console.error("Error fetching profile ID:", err);
-      }
-
-      if (decodedRedirect !== "") {
-        router.push(decodedRedirect);
-      }
-    } else {
-      setError("This email does not match an existing entry in our records.");
-      setIsLoading(false);
-    }
-  };
-
-  const fetchRegistrations = async () => {
+  const fetchUserRegistration = async (userEmail: string) => {
     try {
       const response = await fetchBackend({
-        endpoint: `/registrations?eventID=${eventID}&year=${year}`,
+        endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${userEmail}`,
         method: "GET",
         authenticatedCall: false
       });
-      setRegistrations(response.data);
+      
+      if (response.data && response.data.length > 0) {
+        const reg = response.data[0];
+        setError("");
+        setUserRegistration(reg);
+        
+        setCookie(COMPANION_EMAIL_KEY, reg.id, COOKIE_OPTIONS);
+        setCookie(COMPANION_FNAME_KEY, reg.fname, COOKIE_OPTIONS);
+
+        // Fetch and store profileID
+        try {
+          const profileResponse = await fetchBackend({
+            endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+            method: "GET",
+            authenticatedCall: false,
+          });
+
+          if (profileResponse.profileID) {
+            setCookie(COMPANION_PROFILE_ID_KEY, profileResponse.profileID, COOKIE_OPTIONS);
+            // After setting profile ID, fetch connections and badges
+            await Promise.all([
+              fetchConnections(),
+              fetchBadges(),
+            ]);
+          }
+        } catch (err) {
+          console.error("Error fetching profile ID:", err);
+        }
+
+        if (decodedRedirect !== "") {
+          router.push(decodedRedirect);
+        }
+      } else {
+        setError("This email does not match an existing entry in our records.");
+      }
     } catch (err) {
-      setPageError(err as string);
+      setError("Error fetching registration data. Please try again.");
+      console.error("Error fetching registration:", err);
     }
+    setIsLoading(false);
   };
 
   const fetchEvent = async () => {
@@ -196,7 +203,7 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       if (!profileId) {
         setPageError("Please log in to view your connections");
         return;
@@ -216,7 +223,7 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
       if (!profileId) {
         setPageError("Please log in to view your badges");
         return;
@@ -257,15 +264,37 @@ const Companion = () => {
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
-      const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
+      
+      const savedEmail = getCookie(COMPANION_EMAIL_KEY) as string;
+      const savedFname = getCookie(COMPANION_FNAME_KEY) as string;
+      
       if (savedEmail) {
         setEmail(savedEmail);
+        if (savedFname) {
+          // If we have both email and fname in cookies, we can set the registration directly
+          setUserRegistration({
+            id: savedEmail,
+            fname: savedFname
+          });
+          // Fetch connections, badges, and event data concurrently
+          const profileId = getCookie(COMPANION_PROFILE_ID_KEY) as string;
+          if (profileId) {
+            await Promise.all([
+              fetchConnections(),
+              fetchBadges(),
+              fetchEvent(),
+            ]);
+          } else {
+            await fetchEvent();
+          }
+        } else {
+          // If we don't have fname, we need to fetch the registration
+          await fetchUserRegistration(savedEmail);
+          await fetchEvent();
+        }
+      } else {
+        await fetchEvent();
       }
-      
-      await Promise.all([
-        fetchRegistrations(),
-        fetchEvent(),
-      ]);
       
       setIsLoading(false);
     };
@@ -274,10 +303,10 @@ const Companion = () => {
   }, []);
 
   useEffect(() => {
-    if (email && registrations.length > 0) {
-      fetchUserData();
+    if (email && !userRegistration) {
+      fetchUserRegistration(email);
     }
-  }, [email, registrations]);
+  }, [email]);
 
   if (isLoading) return <Loading />;
 
