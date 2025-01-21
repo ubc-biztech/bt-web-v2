@@ -83,7 +83,15 @@ const Connections = () => {
                   connection.lname.toLowerCase().includes(searchQuery.toLowerCase())
                 );
               })
-              .map((connection, index) => <CompanionConnectionRow key={index} connection={connection} />)
+              .map((connection: Connection, index: number) => {
+                const capitalizedConnection = {
+                  ...connection,
+                  major: connection?.major?.toUpperCase(),
+                  year: connection?.year?.toUpperCase(),
+                };
+
+                return <CompanionConnectionRow key={index} connection={capitalizedConnection} />
+              })
           )}
         </div>
       )}

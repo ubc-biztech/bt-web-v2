@@ -37,39 +37,42 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
 
   return (
     <NavBarContainer>
-        {/* Welcome Section */}
-        <motion.div className="p-5 rounded-3xl" variants={itemVariants}>
-          <div className="text-[28px] font-medium mb-3 text-white">
-            Welcome, <GradientText>{userName}</GradientText>
-          </div>
-          <div className="text-[#808080] text-[28px] font-satoshi flex items-center flex-wrap gap-x-2">
-            You&apos;ve made 
+      {/* Welcome Section */}
+      <motion.div className="font-[500] p-5 rounded-3xl" variants={itemVariants}>
+        <div className="text-[28px] font-medium mb-3 text-white">
+          Welcome, <GradientText>{userName}</GradientText>
+        </div>
+        <div className="text-[#808080] text-[18px] font-satoshi flex flex-col gap-2">
+          <div className="flex gap-2 max-[344px]:flex-col">
+            You&apos;ve made
             <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
               <Users2 className="w-6 h-6" strokeWidth={1.5} />
-              {connectionCount} connections
-            </span> 
-            and collected{' '}
+              {connectionCount} connections and
+            </span>
+          </div>
+          <div className="flex gap-2 max-[344px]:flex-col">
+            collected{' '}
             <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
               <Trophy className="w-6 h-6" strokeWidth={1.5} />
-              {badgeCount} badges
-            </span> 
-            so far.
+              {badgeCount} badges so far.
+            </span>
           </div>
-        </motion.div>
+        </div>
+      </motion.div>
 
-        {/* Badges Section */}
-        <motion.div variants={itemVariants}>
-          <BadgesList badges={badges} />
-        </motion.div>
+      {/* Badges Section */}
+      <motion.div variants={itemVariants}>
+        <BadgesList badges={badges} />
+      </motion.div>
 
-        {/* Connections Section */}
-        <motion.div variants={itemVariants}>
-          <ConnectionsList 
-            connections={recentConnections} 
-            totalCount={connectionCount} 
-          />
-        </motion.div>
-      </NavBarContainer>
+      {/* Connections Section */}
+      <motion.div variants={itemVariants}>
+        <ConnectionsList
+          connections={recentConnections}
+          totalCount={connectionCount}
+        />
+      </motion.div>
+    </NavBarContainer>
   );
 };
 
