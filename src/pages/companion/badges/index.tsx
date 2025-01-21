@@ -136,7 +136,8 @@ const Badges = () => {
                   badgeIcon={badgeIcons[badge.questID]}
                 />
               ))}
-            {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && (
+            {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && 
+            (hiddenBadges.length - completedHiddenBadges > 0) && (
               <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
                 <div className="flex flex-col items-center justify-center w-full">
                   <p className="font-medium text-white">
