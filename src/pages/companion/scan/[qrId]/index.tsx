@@ -63,48 +63,12 @@ const Index = () => {
     }
   };
 
-  const recordConnection = async (scannedProfileId: string) => {
-    try {
-      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!profileId) {
-        throw new Error("Could not find your profile");
-      }
-
-      // Record the connection
-      await fetchBackend({
-        endpoint: `/interactions`,
-        method: "POST",
-        authenticatedCall: false,
-        data: {
-          userID: profileId,
-          eventType: "CONNECTION",
-          eventParam: scannedProfileId
-        }
-      });
-    } catch (err) {
-      console.error("Error recording connection:", err);
-      // We don't want to block the redirect if connection recording fails
-    }
-  };
-
   useEffect(() => {
     if (typeof qrId === "string" && qrId.trim() !== "") {
       fetchQR();
       fetchUser();
     }
   }, [qrId]);
-
-  const handleRedirect = async (path: string, scannedProfileId?: string) => {
-    if (userLoggedIn) {
-      // If this is a profile scan, record the connection
-      if (scannedProfileId && userEmail) {
-        await recordConnection(scannedProfileId);
-      }
-      router.push(path);
-    } else {
-      router.push(`/companion/login/redirect?=${path}`);
-    }
-  };
 
   useEffect(() => {
     let redirect = "";
@@ -124,18 +88,21 @@ const Index = () => {
           break;
         case "NFC_BOOTH":
           Object.assign(body, { eventType: BOOTH_EVENT });
-          redirect = `/companion/booth/${eventParam}`;
+          // TODO: company pages
+          // redirect = `/companion/booth/${eventParam}`;
+          redirect = `/companion/`;
           break;
         case "NFC_WORKSHOP":
           Object.assign(body, { eventType: WORKSHOP_EVENT });
-          redirect = `/companion/workshop/${eventParam}`;
+          // TODO: workshop pages
+          // redirect = `/companion/workshop/${eventParam}`;
+          redirect = `/companion/`;
           break;
         default:
           console.error("Unsupported QR Data type:", type);
       }
 
       try {
-        console.log(body);
         const response = await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
       } catch (error) {
         if (Number.parseInt((error as any).status) >= 500) {
@@ -144,14 +111,18 @@ const Index = () => {
           console.log((error as any).message);
         }
       }
+
+      if (!userID) {
+        router.push(`/companion/login/redirect?=${qrId}`);
+      }
+
+      router.push(redirect);
     };
 
     if (qrData) {
       const { type, id } = qrData;
-      console.log(qrData);
       const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
       postInteraction(userID || "", type, id); // TODO integrate profiles
-      handleRedirect(`/companion/profile/${id}`, id);
     }
   }, [qrData, userLoggedIn, userEmail]);
 

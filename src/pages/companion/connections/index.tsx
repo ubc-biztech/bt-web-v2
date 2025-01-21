@@ -4,10 +4,8 @@ import Filter from "@/components/companion/Filter";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
-import { COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { SearchBar } from "@/components/companion/SearchBar";
 import Loading from "@/components/Loading";
-import Events from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 
 const Connections = () => {
@@ -22,7 +20,6 @@ const Connections = () => {
     const fetchConnections = async () => {
       try {
         setIsLoading(true);
-        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
         const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
         if (!profileId) {
           setError("Please log in to view your connections");
