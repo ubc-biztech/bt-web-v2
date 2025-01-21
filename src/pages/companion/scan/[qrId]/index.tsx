@@ -113,7 +113,8 @@ const Index = () => {
       }
 
       if (!userID) {
-        router.push(`/companion/login/redirect?=${qrId}`);
+        console.log("pushing to redirect");
+        router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
       }
 
       router.push(redirect);
