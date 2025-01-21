@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
-import { deleteCookie } from 'cookies-next';
-
-const COMPANION_FNAME_KEY = 'companion_fname';
 
 export default function ResetCompanion() {
   const [isReset, setIsReset] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Clear all companion cookies
-    deleteCookie(COMPANION_EMAIL_KEY);
-    deleteCookie(COMPANION_FNAME_KEY);
-    deleteCookie(COMPANION_PROFILE_ID_KEY);
-    
+    // Clear both email and profileID from local storage
+    localStorage.removeItem(COMPANION_EMAIL_KEY);
+    localStorage.removeItem(COMPANION_PROFILE_ID_KEY);
     setIsReset(true);
 
     // Redirect after showing the reset message
