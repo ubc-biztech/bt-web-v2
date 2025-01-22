@@ -345,7 +345,7 @@ const Companion = () => {
       connectionCount={connections?.length}
       badgeCount={completedBadges}
       badges={badges}
-      recentConnections={connections}
+      recentConnections={connections.slice(0,3)}
     />
   );
 };

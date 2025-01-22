@@ -4,7 +4,7 @@ import Filter from "@/components/companion/Filter";
 import { BadgeRow } from "@/components/companion/badges/badge-row";
 import { fetchBackend } from "@/lib/db";
 import { CompanionItemRow } from "@/components/ui/companion-item-row";
-import { COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { FilterDropdown } from "@/components/companion/CompaniesList";
 import { SortOption } from "@/components/companion/CompaniesList";
 import Loading from "@/components/Loading";
@@ -37,7 +37,7 @@ const Badges = () => {
     const fetchBadges = async () => {
       try {
         setIsLoading(true);
-        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
         if (!profileId) {
           setError("Please log in to view your connections");
           setIsLoading(false);
