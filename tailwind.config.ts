@@ -59,6 +59,7 @@ const config: Config = {
       'white-blue': '#F7FAFF',
       'dark-green': '#55922D',
       'light-green': '#AFE38C',
+      'neon-green': '#39FF14',
       'white-green': '#F2FAEC',
       'light-red': '#FF8686',
       'divider': '#8DA1D1',
@@ -141,6 +142,11 @@ const config: Config = {
         'accordion-up': {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
+        },
+        "gradient": {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
         },
       },
       animation: {

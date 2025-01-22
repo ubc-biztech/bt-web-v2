@@ -128,6 +128,7 @@ const Companion = () => {
     description: "text-center mb-4 text-white p1 font-satoshi",
     input: "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
     button: "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
+    // buttonShine: "absolute inset-0 bg-gradient-to-r from-[#000000] via-[#0D47A1]/40 to-[#000000] animate-shine transition-all duration-1500 ease-linear",
     buttonShine: "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent",
     error: "text-red-500 text-center w-4/5 font-satoshi"
   };

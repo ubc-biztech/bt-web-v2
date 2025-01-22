@@ -6,7 +6,7 @@ import { UserProfile } from '@/types';
 
 
 const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
-    const visitPageLink = `/companion/profile/company/${userData.company}`
+    // const visitPageLink = `/companion/profile/company/${userData.company}`
     return (
         <AnimatedBorder className="w-full mb-3">
             <div className="rounded-lg py-6 pl-2">
@@ -39,13 +39,13 @@ const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                                 <div className="flex flex-col">
                                     <span className="text-xs text-light-grey font-mono">ROLE</span>
                                     <span className="text-sm font-satoshi">
-                                        {userData.role}
+                                        {userData.type}
                                     </span>
                                 </div>
                                 <div className="flex flex-col ml-4 sm:ml-6 md:ml-8 mr-3">
-                                    <span className="text-xs text-light-grey font-mono">FAVOURITE HOBBY</span>
+                                    <span className="text-xs text-light-grey font-mono">PRONOUNS</span>
                                     <span className="text-sm font-satoshi">
-                                        {userData.hobby}
+                                        {userData.pronouns}
                                     </span>
                                 </div>
                             </div>

@@ -39,20 +39,41 @@ export type RegistrationQuestion = {
 }
 
 export type UserProfile = {
-    name: string;
-    role: string;
-    hobby: string;
-    linkedIn: string;
-    funFacts: string[];
-    interests: string[];
-    additionalLink: string;
-    profilePicUrl?: string;
-    companyLogoUrl?: string;
-    responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
-    company?: string;
-    major?: string;
-    year?: string;
-}
+    profileID: string;
+    fname: string;
+    lname: string;
+    pronouns: string;
+    type: string;
+    hobby1?: string; 
+    hobby2?: string;
+    funQuestion1?: string;
+    funQuestion2?: string;
+    linkedIn?: string;
+    profilePictureURL?: string;
+    additionalLink?: string;
+    description?: string; 
+    major?: string; 
+    year?: string; 
+    eventIDYear: string; 
+    createdAt: number;
+    updatedAt: number;
+  };
+  
+// export type UserProfile = {
+//     name: string;
+//     role: string;
+//     hobby: string;
+//     linkedIn: string;
+//     funFacts: string[];
+//     interests: string[];
+//     additionalLink: string;
+//     profilePicUrl?: string;
+//     companyLogoUrl?: string;
+//     responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
+//     company?: string;
+//     major?: string;
+//     year?: string;
+// }
 
 export enum DBRegistrationStatus {
     WAITLISTED = "waitlist",
@@ -157,6 +178,7 @@ export type BackendProfile = {
     funQuestion1: string;
     funQuestion2: string;
     linkedIn: string;
+    description?: string;
     profilePictureURL: string;
     additionalLink: string;
     "eventID;year": string;

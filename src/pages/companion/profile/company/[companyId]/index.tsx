@@ -11,10 +11,11 @@ import ResponseSection from '@/components/companion/blueprintProfiles/responseSe
 interface CompanyProfile {
   PK: string;
   id: string;
-  name: string;
-  role: string;
+  fname: string;
+  lname: string;
+  type: string;
   profilePicUrl: string;
-  about: string;
+  description: string;
   additionalLink: string;
 }
 
@@ -86,7 +87,7 @@ export default function CompanyPage() {
           </motion.div>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
             <motion.div variants={itemVariants}>
-              <ResponseSection title='ABOUT' text={userData.about} />
+              <ResponseSection title='ABOUT' text={userData.description} />
             </motion.div>
           </div>
           <motion.div variants={itemVariants}>
@@ -103,10 +104,11 @@ async function getCompanyProfile(name: string) {
   {
     "PK": "tesla#1234",
     "id": "1234",
-    "name": "Tesla",
-    "role": "Company",
+    "fname": "Tesla",
+    "lname": "", 
+    "type": "Company",
     "profilePicUrl": "https://static.vecteezy.com/system/resources/previews/020/336/735/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg",
-    "about": "Tesla is an American multinational automotive and clean energy company. Headquartered in Austin, Texas, it designs, manufactures and sells battery electric vehicle, stationary battery energy storage devices from home to grid-scale, solar panels and solar shingles, and related products and services. ",
+    "description": "Tesla is an American multinational automotive and clean energy company. Headquartered in Austin, Texas, it designs, manufactures and sells battery electric vehicle, stationary battery energy storage devices from home to grid-scale, solar panels and solar shingles, and related products and services. ",
     "additionalLink": "https://linkedin.com/company/tesla"
   };
   return data;
