@@ -101,6 +101,9 @@ const Companion = () => {
       repeat: Infinity,
       ease: "linear",
       repeatDelay: 0.5
+    },
+    whileHover: {
+      x: '0%' // Stops the animation on hover
     }
   };
 
@@ -127,11 +130,9 @@ const Companion = () => {
     logo: "w-1/2 sm:w-3/5 mb-5 relative",
     title: "text-2xl font-bold mb-2 text-white font-satoshi",
     description: "text-center mb-4 text-white p1 font-satoshi",
-    input:
-      "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
-    button:
-      "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
-    buttonShine: "absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent",
+    input: "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
+    button: "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
+    buttonShine: "absolute inset-0 transform bg-gradient-to-r from-[#1E88E5] hover:from-[#1976D2] via-white/20 hover:to-[#1976D2] to-[#1E88E5]",
     error: "text-red-500 text-center w-4/5 font-satoshi"
   };
 

@@ -11,6 +11,8 @@ import ExtraInfo from "@/components/companion/blueprintProfiles/extraInfo";
 import AttendeeInfo from "@/components/companion/blueprintProfiles/attendeeInfo";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { motion } from 'framer-motion';
+import ResponseSection from "@/components/companion/blueprintProfiles/responseSection";
+import CompanyInfo from "@/components/companion/blueprintProfiles/delegateInfo";
 
 const Index = () => {
     const [userData, setUserData] = useState<UserProfile | null>(null);
@@ -46,22 +48,28 @@ const Index = () => {
                 
                 // Transform backend profile to match our frontend interface
                 const transformedProfile: UserProfile = {
-                    name: `${backendProfile.fname} ${backendProfile.lname}`,
-                    role: backendProfile.type,
-                    hobby: backendProfile.hobby1,
+                    profileID: backendProfile.profileID,
+                    fname: backendProfile.fname,
+                    lname: backendProfile.lname,
+                    pronouns: backendProfile.pronouns,
+                    type: backendProfile.type as "Partner" | "Attendee",
+                    hobby1: backendProfile.hobby1,
+                    hobby2: backendProfile.hobby2,
+                    funQuestion1: backendProfile.funQuestion1,
+                    funQuestion2: backendProfile.funQuestion2,
                     linkedIn: backendProfile.linkedIn,
-                    funFacts: [
-                        backendProfile.funQuestion1,
-                        backendProfile.funQuestion2,
-                    ].filter(Boolean),
-                    interests: [
-                        backendProfile.hobby1,
-                        backendProfile.hobby2,
-                    ].filter(Boolean),
+                    profilePictureURL: backendProfile.profilePictureURL,
                     additionalLink: backendProfile.additionalLink,
-                    profilePicUrl: backendProfile.profilePictureURL,
+                    description: backendProfile.description,
                     major: backendProfile.major,
                     year: backendProfile.year,
+                    eventIDYear: backendProfile.eventIDYear,
+                    role: backendProfile.role,
+                    createdAt: backendProfile.createdAt,
+                    updatedAt: backendProfile.updatedAt,
+                    company: backendProfile.company,
+                    companyProfileID: backendProfile.companyProfileID,
+                    companyProfilePictureURL: backendProfile.companyProfilePictureURL,
                 };
 
                 setUserData(transformedProfile);
@@ -143,9 +151,18 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
-                    <motion.div variants={itemVariants}>
-                        <AttendeeInfo userData={userData} />
-                    </motion.div>
+                    {userData.description && (
+                        <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
+                    )}
+                    {userData.type == "Partner" ?
+                        <motion.div variants={itemVariants}>
+                            <CompanyInfo userData={userData} />
+                        </motion.div>
+                        :
+                        <motion.div variants={itemVariants}>
+                            <AttendeeInfo userData={userData} />
+                        </motion.div>
+                    }
                     <motion.div variants={itemVariants}>
                         <ExtraInfo userData={userData} />
                     </motion.div>

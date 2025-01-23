@@ -39,20 +39,30 @@ export type RegistrationQuestion = {
 }
 
 export type UserProfile = {
-    name: string;
-    role: string;
-    hobby: string;
-    linkedIn: string;
-    funFacts: string[];
-    interests: string[];
-    additionalLink: string;
-    profilePicUrl?: string;
-    companyLogoUrl?: string;
-    responseList?: string[]; // ["I am...". "Stuck on an Island...", "Show an invention to an alien..."]
+    profileID: string;
+    fname: string;
+    lname: string;
+    pronouns: string;
+    type: string;
+    hobby1?: string; 
+    hobby2?: string;
+    funQuestion1?: string;
+    funQuestion2?: string;
+    linkedIn?: string;
+    profilePictureURL?: string;
+    additionalLink?: string;
+    description?: string; 
+    major?: string; 
+    year?: string; 
+    eventIDYear: string; 
+    name?: string;
+    role?: string;
+    createdAt: number;
+    updatedAt: number;
     company?: string;
-    major?: string;
-    year?: string;
-}
+    companyProfileID?: string;
+    companyProfilePictureURL?: string;
+};
 
 export enum DBRegistrationStatus {
     WAITLISTED = "waitlist",
@@ -144,22 +154,29 @@ export type UserResponseList = {
     [questionId: string]: string;
 };
 
+
 export type BackendProfile = {
     profileID: string;
     fname: string;
     lname: string;
     pronouns: string;
     type: string;
-    major: string;
-    year: string;
-    hobby1: string;
-    hobby2: string;
-    funQuestion1: string;
-    funQuestion2: string;
-    linkedIn: string;
-    profilePictureURL: string;
-    additionalLink: string;
-    "eventID;year": string;
+    hobby1?: string; 
+    hobby2?: string;
+    funQuestion1?: string;
+    funQuestion2?: string;
+    linkedIn?: string;
+    profilePictureURL?: string;
+    additionalLink?: string;
+    description?: string; 
+    major?: string; 
+    year?: string; 
+    eventIDYear: string; 
+    role?: string;
+    name?: string;
     createdAt: number;
     updatedAt: number;
-}
+    company?: string;
+    companyProfileID?: string;
+    companyProfilePictureURL?: string;
+};
