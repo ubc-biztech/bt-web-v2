@@ -63,29 +63,14 @@ const Index = () => {
                     description: backendProfile.description,
                     major: backendProfile.major,
                     year: backendProfile.year,
-                    eventIDYear: backendProfile["eventID;year"],
+                    eventIDYear: backendProfile.eventIDYear,
+                    role: backendProfile.role,
                     createdAt: backendProfile.createdAt,
                     updatedAt: backendProfile.updatedAt,
+                    company: backendProfile.company,
+                    companyProfileID: backendProfile.companyProfileID,
+                    companyProfilePictureURL: backendProfile.companyProfilePictureURL,
                 };
-                
-                // const transformedProfile: UserProfile = {
-                //     name: `${backendProfile.fname} ${backendProfile.lname}`,
-                //     role: backendProfile.type,
-                //     hobby: backendProfile.hobby1,
-                //     linkedIn: backendProfile.linkedIn,
-                //     funFacts: [
-                //         backendProfile.funQuestion1,
-                //         backendProfile.funQuestion2,
-                //     ].filter(Boolean),
-                //     interests: [
-                //         backendProfile.hobby1,
-                //         backendProfile.hobby2,
-                //     ].filter(Boolean),
-                //     additionalLink: backendProfile.additionalLink,
-                //     profilePicUrl: backendProfile.profilePictureURL,
-                //     major: backendProfile.major,
-                //     year: backendProfile.year,
-                // };
 
                 setUserData(transformedProfile);
                 setIsLoading(false);
@@ -183,24 +168,6 @@ const Index = () => {
                     </motion.div>
                 </motion.div>
             </NavBarContainer>
-            {/* <NavBarContainer>
-                <motion.div
-                    className="flex-1"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                >
-                    <motion.div variants={itemVariants}>
-                        <Profile userData={userData} />
-                    </motion.div>
-                    <motion.div variants={itemVariants}>
-                        <AttendeeInfo userData={userData} />
-                    </motion.div>
-                    <motion.div variants={itemVariants}>
-                        <ExtraInfo userData={userData} />
-                    </motion.div>
-                </motion.div>
-            </NavBarContainer> */}
         </div>
     );
 };
