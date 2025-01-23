@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchBackend } from '@/lib/db';
+import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
 import { Card } from "@/components/ui/card";
@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Events from '@/constants/companion-events';
-import type { Event } from '@/constants/companion-events';
+import Events from "@/constants/companion-events";
+import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
@@ -47,10 +47,11 @@ const Companion = () => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
   });
 
-  const currentEvent: Event | undefined = events.find(event => {
-    const today = new Date();
-    return event.activeUntil > today;
-  }) || events[0];
+  const currentEvent: Event | undefined =
+    events.find((event) => {
+      const today = new Date();
+      return event.activeUntil > today;
+    }) || events[0];
 
   const { eventID, year } = currentEvent || {};
 
@@ -93,7 +94,7 @@ const Companion = () => {
 
   const shineAnimation = {
     animate: {
-      x: ['-100%', '100%']
+      x: ["-100%", "100%"]
     },
     transition: {
       duration: 1.5,
@@ -147,16 +148,13 @@ const Companion = () => {
         const profileResponse = await fetchBackend({
           endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
           method: "GET",
-          authenticatedCall: false,
+          authenticatedCall: false
         });
 
         if (profileResponse.profileID) {
           localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
           // After setting profile ID, fetch connections and badges
-          await Promise.all([
-            fetchConnections(),
-            fetchBadges(),
-          ]);
+          await Promise.all([fetchConnections(), fetchBadges()]);
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
@@ -199,7 +197,7 @@ const Companion = () => {
 
   const fetchConnections = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (!profileId) {
         setPageError("Please log in to view your connections");
         return;
@@ -208,7 +206,7 @@ const Companion = () => {
       const data = await fetchBackend({
         endpoint: `/interactions/journal/${profileId}`,
         method: "GET",
-        authenticatedCall: false,
+        authenticatedCall: false
       });
       setConnections(data.data);
     } catch (err) {
@@ -219,7 +217,7 @@ const Companion = () => {
 
   const fetchBadges = async () => {
     try {
-      const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (!profileId) {
         setPageError("Please log in to view your badges");
         return;
@@ -228,19 +226,15 @@ const Companion = () => {
       const data = await fetchBackend({
         endpoint: `/interactions/quests/${profileId}`,
         method: "GET",
-        authenticatedCall: false,
+        authenticatedCall: false
       });
-      const dataWithCompleteStatus = data.data.map(
-        (badge: Omit<Badge, "isComplete">) => ({
-          ...badge,
-          isComplete: badge.progress >= badge.threshold,
-        })
-      );
+      const dataWithCompleteStatus = data.data.map((badge: Omit<Badge, "isComplete">) => ({
+        ...badge,
+        isComplete: badge.progress >= badge.threshold
+      }));
       setBadges(dataWithCompleteStatus);
-      const completedCount = dataWithCompleteStatus.filter(
-        (badge: Badge) => badge.isComplete
-      ).length;
-      setCompletedBadges(completedCount)
+      const completedCount = dataWithCompleteStatus.filter((badge: Badge) => badge.isComplete).length;
+      setCompletedBadges(completedCount);
     } catch (err) {
       setPageError(err as string);
       console.error("Error fetching badges:", error);
@@ -248,13 +242,18 @@ const Companion = () => {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const search = window.location.search;
-      
-      if (search.startsWith('?=')) {
-        setDecodedRedirect(decodeURIComponent(search.slice(2)));
-      }
-    }
+    const { query } = router;
+    const redirectParam = query[""] ? decodeURIComponent(query[""] as string) : "";
+    setDecodedRedirect(redirectParam);
+
+    // I personally think this is hacky but equally viable
+    // if (typeof window !== "undefined") {
+    //   const search = window.location.search;
+
+    //   if (search.startsWith("?=")) {
+    //     setDecodedRedirect(decodeURIComponent(search.slice(2)));
+    //   }
+    // }
   }, [router]);
 
   useEffect(() => {
@@ -264,12 +263,9 @@ const Companion = () => {
       if (savedEmail) {
         setEmail(savedEmail);
       }
-      
-      await Promise.all([
-        fetchRegistrations(),
-        fetchEvent(),
-      ]);
-      
+
+      await Promise.all([fetchRegistrations(), fetchEvent()]);
+
       setIsLoading(false);
     };
 
@@ -286,7 +282,7 @@ const Companion = () => {
 
   if (pageError) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
+      <div className='w-screen h-screen flex items-center justify-center'>
         <div>A page error occurred, please refresh the page. If the problem persists, contact a BizTech exec for support.</div>
       </div>
     );
@@ -295,31 +291,15 @@ const Companion = () => {
   if (!email || !userRegistration) {
     return (
       <div className={styles.container}>
-        <motion.div
-          className={styles.blueOrb}
-          {...backgroundOrbVariants.blue}
-        />
-        <motion.div
-          className={styles.purpleOrb}
-          {...backgroundOrbVariants.purple}
-        />
+        <motion.div className={styles.blueOrb} {...backgroundOrbVariants.blue} />
+        <motion.div className={styles.purpleOrb} {...backgroundOrbVariants.purple} />
         <Card className={styles.card}>
-          <motion.div
-            {...fadeInUpVariant}
-            className={styles.contentWrapper}
-          >
-            <div className="flex flex-col items-center justify-center">
-              <motion.div
-                {...fadeInUpVariant}
-                transition={{...fadeInUpVariant.transition, delay: 0.2}}
-                className={styles.logoWrapper}
-              >
-                <motion.div
-                  className={styles.logoGlow}
-                  {...logoGlowAnimation}
-                />
-                <Image 
-                  src={currentEvent.options.BiztechLogo} 
+          <motion.div {...fadeInUpVariant} className={styles.contentWrapper}>
+            <div className='flex flex-col items-center justify-center'>
+              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.2 }} className={styles.logoWrapper}>
+                <motion.div className={styles.logoGlow} {...logoGlowAnimation} />
+                <Image
+                  src={currentEvent.options.BiztechLogo}
                   alt={`${currentEvent.options.title} Logo`}
                   width={1000}
                   height={400}
@@ -328,55 +308,28 @@ const Companion = () => {
                   priority
                 />
               </motion.div>
-              <motion.div
-                {...fadeInUpVariant}
-                transition={{...fadeInUpVariant.transition, delay: 0.4}}
-              >
+              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.4 }}>
                 <h1 className={styles.title}>Welcome!</h1>
               </motion.div>
-              <motion.p
-                {...fadeInUpVariant}
-                transition={{...fadeInUpVariant.transition, delay: 0.6}}
-                className={styles.description}
-              >
+              <motion.p {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.6 }} className={styles.description}>
                 Please enter the email you used to register for {currentEvent.options.title}
               </motion.p>
-              <motion.div
-                {...fadeInUpVariant}
-                transition={{...fadeInUpVariant.transition, delay: 0.8}}
-              >
-                <Input
-                  className={styles.input}
-                  onChange={(e) => setInput(e.target.value)}
-                  value={input}
-                  placeholder="Email"
-                  type="email"
-                />
+              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.8 }}>
+                <Input className={styles.input} onChange={(e) => setInput(e.target.value)} value={input} placeholder='Email' type='email' />
               </motion.div>
               <motion.div
                 {...fadeInUpVariant}
-                transition={{...fadeInUpVariant.transition, delay: 1}}
+                transition={{ ...fadeInUpVariant.transition, delay: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  onClick={() => setEmail(input)}
-                  className={styles.button}
-                >
-                  <motion.span
-                    className={styles.buttonShine}
-                    {...shineAnimation}
-                  />
-                  <span className="relative z-10">Confirm</span>
+                <Button onClick={() => setEmail(input)} className={styles.button}>
+                  <motion.span className={styles.buttonShine} {...shineAnimation} />
+                  <span className='relative z-10'>Confirm</span>
                 </Button>
               </motion.div>
               {error && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className={styles.error}
-                >
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className={styles.error}>
                   {error}
                 </motion.p>
               )}
@@ -393,9 +346,9 @@ const Companion = () => {
       connectionCount={connections?.length}
       badgeCount={completedBadges}
       badges={badges}
-      recentConnections={connections}
+      recentConnections={connections.slice(0,3)}
     />
   );
 };
 
-export default Companion; 
+export default Companion;

@@ -2,16 +2,13 @@ import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useEffect, useState } from "react";
 import Filter from "@/components/companion/Filter";
 import { BadgeRow } from "@/components/companion/badges/badge-row";
-import SnackSeekerIcon from "@/assets/2025/blueprint/badgeIcons/snack_seeker.png";
-import FirstImpressionistIcon from "@/assets/2025/blueprint/badgeIcons/first_impressionist.png";
-import StartupExplorerIcon from "@/assets/2025/blueprint/badgeIcons/startup_explorer.png";
-import { StaticImageData } from "next/image";
 import { fetchBackend } from "@/lib/db";
 import { CompanionItemRow } from "@/components/ui/companion-item-row";
-import { COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { FilterDropdown } from "@/components/companion/CompaniesList";
 import { SortOption } from "@/components/companion/CompaniesList";
 import Loading from "@/components/Loading";
+import { blueprintBadgeIcons } from "@/constants/blueprint-badgeIcons";
 
 export interface Badge {
   questID: string;
@@ -23,12 +20,6 @@ export interface Badge {
   userID: string;
   isComplete: Boolean;
 }
-
-const badgeIcons: { [key: string]: StaticImageData } = {
-  QUEST_CONNECT_ONE: SnackSeekerIcon,
-  QUEST_CONNECT_FOUR: FirstImpressionistIcon,
-  QUEST_SNACK: StartupExplorerIcon,
-};
 
 const hiddenBadges = ["QUEST_BT_BOOTH_H", "QUEST_CONNECT_TEN_H", "QUEST_CONNECT_EXEC_H"];
 
@@ -46,7 +37,7 @@ const Badges = () => {
     const fetchBadges = async () => {
       try {
         setIsLoading(true);
-        const profileId = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+        const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
         if (!profileId) {
           setError("Please log in to view your connections");
           setIsLoading(false);
@@ -142,10 +133,11 @@ const Badges = () => {
                   key={index}
                   badge={badge}
                   isHidden={hiddenBadges.includes(badge.questID)}
-                  badgeIcon={badgeIcons[badge.questID]}
+                  badgeIcon={blueprintBadgeIcons[badge.questID]}
                 />
               ))}
-            {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && (
+            {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && 
+            (hiddenBadges.length - completedHiddenBadges > 0) && (
               <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
                 <div className="flex flex-col items-center justify-center w-full">
                   <p className="font-medium text-white">
