@@ -47,8 +47,9 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
             You&apos;ve made
             <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
               <Users2 className="w-6 h-6" strokeWidth={1.5} />
-              {connectionCount} connections and
+              {connectionCount} connections
             </span>
+            and
           </div>
           <div className="flex gap-2 max-[344px]:flex-col">
             collected{' '}
