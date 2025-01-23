@@ -12,7 +12,7 @@ export const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) =
     <div className="relative flex-1 h-full">
       <Input
         type="text"
-        placeholder="Search by name"
+        placeholder="Search"
         onChange={handleInputChange}
         className="bg-white text-black pl-8 h-full rounded-full placeholder:text-[12px] text-[12px] placeholder:text-black pr-4 pb-2"
       />
