@@ -1,14 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
     MapIcon,
     ListIcon,
     ArrowUpRight,
     ChevronDown,
-    SearchIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -21,6 +19,7 @@ import {
 import MapPlaceholder from "@/assets/2025/blueprint/map_placeholder.svg";
 import { CompanionItemRow } from "../ui/companion-item-row";
 import NavBarContainer from "./navigation/NavBarContainer";
+import { SearchBar } from "./SearchBar";
 
 interface Company {
     id: number;
@@ -31,14 +30,15 @@ interface Company {
     profile_url: string;
 }
 
-type SortOption = "Name" | "Date" | "Size";
+export type SortOption = "Name" | "Date" | "Size" | "Progress";
 
 interface FilterDropdownProps {
     options: SortOption[];
+    sortBy: SortOption;
+    setSortBy: (sortOption: SortOption) => void;
 }
 
-const FilterDropdown = ({ options }: FilterDropdownProps) => {
-    const [sortBy, setSortBy] = useState<SortOption>("Name");
+export const FilterDropdown = ({ options, sortBy, setSortBy }: FilterDropdownProps) => {
 
     const handleSort = (option: SortOption) => {
         setSortBy(option);
@@ -46,35 +46,37 @@ const FilterDropdown = ({ options }: FilterDropdownProps) => {
     };
 
     return (
-        <div className="inline-flex items-center justify-center space-x-1 rounded-full border border-white px-2 py-1 h-full">
-            <span className="text-[10px] text-white">Sort by:</span>
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        className="h-6 w-12 px-1 text-[10px] font-normal text-white hover:bg-white/10 text-center focus:ring-0 focus:ring-offset-0"
-                        onFocus={(e) => e.target.blur()}
-                        onMouseDown={(e) => e.preventDefault()}
-                    >
-                        <span className="w-full text-left">{sortBy}</span>
-                        <ChevronDown className="ml-1 h-3 w-2 shrink-0" />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                    align="center"
-                    className="min-w-[6rem] mr-6 mt-2"
-                >
-                    {options.map((option) => (
-                        <DropdownMenuItem
-                            key={option}
-                            className="text-[10px] justify-between"
-                            onSelect={() => handleSort(option)}
+        <div className="rounded-full bg-gradient-to-r from-[#BCC5E3] via-[rgba(200,212,251,0.2)] to-[#BCC5E3] bg-clip-border px-[1px] py-[1px]">
+            <div className="inline-flex items-center justify-center rounded-full bg-black pl-2 px-1 py-1 h-full">
+                <span className="text-[10px] text-white">Sort by:</span>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            className="h-5 w-12 px-1 text-[10px] font-normal text-white hover:bg-white/10 text-center focus:ring-0 focus:ring-offset-0"
+                            onFocus={(e) => e.target.blur()}
+                            onMouseDown={(e) => e.preventDefault()}
                         >
-                            {option}
-                        </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-            </DropdownMenu>
+                            <span className="w-full text-left">{sortBy}</span>
+                            <ChevronDown className="ml-1 h-3 w-2 shrink-0" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="center"
+                        className="min-w-[6rem] mr-6 mt-2"
+                    >
+                        {options.map((option) => (
+                            <DropdownMenuItem
+                                key={option}
+                                className="text-[10px] justify-between"
+                                onSelect={() => handleSort(option)}
+                            >
+                                {option}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
         </div>
     );
 };
@@ -86,7 +88,7 @@ const SwapView: React.FC<{
     setSelectedView: React.Dispatch<React.SetStateAction<View>>;
 }> = ({ selectedView, setSelectedView }) => {
     return (
-        <div className="relative flex items-center justify-between border border-gray-800 rounded-full w-16 h-8 p-0.5">
+        <div className="relative flex items-center justify-between rounded-full w-16 h-8 p-0.5 bg-[#1E2939]">
             <motion.div
                 className="absolute bg-white rounded-full w-8 h-7"
                 animate={{ x: selectedView === "list" ? "-5%" : "85%" }}
@@ -118,20 +120,6 @@ const SwapView: React.FC<{
     );
 };
 
-const SearchBar = () => {
-    return (
-        <div className="relative flex-1 h-full">
-            <Input
-                type="text"
-                placeholder="Search by name"
-                className="bg-white text-black pl-8 h-full rounded-full placeholder:text-[12px] text-[12px] placeholder:text-black pr-4 pb-2"
-            />
-
-            <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-black w-4 h-4" />
-        </div>
-    );
-};
-
 const CompanyCard = ({ company }: { company: Company }) => {
     return (
         <>
@@ -145,8 +133,8 @@ const CompanyCard = ({ company }: { company: Company }) => {
                         className="w-full h-full"
                     />
                 </div>
-                <div className="h-24 flex flex-col items-start justify-start">
-                    <span className="text-white text-lg font-satoshi">
+                <div className="xxs:h-26 h-30 flex flex-col items-start justify-start">
+                    <span className="text-white text-md xxs:text-lg text-nowrap  font-satoshi">
                         {company.name}
                     </span>
                     <p className="text-[14px] text-[#A0AEC0]">
@@ -156,7 +144,7 @@ const CompanyCard = ({ company }: { company: Company }) => {
                         {company.tags.map((tag, index) => (
                             <div
                                 key={`${tag}-${index}`}
-                                className="px-2 py-1 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
+                                className="px-2 py-0.5 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
                             >
                                 {tag}
                             </div>
@@ -192,8 +180,14 @@ interface CompanyListProps {
 
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
     const [selectedView, setSelectedView] = useState<View>("list");
+    const [sortBy, setSortBy] = useState<SortOption>("Name");
+    const [searchQuery, setSearchQuery] = useState("");
+    const handleSearch = (query: string) => {
+        setSearchQuery(query);
+      };
+
     return (
-        <div className="min-h-screen bg-black text-white p-6 font-satoshi">
+        <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-6 font-satoshi">
             <NavBarContainer>
                 <div className="max-w-4xl mx-auto space-y-6">
                     <header className="text-lg">Companies</header>
@@ -201,8 +195,8 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                     <div className="w-full h-[1px] bg-[#1D262F]" />
 
                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
-                        <SearchBar />
-                        <FilterDropdown options={["Name", "Size"]} />
+                        <SearchBar onSearch={handleSearch}/>
+                        <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
                         <SwapView
                             selectedView={selectedView}
                             setSelectedView={setSelectedView}
@@ -218,7 +212,21 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                             }`}
                         >
                             {selectedView === "list" &&
-                                companies.map((company) => (
+                                companies
+                                .filter((company) => {
+                                    return (!searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                })
+                                .sort((a: Company, b: Company) => {
+                                      if (sortBy === "Size") {
+                                        // Assumes that the first character of the description will contain the number of delegates
+                                        // e.g. "3 delegates in attendance"
+                                        return parseInt(a.description[0]) - parseInt(b.description[0]);
+                                      } else if (sortBy === "Name") {
+                                        return a.name.localeCompare(b.name);
+                                      }
+                                      return 0;
+                                })
+                                .map((company) => (
                                     <CompanionItemRow
                                         href={`/companion/company/${company.profile_url}`}
                                         key={company.id}

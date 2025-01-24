@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
-import { Loader2, XCircleIcon } from "lucide-react";
+import { CheckCircle, Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 import { BackendProfile, UserProfile } from "@/types";
@@ -11,6 +11,9 @@ import ExtraInfo from "@/components/companion/blueprintProfiles/extraInfo";
 import AttendeeInfo from "@/components/companion/blueprintProfiles/attendeeInfo";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { motion } from 'framer-motion';
+import ResponseSection from "@/components/companion/blueprintProfiles/responseSection";
+import CompanyInfo from "@/components/companion/blueprintProfiles/delegateInfo";
+import { ConnectedButton } from "@/components/ui/connected-button";
 
 const Index = () => {
     const [userData, setUserData] = useState<UserProfile | null>(null);
@@ -46,22 +49,28 @@ const Index = () => {
                 
                 // Transform backend profile to match our frontend interface
                 const transformedProfile: UserProfile = {
-                    name: `${backendProfile.fname} ${backendProfile.lname}`,
-                    role: backendProfile.type,
-                    hobby: backendProfile.hobby1,
+                    profileID: backendProfile.profileID,
+                    fname: backendProfile.fname,
+                    lname: backendProfile.lname,
+                    pronouns: backendProfile.pronouns,
+                    type: backendProfile.type as "Partner" | "Attendee",
+                    hobby1: backendProfile.hobby1,
+                    hobby2: backendProfile.hobby2,
+                    funQuestion1: backendProfile.funQuestion1,
+                    funQuestion2: backendProfile.funQuestion2,
                     linkedIn: backendProfile.linkedIn,
-                    funFacts: [
-                        backendProfile.funQuestion1,
-                        backendProfile.funQuestion2,
-                    ].filter(Boolean),
-                    interests: [
-                        backendProfile.hobby1,
-                        backendProfile.hobby2,
-                    ].filter(Boolean),
+                    profilePictureURL: backendProfile.profilePictureURL,
                     additionalLink: backendProfile.additionalLink,
-                    profilePicUrl: backendProfile.profilePictureURL,
+                    description: backendProfile.description,
                     major: backendProfile.major,
                     year: backendProfile.year,
+                    eventIDYear: backendProfile.eventIDYear,
+                    role: backendProfile.role,
+                    createdAt: backendProfile.createdAt,
+                    updatedAt: backendProfile.updatedAt,
+                    company: backendProfile.company,
+                    companyProfileID: backendProfile.companyProfileID,
+                    companyProfilePictureURL: backendProfile.companyProfilePictureURL,
                 };
 
                 setUserData(transformedProfile);
@@ -132,7 +141,7 @@ const Index = () => {
     }
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto pb-[100px]">
+        <div className="relative min-h-screen w-full bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 mx-auto pb-[100px]">
             <NavBarContainer>
                 <motion.div
                     className="flex-1"
@@ -143,9 +152,24 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
+                    <ConnectedButton className="mx-auto mb-4 flex items-center">
+                        <CheckCircle />
+                        <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+                    </ConnectedButton>
                     <motion.div variants={itemVariants}>
-                        <AttendeeInfo userData={userData} />
+                    {userData.description && (
+                        <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
+                    )}
                     </motion.div>
+                    {userData.type == "Partner" ?
+                        <motion.div variants={itemVariants}>
+                            <CompanyInfo userData={userData} />
+                        </motion.div>
+                        :
+                        <motion.div variants={itemVariants}>
+                            <AttendeeInfo userData={userData} />
+                        </motion.div>
+                    }
                     <motion.div variants={itemVariants}>
                         <ExtraInfo userData={userData} />
                     </motion.div>

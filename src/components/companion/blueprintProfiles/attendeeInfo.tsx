@@ -30,12 +30,12 @@ const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                     )}
 
                     {/* Hobby Card */}
-                    {userData?.hobby && (
+                    {userData?.pronouns && (
                         <div className="col-span-2">
                             <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
-                                FAVOURITE HOBBY
+                                PRONOUNS
                             </p>
-                            <p className="text-xs sm:text-sm font-satoshi">{userData.hobby}</p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.pronouns}</p>
                         </div>
                     )}
                 </div>
