@@ -23,7 +23,7 @@ const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
                 {links.map((link, index) => (
                     <li key={index} className="mb-2">
                         <a
-                            href={link}
+                            href={link.startsWith('http') ? link : `https://${link}`}
                             className="text-xs sm:text-sm font-satoshi underline break-all hover:text-purple-400 transition-colors max-w-none sm:max-w-none truncate flex"
                         >
                             <Image src={ChainLinkIcon}

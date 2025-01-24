@@ -36,7 +36,7 @@ const Index = () => {
     useEffect(() => {
         if (!router.isReady) return;
         const profileId = router.query.externalUserId as string;
-        
+
         const fetchUserData = async () => {
             try {
                 const response = await fetchBackend({
@@ -46,7 +46,7 @@ const Index = () => {
                 });
 
                 const backendProfile = response as BackendProfile;
-                
+
                 // Transform backend profile to match our frontend interface
                 const transformedProfile: UserProfile = {
                     profileID: backendProfile.profileID,
@@ -152,14 +152,16 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
-                    <ConnectedButton className="mx-auto mb-4 flex items-center">
-                        <CheckCircle />
-                        <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
-                    </ConnectedButton>
                     <motion.div variants={itemVariants}>
-                    {userData.description && (
-                        <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
-                    )}
+                        <ConnectedButton className="mx-auto mb-4 flex items-center">
+                            <CheckCircle />
+                            <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+                        </ConnectedButton>
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                        {userData.description && (
+                            <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
+                        )}
                     </motion.div>
                     {userData.type == "Partner" ?
                         <motion.div variants={itemVariants}>

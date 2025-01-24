@@ -7,6 +7,7 @@ import NavBarContainer from '@/components/companion/navigation/NavBarContainer';
 import { motion } from 'framer-motion';
 import ResponseSection from '@/components/companion/blueprintProfiles/responseSection';
 import { fetchBackend } from '@/lib/db';
+import { Loader2 } from 'lucide-react';
 
 interface CompanyProfile {
   id: string;
@@ -103,7 +104,11 @@ export default function CompanyPage() {
   };
 
   if (!router.isReady || isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+          <Loader2 className="animate-spin" size={50} />
+      </div>
+  );
   }
 
   if (!userData) return <div>Error loading profile</div>;
