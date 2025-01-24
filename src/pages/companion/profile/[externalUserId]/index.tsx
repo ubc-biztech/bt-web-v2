@@ -20,6 +20,7 @@ const Index = () => {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const [pageError, setPageError] = useState("");
+    const [currUser, setCurrUser] = useState("");
 
     const events = Events.sort((a, b) => {
         return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -44,6 +45,17 @@ const Index = () => {
                     method: "GET",
                     authenticatedCall: false,
                 });
+
+                const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+
+                // Get profileID
+                const profileResponse = await fetchBackend({
+                    endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+                    method: "GET",
+                    authenticatedCall: false,
+                });
+
+                setCurrUser(profileResponse.profileID);
 
                 const backendProfile = response as BackendProfile;
 
@@ -152,12 +164,14 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
-                    <motion.div variants={itemVariants}>
-                        <ConnectedButton className="mx-auto mb-4 flex items-center">
-                            <CheckCircle />
-                            <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
-                        </ConnectedButton>
-                    </motion.div>
+                    {userData.profileID !== currUser && (
+                        <motion.div variants={itemVariants}>
+                            <ConnectedButton className="mx-auto mb-4 flex items-center">
+                                <CheckCircle />
+                                <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+                            </ConnectedButton>
+                        </motion.div>
+                    )}
                     <motion.div variants={itemVariants}>
                         {userData.description && (
                             <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
