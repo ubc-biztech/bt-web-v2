@@ -109,7 +109,7 @@ export default function CompanyPage() {
   if (!userData) return <div>Error loading profile</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-6 sm:p-4 max-w-4xl mx-auto pb-[100px]">
+    <div className="relative min-h-screen w-full bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 mx-auto pb-[100px]">
       <NavBarContainer>
         <motion.div
           className="flex-1"

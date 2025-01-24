@@ -61,9 +61,9 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                 />
             )}
 
-            {userData.funQuestion1 && (
+            {/* {userData.funQuestion1 && (
                 <ResponseSection title="IF I WAS STRANDED ON AN ISLAND, THE TECH FIGURE I WOULD WANT TO BE STRANDED WITH WOULD BE..." text={userData.funQuestion1} />
-            )}
+            )} */}
 
             {userData.funQuestion2 && (
                 <ResponseSection title="IF I COULD PRESENT ONE EARTHLY INVENTION TO AN ALIEN, I WOULD PRESENT..." text={userData.funQuestion2} />

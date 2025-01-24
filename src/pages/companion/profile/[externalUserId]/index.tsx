@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
-import { Loader2, XCircleIcon } from "lucide-react";
+import { CheckCircle, Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from '@/constants/companion';
 import { BackendProfile, UserProfile } from "@/types";
@@ -13,6 +13,7 @@ import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { motion } from 'framer-motion';
 import ResponseSection from "@/components/companion/blueprintProfiles/responseSection";
 import CompanyInfo from "@/components/companion/blueprintProfiles/delegateInfo";
+import { ConnectedButton } from "@/components/ui/connected-button";
 
 const Index = () => {
     const [userData, setUserData] = useState<UserProfile | null>(null);
@@ -140,7 +141,7 @@ const Index = () => {
     }
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 max-w-4xl mx-auto pb-[100px]">
+        <div className="relative min-h-screen w-full bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 mx-auto pb-[100px]">
             <NavBarContainer>
                 <motion.div
                     className="flex-1"
@@ -151,9 +152,15 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
+                    <ConnectedButton className="mx-auto mb-4 flex items-center">
+                        <CheckCircle />
+                        <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+                    </ConnectedButton>
+                    <motion.div variants={itemVariants}>
                     {userData.description && (
                         <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />
                     )}
+                    </motion.div>
                     {userData.type == "Partner" ?
                         <motion.div variants={itemVariants}>
                             <CompanyInfo userData={userData} />
