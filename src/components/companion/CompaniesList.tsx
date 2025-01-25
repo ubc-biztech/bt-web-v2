@@ -19,6 +19,10 @@ import {
 import { CompanionItemRow } from "../ui/companion-item-row";
 import NavBarContainer from "./navigation/NavBarContainer";
 import { SearchBar } from "./SearchBar";
+import BigMain from "@/assets/2025/blueprint/big-main.png";
+import BigFoyer from "@/assets/2025/blueprint/big-foyer.png";
+import StartupsMain from "@/assets/2025/blueprint/startups-main.png";
+import StartupsFoyer from "@/assets/2025/blueprint/startups-foyer.png";
 
 interface Company {
     id: number;
@@ -164,7 +168,7 @@ const Map = () => {
             <span>Boothing A: 12:20 PM - 1:50PM</span>
             <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/startups - foyer.png"}
+                    src={StartupsFoyer}
                     alt="Boothing A"
                     layout="fill"
                     objectFit="contain"
@@ -172,7 +176,7 @@ const Map = () => {
             </div>
             <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/big companies - main hallway.png"}
+                    src={BigMain}
                     alt="Boothing A"
                     layout="fill"
                     objectFit="contain"
@@ -181,7 +185,7 @@ const Map = () => {
             <span>Boothing B: 3:00 PM - 4:30PM</span>
             <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/big companies - foyer.png"}
+                    src={BigFoyer}
                     alt="Boothing B"
                     layout="fill"
                     objectFit="contain"
@@ -189,7 +193,7 @@ const Map = () => {
             </div>
             <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/startups - main hallway.png"}
+                    src={StartupsMain}
                     alt="Boothing B"
                     layout="fill"
                     objectFit="contain"
