@@ -3,54 +3,49 @@ import { AnimatedBorder } from '../../ui/animated-border';
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { UserProfile } from '@/types';
 
 
 const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
     const visitPageLink = `/companion/profile/company/${userData.companyProfileID}`
     return (
-        <AnimatedBorder className="w-full mb-3">
-            <div className="rounded-lg py-6 pl-2">
-                {/* <div className="bg-[#1A1A1A] rounded-lg p-6 shadow-lg"> */}
-                <div className="flex flex-col space-y-2">
-                    {/* Top Row */}
-                    <div className="flex items-start">
-                        <div className="flex flex-col mr-16">
-                            <span className="text-light-grey font-redhat tracking-wider mb-2">
+        <AnimatedBorder className="w-full mb-3 ">
+            <div className="rounded-lg p-3 bg-[#030B13] sm:p-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    {/* Company Card */}
+                    {userData?.company && (
+                        <div>
+                            <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
                                 COMPANY
-                            </span>
-                            <span className="text-white text-sm font-medium">
-                                {userData.company || '-'}
-                            </span>
+                            </p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.company}</p>
                         </div>
+                    )}
 
-                        <div className="flex flex-col">
-                            <span className="text-light-grey font-redhat uppercase tracking-wider mb-2">
+                    {/* Role Card */}
+                    {userData?.role && (
+                        <div>
+                            <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
                                 ROLE
-                            </span>
-                            <span className="text-white text-sm font-medium">
-                                {userData.role || '-'}
-                            </span>
+                            </p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.role}</p>
                         </div>
-                    </div>
+                    )}
 
-                    <div className="flex flex-col">
-                        <span className="text-light-grey font-redhat tracking-wider mb-2">
-                            PRONOUNS
-                        </span>
-                        <span className="text-white text-sm font-medium">
-                            {userData.pronouns || '-'}
-                        </span>
-                    </div>
-
-                    {/* Bottom Row */}
-
-                    {/* </div> */}
+                    {/* PRONOUNS Card */}
+                    {userData?.pronouns && (
+                        <div className="col-span-2">
+                            <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+                                PRONOUNS
+                            </p>
+                            <p className="text-xs sm:text-sm font-satoshi">{userData.pronouns}</p>
+                        </div>
+                    )}
                 </div>
-
             </div>
-        </ AnimatedBorder>
+        </AnimatedBorder>
+        
     );
 };
 
