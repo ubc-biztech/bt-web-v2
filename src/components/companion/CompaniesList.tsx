@@ -161,19 +161,35 @@ const CompanyCard = ({ company }: { company: Company }) => {
 const Map = () => {
     return (
         <div className="flex flex-col items-center justify-center w-full relative">
-            <span className="-mb-24">Boothing A: 12:20 PM - 1:50PM</span>
-            <div className="relative w-full h-[50em] pointer-events-none">
+            <span>Boothing A: 12:20 PM - 1:50PM</span>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/startups.png"}
+                    src={"/maps/startups - foyer.png"}
                     alt="Boothing A"
                     layout="fill"
                     objectFit="contain"
                 />
             </div>
-            <span className="-mb-24">Boothing B: 3:00 PM - 4:30PM</span>
-            <div className="relative w-full h-[50em] pointer-events-none">
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={"/maps/big_companies.png"}
+                    src={"/maps/big companies - main hallway.png"}
+                    alt="Boothing A"
+                    layout="fill"
+                    objectFit="contain"
+                />
+            </div>
+            <span>Boothing B: 3:00 PM - 4:30PM</span>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
+                <Image
+                    src={"/maps/big companies - foyer.png"}
+                    alt="Boothing B"
+                    layout="fill"
+                    objectFit="contain"
+                />
+            </div>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
+                <Image
+                    src={"/maps/startups - main hallway.png"}
                     alt="Boothing B"
                     layout="fill"
                     objectFit="contain"
