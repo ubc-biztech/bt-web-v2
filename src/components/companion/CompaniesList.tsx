@@ -204,7 +204,7 @@ interface CompanyListProps {
 }
 
 const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
-    const [selectedView, setSelectedView] = useState<View>("list");
+    const [selectedView, setSelectedView] = useState<View>("map");
     const [sortBy, setSortBy] = useState<SortOption>("Name");
     const [searchQuery, setSearchQuery] = useState("");
     const handleSearch = (query: string) => {
@@ -218,7 +218,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                     <header className="text-lg">Companies</header>
 
                     <div className="w-full h-[1px] bg-[#1D262F]" />
-
+{/* 
                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
                         <SearchBar onSearch={handleSearch}/>
                         <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
@@ -226,10 +226,10 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                             selectedView={selectedView}
                             setSelectedView={setSelectedView}
                         />
-                    </div>
+                    </div> */}
 
                     <div className="space-y-4">
-                        <div
+                        {/* <div
                             className={`transition-opacity duration-500 ${
                                 selectedView === "list"
                                     ? "opacity-100"
@@ -259,7 +259,7 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                                         <CompanyCard company={company} />
                                     </CompanionItemRow>
                                 ))}
-                        </div>
+                        </div> */}
 
                         <div
                             className={`transition-opacity duration-500 ${
@@ -268,7 +268,8 @@ const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
                                     : "opacity-0"
                             }`}
                         >
-                            {selectedView === "map" && <Map />}
+                            {/* {selectedView === "map" && <Map />} */}
+                            <Map></Map>
                         </div>
                     </div>
                 </div>
