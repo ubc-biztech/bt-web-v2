@@ -4,7 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
 import { CheckCircle, Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 import { BackendProfile, UserProfile } from "@/types";
 import Profile from '@/components/companion/blueprintProfiles/profileHeader';
 import ExtraInfo from "@/components/companion/blueprintProfiles/extraInfo";
@@ -46,16 +46,9 @@ const Index = () => {
                     authenticatedCall: false,
                 });
 
-                const email = localStorage.getItem(COMPANION_EMAIL_KEY);
+                const currUserID = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
 
-                // Get profileID
-                const profileResponse = await fetchBackend({
-                    endpoint: `/profiles/email/${email}/${eventID}/${year}`,
-                    method: "GET",
-                    authenticatedCall: false,
-                });
-
-                setCurrUser(profileResponse.profileID);
+                setCurrUser(currUserID ?? "");
 
                 const backendProfile = response as BackendProfile;
 
