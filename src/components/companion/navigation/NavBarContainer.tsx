@@ -4,7 +4,7 @@ import { TopNav } from "@/components/companion/navigation/top-nav";
 import { SideNav } from "@/components/companion/navigation/side-nav";
 
 interface NavBarContainerProps {
-  isPartner: boolean | undefined;
+  isPartner?: boolean | undefined;
   children: ReactNode;
 }
 
