@@ -18,7 +18,7 @@ const navLinks = [
   { href: '/companion/badges', label: 'Badges' },
   { href: '/companion/connections', label: 'Connections' },
   { href: '/companion/companies', label: 'Companies' },
-  { href: '/companion/faq', label: 'FAQ' }
+  { href: 'https://drive.google.com/file/d/1YVWY0SBp_rvIQquEjffxo5XtL1bHv7Li/view', label: 'Event Guide' }
 ];
 
 export const SideNav: React.FC<SideNavProps> = ({ isPartner, isOpen, onClose }) => {

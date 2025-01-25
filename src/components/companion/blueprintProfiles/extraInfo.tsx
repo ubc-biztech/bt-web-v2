@@ -29,7 +29,7 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
             {/* LinkedIn Section */}
             {userData.linkedIn && (
                 <AnimatedBorder className="w-ful mb-3 sm:mb-4">
-                    <div className="rounded-lg p-1 sm:p-4 flex justify-between items-center">
+                    <div className="bg-[#030B13] rounded-lg p-1 sm:p-4 flex justify-between items-center">
                         <div className="w-full flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
                             <Image src={LinkedinIcon}
                                 alt="Linkedin Icon"
