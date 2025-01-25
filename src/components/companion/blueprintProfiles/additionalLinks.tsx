@@ -24,7 +24,7 @@ const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
                     <li key={index} className="mb-2">
                         <a
                             href={link.startsWith('http') ? link : `https://${link}`}
-                            className="text-xs sm:text-sm font-satoshi underline break-all hover:text-purple-400 transition-colors max-w-none sm:max-w-none truncate flex"
+                            className="text-xs sm:text-sm font-satoshi underline break-words break-all hover:text-purple-400 transition-colors max-w-none sm:max-w-none flex"
                         >
                             <Image src={ChainLinkIcon}
                                 alt="Linkedin Icon"
