@@ -10,7 +10,7 @@ interface ResponseSectionProps {
 const ResponseSection: FC<ResponseSectionProps> = ({ title, text, list }) => {
   return (
     <AnimatedBorder className="w-full mb-3 sm:mb-4">
-      <div className="rounded-lg p-3 sm:p-4 font-redhat">
+      <div className="bg-[#030B13] rounded-lg p-3 sm:p-4 font-redhat">
         <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
           {title}
         </p>

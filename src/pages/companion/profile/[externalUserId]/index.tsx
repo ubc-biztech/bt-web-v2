@@ -4,7 +4,7 @@ import { fetchBackend } from "@/lib/db";
 import PageError from "@/components/companion/PageError";
 import { CheckCircle, Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
 import { BackendProfile, UserProfile } from "@/types";
 import Profile from '@/components/companion/blueprintProfiles/profileHeader';
 import ExtraInfo from "@/components/companion/blueprintProfiles/extraInfo";
@@ -20,6 +20,7 @@ const Index = () => {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const [pageError, setPageError] = useState("");
+    const [currUser, setCurrUser] = useState("");
 
     const events = Events.sort((a, b) => {
         return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -44,6 +45,10 @@ const Index = () => {
                     method: "GET",
                     authenticatedCall: false,
                 });
+
+                const currUserID = localStorage.getItem(COMPANION_PROFILE_ID_KEY);
+
+                setCurrUser(currUserID ?? "");
 
                 const backendProfile = response as BackendProfile;
 
@@ -152,12 +157,14 @@ const Index = () => {
                     <motion.div variants={itemVariants}>
                         <Profile userData={userData} />
                     </motion.div>
-                    <motion.div variants={itemVariants}>
-                        <ConnectedButton className="mx-auto mb-4 flex items-center">
-                            <CheckCircle />
-                            <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
-                        </ConnectedButton>
-                    </motion.div>
+                    {userData.profileID !== currUser && (
+                        <motion.div variants={itemVariants}>
+                            <ConnectedButton className="mx-auto mb-4 flex items-center">
+                                <CheckCircle />
+                                <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+                            </ConnectedButton>
+                        </motion.div>
+                    )}
                     <motion.div variants={itemVariants}>
                         {userData.description && (
                             <ResponseSection title={`ABOUT ${userData.fname.toUpperCase()}`} text={userData.description} />

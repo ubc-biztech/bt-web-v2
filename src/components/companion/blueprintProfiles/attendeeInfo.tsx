@@ -7,7 +7,7 @@ const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
 
     return (
         <AnimatedBorder className="w-full mb-3 ">
-            <div className="rounded-lg p-3 sm:p-4">
+            <div className="rounded-lg p-3 bg-[#030B13] sm:p-4">
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {/* Major Card */}
                     {userData?.major && (

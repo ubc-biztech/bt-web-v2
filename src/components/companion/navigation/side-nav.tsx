@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import NavbarLogo from '@/assets/2025/blueprint/navbar_logo.png';
 
 interface SideNavProps {
+  isPartner: boolean | undefined;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -17,10 +18,10 @@ const navLinks = [
   { href: '/companion/badges', label: 'Badges' },
   { href: '/companion/connections', label: 'Connections' },
   { href: '/companion/companies', label: 'Companies' },
-  { href: '/companion/faq', label: 'FAQ' }
+  { href: 'https://drive.google.com/file/d/1YVWY0SBp_rvIQquEjffxo5XtL1bHv7Li/view', label: 'Event Guide' }
 ];
 
-export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
+export const SideNav: React.FC<SideNavProps> = ({ isPartner, isOpen, onClose }) => {
   const controls = useAnimation();
   
   React.useEffect(() => {
@@ -92,17 +93,20 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose }) => {
           <div className="h-[1px] bg-white/10 mb-8" />
           
           <nav className="space-y-6">
-            {navLinks.map(({ href, label }) => (
-              <Link 
-                key={href}
-                href={href} 
-                className="flex flex-row-reverse items-center gap-3 text-[22px] py-2 text-white hover:text-gray-300 transition-colors"
-                onClick={onClose}
-              >
-                <span className="text-lg">↗</span>
-                {label}
-              </Link>
-            ))}
+            {navLinks.map(({ href, label }) => {
+              if (label === 'Badges' && isPartner) return <></>;
+                return (
+                <Link 
+                  key={href}
+                  href={href} 
+                  className="flex flex-row-reverse items-center gap-3 text-[22px] py-2 text-white hover:text-gray-300 transition-colors"
+                  onClick={onClose}
+                >
+                  <span className="text-lg">↗</span>
+                  {label}
+                </Link>
+              )})
+            }
           </nav>
         </div>
       </motion.div>

@@ -18,6 +18,7 @@ interface Registration {
   id: string;
   fname: string;
   points?: number;
+  isPartner?: boolean;
   [key: string]: any;
 }
 
@@ -41,7 +42,7 @@ const Companion = () => {
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
   const [connections, setConnections] = useState([]);
-  const [badges, setBadges] = useState([]);
+  const [badges, setBadges] = useState(null);
   const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
@@ -163,7 +164,9 @@ const Companion = () => {
             router.push(decodedRedirect);
             return;
           }
-          await Promise.all([fetchConnections(), fetchBadges()]);
+
+          if (!reg.isPartner) await Promise.all([fetchConnections(), fetchBadges()]);
+          else await fetchConnections();
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
@@ -340,11 +343,12 @@ const Companion = () => {
 
   return (
     <CompanionHome
+      isPartner={userRegistration.isPartner}
       userName={userRegistration?.fname ?? ""}
       connectionCount={connections?.length}
       badgeCount={completedBadges}
       badges={badges}
-      recentConnections={connections.slice(0, 3)}
+      connections={connections}
     />
   );
 };

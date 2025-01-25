@@ -16,7 +16,6 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import MapPlaceholder from "@/assets/2025/blueprint/map_placeholder.svg";
 import { CompanionItemRow } from "../ui/companion-item-row";
 import NavBarContainer from "./navigation/NavBarContainer";
 import { SearchBar } from "./SearchBar";
@@ -161,11 +160,37 @@ const CompanyCard = ({ company }: { company: Company }) => {
 
 const Map = () => {
     return (
-        <div className="flex flex-row items-center justify-center w-full h-[70vh] relative">
-            <div className="relative w-4/5 h-full">
+        <div className="flex flex-col items-center justify-center w-full relative">
+            <span>Boothing A: 12:20 PM - 1:50PM</span>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
                 <Image
-                    src={MapPlaceholder}
-                    alt="Map Placeholder"
+                    src={"/maps/startups - foyer.png"}
+                    alt="Boothing A"
+                    layout="fill"
+                    objectFit="contain"
+                />
+            </div>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
+                <Image
+                    src={"/maps/big companies - main hallway.png"}
+                    alt="Boothing A"
+                    layout="fill"
+                    objectFit="contain"
+                />
+            </div>
+            <span>Boothing B: 3:00 PM - 4:30PM</span>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
+                <Image
+                    src={"/maps/big companies - foyer.png"}
+                    alt="Boothing B"
+                    layout="fill"
+                    objectFit="contain"
+                />
+            </div>
+            <div className="relative w-[20em] h-[40em] pointer-events-none">
+                <Image
+                    src={"/maps/startups - main hallway.png"}
+                    alt="Boothing B"
                     layout="fill"
                     objectFit="contain"
                 />

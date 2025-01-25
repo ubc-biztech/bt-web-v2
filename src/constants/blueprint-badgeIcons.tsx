@@ -9,6 +9,7 @@ import NetworkingProIcon from "@/assets/2025/blueprint/badgeIcons/networking-pro
 import SnackSeekerIcon from "@/assets/2025/blueprint/badgeIcons/snack-seeker.svg";
 import StartupExplorerIcon from "@/assets/2025/blueprint/badgeIcons/startup-explorer.svg";
 import WorkshopIcon from "@/assets/2025/blueprint/badgeIcons/workshop-wonder-1.svg";
+import Workshop2Icon from "@/assets/2025/blueprint/badgeIcons/workshop-wonder.svg"
 
 export const blueprintBadgeIcons: { [key: string]: StaticImageData } = {
     QUEST_BIGTECH: BigLeagueScoutIcon,
@@ -21,5 +22,7 @@ export const blueprintBadgeIcons: { [key: string]: StaticImageData } = {
     QUEST_SNACK: SnackSeekerIcon,
     QUEST_STARTUP: StartupExplorerIcon,
     QUEST_WORKSHOP: WorkshopIcon,
+    QUEST_WORKSHOP_TWO_PARTICIPANT: Workshop2Icon
+
   };
   
