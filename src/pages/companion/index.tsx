@@ -142,40 +142,61 @@ const Companion = () => {
   };
 
   const fetchUserData = async () => {
-    const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
-    if (reg) {
-      setIsLoading(true);
-      setError("");
-      setUserRegistration(reg);
-      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
+    setIsLoading(true);
+    setError("");
 
-      // Fetch and store profileID
-      try {
-        const profileResponse = await fetchBackend({
-          endpoint: `/profiles/email/${reg.id}/${eventID}/${year}`,
+    try {
+      const [registrationResponse, profileResponse, eventData] = await Promise.all([
+        fetchBackend({
+          endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
           method: "GET",
           authenticatedCall: false
-        });
+        }),
+        fetchBackend({
+          endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false
+        }),
+        fetchBackend({
+          endpoint: `/events/${eventID}/${year}`,
+          method: "GET",
+          authenticatedCall: false
+        })
+      ]);
 
-        if (profileResponse.profileID) {
-          localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
-          // After setting profile ID, fetch connections and badges
-          if (decodedRedirect !== "") {
-            router.push(decodedRedirect);
-            return;
-          }
-
-          if (!reg.isPartner) await Promise.all([fetchConnections(), fetchBadges()]);
-          else await fetchConnections();
-        }
-      } catch (err) {
-        console.error("Error fetching profile ID:", err);
+      const reg = registrationResponse.data[0];
+      if (!reg) {
+        setError("This email does not match an existing entry in our records.");
+        setIsLoading(false);
+        return;
       }
+
+      setUserRegistration(reg);
+      setEvent(eventData);
+      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
+
+      if (profileResponse.profileID) {
+        localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
+        
+        if (decodedRedirect !== "") {
+          router.push(decodedRedirect);
+          return;
+        }
+
+        // Fetch connections and badges concurrently if not a partner
+        if (!reg.isPartner) {
+          await Promise.all([fetchConnections(), fetchBadges()]);
+        } else {
+          await fetchConnections();
+        }
+      }
+
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
       }
-    } else {
-      setError("This email does not match an existing entry in our records.");
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("An error occurred while fetching your data.");
     }
 
     setIsLoading(false);
@@ -184,24 +205,11 @@ const Companion = () => {
   const fetchRegistrations = async () => {
     try {
       const response = await fetchBackend({
-        endpoint: `/registrations?eventID=${eventID}&year=${year}`,
+        endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
         method: "GET",
         authenticatedCall: false
       });
       setRegistrations(response.data);
-    } catch (err) {
-      setPageError(err as string);
-    }
-  };
-
-  const fetchEvent = async () => {
-    try {
-      const response = await fetchBackend({
-        endpoint: `/events/${eventID}/${year}`,
-        method: "GET",
-        authenticatedCall: false
-      });
-      setEvent(response);
     } catch (err) {
       setPageError(err as string);
     }
@@ -266,18 +274,16 @@ const Companion = () => {
         setEmail(savedEmail);
       }
       setIsLoading(false);
-
-      await Promise.all([fetchRegistrations(), fetchEvent()]);
     };
 
     initializeData();
   }, []);
 
   useEffect(() => {
-    if (email && registrations.length > 0) {
+    if (email && !userRegistration) {
       fetchUserData();
     }
-  }, [email, registrations, router.isReady]);
+  }, [email, router.isReady]);
 
   if (isLoading) return <Loading />;
 
@@ -344,7 +350,7 @@ const Companion = () => {
   return (
     <CompanionHome
       isPartner={userRegistration.isPartner}
-      userName={userRegistration?.fname ?? ""}
+      userName={userRegistration?.fname ?? userRegistration?.basicInformation?.fname ?? ""}
       connectionCount={connections?.length}
       badgeCount={completedBadges}
       badges={badges}

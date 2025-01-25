@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { Users2, Trophy } from 'lucide-react';
 import { GradientText } from '@/components/ui/gradient-text';
 import { BadgesList } from './badges/badges-list';
@@ -15,6 +15,37 @@ interface CompanionHomeProps {
   badges: Badge[] | null;
   connections: Connection[];
 }
+
+const Counter = ({ value }: { value: number }) => {
+  const count = useMotionValue(value <= 10 ? value : 0);
+  const rounded = useTransform(count, (latest) => Math.round(latest));
+  
+  React.useEffect(() => {
+    if (value <= 10) {
+      count.set(value);
+      return;
+    }
+
+    const animation = animate(count, value, {
+      type: "spring",
+      stiffness: 100,
+      damping: 30,
+      restDelta: 0.001,
+      onComplete: () => {
+        // Ensure we land exactly on the target number
+        count.set(value);
+      }
+    });
+    
+    return animation.stop;
+  }, [value]);
+
+  return (
+    <div style={{ display: "inline-block" }}>
+      <motion.span>{rounded}</motion.span>
+    </div>
+  );
+};
 
 const CompanionHome: React.FC<CompanionHomeProps> = ({
   isPartner,
@@ -49,7 +80,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
             You&apos;ve made
             <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
               <Users2 className="w-6 h-6" strokeWidth={1.5} />
-              {connectionCount} connections
+              <Counter value={connectionCount} /> {connectionCount === 1 ? 'connection' : 'connections'}
             </span>
             {
               isPartner ? 'so far.'
@@ -62,7 +93,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
               collected{' '}
               <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
                 <Trophy className="w-6 h-6" strokeWidth={1.5} />
-                {badgeCount} badges
+                <Counter value={badgeCount} /> {badgeCount === 1 ? 'badge' : 'badges'}
               </span>
               so far.
             </div>
