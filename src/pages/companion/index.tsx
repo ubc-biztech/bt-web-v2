@@ -157,11 +157,10 @@ const Companion = () => {
         if (profileResponse.profileID) {
           localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
           // After setting profile ID, fetch connections and badges
+          if (decodedRedirect !== "") {
+            router.push(decodedRedirect);
+          }
           await Promise.all([fetchConnections(), fetchBadges()]);
-        }
-
-        if (decodedRedirect !== "") {
-          router.push(decodedRedirect);
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
@@ -171,6 +170,10 @@ const Companion = () => {
       setIsLoading(false);
     }
   };
+
+  if (decodedRedirect !== "") {
+    router.push(decodedRedirect);
+  }
 
   const fetchRegistrations = async () => {
     try {
@@ -257,7 +260,7 @@ const Companion = () => {
     //     setDecodedRedirect(decodeURIComponent(search.slice(2)));
     //   }
     // }
-  }, [router]);
+  }, [router.isReady]);
 
   useEffect(() => {
     const initializeData = async () => {
