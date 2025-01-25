@@ -8,19 +8,21 @@ import { Badge } from '@/pages/companion/badges';
 import NavBarContainer from './navigation/NavBarContainer';
 
 interface CompanionHomeProps {
+  isPartner: boolean | undefined,
   userName: string;
   connectionCount: number;
   badgeCount: number;
-  badges: Badge[];
-  recentConnections: Connection[];
+  badges: Badge[] | null;
+  connections: Connection[];
 }
 
 const CompanionHome: React.FC<CompanionHomeProps> = ({
+  isPartner,
   userName,
   connectionCount,
   badgeCount,
   badges,
-  recentConnections,
+  connections,
 }) => {
 
   const itemVariants = {
@@ -36,7 +38,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   };
 
   return (
-    <NavBarContainer>
+    <NavBarContainer isPartner={isPartner}>
       {/* Welcome Section */}
       <motion.div className="font-[500] p-5 rounded-3xl" variants={itemVariants}>
         <div className="text-[28px] font-medium mb-3 text-white">
@@ -62,18 +64,31 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
         </div>
       </motion.div>
 
-      {/* Badges Section */}
-      <motion.div variants={itemVariants}>
-        <BadgesList badges={badges} />
-      </motion.div>
+
+      {/* Badges Section – rendered only if not partner */}
+      {badges && 
+        <motion.div variants={itemVariants}>
+          <BadgesList badges={badges} />
+        </motion.div>
+      }
 
       {/* Connections Section */}
-      <motion.div variants={itemVariants}>
-        <ConnectionsList
-          connections={recentConnections}
-          totalCount={connectionCount}
-        />
-      </motion.div>
+      {
+        isPartner ? 
+        <motion.div variants={itemVariants}>
+          <ConnectionsList
+            connections={connections}
+            totalCount={connectionCount}
+          />
+        </motion.div> 
+        :
+        <motion.div variants={itemVariants}>
+          <ConnectionsList
+            connections={connections.slice(0,3)}
+            totalCount={connectionCount}
+          />
+        </motion.div> 
+      }
     </NavBarContainer>
   );
 };

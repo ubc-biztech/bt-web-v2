@@ -3,7 +3,12 @@ import { motion } from "framer-motion";
 import { TopNav } from "@/components/companion/navigation/top-nav";
 import { SideNav } from "@/components/companion/navigation/side-nav";
 
-const NavBarContainer: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface NavBarContainerProps {
+  isPartner: boolean | undefined;
+  children: ReactNode;
+}
+
+const NavBarContainer: React.FC<NavBarContainerProps> = ({ isPartner, children }) => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
 
   useEffect(() => {
@@ -26,7 +31,7 @@ const NavBarContainer: React.FC<{ children: ReactNode }> = ({ children }) => {
       <div className="fixed top-0 left-0 right-0 z-50 px-2 md:px-8 pt-2 md:pt-8 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
         <TopNav onMenuClick={() => setIsSideNavOpen(true)} />
       </div>
-      <SideNav isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
+      <SideNav isPartner={isPartner} isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} />
 
       <motion.div
         className="flex-1 px-2 mt-20 space-y-8"
