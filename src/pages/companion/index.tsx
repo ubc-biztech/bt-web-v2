@@ -12,6 +12,7 @@ import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
+import { Loader2 } from "lucide-react";
 
 interface Registration {
   id: string;
@@ -142,6 +143,7 @@ const Companion = () => {
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
+      setIsLoading(true);
       setError("");
       setUserRegistration(reg);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
@@ -159,21 +161,22 @@ const Companion = () => {
           // After setting profile ID, fetch connections and badges
           if (decodedRedirect !== "") {
             router.push(decodedRedirect);
+            return;
           }
           await Promise.all([fetchConnections(), fetchBadges()]);
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
       }
+      if (decodedRedirect !== "") {
+        router.push(decodedRedirect);
+      }
     } else {
       setError("This email does not match an existing entry in our records.");
-      setIsLoading(false);
     }
-  };
 
-  if (decodedRedirect !== "") {
-    router.push(decodedRedirect);
-  }
+    setIsLoading(false);
+  };
 
   const fetchRegistrations = async () => {
     try {
@@ -249,30 +252,19 @@ const Companion = () => {
 
   useEffect(() => {
     const { query } = router;
-    const redirectParam = query[""] ? decodeURIComponent(query[""] as string) : "";
+    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : "";
     setDecodedRedirect(redirectParam);
-
-    // I personally think this is hacky but equally viable
-    // if (typeof window !== "undefined") {
-    //   const search = window.location.search;
-
-    //   if (search.startsWith("?=")) {
-    //     setDecodedRedirect(decodeURIComponent(search.slice(2)));
-    //   }
-    // }
   }, [router.isReady]);
 
   useEffect(() => {
     const initializeData = async () => {
-      setIsLoading(true);
       const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (savedEmail) {
         setEmail(savedEmail);
       }
+      setIsLoading(false);
 
       await Promise.all([fetchRegistrations(), fetchEvent()]);
-
-      setIsLoading(false);
     };
 
     initializeData();

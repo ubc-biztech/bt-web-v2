@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
-import { Loader2, QrCodeIcon } from "lucide-react";
+import { QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
 import { BOOTH_EVENT, COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
+import Loading from "@/components/Loading";
 
 interface Qr {
   data: Record<string, any>;
@@ -103,7 +104,7 @@ const Index = () => {
     const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
 
     if (!userID) {
-      router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
+      router.push(`/companion?redirect=/companion/scan/${qrId}`);
       return;
     }
 
@@ -125,12 +126,7 @@ const Index = () => {
     return <div className='w-screen h-screen flex items-center justify-center'>{pageError}</div>;
   }
 
-  // loading spinner
-  return (
-    <div className='w-screen h-screen flex items-center justify-center'>
-      <Loader2 className='animate-spin' size={50} />
-    </div>
-  );
+  return <Loading />;
 };
 
 export default Index;
