@@ -10,16 +10,16 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
     {
+        question: "How do I access my page on the NFC Companion App?",
+        answer: "Scanning your own card should lead you to the page, and you’ll be prompted to login.",
+    },
+    {
         question: "My NFC card isn't working, what should I do?",
-        answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        answer: "Please come to the BizTech Booth with any issues regarding NFC cards, including lost cards.",
     },
     {
-        question: "Sample Question",
-        answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
-    },
-    {
-        question: "Sample Question",
-        answer: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        question: "I’ve reached the Plaza where UBC Robson is, but can’t find the venue. Where do I go?",
+        answer: "You may be standing in front of the Vancouver Art Gallery, which is on the other side of UBC Robson. You’ll need to go around the plaza - once you do, you should see stairs leading down to the ice rink, behind which is the entrance to UBC Robson.",
     },
 ];
 
@@ -31,22 +31,20 @@ const FAQItem: React.FC<{
     return (
         <div className="">
             <button
-                className="flex justify-start items-center w-full text-white text-[12px] font-medium"
+                className="flex items-center w-full text-white text-[12px] font-medium py-2"
                 onClick={toggleOpen}
             >
                 <ChevronUp
-                    className={`h-5 w-5 transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : "rotate-90"
-                    }`}
+                    className={`h-5 w-5 flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : "rotate-90"
+                        }`}
                 />
-                <span className="ml-1">{item.question}</span>
+                <span className="ml-2 text-left flex-1">{item.question}</span>
             </button>
             <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                    }`}
             >
-                <div className="pb-4 text-gray-300 ml-6 text-[12px]">
+                <div className="pb-4 text-gray-300 ml-7 text-[12px]">
                     {item.answer}
                 </div>
             </div>

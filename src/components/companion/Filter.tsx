@@ -16,14 +16,13 @@ const Filter: React.FC<FilterProps> = ({
     <div className="justify-center flex">
       <div
         className="flex bg-gradient-to-b from-[#11151F] to-[#1E2939] 
-                    rounded-full items-center text-[12px] h-8"
+                    rounded-full items-center text-[12px] h-full"
       >
         {filterOptions.map((option, index) => (
           <div
             key={index}
-            className={`px-[10px] rounded-full py-1 ${
-              index === selectedFilterOption ? selectedStyle : unselectedStyle
-            }`}
+            className={`px-[10px] rounded-full py-1 flex items-center justify-center ${index === selectedFilterOption ? selectedStyle : unselectedStyle
+              }`}
             onClick={() => setSelectedFilterOption(index)}
           >
             {option}
