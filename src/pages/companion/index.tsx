@@ -12,6 +12,7 @@ import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
+import { Loader2 } from "lucide-react";
 
 interface Registration {
   id: string;
@@ -104,7 +105,7 @@ const Companion = () => {
       repeatDelay: 0.5
     },
     whileHover: {
-      x: '0%' // Stops the animation on hover
+      x: "0%" // Stops the animation on hover
     }
   };
 
@@ -131,15 +132,19 @@ const Companion = () => {
     logo: "w-1/2 sm:w-3/5 mb-5 relative",
     title: "text-2xl font-bold mb-2 text-white font-satoshi",
     description: "text-center mb-4 text-white p1 font-satoshi",
-    input: "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
-    button: "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
-    buttonShine: "absolute inset-0 transform bg-gradient-to-r from-[#1E88E5] hover:from-[#1976D2] via-white/20 hover:to-[#1976D2] to-[#1E88E5]",
+    input:
+      "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
+    button:
+      "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
+    buttonShine:
+      "absolute inset-0 transform bg-gradient-to-r from-[#1E88E5] hover:from-[#1976D2] via-white/20 hover:to-[#1976D2] to-[#1E88E5]",
     error: "text-red-500 text-center w-4/5 font-satoshi"
   };
 
   const fetchUserData = async () => {
     const reg = registrations.find((entry) => entry.id.toLowerCase() === email.toLowerCase());
     if (reg) {
+      setIsLoading(true);
       setError("");
       setUserRegistration(reg);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
@@ -155,20 +160,25 @@ const Companion = () => {
         if (profileResponse.profileID) {
           localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
           // After setting profile ID, fetch connections and badges
+          if (decodedRedirect !== "") {
+            router.push(decodedRedirect);
+            return;
+          }
+
           if (!reg.isPartner) await Promise.all([fetchConnections(), fetchBadges()]);
           else await fetchConnections();
         }
       } catch (err) {
         console.error("Error fetching profile ID:", err);
       }
-
       if (decodedRedirect !== "") {
         router.push(decodedRedirect);
       }
     } else {
       setError("This email does not match an existing entry in our records.");
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   const fetchRegistrations = async () => {
@@ -245,30 +255,19 @@ const Companion = () => {
 
   useEffect(() => {
     const { query } = router;
-    const redirectParam = query[""] ? decodeURIComponent(query[""] as string) : "";
+    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : "";
     setDecodedRedirect(redirectParam);
-
-    // I personally think this is hacky but equally viable
-    // if (typeof window !== "undefined") {
-    //   const search = window.location.search;
-
-    //   if (search.startsWith("?=")) {
-    //     setDecodedRedirect(decodeURIComponent(search.slice(2)));
-    //   }
-    // }
-  }, [router]);
+  }, [router.isReady]);
 
   useEffect(() => {
     const initializeData = async () => {
-      setIsLoading(true);
       const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
       if (savedEmail) {
         setEmail(savedEmail);
       }
+      setIsLoading(false);
 
       await Promise.all([fetchRegistrations(), fetchEvent()]);
-
-      setIsLoading(false);
     };
 
     initializeData();
@@ -278,7 +277,7 @@ const Companion = () => {
     if (email && registrations.length > 0) {
       fetchUserData();
     }
-  }, [email, registrations]);
+  }, [email, registrations, router.isReady]);
 
   if (isLoading) return <Loading />;
 
