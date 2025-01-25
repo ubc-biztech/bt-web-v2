@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
-import { Loader2, QrCodeIcon } from "lucide-react";
+import { QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
 import { BOOTH_EVENT, COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
+import Loading from "@/components/Loading";
 
 interface Qr {
   data: Record<string, any>;
@@ -41,7 +42,6 @@ const Index = () => {
         authenticatedCall: false
       });
 
-      console.log(response);
       setQrData(response);
       setQrLoading(false);
     } catch (err) {
@@ -64,16 +64,12 @@ const Index = () => {
         Object.assign(body, { eventType: CONNECTION_EVENT });
         redirect = `/companion/profile/${eventParam}`;
         break;
-      case "NFC_BOOTH":
+      case "NFC_COMPANY":
         Object.assign(body, { eventType: BOOTH_EVENT });
-        // TODO: company pages
-        // redirect = `/companion/booth/${eventParam}`;
-        redirect = `/companion/`;
+        redirect = `/companion/profile/company/${eventParam}`;
         break;
       case "NFC_WORKSHOP":
         Object.assign(body, { eventType: WORKSHOP_EVENT });
-        // TODO: workshop pages
-        // redirect = `/companion/workshop/${eventParam}`;
         redirect = `/companion/`;
         break;
       default:
@@ -108,14 +104,14 @@ const Index = () => {
     const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
 
     if (!userID) {
-      router.push(`/companion/login/redirect?=/companion/scan/${qrId}`);
+      router.push(`/companion?redirect=/companion/scan/${qrId}`);
       return;
     }
 
     postInteraction(userID || "", type, id); // TODO integrate profiles
   }, [qrData]);
 
-  if (!loadingQr && (!qrData || !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP"].includes(qrData.type))) {
+  if (!loadingQr && (!qrData || !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP", "NFC_COMPANY"].includes(qrData.type))) {
     return (
       <PageError
         icon={<QrCodeIcon size={64} color='#F87171' />}
@@ -130,12 +126,7 @@ const Index = () => {
     return <div className='w-screen h-screen flex items-center justify-center'>{pageError}</div>;
   }
 
-  // loading spinner
-  return (
-    <div className='w-screen h-screen flex items-center justify-center'>
-      <Loader2 className='animate-spin' size={50} />
-    </div>
-  );
+  return <Loading />;
 };
 
 export default Index;

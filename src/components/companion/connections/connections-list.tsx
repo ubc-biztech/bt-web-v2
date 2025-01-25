@@ -1,6 +1,6 @@
-import React from 'react';
-import { SectionCard } from '@/components/ui/section-card';
-import { CompanionConnectionRow } from './connection-row';
+import React from "react";
+import { SectionCard } from "@/components/ui/section-card";
+import { CompanionConnectionRow } from "./connection-row";
 
 export interface Connection {
   userID: string;
@@ -12,7 +12,6 @@ export interface Connection {
   year?: string;
   title?: string;
   company?: string;
-  linkedinURL?: string;
   profilePic?: string;
   "eventID;year": string;
 }
@@ -22,35 +21,26 @@ interface ConnectionsListProps {
   totalCount?: number;
 }
 
-export const ConnectionsList: React.FC<ConnectionsListProps> = ({ 
-  connections,
-  totalCount
-}) => {
+export const ConnectionsList: React.FC<ConnectionsListProps> = ({ connections, totalCount }) => {
   return (
-    <SectionCard title="Connections" viewAllLink="/companion/connections">
-      <div className="space-y-4">
+    <SectionCard title='Connections' viewAllLink='/companion/connections'>
+      <div className='space-y-4'>
         {totalCount && totalCount > 0 ? (
           <>
             {connections.map((connection, index) => (
               <CompanionConnectionRow key={index} connection={connection} />
             ))}
             {totalCount && totalCount > connections.length && (
-              <p className="text-center text-[#808080] text-xs mt-2 font-redhat">
-                + {totalCount - connections.length} MORE
-              </p>
+              <p className='text-center text-[#808080] text-xs mt-2 font-redhat'>+ {totalCount - connections.length} MORE</p>
             )}
           </>
         ) : (
           <>
-            <p className="font-redhat font-thin text-[14px] flex justify-center text-center">
-              NO CONNECTIONS YET
-            </p>
-            <p className="font-redhat font-thin text-[14px] flex justify-center text-center">
-              TAP YOUR FIRST NFC TO START
-            </p>
+            <p className='font-redhat font-thin text-[14px] flex justify-center text-center'>NO CONNECTIONS YET</p>
+            <p className='font-redhat font-thin text-[14px] flex justify-center text-center'>TAP YOUR FIRST NFC TO START</p>
           </>
         )}
       </div>
     </SectionCard>
   );
-}; 
+};
