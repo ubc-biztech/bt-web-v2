@@ -68,6 +68,10 @@ const Index = () => {
         Object.assign(body, { eventType: BOOTH_EVENT });
         redirect = `/companion/profile/company/${eventParam}`;
         break;
+      case "NFC_BOOTH":
+        Object.assign(body, { eventType: BOOTH_EVENT });
+        redirect = `/companion/`;
+        break;
       case "NFC_WORKSHOP":
         Object.assign(body, { eventType: WORKSHOP_EVENT });
         redirect = `/companion/`;
