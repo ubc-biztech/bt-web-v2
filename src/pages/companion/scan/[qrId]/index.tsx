@@ -56,10 +56,6 @@ const Index = () => {
       eventParam
     };
     switch (type) {
-      case "NFC_ATTENDEE":
-        Object.assign(body, { eventType: CONNECTION_EVENT });
-        redirect = `/companion/profile/${eventParam}`;
-        break;
       case "NFC_PARTNER":
         Object.assign(body, { eventType: CONNECTION_EVENT });
         redirect = `/companion/profile/${eventParam}`;
