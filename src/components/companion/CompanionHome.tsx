@@ -55,8 +55,9 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
             collected{' '}
             <span className="text-white font-medium font-satoshi inline-flex items-center gap-2">
               <Trophy className="w-6 h-6" strokeWidth={1.5} />
-              {badgeCount} badges so far.
+              {badgeCount} badges
             </span>
+            so far.
           </div>
         </div>
       </motion.div>
