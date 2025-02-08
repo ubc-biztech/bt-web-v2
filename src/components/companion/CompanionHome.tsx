@@ -6,6 +6,7 @@ import { BadgesList } from './badges/badges-list';
 import { Connection, ConnectionsList } from './connections/connections-list';
 import { Badge } from '@/pages/companion/badges';
 import NavBarContainer from './navigation/NavBarContainer';
+import { CompanionButton } from '../../../src/components/ui/companion-button';
 
 interface CompanionHomeProps {
   isPartner: boolean | undefined,
@@ -19,7 +20,7 @@ interface CompanionHomeProps {
 const Counter = ({ value }: { value: number }) => {
   const count = useMotionValue(value <= 10 ? value : 0);
   const rounded = useTransform(count, (latest) => Math.round(latest));
-  
+
   React.useEffect(() => {
     if (value <= 10) {
       count.set(value);
@@ -36,7 +37,7 @@ const Counter = ({ value }: { value: number }) => {
         count.set(value);
       }
     });
-    
+
     return animation.stop;
   }, [value]);
 
@@ -72,6 +73,19 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
     <NavBarContainer isPartner={isPartner}>
       {/* Welcome Section */}
       <motion.div className="font-[500] p-5 rounded-3xl" variants={itemVariants}>
+        {!isPartner && (
+          <div className="w-full flex justify-center">
+            <div className="p-8 bg-[#030B13] rounded-2xl w-fit">
+              <div className="flex justify-between items-center mb-4">
+                <CompanionButton href="/companion/wrapped">
+                  <span className="text-[12px] translate-y-[1px]">🚀 VIEW WRAPPED</span>
+                  <span className="text-lg translate-y-[-3px]">↗</span>
+                </CompanionButton>
+              </div>
+              <div className="h-[1px] bg-white/10 mb-4" />
+            </div>
+          </div>
+        )}
         <div className="text-[28px] font-medium mb-3 text-white">
           Welcome, <GradientText>{userName}</GradientText>
         </div>
@@ -84,7 +98,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
             </span>
             {
               isPartner ? 'so far.'
-              : 'and'
+                : 'and'
             }
           </div>
           {
@@ -103,7 +117,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
 
 
       {/* Badges Section – rendered only if not partner */}
-      {badges && 
+      {badges &&
         <motion.div variants={itemVariants}>
           <BadgesList badges={badges} />
         </motion.div>
@@ -111,20 +125,20 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
 
       {/* Connections Section */}
       {
-        isPartner ? 
-        <motion.div variants={itemVariants}>
-          <ConnectionsList
-            connections={connections}
-            totalCount={connectionCount}
-          />
-        </motion.div> 
-        :
-        <motion.div variants={itemVariants}>
-          <ConnectionsList
-            connections={connections.slice(0,3)}
-            totalCount={connectionCount}
-          />
-        </motion.div> 
+        isPartner ?
+          <motion.div variants={itemVariants}>
+            <ConnectionsList
+              connections={connections}
+              totalCount={connectionCount}
+            />
+          </motion.div>
+          :
+          <motion.div variants={itemVariants}>
+            <ConnectionsList
+              connections={connections.slice(0, 3)}
+              totalCount={connectionCount}
+            />
+          </motion.div>
       }
     </NavBarContainer>
   );

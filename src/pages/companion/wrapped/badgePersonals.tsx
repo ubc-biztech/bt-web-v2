@@ -65,8 +65,6 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
 
                 setBadges(processedBadges);
                 setCompletedBadges(completed);
-                console.log(completed)
-                console.log(blueprintBadgeIcons["QUEST_CONNECT_FOUR"])
 
             } catch (err) {
                 console.error("Error fetching badges:", err);
@@ -89,17 +87,17 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
             >
                 {/* Title */}
-                <motion.p className="text-white text-lg font-medium text-center">
+                <motion.p className="text-white text-lg font-satoshi font-medium text-center">
                     You collected
                 </motion.p>
 
                 {/* Badge Count */}
-                <motion.h1 className="text-white text-6xl font-bold drop-shadow-[0_0_20px_#4488FF]">
+                <motion.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
                     {completedBadges.length}
                 </motion.h1>
 
                 {/* Subtext */}
-                <motion.p className="text-white text-lg font-medium text-center">
+                <motion.p className="text-white text-lg font-satoshi font-medium text-center">
                     <span className="underline">{completedBadges.length === 1 ? "badge" : "badges"}</span> out of {totalBadges}.
                 </motion.p>
 
@@ -111,7 +109,7 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.8 }}
                     >
-                        <p className="text-white text-sm font-bold mb-2">Badges Collected</p>
+                        <p className="text-white text-sm font-satoshi font-bold mb-2">Badges Collected</p>
                         <div className="grid grid-cols-5 gap-3 justify-center">
                             {completedBadges.map((badge) => (
                                 <motion.div
@@ -125,7 +123,7 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
                                     {blueprintBadgeIcons[badge.questID] ? (
                                         <Image src={blueprintBadgeIcons[badge.questID]} alt="Test Badge" width={40} height={40} />
                                     ) : (
-                                        <span className="text-black font-semibold">{badge.questID.charAt(0)}</span> // Fallback text
+                                        <span className="text-black font-satoshi font-semibold">{badge.questID.charAt(0)}</span> // Fallback text
                                     )}
                                 </motion.div>
                             ))}
@@ -138,9 +136,12 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
                 )}
 
                 {/* Completion Percentage */}
-                <motion.p className="text-white text-lg font-medium text-center">
-                    That&apos;s <span className="font-bold">{((completedBadges.length / totalBadges) * 100).toFixed(0)}%</span> of all attainable badges!
-                </motion.p>
+                {(completedBadges.length / totalBadges) * 100 > 20 && (
+                    <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+                        That&apos;s <span className="font-satoshi font-bold">{((completedBadges.length / totalBadges) * 100).toFixed(0)}%</span> of all attainable badges!
+                    </motion.p>
+                )}
+
             </motion.div>
         </NavBarContainer>
     );
