@@ -46,17 +46,17 @@ const StartPage = ({ isPartner }: StartPageProps) => {
         >
           {/* Question Text */}
           <motion.p
-            className="text-white text-lg md:text-xl font-medium"
+            className="text-white text-lg md:text-xl font-satoshi font-medium"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            How did <span className="font-bold">you</span> get your start?
+            How did <span className="font-satoshi font-bold">you</span> get your start?
           </motion.p>
 
           {/* Subtext */}
           <motion.p
-            className="text-white text-lg md:text-xl font-medium"
+            className="text-white text-lg md:text-xl font-satoshi font-medium"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}

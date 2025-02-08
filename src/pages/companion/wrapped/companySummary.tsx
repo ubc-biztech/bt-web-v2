@@ -73,7 +73,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         <motion.h1
-          className="text-white text-sm md:text-lg font-medium px-4 max-w-lg text-center mb-6 
+          className="text-white text-sm md:text-lg font-satoshi font-medium px-4 max-w-lg text-center mb-6 
                         drop-shadow-[0_0_10px_rgba(68,136,255,0.6)]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -81,7 +81,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
         >
           People connected with many different companies, big and small.
           <br />
-          Here are the <span className="font-bold">overall top 5.</span>
+          Here are the <span className="font-satoshi font-bold">overall top 5.</span>
         </motion.h1>
 
 
@@ -112,8 +112,8 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
 
               {/* Company Name & NFC Tap Count */}
               <div className="flex flex-col flex-1">
-                <p className="text-white text-lg font-bold">{company.name}</p>
-                <p className="text-gray-400 text-sm">{company.taps} NFC taps</p>
+                <p className="text-white text-lg font-satoshi font-bold">{company.name}</p>
+                <p className="text-gray-400 text-sm font-satoshi">{company.taps} NFC taps</p>
               </div>
             </motion.div>
           ))}

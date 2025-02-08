@@ -127,27 +127,28 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
-        className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-6 cursor-pointer"
+        className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-4 cursor-pointer"
         onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 40 }} // Moves it down
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }} // Stops pushing content down
         transition={{ duration: 0.5 }}
-        style={{ opacity, scale, y, marginTop: "3rem" }} // Additional margin
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        style={{ opacity, scale, y, paddingTop: "1rem" }} // Reduces top padding
+        exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
 
+
         {/* Header */}
-        <motion.p className="text-white text-lg font-medium text-center">
+        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
           You made
         </motion.p>
 
         {/* Connection Count */}
-        <motion.h1 className="text-white text-6xl font-bold drop-shadow-[0_0_20px_#4488FF]">
+        <motion.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           {totalConnections}
         </motion.h1>
 
         {/* Subtext */}
-        <motion.p className="text-white text-lg font-medium text-center">
+        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
           <span className="underline">connections</span> at BluePrint.
         </motion.p>
 
@@ -158,16 +159,18 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <p className="text-white text-sm font-bold mb-2">Connections by Hour</p>
+          <p className="text-white text-sm font-satoshi font-bold mb-2">Connections by Hour</p>
           <div className="h-48">
             <Line data={chartData} options={chartOptions} />
           </div>
         </motion.div>
 
         {/* Most Active Hour */}
-        <motion.p className="text-white text-lg font-medium text-center">
-          You networked the most around <span className="font-bold">{mostActiveHour}</span>.
-        </motion.p>
+        {totalConnections > 0 && (
+          <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+            You networked the most around <span className="font-satoshi font-bold">{mostActiveHour}</span>.
+          </motion.p>
+        )}
       </motion.div>
     </NavBarContainer>
   );

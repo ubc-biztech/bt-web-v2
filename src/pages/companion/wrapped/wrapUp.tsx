@@ -31,39 +31,58 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
     return (
         <NavBarContainer isPartner={isPartner}>
             <motion.div
-                className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-8 cursor-pointer"
+                className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-6 cursor-pointer"
                 onClick={handleTap}
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                initial={{ opacity: 0, scale: 0.9, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                style={{ opacity, scale, y }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                style={{ opacity, scale, y, paddingTop: "1rem" }} // Removes extra top space
+                exit={{ opacity: 0, scale: 0.9, y: 10 }}
             >
+
                 {/* Title */}
-                <motion.h1 className="text-white text-4xl font-bold drop-shadow-[0_0_20px_#4488FF]">
+                <motion.h1 className="text-white text-4xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
                     That&apos;s a wrap
                 </motion.h1>
 
-                {/* Exec Team Photo */}
-                <motion.div
-                    className="w-[80%] max-w-md rounded-lg overflow-hidden shadow-lg border-2 border-[#4488FF]"
-                    initial={{ opacity: 0, y: 20 }}
+                {/* Click Prompt Text */}
+                <motion.p
+                    className="text-white text-sm font-satoshi font-medium text-center"
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
+                    transition={{ delay: 0.5 }}
                 >
-                    <Image
-                        src={ExecsPhoto}
-                        alt="Executive Team Photo"
-                        layout="responsive"
-                        width={800}
-                        height={400}
-                        className="rounded-lg"
-                    />
-                </motion.div>
+                    Click the photo to see more!
+                </motion.p>
+
+                {/* Exec Team Photo (Clickable) */}
+                <a
+                    href="https://drive.google.com/drive/folders/1v_ebcvtWl1aWiLWyGvZPEQRhN0ZQSfYk"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-[80%] max-w-md"
+                >
+                    <motion.div
+                        className="w-full rounded-lg overflow-hidden shadow-lg border-2 border-[#4488FF] cursor-pointer"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                    >
+                        <Image
+                            src={ExecsPhoto}
+                            alt="Executive Team Photo"
+                            layout="responsive"
+                            width={800}
+                            height={400}
+                            className="rounded-lg"
+                        />
+                    </motion.div>
+                </a>
+
 
                 {/* Thanks Message */}
                 <motion.p
-                    className="text-white text-lg font-medium text-center"
+                    className="text-white text-lg font-satoshi font-medium text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8 }}
@@ -73,7 +92,7 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
 
                 {/* BluePrint Logo with STRONGER Glow */}
                 <motion.h1
-                    className="text-white text-5xl font-bold tracking-tight relative"
+                    className="text-white text-5xl font-satoshi font-bold tracking-tight relative"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1 }}
@@ -117,14 +136,16 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
                 </motion.h1>
 
                 {/* Final Goodbye Message */}
-                <motion.p
-                    className="text-white text-lg italic text-center"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.2 }}
-                >
-                    Same time next year?
-                </motion.p>
+                <div className="w-full overflow-visible px-4">
+                    <motion.p
+                        className="font-satoshi text-white text-lg italic text-center whitespace-nowrap"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.2 }}
+                    >
+                        Same time next year?
+                    </motion.p>
+                </div>
             </motion.div>
         </NavBarContainer>
     );

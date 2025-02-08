@@ -45,7 +45,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
           >
             {/* Glowing Title */}
             <motion.h1
-              className="text-white text-6xl md:text-6xl font-bold tracking-tight drop-shadow-[0_0_20px_#4488FF]"
+              className="text-white text-6xl md:text-6xl font-satoshi tracking-tight drop-shadow-[0_0_20px_#4488FF]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
@@ -56,12 +56,12 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
 
             {/* Subtitle */}
             <motion.p
-              className="text-white text-lg md:text-xl font-medium"
+              className="text-white text-lg md:text-xl font-satoshi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
-              was <span className="font-bold">big</span> this year.
+              was <span className="font-bold font-satoshi">big</span> this year.
             </motion.p>
 
             {/* Gradient Divider Line */}
@@ -74,24 +74,24 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
 
             {/* Stats Section */}
             <motion.p
-              className="text-white text-lg md:text-xl font-medium"
+              className="text-white text-lg md:text-xl font-satoshi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
             >
-              Where you, <span className="font-bold text-white">251 attendees</span>
+              Where you, <span className="font-bold font-satoshi text-white">251 attendees</span>
               <br />
               and <span className="font-bold text-white">90 delegates</span>
             </motion.p>
 
             {/* Final Call-to-Action */}
             <motion.p
-              className="text-white text-xl md:text-2xl italic font-serif drop-shadow-[0_0_20px_#4488FF]"
+              className="text-white text-xl md:text-2xl italic font-satoshi drop-shadow-[0_0_20px_#4488FF]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.4 }}
             >
-              <span className="font-bold">Got their</span> <span className="italic">start.</span>
+              <span className="font-bold font-satoshi">Got their</span> <span className="italic">start.</span>
             </motion.p>
           </motion.div>
         </motion.div>
