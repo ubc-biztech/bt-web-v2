@@ -35,7 +35,7 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
     <NavBarContainer isPartner={isPartner}>
       <AnimatePresence>
         <motion.div
-          className="fixed inset-0 min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] flex flex-col items-center justify-between p-6 cursor-pointer"
+          className=" min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] flex flex-col items-center justify-between p-6 cursor-pointer"
           onClick={handleTap}
           style={{ opacity, scale, y }}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
