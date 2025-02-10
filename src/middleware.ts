@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname.startsWith('/fonts') ||
+    pathname.startsWith('/videos') ||
     pathname.match(/\.(woff|woff2|ttf|otf)$/)
   ) {
     return NextResponse.next();
