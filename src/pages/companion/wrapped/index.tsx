@@ -69,7 +69,7 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
 
               {/* Logo container with rotation */}
               <motion.div
-                className="relative w-full h-full flex items-center justify-center"
+                className="relative -top-16 w-full h-full flex items-center justify-center"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
               >
@@ -87,15 +87,15 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
                   priority
                 />
               </motion.div>
+
             </div>
 
-            <motion.div className="text-center space-y-0 flex flex-col items-center">
+            <motion.div className="text-center space-y-0 flex flex-col items-center -mt-6">
               {/* BluePrint Logo */}
-              <div className="relative w-80 h-40 mb-0"> {/* Adjust width & height as needed */}
+              <div className="relative w-80 min-h-20 flex items-center justify-center mb-2">
                 <Image
                   src={NavbarLogo}
                   alt="BluePrint Logo"
-                  layout="fill"
                   className="object-contain"
                   priority
                 />
@@ -103,7 +103,7 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
 
               {/* Wrapped Text */}
               <motion.p
-                className="text-white text-3xl italic font-satoshi drop-shadow-[0_0_20px_#4488FF] mt-1 whitespace-nowrap px-2"
+                className="text-white text-xl italic font-satoshi drop-shadow-[0_0_20px_#4488FF] mt-[-12px] whitespace-nowrap px-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
@@ -113,43 +113,27 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
             </motion.div>
 
             {/* Footer */}
-            <motion.div
-              className="flex flex-col items-center gap-2 mt-6 min-h-[50px]" // Ensure it has height
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-            >
-
-              <motion.div
-                className="w-16 h-16 flex items-center justify-center text-white sm:w-20 sm:h-20 block"
-                animate={{ y: [0, -10, 0] }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "easeInOut",
-                }}
+            <motion.div className="flex flex-col items-center gap-0 mt-[-2px] min-h-[50px]">
+              <svg
+                width="64" height="80"
+                viewBox="0 0 124 148"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full block"
               >
-                <svg
-                  width="64" height="80" // Set explicit width & height
-                  viewBox="0 0 124 148"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-full h-full block" // Force display
-                >
-                  <g>
-                    <path d="M41.952 50.1082C41.818 46.4282 43.956 39.1402 50.18 36.0962C52.748 34.5362 59.792 32.1202 66.528 36.4242C73.168 40.6642 73.616 46.9122 74.032 50.0642" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M82.6644 114.004C82.4804 107.46 82.8924 106.812 83.3724 105.356C83.8524 103.9 87.1964 98.6524 88.3804 94.9004C92.2124 82.7644 88.6404 80.1804 83.8804 76.7404C78.6004 72.9244 69.1044 71.0284 64.1644 71.4484V52.0924C64.1644 48.8004 61.0084 46.1044 57.6364 46.1044C54.2644 46.1044 51.1684 48.8004 51.1684 52.0924V85.3404L44.2884 79.3804C42.0524 77.0044 38.4564 76.7644 36.0004 78.9204C34.8808 79.892 34.1758 81.2554 34.0304 82.7304C33.8842 84.2055 34.3088 85.6805 35.2164 86.8524L39.7404 92.7084" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-                  </g>
-                </svg>
-              </motion.div>
-
-
-              <p className="text-white text-xl font-light font-satoshi mt-2"> {/* Reduced margin here */}
-                Tap to start.
-              </p>
+                <g>
+                  <path d="M41.952 50.1082C41.818 46.4282 43.956 39.1402 50.18 36.0962C52.748 34.5362 59.792 32.1202 66.528 36.4242C73.168 40.6642 73.616 46.9122 74.032 50.0642" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M82.6644 114.004C82.4804 107.46 82.8924 106.812 83.3724 105.356C83.8524 103.9 87.1964 98.6524 88.3804 94.9004C92.2124 82.7644 88.6404 80.1804 83.8804 76.7404C78.6004 72.9244 69.1044 71.0284 64.1644 71.4484V52.0924C64.1644 48.8004 61.0084 46.1044 57.6364 46.1044C54.2644 46.1044 51.1684 48.8004 51.1684 52.0924V85.3404L44.2884 79.3804C42.0524 77.0044 38.4564 76.7644 36.0004 78.9204C34.8808 79.892 34.1758 81.2554 34.0304 82.7304C33.8842 84.2055 34.3088 85.6805 35.2164 86.8524L39.7404 92.7084" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+                </g>
+              </svg>
             </motion.div>
 
+
+            <p className="text-white text-mt font-light font-satoshi mt-0"> {/* Reduced margin here */}
+              Tap to start.
+            </p>
           </motion.div>
+
         </motion.div>
 
       </AnimatePresence>

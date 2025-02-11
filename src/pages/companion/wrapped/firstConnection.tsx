@@ -87,7 +87,7 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
   };
 
   // Get first company name from connections
-  const firstConnection: Connection | null = connections.length > 0 ? connections[0] : null;
+  const firstConnection: Connection | null = connections.length > 0 ? connections[connections.length - 1] : null;
   const firstCompanyConnection: Connection | null = connections.find((conn) => conn.company) || null;
   const firstCompanyName = firstCompanyConnection ? firstCompanyConnection.company : "No company found";
 
