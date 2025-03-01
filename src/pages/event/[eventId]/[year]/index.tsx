@@ -358,7 +358,7 @@ export default function AttendeeFormRegister() {
         if (userRegistered) {
             return renderErrorText(
                 <div className="text-center">
-                    <p className="text-l mb-4">You&apos;ve already registered!</p>
+                    <p className="text-l mb-4 text-white">You&apos;ve already registered!</p>
                     <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                         Upcoming Events
                     </button>
@@ -368,7 +368,7 @@ export default function AttendeeFormRegister() {
         else if (isDeadlinePassed()) {
             return renderErrorText(
                 <div className="text-center">
-                    <p className="text-l mb-4">Sorry, the deadline for registration has passed on {new Date(event.deadline).toDateString()}.</p>
+                    <p className="text-l mb-4 text-white">Sorry, the deadline for registration has passed on {new Date(event.deadline).toDateString()}.</p>
                     <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                         Upcoming Events
                     </button>
@@ -380,8 +380,8 @@ export default function AttendeeFormRegister() {
                 renderErrorText(
                     <>
                         <div className="text-center">
-                            <p className="text-xl mb-4">Sorry, this event is full.</p>
-                            <p className="text-lg mb-4">Please check back for future events.</p>
+                            <p className="text-xl mb-4 text-white">Sorry, this event is full.</p>
+                            <p className="text-lg mb-4 text-white">Please check back for future events.</p>
                             <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/"}>
                                 Upcoming Events
                             </button>
@@ -394,7 +394,7 @@ export default function AttendeeFormRegister() {
         else if ((!user || !user.isMember) && event.pricing?.nonMembers === undefined) {
             return renderErrorText(
                 <div className="text-center">
-                    <p className="text-l mb-4">Sorry, this event is for members only. This event is for members only. To access the form, please sign in or register for a membership.</p>
+                    <p className="text-l mb-4 text-white">Sorry, this event is for members only. This event is for members only. To access the form, please sign in or register for a membership.</p>
                     <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md" onClick={() => window.location.href = "/login"}>
                         Register
                     </button>
