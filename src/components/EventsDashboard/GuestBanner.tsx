@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 interface GuestBannerProps {
   message?: string;
@@ -24,31 +25,33 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
               duration: 0.3,
             }}
             onClick={(e) => e.stopPropagation()}
-            className="relative p-5 pb-10 rounded-b-[5px] bg-login-form-card border-baby-blue border-l-2 border-b-2 border-r-2 w-full flex flex-col justify-center items-center top-0"
           >
-            <div>{message}</div>
-            <div className="mb-1">
-              {" "}
-              Click here to{" "}
-              <Link className="underline" href={`/login`}>
-                sign in
-              </Link>{" "}
-              or{" "}
-              <Link className="underline" href={`/signup`}>
-                register here
-              </Link>{" "}
-              {`if you don't have an account.`}
-            </div>
+            <Alert className="relative p-4 pb-8 rounded-b-[5px] bg-login-form-card border-baby-blue w-full flex flex-col items-center">
+
+              <div className="h-4 w-4" />
+              <AlertTitle className="text-white font-poppins text-sm">{message}</AlertTitle>
+              <AlertDescription className="text-white font-poppins text-sm">
+                {" "}
+                Click here to{" "}
+                <Link className="underline" href={`/login`}>
+                  sign in
+                </Link>{" "}
+                or{" "}
+                <Link className="underline" href={`/signup`}>
+                  register here
+                </Link>{" "}
+                {`if you don't have an account.`}
+              </AlertDescription>
+            </Alert>
             <X
               height={20}
               width={20}
-              className="absolute left-[calc(50%-20px)] bottom-2 md:left-auto md:right-5 md:top-[calc(50%-20px)]"
+              className="absolute top-2 right-2 md:top-4 md:right-4 cursor-pointer"
               onClick={() => {
                 setVisible(false);
               }}
             />
-          </motion.div>
-        )}
+          </motion.div>)}
       </AnimatePresence>
     </>
   );
