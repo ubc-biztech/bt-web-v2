@@ -26,8 +26,7 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Alert className="relative p-4 pb-8 rounded-b-[5px] bg-login-form-card border-baby-blue w-full flex flex-col items-center">
-              <div className="h-4 w-4" />
+            <Alert className="relative py-8 rounded-b-[5px] bg-login-form-card border-baby-blue w-full flex flex-col items-center">
               <AlertTitle className="text-white text-sm">{message}</AlertTitle>
               <AlertDescription className="text-white font-poppins text-sm">
                 {" "}
