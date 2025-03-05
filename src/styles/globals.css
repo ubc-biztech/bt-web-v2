@@ -151,6 +151,9 @@ body {
   button {
     @apply font-poppins font-600 text-sm text-black;
   }
+  p {
+    @apply font-poppins font-400 text-sm text-black;
+  }
   .p1 {
     @apply font-poppins font-500 text-sm text-black;
   }
