@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BiztechEvent, MemberStatus, Profile } from "@/types";
 import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
+import { fetchBackend } from "@/lib/db";
+import { getCurrentUser } from "@aws-amplify/auth";
 
 // Mock event and profile data
 // TO DO: replace these with calls to backend
@@ -25,21 +27,13 @@ const fetchEventData = async () : Promise<BiztechEvent[]> => {
   return data;
 };
 
-const fetchProfileData = async () => {
-  const profile = {
-    name: "John Smith",
-    email: "biztechuser@gmail.com",
-    pronouns: "They/Them/Their",
-    school: "UBC",
-    studentId: "12345678",
-    year: "3rd",
-    dietary: "none",
-    faculty: "Commerce",
-    major: "BTM",
-    status: MemberStatus.Member,
-    // image: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg",
-  };
-  return profile;
+const fetchProfileData = async (email: string) => {
+  const profileData = await fetchBackend({
+    endpoint: `/users/${email}`,
+    method: "GET",
+    authenticatedCall: true,
+  })
+  return profileData;
 };
 
 const ProfilePage = () => {
@@ -49,7 +43,9 @@ const ProfilePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const profile = await fetchProfileData();
+      const { signInDetails } = await getCurrentUser();
+      const email = signInDetails?.loginId;
+      const profile = await fetchProfileData(email);
       setProfile(profile);
       const events: BiztechEvent[] = await fetchEventData();
       setRegisteredEvents(events);
@@ -62,8 +58,8 @@ const ProfilePage = () => {
     <main className="bg-primary-color min-h-screen">
       <div className="container mx-auto p-6 lg:p-10 pt-16 lg:pt-24">
         <h3 className="text-white text-lg lg:text-xl">
-          {profile?.name
-            ? `Welcome back, ${profile.name.split(" ")[0]}!`
+          {profile?.fname
+            ? `Welcome back, ${profile.fname}!`
             : "Welcome back!"}
         </h3>
         <div className="flex flex-col gap-6 mt-6 lg:flex-row">
