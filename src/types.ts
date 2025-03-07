@@ -136,17 +136,22 @@ export enum MemberStatus {
 }
 
 export type Profile = {
-    name: string,
+    id: string,
+    fname: string,
+    lname: string,
     image?: string,
     email: string,
-    pronouns: string,
-    school: string,
+    gender: string,
+    education: string,
     studentId: string,
     year: string,
-    dietary: string,
+    diet: string,
     faculty: string,
     major: string,
-    status: MemberStatus,
+    admin: boolean,
+    isMember: boolean,
+    createdAt: number,
+    updatedAt: number,
 };
 
 // Type for the mapping of question IDs to responses

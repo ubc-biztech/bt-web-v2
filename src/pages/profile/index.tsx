@@ -45,8 +45,11 @@ const ProfilePage = () => {
     const fetchData = async () => {
       const { signInDetails } = await getCurrentUser();
       const email = signInDetails?.loginId;
-      const profile = await fetchProfileData(email);
-      setProfile(profile);
+      let profileData = null;
+      if (email) {
+        profileData = await fetchProfileData(email);
+      }
+      setProfile(profileData);
       const events: BiztechEvent[] = await fetchEventData();
       setRegisteredEvents(events);
       setSavedEvents(events);
