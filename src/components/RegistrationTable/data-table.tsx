@@ -32,6 +32,8 @@ export function DataTable({
   const [pageSize, setPageSize] = useState(10);
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
+  const [filteredData, setFilteredData] = useState(initialData);
+  const [filterValue, setFilterValue] = useState<'attendees' | 'partners' | 'waitlisted'>('attendees');
 
   const refreshTable = async () => {
     try {
@@ -54,11 +56,26 @@ export function DataTable({
   const filterButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    const filtered = data.filter(attendee => {
+      switch (filterValue) {
+        case 'partners':
+          return attendee.isPartner === true;
+        case 'waitlisted':
+          return attendee.registrationStatus === 'waitlisted';
+        case 'attendees':
+        default:
+          return !attendee.isPartner && attendee.registrationStatus !== 'waitlisted';
+      }
+    });
+    setFilteredData(filtered);
+  }, [data, filterValue]);
+
+  useEffect(() => {
     setIsClient(true);
   }, []);
 
   const table = useReactTable<Attendee>({
-    data,
+    data: filteredData,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -115,6 +132,7 @@ export function DataTable({
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
         refreshTable={refreshTable}
+        onFilterChange={setFilterValue}
       />
 
       <TableComponent>
