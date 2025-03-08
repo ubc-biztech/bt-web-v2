@@ -202,7 +202,7 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                 <h3 className="text-white font-bold mt-4">{event?.ename}</h3>
 
                                 {/* Event Description */}
-                                <p className="text-gray-300 whitespace-pre-line">{event?.description}</p>
+                                <p className="text-white whitespace-pre-line">{event?.description}</p>
 
                                 <FormField
                                     control={form.control}
