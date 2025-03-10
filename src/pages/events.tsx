@@ -64,7 +64,7 @@ export default function Page({ events }: EventProps) {
       setRegistered(
         registeredEvents
           ? registeredEvents.data.map((event: registeredEvent) => {
-              return event["eventID;year"];
+              return event["eventID;year"]; 
             })
           : []
       );
@@ -101,7 +101,7 @@ export default function Page({ events }: EventProps) {
     <main className='bg-primary-color min-h-screen w-full'>
       <div className='w-full'>
         {!signedIn && <GuestBanner message='To keep your saved events or view your registered events you need to be signed in.' />}
-        <div className='mx-auto pt-9 md:px-20 px-5 flex flex-col'>
+        <div className='mx-auto pt-8 md:px-20 px-5 flex flex-col'>
           <span>
             <h2 className='text-white text-xl lg:text-[40px]'>Event Dashboard</h2>
             <div className='flex items-center justify-between h-[40px]'>
