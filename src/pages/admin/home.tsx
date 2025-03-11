@@ -18,7 +18,7 @@ type Props = {
 export type ModalHandlers = {
     handleEventDelete: () => void;
     handleEditEvent: () => void;
-    handleViewAsMember: () => void;
+    handleViewAsMember: (eventID: string, eventYear: number) => void;
 };
 
 export default function AdminEventView({ events }: Props) {
@@ -38,8 +38,8 @@ export default function AdminEventView({ events }: Props) {
         console.log('Edit button clicked');
     }
 
-    const handleViewAsMember = () => {
-        console.log('View as Member button clicked');
+    const handleViewAsMember = (eventID: string, eventYear: number) => {
+        router.push(`/event/${eventID}/${eventYear}`)
     }
 
     // Update event click to navigate to registration table view

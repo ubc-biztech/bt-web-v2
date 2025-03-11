@@ -133,7 +133,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
     };
 
     return (
-        <div className="flex text-white">
+        <div className="flex text-white font-satoshi">
             <div className="flex-1">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -212,6 +212,16 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                         <Separator />
                                     </>
                                 )}
+
+                                {
+                                    !initialData && (
+                                        <div className="flex gap-4">
+                                                <Button type="submit" className="bg-biztech-green">
+                                                    Save
+                                                </Button>
+                                            </div>
+                                    )
+                                }
                                 
                                 <FormCheckbox
                                     name="isApplicationBased"

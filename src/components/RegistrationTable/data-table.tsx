@@ -56,6 +56,14 @@ export function DataTable({
   const filterButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    console.log(data)
+  }, [data]);
+
+  useEffect(() => {
+    refreshTable();
+  }, [])
+
+  useEffect(() => {
     const filtered = data.filter(attendee => {
       switch (filterValue) {
         case 'partners':

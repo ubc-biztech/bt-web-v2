@@ -40,7 +40,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                         <div className="space-y-3">
                             {(options as string[]).map((option: string, optionIndex: number) => (
                                 <div key={optionIndex} className="flex items-center justify-between">
-                                    <div className="flex-1 p-2 border rounded-md bg-muted">
+                                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
                                         {option}
                                     </div>
                                     <Button
@@ -65,7 +65,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                         <div className="space-y-3">
                             {(options as string[]).map((option: string, optionIndex: number) => (
                                 <div key={optionIndex} className="flex items-center space-x-3">
-                                    <div className="flex-1 p-2 border rounded-md bg-muted">
+                                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
                                         {option}
                                     </div>
                                     <Button
@@ -134,7 +134,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                             onKeyPress={handleAddOption}
                         />
                     </FormControl>
-                    <FormDescription>Press Enter to add an option</FormDescription>
+                    <FormDescription>Press Enter to add an option. {questionType === 'CHECKBOX' ? "To use other option, type 'other'." : ""}</FormDescription>
                 </div>
             )}
             <FormMessage />
