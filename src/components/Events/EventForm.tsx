@@ -204,7 +204,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                             </div>
 
                                             {!form.watch('isPublished') && formIsDirty && (
-                                                <p className="text-red-400">
+                                                <p className="text-light-red">
                                                     Note: There are changes to this event that are not published yet.
                                                 </p>
                                             )}
@@ -267,7 +267,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                 <div className="space-y-4">
                                     <FormInput name="price" label="Member Price" type="number" />
                                     {!form.watch('nonBizTechAllowed') && (
-                                        <p className="text-sm text-gray-400">
+                                        <p className="text-sm text-white">
                                             Enable &quot;Non-BizTech members allowed?&quot; above to set different pricing for non-members
                                         </p>
                                     )}

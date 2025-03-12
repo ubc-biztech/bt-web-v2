@@ -7,6 +7,7 @@ import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Attendee } from "@/components/RegistrationTable/columns";
+import { BiztechEvent, RegistrationQuestion } from "@/types";
 
 type Props = {
   initialData: Attendee[] | null;
@@ -23,21 +24,22 @@ export default function AdminEvent({ initialData, eventData }: Props) {
     if (router.isReady) {
       const eventId = router.query.eventId as string;
       const year = router.query.year as string;
-
+      
       if (eventId && year) {
         fetchBackend({
           endpoint: `/events/${eventId}/${year}`,
           method: "GET",
           authenticatedCall: false
-        }).then((eventDetails) => {
-          const questionColumns = eventDetails.registrationQuestions?.map((q: any) => ({
+        }).then((eventDetails: BiztechEvent) => {
+          console.log(eventDetails.registrationQuestions)
+          const questionColumns = eventDetails.registrationQuestions?.map((q: RegistrationQuestion) => ({
             id: q.label,
             header: q.label,
             accessorFn: (row: any) => {
+              console.log(row)
               return row.dynamicResponses?.[q.questionId] || '';
             }
           })) || [];
-
           setDynamicColumns(questionColumns);
         });
       }

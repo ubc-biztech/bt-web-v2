@@ -397,7 +397,6 @@ export default function AttendeeFormRegister() {
         }
         // members only
         else if ((!user || !user.isMember) && event.pricing?.nonMembers === undefined) {
-            console.log(user)
             return renderErrorText(
                 <div className="text-center">
                     <p className="text-l mb-4 text-white">Sorry, this event is for members only. This event is for members only. To access the form, please sign in or register for a membership.</p>
