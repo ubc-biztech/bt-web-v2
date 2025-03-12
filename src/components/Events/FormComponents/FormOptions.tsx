@@ -87,7 +87,13 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                     <div className="space-y-4">
                         <FormLabel>File URL</FormLabel>
                         <FormControl>
-                            <Input {...register(`customQuestions.${index}.imageUrl`)} />
+                            <Input 
+                                type="file" 
+                                className="block w-full h-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                file:border-0 file:text-sm file:font-semibold
+                                cursor-pointer"
+                                {...register(`customQuestions.${index}.imageUrl`)} />
                         </FormControl>
                     </div>
                 );

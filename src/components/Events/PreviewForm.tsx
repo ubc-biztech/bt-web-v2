@@ -109,7 +109,12 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({ form, isPartnerForm = 
                             )}
                             {question.type === 'UPLOAD' && (
                                 <FormControl>
-                                    <Input {...field} placeholder="File URL" />
+                                    <Input 
+                                    type="file" 
+                                    className="block w-full h-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                    file:border-0 file:text-sm file:font-semibold
+                                    cursor-pointer"/>
                                 </FormControl>
                             )}
                         </FormItem>
