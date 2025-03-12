@@ -2,7 +2,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Input } from "@/components/ui/input"
 import React, { useState } from 'react'
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils"
-import { Attendee } from "../columns"
+import { Attendee } from "@/types/types"
 import { Table } from "@tanstack/react-table"
 
 

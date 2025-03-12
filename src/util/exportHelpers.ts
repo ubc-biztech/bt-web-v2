@@ -1,4 +1,4 @@
-import { Attendee } from "@/components/RegistrationTable/columns";
+import { Attendee } from "@/types/types";
 import { Table } from "@tanstack/react-table";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';

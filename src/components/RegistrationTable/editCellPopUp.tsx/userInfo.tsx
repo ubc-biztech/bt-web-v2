@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Row, Table } from "@tanstack/react-table"
 import { AttendeeBasicInformation } from "@/types/types";
 import SelectCell from './userPopupEdit'
-import { Attendee, ColumnMeta } from '../columns'
+import { ColumnMeta } from '../columns'
+import { Attendee } from '@/types/types';
 
 interface EditCellProps {
   row: Row<Attendee>;
