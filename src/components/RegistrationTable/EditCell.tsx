@@ -15,7 +15,7 @@ import UserResponses from './editCellPopUp.tsx/userResponses'
 import { RegistrationQuestion } from '@/types'
 import router from 'next/router'
 import { fetchBackend } from '@/lib/db'
-import { Attendee } from './columns'
+import { Attendee } from '@/types/types';
 import { BiztechEvent } from '@/types/types'
 
 interface EditCellProps {

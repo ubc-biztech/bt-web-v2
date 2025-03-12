@@ -6,7 +6,7 @@ import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
-import { Attendee } from "@/components/RegistrationTable/columns";
+import { Attendee } from "@/types/types";
 
 type Props = {
   initialData: Attendee[] | null;

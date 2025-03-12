@@ -2,7 +2,8 @@ import React, { useState, useEffect, ChangeEvent } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
-import { Attendee, ColumnMeta } from "./columns"
+import { ColumnMeta } from "./columns"
+import { Attendee } from '@/types/types'
 import { updateRegistrationData, prepareUpdatePayload } from '@/lib/dbUtils'
 import { DBRegistrationStatus } from '@/types'
 

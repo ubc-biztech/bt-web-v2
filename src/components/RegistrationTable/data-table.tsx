@@ -14,7 +14,8 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { Attendee, createColumns } from "./columns";
+import { createColumns } from "./columns";
+import { Attendee } from "@/types/types";
 import QrCheckIn from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
 

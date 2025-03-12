@@ -20,20 +20,25 @@ const renderStatusIcon = (status: string) => {
   }
 };
 
-const extractInitials = (name: string) => {
-  const names = name.split(" ").filter(Boolean);
+const extractInitials = (firstName: string, lastName: string) => {
+  const names = [firstName, lastName].filter(Boolean);
   const initials = names.map((name) => name.charAt(0).toUpperCase()).join("");
   return initials;
 };
 
 export const UserInfo = ({ profile }: { profile: Profile | null }) => {
+  const status = profile?.admin 
+  ? MemberStatus.BizTechExec 
+  : profile?.isMember 
+    ? MemberStatus.Member 
+    : MemberStatus.NonMember;
   return (
     <div className=" bg-profile-card-bg flex p-6 rounded-md gap-6 w-full flex-col lg:w-[45%] lg:flex-row">
       <div className="flex flex-col items-center">
         <Avatar className="h-24 w-24">
           <AvatarImage src={profile?.image || ""} />
           <AvatarFallback>
-            {profile?.name ? extractInitials(profile?.name) : ""}
+            {(profile?.fname || profile?.lname) ? extractInitials(profile?.fname, profile?.lname) : ""}
           </AvatarFallback>
         </Avatar>
         {/* <Link href="">
@@ -44,11 +49,11 @@ export const UserInfo = ({ profile }: { profile: Profile | null }) => {
         <h4 className="text-biztech-green">User Profile</h4> {/* TO DO: add back edit icon and functionality */}
         <Separator.Root className="SeparatorRoot my-3 mx-0 bg-profile-separator-bg h-[0.5px]" />
         <ProfileRow>
-          <ProfileField field="Name" value={profile?.name || ""} />
-          <ProfileField field="Pronouns" value={profile?.pronouns || ""} />
+          <ProfileField field="Name" value={`${profile?.fname ?? ""} ${profile?.lname ?? ""}`.trim()} />
+          <ProfileField field="Pronouns" value={profile?.gender || ""} />
         </ProfileRow>
         <ProfileRow>
-          <ProfileField field="School" value={profile?.school || ""} />
+          <ProfileField field="School" value={profile?.education || ""} />
           <ProfileField
             field="Student Number"
             value={profile?.studentId || ""}
@@ -58,7 +63,7 @@ export const UserInfo = ({ profile }: { profile: Profile | null }) => {
           <ProfileField field="Year of Study" value={profile?.year || ""} />
           <ProfileField
             field="Dietary Restrictions"
-            value={profile?.dietary || ""}
+            value={profile?.diet || ""}
           />
         </ProfileRow>
         <ProfileRow>
@@ -69,19 +74,17 @@ export const UserInfo = ({ profile }: { profile: Profile | null }) => {
         <ProfileField
           className="mt-3 mb-3 w-full"
           field="Email"
-          value={profile?.email || ""}
+          value={profile?.id || ""}
         />
         <div className="text-white my-3 w-full">
           <h6 className="text-sm text-baby-blue">Membership Status</h6>
-          {profile?.status && (
             <TextIcon
               text={
-                <p className="text-xs font-poppins">{profile?.status || ""}</p>
+                <p className="text-xs text-white font-poppins">{status || ""}</p>
               }
-              icon={renderStatusIcon(profile?.status)}
+              icon={renderStatusIcon(status)}
               iconSize={16}
             />
-          )}
         </div>
       </div>
     </div>
