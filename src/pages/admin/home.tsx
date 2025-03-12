@@ -123,7 +123,7 @@ export default function AdminEventView({ events }: Props) {
                         isClicked={isClicked}
                         isMobile={isMobileDevice}
                         isDelete={isDelete}
-                        event={event}
+                        event={event!}
                         setIsDelete={setIsDelete}
                         modalHandlers={{
                             handleEventDelete: handleEventDelete,

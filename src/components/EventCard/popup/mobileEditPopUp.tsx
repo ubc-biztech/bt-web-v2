@@ -9,7 +9,7 @@ type Props = {
     isClicked: boolean,
     isMobile: boolean,
     isDelete: boolean,
-    event: BiztechEvent | null,
+    event: BiztechEvent,
     setIsDelete: React.Dispatch<React.SetStateAction<boolean>>
     modalHandlers: ModalHandlers;
 }
@@ -37,7 +37,7 @@ export default function MobilePopup({ isClicked, isMobile, isDelete, setIsDelete
             modalHandlers.handleEditEvent();
             break;
           case PopUpItem.ViewAsMember:
-            modalHandlers.handleViewAsMember();
+            modalHandlers.handleViewAsMember(event.id, event.year);
             break;
           default:
             console.log(`${item} button clicked`);
