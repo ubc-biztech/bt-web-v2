@@ -31,12 +31,11 @@ export default function AdminEvent({ initialData, eventData }: Props) {
           method: "GET",
           authenticatedCall: false
         }).then((eventDetails: BiztechEvent) => {
-          console.log(eventDetails.registrationQuestions)
+
           const questionColumns = eventDetails.registrationQuestions?.map((q: RegistrationQuestion) => ({
             id: q.label,
             header: q.label,
             accessorFn: (row: any) => {
-              console.log(row)
               return row.dynamicResponses?.[q.questionId] || '';
             }
           })) || [];
