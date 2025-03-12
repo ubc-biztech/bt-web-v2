@@ -1,30 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { BiztechEvent, MemberStatus, Profile } from "@/types";
+import { BiztechEvent, Profile } from "@/types";
 import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
 import { fetchBackend } from "@/lib/db";
 import { getCurrentUser } from "@aws-amplify/auth";
+import { Attendee } from "@/types/types";
 
-// Mock event and profile data
-// TO DO: replace these with calls to backend
-const fetchEventData = async () : Promise<BiztechEvent[]> => {
-  let data = [];
-  for (let i = 0; i < 10; i++) {
-    data.push({
-      id: "existingEvent1",
-      year: 2020,
-      capac: 123,
-      createdAt: 1581227718674,
-      description: "I am a description",
-      elocation: "UBC",
-      ename: "cool event",
-      startDate: "2024-07-01T07:00:11.131Z",
-      endDate: "2024-07-01T21:00:11.131Z",
-      imageUrl: "https://i.picsum.photos/id/236/700/400.jpg",
-      updatedAt: 1581227718674,
-    } as BiztechEvent);
-  }
-  return data;
+const sortRegistrationsByDate = (registrations: Attendee[]) => {
+  // sorts events in descending order by createdAt, otherwise by updatedAt if event doesn't have createdAt field
+  registrations.sort((a: Attendee, b: Attendee) => {
+    const hasCreatedAtA = 'createdAt' in a && a.createdAt !== undefined;
+    const hasCreatedAtB = 'createdAt' in b && b.createdAt !== undefined;
+
+    if (hasCreatedAtA && !hasCreatedAtB) return -1;
+    if (!hasCreatedAtA && hasCreatedAtA) return 1;
+    if (hasCreatedAtA && hasCreatedAtB) return (b.createdAt as number) - (a.createdAt as number);
+    return b.updatedAt- a.updatedAt
+  })
+  return registrations;
+}
+
+const fetchEventData = async (email: string) : Promise<BiztechEvent[]> => {
+  const userRegistrations = await fetchBackend({
+    endpoint: `/registrations/?email=${email}`,
+    method: "GET",
+    authenticatedCall: false,
+  })
+  const sortedRegistrations: Attendee[] = sortRegistrationsByDate(userRegistrations.data).slice(0, 3);
+
+  const events = await Promise.all(
+    sortedRegistrations.map(async (registration) => {
+      const event = await fetchBackend({
+        endpoint: `/events/?id=${registration["eventID;year"]}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      return event[event.length - 1];
+    })
+  );
+  return events;
 };
 
 const fetchProfileData = async (email: string) => {
@@ -46,11 +60,14 @@ const ProfilePage = () => {
       const { signInDetails } = await getCurrentUser();
       const email = signInDetails?.loginId;
       let profileData = null;
+      let events: BiztechEvent[] = [];
       if (email) {
-        profileData = await fetchProfileData(email);
+        [profileData, events] = await Promise.all([
+          fetchProfileData(email),
+          fetchEventData(email),
+        ]);
       }
       setProfile(profileData);
-      const events: BiztechEvent[] = await fetchEventData();
       setRegisteredEvents(events);
       setSavedEvents(events);
     };

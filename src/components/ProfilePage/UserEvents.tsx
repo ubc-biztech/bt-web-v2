@@ -40,7 +40,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         iconSize={24}
       />
       <div
-        className="flex items-center justify-center gap-6 mb-6"
+        className="flex items-start justify-center gap-6 mb-6"
         style={{
           flexDirection: registeredEvents.length === 0 ? "column" : "row",
         }}
