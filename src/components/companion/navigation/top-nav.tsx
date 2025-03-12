@@ -2,13 +2,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Menu } from 'lucide-react';
-import NavbarLogo from '@/assets/2025/blueprint/navbar_logo.png';
+import NavbarLogo from '@/assets/2025/productx/navbar_logo.png';
+import Triangle from '@/assets/2025/productx/custom-arrow.svg';
 import Link from 'next/link';
+import { Dispatch , SetStateAction} from 'react';
 interface TopNavProps {
-  onMenuClick: () => void;
+  onMenuClick: Dispatch<SetStateAction<boolean>>;
+  isOpen: boolean;
+  first_last: string;
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
+export const TopNav: React.FC<TopNavProps> = ({ onMenuClick, isOpen, first_last }) => {
   return (
     <motion.div 
       className="flex justify-between items-center p-6"
@@ -23,19 +27,30 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
         <Link href="/companion">
           <Image
             src={NavbarLogo}
-            alt="BluePrint Logo"
+            alt="ProductX Logo"
             fill
             className="object-contain"
             priority
           />
         </Link>
       </div>
-      <button 
+      <div className='font-ibm flex flex-col'>
+        <span>Logged in as:</span>
+        <div className='flex flex-row cursor-pointer' onClick={() => {onMenuClick(!isOpen)}}>
+          <span className='text-[#898BC3] font-bold mr-2'>{first_last}</span>
+          <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', transformOrigin: 'center' }}>
+            <Image src={Triangle} width={15} height={15} alt='toggle menu' />
+          </motion.div>
+          
+        </div>
+        
+      </div>
+      {/* <button 
         onClick={onMenuClick}
         className="p-2 hover:bg-[#1C1C1C] rounded-lg transition-colors"
       >
         <Menu className="w-6 h-6 text-white" />
-      </button>
+      </button> */}
     </motion.div>
   );
 }; 

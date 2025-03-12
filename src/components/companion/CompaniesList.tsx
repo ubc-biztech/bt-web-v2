@@ -123,164 +123,164 @@ const SwapView: React.FC<{
     );
 };
 
-const CompanyCard = ({ company }: { company: Company }) => {
-    return (
-        <>
-            <div className="flex items-center gap-4">
-                <div className="relative w-16 h-16 mr-1 bg-gray-800 rounded-lg overflow-hidden">
-                    <Image
-                        src={company.logo}
-                        alt={company.name}
-                        layout="fill"
-                        objectFit="contain"
-                        className="w-full h-full"
-                    />
-                </div>
-                <div className="xxs:h-26 h-30 flex flex-col items-start justify-start">
-                    <span className="text-white text-md xxs:text-lg text-nowrap  font-satoshi">
-                        {company.name}
-                    </span>
-                    <p className="text-[14px] text-[#A0AEC0]">
-                        {company.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {company.tags.map((tag, index) => (
-                            <div
-                                key={`${tag}-${index}`}
-                                className="px-2 py-0.5 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
-                            >
-                                {tag}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-            <div className="w-5 h-full flex flex-col items-center justify-start">
-                <ArrowUpRight className="h-5 w-5 text-white" />
-            </div>
-        </>
-    );
-};
+// const CompanyCard = ({ company }: { company: Company }) => {
+//     return (
+//         <>
+//             <div className="flex items-center gap-4">
+//                 <div className="relative w-16 h-16 mr-1 bg-gray-800 rounded-lg overflow-hidden">
+//                     <Image
+//                         src={company.logo}
+//                         alt={company.name}
+//                         layout="fill"
+//                         objectFit="contain"
+//                         className="w-full h-full"
+//                     />
+//                 </div>
+//                 <div className="xxs:h-26 h-30 flex flex-col items-start justify-start">
+//                     <span className="text-white text-md xxs:text-lg text-nowrap  font-satoshi">
+//                         {company.name}
+//                     </span>
+//                     <p className="text-[14px] text-[#A0AEC0]">
+//                         {company.description}
+//                     </p>
+//                     <div className="flex flex-wrap gap-2 mt-2">
+//                         {company.tags.map((tag, index) => (
+//                             <div
+//                                 key={`${tag}-${index}`}
+//                                 className="px-2 py-0.5 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
+//                             >
+//                                 {tag}
+//                             </div>
+//                         ))}
+//                     </div>
+//                 </div>
+//             </div>
+//             <div className="w-5 h-full flex flex-col items-center justify-start">
+//                 <ArrowUpRight className="h-5 w-5 text-white" />
+//             </div>
+//         </>
+//     );
+// };
 
-const Map = () => {
-    return (
-        <div className="flex flex-col items-center justify-center w-full relative">
-            <span>Boothing A: 12:20 PM - 1:50PM</span>
-            <div className="relative w-[20em] h-[40em] pointer-events-none">
-                <Image
-                    src={StartupsFoyer}
-                    alt="Boothing A"
-                    layout="fill"
-                    objectFit="contain"
-                />
-            </div>
-            <div className="relative w-[20em] h-[40em] pointer-events-none">
-                <Image
-                    src={BigMain}
-                    alt="Boothing A"
-                    layout="fill"
-                    objectFit="contain"
-                />
-            </div>
-            <span>Boothing B: 3:00 PM - 4:30PM</span>
-            <div className="relative w-[20em] h-[40em] pointer-events-none">
-                <Image
-                    src={BigFoyer}
-                    alt="Boothing B"
-                    layout="fill"
-                    objectFit="contain"
-                />
-            </div>
-            <div className="relative w-[20em] h-[40em] pointer-events-none">
-                <Image
-                    src={StartupsMain}
-                    alt="Boothing B"
-                    layout="fill"
-                    objectFit="contain"
-                />
-            </div>
-        </div>
-    );
-};
+// const Map = () => {
+//     return (
+//         <div className="flex flex-col items-center justify-center w-full relative">
+//             <span>Boothing A: 12:20 PM - 1:50PM</span>
+//             <div className="relative w-[20em] h-[40em] pointer-events-none">
+//                 <Image
+//                     src={StartupsFoyer}
+//                     alt="Boothing A"
+//                     layout="fill"
+//                     objectFit="contain"
+//                 />
+//             </div>
+//             <div className="relative w-[20em] h-[40em] pointer-events-none">
+//                 <Image
+//                     src={BigMain}
+//                     alt="Boothing A"
+//                     layout="fill"
+//                     objectFit="contain"
+//                 />
+//             </div>
+//             <span>Boothing B: 3:00 PM - 4:30PM</span>
+//             <div className="relative w-[20em] h-[40em] pointer-events-none">
+//                 <Image
+//                     src={BigFoyer}
+//                     alt="Boothing B"
+//                     layout="fill"
+//                     objectFit="contain"
+//                 />
+//             </div>
+//             <div className="relative w-[20em] h-[40em] pointer-events-none">
+//                 <Image
+//                     src={StartupsMain}
+//                     alt="Boothing B"
+//                     layout="fill"
+//                     objectFit="contain"
+//                 />
+//             </div>
+//         </div>
+//     );
+// };
 
-interface CompanyListProps {
-    companies: Company[];
-}
+// interface CompanyListProps {
+//     companies: Company[];
+// }
 
-const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
-    const [selectedView, setSelectedView] = useState<View>("map");
-    const [sortBy, setSortBy] = useState<SortOption>("Name");
-    const [searchQuery, setSearchQuery] = useState("");
-    const handleSearch = (query: string) => {
-        setSearchQuery(query);
-      };
+// const CompaniesList: React.FC<CompanyListProps> = ({ companies }) => {
+//     const [selectedView, setSelectedView] = useState<View>("map");
+//     const [sortBy, setSortBy] = useState<SortOption>("Name");
+//     const [searchQuery, setSearchQuery] = useState("");
+//     const handleSearch = (query: string) => {
+//         setSearchQuery(query);
+//       };
 
-    return (
-        <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-6 font-satoshi">
-            <NavBarContainer>
-                <div className="max-w-4xl mx-auto space-y-6">
-                    <header className="text-lg">Companies</header>
+//     return (
+//         <div className="min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-6 font-satoshi">
+//             <NavBarContainer>
+//                 <div className="max-w-4xl mx-auto space-y-6">
+//                     <header className="text-lg">Companies</header>
 
-                    <div className="w-full h-[1px] bg-[#1D262F]" />
-{/* 
-                    <div className="flex items-center justify-between gap-2 mb-6 h-8">
-                        <SearchBar onSearch={handleSearch}/>
-                        <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
-                        <SwapView
-                            selectedView={selectedView}
-                            setSelectedView={setSelectedView}
-                        />
-                    </div> */}
+//                     <div className="w-full h-[1px] bg-[#1D262F]" />
+// {/* 
+//                     <div className="flex items-center justify-between gap-2 mb-6 h-8">
+//                         <SearchBar onSearch={handleSearch}/>
+//                         <FilterDropdown options={["Name", "Size"]} setSortBy={setSortBy} sortBy={sortBy}/>
+//                         <SwapView
+//                             selectedView={selectedView}
+//                             setSelectedView={setSelectedView}
+//                         />
+//                     </div> */}
 
-                    <div className="space-y-4">
-                        {/* <div
-                            className={`transition-opacity duration-500 ${
-                                selectedView === "list"
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                            }`}
-                        >
-                            {selectedView === "list" &&
-                                companies
-                                .filter((company) => {
-                                    return (!searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                                })
-                                .sort((a: Company, b: Company) => {
-                                      if (sortBy === "Size") {
-                                        // Assumes that the first character of the description will contain the number of delegates
-                                        // e.g. "3 delegates in attendance"
-                                        return parseInt(a.description[0]) - parseInt(b.description[0]);
-                                      } else if (sortBy === "Name") {
-                                        return a.name.localeCompare(b.name);
-                                      }
-                                      return 0;
-                                })
-                                .map((company) => (
-                                    <CompanionItemRow
-                                        href={`/companion/company/${company.profile_url}`}
-                                        key={company.id}
-                                    >
-                                        <CompanyCard company={company} />
-                                    </CompanionItemRow>
-                                ))}
-                        </div> */}
+//                     <div className="space-y-4">
+//                         {/* <div
+//                             className={`transition-opacity duration-500 ${
+//                                 selectedView === "list"
+//                                     ? "opacity-100"
+//                                     : "opacity-0"
+//                             }`}
+//                         >
+//                             {selectedView === "list" &&
+//                                 companies
+//                                 .filter((company) => {
+//                                     return (!searchQuery || company.name.toLowerCase().includes(searchQuery.toLowerCase()))
+//                                 })
+//                                 .sort((a: Company, b: Company) => {
+//                                       if (sortBy === "Size") {
+//                                         // Assumes that the first character of the description will contain the number of delegates
+//                                         // e.g. "3 delegates in attendance"
+//                                         return parseInt(a.description[0]) - parseInt(b.description[0]);
+//                                       } else if (sortBy === "Name") {
+//                                         return a.name.localeCompare(b.name);
+//                                       }
+//                                       return 0;
+//                                 })
+//                                 .map((company) => (
+//                                     <CompanionItemRow
+//                                         href={`/companion/company/${company.profile_url}`}
+//                                         key={company.id}
+//                                     >
+//                                         <CompanyCard company={company} />
+//                                     </CompanionItemRow>
+//                                 ))}
+//                         </div> */}
 
-                        <div
-                            className={`transition-opacity duration-500 ${
-                                selectedView === "map"
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                            }`}
-                        >
-                            {/* {selectedView === "map" && <Map />} */}
-                            <Map></Map>
-                        </div>
-                    </div>
-                </div>
-            </NavBarContainer>
-        </div>
-    );
-};
+//                         <div
+//                             className={`transition-opacity duration-500 ${
+//                                 selectedView === "map"
+//                                     ? "opacity-100"
+//                                     : "opacity-0"
+//                             }`}
+//                         >
+//                             {/* {selectedView === "map" && <Map />} */}
+//                             <Map></Map>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </NavBarContainer>
+//         </div>
+//     );
+// };
 
-export default CompaniesList;
+// export default CompaniesList;
 // BCC5E3
