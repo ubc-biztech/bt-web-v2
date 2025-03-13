@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { X } from "lucide-react";
-import { motion, useAnimation, PanInfo, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
-import NavbarLogo from "@/assets/2025/blueprint/navbar_logo.png";
+import { motion, AnimatePresence } from "framer-motion";
 
 import homeIcon from "@/assets/2025/productx/home.svg";
 import rubricIcon from "@/assets/2025/productx/rubric.svg";
 import signOutIcon from "@/assets/2025/productx/signOut.svg";
+import Box from "@/components/ui/productX/box";
 
 interface PopupMenuProps {
     isOpen: boolean;
@@ -58,33 +56,35 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
         <AnimatePresence mode="wait">
             {isOpen && (
                 <motion.nav
-                    className="flex flex-col justify-evenly absolute top-0 right-0 bg-[#2f3438] w-64 h-40 mr-5 mt-32 z-50 py-4"
+                    className="absolute top-0 right-0 mr-5 mt-32 z-50 py-"
                     variants={menuVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                 >
-                    {navLinks.map(({ href, label, icon }) => (
-                        <Link
-                            key={label}
-                            href={href}
-                            className="flex flex-row items-center text-md text-white font-ibm ml-6 tracking-wider"
-                            onClick={() => {
-                                if (label === "Sign out") {
-                                    triggerSignOut();
-                                }
-                            }}
-                        >
-                            <Image
-                                src={icon}
-                                width={20}
-                                height={20}
-                                alt="icon"
-                                className="mr-3"
-                            />
-                            {label}
-                        </Link>
-                    ))}
+                    <Box width={64} height={40} className="flex flex-col justify-center">
+                        {navLinks.map(({ href, label, icon }) => (
+                            <Link
+                                key={label}
+                                href={href}
+                                className="flex flex-row items-center text-sm text-white font-ibm ml-8 tracking-wider py-2"
+                                onClick={() => {
+                                    if (label === "Sign out") {
+                                        triggerSignOut();
+                                    }
+                                }}
+                            >
+                                <Image
+                                    src={icon}
+                                    width={20}
+                                    height={20}
+                                    alt="icon"
+                                    className="mr-3"
+                                />
+                                {label}
+                            </Link>
+                        ))}
+                    </Box>
                 </motion.nav>
             )}
         </AnimatePresence>
