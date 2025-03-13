@@ -120,7 +120,7 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({ form, isPartnerForm = 
     };
 
     return (
-        <>
+        <div className="font-satoshi">
             <FormInput
                 name="previewFirstName"
                 label="First Name*"
@@ -185,6 +185,6 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({ form, isPartnerForm = 
             />
 
             {renderCustomQuestions()}
-        </>
+        </div>
     );
 };

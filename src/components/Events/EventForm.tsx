@@ -133,7 +133,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
     };
 
     return (
-        <div className="flex text-white">
+        <div className="flex text-white font-satoshi">
             <div className="flex-1">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
@@ -204,7 +204,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                             </div>
 
                                             {!form.watch('isPublished') && formIsDirty && (
-                                                <p className="text-red-400">
+                                                <p className="text-light-red">
                                                     Note: There are changes to this event that are not published yet.
                                                 </p>
                                             )}
@@ -212,6 +212,16 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                         <Separator />
                                     </>
                                 )}
+
+                                {
+                                    !initialData && (
+                                        <div className="flex gap-4">
+                                                <Button type="submit" className="bg-biztech-green">
+                                                    Save
+                                                </Button>
+                                            </div>
+                                    )
+                                }
                                 
                                 <FormCheckbox
                                     name="isApplicationBased"
@@ -257,7 +267,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit, eve
                                 <div className="space-y-4">
                                     <FormInput name="price" label="Member Price" type="number" />
                                     {!form.watch('nonBizTechAllowed') && (
-                                        <p className="text-sm text-gray-400">
+                                        <p className="text-sm text-white">
                                             Enable &quot;Non-BizTech members allowed?&quot; above to set different pricing for non-members
                                         </p>
                                     )}
