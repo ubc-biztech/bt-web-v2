@@ -9,7 +9,7 @@ import { Dispatch, SetStateAction } from "react";
 interface TopNavProps {
     onMenuClick: Dispatch<SetStateAction<boolean>>;
     isOpen: boolean;
-    first_last: string;
+    first_last: string | undefined;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({

@@ -7,7 +7,7 @@ import { PopupMenu } from "@/components/companion/navigation/popup-menu";
 interface NavBarContainerProps {
   isPartner?: boolean | undefined;
   children: ReactNode;
-  userName: string;
+  userName?: string | undefined;
 }
 
 const NavBarContainer: React.FC<NavBarContainerProps> = ({ isPartner, children, userName }) => {

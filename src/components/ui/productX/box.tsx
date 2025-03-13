@@ -7,6 +7,7 @@ interface BoxProps {
     children: React.ReactNode;
     hoverEffects?: boolean;
     selectableEffects?: boolean;
+    fitToParent?: boolean;
 }
 
 const Box: React.FC<BoxProps> = ({
@@ -16,17 +17,26 @@ const Box: React.FC<BoxProps> = ({
     children,
     hoverEffects = false,
     selectableEffects = false,
+    fitToParent = false,
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
     const defaultEffects = !(hoverEffects || selectableEffects);
     const shadowSize = 2 * Math.min(width, height);
-
-    const baseStyles = `
-    w-${width}
-    h-${height}
-    ${className}
-  `;
+    let baseStyles;
+    if (fitToParent) {
+        baseStyles = `
+        w-full
+        h-full
+        ${className}
+    `;
+    } else {
+        baseStyles = `
+            w-${width}
+            h-${height}
+            ${className}
+        `;
+    }
 
     const defaultBoxStyles = defaultEffects
         ? "border-2 border-[#1B1C39] bg-[#020319]"
