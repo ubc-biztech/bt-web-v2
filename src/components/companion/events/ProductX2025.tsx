@@ -1,9 +1,15 @@
-import React from 'react'
-import Box from '@/components/ui/productX/box'
-const ProductX2025 = () => {
-  return (
-    <Box width={32} height={32} className='ml-10 mt-10'>ProductX2025</Box>
-  )
-}
+import React, { useState } from "react";
+import Box from "@/components/ui/productX/box";
+import Judges from "../productX/Judges";
 
-export default ProductX2025
+const ProductX2025 = () => {
+    const [isJudge, setIsJudge] = useState(true);
+
+    if (isJudge) {
+        return (
+          <Judges />
+        );
+    }
+};
+
+export default ProductX2025;

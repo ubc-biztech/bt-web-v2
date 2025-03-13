@@ -56,13 +56,13 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
         <AnimatePresence mode="wait">
             {isOpen && (
                 <motion.nav
-                    className="absolute top-0 right-0 mr-5 mt-32 z-50 py-"
+                    className="absolute top-0 right-0 mr-14 mt-32 z-50"
                     variants={menuVariants}
                     initial="hidden"
                     animate="visible"
                     exit="exit"
                 >
-                    <Box width={64} height={40} className="flex flex-col justify-center">
+                    <Box width={64} height={40} className="flex flex-col justify-center" hoverEffects={true}>
                         {navLinks.map(({ href, label, icon }) => (
                             <Link
                                 key={label}
