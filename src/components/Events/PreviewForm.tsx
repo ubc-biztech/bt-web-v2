@@ -2,8 +2,6 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { EventFormSchema } from './EventFormSchema';
 import {FormCheckbox} from "@/components/Events/FormComponents/FormCheckbox";
 import { FormInput } from './FormComponents/FormInput';
@@ -110,11 +108,11 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({ form, isPartnerForm = 
                             {question.type === 'UPLOAD' && (
                                 <FormControl>
                                     <Input 
-                                    type="file" 
-                                    className="block w-full h-full text-sm text-gray-500
-                                    file:mr-4 file:py-2 file:px-4 file:rounded-md
-                                    file:border-0 file:text-sm file:font-semibold
-                                    cursor-pointer"/>
+                                        type="file" 
+                                        className="block w-full h-full text-sm text-gray-500
+                                        file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                        file:border-0 file:text-sm file:font-semibold
+                                        cursor-pointer"/>
                                 </FormControl>
                             )}
                         </FormItem>
