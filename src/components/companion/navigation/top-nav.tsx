@@ -36,7 +36,7 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuClick, isOpen, first_last 
       </div>
       <div className='font-ibm flex flex-col'>
         <span>Logged in as:</span>
-        <div className='flex flex-row cursor-pointer' onClick={() => {onMenuClick(!isOpen)}}>
+        <div className='flex flex-row cursor-pointer select-none' onClick={() => {onMenuClick(!isOpen)}}>
           <span className='text-[#898BC3] font-bold mr-2'>{first_last}</span>
           <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', transformOrigin: 'center' }}>
             <Image src={Triangle} width={15} height={15} alt='toggle menu' />
