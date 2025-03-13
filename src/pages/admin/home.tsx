@@ -39,7 +39,7 @@ export default function AdminEventView({ events }: Props) {
     }
 
     const handleViewAsMember = (eventID: string, eventYear: number) => {
-        router.push(`/event/${eventID}/${eventYear}`)
+        router.push(`/event/${eventID}/${eventYear}/register`)
     }
 
     // Update event click to navigate to registration table view

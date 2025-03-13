@@ -416,11 +416,10 @@ export const PartnerEventRegistrationForm: React.FC<PartnerEventRegistrationForm
                                                     <input
                                                     type="file"
                                                     onChange={(e) => uploadFile(question.questionId, e)}
-                                                    className="block w-full text-sm text-gray-500
+                                                    className="block w-full h-full text-sm text-gray-500
                                                         file:mr-4 file:py-2 file:px-4 file:rounded-md
                                                         file:border-0 file:text-sm file:font-semibold
-                                                        file:bg-blue-50 file:text-blue-700
-                                                        hover:file:bg-blue-100 cursor-pointer"
+                                                        cursor-pointer"
                                                     />
                                                 </FormControl>
                                             )}
