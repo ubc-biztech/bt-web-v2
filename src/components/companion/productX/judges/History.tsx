@@ -1,26 +1,14 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
-import { motion } from "framer-motion";
+import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
 import { Pen } from "lucide-react";
-
-const fadeInUpVariant = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: {
-        duration: 0.8,
-        ease: [0.6, -0.05, 0.01, 0.99],
-    },
-};
 
 interface ProjectBoxProps {
     team: string;
     date: string;
 }
 
-const ProjectBox: React.FC<ProjectBoxProps> = ({
-    team,
-    date,
-}) => {
+const ProjectBox: React.FC<ProjectBoxProps> = ({ team, date }) => {
     return (
         <div className="w-full h-48">
             <Box
@@ -52,7 +40,7 @@ interface HistoryProps {
 const History: React.FC<HistoryProps> = ({ data }) => {
     const judge_day = "MAR 7 ";
     return (
-        <motion.div {...fadeInUpVariant} className="flex flex-col">
+        <FadeWrapper className="flex flex-col">
             <header className="mt-16 text-lg font-ibm">ROUND 1</header>
             <div className="grid grid-cols-4 gap-5 mt-10">
                 {data.map(
@@ -98,7 +86,7 @@ const History: React.FC<HistoryProps> = ({ data }) => {
                         )
                 )}
             </div>
-        </motion.div>
+        </FadeWrapper>
     );
 };
 
