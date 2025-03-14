@@ -18,12 +18,7 @@ async function currentSession(): Promise<AuthTokens | null> {
   }
 }
 
-export async function fetchBackend({
-  endpoint,
-  method,
-  data,
-  authenticatedCall = true
-}: FetchBackendOptions): Promise<any> {
+export async function fetchBackend({ endpoint, method, data, authenticatedCall = true }: FetchBackendOptions): Promise<any> {
   const headers: Record<string, string> = {};
 
   if (method === "POST" || method === "PUT") {
@@ -46,7 +41,7 @@ export async function fetchBackend({
     const response = await fetch(API_URL + endpoint, {
       method,
       headers,
-      body
+      body,
     });
 
     const responseData = await response.json();

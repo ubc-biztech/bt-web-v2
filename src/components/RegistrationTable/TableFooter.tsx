@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { Table } from "@tanstack/react-table"
+import { exportToCSV, exportToPDF, formatTableForExport } from "@/util/exportHelpers"
 
 import DownloadIcon from "../../../public/assets/icons/download_icon.svg"
+import { useRouter } from "next/router"
 
 interface TableFooterProps {
     table: Table<any>
@@ -14,15 +16,24 @@ interface TableFooterProps {
 }
 
 export const TableFooter: React.FC<TableFooterProps> = ({ table, pageSize, setPageSize }) => {
+    const router = useRouter();
+    
     const handleExport = (format: string) => {
-        console.log(`Exporting as ${format}... (STUB)`);
+        const rows = formatTableForExport(table);
+        const fileName = `${router.query.eventId}_${router.query.year}`;
+        if (format === "pdf") {
+            exportToPDF(rows, fileName);
+        } else {
+            exportToCSV(rows, fileName);
+        }
+        console.log(`Exporting as ${format}...`);
     }
 
     return (
         <div className="flex flex-col md:flex-row items-center justify-between py-4">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="text-white-blue">
+                    <Button variant="ghost" className="text-white-blue" disabled={!table.getRowCount()}>
                         <div className="flex items-center space-x-3">
                             <Image src={DownloadIcon} alt="Download Icon" width={25} height={25} className={"min-w-6"}/>
                             <div className="font-400">

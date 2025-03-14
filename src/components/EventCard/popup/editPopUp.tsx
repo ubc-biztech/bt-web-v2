@@ -1,32 +1,39 @@
 import React, { forwardRef } from 'react';
 import PopupButton from './popupButton';
+import { ModalHandlers } from '@/pages/admin/home';
+import { PopUpItem } from '../types';
 
-interface PopUpItem {
-  title: string;
-}
 
 interface PopupModalProps {
-  popUpItems: PopUpItem[] | null,
-  setIsDelete: React.Dispatch<React.SetStateAction<boolean>>,
+  editEventPopupItems: PopUpItem[] | null,
+  modalHandlers: ModalHandlers;
+  eventID: string;
+  eventYear: number;
 }
 
+const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(({ editEventPopupItems, modalHandlers, eventID, eventYear}, ref) => {
 
-
-const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(({ popUpItems, setIsDelete }, ref) => {
- 
-  const handleButtonClick = (item: any) => {
-    if (item.title === 'Delete Event') {
-        setIsDelete(true)
-        console.log('Delete button clicked');
-    } else {
-        console.log(`${item.title} button clicked`);
+  const handleButtonClick = (item: String) => {
+    switch (item) {
+      case PopUpItem.DeleteEvent:
+        modalHandlers.handleEventDelete();
+        break;
+      case PopUpItem.EditEvent:
+        modalHandlers.handleEditEvent();
+        break;
+      case PopUpItem.ViewAsMember:
+        modalHandlers.handleViewAsMember(eventID, eventYear);
+        break;
+      default:
+        console.log(`${item} button clicked`);
+        break;   
     }
   };
 
   return (
     <div className="shadow-2xl w-[200px] absolute bg-events-card-bg flex flex-col gap-2 py-2 rounded-lg" ref={ref}>
-      {popUpItems?.map(item => (
-        <PopupButton key={item.title} popUpItem={item} clickEffect={handleButtonClick} />
+      {editEventPopupItems?.map((item, idx) => (
+        <PopupButton key={idx} popUpItem={item} clickEffect={handleButtonClick} />
       ))}
     </div>
   );

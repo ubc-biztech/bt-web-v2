@@ -2,6 +2,7 @@ import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 import Navbar from "@/components/NavBar/Navbar";
 import { isMobile } from "@/util/isMobile";
 import { useEffect, useState } from "react";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function Layout({ children }: any) {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
@@ -16,6 +17,7 @@ export default function Layout({ children }: any) {
         {children}
       </main>
       <Navbar />
+      <Toaster />
     </>
   );
 }

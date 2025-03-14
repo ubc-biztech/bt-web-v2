@@ -9,42 +9,56 @@ import GridViewIcon from "../../../public/assets/icons/grid_view_icon.svg"
 import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg"
 import { Button } from "@/components/ui/button"
 import Image from 'next/image';
-import { DBRegistrationStatus } from "@/types/types";
+import { fetchBackend } from "@/lib/db";
 
 type Props = {
-    // TODO: GRAB DATA FROM BACKEND - THE BELOW IS USED FOR TESTING PURPOSES
-    initialData: BiztechEvent[] | null
+    events: BiztechEvent[] | null
 }
 
-export default function AdminEventView({ initialData }: Props) {
+export type ModalHandlers = {
+    handleEventDelete: () => void;
+    handleEditEvent: () => void;
+    handleViewAsMember: (eventID: string, eventYear: number) => void;
+};
+
+export default function AdminEventView({ events }: Props) {
     const router = useRouter()
-    const [isLoading, setLoading] = useState(!initialData)
-    const [data, setData] = useState<BiztechEvent[] | null>(initialData)
+    const [isLoading, setLoading] = useState(!events)
+    const [data, setData] = useState<BiztechEvent[] | null>(events)
     const [isMobileDevice, setIsMobileDevice] = useState(false);
     const [isClicked, setIsClicked] = useState(false)
     const [isDelete, setIsDelete] = useState(false)
-    const [bizEvent, setBizEvent] = useState<BiztechEvent | null>(null)
+    const [event, setEvent] = useState<BiztechEvent | null>(null)
 
+    const handleEventDelete = () => {
+        setIsDelete(true)
+    }
 
-    // toggle the view when the 'more' icon is clicked 
-    const eventClick = (event: BiztechEvent) => {
-        if (event) {
-            setBizEvent(event) // allows us to grab the specific event which was clicked
+    const handleEditEvent = () => {
+        console.log('Edit button clicked');
+    }
+
+    const handleViewAsMember = (eventID: string, eventYear: number) => {
+        router.push(`/event/${eventID}/${eventYear}/register`)
+    }
+
+    // Update event click to navigate to registration table view
+    const eventClick = (event: BiztechEvent, isOptionsClick: boolean = false) => {
+        if (isOptionsClick) {
+            // Only set popup state if clicking options button
+            setEvent(event)
+            setIsClicked(!isClicked)
+        } else {
+            // Navigate to registration table view when clicking card
+            router.push(`/admin/event/${event.id}/${event.year}`)
         }
-        setIsClicked(!isClicked)
     };
 
     // function to manage mobile device state
     useEffect(() => {
         const userAgent = navigator.userAgent
         setIsMobileDevice(isMobile(userAgent))
-        if (!initialData) {
-            fetchEventData().then(d => {
-                setData(d)
-                setLoading(false)
-            })
-        }
-    }, [initialData]);
+    }, []);
 
     // ** had to comment this line out or else get a 'hydration' error
     // if (!router.isReady) return null;
@@ -84,75 +98,63 @@ export default function AdminEventView({ initialData }: Props) {
                 ) : (!isMobileDevice ?
                     <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data?.map(event => (
-                            <EventCard key={event.id} initialData={event} setIsDelete={setIsDelete} eventClick={eventClick} />
+                            <EventCard
+                                key={event.id}
+                                event={event}
+                                eventClick={eventClick}
+                                modalHandlers={{
+                                    handleEventDelete: handleEventDelete,
+                                    handleEditEvent: () => router.push(`/admin/event/${event.id}/${event.year}/edit`),
+                                    handleViewAsMember: handleViewAsMember
+                                }}
+                            />
                         ))}
                     </div> :
                     <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data?.map(event => (
-                            <MobileEventCard key={event.id} initialData={event} eventClick={eventClick} />
+                            <MobileEventCard key={event.id} event={event} eventClick={eventClick} />
                         ))}
                     </div>
                 )}
                 {/* 'edit event' pop up */}
                 {/* MobilePopup contains the delete popup which is used for both desktop and mobile * see file for more info * */}
                 <div className={(isClicked && (isMobileDevice || isDelete)) ? "fixed inset-0 flex items-center justify-center z-50 bg-events-navigation-bg bg-opacity-50 blur-background" : ""}>
-                    <MobilePopup isClicked={isClicked} isMobile={isMobileDevice} isDelete={isDelete} setIsDelete={setIsDelete} bizEvent={bizEvent} />
+                    <MobilePopup
+                        isClicked={isClicked}
+                        isMobile={isMobileDevice}
+                        isDelete={isDelete}
+                        event={event!}
+                        setIsDelete={setIsDelete}
+                        modalHandlers={{
+                            handleEventDelete: handleEventDelete,
+                            handleEditEvent: handleEditEvent,
+                            handleViewAsMember: handleViewAsMember
+                        }}
+                    />
                 </div>
             </div>
         </main>
     );
 }
 
-async function fetchEventData() {
-    // TODO - fetch data from backend. This is just returning a Mock, likely won't be the final data struct format
+export async function getStaticProps() {
+    try {
+        let events = await fetchBackend({ endpoint: "/events", method: "GET", authenticatedCall: false });
 
-    let data: BiztechEvent[] = [];
-    for (let i = 0; i < 10; i++) {
-        data.push({
-            id: "existingEvent" + (i + 1),
-            year: 2020,
-            capac: 123,
-            createdAt: 1581227718674,
-            description: "I am a description for event " + (i + 1),
-            elocation: "UBC",
-            ename: "cool event " + (i + 1),
-            startDate: "2024-07-01T07:00:11.131Z",
-            endDate: "2024-07-01T21:00:11.131Z",
-            imageUrl: "https://i.picsum.photos/id/236/700/400.jpg",
-            updatedAt: 1581227718674,
-            isPublished: true,
-            latitude: 49.2626,
-            longitude: -123.2460,
-            facebookUrl: "https://facebook.com/cool-event-" + (i + 1),
-            deadline: "2024-06-30T23:59:59.999Z",
-            registrationStatus: DBRegistrationStatus.REGISTERED,
-            registrationQuestion: [ // this is just placeholder code for now, an actual registration question may be different
-                {
-                    label: "Are you attending?",
-                    questionId: "q1",
-                    type: "boolean",
-                    required: true
-                }
-            ],
-            pricing: new Map([
-                ["earlyBird", new Map([["price", "10"], ["currency", "CAD"]])],
-                ["regular", new Map([["price", "10"], ["currency", "CAD"]])]
-            ]),
-            partnerRegistrationQuestions: [
-                {
-                    label: "Company Name",
-                    questionId: "p1",
-                    type: "text",
-                    required: true
-                }
-            ],
-            feedback: "Looking forward to the event!",
-            partnerDescription: "This is a partner description.",
-            isApplicationBased: false,
-            isCompleted: true,
-            hasDomainSpecificQuestions: true
+        events.sort((a: BiztechEvent, b: BiztechEvent) => {
+            return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
         });
-    }
 
-    return data;
+        return {
+            props: {
+                events
+            }
+        };
+    } catch (error) {
+        return {
+            props: {
+                events: []
+            }
+        };
+    }
 }

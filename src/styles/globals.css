@@ -3,6 +3,33 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
+       url('/fonts/Satoshi-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Medium.woff2') format('woff2'),
+       url('/fonts/Satoshi-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Bold.woff2') format('woff2'),
+       url('/fonts/Satoshi-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -37,6 +64,17 @@
   --ring: 222.2 84% 4.9%;
 
   --radius: 0.5rem;
+}
+
+.anim-bg-gradient {
+  padding: 0.6em 1.2em;
+  border-radius: 0.375em;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(120deg, darkmagenta, crimson, orange);
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  transition: background-position .5s;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -112,6 +150,9 @@ body {
   }
   button {
     @apply font-poppins font-600 text-sm text-black;
+  }
+  p {
+    @apply font-poppins font-400 text-sm text-black;
   }
   .p1 {
     @apply font-poppins font-500 text-sm text-black;

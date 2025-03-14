@@ -1,4 +1,3 @@
-// 
 export type BiztechEvent = {
     id: string;
     year: number;
@@ -17,7 +16,7 @@ export type BiztechEvent = {
     facebookUrl: string;
     deadline: string;
     registrationStatus: any;
-    registrationQuestion: any;
+    registrationQuestions?: RegistrationQuestion[];
     pricing: any;
     partnerRegistrationQuestions: RegistrationQuestion[];
     feedback: string;
@@ -25,6 +24,7 @@ export type BiztechEvent = {
     isApplicationBased: boolean;
     isCompleted: boolean;
     hasDomainSpecificQuestions: boolean;
+    counts?: any;
 };
 
 export type RegistrationQuestion = {
@@ -45,14 +45,6 @@ export enum DBRegistrationStatus {
     INCOMPLETE = "incomplete",
 }
 
-export enum RegistrationStatusField {
-    WAITLISTED = "Waitlisted",
-    REGISTERED = "Registered",
-    CHECKED_IN = "Checked In",
-    CANCELLED = "Cancelled",
-    INCOMPLETE = "Incomplete",
-}
-
 export type BasicInformation = {
     fname: string;
     lname: string;
@@ -71,3 +63,19 @@ export type AttendeeBasicInformation = BasicInformation & {
     heardFrom: string;
     faculty: string;
   };
+
+export type Registration = {
+    id: string,
+    applicationStatus: string,
+    registrationStatus: string,
+    basicInformation: AttendeeBasicInformation,
+    checkoutLink: string,
+    dynamicResponses: {[key: string]: string},
+    fname: string,
+    isPartner: boolean,
+    points: number,
+    scannedQRs: string[],
+    updatedAt: string,
+}
+
+export type StatsChartData = { label: string; value: number };

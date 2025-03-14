@@ -44,7 +44,11 @@ interface TableHeaderProps {
   rowSelection: Record<string, boolean>;
   isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
+  refreshTable: () => Promise<void>;
+  onFilterChange: (value: SelectValue) => void;
 }
+
+type SelectValue = 'attendees' | 'partners' | 'waitlisted';
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
@@ -52,12 +56,20 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   rowSelection,
   isQrReaderToggled,
   setQrReaderToggled,
+  refreshTable,
+  onFilterChange,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
+  const [selectedValue, setSelectedValue] = useState<SelectValue>('attendees'); 
+
+  const handleSelectChange = (value: SelectValue) => {
+    setSelectedValue(value);
+    onFilterChange(value);
+  };
 
   const getSelectedRows = () => {
     return table.getFilteredSelectedRowModel().rows;
@@ -161,8 +173,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <TableIconButtons
           isQrReaderToggled={isQrReaderToggled}
           setQrReaderToggled={setQrReaderToggled}
+          refreshTable={refreshTable}
         />
-        <Select>
+        <Select value={selectedValue} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-[180px] bg-login-form-card text-white">
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>

@@ -12,7 +12,7 @@ process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
 
 export const CLIENT_URL =
   process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
-    ? "https://app.ubcbiztech.com/"
+    ? "https://v2.ubcbiztech.com/"
     : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
       ? "http://localhost:3000/"
-      : "https://dev.app.ubcbiztech.com/";
+      : "https://dev.v2.ubcbiztech.com/";

@@ -14,11 +14,13 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { columns as defaultColumns, Attendee } from "./columns";
+import { Attendee, createColumns } from "./columns";
 import QrCheckIn from "../QrScanner/QrScanner";
+import { fetchBackend } from "@/lib/db";
 
 export function DataTable({
   initialData,
+  eventData,
   dynamicColumns = [],
   eventId,
   year,
@@ -30,20 +32,50 @@ export function DataTable({
   const [pageSize, setPageSize] = useState(10);
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
+  const [filteredData, setFilteredData] = useState(initialData);
+  const [filterValue, setFilterValue] = useState<'attendees' | 'partners' | 'waitlisted'>('attendees');
 
-  const allColumns = [...defaultColumns, ...dynamicColumns];
+  const refreshTable = async () => {
+    try {
+      const registrationData = await fetchBackend({
+        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        method: "GET",
+        authenticatedCall: false
+      });
+      setData(registrationData.data);
+    } catch (error) {
+      console.error("Failed to refresh table data:", error);
+    }
+  };
+
+  const allColumns = [...createColumns(refreshTable, eventData), ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);
 
   const filterButtonRef = useRef<HTMLButtonElement>(null);
+  
+  useEffect(() => {
+    const filtered = data.filter(attendee => {
+      switch (filterValue) {
+        case 'partners':
+          return attendee.isPartner === true;
+        case 'waitlisted':
+          return attendee.registrationStatus === 'waitlisted';
+        case 'attendees':
+        default:
+          return !attendee.isPartner && attendee.registrationStatus !== 'waitlisted';
+      }
+    });
+    setFilteredData(filtered);
+  }, [data, filterValue]);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
   const table = useReactTable<Attendee>({
-    data,
+    data: filteredData,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -99,11 +131,13 @@ export function DataTable({
         rowSelection={rowSelection}
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
+        refreshTable={refreshTable}
+        onFilterChange={setFilterValue}
       />
 
       <TableComponent>
         <TableHeader table={table} />
-        <RegistrationsTableBody table={table} />
+        <RegistrationsTableBody table={table} refreshTable={refreshTable} />
       </TableComponent>
 
       <TableFooter

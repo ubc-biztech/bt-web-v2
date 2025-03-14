@@ -1,197 +1,197 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react"
+import { useRouter } from "next/router"
 import {
   signIn,
   getCurrentUser,
   signInWithRedirect,
   fetchUserAttributes,
   resendSignUpCode
-} from "@aws-amplify/auth";
-import { fetchBackend } from "@/lib/db";
+} from "@aws-amplify/auth"
+import { fetchBackend } from "@/lib/db"
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [errors, setErrors] = useState<{
-    emailError: string;
-    passwordError: React.ReactNode;
-    confirmationError: string;
+    emailError: string
+    passwordError: React.ReactNode
+    confirmationError: string
   }>({
     emailError: "",
     passwordError: "",
     confirmationError: ""
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResend, setShowResend] = useState(false); // New state to show resend button
-  const [isResending, setIsResending] = useState(false); // New state for resend loading
-  const router = useRouter();
+  })
+  const [isLoading, setIsLoading] = useState(false)
+  const [showResend, setShowResend] = useState(false) // New state to show resend button
+  const [isResending, setIsResending] = useState(false) // New state for resend loading
+  const router = useRouter()
 
   useEffect(() => {
     const checkUserProfile = async () => {
       try {
-        const currentUser = await fetchUserAttributes();
+        const currentUser = await fetchUserAttributes()
         if (currentUser) {
-          console.log("User is authenticated:", currentUser);
+          console.log("User is authenticated:", currentUser)
 
-          const email = currentUser.email;
-          console.log(email);
+          const email = currentUser.email
+          console.log(email)
           try {
             const userProfile = await fetchBackend({
               endpoint: `/users/${email}`,
               method: "GET"
-            });
+            })
 
             if (userProfile) {
-              router.push("/");
+              router.push("/")
             }
           } catch (err: any) {
             if (err.status === 404) {
-              router.push("/membership");
+              router.push("/membership")
             } else {
-              console.error("Error fetching user profile:", err);
+              console.error("Error fetching user profile:", err)
             }
           }
         }
       } catch (error) {
-        console.log("User not authenticated or an error occurred:", error);
+        console.log("User not authenticated or an error occurred:", error)
       }
-    };
+    }
 
-    checkUserProfile();
-  }, [router]);
+    checkUserProfile()
+  }, [router])
 
   const validateEmail = (value: string) => {
-    let error = "";
+    let error = ""
     if (!value) {
-      error = "Email is required";
+      error = "Email is required"
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-      error = "Please enter a valid email address";
+      error = "Please enter a valid email address"
     }
-    return error;
-  };
+    return error
+  }
 
   const validatePassword = (value: string) => {
-    let error = "";
+    let error = ""
     if (!value) {
-      error = "Password is required";
+      error = "Password is required"
     }
-    return error;
-  };
+    return error
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
-    setIsLoading(true);
+    e.preventDefault()
+    const emailError = validateEmail(email)
+    const passwordError = validatePassword(password)
+    setIsLoading(true)
 
     if (emailError || passwordError) {
-      setErrors({ emailError, passwordError, confirmationError: "" });
+      setErrors({ emailError, passwordError, confirmationError: "" })
     } else {
       try {
         const user = await signIn({
           username: email,
           password: password
-        });
-        console.log("Sign in successful:", user);
+        })
+        console.log("Sign in successful:", user)
 
         if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
           // User has not confirmed their email yet
-          setShowResend(true);
+          setShowResend(true)
           setErrors({
             emailError: "",
             passwordError: "",
             confirmationError: "Please verify your email before signing in."
-          });
-          setIsLoading(false);
-          return;
+          })
+          setIsLoading(false)
+          return
         }
 
-        const currentUser = await getCurrentUser();
-        console.log("Current authenticated user:", currentUser);
+        const currentUser = await getCurrentUser()
+        console.log("Current authenticated user:", currentUser)
 
         // Now, we check if the user has a profile in the backend before redirecting
         try {
           const userProfile = await fetchBackend({
             endpoint: `/users/${email}`,
             method: "GET"
-          });
+          })
 
           if (userProfile) {
             // User is a member, redirect to home page
-            router.push("/");
+            router.push("/")
           }
         } catch (err: any) {
           if (err.status === 404) {
             // User is signed in but does not have a profile, redirect to membership
-            console.log("User profile not found, redirecting to membership.");
-            router.push("/membership");
+            console.log("User profile not found, redirecting to membership.")
+            router.push("/membership")
           } else {
-            console.error("Error fetching user profile:", err);
+            console.error("Error fetching user profile:", err)
           }
         }
       } catch (error: any) {
-        console.error("Error signing in", error);
-        handleAuthErrors(error);
+        console.error("Error signing in", error)
+        handleAuthErrors(error)
       }
     }
-    setIsLoading(false);
-  };
+    setIsLoading(false)
+  }
 
   const handleGoogleSignIn = async () => {
     try {
       await signInWithRedirect({
         provider: "Google"
-      });
+      })
     } catch (error: any) {
-      console.error("Error initiating Google sign-in:", error);
+      console.error("Error initiating Google sign-in:", error)
     }
-  };
+  }
 
   const handleAuthErrors = (error: any) => {
-    let emailError = "";
-    let passwordError: React.ReactNode = "";
+    let emailError = ""
+    let passwordError: React.ReactNode = ""
 
     switch (error.code) {
       case "UserNotConfirmedException":
-        setShowResend(true);
-        emailError = "Your account has not been verified yet.";
-        break;
+        setShowResend(true)
+        emailError = "Your account has not been verified yet."
+        break
       case "UserNotFoundException":
-        emailError = "Incorrect username or password.";
-        break;
+        emailError = "Incorrect username or password."
+        break
       case "NotAuthorizedException":
-        passwordError = "Incorrect username or password.";
-        break;
+        passwordError = "Incorrect username or password."
+        break
       default:
-        passwordError = error.message;
-        break;
+        passwordError = error.message
+        break
     }
 
-    setErrors({ emailError, passwordError, confirmationError: "" });
-  };
+    setErrors({ emailError, passwordError, confirmationError: "" })
+  }
 
   const handleResendVerification = async () => {
-    setIsResending(true);
+    setIsResending(true)
     setErrors((prevErrors) => ({
       ...prevErrors,
       confirmationError: ""
-    }));
+    }))
     try {
-      await resendSignUpCode({ username: email });
+      await resendSignUpCode({ username: email })
       setErrors((prevErrors) => ({
         ...prevErrors,
         confirmationError: "Verification email resent. Please check your inbox."
-      }));
+      }))
     } catch (error) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         confirmationError:
           "Failed to resend verification email. Please try again."
-      }));
-      console.error("Error resending verification email:", error);
+      }))
+      console.error("Error resending verification email:", error)
     }
-    setIsResending(false);
-  };
+    setIsResending(false)
+  }
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
@@ -365,7 +365,7 @@ const Login: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
