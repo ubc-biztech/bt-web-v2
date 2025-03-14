@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 interface ButtonProps {
     label: string;
-    Icon: LucideIcon;
+    Icon: LucideIcon | null;
     className: string;
     onClick: () => void;
 }
@@ -17,12 +17,15 @@ const Button: React.FC<ButtonProps> = ({
     return (
         <div
             className={ 
-                `flex flex-row items-center pl-10 gap-2 cursor-pointer transition-colors ${className}`
+                `flex flex-row items-center justify-center gap-2 cursor-pointer transition-colors ${className}`
             }
-            onClick={() => onClick}
+            onClick={onClick}
         >
-            <Icon size={20} />
-            {label}
+            
+            <span>{label}</span>
+            {
+                Icon && <Icon size={20} />
+            }
         </div>
     );
 };

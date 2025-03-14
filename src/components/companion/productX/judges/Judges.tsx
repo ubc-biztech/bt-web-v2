@@ -1,9 +1,5 @@
-import Box from "@/components/ui/productX/box";
 import React, { useState } from "react";
-import { HistoryIcon, PanelsTopLeft, Pen } from "lucide-react";
-import Button from "@/components/ui/productX/button";
-import { motion } from "framer-motion";
-import CornerBorderWrapper from "@/components/ui/productX/corner-box";
+import { HistoryIcon, PanelsTopLeft } from "lucide-react";
 import History from "./History";
 import Rounds from "./Rounds";
 
