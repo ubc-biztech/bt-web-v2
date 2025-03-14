@@ -128,7 +128,7 @@ const Rubric: React.FC<RubricProps> = ({
                             </div>
                             {judgingRubric[rubricCategory].map(
                                 (question, index) => (
-                                    <div className="w-full h-56">
+                                    <div className="w-full h-56" key={index}>
                                         <Box
                                             width={32}
                                             height={32}
