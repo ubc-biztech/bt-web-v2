@@ -1,7 +1,7 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
 import { Plus } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 const judgingRubric = {
     TECHNICALITY: [
@@ -43,6 +43,20 @@ const judgingRatings = [
     "5 - Excellent",
 ];
 
+type ScoringType = {
+    TECHNICALITY: number;
+    BUSINESS: number;
+    "DESIGN + UX": number;
+    PRESENTATION: number;
+};
+
+const dummyScore = {
+    TECHNICALITY: 5,
+    BUSINESS: 4,
+    "DESIGN + UX": 3,
+    PRESENTATION: 2,
+};
+
 interface RubricProps {
     round: string;
     team: string;
@@ -60,6 +74,8 @@ const Rubric: React.FC<RubricProps> = ({
     grades,
     showRubric,
 }) => {
+    const [scoring, setScoring] = useState<ScoringType>(dummyScore);
+
     useEffect(() => {
         document.body.style.overflow = "hidden";
 
@@ -67,6 +83,7 @@ const Rubric: React.FC<RubricProps> = ({
             document.body.style.overflow = "auto";
         };
     }, []);
+
     return (
         <div className="top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-[#020319] flex flex-col items-center px-14">
             <div className="w-full flex flex-row justify-between mt-36">
@@ -87,7 +104,7 @@ const Rubric: React.FC<RubricProps> = ({
                     )}
                 </div>
                 <div className="flex flex-row gap-3 items-center text-[#898BC3]">
-                    <span>Last Edited: {lastEdited}</span>
+                    <span>{lastEdited}</span>
                     <span>|</span>
                     <span
                         className="underline cursor-pointer z-50"
@@ -114,9 +131,22 @@ const Rubric: React.FC<RubricProps> = ({
                         <span className="text-lg">{rating}</span>
                     </div>
                 ))}
-                {Object.keys(judgingRubric).map((category, index) => {
-                    const rubricCategory =
-                        category as keyof typeof judgingRubric; // Explicit type assertion
+                {Object.keys(judgingRubric).map((categoryKey, index) => {
+                    const category = categoryKey as keyof typeof judgingRubric;
+
+                    const setRating = (rating: number) => {
+                        if (scoring[category] === rating) {
+                            setScoring((prevState) => ({
+                                ...prevState,
+                                [category]: 0,
+                            }));
+                        } else {
+                            setScoring((prevState) => ({
+                                ...prevState,
+                                [category]: rating,
+                            }));
+                        }
+                    };
 
                     return (
                         <>
@@ -126,8 +156,9 @@ const Rubric: React.FC<RubricProps> = ({
                             >
                                 {category}
                             </div>
-                            {judgingRubric[rubricCategory].map(
-                                (question, index) => (
+                            {judgingRubric[category].map((question, index) => {
+                                const rating = index + 1;
+                                return (
                                     <div className="w-full h-56" key={index}>
                                         <Box
                                             width={32}
@@ -135,14 +166,20 @@ const Rubric: React.FC<RubricProps> = ({
                                             fitToParent
                                             hoverEffects
                                             selectableEffects
+                                            selected={
+                                                scoring[category] === rating
+                                            }
                                             key={index}
+                                            handleClick={() => {
+                                                setRating(rating);
+                                            }}
                                             className="flex flex-col  text-center p-4 pt-8"
                                         >
                                             {question}
                                         </Box>
                                     </div>
-                                )
-                            )}
+                                );
+                            })}
                         </>
                     );
                 })}
@@ -175,11 +212,30 @@ const Rubric: React.FC<RubricProps> = ({
                     </div>
                     <div className="w-full flex flex-row items-center justify-between mb-56 mt-12">
                         <div className="flex flex-col text-[#898BC3] gap-2">
-                            <span className="text-lg text-white">TOTAL SCORE: N/A</span>
-                            <span>Technicality: 4/5</span>
-                            <span>Business: 4/5</span>
-                            <span>Design + UX: N/A</span>
-                            <span>Presentation: N/A</span>
+                            <span className="text-lg text-white">
+                                TOTAL SCORE:{" "}
+                                {scoring["TECHNICALITY"] &&
+                                scoring["BUSINESS"] &&
+                                scoring["DESIGN + UX"] &&
+                                scoring["PRESENTATION"]
+                                    ? scoring["TECHNICALITY"] +
+                                      scoring["BUSINESS"] +
+                                      scoring["DESIGN + UX"] +
+                                      scoring["PRESENTATION"]
+                                    : "N/A"}
+                            </span>
+                            <span>
+                                Technicality: {scoring["TECHNICALITY"] || "N/A"}
+                            </span>
+                            <span>
+                                Business: {scoring["BUSINESS"] || "N/A"}
+                            </span>
+                            <span>
+                                Design + UX: {scoring["DESIGN + UX"] || "N/A"}
+                            </span>
+                            <span>
+                                Presentation: {scoring["PRESENTATION"] || "N/A"}
+                            </span>
                         </div>
                         <div className="flex flex-row gap-2">
                             <Button
