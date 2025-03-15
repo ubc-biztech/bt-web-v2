@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface BoxProps {
     width: number;
@@ -7,7 +7,9 @@ interface BoxProps {
     children: React.ReactNode;
     hoverEffects?: boolean;
     selectableEffects?: boolean;
+    selected?: boolean;
     fitToParent?: boolean;
+    handleClick?: () => void;
 }
 
 const Box: React.FC<BoxProps> = ({
@@ -17,7 +19,9 @@ const Box: React.FC<BoxProps> = ({
     children,
     hoverEffects = false,
     selectableEffects = false,
+    selected = false,
     fitToParent = false,
+    handleClick = () => {},
 }) => {
     const [isHovered, setIsHovered] = useState(false);
     const [isSelected, setIsSelected] = useState(false);
@@ -84,6 +88,10 @@ const Box: React.FC<BoxProps> = ({
         return {};
     };
 
+    useEffect(() => {
+        setIsSelected(selected);
+    }, [selected]);
+
     return (
         <div
             className={`
@@ -95,7 +103,10 @@ const Box: React.FC<BoxProps> = ({
             style={boxShadowStyle()}
             onMouseEnter={() => hoverEffects && setIsHovered(true)}
             onMouseLeave={() => hoverEffects && setIsHovered(false)}
-            onClick={() => setIsSelected(!isSelected)}
+            onClick={() => {
+                setIsSelected(!isSelected);
+                handleClick();
+            }}
         >
             {children}
         </div>
