@@ -1,56 +1,57 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { resendSignUpCode } from "@aws-amplify/auth";
+import React, { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import { resendSignUpCode } from "@aws-amplify/auth"
+import Link from "next/link"
 
 export default function Verify() {
-  const router = useRouter();
-  const email = router.query.email as string; // Assuming email is passed as a query param
-  const [isResending, setIsResending] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [timer, setTimer] = useState<number | null>(null);
+  const router = useRouter()
+  const email = router.query.email as string // Assuming email is passed as a query param
+  const [isResending, setIsResending] = useState(false)
+  const [message, setMessage] = useState("")
+  const [error, setError] = useState("")
+  const [timer, setTimer] = useState<number | null>(null)
 
-  const RESEND_DELAY = 30; // 30 seconds delay before allowing resend
+  const RESEND_DELAY = 30 // 30 seconds delay before allowing resend
 
   // Countdown logic
   useEffect(() => {
-    let countdownInterval: NodeJS.Timeout | null = null;
+    let countdownInterval: NodeJS.Timeout | null = null
 
     if (timer && timer > 0) {
       countdownInterval = setInterval(() => {
-        setTimer((prevTimer) => (prevTimer ? prevTimer - 1 : null));
-      }, 1000);
+        setTimer((prevTimer) => (prevTimer ? prevTimer - 1 : null))
+      }, 1000)
     } else if (timer === 0) {
-      setTimer(null); // Reset timer once countdown is over
+      setTimer(null) // Reset timer once countdown is over
     }
 
     return () => {
       if (countdownInterval) {
-        clearInterval(countdownInterval);
+        clearInterval(countdownInterval)
       }
-    };
-  }, [timer]);
+    }
+  }, [timer])
 
   const handleResendVerification = async () => {
-    setIsResending(true);
-    setMessage("");
-    setError("");
+    setIsResending(true)
+    setMessage("")
+    setError("")
 
     try {
       // Call Amplify's resendSignUpCode API
-      await resendSignUpCode({ username: email });
+      await resendSignUpCode({ username: email })
 
       // If successful, show success message and start the countdown
-      setMessage("Verification email sent successfully.");
-      setTimer(RESEND_DELAY); // Start the countdown
+      setMessage("Verification email sent successfully.")
+      setTimer(RESEND_DELAY) // Start the countdown
     } catch (err: any) {
       // Handle errors during the resend process
-      console.error("Error resending verification email:", err);
-      setError("Failed to resend verification email. Please try again.");
+      console.error("Error resending verification email:", err)
+      setError("Failed to resend verification email. Please try again.")
     } finally {
-      setIsResending(false);
+      setIsResending(false)
     }
-  };
+  }
 
   return (
     <>
@@ -85,12 +86,12 @@ export default function Verify() {
 
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-white-blue mb-4">
               Already verified your email? &nbsp;
-              <a
+              <Link
                 href="/login"
                 className="text-biztech-green hover:text-dark-green font-semibold"
               >
                 Login here.
-              </a>
+              </Link>
             </h2>
           </div>
         </div>
@@ -103,5 +104,5 @@ export default function Verify() {
         </div>
       </div>
     </>
-  );
+  )
 }

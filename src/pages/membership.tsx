@@ -1,47 +1,64 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { Amplify } from "aws-amplify";
-import { fetchUserAttributes } from "@aws-amplify/auth";
-import * as Yup from "yup";
-import { useForm, FormProvider, Controller } from "react-hook-form"; // Import Controller
-import outputs from "../../amplify_outputs.json";
-import { fetchBackend } from "@/lib/db";
+import React, { useState, useEffect } from "react"
+import { useRouter } from "next/router"
+import { Amplify } from "aws-amplify"
+import { fetchUserAttributes } from "@aws-amplify/auth"
+import * as Yup from "yup"
+import { useForm, FormProvider, Controller } from "react-hook-form"
+import outputs from "../../amplify_outputs.json"
+import { fetchBackend } from "@/lib/db"
 import {
   FormInput,
   FormRadio,
   FormMultiSelect,
   FormSelect
-} from "../components/SignUpForm/FormInput";
+} from "../components/SignUpForm/FormInput"
+import Link from "next/link"
 
-Amplify.configure(outputs);
+interface MembershipFormValues {
+  email: string
+  firstName: string
+  lastName: string
+  studentNumber: string
+  pronouns: string
+  levelOfStudy: string
+  faculty: string
+  major: string
+  internationalStudent: string
+  previousMember: string
+  dietaryRestrictions?: string
+  referral: string
+  topics: string[]
+}
+
+Amplify.configure(outputs)
 
 const Membership = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
-  const methods = useForm(); // Initialize useForm
+  const methods = useForm<MembershipFormValues>()
 
   useEffect(() => {
     const getUserEmail = async () => {
       try {
-        const currentUser = await fetchUserAttributes();
+        const currentUser = await fetchUserAttributes()
         if (currentUser) {
-          const userEmail = currentUser.email;
+          const userEmail = currentUser.email
           if (userEmail) {
-            setEmail(userEmail);
+            setEmail(userEmail)
           }
         }
       } catch (error) {
-        console.error("Failed to fetch user attributes:", error);
+        console.error("Failed to fetch user attributes:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    getUserEmail();
-  }, []);
+    getUserEmail()
+  }, [])
 
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First name is required"),
@@ -61,11 +78,11 @@ const Membership = () => {
       "Dietary restrictions are required"
     ),
     referral: Yup.string().required("Referral source is required")
-  });
+  })
 
-  const onSubmit = async (values) => {
-    setIsSubmitting(true);
-    const topicsString = values.topics.join(",");
+  const onSubmit = async (values: MembershipFormValues) => {
+    setIsSubmitting(true)
+    const topicsString = values.topics.join(",")
 
     const userBody = {
       email,
@@ -82,7 +99,7 @@ const Membership = () => {
       prev_member: values.previousMember === "Yes",
       isMember: true,
       admin: email.endsWith("@ubcbiztech.com")
-    };
+    }
 
     try {
       if (userBody.admin) {
@@ -90,8 +107,8 @@ const Membership = () => {
           endpoint: "/users",
           method: "POST",
           data: userBody
-        });
-        router.push(`/signup/success/UserMember/${email}`);
+        })
+        router.push(`/signup/success/UserMember/${email}`)
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
@@ -122,48 +139,51 @@ const Membership = () => {
           international: userBody.international,
           referral: values.referral,
           topics: topicsString
-        };
+        }
 
         const response = await fetchBackend({
           endpoint: "/payments",
           method: "POST",
           data: paymentBody
-        });
+        })
 
-        window.open(response, "_self");
+        window.open(response, "_self")
       }
     } catch (error) {
-      console.error("Error during submission:", error);
-      alert("An error occurred. Please try again.");
+      console.error("Error during submission:", error)
+      alert("An error occurred. Please try again.")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   return (
     <FormProvider {...methods}>
-      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
-        <form className="mx-72 mt-12" onSubmit={methods.handleSubmit(onSubmit)}>
+      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-login-page-bg">
+        <form
+          className="max-w-xl mx-auto mt-12 px-4"
+          onSubmit={methods.handleSubmit(onSubmit)}
+        >
           <div className="space-y-12">
             <div className="border-b border-white/10 pb-12 text-center">
               <h2 className="text-base font-semibold leading-7 text-white">
                 Create your user!
               </h2>
-              <p className="mt-8 text-sm leading-6 text-gray-400">
+              <p className="mt-8 text-sm leading-6 text-white">
                 Create an account to sign up for our events and become a BizTech
                 member.
               </p>
               <div className="mt-6">
-                <a
+                <Link
                   href="/login"
                   className="text-sm leading-6 text-biztech-green underline"
                 >
                   Back to Login Page
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -187,7 +207,7 @@ const Membership = () => {
                   )}
                 />
 
-                <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
                   <Controller
                     name="firstName"
                     control={methods.control}
@@ -301,7 +321,7 @@ const Membership = () => {
                   )}
                 />
 
-                <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
                   <Controller
                     name="internationalStudent"
                     control={methods.control}
@@ -323,7 +343,7 @@ const Membership = () => {
                     defaultValue="None"
                     render={({ field }) => (
                       <FormSelect
-                        title="Any dietary restrictions?"
+                        title="Do you have any dietary restrictions?"
                         field={field}
                         items={[
                           { value: "None", label: "None" },
@@ -403,7 +423,7 @@ const Membership = () => {
         </form>
       </div>
     </FormProvider>
-  );
-};
+  )
+}
 
-export default Membership;
+export default Membership

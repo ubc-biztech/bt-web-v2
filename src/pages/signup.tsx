@@ -1,4 +1,5 @@
-import React from "react";
+import Link from "next/link"
+import React from "react"
 
 const options = [
   {
@@ -15,7 +16,7 @@ const options = [
     imageUrl: "https://app.ubcbiztech.com/static/media/login.77830c40.svg",
     ref: "/login"
   }
-];
+]
 
 const SignUp = () => {
   return (
@@ -35,11 +36,8 @@ const SignUp = () => {
             className="mx-auto mt-20 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:gap-8"
           >
             {options.map((option) => (
-              <a href={option.ref}>
-                <li
-                  key={option.name}
-                  className="rounded-2xl border-2 border-gray-600 px-8 py-10 bg-green-500 hover:bg-green-600 hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out"
-                >
+              <Link key={option.name} href={option.ref} passHref>
+                <li className="rounded-2xl border-2 border-gray-600 px-8 py-10 bg-green-500 hover:bg-green-600 hover:shadow-xl transform hover:scale-105 transition duration-300 ease-in-out">
                   <h3 className="mb-8 text-md font-medium leading-7 tracking-tight text-white">
                     {option.name}
                   </h3>
@@ -48,18 +46,17 @@ const SignUp = () => {
                     src={option.imageUrl}
                     className="mx-auto h-48 w-48 md:h-56 md:w-56"
                   />
-
                   <p className="text-sm leading-6 text-gray-200 mt-6 px-6">
                     {option.description}
                   </p>
                 </li>
-              </a>
+              </Link>
             ))}
           </ul>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SignUp;
+export default SignUp

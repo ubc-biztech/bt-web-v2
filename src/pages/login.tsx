@@ -8,6 +8,7 @@ import {
   resendSignUpCode
 } from "@aws-amplify/auth"
 import { fetchBackend } from "@/lib/db"
+import Link from "next/link"
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("")
@@ -208,12 +209,12 @@ const Login: React.FC = () => {
             </h2>
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
               New to UBC BizTech? &nbsp;
-              <a
+              <Link
                 href="/register"
                 className="text-biztech-green hover:text-dark-green font-semibold"
               >
                 Create an account.
-              </a>
+              </Link>
             </h2>
           </div>
           <form className="space-y-4" onSubmit={handleSubmit}>
@@ -253,12 +254,12 @@ const Login: React.FC = () => {
                   Password
                 </label>
                 <div className="text-sm leading-6">
-                  <a
+                  <Link
                     href="/forgot-password"
                     className="font-semibold text-biztech-green hover:text-dark-green"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="mt-2">

@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { useRouter } from "next/router";
-import { Amplify } from "aws-amplify";
-import { signIn, getCurrentUser } from "@aws-amplify/auth";
-import outputs from "../../amplify_outputs.json";
+import React, { useState } from "react"
+import { useRouter } from "next/router"
+import { Amplify } from "aws-amplify"
+import { signIn, getCurrentUser } from "@aws-amplify/auth"
+import outputs from "../../amplify_outputs.json"
+import Link from "next/link"
 
-Amplify.configure(outputs);
+Amplify.configure(outputs)
 
 const SignUp = () => {
   return (
@@ -20,12 +21,12 @@ const SignUp = () => {
               member.
             </p>
             <div className="mt-6">
-              <a
+              <Link
                 href="/login"
                 className="text-sm leading-6 text-biztech-green underline"
               >
                 Back to Login Page
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -38,7 +39,7 @@ const SignUp = () => {
               {/* Select Option */}
               <fieldset className="space-y-6">
                 <legend className="text-sm font-semibold leading-6 text-white">
-                  Please select the option that's most relevant to you *
+                  Please select the option that&apos;s most relevant to you *
                 </legend>
                 <div className="flex flex-col gap-4">
                   <label className="inline-flex items-center">
@@ -241,8 +242,8 @@ const SignUp = () => {
                     name="level-of-study"
                     className="mt-2 px-2 block w-full rounded-md bg-white/5 py-1.5 text-white"
                   >
-                    <option>Bachelor's</option>
-                    <option>Master's</option>
+                    <option>Bachelor&apos;s</option>
+                    <option>Master&apos;s</option>
                     <option>PhD</option>
                   </select>
                 </div>
@@ -458,7 +459,7 @@ const SignUp = () => {
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default SignUp;
+export default SignUp
