@@ -98,6 +98,7 @@ const config: Config = {
       montserrat: ['Montserrat', 'sans-serif'],
       satoshi: ['Satoshi', 'sans-serif'],
       redhat: ['Red Hat Mono', 'monospace'],
+      ibm: ['IBM Plex Sans', 'sans-serif'],
     },
     fontWeight: {
       '100': '100',

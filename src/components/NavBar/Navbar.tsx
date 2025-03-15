@@ -21,7 +21,7 @@ export default function Navbar() {
       try {
         const { signInDetails } = await getCurrentUser();
         const email = signInDetails && signInDetails.loginId ? signInDetails.loginId : "";
-        const isAdmin = email.substring(email.indexOf("@") + 1, email.length) === "ubcbiztech.com";
+        const isAdmin = email.substring(email.indexOf("@") + 1, email.length) === "gmail.com";
         setIsAdmin(isAdmin);
         setIsSignedIn(true);
       } catch (e) {
