@@ -5,8 +5,8 @@ import Rubric from "./Rubric";
 import CornerBorderWrapper from "@/components/ui/productX/corner-box";
 import { useEffect, useState } from "react";
 import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
-import BizBot from '@/assets/2025/productx/bizbotxx.png';
-import Image from 'next/image';
+import BizBot from "@/assets/2025/productx/bizbotxx.png";
+import Image from "next/image";
 
 interface ProjectBoxProps {
     team: string;
@@ -73,8 +73,8 @@ const Rounds: React.FC<RoundsProps> = ({ data }) => {
     const [currentRound, setCurrentRound] = useState(rounds[0]);
     const [showRubric, setShowRubric] = useState(false);
     const [selectedTeam, setSelectedTeam] = useState({ team: '', date: '' });
-    const [noData, setNoData] = useState(data.length===0);
-
+    const [noData, setNoData] = useState(true);
+//data.length===0
     useEffect(() => {
         setCurrentRound(rounds.filter((round) => round.selected)[0]);
     }, []);
@@ -121,7 +121,7 @@ const Rounds: React.FC<RoundsProps> = ({ data }) => {
                   NO ENTRIES FOUND
                 </header>
                 <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
-                  "When a team begins their presentation for this round, you'll see an option to begin scoring their project."
+                    &quot;When a team begins their presentation for this round, you&apos;ll see an option to begin scoring their project.&quot;
                 </span>
               </div>
                 }
