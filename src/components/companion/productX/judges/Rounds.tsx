@@ -83,7 +83,7 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
         comments: [],
     });
 
-    const [noData, setNoData] = useState(true);
+    const [noData, setNoData] = useState(false);
 
     useEffect(() => {
         setCurrentRound(

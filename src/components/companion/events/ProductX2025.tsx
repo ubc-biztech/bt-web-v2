@@ -3,7 +3,7 @@ import Judges from "../productX/Judges";
 import User from "../productX/User";
 
 const ProductX2025 = () => {
-    const [isJudge, setIsJudge] = useState(true);
+    const [isJudge, setIsJudge] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // TODO : Check if judge with email === localStorage.getItem("companionEmail") exists, update loading to false
@@ -14,11 +14,11 @@ const ProductX2025 = () => {
 
     if (isJudge) {
         return (
-          <Judges />
+          <Judges judgeID="???"/>
         );
     }
     return (
-      <User />
+      <User teamID="???" />
     )
 };
 

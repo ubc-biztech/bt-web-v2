@@ -100,7 +100,11 @@ const sampleJudgeFeedback =
     },
 };
 
-const Judges = () => {
+interface JudgesProps {
+    judgeID: string;
+}
+
+const Judges: React.FC<JudgesProps> = ({ judgeID }) => {
     const [page, setPage] = useState("rounds");
 
     // TODO : Fetch judge's past feedback {GET /judge/{judge_id}/submissions}

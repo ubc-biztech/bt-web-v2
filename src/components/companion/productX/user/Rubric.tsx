@@ -1,6 +1,12 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
-import {fetchRubricContents, fetchMetrics, ScoringMetric, defaultScoring} from "@/constants/productx-scoringMetrics";
+import {
+    fetchRubricContents,
+    fetchMetrics,
+    ScoringMetric,
+    defaultScoring,
+    mapGrades,
+} from "@/constants/productx-scoringMetrics";
 import { TriangleAlert, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -12,28 +18,36 @@ const judgingRatings = [
     "5 - Excellent",
 ];
 
+interface Score {
+    N: string;
+}
+
+interface FeedbackEntry {
+    judgeID: string;
+    scores: Record<string, Score>;
+    feedback: string;
+    createdAt: string;
+}
+
 interface RubricProps {
     round: string;
-    team: string;
-    gradedStatus: string;
-    lastEdited: string;
-    grades: ScoringMetric;
+    teamName: string;
+    report: FeedbackEntry[];
     showRubric: (arg0: boolean) => void;
 }
 
 const Rubric: React.FC<RubricProps> = ({
     round,
-    team,
-    gradedStatus,
-    lastEdited,
-    grades,
+    teamName,
+    report,
     showRubric,
 }) => {
     const metrics = fetchMetrics(); // constants/productx-scoringMetrics.ts
-    const [modal, setModal] = useState(false);
     const [scoring, setScoring] = useState<ScoringMetric>(
-        grades || defaultScoring
+        mapGrades({ grades: report[0].scores }) || defaultScoring
     );
+
+    // TODO : change from hardcoded report[0] to do the following: 1. display overall raw scores, 2. display each indiviudal grading rubric
     const judgingRubric = fetchRubricContents(metrics);
     useEffect(() => {
         document.body.style.overflow = "hidden";
@@ -43,15 +57,22 @@ const Rubric: React.FC<RubricProps> = ({
         };
     }, []); // disabled scroll when rubric is overlayed
 
-    const confirmExit = () => {
-        if (JSON.stringify(scoring) !== JSON.stringify(grades)) {
-            setModal(true);
-        } else {
-            showRubric(false);
-        }
-    }; // confirm exit if there are unsaved changes
-
     // kill me
+    const isGraded = (grades: Record<string, { N: string }>) => {
+        return Object.values(grades).every((grade) => Number(grade.N) !== 0);
+    }; // expecting to deal with Nkeys
+
+    const date = new Date(report[0].createdAt);
+    const formattedDateTime = `${date
+        .toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        })
+        .toUpperCase()} ${date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    })}`;
 
     return (
         <>
@@ -59,11 +80,11 @@ const Rubric: React.FC<RubricProps> = ({
                 <div className="w-full flex flex-row justify-between mt-36">
                     <div className="flex flex-row gap-5 items-center">
                         <header className="text-xl">
-                            {round}: {team}
+                            ROUND {round}: {teamName}
                         </header>
 
                         {/* Tags */}
-                        {gradedStatus === "Graded" ? (
+                        {isGraded(report[0].scores) ? (
                             <span className="text-[#4CC8BD] border-[#4CC8BD] border bg-[#23655F] bg-opacity-70 px-4 rounded-full h-10 flex flex-row items-center justify-center">
                                 GRADED
                             </span>
@@ -74,12 +95,12 @@ const Rubric: React.FC<RubricProps> = ({
                         )}
                     </div>
                     <div className="flex flex-row gap-3 items-center text-[#898BC3]">
-                        <span>{lastEdited}</span>
+                        <span>Last Edited: {formattedDateTime}</span>
                         <span>|</span>
                         <span
                             className="underline cursor-pointer z-50"
                             onClick={() => {
-                                confirmExit();
+                                showRubric(false);
                             }}
                         >
                             Return to Home
@@ -150,9 +171,7 @@ const Rubric: React.FC<RubricProps> = ({
                                                         rating
                                                     }
                                                     key={index}
-                                                    handleClick={() => {
-                                                        setRating(rating);
-                                                    }}
+                                                    handleClick={() => {}}
                                                     className="flex flex-col  text-center p-4 pt-8"
                                                 >
                                                     {question}
@@ -172,129 +191,24 @@ const Rubric: React.FC<RubricProps> = ({
                         <span className="mr-8">COMMENTS</span>
                     </div>
                     <div className="w-full flex flex-col gap-5">
-                        <div className="w-full h-36">
-                            <Box
-                                width={42}
-                                height={42}
-                                fitToParent
-                                className="text-md p-4"
-                            >
-                                Has the team produced an MVP (Minimum Viable
-                                Product) with working features? Are the core use
-                                cases of their solution implemented?
-                            </Box>
-                        </div>
-                        <div className="w-full h-12">
-                            <Button
-                                label="+ ADD ADDITIONAL COMMENTS"
-                                Icon={null}
-                                className="hover:text-[#000000] bg-[#41437D] border border-dashed border-[#41437D] text-[#41437D] w-full h-10 hover:bg-opacity-100 bg-opacity-0"
-                                onClick={() => {
-                                    // TODO : add comments post
-                                }}
-                            />
-                        </div>
-                        <div className="w-full flex flex-row items-center justify-between mb-56 mt-12">
-                            <div className="flex flex-col text-[#898BC3] gap-2">
-                                <span className="text-lg text-white">
-                                    TOTAL SCORE:{" "}
-                                    {metrics.every(
-                                        (metric) =>
-                                            scoring[metric] !== undefined
-                                    )
-                                        ? metrics.reduce(
-                                              (total, metric) =>
-                                                  total + scoring[metric],
-                                              0
-                                          )
-                                        : "N/A"}
-                                </span>
-                                {metrics.map((metric) => (
-                                    <span key={metric}>
-                                        {`${metric}: ${
-                                            scoring[metric] || "N/A"
-                                        }`}
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="flex flex-row gap-2">
-                                <Button
-                                    label="CANCEL"
-                                    Icon={null}
-                                    className="hover:text-[#000000] bg-[#FF4262] border border-[#FF4262] text-[#FF4262] w-24 h-10 hover:bg-opacity-100 bg-opacity-0"
-                                    onClick={() => {
-                                        confirmExit();
-                                    }}
-                                />
-                                <Button
-                                    label="SUBMIT SCORE"
-                                    Icon={null}
-                                    className="hover:text-[#000000] hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-36 h-10"
-                                    onClick={() => {
-                                        // TODO : make put request to api
-                                    }}
-                                />
-                            </div>
-                        </div>
+                        {[report[0].feedback].map(
+                            (
+                                comment,
+                                index // fix later
+                            ) => (
+                                <div className="w-full h-36 mb-10" key={index}>
+                                    <Box
+                                        width={42}
+                                        height={42}
+                                        fitToParent
+                                        className="text-md p-4"
+                                    >
+                                        {comment}
+                                    </Box>
+                                </div>
+                            )
+                        )}
                     </div>
-                </div>
-            </div>
-
-            {/* Confirm if you want to discard unsaved changes modal */}
-            <div
-                className={`top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-black ${
-                    modal
-                        ? "opacity-100 bg-opacity-50 pointer-events-auto backdrop-blur-sm"
-                        : " backdrop-blur-0 opacity-0 pointer-events-none"
-                } flex flex-col items-center justify-center transition duration-500 ease-in-out`}
-            >
-                <div className="w-[40em] h-64">
-                    <Box
-                        width={100}
-                        height={20}
-                        fitToParent
-                        className="flex flex-col items-center justify-start p-8"
-                    >
-                        <div className="w-full flex flex-row justify-end h-4">
-                            <X
-                                size={20}
-                                color="#ADAFE4"
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    setModal(false);
-                                }}
-                            />
-                        </div>
-                        <div className="flex flex-row gap-2">
-                            <TriangleAlert size={24} />
-                            <span>
-                                WARNING: Are you sure you want to leave this
-                                page?
-                            </span>
-                        </div>
-
-                        <span className="text-[#ADAFE4] mt-8">
-                            All grading progress will be lost.
-                        </span>
-                        <div className="flex flex-row gap-2 mt-8">
-                            <Button
-                                label="EXIT PAGE"
-                                Icon={null}
-                                className="hover:text-[#000000] bg-[#FF4262] border border-[#FF4262] text-[#FF4262] w-24 h-10 hover:bg-opacity-100 bg-opacity-0"
-                                onClick={() => {
-                                    showRubric(false);
-                                }}
-                            />
-                            <Button
-                                label="BACK TO GRADING"
-                                Icon={null}
-                                className="hover:text-[#000000] hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-44 h-10"
-                                onClick={() => {
-                                    setModal(false);
-                                }}
-                            />
-                        </div>
-                    </Box>
                 </div>
             </div>
         </>
