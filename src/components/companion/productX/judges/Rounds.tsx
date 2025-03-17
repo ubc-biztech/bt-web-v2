@@ -5,6 +5,8 @@ import Rubric from "./Rubric";
 import CornerBorderWrapper from "@/components/ui/productX/corner-box";
 import { useEffect, useState } from "react";
 import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
+import BizBot from "@/assets/2025/productx/bizbotxx.png";
+import Image from "next/image";
 import { defaultScoring, mapGrades } from "@/constants/productx-scoringMetrics";
 
 interface ProjectBoxProps {
@@ -81,6 +83,8 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
         comments: [],
     });
 
+    const [noData, setNoData] = useState(true);
+
     useEffect(() => {
         setCurrentRound(
             Math.max(...Object.keys(feedback).map((key) => parseInt(key, 10)))
@@ -123,6 +127,25 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                         </CornerBorderWrapper>
                     ))}
                 </div>
+                {noData &&
+                <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
+                <div className=" relative w-[70%] h-[70%]">
+                  <Image
+                    src={BizBot} 
+                    alt="BizBot" 
+                    className="object-contain"
+                    fill
+                  />
+                </div>
+                <header className="text-lg font-ibm">
+                  NO ENTRIES FOUND
+                </header>
+                <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
+                    &quot;When a team begins their presentation for this round, you&apos;ll see an option to begin scoring their project.&quot;
+                </span>
+              </div>
+                }
+                {!noData &&
                 <div className="w-full flex flex-col gap-5">
                     {Object.keys(feedback).map(
                         (round: string, index: number) => {
@@ -214,6 +237,7 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                         }
                     )}
                 </div>
+                }
             </FadeWrapper>
             {showRubric && (
                 <Rubric
