@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Box from "@/components/ui/productX/box";
-import Judges from "../productX/judges/Judges";
+import Judges from "../productX/Judges";
 
 const ProductX2025 = () => {
     const [isJudge, setIsJudge] = useState(true);

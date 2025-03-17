@@ -1,7 +1,20 @@
 import React, { useState } from "react";
 import { HistoryIcon, PanelsTopLeft } from "lucide-react";
-import History from "./History";
-import Rounds from "./Rounds";
+import History from "./judges/History";
+import Rounds from "./judges/Rounds";
+
+const dummyRounds = [
+    {
+        name: "ROUND 1",
+        selected: true,
+        filterFinalists: false,
+    },
+    {
+        name: "FINAL ROUND",
+        selected: false,
+        filterFinalists: true,
+    },
+];
 
 const dummyData = [
     {
@@ -9,6 +22,13 @@ const dummyData = [
         date: "3:09 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: true,
     },
     {
@@ -16,6 +36,13 @@ const dummyData = [
         date: "3:01 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: true,
     },
     {
@@ -23,6 +50,13 @@ const dummyData = [
         date: "3:03 PM",
         status: "updated",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: true,
     },
     {
@@ -30,6 +64,13 @@ const dummyData = [
         date: "3:41 PM",
         status: "current",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 5,
+            "DESIGN + UX": 5,
+            PRESENTATION: 4,
+        },
+        comments: {},
         finalist: true,
     },
     {
@@ -37,6 +78,13 @@ const dummyData = [
         date: "3:22 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: false,
     },
     {
@@ -44,6 +92,13 @@ const dummyData = [
         date: "3:12 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: false,
     },
     {
@@ -51,6 +106,13 @@ const dummyData = [
         date: "3:26 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: false,
     },
     {
@@ -58,6 +120,13 @@ const dummyData = [
         date: "3:35 PM",
         status: "completed",
         room: "Room 1",
+        grades: {
+            TECHNICALITY: 5,
+            BUSINESS: 4,
+            "DESIGN + UX": 3,
+            PRESENTATION: 2,
+        },
+        comments: {},
         finalist: false,
     },
 ];
@@ -106,8 +175,12 @@ const Judges = () => {
 
                 {/* Conditionally render pages */}
 
-                {page === "history" && <History data={dummyData} />}
-                {page === "rounds" && <Rounds data={dummyData} />}
+                {page === "history" && (
+                    <History data={dummyData} rounds={dummyRounds} />
+                )}
+                {page === "rounds" && (
+                    <Rounds data={dummyData} rounds={dummyRounds} />
+                )}
             </div>
         </div>
     );
