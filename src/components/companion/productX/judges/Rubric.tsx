@@ -50,19 +50,12 @@ type ScoringType = {
     PRESENTATION: number;
 };
 
-const dummyScore = {
-    TECHNICALITY: 5,
-    BUSINESS: 4,
-    "DESIGN + UX": 3,
-    PRESENTATION: 2,
-};
-
 interface RubricProps {
     round: string;
     team: string;
     gradedStatus: string;
     lastEdited: string;
-    grades: any[];
+    grades: ScoringType;
     showRubric: (arg0: boolean) => void;
 }
 
@@ -74,7 +67,14 @@ const Rubric: React.FC<RubricProps> = ({
     grades,
     showRubric,
 }) => {
-    const [scoring, setScoring] = useState<ScoringType>(dummyScore);
+    const [scoring, setScoring] = useState<ScoringType>(
+        grades || {
+            TECHNICALITY: 0,
+            BUSINESS: 0,
+            "DESIGN + UX": 0,
+            PRESENTATION: 0,
+        }
+    );
 
     useEffect(() => {
         document.body.style.overflow = "hidden";

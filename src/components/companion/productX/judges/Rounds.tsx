@@ -7,19 +7,23 @@ import { useEffect, useState } from "react";
 import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
 
 interface ProjectBoxProps {
-    team: string;
-    date: string;
+    res: {
+        team: string;
+        date: string;
+        round: string;
+        grades: any;
+        comments: any;
+    };
     presenting: boolean;
     showRubric: (arg0: boolean) => void;
     setSelectedTeam: (arg0: any) => void;
 }
 
 const ProjectBox: React.FC<ProjectBoxProps> = ({
-    team,
-    date,
+    res,
     presenting,
     showRubric,
-    setSelectedTeam
+    setSelectedTeam,
 }) => {
     return (
         <div className="w-full h-32">
@@ -30,8 +34,8 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
                 className={`flex flex-row justify-between items-center pl-5`}
             >
                 <div className="flex flex-col gap-2">
-                    <header className="text-md">{team}</header>
-                    <span className="text-sm text-[#898BC3]">{date}</span>
+                    <header className="text-md">{res.team}</header>
+                    <span className="text-sm text-[#898BC3]">{res.date}</span>
                 </div>
                 <Button
                     label={presenting ? "BEGIN JUDGING" : "EDIT SCORE"}
@@ -40,7 +44,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
                     onClick={() => {
                         console.log("click");
                         showRubric(true);
-                        setSelectedTeam({ team, date });
+                        setSelectedTeam(res);
                     }}
                 />
             </Box>
@@ -50,28 +54,24 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
 
 interface RoundsProps {
     data: any[];
+    rounds: any[];
 }
 
-const rounds = [
-    {
-        name: "ROUND 1",
-        selected: true,
-    },
-    {
-        name: "ROUND 2",
-        selected: false,
-    },
-    {
-        name: "ROUND 3",
-        selected: false,
-    },
-];
-
-
-const Rounds: React.FC<RoundsProps> = ({ data }) => {
+const Rounds: React.FC<RoundsProps> = ({ data, rounds }) => {
     const [currentRound, setCurrentRound] = useState(rounds[0]);
     const [showRubric, setShowRubric] = useState(false);
-    const [selectedTeam, setSelectedTeam] = useState({ team: '', date: '' });
+    const [TeamData, setTeamData] = useState({
+        team: "",
+        date: "",
+        round: "",
+        grades: {
+            TECHNICALITY: 0,
+            BUSINESS: 0,
+            "DESIGN + UX": 0,
+            PRESENTATION: 0,
+        },
+        comments: {},
+    });
 
     useEffect(() => {
         setCurrentRound(rounds.filter((round) => round.selected)[0]);
@@ -111,28 +111,42 @@ const Rounds: React.FC<RoundsProps> = ({ data }) => {
                             team.status === "current" && (
                                 <ProjectBox
                                     key={index}
-                                    team={team.team}
-                                    date={"CURRENTLY PRESENTING • " + team.room}
+                                    res={{
+                                        team: team.team,
+                                        date:
+                                            "CURRENTLY PRESENTING • " +
+                                            team.room,
+                                        round: currentRound.name,
+                                        grades: team.grades,
+                                        comments: team.comments,
+                                    }}
                                     presenting={team.status === "current"}
                                     showRubric={setShowRubric}
-                                    setSelectedTeam={setSelectedTeam}
+                                    setSelectedTeam={setTeamData}
                                 />
                             )
                     )}
+
                     <div className="my-4 text-[#3D3E63] flex flex-row items-center">
                         <span>RECENT HISTORY</span>
                         <figure className="ml-2 w-56 h-[1px] bg-[#3D3E63]" />
                     </div>
+
                     {data.map(
                         (team, index) =>
                             team.status != "current" && (
                                 <ProjectBox
                                     key={index}
-                                    team={team.team}
-                                    date={"CURRENTLY PRESENTING • " + team.room}
+                                    res={{
+                                        team: team.team,
+                                        date: team.date + " • " + team.room,
+                                        round: currentRound.name,
+                                        grades: team.grades,
+                                        comments: team.comments,
+                                    }}
                                     presenting={team.status === "current"}
                                     showRubric={setShowRubric}
-                                    setSelectedTeam={setSelectedTeam}
+                                    setSelectedTeam={setTeamData}
                                 />
                             )
                     )}
@@ -140,11 +154,11 @@ const Rounds: React.FC<RoundsProps> = ({ data }) => {
             </FadeWrapper>
             {showRubric && (
                 <Rubric
-                    round={currentRound.name}
-                    team={selectedTeam.team}
+                    round={TeamData.round}
+                    team={TeamData.team}
+                    lastEdited={TeamData.date}
                     gradedStatus="Graded"
-                    lastEdited="Last Edited: 3:41 PM"
-                    grades={[]}
+                    grades={TeamData.grades}
                     showRubric={setShowRubric}
                 />
             )}
