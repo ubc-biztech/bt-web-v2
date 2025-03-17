@@ -3,136 +3,107 @@ import { HistoryIcon, PanelsTopLeft } from "lucide-react";
 import History from "./judges/History";
 import Rounds from "./judges/Rounds";
 
-const dummyRounds = [
-    {
-        name: "ROUND 1",
-        selected: true,
-        filterFinalists: false,
+// TODO : replace this with actual data from api req {team/judge/feedback/{judgeID}}
+const sampleJudgeFeedback = 
+{
+    message: "Scores retrieved successfully",
+    scores: {
+        "1": [
+            {
+                round: "1",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "1" },
+                    metric2: { N: "2" },
+                    metric3: { N: "3" },
+                    metric4: { N: "4" },
+                    metric5: { N: "5" },
+                },
+                teamName: "Team 1",
+                feedback:
+                    "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T10:30:00Z",
+            },
+            {
+                round: "1",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "3" },
+                    metric2: { N: "2" },
+                    metric3: { N: "5" },
+                    metric4: { N: "4" },
+                    metric5: { N: "5" },
+                },
+                teamName: "Team 2",
+                feedback: "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T10:45:00Z",
+            },
+            {
+                round: "1",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "5" },
+                    metric2: { N: "2" },
+                    metric3: { N: "3" },
+                    metric4: { N: "4" },
+                    metric5: { N: "5" },
+                },
+                teamName: "Team 3",
+                feedback: "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T11:00:00Z",
+            },
+            {
+                round: "1",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "2" },
+                    metric2: { N: "2" },
+                    metric3: { N: "3" },
+                    metric4: { N: "2" },
+                    metric5: { N: "1" },
+                },
+                teamName: "Team 4",
+                feedback: "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T11:00:00Z",
+            },
+        ],
+        "2": [
+            {
+                round: "1",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "3" },
+                    metric2: { N: "2" },
+                    metric3: { N: "5" },
+                    metric4: { N: "4" },
+                    metric5: { N: "5" },
+                },
+                teamName: "Team 2",
+                feedback: "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T10:45:00Z",
+            },
+            {
+                round: "2",
+                judgeID: "judge123",
+                scores:     {
+                    metric1: { N: "0" },
+                    metric2: { N: "2" },
+                    metric3: { N: "3" },
+                    metric4: { N: "4" },
+                    metric5: { N: "5" },
+                },
+                teamName: "Team 3",
+                feedback: "Great presentation, well researched. Could use more work on the usability.",
+                createdAt: "2024-03-17T11:00:00Z",
+            },
+        ],
     },
-    {
-        name: "FINAL ROUND",
-        selected: false,
-        filterFinalists: true,
-    },
-];
-
-const dummyData = [
-    {
-        team: "Team 1 - Project Name",
-        date: "3:09 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: true,
-    },
-    {
-        team: "Team 2 - Project Name",
-        date: "3:01 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: true,
-    },
-    {
-        team: "Team 3 - Project Name",
-        date: "3:03 PM",
-        status: "updated",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: true,
-    },
-    {
-        team: "Team 4 - Project Name",
-        date: "3:41 PM",
-        status: "current",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 5,
-            "DESIGN + UX": 5,
-            PRESENTATION: 4,
-        },
-        comments: {},
-        finalist: true,
-    },
-    {
-        team: "Team 5 - Project Name",
-        date: "3:22 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: false,
-    },
-    {
-        team: "Team 6 - Project Name",
-        date: "3:12 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: false,
-    },
-    {
-        team: "Team 7 - Project Name",
-        date: "3:26 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: false,
-    },
-    {
-        team: "Team 8 - Project Name",
-        date: "3:35 PM",
-        status: "completed",
-        room: "Room 1",
-        grades: {
-            TECHNICALITY: 5,
-            BUSINESS: 4,
-            "DESIGN + UX": 3,
-            PRESENTATION: 2,
-        },
-        comments: {},
-        finalist: false,
-    },
-];
+};
 
 const Judges = () => {
     const [page, setPage] = useState("rounds");
+
+    // TODO : Fetch judge's past feedback {GET /judge/{judge_id}/submissions}
 
     return (
         <div className="w-full px-10">
@@ -176,10 +147,10 @@ const Judges = () => {
                 {/* Conditionally render pages */}
 
                 {page === "history" && (
-                    <History data={dummyData} rounds={dummyRounds} />
+                    <History feedback={sampleJudgeFeedback.scores} />
                 )}
                 {page === "rounds" && (
-                    <Rounds data={dummyData} rounds={dummyRounds} />
+                    <Rounds feedback={sampleJudgeFeedback.scores} />
                 )}
             </div>
         </div>

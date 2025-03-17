@@ -1,11 +1,6 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
-import {
-    fetchRubricContents,
-    fetchMetrics,
-    ScoringMetric,
-    defaultScoring,
-} from "@/constants/productx-scoringMetrics";
+import {fetchRubricContents, fetchMetrics, ScoringMetric, defaultScoring} from "@/constants/productx-scoringMetrics";
 import { TriangleAlert, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -23,7 +18,6 @@ interface RubricProps {
     gradedStatus: string;
     lastEdited: string;
     grades: ScoringMetric;
-    comments: string[];
     showRubric: (arg0: boolean) => void;
 }
 
@@ -33,7 +27,6 @@ const Rubric: React.FC<RubricProps> = ({
     gradedStatus,
     lastEdited,
     grades,
-    comments,
     showRubric,
 }) => {
     const metrics = fetchMetrics(); // constants/productx-scoringMetrics.ts
@@ -179,25 +172,26 @@ const Rubric: React.FC<RubricProps> = ({
                         <span className="mr-8">COMMENTS</span>
                     </div>
                     <div className="w-full flex flex-col gap-5">
-                        {comments.map((comment, index) => (
-                            <div className="w-full h-36" key={index}>
-                                <Box
-                                    width={42}
-                                    height={42}
-                                    fitToParent
-                                    className="text-md p-4"
-                                >
-                                    {comment}
-                                </Box>
-                            </div>
-                        ))}
-
+                        <div className="w-full h-36">
+                            <Box
+                                width={42}
+                                height={42}
+                                fitToParent
+                                className="text-md p-4"
+                            >
+                                Has the team produced an MVP (Minimum Viable
+                                Product) with working features? Are the core use
+                                cases of their solution implemented?
+                            </Box>
+                        </div>
                         <div className="w-full h-12">
                             <Button
                                 label="+ ADD ADDITIONAL COMMENTS"
                                 Icon={null}
                                 className="hover:text-[#000000] bg-[#41437D] border border-dashed border-[#41437D] text-[#41437D] w-full h-10 hover:bg-opacity-100 bg-opacity-0"
-                                onClick={() => {}}
+                                onClick={() => {
+                                    // TODO : add comments post
+                                }}
                             />
                         </div>
                         <div className="w-full flex flex-row items-center justify-between mb-56 mt-12">
@@ -236,7 +230,9 @@ const Rubric: React.FC<RubricProps> = ({
                                     label="SUBMIT SCORE"
                                     Icon={null}
                                     className="hover:text-[#000000] hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-36 h-10"
-                                    onClick={() => {}}
+                                    onClick={() => {
+                                        // TODO : make put request to api
+                                    }}
                                 />
                             </div>
                         </div>
@@ -244,7 +240,7 @@ const Rubric: React.FC<RubricProps> = ({
                 </div>
             </div>
 
-            {/* Confirm if you want to discard unsaved changes */}
+            {/* Confirm if you want to discard unsaved changes modal */}
             <div
                 className={`top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-black ${
                     modal
