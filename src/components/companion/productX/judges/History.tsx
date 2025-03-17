@@ -4,6 +4,8 @@ import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
 import { Pen } from "lucide-react";
 import Rubric from "./Rubric";
 import { useState } from "react";
+import { defaultScoring } from "@/constants/productx-scoringMetrics";
+import { mapGrades } from "@/constants/productx-scoringMetrics";
 
 interface ProjectBoxProps {
     res: {
@@ -33,7 +35,9 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
                 >
                     <div className="flex flex-col gap-2">
                         <header className="text-md">{res.team}</header>
-                        <span className="text-sm text-[#898BC3]">{res.date}</span>
+                        <span className="text-sm text-[#898BC3]">
+                            {res.date}
+                        </span>
                     </div>
 
                     <Button
@@ -52,60 +56,77 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
 };
 
 interface HistoryProps {
-    data: any[];
-    rounds: any[];
+    feedback: any;
 }
 
-const History: React.FC<HistoryProps> = ({ data, rounds }) => {
+type Score = { N: string };
+
+type Team = {
+    round: string;
+    judgeID: string;
+    scores: Record<string, Score>;
+    teamName: string;
+    feedback: string;
+    createdAt: string;
+};
+
+const History: React.FC<HistoryProps> = ({ feedback }) => {
     const [TeamData, setTeamData] = useState({
         team: "",
         date: "",
         round: "",
-        grades: {
-            TECHNICALITY: 0,
-            BUSINESS: 0,
-            "DESIGN + UX": 0,
-            PRESENTATION: 0,
-        },
-        comments: {},
+        grades: defaultScoring,
+        comments: [],
     });
     const [showRubric, setShowRubric] = useState(false);
-    const judge_day = "MAR 7 ";
+
+    const isGraded = (grades: Record<string, { N: string }>) => {
+        return Object.values(grades).every((grade) => Number(grade.N) !== 0);
+    }; // expecting to deal with Nkeys
 
     return (
         <>
             <FadeWrapper className="flex flex-col">
-                {rounds.map((round, index) => (
+                {Object.keys(feedback).map((round: string, index: number) => (
                     <>
                         <header className="mt-16 text-lg font-ibm">
-                            {round.name}
+                            ROUND {round}
                         </header>
                         <div className="grid grid-cols-4 gap-5 mt-10">
-                            {data.map(
-                                (team, index) =>
-                                    !(
-                                        round.filterFinalists && !team.finalist
-                                    ) && (
+                            {feedback[round].map(
+                                (team: Team, index: number) => {
+                                    const date = new Date(team.createdAt);
+                                    const formattedDateTime = `${date
+                                        .toLocaleDateString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                        })
+                                        .toUpperCase()} ${date.toLocaleTimeString(
+                                        "en-US",
+                                        {
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                        }
+                                    )}`;
+                                    return (
                                         <div key={index}>
                                             <ProjectBox
                                                 res={{
-                                                    team: team.team,
-                                                    date: (team.status === "completed"
-                                                        ? "COMPLETED "
-                                                        : "LAST UPDATED ") +
-                                                    judge_day +
-                                                    team.date +
-                                                    " • " +
-                                                    team.room,
-                                                    round: round.name,
-                                                    grades: team.grades,
-                                                    comments: team.comments,
+                                                    team: team.teamName,
+                                                    date:
+                                                        "LAST UPDATED: " +
+                                                        formattedDateTime,
+                                                    round: `ROUND ${round}`,
+                                                    grades: team.scores,
+                                                    comments: [team.feedback],
                                                 }}
                                                 setTeamData={setTeamData}
                                                 showRubric={setShowRubric}
                                             />
                                         </div>
-                                    )
+                                    );
+                                }
                             )}
                         </div>
                     </>
@@ -116,8 +137,11 @@ const History: React.FC<HistoryProps> = ({ data, rounds }) => {
                     round={TeamData.round}
                     team={TeamData.team}
                     lastEdited={TeamData.date}
-                    gradedStatus="Graded"
-                    grades={TeamData.grades}
+                    gradedStatus={
+                        isGraded(TeamData.grades) ? "Graded" : "Ungraded"
+                    }
+                    grades={mapGrades(TeamData)}
+                    comments={TeamData.comments}
                     showRubric={setShowRubric}
                 />
             )}

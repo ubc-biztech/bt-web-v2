@@ -1,39 +1,13 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
+import {
+    fetchRubricContents,
+    fetchMetrics,
+    ScoringMetric,
+    defaultScoring,
+} from "@/constants/productx-scoringMetrics";
 import { TriangleAlert, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-
-const judgingRubric = {
-    TECHNICALITY: [
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-    ],
-    BUSINESS: [
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-    ],
-    "DESIGN + UX": [
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-    ],
-
-    PRESENTATION: [
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-        "Has the team produced an MVP (Minimum Viable Product) with working features? Are the core use cases of their solution implemented?",
-    ],
-};
 
 const judgingRatings = [
     "1 - Poor",
@@ -43,19 +17,13 @@ const judgingRatings = [
     "5 - Excellent",
 ];
 
-type ScoringType = {
-    TECHNICALITY: number;
-    BUSINESS: number;
-    "DESIGN + UX": number;
-    PRESENTATION: number;
-};
-
 interface RubricProps {
     round: string;
     team: string;
     gradedStatus: string;
     lastEdited: string;
-    grades: ScoringType;
+    grades: ScoringMetric;
+    comments: string[];
     showRubric: (arg0: boolean) => void;
 }
 
@@ -65,25 +33,22 @@ const Rubric: React.FC<RubricProps> = ({
     gradedStatus,
     lastEdited,
     grades,
+    comments,
     showRubric,
 }) => {
+    const metrics = fetchMetrics(); // constants/productx-scoringMetrics.ts
     const [modal, setModal] = useState(false);
-    const [scoring, setScoring] = useState<ScoringType>(
-        grades || {
-            TECHNICALITY: 0,
-            BUSINESS: 0,
-            "DESIGN + UX": 0,
-            PRESENTATION: 0,
-        }
+    const [scoring, setScoring] = useState<ScoringMetric>(
+        grades || defaultScoring
     );
-
+    const judgingRubric = fetchRubricContents(metrics);
     useEffect(() => {
         document.body.style.overflow = "hidden";
 
         return () => {
             document.body.style.overflow = "auto";
         };
-    }, []);
+    }, []); // disabled scroll when rubric is overlayed
 
     const confirmExit = () => {
         if (JSON.stringify(scoring) !== JSON.stringify(grades)) {
@@ -91,7 +56,9 @@ const Rubric: React.FC<RubricProps> = ({
         } else {
             showRubric(false);
         }
-    };
+    }; // confirm exit if there are unsaved changes
+
+    // kill me
 
     return (
         <>
@@ -141,6 +108,8 @@ const Rubric: React.FC<RubricProps> = ({
                             <span className="text-lg">{rating}</span>
                         </div>
                     ))}
+
+                    {/* For every category.... */}
                     {Object.keys(judgingRubric).map((categoryKey, index) => {
                         const category =
                             categoryKey as keyof typeof judgingRubric;
@@ -167,12 +136,14 @@ const Rubric: React.FC<RubricProps> = ({
                                 >
                                     {category}
                                 </div>
+
+                                {/* For every criteria.... */}
                                 {judgingRubric[category].map(
                                     (question, pos) => {
                                         const rating = pos + 1;
                                         return (
                                             <div
-                                                className="w-full h-56"
+                                                className="w-full h-56 text-[14px]"
                                                 key={`${categoryKey}-question-${pos}`}
                                             >
                                                 <Box
@@ -202,23 +173,25 @@ const Rubric: React.FC<RubricProps> = ({
                     })}
                 </figure>
 
+                {/* Comments */}
                 <div className="w-full flex flex-row items-start justify-start mt-24">
                     <div className="text-lg w-1/5 h-36 flex items-center justify-end">
                         <span className="mr-8">COMMENTS</span>
                     </div>
                     <div className="w-full flex flex-col gap-5">
-                        <div className="w-full h-36">
-                            <Box
-                                width={42}
-                                height={42}
-                                fitToParent
-                                className="text-md p-4"
-                            >
-                                Has the team produced an MVP (Minimum Viable
-                                Product) with working features? Are the core use
-                                cases of their solution implemented?
-                            </Box>
-                        </div>
+                        {comments.map((comment, index) => (
+                            <div className="w-full h-36" key={index}>
+                                <Box
+                                    width={42}
+                                    height={42}
+                                    fitToParent
+                                    className="text-md p-4"
+                                >
+                                    {comment}
+                                </Box>
+                            </div>
+                        ))}
+
                         <div className="w-full h-12">
                             <Button
                                 label="+ ADD ADDITIONAL COMMENTS"
@@ -231,38 +204,33 @@ const Rubric: React.FC<RubricProps> = ({
                             <div className="flex flex-col text-[#898BC3] gap-2">
                                 <span className="text-lg text-white">
                                     TOTAL SCORE:{" "}
-                                    {scoring["TECHNICALITY"] &&
-                                    scoring["BUSINESS"] &&
-                                    scoring["DESIGN + UX"] &&
-                                    scoring["PRESENTATION"]
-                                        ? scoring["TECHNICALITY"] +
-                                          scoring["BUSINESS"] +
-                                          scoring["DESIGN + UX"] +
-                                          scoring["PRESENTATION"]
+                                    {metrics.every(
+                                        (metric) =>
+                                            scoring[metric] !== undefined
+                                    )
+                                        ? metrics.reduce(
+                                              (total, metric) =>
+                                                  total + scoring[metric],
+                                              0
+                                          )
                                         : "N/A"}
                                 </span>
-                                <span>
-                                    Technicality:{" "}
-                                    {scoring["TECHNICALITY"] || "N/A"}
-                                </span>
-                                <span>
-                                    Business: {scoring["BUSINESS"] || "N/A"}
-                                </span>
-                                <span>
-                                    Design + UX:{" "}
-                                    {scoring["DESIGN + UX"] || "N/A"}
-                                </span>
-                                <span>
-                                    Presentation:{" "}
-                                    {scoring["PRESENTATION"] || "N/A"}
-                                </span>
+                                {metrics.map((metric) => (
+                                    <span key={metric}>
+                                        {`${metric}: ${
+                                            scoring[metric] || "N/A"
+                                        }`}
+                                    </span>
+                                ))}
                             </div>
                             <div className="flex flex-row gap-2">
                                 <Button
                                     label="CANCEL"
                                     Icon={null}
                                     className="hover:text-[#000000] bg-[#FF4262] border border-[#FF4262] text-[#FF4262] w-24 h-10 hover:bg-opacity-100 bg-opacity-0"
-                                    onClick={() => {confirmExit()}}
+                                    onClick={() => {
+                                        confirmExit();
+                                    }}
                                 />
                                 <Button
                                     label="SUBMIT SCORE"
@@ -275,6 +243,8 @@ const Rubric: React.FC<RubricProps> = ({
                     </div>
                 </div>
             </div>
+
+            {/* Confirm if you want to discard unsaved changes */}
             <div
                 className={`top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-black ${
                     modal
@@ -315,13 +285,17 @@ const Rubric: React.FC<RubricProps> = ({
                                 label="EXIT PAGE"
                                 Icon={null}
                                 className="hover:text-[#000000] bg-[#FF4262] border border-[#FF4262] text-[#FF4262] w-24 h-10 hover:bg-opacity-100 bg-opacity-0"
-                                onClick={() => {showRubric(false)}}
+                                onClick={() => {
+                                    showRubric(false);
+                                }}
                             />
                             <Button
                                 label="BACK TO GRADING"
                                 Icon={null}
                                 className="hover:text-[#000000] hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-44 h-10"
-                                onClick={() => {setModal(false)}}
+                                onClick={() => {
+                                    setModal(false);
+                                }}
                             />
                         </div>
                     </Box>
