@@ -5,13 +5,9 @@ import { metricMapping } from "@/constants/productx-scoringMetrics";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 
-interface Score {
-    N: string;
-}
-
 interface FeedbackEntry {
     judgeID: string;
-    scores: Record<string, Score>;
+    scores: Record<string, number>;
     feedback: string;
     createdAt: string;
 }
@@ -21,7 +17,7 @@ interface FeedbackEntry {
 const calculateAverageJudgeScore = (teamFeedback: FeedbackEntry[]) => {
     const totalScores = teamFeedback.reduce((sum, entry) => {
         const sumOfMetrics = Object.values(entry.scores).reduce(
-            (metricSum, score) => metricSum + parseInt(score.N),
+            (metricSum, score) => metricSum + score,
             0
         );
         return sum + sumOfMetrics;
@@ -38,12 +34,13 @@ const calculateAverageJudgeScore = (teamFeedback: FeedbackEntry[]) => {
 const transformFeedbackToBarChartData = (independentEntries: FeedbackEntry[]) => {
     const transformedData = independentEntries.map((entry, index) => {
         const totalScore = Object.values(entry.scores).reduce(
-            (sum, score) => sum + parseInt(score.N),
+            (sum, score) => sum + score,
             0
         );
 
         return {
-            label: index.toString(),
+            // TODO: Display Judge Name instead of ID
+            label: entry.judgeID,
             value: totalScore,
         };
     });
@@ -56,12 +53,12 @@ const findBestMetric = (independentEntries: FeedbackEntry[]) => {
 
     independentEntries.forEach(entry => {
         Object.entries(entry.scores).forEach(([metric, score]) => {
-            const scoreValue = parseInt(score.N);
-            
+            const scoreValue = score;
+
             if (!metricScores[metric]) {
                 metricScores[metric] = { totalScore: 0, count: 0 };
             }
-            
+
             metricScores[metric].totalScore += scoreValue;
             metricScores[metric].count += 1;
         });
@@ -72,7 +69,7 @@ const findBestMetric = (independentEntries: FeedbackEntry[]) => {
         averageScore: totalScore / count,
     }));
 
-    const bestMetric = metricAverages.reduce((best, current) => 
+    const bestMetric = metricAverages.reduce((best, current) =>
         current.averageScore > best.averageScore ? current : best
     );
 
@@ -145,7 +142,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                     {calculateAverageJudgeScore(independentEntries)}/25
                                 </header>
                                 <span className="text-sm -mt-2">
-                                    Raw Average Judge Score 
+                                    Raw Average Judge Score
                                 </span>
                             </Box>
                         </div>

@@ -5,6 +5,7 @@ import { useUserRegistration } from "@/pages/companion";
 import { Router } from "lucide-react";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import { useRouter } from "next/router";
+import { fetchBackend } from "@/lib/db";
 
 const ProductX2025 = () => {
   const { userRegistration } = useUserRegistration();
@@ -27,14 +28,16 @@ const ProductX2025 = () => {
     return <div>Loading...</div>;
   }
 
-  console.log(userRegistration);
-
   if (userRegistration?.isPartner) {
     return <Judges judgeID={userRegistration.id} />;
   }
 
-  // TODO: user entry
-  return <User teamID='???' />;
+  if (userRegistration?.teamID) {
+    return <User teamID={userRegistration.teamID} />;
+  }
+
+  // TODO: integrate Alex's team creation page if curr user has no team
+  // return <TeamCreation />
 };
 
 export default ProductX2025;
