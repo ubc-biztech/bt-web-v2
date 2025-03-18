@@ -165,7 +165,7 @@ const TeamCreation: React.FC = () => {
                             Welcome, <span className="text-[#898BC3]">Firstname Lastname</span>
                         </header>
                         <p className="font-ibm mb-8 text-sm text-white text-center">
-                            Looks like you haven't formed a team yet. Let&apos;s get you set up!
+                            Looks like you haven&apos;t formed a team yet. Let&apos;s get you set up!
                         </p>
                         <form onSubmit={handleTeamSubmit} className=" max-w-sm w-full">
                             <div className="font-ibm mb-4">
