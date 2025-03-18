@@ -42,7 +42,7 @@ const Rubric: React.FC<RubricProps> = ({
     report,
     showRubric,
 }) => {
-    const metrics = fetchMetrics(); // constants/productx-scoringMetrics.ts
+    const metrics = fetchMetrics; // it's an array, not a function
     const [scoring, setScoring] = useState<ScoringMetric>(
         mapGrades({ grades: report[0].scores }) || defaultScoring
     );

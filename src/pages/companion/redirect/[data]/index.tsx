@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import { fetchBackend } from "@/lib/db";
+import Link from "next/link";
 
 const CompanionRedirectPage = () => {
   const router = useRouter();
@@ -74,9 +75,9 @@ const CompanionRedirectPage = () => {
       <div className='flex flex-col justify-center items-center min-h-screen bg-[#020319] p-5'>
         <div className='text-xl font-ibm text-white text-center'>{error}</div>
         <div className='ml-6'>
-          <a href='/companion' className='text-[#4CC8BD] hover:text-[#7EEAE0] underline font-ibm text-sm transition-colors'>
-            Return to companion page
-          </a>
+          <Link href='/companion' className='text-[#4CC8BD] hover:text-[#7EEAE0] underline font-ibm text-sm transition-colors'>
+            Return to Home
+          </Link>
         </div>
       </div>
     );
