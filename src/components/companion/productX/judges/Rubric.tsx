@@ -1,6 +1,8 @@
 import Box from "@/components/ui/productX/box";
 import Button from "@/components/ui/productX/button";
 import { fetchRubricContents, fetchMetrics, ScoringMetric, defaultScoring } from "@/constants/productx-scoringMetrics";
+import { fetchBackend } from "@/lib/db";
+import { useUserRegistration } from "@/pages/companion";
 import { TriangleAlert, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -9,6 +11,7 @@ const judgingRatings = ["1 - Poor", "2 - Fair", "3 - Average", "4 - Good", "5 - 
 interface RubricProps {
   round: string;
   team: string;
+  teamID: string;
   gradedStatus: string;
   lastEdited: string;
   grades: ScoringMetric;
@@ -16,11 +19,13 @@ interface RubricProps {
   showRubric: (arg0: boolean) => void;
 }
 
-const Rubric: React.FC<RubricProps> = ({ round, team, gradedStatus, lastEdited, grades, comments, showRubric }) => {
+const Rubric: React.FC<RubricProps> = ({ round, team, teamID, gradedStatus, lastEdited, grades, comments, showRubric }) => {
   const metrics = fetchMetrics; // constants/productx-scoringMetrics.ts
   const [modal, setModal] = useState(false);
   const [scoring, setScoring] = useState<ScoringMetric>(grades || defaultScoring);
   const judgingRubric = fetchRubricContents(metrics);
+
+  const { userRegistration } = useUserRegistration();
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
@@ -37,8 +42,32 @@ const Rubric: React.FC<RubricProps> = ({ round, team, gradedStatus, lastEdited, 
     }
   }; // confirm exit if there are unsaved changes
 
-  const handleSubmitScore = () => {
-    console.log(scoring);
+  const handleSubmitScore = async () => {
+    const scores: Record<string, number> = {};
+    for (let i = 0; i < fetchMetrics.length; i++) {
+      scores[`metric${i + 1}`] = scoring[fetchMetrics[i]];
+    }
+
+    const data = {
+      teamID,
+      round: 1,
+      eventID: "productx",
+      year: 2025,
+      judgeID: userRegistration?.id || "",
+      feedback: "this is a feedback",
+      scores
+    };
+
+    console.log(data);
+
+    try {
+      await fetchBackend({ endpoint: "/team/judge/feedback", method: "POST", data, authenticatedCall: false });
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+
+    console.log("great success!");
   };
 
   return (

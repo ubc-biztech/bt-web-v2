@@ -27,8 +27,6 @@ const ProductX2025 = () => {
     return <div>Loading...</div>;
   }
 
-  console.log(userRegistration);
-
   if (userRegistration?.isPartner) {
     return <Judges judgeID={userRegistration.id} />;
   }

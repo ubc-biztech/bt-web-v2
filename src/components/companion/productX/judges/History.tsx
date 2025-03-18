@@ -65,6 +65,7 @@ type Team = {
     round: string;
     judgeID: string;
     scores: Record<string, Score>;
+    teamID: string;
     teamName: string;
     feedback: string;
     createdAt: string;
