@@ -19,8 +19,8 @@ const ProductX2025 = () => {
     }
 
     const { query } = router;
-    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : "";
-    router.push(`/${redirectParam}`);
+    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : undefined;
+    redirectParam && router.push(`/${redirectParam}`);
   }, [router.isReady]);
 
   if (!userRegistration) {

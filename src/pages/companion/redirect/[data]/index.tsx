@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import { fetchBackend } from "@/lib/db";
 
@@ -25,6 +24,7 @@ const CompanionRedirectPage = () => {
 
       if (!teamID) {
         setError("You currently have no team assigned, or need to sign in again");
+        setLoading(false);
         return;
       }
 
@@ -62,38 +62,30 @@ const CompanionRedirectPage = () => {
 
   if (loading) {
     return (
-      <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh' flexDirection='column'>
-        <CircularProgress />
-        <Typography variant='body1' sx={{ mt: 2 }}>
-          Updating judging information...
-        </Typography>
-      </Box>
+      <div className='flex justify-center items-center min-h-screen flex-col bg-[#020319]'>
+        <div className='animate-spin w-10 h-10 border-4 border-[#41437D] border-t-[#4CC8BD] rounded-full'></div>
+        <p className='mt-4 text-[#ADAFE4] font-ibm'>Updating judging information...</p>
+      </div>
     );
   }
 
   if (error.length > 0) {
     return (
-      <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh'>
-        <Typography variant='h6' color='error'>
-          {error}
-        </Typography>
-        <Box sx={{ mt: 3 }}>
-          <Typography variant='body2'>
-            <a href='/companion' style={{ color: "#1976d2", textDecoration: "underline" }}>
-              Return to companion page
-            </a>
-          </Typography>
-        </Box>
-      </Box>
+      <div className='flex flex-col justify-center items-center min-h-screen bg-[#020319] p-5'>
+        <div className='text-xl font-ibm text-white text-center'>{error}</div>
+        <div className='ml-6'>
+          <a href='/companion' className='text-[#4CC8BD] hover:text-[#7EEAE0] underline font-ibm text-sm transition-colors'>
+            Return to companion page
+          </a>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box display='flex' justifyContent='center' alignItems='center' minHeight='100vh'>
-      <Typography variant='h6' className='text-white'>
-        Request processed successfully!
-      </Typography>
-    </Box>
+    <div className='flex justify-center items-center min-h-screen bg-[#020319]'>
+      <div className='text-xl font-ibm text-white'>Request processed successfully!</div>
+    </div>
   );
 };
 

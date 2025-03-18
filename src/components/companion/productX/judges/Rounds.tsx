@@ -104,6 +104,7 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                     method: "GET",
                     authenticatedCall: false
                 });
+                
 
                 if (response?.currentTeamName) {
                     setCurrentTeam(response.currentTeamName);
