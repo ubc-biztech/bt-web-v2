@@ -73,8 +73,8 @@ const Rounds: React.FC<RoundsProps> = ({ data }) => {
     const [currentRound, setCurrentRound] = useState(rounds[0]);
     const [showRubric, setShowRubric] = useState(false);
     const [selectedTeam, setSelectedTeam] = useState({ team: '', date: '' });
-    const [noData, setNoData] = useState(true);
-//data.length===0
+    const [noData, setNoData] = useState(data.length===0);
+
     useEffect(() => {
         setCurrentRound(rounds.filter((round) => round.selected)[0]);
     }, []);
