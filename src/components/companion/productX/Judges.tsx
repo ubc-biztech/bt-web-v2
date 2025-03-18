@@ -1,104 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { HistoryIcon, PanelsTopLeft } from "lucide-react";
 import History from "./judges/History";
 import Rounds from "./judges/Rounds";
-
-// TODO : replace this with actual data from api req {team/judge/feedback/{judgeID}}
-const sampleJudgeFeedback = 
-{
-    message: "Scores retrieved successfully",
-    scores: {
-        "1": [
-            {
-                round: "1",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "1" },
-                    metric2: { N: "2" },
-                    metric3: { N: "3" },
-                    metric4: { N: "4" },
-                    metric5: { N: "5" },
-                },
-                teamName: "Team 1",
-                feedback:
-                    "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T10:30:00Z",
-            },
-            {
-                round: "1",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "3" },
-                    metric2: { N: "2" },
-                    metric3: { N: "5" },
-                    metric4: { N: "4" },
-                    metric5: { N: "5" },
-                },
-                teamName: "Team 2",
-                feedback: "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T10:45:00Z",
-            },
-            {
-                round: "1",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "5" },
-                    metric2: { N: "2" },
-                    metric3: { N: "3" },
-                    metric4: { N: "4" },
-                    metric5: { N: "5" },
-                },
-                teamName: "Team 3",
-                feedback: "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T11:00:00Z",
-            },
-            {
-                round: "1",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "2" },
-                    metric2: { N: "2" },
-                    metric3: { N: "3" },
-                    metric4: { N: "2" },
-                    metric5: { N: "1" },
-                },
-                teamName: "Team 4",
-                feedback: "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T11:00:00Z",
-            },
-        ],
-        "2": [
-            {
-                round: "1",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "3" },
-                    metric2: { N: "2" },
-                    metric3: { N: "5" },
-                    metric4: { N: "4" },
-                    metric5: { N: "5" },
-                },
-                teamName: "Team 2",
-                feedback: "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T10:45:00Z",
-            },
-            {
-                round: "2",
-                judgeID: "judge123",
-                scores:     {
-                    metric1: { N: "0" },
-                    metric2: { N: "2" },
-                    metric3: { N: "3" },
-                    metric4: { N: "4" },
-                    metric5: { N: "5" },
-                },
-                teamName: "Team 3",
-                feedback: "Great presentation, well researched. Could use more work on the usability.",
-                createdAt: "2024-03-17T11:00:00Z",
-            },
-        ],
-    },
-};
+import { fetchBackend } from "@/lib/db";
+import { useUserRegistration } from "@/pages/companion";
 
 interface JudgesProps {
     judgeID: string;
@@ -106,8 +11,30 @@ interface JudgesProps {
 
 const Judges: React.FC<JudgesProps> = ({ judgeID }) => {
     const [page, setPage] = useState("rounds");
+    const [teams, setTeams] = useState([])
 
-    // TODO : Fetch judge's past feedback {GET /judge/{judge_id}/submissions}
+    const { userRegistration } = useUserRegistration();
+    useEffect(() => {
+        const fetchTeamsForJudge = async () => {
+            try {
+                const response = await fetchBackend({
+                    endpoint: `/team/judge/feedback/${userRegistration?.id}`,
+                    method: "GET",
+                    authenticatedCall: false
+                });
+    
+                if (response && response.scores) {
+                    setTeams(response.scores);
+                }
+            } catch (error) {
+                console.error("Error fetching teams for judge:", error);
+            }
+        };
+    
+        if (userRegistration?.id) {
+            fetchTeamsForJudge();
+        }
+    }, [userRegistration?.id]);
 
     return (
         <div className="w-full px-10">
@@ -151,10 +78,10 @@ const Judges: React.FC<JudgesProps> = ({ judgeID }) => {
                 {/* Conditionally render pages */}
 
                 {page === "history" && (
-                    <History feedback={sampleJudgeFeedback.scores} />
+                    <History feedback={teams} />
                 )}
                 {page === "rounds" && (
-                    <Rounds feedback={sampleJudgeFeedback.scores} />
+                    <Rounds feedback={teams} />
                 )}
             </div>
         </div>

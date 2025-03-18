@@ -1,25 +1,26 @@
 import React, { useState } from "react";
 import Judges from "../productX/Judges";
 import User from "../productX/User";
+import { useUserRegistration } from "@/pages/companion";
 
 const ProductX2025 = () => {
-    const [isJudge, setIsJudge] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const { userRegistration } = useUserRegistration();
 
-    // TODO : Check if judge with email === localStorage.getItem("companionEmail") exists, update loading to false
+  if (!userRegistration) {
+    return <div>Loading...</div>;
+  }
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
+  console.log(userRegistration)
 
-    if (isJudge) {
-        return (
-          <Judges judgeID="???"/>
-        );
-    }
-    return (
-      <User teamID="???" />
-    )
+
+  if (userRegistration?.isPartner) {
+    return <Judges judgeID={userRegistration.id} />;
+  }
+
+  // TODO: user entry
+  return (
+    <User teamID="???" />
+  )
 };
 
 export default ProductX2025;

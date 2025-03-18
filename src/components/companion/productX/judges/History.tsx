@@ -119,7 +119,7 @@ const History: React.FC<HistoryProps> = ({ feedback }) => {
                                                         formattedDateTime,
                                                     round: `ROUND ${round}`,
                                                     grades: team.scores,
-                                                    comments: [team.feedback],
+                                                    comments: Object.values(team.feedback || {}).join(", "),
                                                 }}
                                                 setTeamData={setTeamData}
                                                 showRubric={setShowRubric}
@@ -141,7 +141,8 @@ const History: React.FC<HistoryProps> = ({ feedback }) => {
                         isGraded(TeamData.grades) ? "Graded" : "Ungraded"
                     }
                     grades={mapGrades(TeamData)}
-                    comments={TeamData.comments}
+                    comments={Array.isArray(TeamData.comments) ? TeamData.comments : [String(TeamData.comments)]}
+
                     showRubric={setShowRubric}
                 />
             )}

@@ -6,14 +6,10 @@ import NavBarContainer from './navigation/NavBarContainer';
 import { AnimatedBorder } from '@/components/ui/animated-border';
 import Link from 'next/link';
 import { ComponentType } from "react";
+import { Registration } from '@/pages/companion';
+import { useUserRegistration } from '@/pages/companion';
 
 interface CompanionHomeProps {
-  isPartner: boolean | undefined,
-  userName: string;
-  connectionCount: number;
-  badgeCount: number;
-  badges: Badge[] | null;
-  connections: Connection[];
   ChildComponent: ComponentType<any>;
 }
 
@@ -88,15 +84,10 @@ const WrappedBanner = () => {
 };
 
 const CompanionHome: React.FC<CompanionHomeProps> = ({
-  isPartner,
-  userName,
-  connectionCount,
-  badgeCount,
-  badges,
-  connections,
   ChildComponent
 }) => {
 
+  const { userRegistration } = useUserRegistration();
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -110,7 +101,7 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
   };
 
   return (
-    <NavBarContainer isPartner={isPartner} userName={userName}>
+    <NavBarContainer isPartner={userRegistration?.isPartner} userName={`${userRegistration?.basicInformation?.fname} ${userRegistration?.basicInformation?.lname}`}>
       <ChildComponent />
     </NavBarContainer>
   );

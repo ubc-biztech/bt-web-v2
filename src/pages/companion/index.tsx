@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
@@ -17,7 +17,7 @@ import {
 import { Badge } from "./badges";
 import { Loader2 } from "lucide-react";
 
-interface Registration {
+export interface Registration {
     id: string;
     fname: string;
     points?: number;
@@ -33,7 +33,22 @@ interface EventData {
     [key: string]: any;
 }
 
+interface UserRegistrationContextType {
+    userRegistration: Registration | null;
+}
+
+export const UserRegistrationContext = createContext<UserRegistrationContextType | null>(null);
+
+export const useUserRegistration = () => {
+    const context = useContext(UserRegistrationContext);
+    if (!context) {
+        throw new Error("useUserRegistration must be used within a UserRegistrationProvider");
+    }
+    return context;
+};
+
 const Companion = () => {
+    // Removed redundant UserRegistrationContext definition
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [pageError, setPageError] = useState("");
@@ -422,17 +437,9 @@ const Companion = () => {
     }
 
     return (
-        <CompanionHome
-            isPartner={userRegistration.isPartner}
-            userName={
-                `${userRegistration.basicInformation?.fname} ${userRegistration.basicInformation?.lname}`
-            }
-            connectionCount={connections?.length}
-            badgeCount={completedBadges}
-            badges={badges}
-            connections={connections}
-            ChildComponent={currentEvent.ChildComponent}
-        />
+        <UserRegistrationContext.Provider value={{ userRegistration }}>
+            <CompanionHome ChildComponent={currentEvent.ChildComponent} />
+        </UserRegistrationContext.Provider>
     );
 };
 

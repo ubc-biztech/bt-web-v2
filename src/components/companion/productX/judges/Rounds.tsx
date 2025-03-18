@@ -8,6 +8,8 @@ import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
 import BizBot from "@/assets/2025/productx/bizbotxx.png";
 import Image from "next/image";
 import { defaultScoring, mapGrades } from "@/constants/productx-scoringMetrics";
+import { fetchBackend } from "@/lib/db";
+import { useUserRegistration } from "@/pages/companion";
 
 interface ProjectBoxProps {
     res: {
@@ -84,12 +86,37 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
     });
 
     const [noData, setNoData] = useState(false);
+    const [currentTeam, setCurrentTeam] = useState(null);
+    const { userRegistration } = useUserRegistration();
 
     useEffect(() => {
         setCurrentRound(
             Math.max(...Object.keys(feedback).map((key) => parseInt(key, 10)))
         );
     }, [feedback]);
+
+
+    useEffect(() => {
+        const fetchCurrentTeam = async () => {
+            try {
+                const response = await fetchBackend({
+                    endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
+                    method: "GET",
+                    authenticatedCall: false
+                });
+
+                if (response?.currentTeamName) {
+                    setCurrentTeam(response.currentTeamName);
+                }
+            } catch (error) {
+                console.error("Error fetching current team:", error);
+            }
+        };
+
+        if (userRegistration?.id) {
+            fetchCurrentTeam();
+        }
+    }, [userRegistration?.id]);
 
     const isGraded = (grades: Record<string, { N: string }>) => {
         return Object.values(grades).every((grade) => Number(grade.N) !== 0);
@@ -113,12 +140,11 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                                 }}
                             >
                                 <span
-                                    className={`text-md ${
-                                        round ===
+                                    className={`text-md ${round ===
                                         currentRound.toString()
-                                            ? "text-white"
-                                            : "text-[#656795]"
-                                    }`}
+                                        ? "text-white"
+                                        : "text-[#656795]"
+                                        }`}
                                 >
                                     ROUND {round}
                                     {feedback[round] === 2 && "(FINAL)"}
@@ -128,115 +154,95 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                     ))}
                 </div>
                 {noData &&
-                <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
-                <div className=" relative w-[70%] h-[70%]">
-                  <Image
-                    src={BizBot} 
-                    alt="BizBot" 
-                    className="object-contain"
-                    fill
-                  />
-                </div>
-                <header className="text-lg font-ibm">
-                  NO ENTRIES FOUND
-                </header>
-                <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
-                    &quot;When a team begins their presentation for this round, you&apos;ll see an option to begin scoring their project.&quot;
-                </span>
-              </div>
+                    <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
+                        <div className=" relative w-[70%] h-[70%]">
+                            <Image
+                                src={BizBot}
+                                alt="BizBot"
+                                className="object-contain"
+                                fill
+                            />
+                        </div>
+                        <header className="text-lg font-ibm">
+                            NO ENTRIES FOUND
+                        </header>
+                        <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
+                            &quot;When a team begins their presentation for this round, you&apos;ll see an option to begin scoring their project.&quot;
+                        </span>
+                    </div>
                 }
                 {!noData &&
-                <div className="w-full flex flex-col gap-5">
-                    {Object.keys(feedback).map(
-                        (round: string, index: number) => {
-                            return feedback[round].map(
-                                (team: Team, sIndex: number) => {
-                                    const hasZeroScore = Object.values(
-                                        team.scores
-                                    ).some(
-                                        (score: Score) =>
-                                            parseInt(score.N) === 0
-                                    );
+                    <div className="w-full flex flex-col gap-5">
+                        {currentTeam && (
+                            <ProjectBox
+                                res={{
+                                    team: currentTeam,
+                                    date: `CURRENTLY PRESENTING`,
+                                    round: `ROUND ${currentRound}`,
+                                    grades: [],
+                                    comments: [],
+                                }}
+                                presenting={true}
+                                showRubric={setShowRubric}
+                                setSelectedTeam={setTeamData}
+                            />
+                        )}
 
-                                    if (hasZeroScore) {
-                                        return (
-                                            <ProjectBox
-                                                key={index * 10 + sIndex}
-                                                res={{
-                                                    team: team.teamName,
-                                                    date: "CURRENTLY UNGRADED",
-                                                    round: `ROUND ${currentRound}`,
-                                                    grades: team.scores,
-                                                    comments: [team.feedback],
-                                                }}
-                                                presenting={true}
-                                                showRubric={setShowRubric}
-                                                setSelectedTeam={setTeamData}
-                                            />
+                        <div className="my-4 text-[#3D3E63] flex flex-row items-center">
+                            <span>RECENT HISTORY</span>
+                            <figure className="ml-2 w-56 h-[1px] bg-[#3D3E63]" />
+                        </div>
+
+                        {Object.keys(feedback).map(
+                            (round: string, index: number) => {
+                                return feedback[round].map(
+                                    (team: Team, sIndex: number) => {
+                                        const date = new Date(team.createdAt);
+                                        const formattedDateTime = `${date
+                                            .toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                            })
+                                            .toUpperCase()} ${date.toLocaleTimeString(
+                                                "en-US",
+                                                {
+                                                    hour: "numeric",
+                                                    minute: "2-digit",
+                                                    hour12: true,
+                                                }
+                                            )}`;
+
+                                        const scored = Object.values(
+                                            team.scores
+                                        ).every(
+                                            (score: Score) =>
+                                                parseInt(score.N) != 0
                                         );
-                                    }
 
-                                    return null;
-                                }
-                            );
-                        }
-                    )}
-
-                    <div className="my-4 text-[#3D3E63] flex flex-row items-center">
-                        <span>RECENT HISTORY</span>
-                        <figure className="ml-2 w-56 h-[1px] bg-[#3D3E63]" />
-                    </div>
-
-                    {Object.keys(feedback).map(
-                        (round: string, index: number) => {
-                            return feedback[round].map(
-                                (team: Team, sIndex: number) => {
-                                    const date = new Date(team.createdAt);
-                                    const formattedDateTime = `${date
-                                        .toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                        })
-                                        .toUpperCase()} ${date.toLocaleTimeString(
-                                        "en-US",
-                                        {
-                                            hour: "numeric",
-                                            minute: "2-digit",
-                                            hour12: true,
+                                        if (scored) {
+                                            return (
+                                                <ProjectBox
+                                                    key={index * 10 + sIndex}
+                                                    res={{
+                                                        team: team.teamName,
+                                                        date: `COMPLETED ${formattedDateTime}`,
+                                                        round: `ROUND ${currentRound}`,
+                                                        grades: team.scores,
+                                                        comments: Object.values(team.feedback || {}).join(", "),
+                                                    }}
+                                                    presenting={false}
+                                                    showRubric={setShowRubric}
+                                                    setSelectedTeam={setTeamData}
+                                                />
+                                            );
                                         }
-                                    )}`;
-                                    
-                                    const scored = Object.values(
-                                        team.scores
-                                    ).every(
-                                        (score: Score) =>
-                                            parseInt(score.N) != 0
-                                    );
 
-                                    if (scored) {
-                                        return (
-                                            <ProjectBox
-                                                key={index * 10 + sIndex}
-                                                res={{
-                                                    team: team.teamName,
-                                                    date: `COMPLETED ${formattedDateTime}`,
-                                                    round: `ROUND ${currentRound}`,
-                                                    grades: team.scores,
-                                                    comments: [team.feedback],
-                                                }}
-                                                presenting={false}
-                                                showRubric={setShowRubric}
-                                                setSelectedTeam={setTeamData}
-                                            />
-                                        );
+                                        return null; // Return null if no JSX should be rendered
                                     }
-
-                                    return null; // Return null if no JSX should be rendered
-                                }
-                            );
-                        }
-                    )}
-                </div>
+                                );
+                            }
+                        )}
+                    </div>
                 }
             </FadeWrapper>
             {showRubric && (
@@ -246,7 +252,7 @@ const Rounds: React.FC<RoundsProps> = ({ feedback }) => {
                     lastEdited={TeamData.date}
                     gradedStatus={isGraded(TeamData.grades) ? "Graded" : "Not Graded"}
                     grades={mapGrades(TeamData)}
-                    comments={TeamData.comments}
+                    comments={Array.isArray(TeamData.comments) ? TeamData.comments : [String(TeamData.comments)]}
                     showRubric={setShowRubric}
                 />
             )}
