@@ -29,8 +29,8 @@ const SuccessPage = () => {
                             <h1 className="text-white text-4xl font-bold mb-4">We&apos;ve got your application!</h1>
 
                             <div className="rounded-lg p-6 mb-8">
-                                <p className="mb-2">Thanks for applying! We&apos;ll be reviewing your application soon and will email you soon about your application status!</p>
-                                <p className="mb-4">Click here to view your application status.</p>
+                                <p className="mb-2 text-white">Thanks for applying! We&apos;ll be reviewing your application soon and will email you soon about your application status!</p>
+                                <p className="mb-4 text-white">Click here to view your application status.</p>
                             </div>
                         </>
 

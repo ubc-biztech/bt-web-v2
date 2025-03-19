@@ -40,7 +40,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                         <div className="space-y-3">
                             {(options as string[]).map((option: string, optionIndex: number) => (
                                 <div key={optionIndex} className="flex items-center justify-between">
-                                    <div className="flex-1 p-2 border rounded-md bg-muted">
+                                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
                                         {option}
                                     </div>
                                     <Button
@@ -65,7 +65,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                         <div className="space-y-3">
                             {(options as string[]).map((option: string, optionIndex: number) => (
                                 <div key={optionIndex} className="flex items-center space-x-3">
-                                    <div className="flex-1 p-2 border rounded-md bg-muted">
+                                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
                                         {option}
                                     </div>
                                     <Button
@@ -87,7 +87,13 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                     <div className="space-y-4">
                         <FormLabel>File URL</FormLabel>
                         <FormControl>
-                            <Input {...register(`customQuestions.${index}.imageUrl`)} />
+                            <Input 
+                                type="file" 
+                                className="block w-full h-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                file:border-0 file:text-sm file:font-semibold
+                                cursor-pointer"
+                                {...register(`customQuestions.${index}.imageUrl`)} />
                         </FormControl>
                     </div>
                 );
@@ -134,7 +140,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                             onKeyPress={handleAddOption}
                         />
                     </FormControl>
-                    <FormDescription>Press Enter to add an option</FormDescription>
+                    <FormDescription>Press Enter to add an option. {questionType === 'CHECKBOX' ? "To use other option, type 'other'." : ""}</FormDescription>
                 </div>
             )}
             <FormMessage />

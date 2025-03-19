@@ -132,7 +132,7 @@ export const EventForm: React.FC<EventFormProps> = ({ initialData, onSubmit }) =
                                             <h3 className="text-white font-bold mt-4">{form.watch('eventName') || 'Event Name'}</h3>
 
                                             {/* Event Description */}
-                                            <p className="text-gray-300 whitespace-pre-line">{form.watch('description') || 'Event description will appear here.'}</p>
+                                            <p className="text-biztech-green whitespace-pre-line">{form.watch('description') || 'Event description will appear here.'}</p>
 
                                             <FormField
                                                 name="previewFirstName"

@@ -1,20 +1,39 @@
 import BiztechLogo from "../../../public/assets/biztech_logo.svg";
 import Image from "next/image";
 import NavbarTab from "./NavbarTab";
-import { admin, defaultUser, logout } from "../../constants/tabs";
+import { admin, defaultUser, logout, signin } from "../../constants/tabs";
 import HamburgerMenu from "../../../public/assets/icons/hamburger_menu.svg";
 import { isMobile } from "@/util/isMobile";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-
-const isAdmin = true; // TO DO: retrieve this data
+import { AuthError, getCurrentUser } from "@aws-amplify/auth";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(true);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
+
+    const fetchUserDetails = async () => {
+      try {
+        const { signInDetails } = await getCurrentUser();
+        const email = signInDetails && signInDetails.loginId ? signInDetails.loginId : "";
+        const isAdmin = email.substring(email.indexOf("@") + 1, email.length) === "ubcbiztech.com";
+        setIsAdmin(isAdmin);
+        setIsSignedIn(true);
+      } catch (e) {
+        if (e instanceof AuthError && e.name === "UserUnAuthenticatedException") {
+          setIsSignedIn(false);
+        } else {
+          console.error(e);
+        }
+      }
+    };
+
+    fetchUserDetails();
   }, []);
 
   return (
@@ -53,12 +72,7 @@ export default function Navbar() {
           >
             <div>
               <div className="items-center flex gap-2">
-                <Image
-                  src={BiztechLogo}
-                  alt="BizTech Logo"
-                  width={40}
-                  height={40}
-                />
+                <Image src={BiztechLogo} alt="BizTech Logo" width={40} height={40} />
                 <h5 className="font-600 text-white">UBC BizTech</h5>
               </div>
               <div className="w-full h-px bg-navbar-tab-hover-bg mb-4 mt-4" />
@@ -70,11 +84,11 @@ export default function Navbar() {
                   <div className="w-full h-px bg-navbar-tab-hover-bg mb-4 mt-4" />
                 </>
               )}
-              {defaultUser(isAdmin).map((navbarItem, index) => (
+              {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
                 <NavbarTab key={index} navbarItem={navbarItem} />
               ))}
             </div>
-            <NavbarTab navbarItem={logout} />
+            {isSignedIn ? <NavbarTab navbarItem={logout} /> : <NavbarTab navbarItem={signin}/>}
           </motion.div>
         </div>
       )}
