@@ -78,12 +78,14 @@ const User: React.FC<UserProps> = ({ teamID }) => {
     const [page, setPage] = useState("dashboard");
     const { userRegistration } = useUserRegistration();
     // TODO: Revisit and see if there is more optimized approach
-    const [feedback, setFeedback] = useState(() => {
-        return JSON.parse(localStorage.getItem("feedback") || "null");
-    });
-    const [teamInfo, setTeamInfo] = useState(() => {
-        return JSON.parse(localStorage.getItem("teamInfo") || "null");
-    });
+    // const [feedback, setFeedback] = useState(() => {
+    //     return JSON.parse(localStorage.getItem("feedback") || "null");
+    // });
+    // const [teamInfo, setTeamInfo] = useState(() => {
+    //     return JSON.parse(localStorage.getItem("teamInfo") || "null");
+    // });
+    const [teamInfo, setTeamInfo] = useState(null)
+    const [feedback, setFeedback] = useState(null)
     const teamMembers = teamInfo?.memberIDs || [];
     const [teamMember1, teamMember2, teamMember3, teamMember4] = [
         teamMembers[0] || null,
@@ -146,58 +148,65 @@ const User: React.FC<UserProps> = ({ teamID }) => {
     return (
         <div className="w-full px-10">
             <div className="flex flex-col">
-                <header className="mt-16 text-lg font-ibm">
-                    {teamName} - OVERVIEW
-                </header>
-                <div className="border-b-2 border-[#41437D] mt-6 flex flex-row">
-                    <div
-                        className={`w-24 h-10 border-b-2 ${page === "dashboard"
-                            ? "border-[#4CC8BD] text-[#4CC8BD]"
-                            : "border-[#41437D] text-[#41437D]"
-                            } -mb-[2px] flex flex-row items-center justify-center gap-1 cursor-pointer`}
-                        onClick={() => {
-                            setPage("dashboard");
-                        }}
-                    >
-                        <PanelsTopLeft
-                            size={16}
-                            color={page === "dashboard" ? "#4CC8BD" : "#41437D"}
-                        />
-                        Dashboard
+                {/* Show loading or placeholder until feedback and teamInfo are available */}
+                {feedback === null || teamName === undefined ? (
+                    <div className="mt-16 text-lg font-ibm text-center">
+                        You have no feedback at this moment
                     </div>
-                    <div
-                        className={`w-24 h-10 border-b-2 ${page === "scores"
-                            ? "border-[#4CC8BD] text-[#4CC8BD]"
-                            : "border-[#41437D] text-[#41437D]"
-                            } -mb-[2px] flex flex-row items-center justify-center gap-1 cursor-pointer`}
-                        onClick={() => setPage("scores")}
-                    >
-                        <BadgeCheck
-                            size={16}
-                            color={page === "scores" ? "#4CC8BD" : "#41437D"}
-                        />
-                        Scores
-                    </div>
-                </div>
-
-                {/* Conditionally render pages */}
-
-                {page === "dashboard" && (
-                    <Dashboard
-                        projectName={"Product X"}
-                        teamMember1={teamMember1}
-                        teamMember2={teamMember2}
-                        teamMember3={teamMember3}
-                        teamMember4={teamMember4}
-                        feedback={feedback}
-                    />
-                )}
-                {page === "scores" && (
-                    <Scores teamName={teamName} feedback={feedback} />
+                ) : (
+                    <>
+                        <header className="mt-16 text-lg font-ibm">
+                            {teamName} - OVERVIEW
+                        </header>
+                        <div className="border-b-2 border-[#41437D] mt-6 flex flex-row">
+                            <div
+                                className={`w-24 h-10 border-b-2 ${page === "dashboard"
+                                    ? "border-[#4CC8BD] text-[#4CC8BD]"
+                                    : "border-[#41437D] text-[#41437D]"
+                                    } -mb-[2px] flex flex-row items-center justify-center gap-1 cursor-pointer`}
+                                onClick={() => setPage("dashboard")}
+                            >
+                                <PanelsTopLeft
+                                    size={16}
+                                    color={page === "dashboard" ? "#4CC8BD" : "#41437D"}
+                                />
+                                Dashboard
+                            </div>
+                            <div
+                                className={`w-24 h-10 border-b-2 ${page === "scores"
+                                    ? "border-[#4CC8BD] text-[#4CC8BD]"
+                                    : "border-[#41437D] text-[#41437D]"
+                                    } -mb-[2px] flex flex-row items-center justify-center gap-1 cursor-pointer`}
+                                onClick={() => setPage("scores")}
+                            >
+                                <BadgeCheck
+                                    size={16}
+                                    color={page === "scores" ? "#4CC8BD" : "#41437D"}
+                                />
+                                Scores
+                            </div>
+                        </div>
+    
+                        {/* Conditionally render pages */}
+                        {page === "dashboard" && (
+                            <Dashboard
+                                projectName={"Product X"}
+                                teamMember1={teamMember1}
+                                teamMember2={teamMember2}
+                                teamMember3={teamMember3}
+                                teamMember4={teamMember4}
+                                feedback={feedback}
+                            />
+                        )}
+                        {page === "scores" && (
+                            <Scores teamName={teamName} feedback={feedback} />
+                        )}
+                    </>
                 )}
             </div>
         </div>
     );
+    
 };
 
 export default User;
