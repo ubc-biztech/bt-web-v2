@@ -7,11 +7,13 @@ import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserRegistration } from '@/pages/companion';
 import { fetchBackend } from '@/lib/db';
+import User from '../User';
 
 const TeamCreation: React.FC = () => {
     const { userRegistration } = useUserRegistration();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [teamID, setTeamID] = useState<string | null>(null);
     const [teamName, setTeamName] = useState("");
     const [teamMembers, setTeamMembers] = useState({
         member1: userRegistration?.id || "",
@@ -94,7 +96,7 @@ const TeamCreation: React.FC = () => {
             console.log("Response:", response);
 
             if (response?.message === "Successfully created new team.") {
-                router.push("/companion");
+                setTeamID(response?.response.id);
             } else {
                 console.error("Error creating team:", response);
             }
@@ -119,6 +121,9 @@ const TeamCreation: React.FC = () => {
 
     return (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#020319] text-white">
+            {teamID ? (
+            <User teamID={teamID} />
+        ) : (
             <AnimatePresence mode="wait">
                 {isLoading && (
                     <motion.div
@@ -256,6 +261,7 @@ const TeamCreation: React.FC = () => {
                     </>
                 )}
             </AnimatePresence>
+        )}
         </div>
     );
 };
