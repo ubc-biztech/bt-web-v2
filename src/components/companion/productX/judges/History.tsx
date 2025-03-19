@@ -1,85 +1,25 @@
-import Box from "@/components/ui/productX/box";
-import Button from "@/components/ui/productX/button";
-import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
-import { Pen } from "lucide-react";
+import FadeWrapper from "../ui/FadeAnimationWrapper";
+import ProjectGrid from "../ui/ProjectGrid";
 import Rubric from "./Rubric";
 import { useState } from "react";
-import { defaultScoring } from "@/constants/productx-scoringMetrics";
-import { mapGrades } from "@/constants/productx-scoringMetrics";
-
-interface ProjectBoxProps {
-    res: {
-        team: string;
-        date: string;
-        round: string;
-        grades: any;
-        comments: any;
-    };
-    setTeamData: (arg0: any) => void;
-    showRubric: (arg0: boolean) => void;
-}
-
-const ProjectBox: React.FC<ProjectBoxProps> = ({
-    res,
-    setTeamData,
-    showRubric,
-}) => {
-    return (
-        <>
-            <div className="w-full h-48">
-                <Box
-                    width={100}
-                    height={20}
-                    fitToParent={true}
-                    className={`flex flex-col justify-center pl-5`}
-                >
-                    <div className="flex flex-col gap-2">
-                        <header className="text-md">{res.team}</header>
-                        <span className="text-sm text-[#898BC3]">
-                            {res.date}
-                        </span>
-                    </div>
-
-                    <Button
-                        label="EDIT SCORE"
-                        Icon={Pen}
-                        className={`hover:bg-[#FFFFFF] hover:text-[#000000] bg-[#41437D] text-[#FFFFFF] w-56 h-10 mt-5`}
-                        onClick={() => {
-                            setTeamData(res);
-                            showRubric(true);
-                        }}
-                    />
-                </Box>
-            </div>
-        </>
-    );
-};
+import { TeamFeedback } from "../types";
+import { formatDate } from "../constants/formatDate";
 
 interface HistoryProps {
-    feedback: any;
+    records: Record<string, TeamFeedback[]> | null;
 }
 
-type Score = { N: string };
+const History: React.FC<HistoryProps> = ({ records }) => {
+    if (!records) {
+        console.log(records)
+        return <div>Loading...</div>;
+    }
 
-type Team = {
-    round: string;
-    judgeID: string;
-    scores: Record<string, Score>;
-    teamID: string;
-    teamName: string;
-    feedback: string;
-    createdAt: string;
-};
-
-const History: React.FC<HistoryProps> = ({ feedback }) => {
-    const [TeamData, setTeamData] = useState({
-        team: "",
-        date: "",
-        round: "",
-        grades: defaultScoring,
-        comments: [],
-    });
     const [showRubric, setShowRubric] = useState(false);
+    const [team_feedback, setTeamFeedback] = useState<TeamFeedback>(
+        Object.values(records).flat()[0]
+    );
+    
 
     const isGraded = (grades: Record<string, { N: string }>) => {
         return Object.values(grades).every((grade) => Number(grade.N) !== 0);
@@ -88,42 +28,23 @@ const History: React.FC<HistoryProps> = ({ feedback }) => {
     return (
         <>
             <FadeWrapper className="flex flex-col">
-                {Object.keys(feedback).map((round: string, index: number) => (
+                {Object.keys(records).map((round: string, index: number) => (
                     <>
                         <header className="mt-16 text-lg font-ibm">
                             ROUND {round}
                         </header>
                         <div className="grid grid-cols-4 gap-5 mt-10">
-                            {feedback[round].map(
-                                (team: Team, index: number) => {
-                                    const date = new Date(team.createdAt);
-                                    const formattedDateTime = `${date
-                                        .toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                        })
-                                        .toUpperCase()} ${date.toLocaleTimeString(
-                                        "en-US",
-                                        {
-                                            hour: "numeric",
-                                            minute: "2-digit",
-                                            hour12: true,
-                                        }
-                                    )}`;
+                            {records[round].map(
+                                (team: TeamFeedback, index: number) => {
                                     return (
                                         <div key={index}>
-                                            <ProjectBox
-                                                res={{
-                                                    team: team.teamName,
-                                                    date:
-                                                        "LAST UPDATED: " +
-                                                        formattedDateTime,
-                                                    round: `ROUND ${round}`,
-                                                    grades: team.scores,
-                                                    comments: Object.values(team.feedback || {}).join(", "),
+                                            <ProjectGrid
+                                                team_name={team.teamName}
+                                                team_status={`COMPLETED ${formatDate(team.createdAt)}`}
+                                                onClick={() => {
+                                                    setShowRubric(true);
+                                                    setTeamFeedback(team);
                                                 }}
-                                                setTeamData={setTeamData}
-                                                showRubric={setShowRubric}
                                             />
                                         </div>
                                     );
@@ -135,15 +56,8 @@ const History: React.FC<HistoryProps> = ({ feedback }) => {
             </FadeWrapper>
             {showRubric && (
                 <Rubric
-                    round={TeamData.round}
-                    team={TeamData.team}
-                    lastEdited={TeamData.date}
-                    gradedStatus={
-                        isGraded(TeamData.grades) ? "Graded" : "Ungraded"
-                    }
-                    grades={mapGrades(TeamData)}
-                    comments={Array.isArray(TeamData.comments) ? TeamData.comments : [String(TeamData.comments)]}
-
+                    team_feedback={team_feedback}
+                    team_status={`COMPLETED ${formatDate(team_feedback.createdAt)}`}
                     showRubric={setShowRubric}
                 />
             )}

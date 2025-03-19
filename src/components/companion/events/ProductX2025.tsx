@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Judges from "../productX/Judges";
 import User from "../productX/User";
 import { useUserRegistration } from "@/pages/companion";
-import { Router } from "lucide-react";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import { useRouter } from "next/router";
-import { fetchBackend } from "@/lib/db";
 import TeamCreation from "../productX/user/TeamCreation";
 
 const ProductX2025 = () => {
@@ -30,7 +28,7 @@ const ProductX2025 = () => {
   }
 
   if (userRegistration?.isPartner) {
-    return <Judges judgeID={userRegistration.id} />;
+    return <Judges />;
   }
 
   if (userRegistration?.teamID) {

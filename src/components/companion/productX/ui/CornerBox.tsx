@@ -12,7 +12,6 @@ const CornerBorderWrapper: React.FC<CornerBorderWrapperProps> = ({ children, sel
         width: '15px',
         height: '15px',
         background: 'transparent',
-        border: `1px solid ${selected ? "white" : "#656795"} `,
     };
 
     return (
@@ -22,8 +21,8 @@ const CornerBorderWrapper: React.FC<CornerBorderWrapperProps> = ({ children, sel
                     ...cornerStyle,
                     top: 0,
                     left: 0,
-                    borderRight: 'none',
-                    borderBottom: 'none',
+                    borderLeft: `1px solid ${selected ? "white" : "#656795"} `,
+                    borderTop: `1px solid ${selected ? "white" : "#656795"} `,
                 }}
             />
             <div
@@ -31,8 +30,8 @@ const CornerBorderWrapper: React.FC<CornerBorderWrapperProps> = ({ children, sel
                     ...cornerStyle,
                     top: 0,
                     right: 0,
-                    borderLeft: 'none',
-                    borderBottom: 'none',
+                    borderRight: `1px solid ${selected ? "white" : "#656795"} `,
+                    borderTop: `1px solid ${selected ? "white" : "#656795"} `,
                 }}
             />
             <div
@@ -40,8 +39,8 @@ const CornerBorderWrapper: React.FC<CornerBorderWrapperProps> = ({ children, sel
                     ...cornerStyle,
                     bottom: 0,
                     left: 0,
-                    borderRight: 'none',
-                    borderTop: 'none',
+                    borderLeft: `1px solid ${selected ? "white" : "#656795"} `,
+                    borderBottom: `1px solid ${selected ? "white" : "#656795"} `,
                 }}
             />
             <div
@@ -49,8 +48,8 @@ const CornerBorderWrapper: React.FC<CornerBorderWrapperProps> = ({ children, sel
                     ...cornerStyle,
                     bottom: 0,
                     right: 0,
-                    borderLeft: 'none',
-                    borderTop: 'none',
+                    borderRight: `1px solid ${selected ? "white" : "#656795"} `,
+                    borderBottom: `1px solid ${selected ? "white" : "#656795"} `,
                 }}
             />
             {children}

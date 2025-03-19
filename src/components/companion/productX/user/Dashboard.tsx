@@ -1,9 +1,9 @@
-import BarChart from "./BarChart";
-import Box from "@/components/ui/productX/box";
-import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
-import { metricMapping } from "@/constants/productx-scoringMetrics";
+import BarChart from "../ui/BarChart";
+import Box from "../ui/rubric/RubricCell";
+import FadeWrapper from "../ui/FadeAnimationWrapper";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
+import { mapMetricsToCategories } from "../constants/rubricContents";
 
 interface FeedbackEntry {
     judgeID: string;
@@ -108,7 +108,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             };
         })
     );
-    const bestArea = (metricMapping[findBestMetric(independentEntries).metric]);
+    // const bestArea = (mapMetricsToCategories[findBestMetric(independentEntries).metric]);
+    const bestArea = ""
 
     useEffect(() => {
         setIndependentEntries(
@@ -133,9 +134,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <div className="flex flex-row h-44 gap-2">
                         <div className="w-1/3 h-full">
                             <Box
-                                width={100}
-                                height={50}
-                                fitToParent
+                                innerShadow={50}
                                 className="flex flex-col justify-center items-center"
                             >
                                 <header className="text-[#4CC8BD] text-[5em] -mt-5">
@@ -149,9 +148,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {/* BEST AREA */}
                         <div className="w-2/3 h-full">
                             <Box
-                                width={100}
-                                height={50}
-                                fitToParent
+                                innerShadow={50}
                                 className="flex flex-col justify-center items-start pl-16"
                             >
                                 <div className="flex flex-col justify-center items-start">
@@ -169,9 +166,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {/* BAR CHART */}
                         <div className="w-1/2 h-full">
                             <Box
-                                width={100}
-                                height={50}
-                                fitToParent
+                                innerShadow={50}
                                 className="flex flex-col"
                             >
                                 <span className="text-md text-white mt-4 ml-8 -mb-8">
@@ -188,9 +183,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {/* COMMENTS */}
                         <div className="w-1/2 h-full">
                             <Box
-                                width={100}
-                                height={50}
-                                fitToParent
+                                innerShadow={50}
                                 className="p-4 pl-8 text-[#898BC3] flex flex-col gap-4"
                             >
                                 <span className="text-md text-white">

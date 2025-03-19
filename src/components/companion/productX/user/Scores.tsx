@@ -1,9 +1,9 @@
-import Box from "@/components/ui/productX/box";
-import Button from "@/components/ui/productX/button";
+import Box from "../ui/rubric/RubricCell";
+import Button from "../ui/Button";
 import { ArrowUpRight } from "lucide-react";
-import Rubric from "./Rubric";
+// import Rubric from "./Rubric";
 import { useState } from "react";
-import FadeWrapper from "@/components/ui/productX/fade-up-wrapper";
+import FadeWrapper from "../ui/FadeAnimationWrapper";
 
 interface Score {
     N: string;
@@ -39,9 +39,7 @@ const ProjectBox: React.FC<ProjectBoxProps> = ({
     return (
         <div className="w-full h-32">
             <Box
-                width={100}
-                height={20}
-                fitToParent={true}
+                innerShadow={20}
                 className={`flex flex-row justify-between items-center pl-5`}
             >
                 <div className="flex flex-col gap-2">
@@ -118,9 +116,7 @@ const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
                                     />
                                     <div className="w-64 h-32">
                                         <Box
-                                            width={100}
-                                            height={20}
-                                            fitToParent={true}
+                                            innerShadow={20}
                                             className={`flex flex-col justify-center pl-5`}
                                         >
                                             <ul className="text-[#898BC3]">
@@ -142,14 +138,14 @@ const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
                     })}
                 </div>
             </FadeWrapper>
-            {showRubric && (
+            {/* {showRubric && (
                 <Rubric
                     teamName={teamName}
                     round={Round}
                     report={activeReport}
                     showRubric={setShowRubric}
                 />
-            )}
+            )} */}
         </>
     );
 };

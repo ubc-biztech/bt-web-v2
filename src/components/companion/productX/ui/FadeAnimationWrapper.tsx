@@ -10,12 +10,12 @@ const fadeInUpVariant = {
     },
 };
 
-interface ProjectBoxProps {
+interface FadeAnimationWrapperProps {
     children: React.ReactNode;
     className: string;
 }
 
-const FadeWrapper: React.FC<ProjectBoxProps> = ({ children, className }) => {
+const FadeAnimationWrapper: React.FC<FadeAnimationWrapperProps> = ({ children, className }) => {
   return (
     <motion.div {...fadeInUpVariant} className={className}>
         {children}
@@ -23,4 +23,4 @@ const FadeWrapper: React.FC<ProjectBoxProps> = ({ children, className }) => {
   )
 }
 
-export default FadeWrapper
+export default FadeAnimationWrapper

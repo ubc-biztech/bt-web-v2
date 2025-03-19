@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import homeIcon from "@/assets/2025/productx/home.svg";
 import rubricIcon from "@/assets/2025/productx/rubric.svg";
 import signOutIcon from "@/assets/2025/productx/signOut.svg";
-import Box from "@/components/ui/productX/box";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
+import SimpleBox from "../productX/ui/Box";
 
 interface PopupMenuProps {
   isOpen: boolean;
@@ -58,13 +58,13 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
     <AnimatePresence mode='wait'>
       {isOpen && (
         <motion.nav
-          className='absolute top-0 right-0 mr-14 mt-32 z-50'
+          className='fixed top-0 right-0 mr-14 mt-32 z-50 w-56 h-36'
           variants={menuVariants}
           initial='hidden'
           animate='visible'
           exit='exit'
         >
-          <Box width={64} height={40} className='flex flex-col justify-center' hoverEffects={true}>
+          <SimpleBox innerShadow={40} className='flex flex-col justify-center' hoverEffects={true}>
             {navLinks.map(({ href, label, icon }) => (
               <Link
                 key={label}
@@ -80,7 +80,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
                 {label}
               </Link>
             ))}
-          </Box>
+          </SimpleBox>
         </motion.nav>
       )}
     </AnimatePresence>
