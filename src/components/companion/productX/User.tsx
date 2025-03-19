@@ -84,7 +84,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
     // const [teamInfo, setTeamInfo] = useState(() => {
     //     return JSON.parse(localStorage.getItem("teamInfo") || "null");
     // });
-    const [teamInfo, setTeamInfo] = useState(null)
+    const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
     const [feedback, setFeedback] = useState(null)
     const teamMembers = teamInfo?.memberIDs || [];
     const [teamMember1, teamMember2, teamMember3, teamMember4] = [
