@@ -3,11 +3,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { CellContext } from "@tanstack/react-table"
 import { ColumnMeta } from "./columns"
-import { Attendee } from '@/types/types'
+import { Registration } from '@/types/types'
 import { updateRegistrationData, prepareUpdatePayload } from '@/lib/dbUtils'
 import { DBRegistrationStatus } from '@/types'
 
-interface TableCellProps extends CellContext<Attendee, unknown> {
+interface TableCellProps extends CellContext<Registration, unknown> {
     refreshTable: () => Promise<void>;
 }
 

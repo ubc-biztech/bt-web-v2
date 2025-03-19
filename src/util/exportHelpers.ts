@@ -1,4 +1,4 @@
-import { Attendee } from "@/types/types";
+import { Registration } from "@/types/types";
 import { Table } from "@tanstack/react-table";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -6,7 +6,7 @@ import { PageOrientation } from "pdfmake/interfaces";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-export function exportToCSV(data: Attendee[], fileName = 'data') {
+export function exportToCSV(data: Registration[], fileName = 'data') {
     if (!data.length) {
         console.error("No data to export");
         return;
@@ -15,7 +15,7 @@ export function exportToCSV(data: Attendee[], fileName = 'data') {
     const header = columns.join(',');
     const csvRows = data.map(row => 
         columns.map(col => {
-            const value = row[col as keyof Attendee];
+            const value = row[col as keyof Registration];
             return (value !== null && value !== undefined) ? `"${value}"` : '""';
         }).join(',')
     );
@@ -31,7 +31,7 @@ export function exportToCSV(data: Attendee[], fileName = 'data') {
     document.body.removeChild(link);
 }
 
-export function exportToPDF(data: Attendee[], fileName = 'data') {
+export function exportToPDF(data: Registration[], fileName = 'data') {
     const columns = Object.keys(data[0]);
     const rows = data.map(row => 
         Object.values(row).map(value => value === undefined ? "" : value)
@@ -52,21 +52,21 @@ export function exportToPDF(data: Attendee[], fileName = 'data') {
       pdfMake.createPdf(docDefinition).download(fileName + ".pdf");
 }
 
-function createAttendeeTemplate(keys: string[]): Attendee {
+function createAttendeeTemplate(keys: string[]): Registration {
     return keys.reduce((template, key) => {
-        template[key as keyof Attendee] = null as never;
+        template[key as keyof Registration] = null as never;
         return template;
-    }, {} as Attendee);
+    }, {} as Registration);
 }
 
 export function formatTableForExport(table: Table<any>) {
     const tableHeader = table.getRowModel().rows[0].getVisibleCells();
     const tableRows = Object.values(table.getCoreRowModel().rowsById);
     const cols = tableHeader.slice(2).map(cell => cell.column.id); // slice from 2 because first 2 cols don't have data values 
-    const rows: Attendee[] = tableRows.map(row => {
-        const attendeeTemplate: Attendee = createAttendeeTemplate(cols);
+    const rows: Registration[] = tableRows.map(row => {
+        const attendeeTemplate: Registration = createAttendeeTemplate(cols);
         row.getVisibleCells().slice(2).forEach(cell => {
-            attendeeTemplate[cell.column.id as keyof Attendee] = cell.getValue() as never;
+            attendeeTemplate[cell.column.id as keyof Registration] = cell.getValue() as never;
         });
         return attendeeTemplate;
     })

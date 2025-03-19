@@ -4,11 +4,11 @@ import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
 import { fetchBackend } from "@/lib/db";
 import { getCurrentUser } from "@aws-amplify/auth";
-import { Attendee } from "@/types/types";
+import { Registration } from "@/types/types";
 
-const sortRegistrationsByDate = (registrations: Attendee[]) => {
+const sortRegistrationsByDate = (registrations: Registration[]) => {
   // sorts events in descending order by createdAt, otherwise by updatedAt if event doesn't have createdAt field
-  registrations.sort((a: Attendee, b: Attendee) => {
+  registrations.sort((a: Registration, b: Registration) => {
     const hasCreatedAtA = 'createdAt' in a && a.createdAt !== undefined;
     const hasCreatedAtB = 'createdAt' in b && b.createdAt !== undefined;
 
@@ -26,8 +26,7 @@ const fetchEventData = async (email: string) : Promise<BiztechEvent[]> => {
     method: "GET",
     authenticatedCall: false,
   })
-  const sortedRegistrations: Attendee[] = sortRegistrationsByDate(userRegistrations.data).slice(0, 3);
-
+  const sortedRegistrations: Registration[] = sortRegistrationsByDate(userRegistrations.data).slice(0, 3);
   const events = await Promise.all(
     sortedRegistrations.map(async (registration) => {
       const event = await fetchBackend({

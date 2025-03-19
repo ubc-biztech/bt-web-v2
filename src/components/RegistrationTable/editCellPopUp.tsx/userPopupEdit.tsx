@@ -2,16 +2,16 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Input } from "@/components/ui/input"
 import React, { useState } from 'react'
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils"
-import { Attendee } from "@/types/types"
+import { Registration } from "@/types/types"
 import { Table } from "@tanstack/react-table"
 
 
 interface SelectCellProps {
-    row: Attendee,
+    row: Registration,
     column: string,
     originalValue: string | number,
     dropDownList: string[]
-    table: Table<Attendee>,
+    table: Table<Registration>,
     refreshTable: () => Promise<void>
 }
 

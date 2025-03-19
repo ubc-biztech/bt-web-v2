@@ -6,7 +6,7 @@ import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
 import { BiztechEvent, DBRegistrationStatus } from "@/types/types"
-import { Attendee } from "@/types/types";
+import { Registration } from "@/types/types";
 
 export type ColumnMeta = {
     type?: "select" | "number";
@@ -16,7 +16,7 @@ export type ColumnMeta = {
 export const createColumns = (
   refreshTable: () => Promise<void>, 
   eventData: BiztechEvent
-): ColumnDef<Attendee>[] => [
+): ColumnDef<Registration>[] => [
     {
         id: "edit",
         size: 30,

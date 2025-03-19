@@ -6,18 +6,18 @@ import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
-import { Attendee } from "@/types/types";
+import { Registration } from "@/types/types";
 
 type Props = {
-  initialData: Attendee[] | null;
+  initialData: Registration[] | null;
   eventData: any | null;
 };
 
 export default function AdminEvent({ initialData, eventData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Attendee[] | null>(initialData);
-  const [dynamicColumns, setDynamicColumns] = useState<ColumnDef<Attendee>[]>([]);
+  const [data, setData] = useState<Registration[] | null>(initialData);
+  const [dynamicColumns, setDynamicColumns] = useState<ColumnDef<Registration>[]>([]);
   
   useEffect(() => {
     if (router.isReady) {

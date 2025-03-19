@@ -65,6 +65,7 @@ export type AttendeeBasicInformation = BasicInformation & {
   };
 
 export type Registration = {
+    'eventID;year': string;
     id: string,
     applicationStatus: string,
     registrationStatus: string,
@@ -75,33 +76,9 @@ export type Registration = {
     isPartner: boolean,
     points: number,
     scannedQRs: string[],
-    updatedAt: string,
+    studentId: string;
+    updatedAt: number,
+    createdAt?: number;
 }
 
 export type StatsChartData = { label: string; value: number };
-
-export type Attendee = {
-  'eventID;year': string;
-  applicationStatus: string;
-  basicInformation: {
-    diet: string;
-    faculty: string;
-    fname: string;
-    gender: string[];
-    heardFrom: string;
-    lname: string;
-    major: string;
-    year: string;
-  };
-  dynamicResponses: Record<string, string>;
-  eventID: string;
-  fname: string;
-  id: string;
-  isPartner: boolean;
-  points: number;
-  registrationStatus: string;
-  scannedQRs: string[];
-  studentId: string;
-  updatedAt: number;
-  createdAt?: number;
-}
