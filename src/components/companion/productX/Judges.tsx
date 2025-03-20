@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
 import { HistoryIcon, PanelsTopLeft } from "lucide-react";
 import History from "./judges/History";
 import Rounds from "./judges/Rounds";
@@ -7,48 +7,72 @@ import { useUserRegistration } from "@/pages/companion";
 import DashboardLayout from "./ui/DashboardLayout";
 import { TeamFeedback } from "./types";
 
+// Create a context for refreshing data
+export const JudgesRefreshContext = createContext<{
+  refreshTrigger: boolean;
+  refreshData: () => void;
+}>({
+  refreshTrigger: false,
+  refreshData: () => {}
+});
+
+// Custom hook to use the refresh context
+export const useJudgesRefresh = () => useContext(JudgesRefreshContext);
+
 const Judges: React.FC = () => {
-    const [teams, setTeams] = useState<Record<string, TeamFeedback[]> | null>(null);
+  const [teams, setTeams] = useState<Record<string, TeamFeedback[]>>({});
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
-    const { userRegistration } = useUserRegistration();
-    useEffect(() => {
-        const fetchTeamsForJudge = async () => {
-            try {
-                const response = await fetchBackend({
-                    endpoint: `/team/judge/feedback/${userRegistration?.id}`,
-                    method: "GET",
-                    authenticatedCall: false,
-                });
+  const { userRegistration } = useUserRegistration();
 
-                console.log(response);
+  // Callback to refresh data that can be passed to children
+  const refreshData = useCallback(() => {
+    setRefreshTrigger((prev) => !prev);
+  }, []);
 
-                if (response && response.scores) {
-                    setTeams(response.scores);
-                }
-            } catch (error) {
-                console.error("Error fetching teams for judge:", error);
-            }
-        };
+  useEffect(() => {
+    const fetchTeamsForJudge = async () => {
+      try {
+        const response = await fetchBackend({
+          endpoint: `/team/judge/feedback/${userRegistration?.id}`,
+          method: "GET",
+          authenticatedCall: false
+        });
 
-        if (userRegistration?.id) {
-            fetchTeamsForJudge();
+        console.log(response);
+        if (response && response.scores) {
+          setTeams(response.scores);
         }
-    }, [userRegistration?.id]);
+      } catch (error) {
+        console.error("Error fetching teams for judge:", error);
+      }
+    };
 
-    const pages = [
-        {
-            name: "Rounds",
-            icon: PanelsTopLeft,
-            component: <Rounds records={teams} />,
-        },
-        {
-            name: "History",
-            icon: HistoryIcon,
-            component: <History records={teams} />,
-        },
-    ];
+    if (userRegistration?.id) {
+      fetchTeamsForJudge();
+    }
 
-    return <DashboardLayout title="JUDGING DASHBOARD" pages={pages} />;
+    console.log("fetched");
+  }, [userRegistration?.id, refreshTrigger]);
+
+  const pages = [
+    {
+      name: "Rounds",
+      icon: PanelsTopLeft,
+      component: Rounds
+    },
+    {
+      name: "History",
+      icon: HistoryIcon,
+      component: History
+    }
+  ];
+
+  return (
+    <JudgesRefreshContext.Provider value={{ refreshTrigger, refreshData }}>
+      <DashboardLayout title='JUDGING DASHBOARD' pages={pages} teams={teams} />
+    </JudgesRefreshContext.Provider>
+  );
 };
 
 export default Judges;
