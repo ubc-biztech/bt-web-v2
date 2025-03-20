@@ -32,7 +32,7 @@ export default function MobileEventCard({ event, eventClick, modalHandlers }: Pr
     const dateTime = event ? extractMonthDay(event.startDate) : "";
     const displayDate = event ? startTime + ' ' + dateTime : "Event not Found";
 
-    const ref = useRef<HTMLDivElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     const handleMobileMoreClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // Prevent the card click from firing
@@ -42,31 +42,32 @@ export default function MobileEventCard({ event, eventClick, modalHandlers }: Pr
     }
 
     const handleClick = () => {
-        if (event && !isModalOpen) {
-            eventClick(event)
-        }
-        if (event && isModalOpen) {
-            setModal(false)
+        if (event) {
+            if (isModalOpen) {
+                setModal(false)
+            } else {
+                eventClick(event)
+            }
         }
     }
 
     useEffect(() => {
-            function handleClickOutside(event: MouseEvent) {
-                if (isModalOpen && ref.current && !ref.current.contains(event.target as Node)) {
-                    setModal(false);
-                }
+        function handleClickOutside(event: MouseEvent) {
+            if (isModalOpen && cardRef.current && !cardRef.current.contains(event.target as Node)) {
+                setModal(false);
             }
+        }
         
             document.addEventListener('mousedown', handleClickOutside);
         
             return () => {
               document.removeEventListener('mousedown', handleClickOutside);
             };
-        }, [ref, isModalOpen]);
+        }, [cardRef, isModalOpen]);
 
 
     return (
-        <Card className="font-poppins w-full h-[100px] border-none bg-events-card-bg p-2 mb-4 flex" onClick={handleClick}>
+        <Card className="font-poppins w-full h-[100px] border-none bg-events-card-bg p-2 mb-4 flex" onClick={handleClick} ref={cardRef}>
             <Image
                 src={event?.imageUrl ?? placeHolderImage}
                 alt="event-image"
@@ -88,7 +89,6 @@ export default function MobileEventCard({ event, eventClick, modalHandlers }: Pr
                             {isModalOpen && event &&
                                 <PopupModal 
                                     editEventPopupItems={editEventPopupItems} 
-                                    ref={ref} 
                                     modalHandlers={modalHandlers} 
                                     eventID={event.id} 
                                     eventYear={event.year} 
