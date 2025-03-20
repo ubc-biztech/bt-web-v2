@@ -143,16 +143,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         </div>
       </FadeWrapper>
       {showRubric && (
-        <Rubric
-          team_feedback={teamFeedback}
-          team_status={teamStatus}
-          showRubric={setShowRubric}
-          createSubmissionFlag={
-            !!teamsJudged.find((val) => {
-              return currentTeam && val.teamID === (currentTeam as any).currentTeamID;
-            })
-          }
-        />
+        <Rubric team_feedback={teamFeedback} team_status={teamStatus} showRubric={setShowRubric} createOrUpdateFlag={!!currentTeam} />
       )}
     </>
   );

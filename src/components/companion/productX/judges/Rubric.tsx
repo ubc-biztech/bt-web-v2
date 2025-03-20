@@ -14,10 +14,10 @@ interface RubricProps {
   team_feedback: TeamFeedback; // should be near-native output of endpoint
   team_status: string;
   showRubric: (arg0: boolean) => void;
-  createSubmissionFlag: boolean;
+  createOrUpdateFlag: boolean;
 }
 
-const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric, createSubmissionFlag: createOrUpdateFlag }) => {
+const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric, createOrUpdateFlag }) => {
   const { userRegistration } = useUserRegistration();
   const { refreshData } = useJudgesRefresh();
 
@@ -25,8 +25,6 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
   const [score, setScore] = useState<ScoringRecord>(team_feedback.scores || initScore);
 
   const metrics = Object.keys(score) as ScoringMetric[];
-
-  console.log(team_status);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -55,14 +53,15 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
     };
 
     try {
+      console.log(data);
       console.log(createOrUpdateFlag);
 
-      // await fetchBackend({
-      //   endpoint: "/team/judge/feedback",
-      //   method: createOrUpdateFlag ? "POST" : "PUT",
-      //   data,
-      //   authenticatedCall: false
-      // });
+      await fetchBackend({
+        endpoint: "/team/judge/feedback",
+        method: createOrUpdateFlag ? "POST" : "PUT",
+        data,
+        authenticatedCall: false
+      });
 
       refreshData();
       showRubric(false);
@@ -84,7 +83,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
             </header>
 
             {/* Tags */}
-            <Tag flag={isGraded(score)} />
+            <Tag flag={!createOrUpdateFlag} />
           </div>
           <div className='flex flex-row gap-3 items-center text-[#898BC3]'>
             <span>{team_status}</span>
@@ -104,7 +103,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         <div className='w-full h-[1px] bg-[#41437D] mt-3'>&nbsp;</div>
 
         {/* Grid */}
-        <RubricGrid scoring={score} setScoring={setScore} />
+        <RubricGrid scoring={score} setScoring={setScore} editable={true} />
 
         {/* Comments */}
         <RubricComments feedback={team_feedback.feedback} />
