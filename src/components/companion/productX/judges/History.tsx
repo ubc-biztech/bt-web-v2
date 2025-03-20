@@ -10,13 +10,26 @@ interface HistoryProps {
 }
 
 const History: React.FC<HistoryProps> = ({ records }) => {
+  const [showRubric, setShowRubric] = useState(false);
+  const [team_feedback, setTeamFeedback] = useState<TeamFeedback>(
+    records
+      ? Object.values(records).flat()[0]
+      : {
+          round: "none",
+          judgeID: "loading",
+          judgeName: "string",
+          scores: { metric1: 0, metric2: 0, metric3: 0, metric4: 0, metric5: 0 },
+          feedback: {},
+          teamID: "loading",
+          teamName: "loading",
+          createdAt: ""
+        }
+  );
+
   if (!records) {
     console.log(records);
     return <div>Loading...</div>;
   }
-
-  const [showRubric, setShowRubric] = useState(false);
-  const [team_feedback, setTeamFeedback] = useState<TeamFeedback>(Object.values(records).flat()[0]);
 
   const isGraded = (grades: Record<string, { N: string }>) => {
     return Object.values(grades).every((grade) => Number(grade.N) !== 0);
