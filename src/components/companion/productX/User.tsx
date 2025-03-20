@@ -30,10 +30,12 @@ interface TeamInfo {
 const User: React.FC<UserProps> = ({ teamID }) => {
     const { userRegistration } = useUserRegistration();
     const [team_info, setTeamInfo] = useState<TeamInfo | null>(null);
+    const [teamMemberNames, setTeamMemberNames] = useState<string[]>([]);
     const [team_feedback, setTeamFeedback] = useState<Record<
         string,
         TeamFeedback[]
     > | null>(null);
+    const [eventID, year] = userRegistration?.["eventID;year"].split(";");
 
     useEffect(() => {
         const fetchTeamFeedback = async () => {
@@ -60,8 +62,6 @@ const User: React.FC<UserProps> = ({ teamID }) => {
     useEffect(() => {
         const fetchTeam = async () => {
             try {
-                const [eventID, year] =
-                    userRegistration?.["eventID;year"].split(";");
                 const response = await fetchBackend({
                     endpoint: `/team/getTeamFromUserID`,
                     method: "POST",
@@ -90,8 +90,41 @@ const User: React.FC<UserProps> = ({ teamID }) => {
         }
     }, [teamID, userRegistration]);
 
+
+
+    useEffect(() => {
+        const fetchMemberNames = async () => {
+            if (!team_info?.memberIDs?.length) return;
+
+            const memberNames: string[] = [];
+
+            for (const memberID of team_info.memberIDs) {
+                try {
+                    const response = await fetchBackend({
+                        endpoint: `/registrations/?email=${memberID}&eventID=${eventID}&year=${year}`,
+                        method: "GET",
+                        authenticatedCall: false,
+                    });
+
+                    if (response.data) {
+                        const user = response.data[0];
+                        const fullName = `${user.basicInformation.fname} ${user.basicInformation.lname}`;
+                        memberNames.push(fullName);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching user ${memberID}:`, error);
+                }
+            }
+
+            setTeamMemberNames(memberNames);
+        };
+
+        if (team_info?.memberIDs) {
+            fetchMemberNames();
+        }
+    }, [team_info]);
+
     const teamName = team_info?.teamName;
-    const teamMembers = team_info?.memberIDs || [];
     const flattened_team_feedback =
         team_feedback && Object.values(team_feedback).flat();
     const comments = flattened_team_feedback?.flatMap(({ judgeID, feedback }) =>
@@ -107,7 +140,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
             component: (
                 <Dashboard
                     team_name={teamName || ""}
-                    members={teamMembers}
+                    members={teamMemberNames}
                     flat_records={flattened_team_feedback || []}
                     comments={comments || []}
                 />
