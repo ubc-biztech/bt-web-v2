@@ -4,39 +4,29 @@ import FadeWrapper from "../ui/FadeAnimationWrapper";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { mapMetricsToCategories } from "../constants/rubricContents";
-
-interface FeedbackEntry {
-    judgeID: string;
-    scores: Record<string, number>;
-    feedback: string;
-    createdAt: string;
-}
+import { ScoringMetric, ScoringRecord, TeamFeedback } from "../types";
 
 // helpers
+const aggregateScore = (entry: ScoringRecord) => {
+    return Object.values(entry).reduce(
+        (sum: number, score: number) => sum + score,
+        0
+    );
+};
 
-const calculateAverageJudgeScore = (teamFeedback: FeedbackEntry[]) => {
-    const totalScores = teamFeedback.reduce((sum, entry) => {
-        const sumOfMetrics = Object.values(entry.scores).reduce(
-            (metricSum, score) => metricSum + score,
-            0
-        );
+const calculateAverageJudgeScore = (team_feedback: TeamFeedback[]) => {
+    const totalScores = team_feedback.reduce((sum, entry) => {
+        const sumOfMetrics = aggregateScore(entry.scores);
         return sum + sumOfMetrics;
     }, 0);
-
-    const totalJudges =
-        teamFeedback.length;
-
+    const totalJudges = team_feedback.length;
     const averageScore = totalScores / totalJudges;
-
     return Math.round(averageScore); // round
 };
 
-const transformFeedbackToBarChartData = (independentEntries: FeedbackEntry[]) => {
-    const transformedData = independentEntries.map((entry, index) => {
-        const totalScore = Object.values(entry.scores).reduce(
-            (sum, score) => sum + score,
-            0
-        );
+const transformFeedbackToBarChartData = (entries: TeamFeedback[]) => {
+    const transformedData = entries.map((entry) => {
+        const totalScore = aggregateScore(entry.scores);
 
         return {
             // TODO: Display Judge Name instead of ID
@@ -48,86 +38,54 @@ const transformFeedbackToBarChartData = (independentEntries: FeedbackEntry[]) =>
     return transformedData;
 };
 
-const findBestMetric = (independentEntries: FeedbackEntry[]) => {
-    const metricScores: Record<string, { totalScore: number; count: number }> = {};
+const findBestMetric = (entries: TeamFeedback[]) => {
+    let metricScores: Record<string, number> = {}; // Initialize as an empty object
 
-    independentEntries.forEach(entry => {
+    entries.forEach((entry) => {
         Object.entries(entry.scores).forEach(([metric, score]) => {
-            const scoreValue = score;
-
-            if (!metricScores[metric]) {
-                metricScores[metric] = { totalScore: 0, count: 0 };
-            }
-
-            metricScores[metric].totalScore += scoreValue;
-            metricScores[metric].count += 1;
+            metricScores[metric] = (metricScores[metric] || 0) + score;
         });
     });
 
-    const metricAverages = Object.entries(metricScores).map(([metric, { totalScore, count }]) => ({
-        metric,
-        averageScore: totalScore / count,
-    }));
 
-    const bestMetric = metricAverages.reduce((best, current) =>
-        current.averageScore > best.averageScore ? current : best
+    const bestMetric = Object.entries(metricScores).reduce(
+        (best, current) => (current[1] > best[1] ? current : best),
+        ["", -Infinity] // Default value to prevent errors on empty input
     );
 
-    return bestMetric;
+    return bestMetric[0] || null;
 };
-
-
 // dashboard
 
 interface DashboardProps {
-    projectName: string;
-    teamMember1: string | null;
-    teamMember2: string | null;
-    teamMember3: string | null;
-    teamMember4: string | null;
-    feedback: Record<string, FeedbackEntry[]>;
+    team_name: string;
+    members: string[];
+    flat_records: TeamFeedback[];
+    comments: {judgeID: string, message: string}[];
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
-    projectName,
-    teamMember1,
-    teamMember2,
-    teamMember3,
-    teamMember4,
-    feedback,
+    team_name,
+    members,
+    flat_records,
+    comments,
 }) => {
-    const [independentEntries, setIndependentEntries] = useState(
-        Object.values(feedback).flat()
-    );
-    const comments = (
-        independentEntries.map((entry) => {
-            const feedbackEntry = entry as FeedbackEntry;
-            return {
-                judgeID: feedbackEntry.judgeID,
-                feedback: feedbackEntry.feedback,
-            };
-        })
-    );
-    // const bestArea = (mapMetricsToCategories[findBestMetric(independentEntries).metric]);
-    const bestArea = ""
+    const [entries, setEntries] = useState(flat_records);
+    const bestMetric = findBestMetric(flat_records);
+    const bestArea = bestMetric ? mapMetricsToCategories[bestMetric as ScoringMetric] : "N/A";
 
     useEffect(() => {
-        setIndependentEntries(
-            Object.values(feedback).flat()
-        );
-    }, [feedback]);
+        setEntries(flat_records);
+    }, [flat_records]);
 
     return (
         <FadeWrapper className="flex flex-col">
             <div className="w-full flex flex-row mt-5">
                 <div className="w-1/3 h-full  flex flex-col text-[#ADAFE4]">
-                    <header className="text-xl text-white">
-                        {projectName}
-                    </header>
-                    <span>{teamMember1 && teamMember1}</span>
-                    <span>{teamMember2 && teamMember2}</span>
-                    <span>{teamMember3 && teamMember3}</span>
-                    <span>{teamMember4 && teamMember4}</span>
+                    <header className="text-xl text-white">{team_name}</header>
+                    {members.map((member, index) => (
+                        <span key={index}>{member}</span>
+                    ))}
                 </div>
                 <div className="w-2/3 h-full flex flex-col gap-2">
                     {/* AVERAGE JUDGE SCORE */}
@@ -138,7 +96,10 @@ const Dashboard: React.FC<DashboardProps> = ({
                                 className="flex flex-col justify-center items-center"
                             >
                                 <header className="text-[#4CC8BD] text-[5em] -mt-5">
-                                    {calculateAverageJudgeScore(independentEntries)}/25
+                                    {calculateAverageJudgeScore(
+                                        entries
+                                    )}
+                                    /25
                                 </header>
                                 <span className="text-sm -mt-2">
                                     Raw Average Judge Score
@@ -165,16 +126,14 @@ const Dashboard: React.FC<DashboardProps> = ({
                     <div className="flex flex-row h-72 gap-2">
                         {/* BAR CHART */}
                         <div className="w-1/2 h-full">
-                            <Box
-                                innerShadow={50}
-                                className="flex flex-col"
-                            >
+                            <Box innerShadow={50} className="flex flex-col">
                                 <span className="text-md text-white mt-4 ml-8 -mb-8">
                                     Scoring Distribution
                                 </span>
                                 <BarChart
                                     data={transformFeedbackToBarChartData(
-                                        independentEntries)}
+                                        entries
+                                    )}
                                     height={300}
                                 />
                             </Box>
@@ -201,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                             </header>
                                         </div>
 
-                                        <span>{comment.feedback}</span>
+                                        <span>{comment.message}</span>
                                     </div>
                                 ))}
                             </Box>

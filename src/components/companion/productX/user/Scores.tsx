@@ -1,74 +1,23 @@
 import Box from "../ui/rubric/RubricCell";
-import Button from "../ui/Button";
-import { ArrowUpRight } from "lucide-react";
-// import Rubric from "./Rubric";
+import Rubric from "./Rubric";
 import { useState } from "react";
 import FadeWrapper from "../ui/FadeAnimationWrapper";
-
-interface Score {
-    N: string;
-}
-
-interface FeedbackEntry {
-    judgeID: string;
-    scores: Record<string, Score>;
-    feedback: string;
-    createdAt: string;
-}
-
-interface ProjectBoxProps {
-    res: {
-        team: string;
-        date: string;
-        round: string;
-        reports: FeedbackEntry[];
-    };
-    presenting: boolean;
-    showRubric: (arg0: boolean) => void;
-    setActiveReport: (arg0: FeedbackEntry[]) => void;
-    setRound: (arg0: string) => void;
-}
-
-const ProjectBox: React.FC<ProjectBoxProps> = ({
-    res,
-    presenting,
-    showRubric,
-    setActiveReport,
-    setRound
-}) => {
-    return (
-        <div className="w-full h-32">
-            <Box
-                innerShadow={20}
-                className={`flex flex-row justify-between items-center pl-5`}
-            >
-                <div className="flex flex-col gap-2">
-                    <header className="text-md">{res.team}</header>
-                    <span className="text-sm text-[#898BC3]">{res.date}</span>
-                </div>
-                <Button
-                    label={"VIEW GRADING RUBRIC"}
-                    Icon={ArrowUpRight}
-                    className={`hover:bg-[#FFFFFF] hover:text-[#000000] bg-[#41437D] text-[#FFFFFF] w-56 h-14 mr-10`}
-                    onClick={() => {
-                        console.log("click");
-                        setActiveReport(res.reports);
-                        showRubric(true);
-                        setRound(res.round);
-                    }}
-                />
-            </Box>
-        </div>
-    );
-};
+import ProjectRow from "../ui/ProjectRow";
+import { TeamFeedback } from "../types";
 
 interface ScoresProps {
     teamName: string;
-    feedback: Record<string, FeedbackEntry[]>;
+    records: Record<string, TeamFeedback[]> | null;
 }
 
-const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
-    const [activeReport, setActiveReport] = useState([] as FeedbackEntry[]);
+const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
+    if (!records) {
+        return <div>Loading...</div>;
+    }
+
+    const flat_records = Object.values(records).flat()
+
+    const [team_feedback, setTeamFeedback] = useState<TeamFeedback>(flat_records[0]);
     const [showRubric, setShowRubric] = useState(false);
     const [Round, setRound] = useState("");
 
@@ -76,19 +25,8 @@ const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
         <>
             <FadeWrapper className="flex flex-row mt-10 gap-8">
                 <div className="w-full flex flex-col gap-5">
-                    {Object.keys(feedback).map((round, index) => {
-                        const reports = feedback[round];
-                        const date = new Date(reports[0].createdAt);
-                        const formattedDateTime = `${date
-                            .toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                            })
-                            .toUpperCase()} ${date.toLocaleTimeString("en-US", {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            hour12: true,
-                        })}`;
+                    {Object.keys(records).map((round: string, index) => {
+                        const reports = records[round];
                         return (
                             <>
                                 <div className="flex flex-row gap-5">
@@ -101,18 +39,16 @@ const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
                                 </div>
 
                                 <div className="flex flex-row gap-5">
-                                    <ProjectBox
+                                    <ProjectRow
                                         key={index}
-                                        res={{
-                                            team: teamName,
-                                            date: formattedDateTime,
-                                            round: round,
-                                            reports: reports,
+                                        team_name={teamName}
+                                        team_status={`${reports.length} GRADING ENTRIES`}
+                                        read_only={true}
+                                        onClick={() => {
+                                            setShowRubric(true);
+                                            setTeamFeedback(reports[0]);
+                                            setRound(round);
                                         }}
-                                        presenting={false}
-                                        showRubric={setShowRubric}
-                                        setActiveReport={setActiveReport}
-                                        setRound={setRound}
                                     />
                                     <div className="w-64 h-32">
                                         <Box
@@ -138,14 +74,13 @@ const Scores: React.FC<ScoresProps> = ({ teamName, feedback }) => {
                     })}
                 </div>
             </FadeWrapper>
-            {/* {showRubric && (
+            {showRubric && (
                 <Rubric
-                    teamName={teamName}
-                    round={Round}
-                    report={activeReport}
+                    team_feedback={team_feedback}
+                    team_status={`ROUND ${Round}`}
                     showRubric={setShowRubric}
                 />
-            )} */}
+            )}
         </>
     );
 };
