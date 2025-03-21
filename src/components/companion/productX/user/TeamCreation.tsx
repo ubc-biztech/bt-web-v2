@@ -33,7 +33,7 @@ const TeamCreation: React.FC = () => {
             setTeamMembers(prev => ({ ...prev, member1: userRegistration.id }));
         }
     }, [userRegistration]);
-    
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -102,6 +102,8 @@ const TeamCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error sending request:", error);
+            alert("Failed to create team. One or more team members may not be valid.");
+            // TODO: make this nicer 
         } finally {
             setIsLoading(false);
         }
