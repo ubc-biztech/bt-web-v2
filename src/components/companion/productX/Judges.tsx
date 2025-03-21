@@ -10,10 +10,10 @@ import { TeamFeedback } from "./types";
 // Create a context for refreshing data
 export const JudgesRefreshContext = createContext<{
   refreshTrigger: boolean;
-  refreshData: () => void;
+  refreshData: () => Promise<void>;
 }>({
   refreshTrigger: false,
-  refreshData: () => {}
+  refreshData: () => new Promise<void>(() => {})
 });
 
 // Custom hook to use the refresh context
@@ -26,11 +26,7 @@ const Judges: React.FC = () => {
   const { userRegistration } = useUserRegistration();
 
   // Callback to refresh data that can be passed to children
-  const refreshData = useCallback(() => {
-    setRefreshTrigger((prev) => !prev);
-  }, []);
-
-  useEffect(() => {
+  const refreshData = useCallback(async () => {
     const fetchTeamsForJudge = async () => {
       try {
         const response = await fetchBackend({
@@ -39,7 +35,6 @@ const Judges: React.FC = () => {
           authenticatedCall: false
         });
 
-        console.log(response);
         if (response && response.scores) {
           setTeams(response.scores);
         }
@@ -51,8 +46,28 @@ const Judges: React.FC = () => {
     if (userRegistration?.id) {
       fetchTeamsForJudge();
     }
+  }, []);
 
-    console.log("fetched");
+  useEffect(() => {
+    const fetchTeamsForJudge = async () => {
+      try {
+        const response = await fetchBackend({
+          endpoint: `/team/judge/feedback/${userRegistration?.id}`,
+          method: "GET",
+          authenticatedCall: false
+        });
+
+        if (response && response.scores) {
+          setTeams(response.scores);
+        }
+      } catch (error) {
+        console.error("Error fetching teams for judge:", error);
+      }
+    };
+
+    if (userRegistration?.id) {
+      fetchTeamsForJudge();
+    }
   }, [userRegistration?.id, refreshTrigger]);
 
   const pages = [

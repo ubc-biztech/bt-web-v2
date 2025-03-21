@@ -3,7 +3,7 @@ import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion";
 import React, { useEffect, useState } from "react";
 import RubricModal from "../ui/rubric/RubricModal";
-import { initScore, isGraded, mapMetricsToCategories } from "../constants/rubricContents";
+import { initScore, mapMetricsToCategories } from "../constants/rubricContents";
 import Tag from "../ui/rubric/Tag";
 import RubricGrid from "../ui/rubric/RubricGrid";
 import { ScoringMetric, ScoringRecord, TeamFeedback } from "@/components/companion/productX/types";
@@ -63,7 +63,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         authenticatedCall: false
       });
 
-      refreshData();
+      await refreshData();
       showRubric(false);
     } catch (error) {
       console.error(error);

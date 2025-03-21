@@ -93,12 +93,6 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
     );
   }
 
-  // console.log(
-  //   !!teamsJudged.find((val) => {
-  //     return currentTeam && val.teamID === (currentTeam as any).currentTeamID;
-  //   })
-  // );
-
   return (
     <>
       <FadeWrapper className='flex flex-row mt-10 gap-8'>

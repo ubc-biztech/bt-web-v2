@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -47,7 +48,7 @@ const menuVariants = {
 };
 
 export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
-  const triggerSignOut = () => {
+  const handleSignOut = () => {
     console.log("Signing out...");
     localStorage.removeItem(COMPANION_EMAIL_KEY);
     localStorage.removeItem(TEAM_NAME);
@@ -70,9 +71,10 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
                 key={label}
                 href={href}
                 className='flex flex-row items-center text-sm text-white font-ibm ml-8 tracking-wider py-2'
-                onClick={() => {
+                onClick={(e) => {
                   if (label === "Sign out") {
-                    triggerSignOut();
+                    e.preventDefault(); // Prevent default link behavior
+                    handleSignOut();
                   }
                 }}
               >
