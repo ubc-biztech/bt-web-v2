@@ -118,30 +118,41 @@ const User: React.FC<UserProps> = ({ teamID }) => {
 
   const teamName = team_info?.teamName;
   const flattened_team_feedback = team_feedback && Object.values(team_feedback).flat();
+  const hasFeedback = !!flattened_team_feedback?.length;
   const comments = flattened_team_feedback?.flatMap(({ judgeName, feedback }) =>
     Object.entries(feedback).map(([category, message]) => ({
       judgeName,
       category,
       message
     }))
-);
+  );
   const pages = [
     {
       name: "Dashboard",
       icon: PanelsTopLeft,
-      component: (
+      component: hasFeedback ? (
         <Dashboard
           team_name={teamName || ""}
           members={teamMemberNames}
-          flat_records={flattened_team_feedback || []}
+          flat_records={flattened_team_feedback}
           comments={comments || []}
         />
+      ) : (
+        <div className="p-4 text-center text-gray-500">
+          No feedback given yet.
+        </div>
       )
     },
     {
       name: "Scores",
       icon: BadgeCheck,
-      component: <Scores teamName={teamName || ""} records={team_feedback} />
+      component: hasFeedback ? (
+        <Scores teamName={teamName || ""} records={team_feedback} />
+      ) : (
+        <div className="p-4 text-center text-gray-500">
+          No feedback given yet.
+        </div>
+      )
     }
   ];
 
