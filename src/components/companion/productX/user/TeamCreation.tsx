@@ -241,4 +241,3 @@ const TeamCreation: React.FC = () => {
 };
 
 export default TeamCreation;
-//michael
