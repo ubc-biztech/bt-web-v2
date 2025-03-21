@@ -38,12 +38,12 @@ const RubricComments: React.FC<RubricCommentsProps> = ({ feedback, setFeedback }
                     const hasComment = comment.trim() !== "";
                     const isJudge = userRegistration?.isPartner;
 
+                    // TODO: make the comment component nicer
                     return (
                         <div className="w-full relative" key={index}>
                             <button
-                                className={`w-full bg-[#151528] px-5 py-3 rounded-lg shadow-md text-left flex justify-between items-center ${
-                                    !hasComment && !isJudge ? "cursor-not-allowed opacity-50" : ""
-                                }`}
+                                className={`w-full bg-[#151528] px-5 py-3 rounded-lg shadow-md text-left flex justify-between items-center ${!hasComment && !isJudge ? "cursor-not-allowed opacity-50" : ""
+                                    }`}
                                 onClick={() => (isJudge || hasComment) && setOpenIndex(openIndex === index ? null : index)}
                                 disabled={!hasComment && !isJudge}
                             >
@@ -52,13 +52,12 @@ const RubricComments: React.FC<RubricCommentsProps> = ({ feedback, setFeedback }
                                 </span>
                                 <span className="text-white text-xl">{openIndex === index ? "−" : "+"}</span>
                             </button>
-                
+
                             {openIndex === index && (hasComment || isJudge) && (
                                 <div className="w-full bg-[#151528] p-5 mt-2 rounded-lg shadow-md flex flex-col">
                                     <textarea
-                                        className={`w-full bg-[#151528] text-white resize-none p-2 rounded-md ${
-                                            !isJudge ? "pointer-events-none select-none" : ""
-                                        }`}
+                                        className={`w-full bg-[#151528] text-white resize-none p-2 rounded-md ${!isJudge ? "pointer-events-none select-none" : ""
+                                            }`}
                                         defaultValue={comment}
                                         onBlur={(e) => {
                                             if (isJudge) {
