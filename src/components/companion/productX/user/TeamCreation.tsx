@@ -147,31 +147,23 @@ const TeamCreation: React.FC = () => {
                 )}
 
                 {!isLoading && (
-                    <>
-                        <motion.div
-                            key="team"
-                            initial="initial"
-                            animate="animate"
-                            exit="exit"
-                            variants={pageVariants}
-                            transition={transition}
-                            className="flex flex-col items-center w-full z-20"
-                        >
-                            <Image
-                                src={BigProdX}
-                                alt="ProductX Logo"
-                                width={315}
-                                height={100}
-                                className="mb-4"
-                            />
-                            <header className="text-2xl font-ibm mb-4">
-                                Welcome, <span className="text-[#898BC3]">{userRegistration?.basicInformation.fname || "Guest"}</span>
-                            </header>
-                            <p className="font-ibm mb-8 text-sm text-white text-center">
-                                Looks like you haven&apos;t formed a team yet. Let&apos;s get you set up!
-                            </p>
-                            <form onSubmit={handleTeamSubmit} className="max-w-sm w-full">
-                                <div className="font-ibm mb-4">
+                    <motion.div
+                        key="team"
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        variants={pageVariants}
+                        transition={transition}
+                        className="flex flex-col items-center w-full z-20"
+                    >
+                        <header className="text-2xl font-ibm mb-4">
+                            Welcome, <span className="text-[#898BC3]">Firstname Lastname</span>
+                        </header>
+                        <p className="font-ibm mb-8 text-sm text-white text-center">
+                            Looks like you haven&apos;t formed a team yet. Let&apos;s get you set up!
+                        </p>
+                        <form onSubmit={handleTeamSubmit} className=" max-w-sm w-full">
+                        <div className="font-ibm mb-4">
                                     <input
                                         type="text"
                                         name="teamName"
@@ -184,81 +176,63 @@ const TeamCreation: React.FC = () => {
                                         <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Team Name is required</p>
                                     )}
                                 </div>
-                                <div className="font-ibm mb-4">
-                                    <input
-                                        type="email"
-                                        name="member1"
-                                        placeholder="Team Member 1 Email"
-                                        value={teamMembers.member1}
-                                        readOnly
-                                        className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member1 ? 'border-2 border-[#DE3163]' : ''}`}
-                                    />
-                                    {errors.member1 && (
-                                        <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
-                                    )}
-                                </div>
-                                <div className="font-ibm mb-4">
-                                    <input
-                                        type="email"
-                                        name="member2"
-                                        placeholder="Team Member 2 Email"
-                                        value={teamMembers.member2}
-                                        onChange={handleChange}
-                                        className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member2 ? 'border-2 border-[#DE3163]' : ''}`}
-                                    />
-                                    {errors.member2 && (
-                                        <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
-                                    )}
-                                </div>
-                                <div className="font-ibm mb-4">
-                                    <input
-                                        type="email"
-                                        name="member3"
-                                        placeholder="Team Member 3 Email"
-                                        value={teamMembers.member3}
-                                        onChange={handleChange}
-                                        className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member3 ? 'border-2 border-[#DE3163]' : ''}`}
-                                    />
-                                    {errors.member3 && (
-                                        <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
-                                    )}
-                                </div>
-                                <div className="font-ibm mb-4">
-                                    <input
-                                        type="email"
-                                        name="member4"
-                                        placeholder="Team Member 4 Email (Optional)"
-                                        value={teamMembers.member4}
-                                        onChange={handleChange}
-                                        className="w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3]"
-                                    />
-                                </div>
-                                <button
-                                    type="submit"
-                                    className="w-full p-3 font-ibm text-sm font-400 bg-[#198E7C] text-white hover:bg-[#4CC8BD80]"
-                                >
-                                    CONTINUE
-                                </button>
-                            </form>
-                        </motion.div>
-
-                        <motion.div
-                            key="bizbot"
-                            initial={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute bottom-0 right-0 w-[800px] h-auto z-50"
-                        >
-                            <Image
-                                src={ProdxBizBot}
-                                alt="ProdxBizBot"
-                                className="object-contain"
-                                width={800}
-                                height={800}
-                                priority
-                            />
-                        </motion.div>
-
-                    </>
+                            <div className="font-ibm mb-4">
+                                <input
+                                    type="email"
+                                    name="member1"
+                                    placeholder="Team Member 1 Email"
+                                    value={teamMembers.member1}
+                                    onChange={handleChange}
+                                    className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member1 ? 'border-2 border-[#DE3163]' : ''}`}
+                                />
+                                {errors.member1 && (
+                                    <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
+                                )}
+                            </div>
+                            <div className="font-ibm mb-4">
+                                <input
+                                    type="email"
+                                    name="member2"
+                                    placeholder="Team Member 2 Email"
+                                    value={teamMembers.member2}
+                                    onChange={handleChange}
+                                    className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member2 ? 'border-2 border-[#DE3163]' : ''}`}
+                                />
+                                {errors.member2 && (
+                                    <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
+                                )}
+                            </div>
+                            <div className="font-ibm mb-4">
+                                <input
+                                    type="email"
+                                    name="member3"
+                                    placeholder="Team Member 3 Email"
+                                    value={teamMembers.member3}
+                                    onChange={handleChange}
+                                    className={`w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3] ${errors.member3 ? 'border-2 border-[#DE3163]' : ''}`}
+                                />
+                                {errors.member3 && (
+                                    <p className="font-ibm text-xs text-[#DE3163] mt-1">Error: Field is required</p>
+                                )}
+                            </div>
+                            <div className="font-ibm mb-4">
+                                <input
+                                    type="email"
+                                    name="member4"
+                                    placeholder="Team Member 4 Email (Optional)"
+                                    value={teamMembers.member4}
+                                    onChange={handleChange}
+                                    className="w-full p-3 bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3] placeholder-[#898BC3]"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="w-full p-3 font-ibm text-sm font-400 bg-[#198E7C] text-white hover:bg-[#4CC8BD80]"
+                            >
+                                CONTINUE
+                            </button>
+                        </form>
+                    </motion.div>
                 )}
             </AnimatePresence>
         )}
