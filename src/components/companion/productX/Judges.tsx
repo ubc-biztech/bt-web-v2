@@ -39,7 +39,6 @@ const Judges: React.FC = () => {
           authenticatedCall: false
         });
 
-        console.log(response);
         if (response && response.scores) {
           setTeams(response.scores);
         }

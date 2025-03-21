@@ -20,6 +20,7 @@ interface RubricProps {
 const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric, createOrUpdateFlag }) => {
   const { userRegistration } = useUserRegistration();
   const { refreshData } = useJudgesRefresh();
+  const [comments, setComments] = useState<{ [key: string]: string }>(team_feedback.feedback || {});
 
   const [modal, setModal] = useState(false);
   const [score, setScore] = useState<ScoringRecord>(team_feedback.scores || initScore);
@@ -48,7 +49,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
       eventID: "productx",
       year: 2025,
       judgeID: userRegistration?.id || "",
-      feedback: "this is a feedback",
+      feedback: comments,
       scores: score
     };
 
@@ -72,7 +73,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
 
     console.log("great success!");
   };
-
+  console.log(comments)
   return (
     <>
       <div className='top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-[#020319] flex flex-col items-center px-14'>
@@ -106,7 +107,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         <RubricGrid scoring={score} setScoring={setScore} editable={true} />
 
         {/* Comments */}
-        <RubricComments feedback={team_feedback.feedback} />
+        <RubricComments feedback={comments} setFeedback={setComments} />
 
         {/* Submission */}
         <div className='w-full flex flex-row items-center justify-between mb-56 mt-12'>

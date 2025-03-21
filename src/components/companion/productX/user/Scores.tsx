@@ -63,7 +63,7 @@ const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
                     <Box innerShadow={20} className={`flex flex-col justify-center pl-5`}>
                       <ul className='text-[#898BC3]'>
                         {reports.map((report, index) => {
-                          return <li key={index}>{report.judgeID}</li>;
+                          return <li key={index}>{report.judgeName}</li>;
                         })}
                       </ul>
                     </Box>
