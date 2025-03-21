@@ -60,7 +60,7 @@ interface DashboardProps {
     team_name: string;
     members: string[];
     flat_records: TeamFeedback[];
-    comments: {judgeName: string, category: string, message: string}[];
+    comments: { judgeName: string, category: string, message: string }[];
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -147,21 +147,19 @@ const Dashboard: React.FC<DashboardProps> = ({
                                 <span className="text-md text-white">
                                     Comments
                                 </span>
-                                {comments.slice(0, 3).map((comment, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex flex-col text-[12px]"
-                                    >
-                                        <div className="flex flex-row gap-1">
-                                            <User size={20} />
-                                            <header className="text-mb">
-                                                {comment.judgeName}
-                                            </header>
+                                {comments
+                                    .filter(comment => comment.message.trim() !== "") // Remove empty messages
+                                    .slice(0, 3) // Take the first 3 non-empty comments
+                                    .map((comment, index) => (
+                                        <div key={index} className="flex flex-col text-[12px]">
+                                            <div className="flex flex-row gap-1">
+                                                <User size={20} />
+                                                <header className="text-mb">{comment.judgeName}</header>
+                                            </div>
+                                            <span>{comment.category}: {comment.message}</span>
                                         </div>
-
-                                        <span>{comment.category}: {comment.message}</span>
-                                    </div>
-                                ))}
+                                    ))
+                                }
                             </Box>
                         </div>
                     </div>
