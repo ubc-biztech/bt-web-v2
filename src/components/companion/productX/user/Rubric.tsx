@@ -18,6 +18,7 @@ interface RubricProps {
 const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric }) => {
   const [modal, setModal] = useState(false);
   const [scoring, setScoring] = useState<ScoringRecord>(team_feedback.scores || initScore);
+  const [comments, setComments] = useState<{ [key: string]: string }>(team_feedback.feedback || {});
 
   const metrics = Object.keys(scoring) as ScoringMetric[];
 
@@ -69,7 +70,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
         <RubricGrid scoring={scoring} setScoring={setScoring} editable={false} />
 
         {/* Comments */}
-        <RubricComments feedback={team_feedback.feedback} />
+        <RubricComments feedback={comments} setFeedback={setComments} />
 
         {/* Submission */}
         <div className='w-full flex flex-row items-center justify-between mb-56 mt-12'>

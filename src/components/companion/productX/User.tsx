@@ -118,12 +118,13 @@ const User: React.FC<UserProps> = ({ teamID }) => {
 
   const teamName = team_info?.teamName;
   const flattened_team_feedback = team_feedback && Object.values(team_feedback).flat();
-  const comments = flattened_team_feedback?.flatMap(({ judgeID, feedback }) =>
-    Object.values(feedback).map((message) => ({
-      judgeID,
+  const comments = flattened_team_feedback?.flatMap(({ judgeName, feedback }) =>
+    Object.entries(feedback).map(([category, message]) => ({
+      judgeName,
+      category,
       message
     }))
-  );
+);
   const pages = [
     {
       name: "Dashboard",

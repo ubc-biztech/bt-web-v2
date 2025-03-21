@@ -29,8 +29,7 @@ const transformFeedbackToBarChartData = (entries: TeamFeedback[]) => {
         const totalScore = aggregateScore(entry.scores);
 
         return {
-            // TODO: Display Judge Name instead of ID
-            label: entry.judgeID,
+            label: entry.judgeName,
             value: totalScore,
         };
     });
@@ -61,7 +60,7 @@ interface DashboardProps {
     team_name: string;
     members: string[];
     flat_records: TeamFeedback[];
-    comments: {judgeID: string, message: string}[];
+    comments: {judgeName: string, category: string, message: string}[];
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -156,11 +155,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         <div className="flex flex-row gap-1">
                                             <User size={20} />
                                             <header className="text-mb">
-                                                {comment.judgeID}
+                                                {comment.judgeName}
                                             </header>
                                         </div>
 
-                                        <span>{comment.message}</span>
+                                        <span>{comment.category}: {comment.message}</span>
                                     </div>
                                 ))}
                             </Box>
