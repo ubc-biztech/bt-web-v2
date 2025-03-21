@@ -1,13 +1,27 @@
 import { TeamScoreCard } from "@/components/companion/productX/TeamScoreCard";
 import { TeamResponse } from "@/components/companion/productX/types";
 import { fetchBackend } from "@/lib/db";
-import { Award, BarChart3, Users, X } from "lucide-react";
+import { Award, BarChart3, RotateCcw, Flag } from "lucide-react";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { JudgeResponse } from "@/components/companion/productX/types";
-import { result } from "lodash";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
+
+interface Round {
+  round: string;
+}
 
 const ProductX: NextPage = () => {
   const [results, setResults] = useState<TeamResponse[]>([]);
@@ -15,12 +29,19 @@ const ProductX: NextPage = () => {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamResponse | null>(null);
   const [selectedJudge, setSelectedJudge] = useState<string>("");
+  const [isRoundRobin, setIsRoundRobin] = useState<boolean>(true);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const response: TeamResponse[] = await fetchBackend({ endpoint: "/team/scores-all", method: "GET", authenticatedCall: false });
+      const promises: [Promise<TeamResponse[]>, Promise<Round>] = [
+        fetchBackend({ endpoint: "/team/scores-all", method: "GET", authenticatedCall: false }),
+        fetchBackend({ endpoint: "/team/round", method: "GET", authenticatedCall: false })
+      ];
+
+      const [response, round] = await Promise.all(promises);
       setResults(response);
-      console.log(results);
+      setIsRoundRobin(round.round === "1");
     };
 
     fetchData();
@@ -38,10 +59,44 @@ const ProductX: NextPage = () => {
     return selectedTeam?.originalResponses.find((response) => response.judge === selectedJudge);
   };
 
+  const handleRoundToggle = async () => {
+    const response: Round = await fetchBackend({
+      endpoint: `/team/round/${isRoundRobin ? "2" : "1"}`,
+      method: "PUT",
+      authenticatedCall: true
+    });
+    setIsRoundRobin(response.round === "1");
+    setConfirmDialogOpen(false);
+  };
+
   return (
     <div className='w-full px-10 bg-[#13132D] min-h-screen text-white'>
       <div className='flex flex-col'>
-        <header className='mt-16 text-lg font-ibm'>PRODUCT X 2025 RESULTS</header>
+        <header className='mt-16 flex justify-between items-center'>
+          <h1 className='text-lg font-ibm'>PRODUCT X 2025 RESULTS</h1>
+
+          <div className='flex items-center'>
+            <div className='mr-3 flex items-center'>
+              <span className={`inline-block w-3 h-3 rounded-full mr-2 ${isRoundRobin ? "bg-orange-400" : "bg-green-400"}`}></span>
+              <span className='text-sm text-[#8A8CB1]'>{isRoundRobin ? "Regular Scoring" : "Finals"}</span>
+            </div>
+            <Button
+              variant='outline'
+              className='bg-[#1E1F3D] border-[#41437D] hover:bg-[#282952] text-[#4CC8BD] hover:text-white'
+              onClick={() => setConfirmDialogOpen(true)}
+            >
+              {isRoundRobin ? (
+                <>
+                  <Flag size={16} className='mr-2' /> Set as Finals
+                </>
+              ) : (
+                <>
+                  <RotateCcw size={16} className='mr-2' /> Set as Regular Judging
+                </>
+              )}
+            </Button>
+          </div>
+        </header>
 
         <div className='border-b-2 border-[#41437D] mt-6 flex flex-row'>
           <div
@@ -199,6 +254,27 @@ const ProductX: NextPage = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent className='bg-[#1E1F3D] text-white border-[#41437D]'>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='text-[#4CC8BD]'>Change Round Status</AlertDialogTitle>
+            <AlertDialogDescription className='text-[#ADAFE4]'>
+              Are you sure you want to change the current round to {isRoundRobin ? "Finals" : "Round Robin"}?
+              {isRoundRobin
+                ? " This will finalize the current results and prepare for the final round."
+                : " This will reset the competition to the round robin phase."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className='flex gap-3'>
+            <AlertDialogCancel className='bg-[#13132D] border-[#41437D] text-white hover:bg-[#282952]'>Cancel</AlertDialogCancel>
+            <AlertDialogAction className='bg-[#4CC8BD] text-[#13132D] hover:bg-[#3AA99F]' onClick={handleRoundToggle}>
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
