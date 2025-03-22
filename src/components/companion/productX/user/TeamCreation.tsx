@@ -55,10 +55,10 @@ const TeamCreation: React.FC = () => {
 
         // Check required fields
         const newErrors = {
-            teamName: !teamName.trim(), // Ensure team name isn't empty
-            member1: !teamMembers.member1,
-            member2: !teamMembers.member2,
-            member3: !teamMembers.member3,
+            teamName: !teamName.trim(),
+            member1: false,
+            member2: false,
+            member3: false,
         };
 
         setErrors(newErrors);
