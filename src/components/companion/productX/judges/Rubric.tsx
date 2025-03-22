@@ -45,7 +45,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
   const handleSubmitScore = async () => {
     const data = {
       teamID: team_feedback.teamID,
-      round: 1, // ! hardcoded values here
+      round: Number(team_feedback.round),
       eventID: "productx",
       year: 2025,
       judgeID: userRegistration?.id || "",
@@ -81,7 +81,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         <div className='w-full flex flex-row justify-between mt-36'>
           <div className='flex flex-row gap-5 items-center'>
             <header className='text-xl'>
-              {team_feedback.round}: {team_feedback.teamName}
+              {team_feedback.round} : {team_feedback.teamName}
             </header>
 
             {/* Tags */}
@@ -105,7 +105,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         <div className='w-full h-[1px] bg-[#41437D] mt-3'>&nbsp;</div>
 
         {/* Grid */}
-        <RubricGrid scoring={score} setScoring={setScore} editable={true} />
+        <RubricGrid scoring={score} setScoring={setScore} editable={true} idx={-1} />
 
         {/* Comments */}
         <RubricComments feedback={comments} setFeedback={setComments} />

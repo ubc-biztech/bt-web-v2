@@ -17,21 +17,19 @@ interface RoundsProps {
 const Rounds: React.FC<RoundsProps> = ({ records }) => {
   const { userRegistration } = useUserRegistration();
 
-  const teamsJudged = records ? Object.values(records).flat() : [];
+  const teamsJudged = records
+    ? Object.values(records)
+        .flat()
+        .sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })
+    : [];
 
   const [showRubric, setShowRubric] = useState(false);
   const [teamFeedback, setTeamFeedback] = useState<TeamFeedback>(teamsJudged[0]);
   const [teamStatus, setTeamStatus] = useState("CURRENTLY PRESENTING");
   const [currentTeam, setCurrentTeam] = useState(null);
-
-  const [currentRound, setCurrentRound] = useState(Math.max(...Object.keys(records || {}).map((key) => parseInt(key, 10))));
-
-  useEffect(() => {
-    if (!records) {
-      return;
-    }
-    setCurrentRound(Math.max(...Object.values(records).map((record: any) => parseInt(record.round, 10))));
-  }, [records]);
+  const [currentRound, setCurrentRound] = useState("");
 
   useEffect(() => {
     const fetchCurrentTeam = async () => {
@@ -46,8 +44,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         ];
         const [response, round] = await Promise.all(promises);
 
-        console.log(round);
-        console.log(teamsJudged);
+        setCurrentRound(round.round);
 
         if (
           teamsJudged.find((val) => {
@@ -67,7 +64,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
           else {
             // fallback, manually setting new feedback params
             setTeamFeedback({
-              round: `ROUND ${currentRound}`,
+              round: `${currentRound === "2" ? "FINAL ROUND" : "REGULAR JUDGING"}`,
               judgeID: response.id,
               judgeName: response.judgeName,
               scores: { ...initScore },
@@ -109,6 +106,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
           {currentTeam && (
             <ProjectRow
               team_name={(currentTeam as any).currentTeamName}
+              round={currentRound}
               team_status={`CURRENTLY PRESENTING`}
               read_only={false}
               presenting={true}
@@ -131,6 +129,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
               scored && (
                 <ProjectRow
                   key={index}
+                  round={teamFeedback.round}
                   team_name={teamFeedback.teamName}
                   team_status={`COMPLETED ${formatDate(teamFeedback.createdAt)}`}
                   read_only={false}
