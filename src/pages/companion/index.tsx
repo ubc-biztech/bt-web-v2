@@ -64,7 +64,7 @@ const Companion = () => {
   const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
-    return a.activeUntil.getTime() - b.activeUntil.getTime();
+    return b.activeUntil.getTime() - a.activeUntil.getTime();
   });
 
   const currentEvent: Event | undefined =

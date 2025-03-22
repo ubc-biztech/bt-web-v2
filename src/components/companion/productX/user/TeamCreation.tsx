@@ -33,7 +33,7 @@ const TeamCreation: React.FC = () => {
             setTeamMembers(prev => ({ ...prev, member1: userRegistration.id }));
         }
     }, [userRegistration]);
-    
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -102,6 +102,8 @@ const TeamCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error sending request:", error);
+            alert("Failed to create team. One or more team members may not be valid.");
+            // TODO: make this nicer 
         } finally {
             setIsLoading(false);
         }
@@ -122,29 +124,29 @@ const TeamCreation: React.FC = () => {
     return (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#020319] text-white">
             {teamID ? (
-            <User teamID={teamID} />
-        ) : (
-            <AnimatePresence mode="wait">
-                {isLoading && (
-                    <motion.div
-                        key="loading"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        variants={pageVariants}
-                        transition={transition}
-                        className="flex flex-col items-center justify-center absolute inset-0 z-30"
-                    >
-                        <header className="text-2xl text-white font-ibm mb-8">Building Team...</header>
-                        <Image
-                            src={LoaderCircle}
-                            alt="Loading"
-                            width={60}
-                            height={60}
-                            className="[animation:spin_3s_linear_infinite] brightness-0 invert"
-                        />
-                    </motion.div>
-                )}
+                <User teamID={teamID} />
+            ) : (
+                <AnimatePresence mode="wait">
+                    {isLoading && (
+                        <motion.div
+                            key="loading"
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
+                            variants={pageVariants}
+                            transition={transition}
+                            className="flex flex-col items-center justify-center absolute inset-0 z-30"
+                        >
+                            <header className="text-2xl text-white font-ibm mb-8">Building Team...</header>
+                            <Image
+                                src={LoaderCircle}
+                                alt="Loading"
+                                width={60}
+                                height={60}
+                                className="[animation:spin_3s_linear_infinite] brightness-0 invert"
+                            />
+                        </motion.div>
+                    )}
 
                 {!isLoading && (
                     <motion.div

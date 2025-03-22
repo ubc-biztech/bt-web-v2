@@ -50,13 +50,16 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
       year: 2025,
       judgeID: userRegistration?.id || "",
       feedback: comments,
-      scores: score
+      scores: {
+        metric1: score.metric1,
+        metric3: score.metric3,
+        metric2: score.metric2,
+        metric4: score.metric4,
+        metric5: score.metric5
+      }
     };
 
     try {
-      console.log(data);
-      console.log(createOrUpdateFlag);
-
       await fetchBackend({
         endpoint: "/team/judge/feedback",
         method: createOrUpdateFlag ? "POST" : "PUT",
@@ -70,10 +73,8 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
       console.error(error);
       return;
     }
-
-    console.log("great success!");
   };
-  console.log(comments)
+
   return (
     <>
       <div className='top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-[#020319] flex flex-col items-center px-14'>

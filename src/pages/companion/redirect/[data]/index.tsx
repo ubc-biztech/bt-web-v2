@@ -53,8 +53,7 @@ const CompanionRedirectPage = () => {
 
       setLoading(false);
 
-      // After successful processing, you might want to redirect somewhere else
-      // router.push('/some-destination');
+      router.push("/companion");
     } catch (err) {
       setError("Failed to process the data");
       setLoading(false);

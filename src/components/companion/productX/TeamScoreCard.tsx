@@ -5,9 +5,9 @@ export const TeamScoreCard: React.FC<{ teamData: TeamResponse; rank: number }> =
   return (
     <div className='bg-[#1E1F3D] border border-[#41437D] rounded-lg p-4 hover:border-[#4CC8BD] transition-all'>
       <div className='flex justify-between items-center mb-3'>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2 overflow-hidden'>
           <span className='bg-[#41437D] text-[#4CC8BD] font-bold rounded-full w-6 h-6 flex items-center justify-center'>{rank}</span>
-          <h3 className='font-ibm text-white text-lg'>{teamData.team}</h3>
+          <h3 className='font-ibm text-white text-lg'>{teamData.teamName}</h3>
         </div>
         <span
           className={`px-3 py-1 rounded-full text-sm font-medium ${
