@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import { metrics } from "../../constants/rubricContents";
 import { useUserRegistration } from "@/pages/companion";
+import Box from "../Box";
 
 interface RubricCommentsProps {
     feedback: { [key: string]: string };
@@ -40,17 +41,17 @@ const RubricComments: React.FC<RubricCommentsProps> = ({ feedback, setFeedback }
 
                     // TODO: make the comment component nicer
                     return (
-                        <div className="w-full relative" key={index}>
+                        <Box innerShadow={32} className="w-full relative" key={index}>
                             <button
-                                className={`w-full bg-[#151528] px-5 py-3 rounded-lg shadow-md text-left flex justify-between items-center ${!hasComment && !isJudge ? "cursor-not-allowed opacity-50" : ""
+                                className={`w-full px-5 py-3 rounded-lg shadow-md text-left flex justify-between items-center ${!hasComment && !isJudge ? "cursor-not-allowed opacity-50" : ""
                                     }`}
                                 onClick={() => (isJudge || hasComment) && setOpenIndex(openIndex === index ? null : index)}
                                 disabled={!hasComment && !isJudge}
                             >
-                                <span className="text-gray-300">
-                                    <span className="font-bold text-white">{topic}</span>
+                                <span className="text-[#898BC3]">
+                                    <span className="font-normal ">Topic: <span className="font-bold">{topic}</span></span>
                                 </span>
-                                <span className="text-white text-xl">{openIndex === index ? "−" : "+"}</span>
+                                <span className="text-[#898BC3] text-xl">{openIndex === index ? "−" : "+"}</span>
                             </button>
 
                             {openIndex === index && (hasComment || isJudge) && (
@@ -71,7 +72,7 @@ const RubricComments: React.FC<RubricCommentsProps> = ({ feedback, setFeedback }
                                     />
                                 </div>
                             )}
-                        </div>
+                        </Box>
                     );
                 })}
             </div>
