@@ -6,6 +6,7 @@ import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion";
 import { TeamFeedback } from "./types";
 import { UserDashboardLayout } from "./ui/UserDashboardLayout";
+import { capitalizeTeamName } from "../CompanionHome";
 
 // Capitalize team name helper
 const capitalizeTeamName = (name: string) => {

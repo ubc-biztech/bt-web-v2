@@ -1,5 +1,6 @@
 import { Users } from "lucide-react";
 import { TeamResponse } from "./types";
+import { capitalizeTeamName } from "../CompanionHome";
 
 // Capitalize team name helper
 const capitalizeTeamName = (name: string) => {

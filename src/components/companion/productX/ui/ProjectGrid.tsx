@@ -2,11 +2,7 @@ import React from "react";
 import Box from "./Box";
 import Button from "./Button";
 import { Pen, User } from "lucide-react";
-
-// Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-    return name.toUpperCase();
-};
+import { capitalizeTeamName } from "../../CompanionHome";
 
 interface ProjectGridProps {
     team_name: string;
@@ -27,7 +23,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({
                     className={`flex flex-col justify-center pl-5`}
                 >
                     <div className="flex flex-col gap-2">
-                        <div className="flex flex-row gap-2 items-center">
+                    <div className="flex flex-row gap-2 items-center">
                             <User size={20} />
                             <header className="text-md">{capitalizeTeamName(team_name)}</header>
                         </div>

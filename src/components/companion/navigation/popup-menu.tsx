@@ -15,8 +15,6 @@ interface PopupMenuProps {
 }
 
 const navLinks = [
-  { href: "/companion", label: "Home", icon: homeIcon },
-  { href: "/companion/rubric", label: "Rubric", icon: rubricIcon },
   { href: "/companion", label: "Sign out", icon: signOutIcon }
 ];
 
@@ -59,7 +57,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
     <AnimatePresence mode='wait'>
       {isOpen && (
         <motion.nav
-          className='fixed top-0 right-0 mr-14 mt-32 z-50 w-56 h-36'
+          className='fixed top-0 right-0 mr-14 mt-32 z-50 w-56 h-16'
           variants={menuVariants}
           initial='hidden'
           animate='visible'

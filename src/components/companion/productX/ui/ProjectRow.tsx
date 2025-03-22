@@ -5,6 +5,7 @@ import React from "react";
 import Box from "./Box";
 import Button from "./Button";
 import { ArrowUpRight, Pen, User } from "lucide-react";
+import { capitalizeTeamName } from "../../CompanionHome";
 
 interface ProjectRowPropsBase {
   team_name: string; // * team name
@@ -52,7 +53,10 @@ const ProjectRow: React.FC<ProjectRowProps> = ({ team_name, team_status, read_on
     <div className='w-full h-32'>
       <Box innerShadow={20} className={`flex flex-row justify-between items-center pl-5`}>
         <div className='flex flex-col gap-2'>
-          <header className='text-md'>{`${team_name} ${round === "2" ? " • FINAL ROUND" : ""}`}</header>
+          <div className="flex flex-row gap-2 items-center">
+            <User size={20} />
+            <header className="text-md">{capitalizeTeamName(`${team_name} ${round === "2" ? " • FINAL ROUND" : ""}`)}</header>
+          </div>
           <span className='text-sm text-[#898BC3]'>{`${team_status}`}</span>
         </div>
         {read_only ? (
