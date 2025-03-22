@@ -29,11 +29,7 @@ const History: React.FC<HistoryProps> = ({ records }) => {
   if (!records) {
     console.log(records);
     return <div>Loading...</div>;
-  }
-
-  const isGraded = (grades: Record<string, { N: string }>) => {
-    return Object.values(grades).every((grade) => Number(grade.N) !== 0);
-  }; // expecting to deal with Nkeys
+  } // expecting to deal with Nkeys
 
   return (
     <>

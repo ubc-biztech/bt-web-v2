@@ -16,9 +16,10 @@ interface RubricGridProps {
   scoring: ScoringRecord;
   setScoring: React.Dispatch<React.SetStateAction<ScoringRecord>>;
   editable: boolean;
+  idx: number;
 }
 
-const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable }) => {
+const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, idx }) => {
   const metrics = Object.keys(scoring) as ScoringMetric[];
 
   const getRating = (metric: ScoringMetric) => {
@@ -40,7 +41,7 @@ const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable }
       {/* All possible ratings */}
       <div />
       {ratings.map((rating, index) => (
-        <div key={`${rating}-${index}`} className='flex flex-row items-end justify-center p-8'>
+        <div key={`${rating}-${index}-${idx}`} className='flex flex-row items-end justify-center p-8'>
           <span className='text-lg'>{rating}</span>
         </div>
       ))}

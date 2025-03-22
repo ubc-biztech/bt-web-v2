@@ -7,7 +7,7 @@ import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion";
 import ProjectRow from "../ui/ProjectRow";
 import { formatDate } from "../constants/formatDate";
-import { TeamFeedback } from "../types";
+import { Round, TeamFeedback } from "../types";
 import { initScore } from "../constants/rubricContents";
 
 interface RoundsProps {
@@ -17,34 +17,38 @@ interface RoundsProps {
 const Rounds: React.FC<RoundsProps> = ({ records }) => {
   const { userRegistration } = useUserRegistration();
 
-  const teamsJudged = records ? Object.values(records).flat() : [];
+  const teamsJudged = records
+    ? Object.values(records)
+        .flat()
+        .sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })
+    : [];
 
   const [showRubric, setShowRubric] = useState(false);
   const [teamFeedback, setTeamFeedback] = useState<TeamFeedback>(teamsJudged[0]);
   const [teamStatus, setTeamStatus] = useState("CURRENTLY PRESENTING");
   const [currentTeam, setCurrentTeam] = useState(null);
-
-  const [currentRound, setCurrentRound] = useState(Math.max(...Object.keys(records || {}).map((key) => parseInt(key, 10))));
-
-  useEffect(() => {
-    if (!records) {
-      return;
-    }
-    setCurrentRound(Math.max(...Object.values(records).map((record: any) => parseInt(record.round, 10))));
-  }, [records]);
+  const [currentRound, setCurrentRound] = useState("");
 
   useEffect(() => {
     const fetchCurrentTeam = async () => {
       try {
-        const response = await fetchBackend({
-          endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
-          method: "GET",
-          authenticatedCall: false
-        });
+        const promises: [Promise<any>, Promise<Round>] = [
+          fetchBackend({
+            endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
+            method: "GET",
+            authenticatedCall: false
+          }),
+          fetchBackend({ endpoint: `/team/round`, method: "GET", authenticatedCall: false })
+        ];
+        const [response, round] = await Promise.all(promises);
+
+        setCurrentRound(round.round);
 
         if (
           teamsJudged.find((val) => {
-            return val.teamID === response.currentTeamID;
+            return val.teamID === response.currentTeamID && val.round === round.round;
           })
         ) {
           setCurrentTeam(null);
@@ -53,19 +57,21 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
         if (response?.currentTeamName) {
           setCurrentTeam(response);
-          const searchFeedback = teamsJudged.find((feedback) => feedback.teamID === response.currentTeamID);
+          const searchFeedback = teamsJudged.find(
+            (feedback) => feedback.teamID === response.currentTeamID && feedback.round === round.round
+          );
           if (searchFeedback) setTeamFeedback(searchFeedback);
           else {
             // fallback, manually setting new feedback params
             setTeamFeedback({
-              round: `ROUND ${currentRound}`,
+              round: `${currentRound === "2" ? "FINAL ROUND" : "REGULAR JUDGING"}`,
               judgeID: response.id,
               judgeName: response.judgeName,
               scores: { ...initScore },
               feedback: {},
               teamID: response.currentTeamID,
               teamName: response.currentTeamName,
-              createdAt: `CURRENTLY PRESENTING`
+              createdAt: ""
             });
           }
         }
@@ -100,13 +106,12 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
           {currentTeam && (
             <ProjectRow
               team_name={(currentTeam as any).currentTeamName}
-              team_status={`CURRENTLY PRESENTING`}
+              round={currentRound}
+              team_status={teamStatus}
               read_only={false}
               presenting={true}
               onClick={() => {
                 setShowRubric(true);
-                setTeamStatus("CURRENTLY PRESENTING");
-                setTeamFeedback(teamFeedback);
               }}
             />
           )}
@@ -122,8 +127,9 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
               scored && (
                 <ProjectRow
                   key={index}
+                  round={teamFeedback.round}
                   team_name={teamFeedback.teamName}
-                  team_status={`COMPLETED ${formatDate(teamFeedback.createdAt)}`}
+                  team_status={`COMPLETED ${formatDate(teamFeedback.createdAt as string)}`}
                   read_only={false}
                   presenting={false}
                   onClick={() => {
@@ -137,7 +143,12 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         </div>
       </FadeWrapper>
       {showRubric && (
-        <Rubric team_feedback={teamFeedback} team_status={teamStatus} showRubric={setShowRubric} createOrUpdateFlag={!!currentTeam} />
+        <Rubric
+          team_feedback={teamFeedback}
+          team_status={`${teamFeedback.createdAt.length > 0 ? formatDate(teamFeedback.createdAt) : "CURRENTLY PRESENTING"}`}
+          showRubric={setShowRubric}
+          createOrUpdateFlag={!!currentTeam}
+        />
       )}
     </>
   );

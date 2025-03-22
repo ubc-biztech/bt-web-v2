@@ -71,7 +71,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
         <div className='w-full h-[1px] bg-[#41437D] mt-3'>&nbsp;</div>
 
         {/* Grid */}
-        <RubricGrid scoring={scoring} setScoring={setScoring} editable={false} />
+        <RubricGrid scoring={scoring} setScoring={setScoring} editable={false} idx={1} />
 
         {/* Comments */}
         <RubricComments feedback={comments} setFeedback={setComments} />
