@@ -7,7 +7,7 @@ import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion";
 import ProjectRow from "../ui/ProjectRow";
 import { formatDate } from "../constants/formatDate";
-import { TeamFeedback } from "../types";
+import { Round, TeamFeedback } from "../types";
 import { initScore } from "../constants/rubricContents";
 
 interface RoundsProps {
@@ -36,15 +36,22 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
   useEffect(() => {
     const fetchCurrentTeam = async () => {
       try {
-        const response = await fetchBackend({
-          endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
-          method: "GET",
-          authenticatedCall: false
-        });
+        const promises: [Promise<any>, Promise<Round>] = [
+          fetchBackend({
+            endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
+            method: "GET",
+            authenticatedCall: false
+          }),
+          fetchBackend({ endpoint: `/team/round`, method: "GET", authenticatedCall: false })
+        ];
+        const [response, round] = await Promise.all(promises);
+
+        console.log(round);
+        console.log(teamsJudged);
 
         if (
           teamsJudged.find((val) => {
-            return val.teamID === response.currentTeamID;
+            return val.teamID === response.currentTeamID && val.round === round.round;
           })
         ) {
           setCurrentTeam(null);
@@ -53,7 +60,9 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
         if (response?.currentTeamName) {
           setCurrentTeam(response);
-          const searchFeedback = teamsJudged.find((feedback) => feedback.teamID === response.currentTeamID);
+          const searchFeedback = teamsJudged.find(
+            (feedback) => feedback.teamID === response.currentTeamID && feedback.round === round.round
+          );
           if (searchFeedback) setTeamFeedback(searchFeedback);
           else {
             // fallback, manually setting new feedback params
