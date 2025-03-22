@@ -13,6 +13,10 @@ interface CompanionHomeProps {
   ChildComponent: ComponentType<any>;
 }
 
+export const capitalizeTeamName = (name: string) => {
+  return name.toUpperCase();
+};
+
 const Counter = ({ value }: { value: number }) => {
   const count = useMotionValue(value <= 10 ? value : 0);
   const rounded = useTransform(count, (latest) => Math.round(latest));

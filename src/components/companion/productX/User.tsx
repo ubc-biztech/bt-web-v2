@@ -6,11 +6,7 @@ import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion";
 import { TeamFeedback } from "./types";
 import { UserDashboardLayout } from "./ui/UserDashboardLayout";
-
-// Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-  return name.toUpperCase();
-};
+import { capitalizeTeamName } from "../CompanionHome";
 
 interface UserProps {
   teamID: string;

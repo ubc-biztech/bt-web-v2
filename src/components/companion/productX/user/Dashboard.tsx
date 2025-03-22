@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { mapMetricsToCategories } from "../constants/rubricContents";
 import { ScoringMetric, ScoringRecord, TeamFeedback } from "../types";
+import { capitalizeTeamName } from "../../CompanionHome";
 
 // helpers
 const aggregateScore = (entry: ScoringRecord) => {
@@ -49,11 +50,6 @@ const findBestMetric = (entries: TeamFeedback[]) => {
   );
 
   return bestMetric[0] || null;
-};
-
-// Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-  return name.toUpperCase();
 };
 
 // dashboard
