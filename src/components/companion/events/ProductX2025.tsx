@@ -10,7 +10,7 @@ const ProductX2025 = () => {
   const { userRegistration } = useUserRegistration();
   const router = useRouter();
 
-  userRegistration?.teamID && localStorage.setItem(TEAM_NAME, userRegistration.teamID);
+  !userRegistration?.isPartner && userRegistration?.teamID && localStorage.setItem(TEAM_NAME, userRegistration.teamID);
   userRegistration?.id && localStorage.setItem(COMPANION_EMAIL_KEY, userRegistration.id);
 
   useEffect(() => {
