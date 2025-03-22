@@ -39,7 +39,6 @@ const RubricComments: React.FC<RubricCommentsProps> = ({ feedback, setFeedback }
                     const hasComment = comment.trim() !== "";
                     const isJudge = userRegistration?.isPartner;
 
-                    // TODO: make the comment component nicer
                     return (
                         <Box innerShadow={32} className="w-full relative" key={index}>
                             <button
