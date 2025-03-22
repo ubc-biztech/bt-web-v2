@@ -36,8 +36,6 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
   } | null>(null);
   const [currentRound, setCurrentRound] = useState("");
 
-  console.log(teamFeedback)
-
   useEffect(() => {
     const fetchCurrentTeam = async () => {
       try {
@@ -52,8 +50,6 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         const [response, round] = await Promise.all(promises);
 
         setCurrentRound(round.round);
-        console.log(currentTeam)
-        console.log(teamFeedback)
 
         if (
           teamsJudged.find((val) => {
