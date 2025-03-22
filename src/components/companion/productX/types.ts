@@ -15,6 +15,10 @@ export interface TeamResponse {
   originalResponses: JudgeResponse[];
 }
 
+export interface Round {
+  round: string;
+}
+
 export type ScoringMetric = "metric1" | "metric2" | "metric3" | "metric4" | "metric5";
 
 export type ScoringRecord = Record<ScoringMetric, number>;

@@ -1,5 +1,5 @@
 import { TeamScoreCard } from "@/components/companion/productX/TeamScoreCard";
-import { TeamResponse } from "@/components/companion/productX/types";
+import { TeamResponse, Round } from "@/components/companion/productX/types";
 import { fetchBackend } from "@/lib/db";
 import { Award, BarChart3, RotateCcw, Flag } from "lucide-react";
 import { NextPage } from "next";
@@ -18,10 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog";
-
-interface Round {
-  round: string;
-}
 
 const ProductX: NextPage = () => {
   const [results, setResults] = useState<TeamResponse[]>([]);
