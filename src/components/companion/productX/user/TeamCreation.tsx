@@ -162,7 +162,7 @@ const TeamCreation: React.FC = () => {
                             <header className="text-2xl font-ibm mb-4">
                                 Welcome,{" "}
                                 <span className="text-[#898BC3]">
-                                    Firstname Lastname
+                                {userRegistration?.basicInformation?.fname} {userRegistration?.basicInformation?.lname}
                                 </span>
                             </header>
                             <p className="font-ibm mb-8 text-sm text-white text-center">
