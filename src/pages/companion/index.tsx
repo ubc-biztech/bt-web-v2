@@ -2,9 +2,9 @@ import { useState, useEffect, useContext, createContext } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
-import { Card } from "@/components/ui/card";
+/* import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; */
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Events from "@/constants/companion-events";
@@ -13,6 +13,8 @@ import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
 import { Badge } from "./badges";
 import { Loader2 } from "lucide-react";
+import BigProdX from "@/assets/2025/productx/biglogo.png";
+import ProdxBizBot from "@/assets/2025/productx/prodxbizbot.png";
 
 export interface Registration {
   id: string;
@@ -74,43 +76,19 @@ const Companion = () => {
   const { eventID, year } = currentEvent || {};
 
   // Animation variants
-  const fadeInUpVariant = {
+ // const fadeInUpVariant = {
+  const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: {
+/*     transition: {
       duration: 0.8,
       ease: [0.6, -0.05, 0.01, 0.99]
-    }
+    } */
+      exit: { opacity: 0, y: -20 }
+
   };
 
-  const backgroundOrbVariants = {
-    blue: {
-      animate: {
-        scale: [1, 1.2, 1],
-        opacity: [0.3, 0.5, 0.3],
-        y: [0, -20, 0]
-      },
-      transition: {
-        duration: 8,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    },
-    purple: {
-      animate: {
-        scale: [1.2, 1, 1.2],
-        opacity: [0.4, 0.6, 0.4],
-        y: [0, 20, 0]
-      },
-      transition: {
-        duration: 10,
-        repeat: Infinity,
-        ease: "easeInOut"
-      }
-    }
-  };
-
-  const shineAnimation = {
+/*   const shineAnimation = {
     animate: {
       x: ["-100%", "100%"]
     },
@@ -133,12 +111,16 @@ const Companion = () => {
       duration: 15,
       repeat: Infinity,
       ease: "linear"
-    }
+    } */
+      const transition = {
+        duration: 0.6,
+        ease: [0.6, -0.05, 0.01, 0.99]
   };
 
   // Styles
   const styles = {
-    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
+//    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
+    container: "min-h-screen w-screen bg-[#020319] relative overflow-hidden flex items-center justify-center",
     card: "flex justify-center items-center min-h-screen overflow-hidden border-none bg-transparent relative z-10",
     blueOrb: "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
     purpleOrb: "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
@@ -314,7 +296,7 @@ const Companion = () => {
   if (!email || !userRegistration) {
     return (
       <div className={styles.container}>
-        <motion.div className={styles.blueOrb} {...backgroundOrbVariants.blue} />
+        {/* <motion.div className={styles.blueOrb} {...backgroundOrbVariants.blue} />
         <motion.div className={styles.purpleOrb} {...backgroundOrbVariants.purple} />
         <Card className={styles.card}>
           <motion.div {...fadeInUpVariant} className={styles.contentWrapper}>
@@ -387,7 +369,62 @@ const Companion = () => {
               )}
             </div>
           </motion.div>
-        </Card>
+        </Card> */}
+               {!isLoading && (
+          <>
+            <motion.div
+              key="email"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={pageVariants}
+              transition={transition}
+              className="flex flex-col items-center w-full max-w-sm z-20"
+            >
+              <Image
+                src={BigProdX}
+                alt="ProductX Logo"
+                width={315}
+                height={100}
+                className="mb-4"
+              />
+              <p className="text-center font-ibm text-white text-sm mb-4">
+                Enter your email or access code to get started.
+              </p>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                setEmail(input);
+              }} className="w-full">
+                <input
+                  type="email"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Start Typing Here..."
+                  className="w-full p-3 font-ibm bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3]"
+                />
+              </form>
+              {error && (
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="text-red-500 text-center mt-4">
+                  {error}
+                </motion.p>
+              )}
+            </motion.div>
+            <motion.div
+              key="bizbot"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute bottom-0 w-screen h-[45vh] z-10"
+            >
+              <Image
+                src={ProdxBizBot}
+                alt="ProdxBizBot"
+                className="object-contain object-bottom"
+                fill
+                priority
+              />
+            </motion.div>
+          </>
+        )}
       </div>
     );
   }
