@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
@@ -14,11 +14,12 @@ import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/compa
 import { Badge } from "./badges";
 import { Loader2 } from "lucide-react";
 
-interface Registration {
+export interface Registration {
   id: string;
   fname: string;
   points?: number;
   isPartner?: boolean;
+  teamID?: string;
   [key: string]: any;
 }
 
@@ -30,7 +31,22 @@ interface EventData {
   [key: string]: any;
 }
 
+interface UserRegistrationContextType {
+  userRegistration: Registration | null;
+}
+
+export const UserRegistrationContext = createContext<UserRegistrationContextType | null>(null);
+
+export const useUserRegistration = () => {
+  const context = useContext(UserRegistrationContext);
+  if (!context) {
+    throw new Error("useUserRegistration must be used within a UserRegistrationProvider");
+  }
+  return context;
+};
+
 const Companion = () => {
+  // Removed redundant UserRegistrationContext definition
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [pageError, setPageError] = useState("");
@@ -46,7 +62,7 @@ const Companion = () => {
   const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
-    return a.activeUntil.getTime() - b.activeUntil.getTime();
+    return b.activeUntil.getTime() - a.activeUntil.getTime();
   });
 
   const currentEvent: Event | undefined =
@@ -146,17 +162,17 @@ const Companion = () => {
     setError("");
 
     try {
-      const [registrationResponse, profileResponse, eventData] = await Promise.all([
+      const [registrationResponse, eventData] = await Promise.all([
         fetchBackend({
           endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
           method: "GET",
           authenticatedCall: false
         }),
-        fetchBackend({
-          endpoint: `/profiles/email/${email}/${eventID}/${year}`,
-          method: "GET",
-          authenticatedCall: false
-        }),
+        // fetchBackend({
+        //   endpoint: `/profiles/email/${email}/${eventID}/${year}`,
+        //   method: "GET",
+        //   authenticatedCall: false
+        // }),
         fetchBackend({
           endpoint: `/events/${eventID}/${year}`,
           method: "GET",
@@ -175,25 +191,25 @@ const Companion = () => {
       setEvent(eventData);
       localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
 
-      if (profileResponse.profileID) {
-        localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
-        
-        if (decodedRedirect !== "") {
-          router.push(decodedRedirect);
-          return;
-        }
+      // if (profileResponse.profileID) {
+      //   localStorage.setItem(COMPANION_PROFILE_ID_KEY, profileResponse.profileID);
 
-        // Fetch connections and badges concurrently if not a partner
-        if (!reg.isPartner) {
-          await Promise.all([fetchConnections(), fetchBadges()]);
-        } else {
-          await fetchConnections();
-        }
-      }
+      //   if (decodedRedirect !== "") {
+      //     router.push(decodedRedirect);
+      //     return;
+      //   }
 
-      if (decodedRedirect !== "") {
-        router.push(decodedRedirect);
-      }
+      // Fetch connections and badges concurrently if not a partner
+      // if (!reg.isPartner) {
+      //   await Promise.all([fetchConnections(), fetchBadges()]);
+      // } else {
+      //   await fetchConnections();
+      // }
+      // }
+
+      //   if (decodedRedirect !== "") {
+      //     router.push(decodedRedirect);
+      //   }
     } catch (err) {
       console.error("Error fetching user data:", err);
       setError("An error occurred while fetching your data.");
@@ -202,70 +218,70 @@ const Companion = () => {
     setIsLoading(false);
   };
 
-  const fetchRegistrations = async () => {
-    try {
-      const response = await fetchBackend({
-        endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
-        method: "GET",
-        authenticatedCall: false
-      });
-      setRegistrations(response.data);
-    } catch (err) {
-      setPageError(err as string);
-    }
-  };
+  // const fetchRegistrations = async () => {
+  //   try {
+  //     const response = await fetchBackend({
+  //       endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
+  //       method: "GET",
+  //       authenticatedCall: false
+  //     });
+  //     setRegistrations(response.data);
+  //   } catch (err) {
+  //     setPageError(err as string);
+  //   }
+  // };
 
-  const fetchConnections = async () => {
-    try {
-      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!profileId) {
-        setPageError("Please log in to view your connections");
-        return;
-      }
+  // const fetchConnections = async () => {
+  //   try {
+  //     const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
+  //     if (!profileId) {
+  //       setPageError("Please log in to view your connections");
+  //       return;
+  //     }
 
-      const data = await fetchBackend({
-        endpoint: `/interactions/journal/${profileId}`,
-        method: "GET",
-        authenticatedCall: false
-      });
-      setConnections(data.data);
-    } catch (err) {
-      setPageError(err as string);
-      console.error("Error fetching connections:", error);
-    }
-  };
+  //     const data = await fetchBackend({
+  //       endpoint: `/interactions/journal/${profileId}`,
+  //       method: "GET",
+  //       authenticatedCall: false
+  //     });
+  //     setConnections(data.data);
+  //   } catch (err) {
+  //     setPageError(err as string);
+  //     console.error("Error fetching connections:", error);
+  //   }
+  // };
 
-  const fetchBadges = async () => {
-    try {
-      const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (!profileId) {
-        setPageError("Please log in to view your badges");
-        return;
-      }
+  // const fetchBadges = async () => {
+  //   try {
+  //     const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
+  //     if (!profileId) {
+  //       setPageError("Please log in to view your badges");
+  //       return;
+  //     }
 
-      const data = await fetchBackend({
-        endpoint: `/interactions/quests/${profileId}`,
-        method: "GET",
-        authenticatedCall: false
-      });
-      const dataWithCompleteStatus = data.data.map((badge: Omit<Badge, "isComplete">) => ({
-        ...badge,
-        isComplete: badge.progress >= badge.threshold
-      }));
-      setBadges(dataWithCompleteStatus);
-      const completedCount = dataWithCompleteStatus.filter((badge: Badge) => badge.isComplete).length;
-      setCompletedBadges(completedCount);
-    } catch (err) {
-      setPageError(err as string);
-      console.error("Error fetching badges:", error);
-    }
-  };
+  //     const data = await fetchBackend({
+  //       endpoint: `/interactions/quests/${profileId}`,
+  //       method: "GET",
+  //       authenticatedCall: false
+  //     });
+  //     const dataWithCompleteStatus = data.data.map((badge: Omit<Badge, "isComplete">) => ({
+  //       ...badge,
+  //       isComplete: badge.progress >= badge.threshold
+  //     }));
+  //     setBadges(dataWithCompleteStatus);
+  //     const completedCount = dataWithCompleteStatus.filter((badge: Badge) => badge.isComplete).length;
+  //     setCompletedBadges(completedCount);
+  //   } catch (err) {
+  //     setPageError(err as string);
+  //     console.error("Error fetching badges:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    const { query } = router;
-    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : "";
-    setDecodedRedirect(redirectParam);
-  }, [router.isReady]);
+  //   useEffect(() => {
+  //     const { query } = router;
+  //     const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : "";
+  //     setDecodedRedirect(redirectParam);
+  //   }, [router.isReady]);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -303,7 +319,14 @@ const Companion = () => {
         <Card className={styles.card}>
           <motion.div {...fadeInUpVariant} className={styles.contentWrapper}>
             <div className='flex flex-col items-center justify-center'>
-              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.2 }} className={styles.logoWrapper}>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{
+                  ...fadeInUpVariant.transition,
+                  delay: 0.2
+                }}
+                className={styles.logoWrapper}
+              >
                 <motion.div className={styles.logoGlow} {...logoGlowAnimation} />
                 <Image
                   src={currentEvent.options.BiztechLogo}
@@ -315,18 +338,40 @@ const Companion = () => {
                   priority
                 />
               </motion.div>
-              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.4 }}>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{
+                  ...fadeInUpVariant.transition,
+                  delay: 0.4
+                }}
+              >
                 <h1 className={styles.title}>Welcome!</h1>
               </motion.div>
-              <motion.p {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.6 }} className={styles.description}>
+              <motion.p
+                {...fadeInUpVariant}
+                transition={{
+                  ...fadeInUpVariant.transition,
+                  delay: 0.6
+                }}
+                className={styles.description}
+              >
                 Please enter the email you used to register for {currentEvent.options.title}
               </motion.p>
-              <motion.div {...fadeInUpVariant} transition={{ ...fadeInUpVariant.transition, delay: 0.8 }}>
+              <motion.div
+                {...fadeInUpVariant}
+                transition={{
+                  ...fadeInUpVariant.transition,
+                  delay: 0.8
+                }}
+              >
                 <Input className={styles.input} onChange={(e) => setInput(e.target.value)} value={input} placeholder='Email' type='email' />
               </motion.div>
               <motion.div
                 {...fadeInUpVariant}
-                transition={{ ...fadeInUpVariant.transition, delay: 1 }}
+                transition={{
+                  ...fadeInUpVariant.transition,
+                  delay: 1
+                }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -348,14 +393,9 @@ const Companion = () => {
   }
 
   return (
-    <CompanionHome
-      isPartner={userRegistration.isPartner}
-      userName={userRegistration?.fname ?? userRegistration?.basicInformation?.fname ?? ""}
-      connectionCount={connections?.length}
-      badgeCount={completedBadges}
-      badges={badges}
-      connections={connections}
-    />
+    <UserRegistrationContext.Provider value={{ userRegistration }}>
+      <CompanionHome ChildComponent={currentEvent.ChildComponent} />
+    </UserRegistrationContext.Provider>
   );
 };
 
