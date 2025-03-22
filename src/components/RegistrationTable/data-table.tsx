@@ -54,7 +54,7 @@ export function DataTable({
     useColumnVisibility(allColumns);
 
   const filterButtonRef = useRef<HTMLButtonElement>(null);
-
+  
   useEffect(() => {
     const filtered = data.filter(attendee => {
       switch (filterValue) {

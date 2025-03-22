@@ -7,8 +7,8 @@ import { PopUpItem } from '../types';
 interface PopupModalProps {
   editEventPopupItems: PopUpItem[] | null,
   modalHandlers: ModalHandlers;
-  eventID?: string;
-  eventYear?: number;
+  eventID: string;
+  eventYear: number;
 }
 
 const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(({ editEventPopupItems, modalHandlers, eventID, eventYear}, ref) => {
@@ -22,7 +22,7 @@ const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(({ editEventPopup
         modalHandlers.handleEditEvent();
         break;
       case PopUpItem.ViewAsMember:
-        modalHandlers.handleViewAsMember();
+        modalHandlers.handleViewAsMember(eventID, eventYear);
         break;
       default:
         console.log(`${item} button clicked`);

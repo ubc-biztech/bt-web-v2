@@ -34,14 +34,16 @@ export default function AttendeeFormRegister() {
     const [isNonMemberModalOpen, setIsNonMemberModalOpen] = useState<boolean>(true);
     const [userRegistered, setUserRegistered] = useState<boolean>(false);
     const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
+    const [userLoading, setUserLoading] = useState<boolean>(true);
 
     const samePricing = () => {
         return event.pricing?.members === event.pricing?.nonMembers;
     };
 
     const isDeadlinePassed = () => {
-        const deadline = new Date(event.deadline).getTime();
-        return deadline < new Date().getTime();
+        const deadline = Date.parse(event.deadline);
+        // get the timestamp down to millisconds
+        return deadline < Date.now();
     };
 
     const checkRegistered = async (email: string): Promise<Boolean> => {
@@ -63,9 +65,9 @@ export default function AttendeeFormRegister() {
                 const { tokens } = await fetchAuthSession();
                 if (tokens) {
                     // User is authenticated, fetch user data
-                    const { username, userId } = await getCurrentUser();
+                    const { signInDetails } = await getCurrentUser();
                     const userData = await fetchBackend({
-                        endpoint: `/users/${userId || username}`,
+                        endpoint: `/users/${signInDetails?.loginId}`,
                         method: "GET",
                     });
                     setUser(userData);
@@ -74,6 +76,7 @@ export default function AttendeeFormRegister() {
             } catch (err: any) {
                 setUserLoggedIn(false);
             }
+            setUserLoading(false);
         }
 
         fetchUser();
@@ -349,6 +352,8 @@ export default function AttendeeFormRegister() {
     }
 
     const renderConditionalViews = () => {
+        if (userLoading) return null;
+
         // wait for fields to load, otherwise the views will display a flash change
         if (!event || !user || !event.pricing) return null;
         // deadline passed

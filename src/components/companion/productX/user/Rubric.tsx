@@ -51,9 +51,12 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
               {team_feedback.round}: {capitalizeTeamName(team_feedback.teamName)}
             </header>
 
-            {/* Tags */}
-            <Tag flag={isGraded(scoring)} />
+              {/* Tags */}
+              <Tag flag={isGraded(scoring)} />
+            </div>
+            <span className='text-sm text-[#898BC3]'>Judge: {team_feedback.judgeName}</span>
           </div>
+
           <div className='flex flex-row gap-3 items-center text-[#898BC3]'>
             <span>{team_status}</span>
             <span>|</span>
