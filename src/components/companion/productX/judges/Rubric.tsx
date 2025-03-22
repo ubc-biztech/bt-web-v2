@@ -51,11 +51,11 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
       judgeID: userRegistration?.id || "",
       feedback: comments,
       scores: {
-        metric1: score.metric1 * 20,
-        metric2: score.metric2 * 20,
-        metric3: score.metric3 * 20,
-        metric4: score.metric4 * 20,
-        metric5: score.metric5 * 20
+        metric1: score.metric1,
+        metric3: score.metric3,
+        metric2: score.metric2,
+        metric4: score.metric4,
+        metric5: score.metric5
       }
     };
 

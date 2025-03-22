@@ -18,7 +18,7 @@ const calculateAverageJudgeScore = (team_feedback: TeamFeedback[]) => {
   }, 0);
   const totalJudges = team_feedback.length;
   const averageScore = totalScores / totalJudges;
-  return Math.round(averageScore / 20); // round
+  return Math.round(averageScore); // round
 };
 
 const transformFeedbackToBarChartData = (entries: TeamFeedback[]) => {
