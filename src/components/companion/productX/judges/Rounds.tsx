@@ -71,7 +71,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
               feedback: {},
               teamID: response.currentTeamID,
               teamName: response.currentTeamName,
-              createdAt: `CURRENTLY PRESENTING`
+              createdAt: ""
             });
           }
         }
@@ -107,13 +107,11 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
             <ProjectRow
               team_name={(currentTeam as any).currentTeamName}
               round={currentRound}
-              team_status={`CURRENTLY PRESENTING`}
+              team_status={teamStatus}
               read_only={false}
               presenting={true}
               onClick={() => {
                 setShowRubric(true);
-                setTeamStatus("CURRENTLY PRESENTING");
-                setTeamFeedback(teamFeedback);
               }}
             />
           )}
@@ -131,7 +129,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
                   key={index}
                   round={teamFeedback.round}
                   team_name={teamFeedback.teamName}
-                  team_status={`COMPLETED ${formatDate(teamFeedback.createdAt)}`}
+                  team_status={`COMPLETED ${formatDate(teamFeedback.createdAt as string)}`}
                   read_only={false}
                   presenting={false}
                   onClick={() => {
@@ -145,7 +143,12 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         </div>
       </FadeWrapper>
       {showRubric && (
-        <Rubric team_feedback={teamFeedback} team_status={teamStatus} showRubric={setShowRubric} createOrUpdateFlag={!!currentTeam} />
+        <Rubric
+          team_feedback={teamFeedback}
+          team_status={`${teamFeedback.createdAt.length > 0 ? formatDate(teamFeedback.createdAt) : "CURRENTLY PRESENTING"}`}
+          showRubric={setShowRubric}
+          createOrUpdateFlag={!!currentTeam}
+        />
       )}
     </>
   );
