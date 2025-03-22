@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserRegistration } from '@/pages/companion';
 import { fetchBackend } from '@/lib/db';
 import User from '../User';
-import SubmissionErrorModal from '../ui/SubmissionErrorModal';
+import SubmissionErrorModal from "../ui/SubmissionErrorModal";
 
 const TeamCreation: React.FC = () => {
     const { userRegistration } = useUserRegistration();
