@@ -60,9 +60,6 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
     };
 
     try {
-      console.log(data);
-      console.log(createOrUpdateFlag);
-
       await fetchBackend({
         endpoint: "/team/judge/feedback",
         method: createOrUpdateFlag ? "POST" : "PUT",
@@ -76,10 +73,8 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
       console.error(error);
       return;
     }
-
-    console.log("great success!");
   };
-  console.log(comments);
+
   return (
     <>
       <div className='top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-[#020319] flex flex-col items-center px-14'>

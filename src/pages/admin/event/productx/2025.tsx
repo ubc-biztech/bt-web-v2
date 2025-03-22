@@ -73,7 +73,7 @@ const ProductX: NextPage = () => {
     <div className='w-full px-10 bg-[#13132D] min-h-screen text-white'>
       <div className='flex flex-col'>
         <header className='mt-16 flex justify-between items-center'>
-          <h1 className='text-lg font-ibm'>PRODUCT X 2025 RESULTS</h1>
+          <h1 className='text-lg  text-white'>PRODUCT X 2025 RESULTS</h1>
 
           <div className='flex items-center'>
             <div className='mr-3 flex items-center'>
@@ -144,7 +144,7 @@ const ProductX: NextPage = () => {
               <div className='flex flex-col gap-8'>
                 {/* Top 3 Winners */}
                 <div className='flex flex-col items-center'>
-                  <h2 className='text-xl font-ibm mb-8 text-[#4CC8BD]'>TOP PERFORMERS</h2>
+                  <h2 className='text-xl mb-8 text-[#4CC8BD]'>TOP PERFORMERS</h2>
                   <div className='flex flex-col md:flex-row gap-6 w-full justify-center'>
                     {results.slice(0, Math.min(3, results.length)).map((team, idx) => (
                       <div
@@ -196,7 +196,7 @@ const ProductX: NextPage = () => {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className='bg-[#1E1F3D] text-white border-[#41437D] max-w-2xl'>
           <DialogHeader>
-            <DialogTitle className='text-xl font-ibm text-[#4CC8BD]'>{selectedTeam?.teamName} - Detailed Scores</DialogTitle>
+            <DialogTitle className='text-xl  text-[#4CC8BD]'>{selectedTeam?.teamName} - Detailed Scores</DialogTitle>
             <DialogClose className='absolute right-4 top-4 text-white hover:text-white'></DialogClose>
           </DialogHeader>
 
