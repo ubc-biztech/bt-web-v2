@@ -59,7 +59,6 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         metric5: score.metric5
       }
     };
-
     try {
       await fetchBackend({
         endpoint: "/team/judge/feedback",
@@ -134,8 +133,19 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
             <Button
               label='SUBMIT SCORE'
               Icon={null}
-              className='hover:text-[#000000] hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-36 h-10'
-              onClick={handleSubmitScore}
+              className='hover:text-black hover:bg-white bg-[#198E7C] border border-[#198E7C] text-white w-36 h-10'
+              onClick={() => {
+                const allScored = metrics.every(
+                  (metric) => typeof score[metric] === "number" && score[metric] > 0
+                );
+
+                if (!allScored) {
+                  alert("Please score all metrics before submitting.");
+                  return;
+                }
+
+                handleSubmitScore();
+              }}
             />
           </div>
         </div>
