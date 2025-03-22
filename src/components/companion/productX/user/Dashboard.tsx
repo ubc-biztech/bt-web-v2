@@ -52,11 +52,6 @@ const findBestMetric = (entries: TeamFeedback[]) => {
   return bestMetric[0] || null;
 };
 
-// Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-  return name.toUpperCase();
-};
-
 // dashboard
 
 interface DashboardProps {

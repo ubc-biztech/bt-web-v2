@@ -91,6 +91,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
             ))}
           </div>
         </div>
+      </div>
     </>
   );
 };

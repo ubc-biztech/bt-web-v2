@@ -44,10 +44,6 @@ type ProjectRowProps = ReadOnlyProps | WriteEnabledProps;
 //     onClick={() => console.log("clicked")}
 
 // Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-    return name.toUpperCase();
-};
-
 const ProjectRow: React.FC<ProjectRowProps> = ({ team_name, team_status, read_only, round, presenting = false, onClick }) => {
   return (
     <div className='w-full h-32'>

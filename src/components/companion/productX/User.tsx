@@ -8,11 +8,6 @@ import { TeamFeedback } from "./types";
 import { UserDashboardLayout } from "./ui/UserDashboardLayout";
 import { capitalizeTeamName } from "../CompanionHome";
 
-// Capitalize team name helper
-const capitalizeTeamName = (name: string) => {
-  return name.toUpperCase();
-};
-
 interface UserProps {
   teamID: string;
 }
