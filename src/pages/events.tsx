@@ -64,7 +64,7 @@ export default function Page({ events }: EventProps) {
       setRegistered(
         registeredEvents
           ? registeredEvents.data.map((event: registeredEvent) => {
-              return event["eventID;year"];
+              return event["eventID;year"]; 
             })
           : []
       );

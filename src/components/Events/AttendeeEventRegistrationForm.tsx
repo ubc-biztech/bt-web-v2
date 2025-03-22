@@ -181,7 +181,7 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
     };
 
     return (
-        <div className="flex text-white">
+        <div className="flex text-white font-satoshi">
             {/* Main content */}
             <div className="flex-1">
                 <Form {...form}>
@@ -202,7 +202,7 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                 <h3 className="text-white font-bold mt-4">{event?.ename}</h3>
 
                                 {/* Event Description */}
-                                <p className="text-gray-300 whitespace-pre-line">{event?.description}</p>
+                                <p className="text-white whitespace-pre-line">{event?.description}</p>
 
                                 <FormField
                                     control={form.control}
@@ -396,7 +396,6 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                                                         const selectedChoices = field.value ? field.value.split(', ') : [];
                                                                         const isChecked = selectedChoices.includes(choice);
                                                                         const isOtherChecked = otherCheckedStates[question.questionId] || false;
-
                                                                         return (
                                                                             <FormItem className="flex items-center space-x-2">
                                                                                 <FormControl>
@@ -505,12 +504,15 @@ export const AttendeeEventRegistrationForm: React.FC<AttendeeEventRegistrationFo
                                                 {question.type === QuestionTypes.UPLOAD && (
                                                     <FormControl>
                                                         <input
-                                                            type="file"
-                                                            onChange={(e) => uploadFile(question.questionId, e)}
-                                                            placeholder="Upload file"
+                                                        type="file"
+                                                        onChange={(e) => uploadFile(question.questionId, e)}
+                                                        className="block w-full h-full text-sm text-gray-500
+                                                                    file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                                                    file:border-0 file:text-sm file:font-semibold
+                                                                    cursor-pointer"
                                                         />
                                                     </FormControl>
-                                                )}
+                    )}
                                             </FormItem>
                                         )}
                                     />

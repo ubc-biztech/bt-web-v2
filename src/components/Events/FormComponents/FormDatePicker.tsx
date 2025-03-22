@@ -16,6 +16,7 @@ interface FormDatePickerProps {
 
 export const FormDatePicker: React.FC<FormDatePickerProps> = ({ name, label }) => {
     const { control } = useFormContext();
+    const timeZone = "America/Los_Angeles"; // Pacific Time
 
     return (
         <FormField
@@ -30,12 +31,12 @@ export const FormDatePicker: React.FC<FormDatePickerProps> = ({ name, label }) =
                                 <Button
                                     variant={"outline"}
                                     className={cn(
-                                        "w-full pl-3 text-left font-normal bg-[#3A496D] font-poppins text-white",
+                                        "w-full pl-3 text-left pt-8 pb-8 font-normal bg-[#3A496D] font-poppins text-white text-wrap",
                                         !field.value && "text-muted-foreground"
                                     )}
                                 >
                                     {field.value ? (
-                                        format(field.value, "PPP 'at' hh:mm a 'PT'")
+                                        format(field.value, `PPP 'at' hh:mm a '${Intl.DateTimeFormat().resolvedOptions().timeZone}'`)
                                     ) : (
                                         <span>Pick a date and time</span>
                                     )}

@@ -17,7 +17,7 @@ import { ModalHandlers } from "@/pages/admin/home";
 import { PopUpItem } from "./types";
 
 type Props = {
-    event: BiztechEvent | null,
+    event: BiztechEvent,
     eventClick: (event: BiztechEvent, isOptionsClick?: boolean) => void;
     modalHandlers: ModalHandlers;
 }
@@ -89,8 +89,8 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
                                 editEventPopupItems={editEventPopupItems} 
                                 ref={ref} 
                                 modalHandlers={modalHandlers} 
-                                eventID={event?.id} 
-                                eventYear={event?.year} 
+                                eventID={event.id} 
+                                eventYear={event.year} 
                             /> : <MoreVertIcon/>}
                     </Button>
                 </div>
