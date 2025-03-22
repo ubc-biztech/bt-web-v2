@@ -4,7 +4,7 @@
 import React from "react";
 import Box from "./Box";
 import Button from "./Button";
-import { ArrowUpRight, Pen } from "lucide-react";
+import { ArrowUpRight, Pen, User } from "lucide-react";
 
 interface ProjectRowPropsBase {
     team_name: string; // * team name
@@ -41,6 +41,11 @@ type ProjectRowProps = ReadOnlyProps | WriteEnabledProps;
 //     presenting={true}
 //     onClick={() => console.log("clicked")}
 
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+    return name.toUpperCase();
+};
+
 const ProjectRow: React.FC<ProjectRowProps> = ({
     team_name,
     team_status,
@@ -55,7 +60,10 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                 className={`flex flex-row justify-between items-center pl-5`}
             >
                 <div className="flex flex-col gap-2">
-                    <header className="text-md">{team_name}</header>
+                    <div className="flex flex-row gap-2 items-center">
+                        <User size={20} />
+                        <header className="text-md">{capitalizeTeamName(team_name)}</header>
+                    </div>
                     <span className="text-sm text-[#898BC3]">
                         {team_status}
                     </span>

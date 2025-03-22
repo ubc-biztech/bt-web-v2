@@ -50,6 +50,12 @@ const findBestMetric = (entries: TeamFeedback[]) => {
 
   return bestMetric[0] || null;
 };
+
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+  return name.toUpperCase();
+};
+
 // dashboard
 
 interface DashboardProps {
@@ -72,14 +78,14 @@ const Dashboard: React.FC<DashboardProps> = ({ team_name, members, flat_records,
     <FadeWrapper className='flex flex-col'>
       <div className='w-full flex flex-row mt-5'>
         <div className='w-1/3 h-full  flex flex-col text-[#ADAFE4]'>
-          <header className='text-xl text-white'>{team_name}</header>
+          <header className='text-xl text-white'>{capitalizeTeamName(team_name)}</header>
           {members.map((member, index) => (
-            <span key={index}>{member}</span>
+            <span key={index} className='mt-1'>{member}</span>
           ))}
         </div>
-        <div className='w-2/3 h-full flex flex-col gap-2'>
+        <div className='w-2/3 h-full flex flex-col gap-4'>
           {/* AVERAGE JUDGE SCORE */}
-          <div className='flex flex-row h-44 gap-2'>
+          <div className='flex flex-row h-44 gap-4'>
             <div className='w-1/3 h-full'>
               <Box innerShadow={20} className='flex flex-col justify-center items-center'>
                 <header className='pb-2 text-[#4CC8BD] text-[3.5em] -mt-5'>
@@ -99,7 +105,7 @@ const Dashboard: React.FC<DashboardProps> = ({ team_name, members, flat_records,
               </Box>
             </div>
           </div>
-          <div className='flex flex-row h-72 gap-2'>
+          <div className='flex flex-row h-72 gap-4'>
             {/* BAR CHART */}
             <div className='w-1/2 h-full'>
               <Box innerShadow={20} className='flex flex-col'>
