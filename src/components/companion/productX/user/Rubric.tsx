@@ -96,3 +96,5 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
 };
 
 export default Rubric;
+
+// Untangling this shit
