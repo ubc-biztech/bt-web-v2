@@ -81,7 +81,7 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric,
         <div className='w-full flex flex-row justify-between mt-36'>
           <div className='flex flex-row gap-5 items-center'>
             <header className='text-xl'>
-              {team_feedback.round} : {team_feedback.teamName}
+              ROUND {team_feedback.round} : {team_feedback.teamName}
             </header>
 
             {/* Tags */}
