@@ -101,7 +101,6 @@ const TeamCreation: React.FC = () => {
             }
         } catch (error) {
             console.error("Error sending request:", error);
-            // TODO: make this nicer
             setSubmissionError(true);
         } finally {
             setIsLoading(false);

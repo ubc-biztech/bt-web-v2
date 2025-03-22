@@ -35,7 +35,6 @@ const ProductX2025 = () => {
     return <User teamID={userRegistration.teamID} />;
   }
 
-  // TODO: integrate Alex's team creation page if curr user has no team
   return <TeamCreation />
 };
 
