@@ -10,6 +10,11 @@ import { ScoringMetric, ScoringRecord, TeamFeedback } from "@/components/compani
 import RubricComments from "../ui/rubric/RubricComments";
 import { useJudgesRefresh } from "../Judges";
 
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+  return name.toUpperCase();
+};
+
 interface RubricProps {
   team_feedback: TeamFeedback; // should be near-native output of endpoint
   team_status: string;

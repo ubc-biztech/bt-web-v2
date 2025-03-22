@@ -5,7 +5,13 @@ import React from "react";
 import FadeWrapper from "../ui/FadeAnimationWrapper";
 import ProjectRow from "../ui/ProjectRow";
 import { TeamFeedback } from "../types";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
 
 interface ScoresProps {
   teamName: string;

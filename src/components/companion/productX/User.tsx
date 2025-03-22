@@ -7,6 +7,11 @@ import { useUserRegistration } from "@/pages/companion";
 import { TeamFeedback } from "./types";
 import { UserDashboardLayout } from "./ui/UserDashboardLayout";
 
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+  return name.toUpperCase();
+};
+
 interface UserProps {
   teamID: string;
 }
@@ -156,7 +161,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
     }
   ];
 
-  return <UserDashboardLayout title={`${teamName} - OVERVIEW`} pages={pages} />;
+  return <UserDashboardLayout title={`${capitalizeTeamName(teamName || '')} - OVERVIEW`} pages={pages} />;
 };
 
 export default User;

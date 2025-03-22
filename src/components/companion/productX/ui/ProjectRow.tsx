@@ -4,7 +4,7 @@
 import React from "react";
 import Box from "./Box";
 import Button from "./Button";
-import { ArrowUpRight, Pen } from "lucide-react";
+import { ArrowUpRight, Pen, User } from "lucide-react";
 
 interface ProjectRowPropsBase {
   team_name: string; // * team name
@@ -41,6 +41,11 @@ type ProjectRowProps = ReadOnlyProps | WriteEnabledProps;
 //     read_only={false}
 //     presenting={true}
 //     onClick={() => console.log("clicked")}
+
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+    return name.toUpperCase();
+};
 
 const ProjectRow: React.FC<ProjectRowProps> = ({ team_name, team_status, read_only, round, presenting = false, onClick }) => {
   return (

@@ -71,13 +71,14 @@ const Judges: React.FC = () => {
   }, [userRegistration?.id, refreshTrigger]);
 
   const pages = [
+    // TODO: Reversed naming, leave as is, come back to refactor component names
     {
-      name: "Rounds",
+      name: "History",
       icon: PanelsTopLeft,
       component: Rounds
     },
     {
-      name: "History",
+      name: "Rounds",
       icon: HistoryIcon,
       component: History
     }
