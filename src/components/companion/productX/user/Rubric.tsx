@@ -9,6 +9,11 @@ import RubricGrid from "../ui/rubric/RubricGrid";
 import { ScoringMetric, ScoringRecord, TeamFeedback } from "@/components/companion/productX/types";
 import RubricComments from "../ui/rubric/RubricComments";
 
+// Capitalize team name helper
+const capitalizeTeamName = (name: string) => {
+  return name.toUpperCase();
+};
+
 interface RubricProps {
   team_feedback: TeamFeedback; // should be near-native output of endpoint
   team_status: string;
@@ -41,11 +46,10 @@ const Rubric: React.FC<RubricProps> = ({ team_feedback, team_status, showRubric 
     <>
       <div className='top-0 left-0 w-screen h-screen scroll overflow-y-auto fixed z-30 bg-[#020319] flex flex-col items-center px-14'>
         <div className='w-full flex flex-row justify-between mt-36'>
-          <div className='flex flex-col gap-1'>
-            <div className='flex flex-row gap-5 items-center'>
-              <header className='text-xl'>
-                {team_feedback.round}: {team_feedback.teamName}
-              </header>
+          <div className='flex flex-row gap-5 items-center'>
+            <header className='text-xl'>
+              {team_feedback.round}: {capitalizeTeamName(team_feedback.teamName)}
+            </header>
 
               {/* Tags */}
               <Tag flag={isGraded(scoring)} />
