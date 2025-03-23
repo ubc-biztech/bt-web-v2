@@ -35,14 +35,20 @@ export async function middleware(request: NextRequest) {
         }
       }
     });
-
+    
     if (!isAdmin) {
       return NextResponse.redirect(new URL("/", request.url));
     }
     
     return response;
   }
-  
+
+  // Handle production redirect to /companion
+  if (process.env.NEXT_PUBLIC_REACT_APP_STAGE === 'production') {
+    url.pathname = '/companion';
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
