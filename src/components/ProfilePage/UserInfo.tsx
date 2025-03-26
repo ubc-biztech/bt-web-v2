@@ -3,7 +3,7 @@ import TextIcon from "./TextIcon";
 import { ProfileRow, ProfileField } from "./ProfileRow";
 import * as Separator from "@radix-ui/react-separator";
 import EditIcon from "../../../public/assets/icons/pencil_icon.svg";
-import { MemberStatus, Profile } from "@/types";
+import { MemberStatus, User } from "@/types";
 import MemberIcon from "../../../public/assets/icons/member_status_icon.svg";
 import NonMemberIcon from "../../../public/assets/icons/non-member_status_icon.svg";
 import ExecIcon from "../../../public/assets/icons/exec_status_icon.svg";
@@ -20,13 +20,13 @@ const renderStatusIcon = (status: string) => {
   }
 };
 
-const extractInitials = (firstName: string, lastName: string) => {
-  const names = [firstName, lastName].filter(Boolean);
+const extractInitials = (firstName: string | undefined, lastName: string | undefined) => {
+  const names = [firstName, lastName].filter(Boolean) as string[];
   const initials = names.map((name) => name.charAt(0).toUpperCase()).join("");
   return initials;
 };
 
-export const UserInfo = ({ profile }: { profile: Profile | null }) => {
+export const UserInfo = ({ profile }: { profile: User | null }) => {
   const status = profile?.admin 
   ? MemberStatus.BizTechExec 
   : profile?.isMember 

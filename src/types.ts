@@ -127,6 +127,7 @@ export type User = {
     diet?: string;
     updatedAt?: number;
     email?: string;
+    image?: string,
 }
 
 export enum MemberStatus {
@@ -134,25 +135,6 @@ export enum MemberStatus {
     NonMember = "Non-member",
     BizTechExec = "BizTech Exec"
 }
-
-export type Profile = {
-    id: string,
-    fname: string,
-    lname: string,
-    image?: string,
-    email: string,
-    gender: string,
-    education: string,
-    studentId: string,
-    year: string,
-    diet: string,
-    faculty: string,
-    major: string,
-    admin: boolean,
-    isMember: boolean,
-    createdAt: number,
-    updatedAt: number,
-};
 
 // Type for the mapping of question IDs to responses
 export type UserResponseList = {

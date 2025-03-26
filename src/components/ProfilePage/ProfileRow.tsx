@@ -4,7 +4,7 @@ export const ProfileField = ({
   className,
 }: {
   field: string;
-  value: string;
+  value: string | number;
   className?: string;
 }) => {
   return (

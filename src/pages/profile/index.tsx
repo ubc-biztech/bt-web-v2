@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BiztechEvent, Profile } from "@/types";
+import { BiztechEvent, User } from "@/types";
 import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
 import { fetchBackend } from "@/lib/db";
@@ -52,7 +52,7 @@ const fetchProfileData = async (email: string) => {
 const ProfilePage = () => {
   const [registeredEvents, setRegisteredEvents] = useState<BiztechEvent[]>([]);
   const [savedEvents, setSavedEvents] = useState<BiztechEvent[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
