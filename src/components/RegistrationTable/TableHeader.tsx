@@ -97,9 +97,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <InputAlt
           startIcon={SearchIcon}
           placeholder="Search in table"
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("id")?.setFilterValue(event.target.value)
           }
           className="bg-white-blue text-login-form-card"
         />
