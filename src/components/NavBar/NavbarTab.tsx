@@ -1,3 +1,4 @@
+import { signOut } from "@aws-amplify/auth";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,10 +14,20 @@ interface NavbarProps {
 const NavbarTab: React.FC<NavbarProps> = ({ navbarItem }) => {
   const router = useRouter();
   const isSelected = router.pathname === navbarItem.link;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
+
   return (
     <Link
       href={navbarItem?.link}
       className="h-9 flex w-full mb-4 mt-4 hover:opacity-60 cursor-pointer"
+      onClick={navbarItem.title === "Logout" ? handleLogout : undefined}
     >
       <div className={`w-0.5 ${isSelected && "bg-biztech-green"}`} />
       <div

@@ -1,62 +1,27 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useRouter } from "next/router"
-import {
-  signIn,
-  getCurrentUser,
-  signInWithRedirect,
-  fetchUserAttributes,
-  resendSignUpCode
-} from "@aws-amplify/auth"
+import { signUp, signInWithRedirect } from "@aws-amplify/auth"
 import { fetchBackend } from "@/lib/db"
 import Link from "next/link"
 
-const Login: React.FC = () => {
+const Register: React.FC = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [fullName, setFullName] = useState("")
   const [errors, setErrors] = useState<{
     emailError: string
     passwordError: React.ReactNode
-    confirmationError: string
+    confirmPasswordError: string
+    fullNameError: string
   }>({
     emailError: "",
     passwordError: "",
-    confirmationError: ""
+    confirmPasswordError: "",
+    fullNameError: ""
   })
   const [isLoading, setIsLoading] = useState(false)
-  const [showResend, setShowResend] = useState(false) // New state to show resend button
-  const [isResending, setIsResending] = useState(false) // New state for resend loading
   const router = useRouter()
-
-  useEffect(() => {
-    const checkUserProfile = async () => {
-      try {
-        const currentUser = await fetchUserAttributes()
-        if (currentUser) {
-          const email = currentUser.email
-          try {
-            const userProfile = await fetchBackend({
-              endpoint: `/users/${email}`,
-              method: "GET"
-            })
-
-            if (userProfile) {
-              router.push("/")
-            }
-          } catch (err: any) {
-            if (err.status === 404) {
-              router.push("/membership")
-            } else {
-              console.error("Error fetching user profile:", err)
-            }
-          }
-        }
-      } catch (error) {
-        console.log("User not authenticated or an error occurred:", error)
-      }
-    }
-
-    checkUserProfile()
-  }, [router])
 
   const validateEmail = (value: string) => {
     let error = ""
@@ -72,65 +37,66 @@ const Login: React.FC = () => {
     let error = ""
     if (!value) {
       error = "Password is required"
+    } else if (value.length < 6) {
+      error = "Password must be at least 6 characters"
     }
     return error
+  }
+
+  const validateConfirmPassword = (value: string) => {
+    let error = ""
+    if (value !== password) {
+      error = "Passwords do not match"
+    }
+    return error
+  }
+
+  const validateName = (value: string) => {
+    return value.trim() === "" ? "This field is required" : ""
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const emailError = validateEmail(email)
     const passwordError = validatePassword(password)
+    const confirmPasswordError = validateConfirmPassword(confirmPassword)
+    const fullNameError = validateName(fullName)
+
+    setErrors({
+      emailError,
+      passwordError,
+      confirmPasswordError,
+      fullNameError
+    })
+
+    if (emailError || passwordError || confirmPasswordError || fullNameError) {
+      return // Exit early if there are validation errors
+    }
+
     setIsLoading(true)
 
-    if (emailError || passwordError) {
-      setErrors({ emailError, passwordError, confirmationError: "" })
-    } else {
-      try {
-        const user = await signIn({
-          username: email,
-          password: password
-        })
-
-        if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-          // User has not confirmed their email yet
-          setShowResend(true)
-          setErrors({
-            emailError: "",
-            passwordError: "",
-            confirmationError: "Please verify your email before signing in."
-          })
-          setIsLoading(false)
-          return
+    try {
+      // Amplify signUp process
+      const result = await signUp({
+        username: email,
+        password: password,
+        options: {
+          userAttributes: {
+            name: fullName,
+            email: email // Ensure email is included in the attributes
+          },
+          autoSignIn: true
         }
+      })
 
-        const currentUser = await getCurrentUser()
-
-        // Now, we check if the user has a profile in the backend before redirecting
-        try {
-          const userProfile = await fetchBackend({
-            endpoint: `/users/${email}`,
-            method: "GET"
-          })
-
-          if (userProfile) {
-            // User is a member, redirect to home page
-            router.push("/")
-          }
-        } catch (err: any) {
-          if (err.status === 404) {
-            // User is signed in but does not have a profile, redirect to membership
-            console.log("User profile not found, redirecting to membership.")
-            router.push("/membership")
-          } else {
-            console.error("Error fetching user profile:", err)
-          }
-        }
-      } catch (error: any) {
-        console.error("Error signing in", error)
-        handleAuthErrors(error)
-      }
+      // Redirect to verification page (if email verification is enabled in Cognito)
+      router.push(`/verify?email=${email}`)
+    } catch (error: any) {
+      console.error("Error during sign-up", error)
+      handleAuthErrors(error)
+    } finally {
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }
 
   const handleGoogleSignIn = async () => {
@@ -146,47 +112,27 @@ const Login: React.FC = () => {
   const handleAuthErrors = (error: any) => {
     let emailError = ""
     let passwordError: React.ReactNode = ""
+    let confirmPasswordError = ""
+    let fullNameError = ""
 
     switch (error.code) {
-      case "UserNotConfirmedException":
-        setShowResend(true)
-        emailError = "Your account has not been verified yet."
+      case "UsernameExistsException":
+        emailError = "This email is already registered."
         break
-      case "UserNotFoundException":
-        emailError = "Incorrect username or password."
-        break
-      case "NotAuthorizedException":
-        passwordError = "Incorrect username or password."
+      case "InvalidPasswordException":
+        passwordError = "Password does not meet the requirements."
         break
       default:
         passwordError = error.message
         break
     }
 
-    setErrors({ emailError, passwordError, confirmationError: "" })
-  }
-
-  const handleResendVerification = async () => {
-    setIsResending(true)
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      confirmationError: ""
-    }))
-    try {
-      await resendSignUpCode({ username: email })
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        confirmationError: "Verification email resent. Please check your inbox."
-      }))
-    } catch (error) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        confirmationError:
-          "Failed to resend verification email. Please try again."
-      }))
-      console.error("Error resending verification email:", error)
-    }
-    setIsResending(false)
+    setErrors({
+      emailError,
+      passwordError,
+      confirmPasswordError,
+      fullNameError
+    })
   }
 
   return (
@@ -200,19 +146,48 @@ const Login: React.FC = () => {
               alt="BizTech Logo"
             />
             <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
-              Sign in
+              Register
             </h2>
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
-              New to UBC BizTech? &nbsp;
+              Already have an account? &nbsp;
               <Link
-                href="/register"
+                href="/login"
                 className="text-biztech-green hover:text-dark-green font-semibold"
               >
-                Create an account.
+                Login here.
               </Link>
             </h2>
           </div>
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Full Name */}
+            <div>
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-400 leading-6 text-white-blue"
+              >
+                Full Name
+              </label>
+              <div className="mt-2">
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autoComplete="fullName"
+                  required
+                  placeholder="Full Name"
+                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+                {errors.fullNameError && (
+                  <div className="text-red-500 text-sm">
+                    {errors.fullNameError}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -240,29 +215,20 @@ const Login: React.FC = () => {
               </div>
             </div>
 
+            {/* Password */}
             <div>
-              <div className="flex justify-between items-center w-full mt-2">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-400 leading-6 text-white-blue"
-                >
-                  Password
-                </label>
-                <div className="text-sm leading-6">
-                  <Link
-                    href="/forgot-password"
-                    className="font-semibold text-biztech-green hover:text-dark-green"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-400 leading-6 text-white-blue"
+              >
+                Password
+              </label>
               <div className="mt-2">
                 <input
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                   placeholder="Enter 6 characters or more"
                   className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -277,35 +243,48 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            {errors.confirmationError && (
-              <div className="text-yellow-500 text-sm">
-                {errors.confirmationError}
-              </div>
-            )}
-
-            {showResend && (
-              <button
-                type="button"
-                onClick={handleResendVerification}
-                disabled={isResending}
-                className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-login-form-card shadow-sm hover:bg-dark-green"
+            {/* Confirm Password */}
+            <div>
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-400 leading-6 text-white-blue"
               >
-                {isResending ? "Resending..." : "Resend Verification Email"}
-              </button>
-            )}
+                Confirm Password
+              </label>
+              <div className="mt-2">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  placeholder="Re-enter password"
+                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                {errors.confirmPasswordError && (
+                  <div className="text-red-500 text-sm">
+                    {errors.confirmPasswordError}
+                  </div>
+                )}
+              </div>
+            </div>
 
+            {/* Submit */}
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="mt-8 flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                <p className="text-login-form-card">Sign in</p>
+                <p className="text-login-form-card">Sign up</p>
               </button>
             </div>
 
-            {isLoading && <div className="mt-4">Signing in...</div>}
+            {isLoading && <div className="mt-4">Signing up...</div>}
           </form>
 
+          {/* Google Sign-in */}
           <div>
             <div className="relative mt-7 flex items-center justify-center">
               <div className="flex-grow border-t border-white-blue"></div>
@@ -315,7 +294,7 @@ const Login: React.FC = () => {
               <div className="flex-grow border-t border-white-blue"></div>
             </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-4">
+            <div className="mt-7 grid grid-cols-1 gap-4">
               <a
                 href="#"
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
@@ -340,20 +319,7 @@ const Login: React.FC = () => {
                   />
                 </svg>
                 <span className="text-sm leading-6 text-login-form-card font-500">
-                  Google
-                </span>
-              </a>
-
-              <a
-                href="#"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
-              >
-                <img
-                  src="https://i.ibb.co/0VtyXLD/Frame-3.png"
-                  className="w-8 h-auto"
-                />
-                <span className="text-sm leading-6 text-login-form-card font-500">
-                  Guest
+                  Sign up with Google
                 </span>
               </a>
             </div>
@@ -364,4 +330,4 @@ const Login: React.FC = () => {
   )
 }
 
-export default Login
+export default Register

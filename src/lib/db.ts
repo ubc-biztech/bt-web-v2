@@ -49,7 +49,7 @@ export async function fetchBackend({ endpoint, method, data, authenticatedCall =
     if (!response.ok) {
       throw {
         status: response.status,
-        message: responseData,
+        message: responseData
       };
     }
 
