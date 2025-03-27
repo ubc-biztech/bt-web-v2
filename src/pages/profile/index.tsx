@@ -1,57 +1,72 @@
 import React, { useEffect, useState } from "react";
-import { BiztechEvent, MemberStatus, Profile } from "@/types";
+import { BiztechEvent, User } from "@/types";
 import { UserInfo } from "@/components/ProfilePage/UserInfo";
 import { UserEvents } from "@/components/ProfilePage/UserEvents";
+import { fetchBackend } from "@/lib/db";
+import { getCurrentUser } from "@aws-amplify/auth";
+import { Registration } from "@/types/types";
 
-// Mock event and profile data
-// TO DO: replace these with calls to backend
-const fetchEventData = async () : Promise<BiztechEvent[]> => {
-  let data = [];
-  for (let i = 0; i < 10; i++) {
-    data.push({
-      id: "existingEvent1",
-      year: 2020,
-      capac: 123,
-      createdAt: 1581227718674,
-      description: "I am a description",
-      elocation: "UBC",
-      ename: "cool event",
-      startDate: "2024-07-01T07:00:11.131Z",
-      endDate: "2024-07-01T21:00:11.131Z",
-      imageUrl: "https://i.picsum.photos/id/236/700/400.jpg",
-      updatedAt: 1581227718674,
-    } as BiztechEvent);
-  }
-  return data;
+const sortRegistrationsByDate = (registrations: Registration[]) => {
+  // sorts events in descending order by createdAt, otherwise by updatedAt if event doesn't have createdAt field
+  registrations.sort((a: Registration, b: Registration) => {
+    const hasCreatedAtA = 'createdAt' in a && a.createdAt !== undefined;
+    const hasCreatedAtB = 'createdAt' in b && b.createdAt !== undefined;
+
+    if (hasCreatedAtA && !hasCreatedAtB) return -1;
+    if (!hasCreatedAtA && hasCreatedAtA) return 1;
+    if (hasCreatedAtA && hasCreatedAtB) return (b.createdAt as number) - (a.createdAt as number);
+    return b.updatedAt- a.updatedAt
+  })
+  return registrations;
+}
+
+const fetchEventData = async (email: string) : Promise<BiztechEvent[]> => {
+  const userRegistrations = await fetchBackend({
+    endpoint: `/registrations/?email=${email}`,
+    method: "GET",
+    authenticatedCall: false,
+  })
+  const sortedRegistrations: Registration[] = sortRegistrationsByDate(userRegistrations.data).slice(0, 3);
+  const events = await Promise.all(
+    sortedRegistrations.map(async (registration) => {
+      const event = await fetchBackend({
+        endpoint: `/events/?id=${registration["eventID;year"]}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      return event[event.length - 1];
+    })
+  );
+  return events;
 };
 
-const fetchProfileData = async () => {
-  const profile = {
-    name: "John Smith",
-    email: "biztechuser@gmail.com",
-    pronouns: "They/Them/Their",
-    school: "UBC",
-    studentId: "12345678",
-    year: "3rd",
-    dietary: "none",
-    faculty: "Commerce",
-    major: "BTM",
-    status: MemberStatus.Member,
-    // image: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg",
-  };
-  return profile;
+const fetchProfileData = async (email: string) => {
+  const profileData = await fetchBackend({
+    endpoint: `/users/${email}`,
+    method: "GET",
+    authenticatedCall: true,
+  })
+  return profileData;
 };
 
 const ProfilePage = () => {
   const [registeredEvents, setRegisteredEvents] = useState<BiztechEvent[]>([]);
   const [savedEvents, setSavedEvents] = useState<BiztechEvent[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      const profile = await fetchProfileData();
-      setProfile(profile);
-      const events: BiztechEvent[] = await fetchEventData();
+      const { signInDetails } = await getCurrentUser();
+      const email = signInDetails?.loginId;
+      let profileData = null;
+      let events: BiztechEvent[] = [];
+      if (email) {
+        [profileData, events] = await Promise.all([
+          fetchProfileData(email),
+          fetchEventData(email),
+        ]);
+      }
+      setProfile(profileData);
       setRegisteredEvents(events);
       setSavedEvents(events);
     };
@@ -62,8 +77,8 @@ const ProfilePage = () => {
     <main className="bg-primary-color min-h-screen">
       <div className="container mx-auto p-6 lg:p-10 pt-16 lg:pt-24">
         <h3 className="text-white text-lg lg:text-xl">
-          {profile?.name
-            ? `Welcome back, ${profile.name.split(" ")[0]}!`
+          {profile?.fname
+            ? `Welcome back, ${profile.fname}!`
             : "Welcome back!"}
         </h3>
         <div className="flex flex-col gap-6 mt-6 lg:flex-row">

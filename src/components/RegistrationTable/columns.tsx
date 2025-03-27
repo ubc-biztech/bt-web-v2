@@ -6,31 +6,7 @@ import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
 import { BiztechEvent, DBRegistrationStatus } from "@/types/types"
-
-export type Attendee = {
-    'eventID;year': string;
-    applicationStatus: string;
-    basicInformation: {
-      diet: string;
-      faculty: string;
-      fname: string;
-      gender: string[];
-      heardFrom: string;
-      lname: string;
-      major: string;
-      year: string;
-    };
-    dynamicResponses: Record<string, string>;
-    eventID: string;
-    fname: string;
-    id: string;
-    isPartner: boolean;
-    points: number;
-    registrationStatus: string;
-    scannedQRs: string[];
-    studentId: string;
-    updatedAt: number;
-}
+import { Registration } from "@/types/types";
 
 export type ColumnMeta = {
     type?: "select" | "number";
@@ -40,7 +16,7 @@ export type ColumnMeta = {
 export const createColumns = (
   refreshTable: () => Promise<void>, 
   eventData: BiztechEvent
-): ColumnDef<Attendee>[] => [
+): ColumnDef<Registration>[] => [
     {
         id: "edit",
         size: 30,

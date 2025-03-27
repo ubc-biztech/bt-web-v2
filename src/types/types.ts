@@ -65,6 +65,7 @@ export type AttendeeBasicInformation = BasicInformation & {
   };
 
 export type Registration = {
+    'eventID;year': string;
     id: string,
     applicationStatus: string,
     registrationStatus: string,
@@ -75,7 +76,9 @@ export type Registration = {
     isPartner: boolean,
     points: number,
     scannedQRs: string[],
-    updatedAt: string,
+    studentId: string;
+    updatedAt: number,
+    createdAt?: number;
 }
 
 export type StatsChartData = { label: string; value: number };

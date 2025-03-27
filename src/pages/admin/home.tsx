@@ -112,7 +112,16 @@ export default function AdminEventView({ events }: Props) {
                     </div> :
                     <div className="block md:grid md:grid-cols-2 md:gap-6">
                         {data?.map(event => (
-                            <MobileEventCard key={event.id} event={event} eventClick={eventClick} />
+                            <MobileEventCard
+                                key={event.id}
+                                event={event}
+                                eventClick={eventClick}
+                                modalHandlers={{
+                                    handleEventDelete: handleEventDelete,
+                                    handleEditEvent: () => router.push(`/admin/event/${event.id}/${event.year}/edit`),
+                                    handleViewAsMember: handleViewAsMember
+                                }}
+                                />
                         ))}
                     </div>
                 )}

@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Row, Table } from "@tanstack/react-table"
 import { AttendeeBasicInformation } from "@/types/types";
 import SelectCell from './userPopupEdit'
-import { Attendee, ColumnMeta } from '../columns'
+import { ColumnMeta } from '../columns'
+import { Registration } from '@/types/types';
 
 interface EditCellProps {
-  row: Row<Attendee>;
-  table: Table<Attendee>;
+  row: Row<Registration>;
+  table: Table<Registration>;
   refreshTable: () => Promise<void>;
 }
 
@@ -55,7 +56,7 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
       key !== "id" &&
       key !== "dynamicResponses" &&
       key !== "basicInformation"
-  ) as Array<keyof Attendee>;
+  ) as Array<keyof Registration>;
   
   return (
     <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">

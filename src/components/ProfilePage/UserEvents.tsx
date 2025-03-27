@@ -40,7 +40,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         iconSize={24}
       />
       <div
-        className="flex items-center justify-center gap-6 mb-6"
+        className="flex items-start justify-center gap-6 mb-6"
         style={{
           flexDirection: registeredEvents.length === 0 ? "column" : "row",
         }}
@@ -54,6 +54,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         )}
       </div>
 
+      {/* TO DO: uncomment this code once the implementing of event favouriting is complete
       <TextIcon
         className="my-4"
         text={<h5 className="text-white">Saved</h5>}
@@ -75,7 +76,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
       <Separator.Root className="SeparatorRoot my-6 mx-0 bg-profile-separator-bg h-[0.5px]" />
       <Link href="">
         <p className="text-white text-right underline text-xs">View all</p>
-      </Link>
+      </Link> */}
     </div>
   );
 };

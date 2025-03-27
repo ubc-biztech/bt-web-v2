@@ -14,7 +14,8 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { Attendee, createColumns } from "./columns";
+import { createColumns } from "./columns";
+import { Registration } from "@/types/types";
 import QrCheckIn from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
 
@@ -24,7 +25,7 @@ export function DataTable({
   dynamicColumns = [],
   eventId,
   year,
-}: DataTableProps<Attendee>) {
+}: DataTableProps<Registration>) {
   const [data, setData] = useState(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -74,7 +75,7 @@ export function DataTable({
     setIsClient(true);
   }, []);
 
-  const table = useReactTable<Attendee>({
+  const table = useReactTable<Registration>({
     data: filteredData,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),

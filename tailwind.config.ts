@@ -101,11 +101,12 @@ const config: Config = {
       }
     },
     fontFamily: {
-      sans: ["Open Sans", "sans-serif"],
-      poppins: ["Poppins", "sans-serif"],
-      montserrat: ["Montserrat", "sans-serif"],
-      satoshi: ["Satoshi", "sans-serif"],
-      redhat: ["Red Hat Mono", "monospace"]
+      sans: ['Open Sans', 'sans-serif'],
+      poppins: ['Poppins', 'sans-serif'],
+      montserrat: ['Montserrat', 'sans-serif'],
+      satoshi: ['Satoshi', 'sans-serif'],
+      redhat: ['Red Hat Mono', 'monospace'],
+      ibm: ['IBM Plex Sans', 'sans-serif'],
     },
     fontWeight: {
       "100": "100",

@@ -15,12 +15,12 @@ import UserResponses from './editCellPopUp.tsx/userResponses'
 import { RegistrationQuestion } from '@/types'
 import router from 'next/router'
 import { fetchBackend } from '@/lib/db'
-import { Attendee } from './columns'
+import { Registration } from '@/types/types';
 import { BiztechEvent } from '@/types/types'
 
 interface EditCellProps {
-  row: Row<Attendee>
-  table: Table<Attendee>
+  row: Row<Registration>
+  table: Table<Registration>
   refreshTable: () => Promise<void>
   eventData: BiztechEvent
 }
