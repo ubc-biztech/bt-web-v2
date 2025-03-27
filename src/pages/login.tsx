@@ -32,10 +32,7 @@ const Login: React.FC = () => {
       try {
         const currentUser = await fetchUserAttributes()
         if (currentUser) {
-          console.log("User is authenticated:", currentUser)
-
           const email = currentUser.email
-          console.log(email)
           try {
             const userProfile = await fetchBackend({
               endpoint: `/users/${email}`,
@@ -93,7 +90,6 @@ const Login: React.FC = () => {
           username: email,
           password: password
         })
-        console.log("Sign in successful:", user)
 
         if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
           // User has not confirmed their email yet
@@ -108,7 +104,6 @@ const Login: React.FC = () => {
         }
 
         const currentUser = await getCurrentUser()
-        console.log("Current authenticated user:", currentUser)
 
         // Now, we check if the user has a profile in the backend before redirecting
         try {

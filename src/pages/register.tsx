@@ -89,8 +89,6 @@ const Register: React.FC = () => {
         }
       })
 
-      console.log("User signed up successfully:", result)
-
       // Redirect to verification page (if email verification is enabled in Cognito)
       router.push(`/verify?email=${email}`)
     } catch (error: any) {
@@ -103,11 +101,9 @@ const Register: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      console.log("Initiating Google sign-in...")
       await signInWithRedirect({
         provider: "Google"
       })
-      console.log("Google sign-in redirect initiated.")
     } catch (error: any) {
       console.error("Error initiating Google sign-in:", error)
     }
