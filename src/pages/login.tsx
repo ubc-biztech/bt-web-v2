@@ -103,8 +103,6 @@ const Login: React.FC = () => {
           return
         }
 
-        const currentUser = await getCurrentUser()
-
         // Now, we check if the user has a profile in the backend before redirecting
         try {
           const userProfile = await fetchBackend({
