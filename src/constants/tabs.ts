@@ -33,14 +33,14 @@ export const admin = [
 
 export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
   const links = [
-    {
-      title: "Home",
-      link: "/",
-      icon: HomeIcon,
-    },
+    // {
+    //   title: "Home",
+    //   link: "/",
+    //   icon: HomeIcon,
+    // },
     {
       title: "Event Dashboard",
-      link: "/events",
+      link: "/",
       icon: DashboardIcon,
     },
   ];

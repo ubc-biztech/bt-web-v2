@@ -29,14 +29,18 @@ const fetchEventData = async (email: string) : Promise<BiztechEvent[]> => {
   const sortedRegistrations: Registration[] = sortRegistrationsByDate(userRegistrations.data).slice(0, 3);
   const events = await Promise.all(
     sortedRegistrations.map(async (registration) => {
+      const eventID = registration["eventID;year"].split(";")[0];
+      const year = registration["eventID;year"].split(";")[1];
       const event = await fetchBackend({
-        endpoint: `/events/?id=${registration["eventID;year"]}`,
+        endpoint: `/events/?id=${eventID}&year=${year}`,
         method: "GET",
         authenticatedCall: false,
       });
+
       return event[event.length - 1];
     })
   );
+
   return events;
 };
 
@@ -72,6 +76,7 @@ const ProfilePage = () => {
     };
     fetchData();
   }, []);
+
 
   return (
     <main className="bg-primary-color min-h-screen">
