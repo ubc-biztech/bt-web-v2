@@ -7,6 +7,7 @@ import ProfileIcon from "../../public/assets/icons/profile_icon.svg";
 import ExitIcon from "../../public/assets/icons/exit_icon.svg";
 import QrCodeIcon from "../../public/assets/icons/qr_icon.svg";
 import LoginIcon from "../../public/assets/icons/login_icon.svg"
+import MembershipIcon from "../../public/assets/icons/member_status_icon.svg";
 
 export const admin = [
   {
@@ -23,6 +24,11 @@ export const admin = [
     title: "Statistics",
     link: "",
     icon: StatsIcon,
+  },
+  {
+    title: "Memberships",
+    link: "/memberships",
+    icon: MembershipIcon,
   },
   {
     title: "Edit Companion",
@@ -43,6 +49,7 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
       link: "/events",
       icon: DashboardIcon,
     },
+
   ];
 
   if (isSignedIn) {
