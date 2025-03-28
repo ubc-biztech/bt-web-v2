@@ -11,6 +11,7 @@ import {
   UserCircle2,
   ScanFace,
 } from "lucide-react";
+import MembershipIcon from "../../public/assets/icons/member_status_icon.svg";
 
 export const admin = [
   {
@@ -27,6 +28,11 @@ export const admin = [
     title: "Statistics",
     link: "",
     icon: LineChartIcon,
+  },
+  {
+    title: "Memberships",
+    link: "/memberships",
+    icon: MembershipIcon,
   },
   {
     title: "Edit Companion",

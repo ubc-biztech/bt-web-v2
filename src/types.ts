@@ -111,6 +111,19 @@ export type AttendeeBasicInformation = BasicInformation & {
   faculty: string;
 };
 
+export type MembershipBasicInformation = BasicInformation & {
+    membershipType: string;
+    year: string;
+    faculty: string;
+    major: string;
+    pronouns: string;
+    dietaryRestrictions: string;
+    isInternational: string;
+    wasPreviousMember: string;
+    topicsOfInterest: string;
+    heardFrom: string;
+  };
+  
 export type User = {
   id: string;
   isMember?: boolean;

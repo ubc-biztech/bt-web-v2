@@ -1,3 +1,4 @@
+import { truncate } from "lodash";
 import { fetchBackend } from "./db";
 import { DBRegistrationStatus, ApplicationStatus } from "@/types";
 
@@ -9,6 +10,16 @@ export async function fetchRegistrationData(eventId: string, year: string) {
   });
 
   return registrationData.data;
+}
+
+export async function fetchMembershipData() {
+    let membershipData = await fetchBackend({
+        endpoint: `/members`, 
+        method: "GET",
+        authenticatedCall: true
+    });
+
+    return membershipData.data;
 }
 
 // Helper to convert UI registration status to DB format
