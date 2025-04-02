@@ -24,6 +24,7 @@ export const UserEvents: React.FC<UserEventsProps> = ({
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
   }, []);
+
   return (
     <div className="relative bg-profile-card-bg rounded-md p-6 w-full lg:w-[55%]">
       <Image
