@@ -40,7 +40,7 @@ function FadeInWhenVisible({ children, style, id }: FadeInWhenVisibleProps) {
       transition={{ duration: 0.3 }}
       variants={{
         visible: { opacity: 1, scale: 1 },
-        hidden: { opacity: 1, scale: 0.8 }
+        hidden: { opacity: 1, scale: 0.8 },
       }}
     >
       {children}
@@ -98,7 +98,9 @@ const CompanionLayout = ({
   const styles = {
     container: {
       backgroundColor: options.BackgroundImage ? "#F5EE9E" : "transparent",
-      backgroundImage: options.BackgroundImage ? `url(${options.BackgroundImage})` : options.colors.background,
+      backgroundImage: options.BackgroundImage
+        ? `url(${options.BackgroundImage})`
+        : options.colors.background,
       backgroundRepeat: "repeat",
       overflow: "hidden",
       minHeight: "100vh",
@@ -131,7 +133,7 @@ const CompanionLayout = ({
       width: "100%",
       marginLeft: "auto",
       marginRight: "auto",
-      scrollMarginTop: "110px"
+      scrollMarginTop: "110px",
     },
     nav: {
       display: "flex",
@@ -162,7 +164,7 @@ const CompanionLayout = ({
       borderColor: "rgba(1, 1, 1, 0.1)",
       borderWidth: "3px",
       borderRadius: 10,
-      width: "90%"
+      width: "90%",
     },
     feedbackIFrame: {
       width: "100%",
@@ -175,10 +177,10 @@ const CompanionLayout = ({
       marginBottom: "10px",
       border: "solid",
       borderColor: "rgba(1, 1, 1, 0.1)",
-      borderWidth: "3px"
+      borderWidth: "3px",
     },
     partners: {
-      width: "100%"
+      width: "100%",
     },
     schedule: {
       width: "60%",
@@ -200,7 +202,7 @@ const CompanionLayout = ({
     tabImage: {
       height: "300px",
     },
-    ...options.extraStyles
+    ...options.extraStyles,
   };
 
   useEffect(() => {
@@ -215,7 +217,7 @@ const CompanionLayout = ({
     const backgroundId = setTimeout(() => {
       setShowBackground(true);
     }, 4000);
-    
+
     if (window.screen.width > 500) {
       setShowTransition(false);
       setShowVideo(false);
@@ -232,7 +234,7 @@ const CompanionLayout = ({
     const video = videoRef.current;
     if (video) {
       video.click();
-      video.play().catch(error => {
+      video.play().catch((error) => {
         console.error("Autoplay prevented:", error);
       });
     }
@@ -241,8 +243,11 @@ const CompanionLayout = ({
   if (isLoading) return <Loading />;
 
   return (
-    <div className={(!email || !userRegistration) ? "p-0" : ""} style={styles.container}>
-      {(!email || !userRegistration) ? (
+    <div
+      className={!email || !userRegistration ? "p-0" : ""}
+      style={styles.container}
+    >
+      {!email || !userRegistration ? (
         <Card className="flex justify-center overflow-hidden border-none">
           {!transition && (
             <motion.div
@@ -252,8 +257,8 @@ const CompanionLayout = ({
               className="fixed z-10"
             >
               <div className="flex flex-col items-center justify-center min-h-screen w-full">
-                <Image 
-                  src={options.BiztechLogo} 
+                <Image
+                  src={options.BiztechLogo}
                   alt={`${options.title} Logo`}
                   width={1000}
                   height={400}
@@ -263,7 +268,8 @@ const CompanionLayout = ({
                 />
                 <h1 className="text-2xl font-bold mb-2 text-white">Welcome!</h1>
                 <p className="text-center mb-4 text-white p1">
-                  Please enter the email you used to register for {options.title}
+                  Please enter the email you used to register for{" "}
+                  {options.title}
                 </p>
                 <Input
                   className="mb-4 w-64"
@@ -272,10 +278,7 @@ const CompanionLayout = ({
                   placeholder="Email"
                   type="email"
                 />
-                <Button
-                  onClick={() => setEmail(input)}
-                  className="mb-4"
-                >
+                <Button onClick={() => setEmail(input)} className="mb-4">
                   Confirm
                 </Button>
                 {error && (
@@ -287,21 +290,23 @@ const CompanionLayout = ({
         </Card>
       ) : (
         <ScrollArea className="banner" role="banner">
-          <FadeInWhenVisible style={{
-            ...styles.column,
-            position: "fixed",
-            top: "0",
-            left: "0",
-            right: "0",
-            width: "100%",
-            background: options.colors.background,
-            zIndex: "9999",
-            paddingBottom: "0.75rem"
-          }}>
+          <FadeInWhenVisible
+            style={{
+              ...styles.column,
+              position: "fixed",
+              top: "0",
+              left: "0",
+              right: "0",
+              width: "100%",
+              background: options.colors.background,
+              zIndex: "9999",
+              paddingBottom: "0.75rem",
+            }}
+          >
             <LogoutButton />
             {!event && !registrations && (
-              <Image 
-                src={options.Logo} 
+              <Image
+                src={options.Logo}
                 alt={`${options.title} Logo`}
                 width={200}
                 height={100}
@@ -311,51 +316,57 @@ const CompanionLayout = ({
             )}
             <nav className="w-full flex justify-between items-center">
               {options.welcomeData && !options.disableWelcomeHeader && (
-                <Link href="#Welcome" className="text-base flex-grow text-center">
+                <Link
+                  href="#Welcome"
+                  className="text-base flex-grow text-center"
+                >
                   Welcome
                 </Link>
               )}
               {scheduleData && scheduleData.length > 0 && (
-                <Link href="#Schedule" className="text-base flex-grow text-center">
+                <Link
+                  href="#Schedule"
+                  className="text-base flex-grow text-center"
+                >
                   Schedule
                 </Link>
               )}
-              {options.headers.map((header, i) => (
+              {options.headers.map((header, i) =>
                 header.id ? (
-                  <Link 
-                    href={`#${header.id}`} 
-                    key={i} 
-                    className="text-base flex-grow text-center"
-                  >
-                    {header.text}
-                  </Link>
-                ) : (
-                  <Link 
-                    href={header.route || ''} 
+                  <Link
+                    href={`#${header.id}`}
                     key={i}
                     className="text-base flex-grow text-center"
                   >
                     {header.text}
                   </Link>
-                )
-              ))}
+                ) : (
+                  <Link
+                    href={header.route || ""}
+                    key={i}
+                    className="text-base flex-grow text-center"
+                  >
+                    {header.text}
+                  </Link>
+                ),
+              )}
             </nav>
           </FadeInWhenVisible>
 
           <div className="h-28" />
-          
+
           {event?.isCompleted && event?.feedback && (
             <FadeInWhenVisible>
-              <FeedbackForm 
-                feedbackLink={event.feedback} 
-                headerText="Thanks for attending!" 
+              <FeedbackForm
+                feedbackLink={event.feedback}
+                headerText="Thanks for attending!"
               />
             </FadeInWhenVisible>
           )}
 
           <FadeInWhenVisible id="welcome" style={styles.column}>
             {options.landing && (
-              <Image 
+              <Image
                 src={options.landing}
                 className="w-[90%] sm:w-2/5 mt-auto sm:mt-12 pb-5"
                 alt="Landing"
@@ -364,18 +375,25 @@ const CompanionLayout = ({
                 priority
               />
             )}
-            <h1 id="Welcome" className="text-3xl sm:text-4xl font-bold mb-4 bg-clip-text text-transparent"
-                style={{ backgroundImage: options.colors.primary }}>
+            <h1
+              id="Welcome"
+              className="text-3xl sm:text-4xl font-bold mb-4 bg-clip-text text-transparent"
+              style={{ backgroundImage: options.colors.primary }}
+            >
               Hello, {userRegistration.fname}!
             </h1>
-            
+
             {event?.isCompleted ? (
               <p className="text-center text-base sm:text-lg mb-4 w-4/5">
-                The event is now over, please head back to the main room, we hope you enjoyed your time 😊!
+                The event is now over, please head back to the main room, we
+                hope you enjoyed your time 😊!
               </p>
             ) : (
               options.welcomeData?.map((paragraph, i) => (
-                <p key={i} className="text-center text-base sm:text-lg mb-4 w-4/5">
+                <p
+                  key={i}
+                  className="text-center text-base sm:text-lg mb-4 w-4/5"
+                >
                   {paragraph}
                 </p>
               ))
@@ -384,18 +402,18 @@ const CompanionLayout = ({
 
           {scheduleData.length > 0 && (
             <FadeInWhenVisible id="Timeline">
-              <Schedule 
-                data={scheduleData} 
-                date={options.date} 
-                location={options.location} 
+              <Schedule
+                data={scheduleData}
+                date={options.date}
+                location={options.location}
               />
             </FadeInWhenVisible>
           )}
 
-          <ChildComponent 
-            event={event} 
-            registrations={registrations} 
-            userRegistration={userRegistration} 
+          <ChildComponent
+            event={event}
+            registrations={registrations}
+            userRegistration={userRegistration}
           />
         </ScrollArea>
       )}
@@ -403,4 +421,4 @@ const CompanionLayout = ({
   );
 };
 
-export default CompanionLayout; 
+export default CompanionLayout;

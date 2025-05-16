@@ -17,8 +17,8 @@ const PieChart: React.FC<PieChartProps> = ({
 }) => {
   // Format the data for Google Charts
   const chartData = [
-    ['Label', 'Value'],
-    ...data.map(item => [item.label, item.value]),
+    ["Label", "Value"],
+    ...data.map((item) => [item.label, item.value]),
   ];
 
   // Re-render the chart component when window is resized horizontally
@@ -28,49 +28,49 @@ const PieChart: React.FC<PieChartProps> = ({
     const handleResize = debounce(() => {
       setWindowWidth(window.innerWidth);
     }, 25);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   const options = {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     pieHole: 0.4,
     slices: [
-      { color: '#8AD1C2' },
-      { color: '#9F8AD1' },
-      { color: '#D18A99' },
-      { color: '#D1C68A' },
-      { color: '#8AD1A9' },
-      { color: '#8A96D1' },
-      { color: '#D1A68A' },
+      { color: "#8AD1C2" },
+      { color: "#9F8AD1" },
+      { color: "#D18A99" },
+      { color: "#D1C68A" },
+      { color: "#8AD1A9" },
+      { color: "#8A96D1" },
+      { color: "#D1A68A" },
     ],
-    pieSliceText: 'percentage',
+    pieSliceText: "percentage",
     legend: {
-      alignment: 'center',
+      alignment: "center",
       textStyle: {
-        color: 'white',
+        color: "white",
         bold: false,
-        fontName: 'Poppins'
-      }
+        fontName: "Poppins",
+      },
     },
     title,
     titleTextStyle: {
-      fontSize: '18rem',
+      fontSize: "18rem",
       bold: true,
-      alignment: 'left',
-      color: 'white',
-      fontName: 'Poppins'
+      alignment: "left",
+      color: "white",
+      fontName: "Poppins",
     },
     tooltip: {
       textStyle: {
-        color: 'black', 
-        bold: false, 
-        fontName: 'Poppins'
-      }, 
-      showColorCode: true
+        color: "black",
+        bold: false,
+        fontName: "Poppins",
+      },
+      showColorCode: true,
     },
     chartArea: {
       left: "0%",

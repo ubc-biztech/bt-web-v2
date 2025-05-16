@@ -1,25 +1,25 @@
-import { API_URL } from "./dbconfig"
-import { AuthTokens, fetchAuthSession } from "aws-amplify/auth"
+import { API_URL } from "./dbconfig";
+import { AuthTokens, fetchAuthSession } from "aws-amplify/auth";
 
 interface FetchBackendOptions {
-  endpoint: string
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
-  data?: Record<string, unknown>
-  authenticatedCall?: boolean
+  endpoint: string;
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  data?: Record<string, unknown>;
+  authenticatedCall?: boolean;
 }
 
 async function currentSession(): Promise<AuthTokens | null> {
   if (typeof window === "undefined") {
-    console.log("Server-side: skipping auth session")
-    return null
+    console.log("Server-side: skipping auth session");
+    return null;
   }
 
   try {
-    const res = (await fetchAuthSession()).tokens
-    return res ?? null
+    const res = (await fetchAuthSession()).tokens;
+    return res ?? null;
   } catch (err) {
-    console.log("Auth session fetch failed:", err)
-    return null
+    console.log("Auth session fetch failed:", err);
+    return null;
   }
 }
 
@@ -27,44 +27,44 @@ export async function fetchBackend({
   endpoint,
   method,
   data,
-  authenticatedCall = true
+  authenticatedCall = true,
 }: FetchBackendOptions): Promise<any> {
-  const headers: Record<string, string> = {}
+  const headers: Record<string, string> = {};
 
   if (method === "POST" || method === "PUT") {
-    headers["Accept"] = "application/json"
-    headers["Content-Type"] = "application/json"
+    headers["Accept"] = "application/json";
+    headers["Content-Type"] = "application/json";
   }
 
   if (authenticatedCall) {
-    const session = await currentSession()
+    const session = await currentSession();
     if (session?.idToken) {
-      headers["Authorization"] = `Bearer ${session.idToken}`
+      headers["Authorization"] = `Bearer ${session.idToken}`;
     } else {
-      console.warn("Skipping auth: currentSession unavailable in SSR context.")
+      console.warn("Skipping auth: currentSession unavailable in SSR context.");
     }
   }
 
-  const body = data ? JSON.stringify(data) : undefined
+  const body = data ? JSON.stringify(data) : undefined;
 
   try {
     const response = await fetch(API_URL + endpoint, {
       method,
       headers,
-      body
-    })
+      body,
+    });
 
-    const responseData = await response.json()
+    const responseData = await response.json();
 
     if (!response.ok) {
       throw {
         status: response.status,
-        message: responseData
-      }
+        message: responseData,
+      };
     }
 
-    return responseData
+    return responseData;
   } catch (error) {
-    throw error
+    throw error;
   }
 }

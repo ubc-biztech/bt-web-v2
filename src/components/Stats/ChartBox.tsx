@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import styles from './ChartBox.module.css'
+import styles from "./ChartBox.module.css";
 
 interface ChartBoxProps {
   height?: string;
@@ -15,13 +15,15 @@ const ChartBox: React.FC<ChartBoxProps> = ({
   width = "100%",
 }) => {
   return (
-    <div 
-    className={`bg-dark-slate my-2 p-4 flex flex-col rounded ${styles.dynamicWidth}`}
-    style={{ 
-      height: height, 
-      '--dynamic-width': width 
-    } as React.CSSProperties}
-  >
+    <div
+      className={`bg-dark-slate my-2 p-4 flex flex-col rounded ${styles.dynamicWidth}`}
+      style={
+        {
+          height: height,
+          "--dynamic-width": width,
+        } as React.CSSProperties
+      }
+    >
       <p className="text-white font-600 mb-2">{title}</p>
       <div className="flex-grow flex items-center">
         <div className="flex-grow">{children}</div>

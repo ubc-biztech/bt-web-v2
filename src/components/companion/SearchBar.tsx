@@ -1,12 +1,15 @@
 import { Input } from "../ui/input";
 import { SearchIcon } from "lucide-react";
 
-export const SearchBar = ({ onSearch }: { onSearch: (query: string) => void }) => {
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const query = event.target.value;
-        onSearch(query);
-    }
+export const SearchBar = ({
+  onSearch,
+}: {
+  onSearch: (query: string) => void;
+}) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const query = event.target.value;
+    onSearch(query);
+  };
 
   return (
     <div className="relative flex-1 h-full">

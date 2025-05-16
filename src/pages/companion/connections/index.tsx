@@ -31,7 +31,7 @@ const Connections = () => {
         const data = await fetchBackend({
           endpoint: `/interactions/journal/${profileId}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         });
         setConnections(data.data);
       } catch (error) {
@@ -52,19 +52,23 @@ const Connections = () => {
   return (
     <NavBarContainer>
       {isLoading ? (
-        <div className='mt-[-90px]'>
+        <div className="mt-[-90px]">
           <Loading />
         </div>
       ) : (
         <div>
-          <p className='text-[22px] font-satoshi text-white'>Connections</p>
-          <div className='h-[1px] my-3 bg-[#1D262F]'></div>
-          <div className='flex flex-row gap-4 mb-2'>
+          <p className="text-[22px] font-satoshi text-white">Connections</p>
+          <div className="h-[1px] my-3 bg-[#1D262F]"></div>
+          <div className="flex flex-row gap-4 mb-2">
             <SearchBar onSearch={handleSearch} />
-            <Filter filterOptions={filterOptions} setSelectedFilterOption={setFilter} selectedFilterOption={filter} />
+            <Filter
+              filterOptions={filterOptions}
+              setSelectedFilterOption={setFilter}
+              selectedFilterOption={filter}
+            />
           </div>
           {error ? (
-            <div className='text-red-500 text-center mt-4'>{error}</div>
+            <div className="text-red-500 text-center mt-4">{error}</div>
           ) : (
             connections &&
             connections
@@ -79,8 +83,12 @@ const Connections = () => {
               .filter((connection: Connection) => {
                 return (
                   !searchQuery ||
-                  connection.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  connection.lname.toLowerCase().includes(searchQuery.toLowerCase())
+                  connection.fname
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ||
+                  connection.lname
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase())
                 );
               })
               .map((connection: Connection, index: number) => {
@@ -90,7 +98,12 @@ const Connections = () => {
                   year: connection?.year?.toUpperCase(),
                 };
 
-                return <CompanionConnectionRow key={index} connection={capitalizedConnection} />
+                return (
+                  <CompanionConnectionRow
+                    key={index}
+                    connection={capitalizedConnection}
+                  />
+                );
               })
           )}
         </div>

@@ -4,7 +4,7 @@ export const constantStyles = {
   mobileFontSize: "14px",
   titleFontSize: "32px",
   titleMobileFontSize: "24px",
-  headerHeight: "60px"
+  headerHeight: "60px",
 } as const;
 
 export const COMPANION_EMAIL_KEY = "companionEmail" as const;

@@ -1,6 +1,6 @@
-import React from 'react';
-import { SectionCard } from '@/components/ui/section-card';
-import { Badge } from '@/pages/companion/badges';
+import React from "react";
+import { SectionCard } from "@/components/ui/section-card";
+import { Badge } from "@/pages/companion/badges";
 interface BadgesListProps {
   badges: Badge[];
 }
@@ -32,4 +32,4 @@ export const BadgesList: React.FC<BadgesListProps> = ({ badges }) => {
       </div>
     </SectionCard>
   );
-}; 
+};

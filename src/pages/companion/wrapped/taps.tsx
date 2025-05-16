@@ -3,13 +3,36 @@
 import { useEffect, useState } from "react";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { Line } from "react-chartjs-2";
-import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  AnimatePresence,
+} from "framer-motion";
 
 // Register chart.js components
-Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 interface ConnectionsSummaryProps {
   isPartner: boolean;
@@ -17,23 +40,25 @@ interface ConnectionsSummaryProps {
 
 const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   const router = useRouter();
-  const [connectionsByHour, setConnectionsByHour] = useState<{ hour: string; count: number }[]>([]);
+  const [connectionsByHour, setConnectionsByHour] = useState<
+    { hour: string; count: number }[]
+  >([]);
   const [totalConnections, setTotalConnections] = useState(0);
   const [mostActiveHour, setMostActiveHour] = useState<string>("");
-  const [isTapped, setIsTapped] = useState(false)
-  const opacity = useMotionValue(1)
-  const scale = useMotionValue(1)
-  const y = useMotionValue(0)
+  const [isTapped, setIsTapped] = useState(false);
+  const opacity = useMotionValue(1);
+  const scale = useMotionValue(1);
+  const y = useMotionValue(0);
 
   const handleTap = () => {
-    setIsTapped(true)
-    animate(opacity, 0, { duration: 0.5 })
-    animate(scale, 0.8, { duration: 0.5 })
-    animate(y, 20, { duration: 0.5 })
+    setIsTapped(true);
+    animate(opacity, 0, { duration: 0.5 });
+    animate(scale, 0.8, { duration: 0.5 });
+    animate(y, 20, { duration: 0.5 });
     setTimeout(() => {
-      router.push("/companion/wrapped/companyPersonals")
-    }, 800)
-  }
+      router.push("/companion/wrapped/companyPersonals");
+    }, 800);
+  };
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -42,7 +67,9 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
         if (!profileId) return;
 
         // Get connections from localStorage
-        const storedConnections = JSON.parse(localStorage.getItem("connections") || "[]");
+        const storedConnections = JSON.parse(
+          localStorage.getItem("connections") || "[]",
+        );
 
         // Parse timestamps and group by hour
         const hourlyCounts: Record<number, number> = {};
@@ -70,7 +97,10 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
         });
 
         // Find most active hour
-        const mostActive = fullHours.reduce((max, item) => (item.count > max.count ? item : max), { hour: "", count: 0 });
+        const mostActive = fullHours.reduce(
+          (max, item) => (item.count > max.count ? item : max),
+          { hour: "", count: 0 },
+        );
 
         // Update state
         setConnectionsByHour(fullHours);
@@ -110,7 +140,7 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
     scales: {
       x: {
         ticks: { color: "#ffffff" },
-        grid: { display: false }
+        grid: { display: false },
       },
       y: {
         ticks: {
@@ -135,8 +165,6 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
         style={{ opacity, scale, y, paddingTop: "1rem" }} // Reduces top padding
         exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
-
-
         {/* Header */}
         <motion.p className="text-white text-lg font-satoshi font-medium text-center">
           You made
@@ -159,7 +187,9 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <p className="text-white text-sm font-satoshi font-bold mb-2">Connections by Hour</p>
+          <p className="text-white text-sm font-satoshi font-bold mb-2">
+            Connections by Hour
+          </p>
           <div className="h-48">
             <Line data={chartData} options={chartOptions} />
           </div>
@@ -168,7 +198,8 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
         {/* Most Active Hour */}
         {totalConnections > 0 && (
           <motion.p className="text-white text-lg font-satoshi font-medium text-center">
-            You networked the most around <span className="font-satoshi font-bold">{mostActiveHour}</span>.
+            You networked the most around{" "}
+            <span className="font-satoshi font-bold">{mostActiveHour}</span>.
           </motion.p>
         )}
       </motion.div>

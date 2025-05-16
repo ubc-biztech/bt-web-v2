@@ -50,9 +50,9 @@ const Events: Event[] = [
       headers: [
         { text: "Schedule", id: "schedule" },
         { text: "Points", id: "points" },
-        { text: "Showcase", id: "showcase" }
-      ]
-    }
+        { text: "Showcase", id: "showcase" },
+      ],
+    },
   },
   {
     activeUntil: new Date("2025-03-22"),
@@ -75,10 +75,10 @@ const Events: Event[] = [
       headers: [
         { text: "Schedule", id: "schedule" },
         { text: "Points", id: "points" },
-        { text: "Showcase", id: "showcase" }
-      ]
-    }
-  }
+        { text: "Showcase", id: "showcase" },
+      ],
+    },
+  },
 ];
 
-export default Events; 
+export default Events;

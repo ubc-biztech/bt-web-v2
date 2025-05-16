@@ -18,27 +18,31 @@ export default function AdminEvent({ initialData, eventData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
   const [data, setData] = useState<Registration[] | null>(initialData);
-  const [dynamicColumns, setDynamicColumns] = useState<ColumnDef<Registration>[]>([]);
-  
+  const [dynamicColumns, setDynamicColumns] = useState<
+    ColumnDef<Registration>[]
+  >([]);
+
   useEffect(() => {
     if (router.isReady) {
       const eventId = router.query.eventId as string;
       const year = router.query.year as string;
-      
+
       if (eventId && year) {
         fetchBackend({
           endpoint: `/events/${eventId}/${year}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         }).then((eventDetails: BiztechEvent) => {
-
-          const questionColumns = eventDetails.registrationQuestions?.map((q: RegistrationQuestion) => ({
-            id: q.label,
-            header: q.label,
-            accessorFn: (row: any) => {
-              return row.dynamicResponses?.[q.questionId] || '';
-            }
-          })) || [];
+          const questionColumns =
+            eventDetails.registrationQuestions?.map(
+              (q: RegistrationQuestion) => ({
+                id: q.label,
+                header: q.label,
+                accessorFn: (row: any) => {
+                  return row.dynamicResponses?.[q.questionId] || "";
+                },
+              }),
+            ) || [];
           setDynamicColumns(questionColumns);
         });
       }
@@ -57,14 +61,18 @@ export default function AdminEvent({ initialData, eventData }: Props) {
               Manage Events {">"} {router.query.eventId} {router.query.year}
             </p>
           </span>
-          <Button 
-            onClick={() => router.push(`/admin/event/${router.query.eventId}/${router.query.year}/edit`)}
+          <Button
+            onClick={() =>
+              router.push(
+                `/admin/event/${router.query.eventId}/${router.query.year}/edit`,
+              )
+            }
             className="bg-biztech-green"
           >
             Edit Event
           </Button>
         </div>
-        
+
         {/*divider*/}
         <div className="w-full h-[2px] bg-login-form-card my-6" />
 
@@ -98,13 +106,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       fetchBackend({
         endpoint: `/registrations?eventID=${eventId}&year=${year}`,
         method: "GET",
-        authenticatedCall: false
+        authenticatedCall: false,
       }),
       fetchBackend({
         endpoint: `/events/${eventId}/${year}`,
         method: "GET",
-        authenticatedCall: false
-      })
+        authenticatedCall: false,
+      }),
     ]);
 
     if (!eventData.registrationQuestions) {
@@ -114,11 +122,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       eventData.counts = {};
     }
 
-    return { 
-      props: { 
+    return {
+      props: {
         initialData: registrationData.data,
-        eventData: eventData
-      } 
+        eventData: eventData,
+      },
     };
   } catch (error) {
     console.error("Failed to fetch initial data:", error);

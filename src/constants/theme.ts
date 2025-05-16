@@ -9,4 +9,4 @@ export const COLORS = {
   ERROR: "#FF7675",
   WARNING: "#FFEAA7",
   INFO: "#74B9FF",
-} as const; 
+} as const;

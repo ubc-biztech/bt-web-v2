@@ -48,7 +48,7 @@ interface TableHeaderProps {
   onFilterChange: (value: SelectValue) => void;
 }
 
-type SelectValue = 'attendees' | 'partners' | 'waitlisted';
+type SelectValue = "attendees" | "partners" | "waitlisted";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
@@ -64,7 +64,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
-  const [selectedValue, setSelectedValue] = useState<SelectValue>('attendees'); 
+  const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
 
   const handleSelectChange = (value: SelectValue) => {
     setSelectedValue(value);
@@ -86,7 +86,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
     const selectedRows = getSelectedRows();
     // Implement team creation logic here
     console.log(
-      `Creating team "${teamName}" with ${selectedRows.length} members`
+      `Creating team "${teamName}" with ${selectedRows.length} members`,
     );
     setShowCreateTeam(false);
   };

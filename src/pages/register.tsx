@@ -1,79 +1,79 @@
-import React, { useState } from "react"
-import { useRouter } from "next/router"
-import { signUp, signInWithRedirect } from "@aws-amplify/auth"
-import { fetchBackend } from "@/lib/db"
-import Link from "next/link"
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { signUp, signInWithRedirect } from "@aws-amplify/auth";
+import { fetchBackend } from "@/lib/db";
+import Link from "next/link";
 
 const Register: React.FC = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [errors, setErrors] = useState<{
-    emailError: string
-    passwordError: React.ReactNode
-    confirmPasswordError: string
-    fullNameError: string
+    emailError: string;
+    passwordError: React.ReactNode;
+    confirmPasswordError: string;
+    fullNameError: string;
   }>({
     emailError: "",
     passwordError: "",
     confirmPasswordError: "",
-    fullNameError: ""
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+    fullNameError: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const validateEmail = (value: string) => {
-    let error = ""
+    let error = "";
     if (!value) {
-      error = "Email is required"
+      error = "Email is required";
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-      error = "Please enter a valid email address"
+      error = "Please enter a valid email address";
     }
-    return error
-  }
+    return error;
+  };
 
   const validatePassword = (value: string) => {
-    let error = ""
+    let error = "";
     if (!value) {
-      error = "Password is required"
+      error = "Password is required";
     } else if (value.length < 6) {
-      error = "Password must be at least 6 characters"
+      error = "Password must be at least 6 characters";
     }
-    return error
-  }
+    return error;
+  };
 
   const validateConfirmPassword = (value: string) => {
-    let error = ""
+    let error = "";
     if (value !== password) {
-      error = "Passwords do not match"
+      error = "Passwords do not match";
     }
-    return error
-  }
+    return error;
+  };
 
   const validateName = (value: string) => {
-    return value.trim() === "" ? "This field is required" : ""
-  }
+    return value.trim() === "" ? "This field is required" : "";
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const emailError = validateEmail(email)
-    const passwordError = validatePassword(password)
-    const confirmPasswordError = validateConfirmPassword(confirmPassword)
-    const fullNameError = validateName(fullName)
+    e.preventDefault();
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+    const confirmPasswordError = validateConfirmPassword(confirmPassword);
+    const fullNameError = validateName(fullName);
 
     setErrors({
       emailError,
       passwordError,
       confirmPasswordError,
-      fullNameError
-    })
+      fullNameError,
+    });
 
     if (emailError || passwordError || confirmPasswordError || fullNameError) {
-      return // Exit early if there are validation errors
+      return; // Exit early if there are validation errors
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Amplify signUp process
@@ -83,57 +83,57 @@ const Register: React.FC = () => {
         options: {
           userAttributes: {
             name: fullName,
-            email: email // Ensure email is included in the attributes
+            email: email, // Ensure email is included in the attributes
           },
-          autoSignIn: true
-        }
-      })
+          autoSignIn: true,
+        },
+      });
 
       // Redirect to verification page (if email verification is enabled in Cognito)
-      router.push(`/verify?email=${email}`)
+      router.push(`/verify?email=${email}`);
     } catch (error: any) {
-      console.error("Error during sign-up", error)
-      handleAuthErrors(error)
+      console.error("Error during sign-up", error);
+      handleAuthErrors(error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignIn = async () => {
     try {
       await signInWithRedirect({
-        provider: "Google"
-      })
+        provider: "Google",
+      });
     } catch (error: any) {
-      console.error("Error initiating Google sign-in:", error)
+      console.error("Error initiating Google sign-in:", error);
     }
-  }
+  };
 
   const handleAuthErrors = (error: any) => {
-    let emailError = ""
-    let passwordError: React.ReactNode = ""
-    let confirmPasswordError = ""
-    let fullNameError = ""
+    let emailError = "";
+    let passwordError: React.ReactNode = "";
+    let confirmPasswordError = "";
+    let fullNameError = "";
 
     switch (error.code) {
       case "UsernameExistsException":
-        emailError = "This email is already registered."
-        break
+        emailError = "This email is already registered.";
+        break;
       case "InvalidPasswordException":
-        passwordError = "Password does not meet the requirements."
-        break
+        passwordError = "Password does not meet the requirements.";
+        break;
       default:
-        passwordError = error.message
-        break
+        passwordError = error.message;
+        break;
     }
 
     setErrors({
       emailError,
       passwordError,
       confirmPasswordError,
-      fullNameError
-    })
-  }
+      fullNameError,
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
@@ -327,7 +327,7 @@ const Register: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

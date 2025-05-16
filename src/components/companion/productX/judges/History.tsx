@@ -18,12 +18,18 @@ const History: React.FC<HistoryProps> = ({ records }) => {
           round: "none",
           judgeID: "loading",
           judgeName: "string",
-          scores: { metric1: 0, metric2: 0, metric3: 0, metric4: 0, metric5: 0 },
+          scores: {
+            metric1: 0,
+            metric2: 0,
+            metric3: 0,
+            metric4: 0,
+            metric5: 0,
+          },
           feedback: {},
           teamID: "loading",
           teamName: "loading",
-          createdAt: ""
-        }
+          createdAt: "",
+        },
   );
 
   if (!records) {
@@ -33,11 +39,11 @@ const History: React.FC<HistoryProps> = ({ records }) => {
 
   return (
     <>
-      <FadeWrapper className='flex flex-col'>
+      <FadeWrapper className="flex flex-col">
         {Object.keys(records).map((round: string, index: number) => (
           <>
-            <header className='mt-16 text-lg font-ibm'>ROUND {round}</header>
-            <div className='grid grid-cols-4 gap-5 mt-10'>
+            <header className="mt-16 text-lg font-ibm">ROUND {round}</header>
+            <div className="grid grid-cols-4 gap-5 mt-10">
               {records[round].map((team: TeamFeedback, index: number) => {
                 return (
                   <div key={index}>

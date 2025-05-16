@@ -1,4 +1,12 @@
-import { ChangeEvent, Dispatch, FC, SetStateAction, useEffect, useMemo, useState } from "react";
+import {
+  ChangeEvent,
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { SearchBar } from "./SearchBar";
 
 import { QR, QrType } from "./types";
@@ -49,7 +57,12 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
 
     if (yearFilter !== QrType.any) {
       filteredQRs = filteredQRs.filter((qr) => {
-        return qr["eventID;year"].substring(qr["eventID;year"].indexOf(";") + 1, qr["eventID;year"].length) == yearFilter;
+        return (
+          qr["eventID;year"].substring(
+            qr["eventID;year"].indexOf(";") + 1,
+            qr["eventID;year"].length,
+          ) == yearFilter
+        );
       });
     }
 
@@ -64,28 +77,36 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
     return filteredQRs;
   };
 
-  const filteredQRs = useMemo(() => filterQrs(), [searchField, yearFilter, qrTypeFilter, qrs]);
+  const filteredQRs = useMemo(
+    () => filterQrs(),
+    [searchField, yearFilter, qrTypeFilter, qrs],
+  );
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchField(e.target.value);
   };
 
   return (
-    <div className='w-full'>
-      <div className='flex flex-row lg:space-x-2 items-center flex-wrap'>
+    <div className="w-full">
+      <div className="flex flex-row lg:space-x-2 items-center flex-wrap">
         <SearchBar handleChange={handleChange} searchField={searchField} />
-        <div className='flex flex-row space-x-2 w-full lg:w-auto mt-2 lg:mt-0'>
+        <div className="flex flex-row space-x-2 w-full lg:w-auto mt-2 lg:mt-0">
           <DropDownTab
             value={qrTypeFilter}
             nullVal={QrType.any}
-            placeholder='[By Type]'
+            placeholder="[By Type]"
             valueChange={setQrTypeFilter}
-            options={[QrType.any, QrType.booth, QrType.partner, QrType.workshop]}
+            options={[
+              QrType.any,
+              QrType.booth,
+              QrType.partner,
+              QrType.workshop,
+            ]}
           />
           <DropDownTab
             value={yearFilter}
             nullVal={QrType.any}
-            placeholder='[By Year]'
+            placeholder="[By Year]"
             valueChange={setYearFilter}
             options={[
               QrType.any,
@@ -93,12 +114,12 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
                 .fill(null)
                 .map((v, i) => {
                   return new Date().getFullYear() - i;
-                })
+                }),
             ]}
           />
         </div>
       </div>
-      <div className='space-y-4 my-4'>
+      <div className="space-y-4 my-4">
         {renderedQRs.map((qr) => (
           <div key={qr.id}>
             <QrCard qr={qr} />
@@ -107,7 +128,7 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
       </div>
       {!viewMore && (
         <div
-          className='text-lg flex flex-row items-center justify-center text-baby-blue my-12 cursor-pointer'
+          className="text-lg flex flex-row items-center justify-center text-baby-blue my-12 cursor-pointer"
           onClick={(e) => {
             setRenderedQRs(filteredQRs);
           }}

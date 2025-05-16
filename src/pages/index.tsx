@@ -1,115 +1,121 @@
-import { EventDashboard } from "@/components/EventsDashboard/EventDashboard"
-import { FilterTab } from "@/components/EventsDashboard/FilterTab"
-import GuestBanner from "@/components/EventsDashboard/GuestBanner"
-import { SearchBar } from "@/components/EventsDashboard/SearchBar"
-import { fetchUserAttributes } from "@aws-amplify/auth"
-import { fetchBackend } from "@/lib/db"
-import { BiztechEvent } from "@/types/types"
-import { AuthError } from "@aws-amplify/auth"
-import { ListIcon, Bookmark } from "lucide-react"
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
+import { EventDashboard } from "@/components/EventsDashboard/EventDashboard";
+import { FilterTab } from "@/components/EventsDashboard/FilterTab";
+import GuestBanner from "@/components/EventsDashboard/GuestBanner";
+import { SearchBar } from "@/components/EventsDashboard/SearchBar";
+import { fetchUserAttributes } from "@aws-amplify/auth";
+import { fetchBackend } from "@/lib/db";
+import { BiztechEvent } from "@/types/types";
+import { AuthError } from "@aws-amplify/auth";
+import { ListIcon, Bookmark } from "lucide-react";
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 interface registeredEvent {
-  "eventID;year": string
-  [key: string | symbol]: unknown
+  "eventID;year": string;
+  [key: string | symbol]: unknown;
 }
 
 interface EventProps {
-  events: BiztechEvent[]
+  events: BiztechEvent[];
 }
 
 const filterStates = {
   all: "all",
-  saved: "saved"
-}
+  saved: "saved",
+};
 
 export default function Page({ events }: EventProps) {
-  const [signedIn, setSignedIn] = useState<boolean>(true)
-  const [searchField, setSearchField] = useState("")
-  const [filterState, setFilterState] = useState(filterStates.all)
-  const isCooldownRef = useRef(false)
+  const [signedIn, setSignedIn] = useState<boolean>(true);
+  const [searchField, setSearchField] = useState("");
+  const [filterState, setFilterState] = useState(filterStates.all);
+  const isCooldownRef = useRef(false);
   // these useStates will be empty arrays by default, but currently have mocks before i verify backend integration works
-  const [saved, setSaved] = useState<string[]>([])
-  const [registered, setRegistered] = useState<string[]>([])
-  const [email, setEmail] = useState<string>("")
+  const [saved, setSaved] = useState<string[]>([]);
+  const [registered, setRegistered] = useState<string[]>([]);
+  const [email, setEmail] = useState<string>("");
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const uiStateFilter = () => {
-    let filteredEvents: BiztechEvent[] = events
+    let filteredEvents: BiztechEvent[] = events;
     if (filterState === filterStates.saved) {
       filteredEvents = filteredEvents.filter((ev) => {
-        return saved.includes(`${ev.id};${ev.year}`)
-      })
+        return saved.includes(`${ev.id};${ev.year}`);
+      });
     }
 
     filteredEvents = filteredEvents.filter((ev) => {
-      return ev.ename.startsWith(searchField)
-    })
+      return ev.ename.startsWith(searchField);
+    });
 
-    return filteredEvents
-  }
+    return filteredEvents;
+  };
 
   const displayedEvents = useMemo(
     () => uiStateFilter(),
-    [uiStateFilter, filterState, searchField, saved]
-  )
+    [uiStateFilter, filterState, searchField, saved],
+  );
 
   const fetchData = async () => {
     try {
-      const attributes = await fetchUserAttributes()
-      const email = attributes.email
+      const attributes = await fetchUserAttributes();
+      const email = attributes.email;
 
       if (!email) {
-        throw new Error("Email not found in user attributes.")
+        throw new Error("Email not found in user attributes.");
       }
 
       const userData = await fetchBackend({
         endpoint: `/users/${email}`,
-        method: "GET"
-      })
+        method: "GET",
+      });
       const registeredEvents = await fetchBackend({
         endpoint: `/registrations?email=${email}`,
-        method: "GET"
-      })
+        method: "GET",
+      });
 
-      setEmail(email)
-      setSaved(userData["favedEventsID;year"] ?? [])
+      setEmail(email);
+      setSaved(userData["favedEventsID;year"] ?? []);
       setRegistered(
         registeredEvents?.data?.map(
-          (event: registeredEvent) => event["eventID;year"]
-        ) ?? []
-      )
+          (event: registeredEvent) => event["eventID;year"],
+        ) ?? [],
+      );
     } catch (e) {
       if (e instanceof AuthError && e.name === "UserUnAuthenticatedException") {
-        setSignedIn(false)
+        setSignedIn(false);
       } else {
-        console.error("Error in fetchData:", e)
+        console.error("Error in fetchData:", e);
       }
     }
-  }
+  };
 
   const handleUiClick = (s: string) => {
     if (isCooldownRef.current) {
       //return
     } else {
       if (filterState != s) {
-        setFilterState(s)
+        setFilterState(s);
       } else {
-        setFilterState(filterStates.all)
+        setFilterState(filterStates.all);
       }
-      isCooldownRef.current = true
+      isCooldownRef.current = true;
       setTimeout(() => {
-        isCooldownRef.current = false
-      }, 400)
+        isCooldownRef.current = false;
+      }, 400);
     }
-  }
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchField(e.target.value)
-  }
+    setSearchField(e.target.value);
+  };
 
   return (
     <main className="bg-primary-color min-h-screen w-full">
@@ -161,7 +167,7 @@ export default function Page({ events }: EventProps) {
         </div>
       </div>
     </main>
-  )
+  );
 }
 
 export async function getStaticProps() {
@@ -169,27 +175,27 @@ export async function getStaticProps() {
     let events = await fetchBackend({
       endpoint: "/events",
       method: "GET",
-      authenticatedCall: false
-    })
+      authenticatedCall: false,
+    });
 
     events.sort((a: BiztechEvent, b: BiztechEvent) => {
-      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    })
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
 
     events = events.filter((e: BiztechEvent) => {
-      return e.isPublished
-    })
+      return e.isPublished;
+    });
 
     return {
       props: {
-        events
-      }
-    }
+        events,
+      },
+    };
   } catch (error) {
     return {
       props: {
-        events: []
-      }
-    }
+        events: [],
+      },
+    };
   }
 }

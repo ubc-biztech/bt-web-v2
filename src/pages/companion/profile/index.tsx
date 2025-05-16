@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Loader2, XCircleIcon } from "lucide-react";
 import Events from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import PageError from "@/components/companion/PageError";
 
 const CompanionProfile = () => {
@@ -29,7 +29,7 @@ const CompanionProfile = () => {
         // Get email from local storage
         const email = localStorage.getItem(COMPANION_EMAIL_KEY);
         if (!email) {
-          router.push('/companion');
+          router.push("/companion");
           return;
         }
 
@@ -46,11 +46,15 @@ const CompanionProfile = () => {
           return;
         }
 
-        setError("Could not find your profile. Please try scanning your NFC card again.");
+        setError(
+          "Could not find your profile. Please try scanning your NFC card again.",
+        );
         setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching profile:', error);
-        setError("An error occurred while fetching your profile. Please try again later.");
+        console.error("Error fetching profile:", error);
+        setError(
+          "An error occurred while fetching your profile. Please try again later.",
+        );
         setIsLoading(false);
       }
     };
@@ -82,4 +86,4 @@ const CompanionProfile = () => {
   return null;
 };
 
-export default CompanionProfile; 
+export default CompanionProfile;

@@ -7,8 +7,7 @@ interface StatsTableProps {
 const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
   const renderData = () => {
     const simpleData: JSX.Element[] = [];
-    const groupedData: { [key: string]: StatsChartData[] } =
-      {};
+    const groupedData: { [key: string]: StatsChartData[] } = {};
 
     data.forEach((item) => {
       const [parent, child] = item.label.split(":");
@@ -22,7 +21,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
           <>
             <div className="col-span-2">{item.label}</div>
             <div className="col-span-1 text-right">{item.value}</div>
-          </>
+          </>,
         );
       }
     });
@@ -37,7 +36,7 @@ const StatsTable: React.FC<StatsTableProps> = ({ data }) => {
               <div className="col-span-1 text-right">{value}</div>
             </>
           ))}
-        </>
+        </>,
       );
     });
 

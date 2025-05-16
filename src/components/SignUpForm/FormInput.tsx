@@ -9,7 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -17,7 +17,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 
 // Interfaces
@@ -67,7 +67,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
             "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:shadow-none",
             "focus:border-biztech-green focus:border-opacity-50",
             "transition-colors duration-200",
-            className
+            className,
           )}
           ref={ref}
           {...field}
@@ -75,7 +75,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
       </FormControl>
       <FormMessage />
     </FormItem>
-  )
+  ),
 );
 
 FormInput.displayName = "FormInput";
@@ -117,7 +117,7 @@ export const FormRadio = React.forwardRef<HTMLDivElement, FormRadioProps>(
         <FormMessage />
       </FormItem>
     );
-  }
+  },
 );
 FormRadio.displayName = "FormRadio";
 
@@ -141,7 +141,9 @@ export const FormMultiSelect = React.forwardRef<
                   field.onChange([...(field.value || []), item.value]);
                 } else {
                   field.onChange(
-                    field.value?.filter((value: string) => value !== item.value)
+                    field.value?.filter(
+                      (value: string) => value !== item.value,
+                    ),
                   );
                 }
               }}
@@ -172,7 +174,7 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
               "text-white-blue",
               "transition-colors duration-200",
               "focus:border-biztech-green focus:border-opacity-50",
-              "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none"
+              "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
             )}
           >
             <SelectTrigger ref={ref} {...field}>
@@ -190,7 +192,7 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
         <FormMessage />
       </FormItem>
     );
-  }
+  },
 );
 
 FormSelect.displayName = "FormSelect";

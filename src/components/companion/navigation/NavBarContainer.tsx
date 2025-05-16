@@ -10,7 +10,11 @@ interface NavBarContainerProps {
   userName?: string | undefined;
 }
 
-const NavBarContainer: React.FC<NavBarContainerProps> = ({ isPartner, children, userName }) => {
+const NavBarContainer: React.FC<NavBarContainerProps> = ({
+  isPartner,
+  children,
+  userName,
+}) => {
   const [isSideNavOpen, setIsSideNavOpen] = useState(false);
   const [isPopupMenuOpen, setIsPopupMenuOpen] = useState(false);
   useEffect(() => {
@@ -32,7 +36,11 @@ const NavBarContainer: React.FC<NavBarContainerProps> = ({ isPartner, children, 
     <div className="relative flex flex-col min-h-screen bg-[#020319] text-white font-ibm">
       <div className="fixed top-0 left-0 right-0 z-50 px-2 md:px-8 pt-2 md:pt-8 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
         {/* <TopNav onMenuClick={() => setIsSideNavOpen(true)} /> */}
-        <TopNav onMenuClick={setIsPopupMenuOpen} isOpen={isPopupMenuOpen} first_last={userName}/>
+        <TopNav
+          onMenuClick={setIsPopupMenuOpen}
+          isOpen={isPopupMenuOpen}
+          first_last={userName}
+        />
       </div>
       {/* <SideNav isPartner={isPartner} isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} /> */}
       <PopupMenu isOpen={isPopupMenuOpen} />

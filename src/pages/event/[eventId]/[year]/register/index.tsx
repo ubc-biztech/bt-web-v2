@@ -1,133 +1,133 @@
-"use client"
-import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm"
+"use client";
+import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm";
 import {
   ApplicationStatus,
   BiztechEvent,
   DBRegistrationStatus,
-  User
-} from "@/types"
-import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
-import { fetchBackend } from "@/lib/db"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal } from "lucide-react"
+  User,
+} from "@/types";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { fetchBackend } from "@/lib/db";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Terminal } from "lucide-react";
 import {
   fetchAuthSession,
   signIn,
-  fetchUserAttributes
-} from "@aws-amplify/auth"
+  fetchUserAttributes,
+} from "@aws-amplify/auth";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { QuestionTypes } from "@/constants/questionTypes"
-import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers"
-import { CLIENT_URL } from "@/lib/dbconfig"
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { QuestionTypes } from "@/constants/questionTypes";
+import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
+import { CLIENT_URL } from "@/lib/dbconfig";
 
 export default function AttendeeFormRegister() {
-  const router = useRouter()
-  const { eventId, year } = router.query
-  const [event, setEvent] = useState<BiztechEvent>({} as BiztechEvent)
-  const [isEventFull, setIsEventFull] = useState<boolean>(false)
-  const [regAlert, setRegAlert] = useState<JSX.Element | null>(null)
-  const [user, setUser] = useState<User>({} as User)
+  const router = useRouter();
+  const { eventId, year } = router.query;
+  const [event, setEvent] = useState<BiztechEvent>({} as BiztechEvent);
+  const [isEventFull, setIsEventFull] = useState<boolean>(false);
+  const [regAlert, setRegAlert] = useState<JSX.Element | null>(null);
+  const [user, setUser] = useState<User>({} as User);
   const [isNonMemberModalOpen, setIsNonMemberModalOpen] =
-    useState<boolean>(true)
-  const [userRegistered, setUserRegistered] = useState<boolean>(false)
-  const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false)
-  const [userLoading, setUserLoading] = useState<boolean>(true)
+    useState<boolean>(true);
+  const [userRegistered, setUserRegistered] = useState<boolean>(false);
+  const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
+  const [userLoading, setUserLoading] = useState<boolean>(true);
 
   const samePricing = () => {
-    return event.pricing?.members === event.pricing?.nonMembers
-  }
+    return event.pricing?.members === event.pricing?.nonMembers;
+  };
 
   const isDeadlinePassed = () => {
-    const deadline = Date.parse(event.deadline)
+    const deadline = Date.parse(event.deadline);
     // get the timestamp down to millisconds
-    return deadline < Date.now()
-  }
+    return deadline < Date.now();
+  };
 
   const checkRegistered = async (email: string): Promise<Boolean> => {
     const registrations = await fetchBackend({
       endpoint: `/registrations?email=${email}`,
       method: "GET",
-      authenticatedCall: false
-    })
+      authenticatedCall: false,
+    });
     const exists: boolean = registrations.data.some(
-      (reg: any) => reg["eventID;year"] === event.id + ";" + event.year
-    )
-    setUserRegistered(exists)
-    return exists
-  }
+      (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
+    );
+    setUserRegistered(exists);
+    return exists;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const { tokens } = await fetchAuthSession()
+        const { tokens } = await fetchAuthSession();
         if (tokens) {
-          const attributes = await fetchUserAttributes()
-          const email = attributes?.email
+          const attributes = await fetchUserAttributes();
+          const email = attributes?.email;
 
-          if (!email) throw new Error("Email not found for user")
+          if (!email) throw new Error("Email not found for user");
 
           const userData = await fetchBackend({
             endpoint: `/users/${email}`,
-            method: "GET"
-          })
+            method: "GET",
+          });
 
-          setUser(userData)
-          setUserLoggedIn(true)
+          setUser(userData);
+          setUserLoggedIn(true);
         } else {
-          setUserLoggedIn(false)
+          setUserLoggedIn(false);
         }
       } catch (err: any) {
-        console.error("Failed to fetch user:", err)
-        setUserLoggedIn(false)
+        console.error("Failed to fetch user:", err);
+        setUserLoggedIn(false);
       }
-      setUserLoading(false)
-    }
+      setUserLoading(false);
+    };
 
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, []);
 
   useEffect(() => {
     const fetchEvent = async () => {
       if (!eventId || !year) {
-        return
+        return;
       }
       const eventData = await fetchBackend({
         endpoint: `/events/${eventId}/${year}`,
         method: "GET",
         data: undefined,
-        authenticatedCall: false
-      })
+        authenticatedCall: false,
+      });
 
       const params = new URLSearchParams({
-        count: String(true)
-      })
+        count: String(true),
+      });
       const regData = await fetchBackend({
         endpoint: `/events/${eventId}/${year}?${params}`,
         method: "GET",
         data: undefined,
-        authenticatedCall: false
-      })
-      eventData.counts = regData
-      setEvent(eventData)
-    }
-    fetchEvent()
-  }, [eventId, year])
+        authenticatedCall: false,
+      });
+      eventData.counts = regData;
+      setEvent(eventData);
+    };
+    fetchEvent();
+  }, [eventId, year]);
 
   useEffect(() => {
-    if (userLoggedIn) checkRegistered(user.id)
+    if (userLoggedIn) checkRegistered(user.id);
 
     const remaining =
       event.capac -
-      (event.counts?.registeredCount + event.counts?.checkedInCount)
+      (event.counts?.registeredCount + event.counts?.checkedInCount);
     if (remaining > 0 && remaining <= 20) {
       setRegAlert(
         <Alert className="mx-4 my-5 w-auto">
@@ -137,13 +137,13 @@ export default function AttendeeFormRegister() {
             {event.ename || "This event"} only has {remaining} spot
             {remaining > 1 ? "s" : ""} left!
           </AlertDescription>
-        </Alert>
-      )
+        </Alert>,
+      );
     } else if (remaining <= 0) {
       // } else if (remaining <= 0 && !user) {
-      setIsEventFull(true)
+      setIsEventFull(true);
     } else {
-      setRegAlert(null)
+      setRegAlert(null);
     }
 
     if (
@@ -154,29 +154,29 @@ export default function AttendeeFormRegister() {
         samePricing()
       )
     ) {
-      setIsNonMemberModalOpen(true)
+      setIsNonMemberModalOpen(true);
     }
-  }, [event, user])
+  }, [event, user]);
 
   // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
 
   const cleanFormData = (data: any) => {
-    if (!event?.registrationQuestions) return
+    if (!event?.registrationQuestions) return;
     for (let question of event?.registrationQuestions) {
       if (question.type === QuestionTypes.CHECKBOX && data.customQuestions) {
         data.customQuestions[question.questionId] = cleanOtherQuestions(
-          data?.customQuestions[question.questionId]
-        )
+          data?.customQuestions[question.questionId],
+        );
       }
     }
-  }
+  };
 
   const handleSubmit = async (data: any): Promise<Boolean> => {
-    cleanFormData(data)
+    cleanFormData(data);
 
     if (!userLoggedIn && (await checkRegistered(data["emailAddress"]))) {
-      return false
+      return false;
     }
 
     const registrationData = {
@@ -196,36 +196,36 @@ export default function AttendeeFormRegister() {
         major: data["majorSpecialization"],
         gender: data["preferredPronouns"],
         diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"]
+        heardFrom: data["howDidYouHear"],
       },
       dynamicResponses: data["customQuestions"],
       applicationStatus: event.isApplicationBased
         ? ApplicationStatus.REVIEWING
-        : ""
-    }
+        : "",
+    };
 
     try {
       await fetchBackend({
         endpoint: "/registrations",
         method: "POST",
         data: registrationData,
-        authenticatedCall: false
-      })
-      router.push(`/event/${eventId}/${year}/register/success`)
-      return true
+        authenticatedCall: false,
+      });
+      router.push(`/event/${eventId}/${year}/register/success`);
+      return true;
     } catch (error) {
       alert(
-        `An error has occured: ${error} Please contact an exec for support. 4`
-      )
-      return false
+        `An error has occured: ${error} Please contact an exec for support. 4`,
+      );
+      return false;
     }
-  }
+  };
 
   const handlePaymentSubmit = async (data: any): Promise<Boolean> => {
-    cleanFormData(data)
+    cleanFormData(data);
 
     if (!userLoggedIn && (await checkRegistered(data["emailAddress"]))) {
-      return false
+      return false;
     }
 
     const registrationData = {
@@ -245,24 +245,24 @@ export default function AttendeeFormRegister() {
         major: data["majorSpecialization"],
         gender: data["preferredPronouns"],
         diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"]
+        heardFrom: data["howDidYouHear"],
       },
       dynamicResponses: data["customQuestions"],
       applicationStatus: event.isApplicationBased
         ? ApplicationStatus.REVIEWING
-        : ""
-    }
+        : "",
+    };
 
     try {
       const res = await fetchBackend({
         endpoint: "/registrations",
         method: "POST",
         data: registrationData,
-        authenticatedCall: false
-      })
+        authenticatedCall: false,
+      });
       if (res.url) {
-        window.open(res.url, "_self")
-        return true
+        window.open(res.url, "_self");
+        return true;
       } else {
         const paymentData = {
           paymentName: `${event.ename} ${
@@ -286,38 +286,38 @@ export default function AttendeeFormRegister() {
           email: data["emailAddress"],
           fname: data["firstName"],
           eventID: eventId,
-          year: year
-        }
+          year: year,
+        };
 
         try {
           const res = await fetchBackend({
             endpoint: "/payments",
             method: "POST",
             data: paymentData,
-            authenticatedCall: false
-          })
+            authenticatedCall: false,
+          });
           if (event.isApplicationBased) {
             router.push(
-              `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`
-            )
+              `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
+            );
           } else {
-            window.open(res, "_self")
+            window.open(res, "_self");
           }
-          return true
+          return true;
         } catch (error) {
           alert(
-            `An error has occured: ${error} Please contact an exec for support.`
-          )
-          return false
+            `An error has occured: ${error} Please contact an exec for support.`,
+          );
+          return false;
         }
       }
     } catch (error) {
       alert(
-        `An error has occured: ${error} Please contact an exec for support.`
-      )
-      return false
+        `An error has occured: ${error} Please contact an exec for support.`,
+      );
+      return false;
     }
-  }
+  };
 
   const renderErrorText = (children: JSX.Element) => {
     return (
@@ -337,8 +337,8 @@ export default function AttendeeFormRegister() {
           {children}
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderIsNonMemberDialog = () => {
     return (
@@ -394,14 +394,14 @@ export default function AttendeeFormRegister() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    )
-  }
+    );
+  };
 
   const renderConditionalViews = () => {
-    if (userLoading) return null
+    if (userLoading) return null;
 
     // wait for fields to load, otherwise the views will display a flash change
-    if (!event || !user || !event.pricing) return null
+    if (!event || !user || !event.pricing) return null;
     // deadline passed
 
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
@@ -418,8 +418,8 @@ export default function AttendeeFormRegister() {
           >
             Upcoming Events
           </button>
-        </div>
-      )
+        </div>,
+      );
     } else if (isDeadlinePassed()) {
       return renderErrorText(
         <div className="text-center">
@@ -433,8 +433,8 @@ export default function AttendeeFormRegister() {
           >
             Upcoming Events
           </button>
-        </div>
-      )
+        </div>,
+      );
       // Event full
     } else if (isEventFull) {
       return renderErrorText(
@@ -453,8 +453,8 @@ export default function AttendeeFormRegister() {
               Upcoming Events
             </button>
           </div>
-        </>
-      )
+        </>,
+      );
     }
     // members only
     else if (
@@ -474,8 +474,8 @@ export default function AttendeeFormRegister() {
           >
             Register
           </button>
-        </div>
-      )
+        </div>,
+      );
 
       // regular
     } else if (event && event.registrationQuestions) {
@@ -483,7 +483,7 @@ export default function AttendeeFormRegister() {
         event?.pricing?.nonMembers &&
           event?.pricing?.members &&
           event?.pricing?.members != event?.pricing?.nonMembers &&
-          renderIsNonMemberDialog()
+          renderIsNonMemberDialog();
       }
       return (
         <AttendeeEventRegistrationForm
@@ -492,9 +492,9 @@ export default function AttendeeFormRegister() {
           event={event}
           user={user}
         />
-      )
+      );
     }
-  }
+  };
 
   return (
     <main className="bg-primary-color min-h-screen">
@@ -503,5 +503,5 @@ export default function AttendeeFormRegister() {
         {event && renderConditionalViews()}
       </div>
     </main>
-  )
+  );
 }
