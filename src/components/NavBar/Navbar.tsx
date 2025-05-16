@@ -1,44 +1,51 @@
-import BiztechLogo from "../../../public/assets/biztech_logo.svg"
-import Image from "next/image"
-import NavbarTab from "./NavbarTab"
-import { admin, defaultUser, logout, signin } from "../../constants/tabs"
-import HamburgerMenu from "../../../public/assets/icons/hamburger_menu.svg"
-import { isMobile } from "@/util/isMobile"
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { AuthError } from "@aws-amplify/auth"
-import { fetchUserAttributes } from "@aws-amplify/auth"
+import BiztechLogo from "../../../public/assets/biztech_logo.svg";
+import Image from "next/image";
+import NavbarTab from "./NavbarTab";
+import { admin, defaultUser, logout, signin } from "../../constants/tabs";
+import HamburgerMenu from "../../../public/assets/icons/hamburger_menu.svg";
+import { isMobile } from "@/util/isMobile";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { AuthError } from "@aws-amplify/auth";
+import { fetchUserAttributes } from "@aws-amplify/auth";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [isSignedIn, setIsSignedIn] = useState(true)
-  const [isMobileDevice, setIsMobileDevice] = useState(false)
-  useEffect(() => {
-    const userAgent = navigator.userAgent
-    setIsMobileDevice(isMobile(userAgent))
+  const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const userAgent = navigator.userAgent;
+      setIsMobileDevice(isMobile(userAgent));
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const attributes = await fetchUserAttributes()
-        const email = attributes?.email || ""
-        const isAdmin = email.split("@")[1] === "ubcbiztech.com"
-        setIsAdmin(isAdmin)
-        setIsSignedIn(true)
+        const attributes = await fetchUserAttributes();
+        const email = attributes?.email || "";
+        const admin = email.split("@")[1] === "ubcbiztech.com";
+
+        setIsAdmin(admin);
+        setIsSignedIn(true);
       } catch (e) {
         if (
           e instanceof AuthError &&
           e.name === "UserUnAuthenticatedException"
         ) {
-          setIsSignedIn(false)
+          setIsSignedIn(false);
         } else {
-          console.error(e)
+          console.error(e);
+          setIsSignedIn(false);
         }
       }
-    }
+    };
 
-    fetchUserDetails()
-  }, [])
+    fetchUserDetails();
+  }, []);
 
   return (
     <>
@@ -98,7 +105,10 @@ export default function Navbar() {
               ))}
             </div>
             {isSignedIn ? (
-              <NavbarTab navbarItem={logout} />
+              <NavbarTab
+                navbarItem={logout}
+                onLogout={() => setIsSignedIn(false)}
+              />
             ) : (
               <NavbarTab navbarItem={signin} />
             )}
@@ -106,5 +116,5 @@ export default function Navbar() {
         </div>
       )}
     </>
-  )
+  );
 }
