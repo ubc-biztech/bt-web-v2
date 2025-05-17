@@ -19,28 +19,28 @@ interface ScoresProps {
 }
 
 const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
-  const [selectedJudges, setSelectedJudges] = useState<
-    Record<string, string>
-  >({});
+  const [selectedJudges, setSelectedJudges] = useState<Record<string, string>>(
+    {},
+  );
   const [team_feedback, setTeamFeedback] = useState<TeamFeedback>(
     records
       ? Object.values(records).flat()[0]
       : {
-        round: "none",
-        judgeID: "loading",
-        judgeName: "string",
-        scores: {
-          metric1: 0,
-          metric2: 0,
-          metric3: 0,
-          metric4: 0,
-          metric5: 0,
+          round: "none",
+          judgeID: "loading",
+          judgeName: "string",
+          scores: {
+            metric1: 0,
+            metric2: 0,
+            metric3: 0,
+            metric4: 0,
+            metric5: 0,
+          },
+          feedback: {},
+          teamID: "loading",
+          teamName: "loading",
+          createdAt: "",
         },
-        feedback: {},
-        teamID: "loading",
-        teamName: "loading",
-        createdAt: "",
-      }
   );
   const [showRubric, setShowRubric] = useState(false);
   const [Round, setRound] = useState("");
@@ -59,8 +59,7 @@ const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
 
             const selectedReport =
               reports.find(
-                (report) =>
-                  report.judgeName === selectedJudgeName
+                (report) => report.judgeName === selectedJudgeName,
               ) || reports[0]; // default to first
 
             return (
@@ -91,12 +90,10 @@ const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
                     >
                       <Select // TODO: make this select component nicer
                         onValueChange={(val) =>
-                          setSelectedJudges(
-                            (prev) => ({
-                              ...prev,
-                              [round]: val,
-                            })
-                          )
+                          setSelectedJudges((prev) => ({
+                            ...prev,
+                            [round]: val,
+                          }))
                         }
                       >
                         <SelectTrigger className="w-full border-0 p-2 shadow-none bg-transparent focus:ring-0 focus:ring-offset-0 text-[#898BC3]">
@@ -110,20 +107,11 @@ const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
                         </SelectTrigger>
 
                         <SelectContent>
-                          {reports.map(
-                            (report, i) => (
-                              <SelectItem
-                                key={i}
-                                value={
-                                  report.judgeName
-                                }
-                              >
-                                {
-                                  report.judgeName
-                                }
-                              </SelectItem>
-                            )
-                          )}
+                          {reports.map((report, i) => (
+                            <SelectItem key={i} value={report.judgeName}>
+                              {report.judgeName}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </Box>

@@ -4,7 +4,13 @@ import { fetchBackend } from "@/lib/db";
 import { QrCodeIcon } from "lucide-react";
 import PageError from "@/components/companion/PageError";
 import Events from "@/constants/companion-events";
-import { BOOTH_EVENT, COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY, CONNECTION_EVENT, WORKSHOP_EVENT } from "@/constants/companion";
+import {
+  BOOTH_EVENT,
+  COMPANION_EMAIL_KEY,
+  COMPANION_PROFILE_ID_KEY,
+  CONNECTION_EVENT,
+  WORKSHOP_EVENT,
+} from "@/constants/companion";
 import Loading from "@/components/Loading";
 
 interface Qr {
@@ -39,7 +45,7 @@ const Index = () => {
       const response = await fetchBackend({
         endpoint: `/qr/${qrId}/${eventID}/${year}`,
         method: "GET",
-        authenticatedCall: false
+        authenticatedCall: false,
       });
 
       setQrData(response);
@@ -49,11 +55,15 @@ const Index = () => {
     }
   };
 
-  const postInteraction = async (userID: string, type: string, eventParam: string) => {
+  const postInteraction = async (
+    userID: string,
+    type: string,
+    eventParam: string,
+  ) => {
     let redirect = "";
     let body = {
       userID,
-      eventParam
+      eventParam,
     };
     switch (type) {
       case "NFC_PARTNER":
@@ -85,7 +95,12 @@ const Index = () => {
     }
 
     try {
-      await fetchBackend({ endpoint: "/interactions", method: "POST", data: body, authenticatedCall: false });
+      await fetchBackend({
+        endpoint: "/interactions",
+        method: "POST",
+        data: body,
+        authenticatedCall: false,
+      });
     } catch (error) {
       if (Number.parseInt((error as any).status) >= 500) {
         console.error("Backend call failed", (error as any).message);
@@ -119,19 +134,29 @@ const Index = () => {
     postInteraction(userID || "", type, id); // TODO integrate profiles
   }, [qrData]);
 
-  if (!loadingQr && (!qrData || !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP", "NFC_COMPANY"].includes(qrData.type))) {
+  if (
+    !loadingQr &&
+    (!qrData ||
+      !["NFC_ATTENDEE", "NFC_BOOTH", "NFC_WORKSHOP", "NFC_COMPANY"].includes(
+        qrData.type,
+      ))
+  ) {
     return (
       <PageError
-        icon={<QrCodeIcon size={64} color='#F87171' />}
-        title='Error'
-        subtitle='No such NFC code found'
-        message='Try scanning your NFC card again.'
+        icon={<QrCodeIcon size={64} color="#F87171" />}
+        title="Error"
+        subtitle="No such NFC code found"
+        message="Try scanning your NFC card again."
       />
     );
   }
 
   if (pageError) {
-    return <div className='w-screen h-screen flex items-center justify-center'>{pageError}</div>;
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        {pageError}
+      </div>
+    );
   }
 
   return <Loading />;

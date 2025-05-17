@@ -1,19 +1,19 @@
-import "@/styles/globals.css"
-import "@/styles/fonts.css"
-import "@/styles/animations.css"
-import type { AppProps } from "next/app"
-import Layout from "./layout"
-import Head from "next/head"
-import { useRouter } from "next/router"
-import { Red_Hat_Mono } from "next/font/google"
+import "@/styles/globals.css";
+import "@/styles/fonts.css";
+import "@/styles/animations.css";
+import type { AppProps } from "next/app";
+import Layout from "./layout";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { Red_Hat_Mono } from "next/font/google";
 
 const redHatMono = Red_Hat_Mono({
   subsets: ["latin"],
-  weight: ["300", "400", "500"]
-})
+  weight: ["300", "400", "500"],
+});
 
 export default function App({ Component, pageProps }: AppProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   // Pages that should NOT use the Layout
   const noLayoutPaths = [
@@ -23,12 +23,12 @@ export default function App({ Component, pageProps }: AppProps) {
     "/membership",
     "/register",
     "/verify",
-    "/forgot-password"
-  ]
-  const isNoLayoutPage = noLayoutPaths.includes(router.pathname)
+    "/forgot-password",
+  ];
+  const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 
   // Companion mode theming
-  const isCompanionPath = router.pathname.startsWith("/companion")
+  const isCompanionPath = router.pathname.startsWith("/companion");
 
   const content = (
     <>
@@ -98,16 +98,16 @@ export default function App({ Component, pageProps }: AppProps) {
         </div>
       </main>
     </>
-  )
+  );
 
   if (isCompanionPath) {
-    return content
+    return content;
   }
 
   if (isNoLayoutPage) {
-    return content
+    return content;
   }
 
   // Otherwise, wrap it in the Layout
-  return <Layout>{content}</Layout>
+  return <Layout>{content}</Layout>;
 }

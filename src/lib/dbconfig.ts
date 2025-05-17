@@ -4,11 +4,11 @@
 //     : aws_exports
 
 export const API_URL =
-process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
-  ? "https://api.ubcbiztech.com"
-  : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-    ? "http://localhost:4000"
-    : "https://api-dev.ubcbiztech.com";
+  process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
+    ? "https://api.ubcbiztech.com"
+    : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+      ? "http://localhost:4000"
+      : "https://api-dev.ubcbiztech.com";
 
 export const CLIENT_URL =
   process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"

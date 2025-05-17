@@ -44,16 +44,30 @@ type ProjectRowProps = ReadOnlyProps | WriteEnabledProps;
 //     onClick={() => console.log("clicked")}
 
 // Capitalize team name helper
-const ProjectRow: React.FC<ProjectRowProps> = ({ team_name, team_status, read_only, round, presenting = false, onClick }) => {
+const ProjectRow: React.FC<ProjectRowProps> = ({
+  team_name,
+  team_status,
+  read_only,
+  round,
+  presenting = false,
+  onClick,
+}) => {
   return (
-    <div className='w-full h-32'>
-      <Box innerShadow={20} className={`flex flex-row justify-between items-center pl-5`}>
-        <div className='flex flex-col gap-2'>
+    <div className="w-full h-32">
+      <Box
+        innerShadow={20}
+        className={`flex flex-row justify-between items-center pl-5`}
+      >
+        <div className="flex flex-col gap-2">
           <div className="flex flex-row gap-2 items-center">
             <User size={20} />
-            <header className="text-md">{capitalizeTeamName(`${team_name} ${round === "2" ? " • FINAL ROUND" : ""}`)}</header>
+            <header className="text-md">
+              {capitalizeTeamName(
+                `${team_name} ${round === "2" ? " • FINAL ROUND" : ""}`,
+              )}
+            </header>
           </div>
-          <span className='text-sm text-[#898BC3]'>{`${team_status}`}</span>
+          <span className="text-sm text-[#898BC3]">{`${team_status}`}</span>
         </div>
         {read_only ? (
           <Button

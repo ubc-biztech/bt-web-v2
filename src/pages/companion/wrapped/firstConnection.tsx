@@ -7,8 +7,8 @@ import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
-import { motion, useMotionValue, animate } from 'framer-motion';
-import Image from 'next/image';
+import { motion, useMotionValue, animate } from "framer-motion";
+import Image from "next/image";
 
 interface FirstConnectionProps {
   isPartner: boolean;
@@ -73,7 +73,7 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
 
     try {
       const data = await fetchBackend({
-        endpoint: `/profiles/${company.toLowerCase().replace(/[^a-zA-Z]/g, '')}`,
+        endpoint: `/profiles/${company.toLowerCase().replace(/[^a-zA-Z]/g, "")}`,
         method: "GET",
         authenticatedCall: false,
       });
@@ -87,9 +87,13 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
   };
 
   // Get first company name from connections
-  const firstConnection: Connection | null = connections.length > 0 ? connections[connections.length - 1] : null;
-  const firstCompanyConnection: Connection | null = connections.find((conn) => conn.company) || null;
-  const firstCompanyName = firstCompanyConnection ? firstCompanyConnection.company : "No company found";
+  const firstConnection: Connection | null =
+    connections.length > 0 ? connections[connections.length - 1] : null;
+  const firstCompanyConnection: Connection | null =
+    connections.find((conn) => conn.company) || null;
+  const firstCompanyName = firstCompanyConnection
+    ? firstCompanyConnection.company
+    : "No company found";
 
   // Fetch company profile pictures when firstCompanyName changes
   useEffect(() => {
@@ -131,7 +135,10 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
         >
           {firstConnection ? (
             <>
-              <span className="font-satoshi font-bold">{firstConnection.fname}</span> was your first connection
+              <span className="font-satoshi font-bold">
+                {firstConnection.fname}
+              </span>{" "}
+              was your first connection
             </>
           ) : (
             "You have no recorded connections."
@@ -159,11 +166,11 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
 
             {/* Company Tap Text */}
             <motion.p className="text-white text-lg font-satoshi font-medium text-center">
-              <span className="font-satoshi font-bold">{firstCompanyName}</span> was the first company you tapped
+              <span className="font-satoshi font-bold">{firstCompanyName}</span>{" "}
+              was the first company you tapped
             </motion.p>
           </>
         )}
-
       </motion.div>
     </NavBarContainer>
   );

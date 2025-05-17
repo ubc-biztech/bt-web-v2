@@ -1,17 +1,17 @@
-import { BiztechEvent } from "@/types/types"
-import { AnimatePresence, motion } from "framer-motion"
-import Image from "next/image"
-import { Bookmark } from "lucide-react"
-import { Dispatch, SetStateAction, useState } from "react"
-import { fetchBackend } from "@/lib/db"
-import Link from "next/link"
+import { BiztechEvent } from "@/types/types";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import { Bookmark } from "lucide-react";
+import { Dispatch, SetStateAction, useState } from "react";
+import { fetchBackend } from "@/lib/db";
+import Link from "next/link";
 
 interface EventCardProps {
-  event: BiztechEvent
-  user: string
-  registered: string[]
-  saved: string[]
-  setSaved: Dispatch<SetStateAction<string[]>>
+  event: BiztechEvent;
+  user: string;
+  registered: string[];
+  saved: string[];
+  setSaved: Dispatch<SetStateAction<string[]>>;
 }
 
 const months = [
@@ -26,18 +26,18 @@ const months = [
   "Sep.",
   "Oct.",
   "Nov.",
-  "Dec."
-]
+  "Dec.",
+];
 
 export const EventCard: React.FC<EventCardProps> = ({
   event,
   user,
   registered,
   saved,
-  setSaved
+  setSaved,
 }) => {
-  const [fill, setFill] = useState(false)
-  let dateString = new Date(event.startDate)
+  const [fill, setFill] = useState(false);
+  let dateString = new Date(event.startDate);
 
   // const handleSaveClick = async (e: React.MouseEvent<SVGSVGElement>, id: string, year: number) => {
   //   e.preventDefault();
@@ -75,14 +75,14 @@ export const EventCard: React.FC<EventCardProps> = ({
   // };
 
   const timeStateIndicator = (ev: BiztechEvent) => {
-    const startDate = new Date(ev.startDate)
-    const deadline = new Date(ev.deadline)
+    const startDate = new Date(ev.startDate);
+    const deadline = new Date(ev.deadline);
     if (new Date() >= deadline && startDate >= new Date()) {
       return (
         <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
           COMING UP
         </div>
-      )
+      );
     } else if (
       startDate > new Date() &&
       !registered.includes(`${ev.id};${ev.year}`)
@@ -91,11 +91,11 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="rounded-full px-3 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px] flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
         </div>
-      )
+      );
     } else {
-      return <></>
+      return <></>;
     }
-  }
+  };
 
   const registeredIndicator = (ev: BiztechEvent) => {
     if (registered.includes(`${ev.id};${ev.year}`)) {
@@ -103,16 +103,16 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-black text-[8px] lg:text-[12px]  flex items-center">
           REGISTERED
         </div>
-      )
+      );
     } else {
-      return <></>
+      return <></>;
     }
-  }
+  };
 
   const dateText =
     `${months[dateString.getMonth()]} ${dateString.getDate()}, ${event.year}` +
     " " +
-    `${dateString.toTimeString().slice(0, 5)}`
+    `${dateString.toTimeString().slice(0, 5)}`;
 
   const eventPricingText =
     `${
@@ -124,7 +124,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       event.pricing?.nonMembers
         ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
         : "(Members only)"
-    }`
+    }`;
 
   return (
     <>
@@ -139,7 +139,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             transition={{
               type: "tween",
               ease: "easeInOut",
-              duration: 0.3
+              duration: 0.3,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -192,5 +192,5 @@ export const EventCard: React.FC<EventCardProps> = ({
         </Link>
       </AnimatePresence>
     </>
-  )
-}
+  );
+};

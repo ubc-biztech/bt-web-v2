@@ -9,7 +9,10 @@ import { capitalizeTeamName } from "../../CompanionHome";
 
 // helpers
 const aggregateScore = (entry: ScoringRecord) => {
-  return Object.values(entry).reduce((sum: number, score: number) => sum + score, 0);
+  return Object.values(entry).reduce(
+    (sum: number, score: number) => sum + score,
+    0,
+  );
 };
 
 const calculateAverageJudgeScore = (team_feedback: TeamFeedback[]) => {
@@ -28,7 +31,7 @@ const transformFeedbackToBarChartData = (entries: TeamFeedback[]) => {
 
     return {
       label: entry.judgeName,
-      value: totalScore
+      value: totalScore,
     };
   });
 
@@ -46,7 +49,7 @@ const findBestMetric = (entries: TeamFeedback[]) => {
 
   const bestMetric = Object.entries(metricScores).reduce(
     (best, current) => (current[1] > best[1] ? current : best),
-    ["", -Infinity] // Default value to prevent errors on empty input
+    ["", -Infinity], // Default value to prevent errors on empty input
   );
 
   return bestMetric[0] || null;
@@ -61,67 +64,94 @@ interface DashboardProps {
   comments: { judgeName: string; category: string; message: string }[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ team_name, members, flat_records, comments }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  team_name,
+  members,
+  flat_records,
+  comments,
+}) => {
   const [entries, setEntries] = useState(flat_records);
   const bestMetric = findBestMetric(flat_records);
-  const bestArea = bestMetric ? mapMetricsToCategories[bestMetric as ScoringMetric] : "N/A";
+  const bestArea = bestMetric
+    ? mapMetricsToCategories[bestMetric as ScoringMetric]
+    : "N/A";
 
   useEffect(() => {
     setEntries(flat_records);
   }, [flat_records]);
 
   return (
-    <FadeWrapper className='flex flex-col'>
-      <div className='w-full flex flex-row mt-5'>
-        <div className='w-1/3 h-full  flex flex-col text-[#ADAFE4]'>
-          <header className='text-xl text-white'>{capitalizeTeamName(team_name)}</header>
+    <FadeWrapper className="flex flex-col">
+      <div className="w-full flex flex-row mt-5">
+        <div className="w-1/3 h-full  flex flex-col text-[#ADAFE4]">
+          <header className="text-xl text-white">
+            {capitalizeTeamName(team_name)}
+          </header>
           {members.map((member, index) => (
-            <span key={index} className='mt-1'>{member}</span>
+            <span key={index} className="mt-1">
+              {member}
+            </span>
           ))}
         </div>
-        <div className='w-2/3 h-full flex flex-col gap-4'>
+        <div className="w-2/3 h-full flex flex-col gap-4">
           {/* AVERAGE JUDGE SCORE */}
-          <div className='flex flex-row h-44 gap-4'>
-            <div className='w-1/3 h-full'>
-              <Box innerShadow={20} className='flex flex-col justify-center items-center'>
-                <header className='pb-2 text-[#4CC8BD] text-[3.5em] -mt-5'>
+          <div className="flex flex-row h-44 gap-4">
+            <div className="w-1/3 h-full">
+              <Box
+                innerShadow={20}
+                className="flex flex-col justify-center items-center"
+              >
+                <header className="pb-2 text-[#4CC8BD] text-[3.5em] -mt-5">
                   {calculateAverageJudgeScore(entries)}
                   /25
                 </header>
-                <span className='text-sm -mt-2'>Raw Average Judge Score</span>
+                <span className="text-sm -mt-2">Raw Average Judge Score</span>
               </Box>
             </div>
             {/* BEST AREA */}
-            <div className='w-2/3 h-full'>
-              <Box innerShadow={20} className='flex flex-col justify-center items-start pl-16'>
-                <div className='flex flex-col justify-center items-start'>
-                  <span className='text-md pb-2 -mb-2'>Best Area</span>
-                  <header className='text-[#BC88FF] text-[2em]'>{bestArea}</header>
+            <div className="w-2/3 h-full">
+              <Box
+                innerShadow={20}
+                className="flex flex-col justify-center items-start pl-16"
+              >
+                <div className="flex flex-col justify-center items-start">
+                  <span className="text-md pb-2 -mb-2">Best Area</span>
+                  <header className="text-[#BC88FF] text-[2em]">
+                    {bestArea}
+                  </header>
                 </div>
               </Box>
             </div>
           </div>
-          <div className='flex flex-row h-72 gap-4'>
+          <div className="flex flex-row h-72 gap-4">
             {/* BAR CHART */}
-            <div className='w-1/2 h-full'>
-              <Box innerShadow={20} className='flex flex-col'>
-                <span className='text-md text-white mt-4 ml-8 -mb-8'>Scoring Distribution</span>
-                <BarChart data={transformFeedbackToBarChartData(entries)} height={300} />
+            <div className="w-1/2 h-full">
+              <Box innerShadow={20} className="flex flex-col">
+                <span className="text-md text-white mt-4 ml-8 -mb-8">
+                  Scoring Distribution
+                </span>
+                <BarChart
+                  data={transformFeedbackToBarChartData(entries)}
+                  height={300}
+                />
               </Box>
             </div>
 
             {/* COMMENTS */}
-            <div className='w-1/2 h-full'>
-              <Box innerShadow={20} className='p-4 pl-8 text-[#898BC3] flex flex-col gap-4'>
-                <span className='text-md text-white'>Comments</span>
+            <div className="w-1/2 h-full">
+              <Box
+                innerShadow={20}
+                className="p-4 pl-8 text-[#898BC3] flex flex-col gap-4"
+              >
+                <span className="text-md text-white">Comments</span>
                 {comments
                   .filter((comment) => comment.message.trim() !== "") // Remove empty messages
                   .slice(0, 3) // Take the first 3 non-empty comments
                   .map((comment, index) => (
-                    <div key={index} className='flex flex-col text-[12px]'>
-                      <div className='flex flex-row gap-1'>
+                    <div key={index} className="flex flex-col text-[12px]">
+                      <div className="flex flex-row gap-1">
                         <User size={20} />
-                        <header className='text-mb'>{comment.judgeName}</header>
+                        <header className="text-mb">{comment.judgeName}</header>
                       </div>
                       <span>
                         {comment.category}: {comment.message}

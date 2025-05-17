@@ -1,64 +1,64 @@
-import React, { useState, useEffect } from "react"
-import { useRouter } from "next/router"
-import { Amplify } from "aws-amplify"
-import { fetchUserAttributes } from "@aws-amplify/auth"
-import * as Yup from "yup"
-import { useForm, FormProvider, Controller } from "react-hook-form"
-import outputs from "../../amplify_outputs.json"
-import { fetchBackend } from "@/lib/db"
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import { Amplify } from "aws-amplify";
+import { fetchUserAttributes } from "@aws-amplify/auth";
+import * as Yup from "yup";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import outputs from "../../amplify_outputs.json";
+import { fetchBackend } from "@/lib/db";
 import {
   FormInput,
   FormRadio,
   FormMultiSelect,
-  FormSelect
-} from "../components/SignUpForm/FormInput"
-import Link from "next/link"
+  FormSelect,
+} from "../components/SignUpForm/FormInput";
+import Link from "next/link";
 
 interface MembershipFormValues {
-  email: string
-  firstName: string
-  lastName: string
-  studentNumber: string
-  pronouns: string
-  levelOfStudy: string
-  faculty: string
-  major: string
-  internationalStudent: string
-  previousMember: string
-  dietaryRestrictions?: string
-  referral: string
-  topics: string[]
+  email: string;
+  firstName: string;
+  lastName: string;
+  studentNumber: string;
+  pronouns: string;
+  levelOfStudy: string;
+  faculty: string;
+  major: string;
+  internationalStudent: string;
+  previousMember: string;
+  dietaryRestrictions?: string;
+  referral: string;
+  topics: string[];
 }
 
-Amplify.configure(outputs)
+Amplify.configure(outputs);
 
 const Membership = () => {
-  const [email, setEmail] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const router = useRouter()
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  const methods = useForm<MembershipFormValues>()
+  const methods = useForm<MembershipFormValues>();
 
   useEffect(() => {
     const getUserEmail = async () => {
       try {
-        const currentUser = await fetchUserAttributes()
+        const currentUser = await fetchUserAttributes();
         if (currentUser) {
-          const userEmail = currentUser.email
+          const userEmail = currentUser.email;
           if (userEmail) {
-            setEmail(userEmail)
+            setEmail(userEmail);
           }
         }
       } catch (error) {
-        console.error("Failed to fetch user attributes:", error)
+        console.error("Failed to fetch user attributes:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    getUserEmail()
-  }, [])
+    getUserEmail();
+  }, []);
 
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First name is required"),
@@ -69,20 +69,20 @@ const Membership = () => {
     faculty: Yup.string().required("Faculty is required"),
     major: Yup.string().required("Major is required"),
     internationalStudent: Yup.string().required(
-      "Please specify if you are an international student"
+      "Please specify if you are an international student",
     ),
     previousMember: Yup.string().required(
-      "Please specify if you were a previous member"
+      "Please specify if you were a previous member",
     ),
     dietaryRestrictions: Yup.string().required(
-      "Dietary restrictions are required"
+      "Dietary restrictions are required",
     ),
-    referral: Yup.string().required("Referral source is required")
-  })
+    referral: Yup.string().required("Referral source is required"),
+  });
 
   const onSubmit = async (values: MembershipFormValues) => {
-    setIsSubmitting(true)
-    const topicsString = values.topics.join(",")
+    setIsSubmitting(true);
+    const topicsString = values.topics.join(",");
 
     const userBody = {
       email,
@@ -98,17 +98,17 @@ const Membership = () => {
       international: values.internationalStudent === "Yes",
       prev_member: values.previousMember === "Yes",
       isMember: true,
-      admin: email.endsWith("@ubcbiztech.com")
-    }
+      admin: email.endsWith("@ubcbiztech.com"),
+    };
 
     try {
       if (userBody.admin) {
         await fetchBackend({
           endpoint: "/users",
           method: "POST",
-          data: userBody
-        })
-        router.push(`/signup/success/UserMember/${email}`)
+          data: userBody,
+        });
+        router.push(`/signup/success/UserMember/${email}`);
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
@@ -138,27 +138,27 @@ const Membership = () => {
           prev_member: userBody.prev_member,
           international: userBody.international,
           referral: values.referral,
-          topics: topicsString
-        }
+          topics: topicsString,
+        };
 
         const response = await fetchBackend({
           endpoint: "/payments",
           method: "POST",
-          data: paymentBody
-        })
+          data: paymentBody,
+        });
 
-        window.open(response, "_self")
+        window.open(response, "_self");
       }
     } catch (error) {
-      console.error("Error during submission:", error)
-      alert("An error occurred. Please try again.")
+      console.error("Error during submission:", error);
+      alert("An error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   return (
@@ -258,7 +258,10 @@ const Membership = () => {
                       items={[
                         { value: "He/Him/His", label: "He/Him/His" },
                         { value: "She/Her/Hers", label: "She/Her/Hers" },
-                        { value: "They/Them/Theirs", label: "They/Them/Theirs" }
+                        {
+                          value: "They/Them/Theirs",
+                          label: "They/Them/Theirs",
+                        },
                       ]}
                     />
                   )}
@@ -280,7 +283,7 @@ const Membership = () => {
                           { value: "4th Year", label: "4th Year" },
                           { value: "5+ Year", label: "5+ Year" },
                           { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" }
+                          { value: "Not Applicable", label: "Not Applicable" },
                         ]}
                       />
                     )}
@@ -301,11 +304,11 @@ const Membership = () => {
                           { value: "Kinesiology", label: "Kinesiology" },
                           {
                             value: "Land and Food Systems",
-                            label: "Land and Food Systems"
+                            label: "Land and Food Systems",
                           },
                           { value: "Forestry", label: "Forestry" },
                           { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" }
+                          { value: "Not Applicable", label: "Not Applicable" },
                         ]}
                       />
                     )}
@@ -332,7 +335,7 @@ const Membership = () => {
                         field={field}
                         items={[
                           { value: "Yes", label: "Yes" },
-                          { value: "No", label: "No" }
+                          { value: "No", label: "No" },
                         ]}
                       />
                     )}
@@ -349,7 +352,7 @@ const Membership = () => {
                           { value: "None", label: "None" },
                           { value: "Vegetarian", label: "Vegetarian" },
                           { value: "Vegan", label: "Vegan" },
-                          { value: "Gluten-free", label: "Gluten-free" }
+                          { value: "Gluten-free", label: "Gluten-free" },
                         ]}
                       />
                     )}
@@ -366,7 +369,7 @@ const Membership = () => {
                       field={field}
                       items={[
                         { value: "Yes", label: "Yes" },
-                        { value: "No", label: "No" }
+                        { value: "No", label: "No" },
                       ]}
                     />
                   )}
@@ -388,8 +391,8 @@ const Membership = () => {
                         { value: "Health Tech", label: "Health Tech" },
                         {
                           value: "Careers in the Tech Industry",
-                          label: "Careers in the Tech Industry"
-                        }
+                          label: "Careers in the Tech Industry",
+                        },
                       ]}
                     />
                   )}
@@ -423,7 +426,7 @@ const Membership = () => {
         </form>
       </div>
     </FormProvider>
-  )
-}
+  );
+};
 
-export default Membership
+export default Membership;

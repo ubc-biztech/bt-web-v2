@@ -50,16 +50,16 @@ export default function ForgotPassword() {
       await confirmResetPassword({
         username: email,
         confirmationCode: code,
-        newPassword: newPassword
+        newPassword: newPassword,
       });
 
       setMessage(
-        "Password reset successfully. You can now log in with your new password."
+        "Password reset successfully. You can now log in with your new password.",
       );
       router.push("/login");
     } catch (err: any) {
       setError(
-        "Failed to reset password. Please check your code and try again."
+        "Failed to reset password. Please check your code and try again.",
       );
       console.error("Error resetting password:", err);
     } finally {

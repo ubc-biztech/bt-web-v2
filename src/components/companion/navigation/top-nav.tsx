@@ -13,31 +13,41 @@ interface TopNavProps {
   first_last: string | undefined;
 }
 
-export const TopNav: React.FC<TopNavProps> = ({ onMenuClick, isOpen, first_last }) => {
+export const TopNav: React.FC<TopNavProps> = ({
+  onMenuClick,
+  isOpen,
+  first_last,
+}) => {
   return (
     <motion.div
-      className='flex justify-between items-center p-6'
+      className="flex justify-between items-center p-6"
       initial={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.6,
         ease: "easeOut",
-        delay: 0.1
+        delay: 0.1,
       }}
     >
-      <div className='relative w-32 h-8'>
-        <Link href='/companion'>
-          <Image src={NavbarLogo} alt='ProductX Logo' fill className='object-contain' priority />
+      <div className="relative w-32 h-8">
+        <Link href="/companion">
+          <Image
+            src={NavbarLogo}
+            alt="ProductX Logo"
+            fill
+            className="object-contain"
+            priority
+          />
         </Link>
       </div>
-      <div className='font-ibm flex flex-col mr-10'>
+      <div className="font-ibm flex flex-col mr-10">
         <span>Logged in as:</span>
         <div
-          className='flex flex-row cursor-pointer select-none'
+          className="flex flex-row cursor-pointer select-none"
           onClick={() => {
             onMenuClick(!isOpen);
           }}
         >
-          <span className='text-[#898BC3] font-bold mr-2'>{first_last}</span>
+          <span className="text-[#898BC3] font-bold mr-2">{first_last}</span>
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
@@ -45,10 +55,10 @@ export const TopNav: React.FC<TopNavProps> = ({ onMenuClick, isOpen, first_last 
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transformOrigin: "center"
+              transformOrigin: "center",
             }}
           >
-            <Image src={Triangle} width={15} height={15} alt='toggle menu' />
+            <Image src={Triangle} width={15} height={15} alt="toggle menu" />
           </motion.div>
         </div>
       </div>

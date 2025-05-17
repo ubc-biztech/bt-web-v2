@@ -1,4 +1,10 @@
-import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
+import React, {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  useCallback,
+} from "react";
 import { HistoryIcon, PanelsTopLeft } from "lucide-react";
 import History from "./judges/History";
 import Rounds from "./judges/Rounds";
@@ -13,7 +19,7 @@ export const JudgesRefreshContext = createContext<{
   refreshData: () => Promise<void>;
 }>({
   refreshTrigger: false,
-  refreshData: () => new Promise<void>(() => {})
+  refreshData: () => new Promise<void>(() => {}),
 });
 
 // Custom hook to use the refresh context
@@ -32,7 +38,7 @@ const Judges: React.FC = () => {
         const response = await fetchBackend({
           endpoint: `/team/judge/feedback/${userRegistration?.id}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         });
 
         if (response && response.scores) {
@@ -54,7 +60,7 @@ const Judges: React.FC = () => {
         const response = await fetchBackend({
           endpoint: `/team/judge/feedback/${userRegistration?.id}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         });
 
         if (response && response.scores) {
@@ -75,18 +81,18 @@ const Judges: React.FC = () => {
     {
       name: "History",
       icon: PanelsTopLeft,
-      component: Rounds
+      component: Rounds,
     },
     {
       name: "Rounds",
       icon: HistoryIcon,
-      component: History
-    }
+      component: History,
+    },
   ];
 
   return (
     <JudgesRefreshContext.Provider value={{ refreshTrigger, refreshData }}>
-      <DashboardLayout title='JUDGING DASHBOARD' pages={pages} teams={teams} />
+      <DashboardLayout title="JUDGING DASHBOARD" pages={pages} teams={teams} />
     </JudgesRefreshContext.Provider>
   );
 };

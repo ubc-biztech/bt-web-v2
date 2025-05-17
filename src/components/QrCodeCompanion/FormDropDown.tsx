@@ -1,6 +1,17 @@
 import { UseFormReturn } from "react-hook-form";
-import { FormField, FormItem, FormMessage, FormControl, FormDescription } from "../ui/form";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import {
+  FormField,
+  FormItem,
+  FormMessage,
+  FormControl,
+  FormDescription,
+} from "../ui/form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 import DropDownTab from "./DropDown";
 
 const DropDown: React.FC<{
@@ -15,7 +26,7 @@ const DropDown: React.FC<{
     control={form.control}
     name={name}
     render={({ field }) => (
-      <FormItem className='grow'>
+      <FormItem className="grow">
         <FormControl>
           <DropDownTab
             value={field.value}
@@ -23,10 +34,10 @@ const DropDown: React.FC<{
             nullVal={null}
             placeholder={placeholder}
             options={options}
-            className='w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-baby-blue font-400 p-2 px-4 placeholder:text-muted-foreground'
+            className="w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-baby-blue font-400 p-2 px-4 placeholder:text-muted-foreground"
           />
         </FormControl>
-        <div className='flex flex-row items-center space-x-4'>
+        <div className="flex flex-row items-center space-x-4">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -37,7 +48,7 @@ const DropDown: React.FC<{
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <FormMessage className='text-baby-blue text-xs' />
+          <FormMessage className="text-baby-blue text-xs" />
         </div>
       </FormItem>
     )}

@@ -6,7 +6,7 @@ import DashboardIcon from "../../public/assets/icons/event_icon.svg";
 import ProfileIcon from "../../public/assets/icons/profile_icon.svg";
 import ExitIcon from "../../public/assets/icons/exit_icon.svg";
 import QrCodeIcon from "../../public/assets/icons/qr_icon.svg";
-import LoginIcon from "../../public/assets/icons/login_icon.svg"
+import LoginIcon from "../../public/assets/icons/login_icon.svg";
 
 export const admin = [
   {
@@ -65,5 +65,5 @@ export const logout = {
 export const signin = {
   title: "Login",
   link: "/login",
-  icon: LoginIcon
-}
+  icon: LoginIcon,
+};

@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 import StatsIcon from "../../../public/assets/icons/chart_icon.svg";
 import QrIcon from "../../../public/assets/icons/qr_icon.svg";

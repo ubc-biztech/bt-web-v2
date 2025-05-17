@@ -1,13 +1,13 @@
-import React from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { Connection } from './connections/connections-list';
-import { Badge } from '@/pages/companion/badges';
-import NavBarContainer from './navigation/NavBarContainer';
-import { AnimatedBorder } from '@/components/ui/animated-border';
-import Link from 'next/link';
+import React from "react";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { Connection } from "./connections/connections-list";
+import { Badge } from "@/pages/companion/badges";
+import NavBarContainer from "./navigation/NavBarContainer";
+import { AnimatedBorder } from "@/components/ui/animated-border";
+import Link from "next/link";
 import { ComponentType } from "react";
-import { Registration } from '@/pages/companion';
-import { useUserRegistration } from '@/pages/companion';
+import { Registration } from "@/pages/companion";
+import { useUserRegistration } from "@/pages/companion";
 
 interface CompanionHomeProps {
   ChildComponent: ComponentType<any>;
@@ -35,7 +35,7 @@ const Counter = ({ value }: { value: number }) => {
       onComplete: () => {
         // Ensure we land exactly on the target number
         count.set(value);
-      }
+      },
     });
 
     return animation.stop;
@@ -62,19 +62,18 @@ const WrappedBanner = () => {
               playsInline
               className="w-full h-full object-cover opacity-60"
             >
-              <source
-                src="/videos/wrapped-bg.mp4"
-                type="video/mp4"
-              />
+              <source src="/videos/wrapped-bg.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </div>
-          
+
           {/* Content */}
           <div className="relative z-10 h-full flex flex-col justify-between items-center text-center p-8">
             <div /> {/* Empty div for spacing */}
             <div className="space-y-2">
-              <div className="text-lg font-bold text-white">Your <span className="text-[#ADCAF5]">Blue</span>Print Wrapped</div>
+              <div className="text-lg font-bold text-white">
+                Your <span className="text-[#ADCAF5]">Blue</span>Print Wrapped
+              </div>
               <p className="text-white/80">Check out how you got your start.</p>
             </div>
             <button className="bg-[#4B9CFF] hover:bg-[#3B7FFF] text-white w-fit px-8 py-3 rounded-full font-medium transition-colors">
@@ -87,10 +86,7 @@ const WrappedBanner = () => {
   );
 };
 
-const CompanionHome: React.FC<CompanionHomeProps> = ({
-  ChildComponent
-}) => {
-
+const CompanionHome: React.FC<CompanionHomeProps> = ({ ChildComponent }) => {
   const { userRegistration } = useUserRegistration();
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -99,16 +95,19 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut"
-      }
-    }
+        ease: "easeOut",
+      },
+    },
   };
 
   return (
-    <NavBarContainer isPartner={userRegistration?.isPartner} userName={`${userRegistration?.basicInformation?.fname} ${userRegistration?.basicInformation?.lname}`}>
+    <NavBarContainer
+      isPartner={userRegistration?.isPartner}
+      userName={`${userRegistration?.basicInformation?.fname} ${userRegistration?.basicInformation?.lname}`}
+    >
       <ChildComponent />
     </NavBarContainer>
   );
 };
 
-export default CompanionHome; 
+export default CompanionHome;

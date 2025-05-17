@@ -1,7 +1,14 @@
 import React from "react";
 import RubricCell from "./RubricCell";
-import { ScoringMetric, ScoringRecord } from "@/components/companion/productX/types";
-import { ratings, rubricContentsMapping, mapMetricsToCategories } from "../../constants/rubricContents";
+import {
+  ScoringMetric,
+  ScoringRecord,
+} from "@/components/companion/productX/types";
+import {
+  ratings,
+  rubricContentsMapping,
+  mapMetricsToCategories,
+} from "../../constants/rubricContents";
 
 // ? example usage of setScoring
 // setScoring([
@@ -19,7 +26,12 @@ interface RubricGridProps {
   idx: number;
 }
 
-const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, idx }) => {
+const RubricGrid: React.FC<RubricGridProps> = ({
+  scoring,
+  setScoring,
+  editable,
+  idx,
+}) => {
   const metrics = Object.keys(scoring) as ScoringMetric[];
 
   const getRating = (metric: ScoringMetric) => {
@@ -32,17 +44,20 @@ const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, 
     }
     setScoring((prevState: ScoringRecord) => ({
       ...prevState,
-      [metric]: rating
+      [metric]: rating,
     }));
   };
 
   return (
-    <figure className='w-full grid grid-cols-6 grid-rows-5 gap-0 -mt-12'>
+    <figure className="w-full grid grid-cols-6 grid-rows-5 gap-0 -mt-12">
       {/* All possible ratings */}
       <div />
       {ratings.map((rating, index) => (
-        <div key={`${rating}-${index}-${idx}`} className='flex flex-row items-end justify-center p-8'>
-          <span className='text-lg'>{rating}</span>
+        <div
+          key={`${rating}-${index}-${idx}`}
+          className="flex flex-row items-end justify-center p-8"
+        >
+          <span className="text-lg">{rating}</span>
         </div>
       ))}
 
@@ -51,7 +66,10 @@ const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, 
         const questions = rubricContentsMapping[category];
         return (
           <>
-            <div key={`category-${category}-${index}`} className='text-lg w-full h-56 flex items-center justify-end p-8'>
+            <div
+              key={`category-${category}-${index}`}
+              className="text-lg w-full h-56 flex items-center justify-end p-8"
+            >
               {mapMetricsToCategories[category]}
             </div>
 
@@ -59,7 +77,10 @@ const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, 
             {questions.map((question, pos) => {
               const rating = pos + 1;
               return (
-                <div className='w-full h-56 text-[14px]' key={`${category}-question-${pos}`}>
+                <div
+                  className="w-full h-56 text-[14px]"
+                  key={`${category}-question-${pos}`}
+                >
                   <RubricCell
                     innerShadow={32}
                     selected={getRating(category) === rating}
@@ -67,7 +88,7 @@ const RubricGrid: React.FC<RubricGridProps> = ({ scoring, setScoring, editable, 
                     handleClick={() => {
                       setRating(category, rating);
                     }}
-                    className='flex flex-col text-center p-4 pt-8 h-full'
+                    className="flex flex-col text-center p-4 pt-8 h-full"
                   >
                     {question}
                   </RubricCell>

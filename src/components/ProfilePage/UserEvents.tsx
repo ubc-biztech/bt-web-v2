@@ -51,7 +51,9 @@ export const UserEvents: React.FC<UserEventsProps> = ({
         ) : (
           registeredEvents
             .slice(isMobileDevice ? -2 : -3)
-            .map((event) => <ProfileEventCard initialData={event} key={event.id} />)
+            .map((event) => (
+              <ProfileEventCard initialData={event} key={event.id} />
+            ))
         )}
       </div>
 
