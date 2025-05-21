@@ -20,7 +20,7 @@ const BarChart: React.FC<BarChartProps> = ({
     ["Label", "Value"],
     ...data.map((item) => [item.label, item.value]),
   ];
-  
+
   // Re-render the chart component when window is resized horizontally
   const [windowWidth, setWindowWidth] = useState<number | null>(null);
   useEffect(() => {
@@ -28,10 +28,10 @@ const BarChart: React.FC<BarChartProps> = ({
     const handleResize = debounce(() => {
       setWindowWidth(window.innerWidth);
     }, 25);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 

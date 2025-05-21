@@ -1,6 +1,6 @@
-import React from 'react';
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import React from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface CompanionItemRowProps {
   href?: string;
@@ -13,7 +13,7 @@ export const CompanionItemRow: React.FC<CompanionItemRowProps> = ({
   href,
   children,
   className,
-  onClick
+  onClick,
 }) => {
   const RowContent = (
     <div
@@ -24,7 +24,7 @@ export const CompanionItemRow: React.FC<CompanionItemRowProps> = ({
         "before:absolute before:inset-0 before:rounded-xl",
         "before:absolute before:inset-0 before:rounded-xl before:[box-shadow:inset_0px_-4px_16px_0px_rgba(255,255,255,0.2)]",
         "before:pointer-events-none",
-        className
+        className,
       )}
     >
       {children}
@@ -36,4 +36,4 @@ export const CompanionItemRow: React.FC<CompanionItemRowProps> = ({
   }
 
   return RowContent;
-}; 
+};

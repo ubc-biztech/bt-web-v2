@@ -5,12 +5,17 @@ interface PercentageBarsProps {
   data: StatsChartData[];
 }
 
-export const barColors = ['#A0C86E', '#75CFF5', '#E75A7C', '#FFC960', '#C082D6', '#7F94FF', '#EB8273']
+export const barColors = [
+  "#A0C86E",
+  "#75CFF5",
+  "#E75A7C",
+  "#FFC960",
+  "#C082D6",
+  "#7F94FF",
+  "#EB8273",
+];
 
-const calculateBarPercentages = (
-  data: StatsChartData[],
-  total: number
-) => {
+const calculateBarPercentages = (data: StatsChartData[], total: number) => {
   const percentages: { [key: string]: number } = {};
 
   data.forEach((item) => {

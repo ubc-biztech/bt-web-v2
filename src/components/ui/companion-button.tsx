@@ -1,7 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface CompanionButtonProps {
   href?: string;
@@ -14,12 +14,12 @@ export const CompanionButton: React.FC<CompanionButtonProps> = ({
   href,
   children,
   className,
-  onClick
+  onClick,
 }) => {
   const ButtonContent = (
-    <Button 
-      variant="ghost" 
-      size="sm" 
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={onClick}
       className={cn(
         "relative bg-black text-white hover:text-white hover:bg-white/10 transition-all rounded-full py-5 px-5",
@@ -28,7 +28,7 @@ export const CompanionButton: React.FC<CompanionButtonProps> = ({
         "before:bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.14),rgba(255,255,255,0.30)_98%)]",
         "before:pointer-events-none",
         "border border-white/80",
-        className
+        className,
       )}
     >
       {children}
@@ -40,4 +40,4 @@ export const CompanionButton: React.FC<CompanionButtonProps> = ({
   }
 
   return ButtonContent;
-}; 
+};

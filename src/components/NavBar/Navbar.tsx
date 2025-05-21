@@ -14,7 +14,6 @@ export default function Navbar() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userAgent = navigator.userAgent;
@@ -27,9 +26,8 @@ export default function Navbar() {
       try {
         const attributes = await fetchUserAttributes();
         const email = attributes?.email || "";
-        const admin = email.split("@")[1] === "ubcbiztech.com";
-
-        setIsAdmin(admin);
+        const isAdmin = email.split("@")[1] === "ubcbiztech.com";
+        setIsAdmin(isAdmin);
         setIsSignedIn(true);
       } catch (e) {
         if (
@@ -77,7 +75,7 @@ export default function Navbar() {
             transition={{
               type: "tween",
               ease: "easeInOut",
-              duration: 0.3
+              duration: 0.3,
             }}
             onClick={(e) => e.stopPropagation()}
           >

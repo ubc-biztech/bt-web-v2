@@ -1,50 +1,50 @@
-import { AttendeeBasicInformation } from "@/types"
-import { GetServerSideProps } from "next"
-import { useRouter } from "next/router"
-import { fetchRegistrationData } from "@/lib/dbUtils"
-import ChartBox from "@/components/Stats/ChartBox"
-import StatsTable from "@/components/Stats/StatsTable"
-import BarChart from "@/components/Stats/BarChart"
-import PieChart from "@/components/Stats/PieChart"
-import PercentageBars from "@/components/Stats/PercentageBars"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { AttendeeBasicInformation } from "@/types";
+import { GetServerSideProps } from "next";
+import { useRouter } from "next/router";
+import { fetchRegistrationData } from "@/lib/dbUtils";
+import ChartBox from "@/components/Stats/ChartBox";
+import StatsTable from "@/components/Stats/StatsTable";
+import BarChart from "@/components/Stats/BarChart";
+import PieChart from "@/components/Stats/PieChart";
+import PercentageBars from "@/components/Stats/PercentageBars";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 type Props = {
-  initialData: AttendeeBasicInformation[] | null
-}
+  initialData: AttendeeBasicInformation[] | null;
+};
 
 const getFieldCounts = (data: AttendeeBasicInformation[], field: string) => {
-  const counts: Record<string, number> = {}
+  const counts: Record<string, number> = {};
 
   for (const userData of data) {
-    const value = getNestedValue(userData, field)
+    const value = getNestedValue(userData, field);
 
     if (value !== undefined && value !== null) {
-      counts[String(value)] = counts[String(value)] + 1 || 1
+      counts[String(value)] = counts[String(value)] + 1 || 1;
     }
   }
   return Object.entries(counts)
     .sort()
-    .map(([label, value]) => ({ label, value }))
-}
+    .map(([label, value]) => ({ label, value }));
+};
 
 const getNestedValue = (userData: Record<string, any>, field: string) => {
-  const keys = field.split(".")
+  const keys = field.split(".");
   for (const key of keys) {
-    userData = userData?.[key]
+    userData = userData?.[key];
   }
-  return userData
-}
+  return userData;
+};
 
 export default function Statistics({ initialData }: Props) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleBack = () => {
-    const currentPath = window.location.pathname
-    const parentPath = currentPath.split("/stats")[0]
-    router.push(parentPath)
-  }
+    const currentPath = window.location.pathname;
+    const parentPath = currentPath.split("/stats")[0];
+    router.push(parentPath);
+  };
 
   return (
     <main className="bg-primary-color min-h-screen">
@@ -83,7 +83,7 @@ export default function Statistics({ initialData }: Props) {
                 <PieChart
                   data={getFieldCounts(
                     initialData,
-                    "basicInformation.heardFrom"
+                    "basicInformation.heardFrom",
                   )}
                 />
               )}
@@ -115,17 +115,17 @@ export default function Statistics({ initialData }: Props) {
         </span>
       </div>
     </main>
-  )
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { eventId, year } = context.params as { eventId: string; year: string }
+  const { eventId, year } = context.params as { eventId: string; year: string };
 
   try {
-    const data = await fetchRegistrationData(eventId, year)
-    return { props: { initialData: data } }
+    const data = await fetchRegistrationData(eventId, year);
+    return { props: { initialData: data } };
   } catch (error) {
-    console.error("Failed to fetch initial data:", error)
-    return { props: { initialData: null } }
+    console.error("Failed to fetch initial data:", error);
+    return { props: { initialData: null } };
   }
-}
+};

@@ -18,4 +18,4 @@ const FeedbackForm = ({ feedbackLink, headerText }: FeedbackFormProps) => {
   );
 };
 
-export default FeedbackForm; 
+export default FeedbackForm;

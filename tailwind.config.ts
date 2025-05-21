@@ -1,11 +1,11 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}"
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
   theme: {
@@ -13,46 +13,46 @@ const config: Config = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px"
-      }
+        "2xl": "1400px",
+      },
     },
     colors: {
-      "primary": {
+      primary: {
         color: "#162039", // biztech navy
         DEFAULT: "hsl(var(--primary))",
-        foreground: "hsl(var(--primary-foreground))"
+        foreground: "hsl(var(--primary-foreground))",
       },
-      "secondary": {
+      secondary: {
         color: "#7AD040", // biztech green
         DEFAULT: "hsl(var(--secondary))",
-        foreground: "hsl(var(--secondary-foreground))"
+        foreground: "hsl(var(--secondary-foreground))",
       },
       // Login Page Colors
-      "login": {
+      login: {
         "page-bg": "#11192E",
-        "form-card": "#1C253D"
+        "form-card": "#1C253D",
       },
-      "signup": {
+      signup: {
         "input-bg": "#3A496D",
-        "input-border": "#7187B8"
+        "input-border": "#7187B8",
       },
       // Navbar Page Colors
-      "navbar": {
-        "tab-hover-bg": "#324269"
+      navbar: {
+        "tab-hover-bg": "#324269",
       },
       // Events Page Colors
-      "events": {
+      events: {
         "coming-up": "#EC722D",
         "baby-blue": "#B2C9FC",
         "user-card-bg": "#304068",
         "navigation-bg": "#11192E",
         "active-tab-bg": "#1C253D",
-        "card-bg": "#263354"
+        "card-bg": "#263354",
       },
       // Profile Page Colors
-      "profile": {
+      profile: {
         "card-bg": "#1E2B4D",
-        "separator-bg": "#394971"
+        "separator-bg": "#394971",
       },
       // Selected Color Palette
       "biztech-navy": "#162039",
@@ -70,43 +70,43 @@ const config: Config = {
       "neon-green": "#39FF14",
       "white-green": "#F2FAEC",
       "light-red": "#FF8686",
-      "divider": "#8DA1D1",
-      "black": "#000000",
-      "placeholder": "#D9D9D9",
-      "white": "#ffffff",
-      "border": "hsl(var(--border))",
-      "input": "hsl(var(--input))",
-      "ring": "hsl(var(--ring))",
-      "background": "hsl(var(--background))",
-      "foreground": "hsl(var(--foreground))",
-      "destructive": {
+      divider: "#8DA1D1",
+      black: "#000000",
+      placeholder: "#D9D9D9",
+      white: "#ffffff",
+      border: "hsl(var(--border))",
+      input: "hsl(var(--input))",
+      ring: "hsl(var(--ring))",
+      background: "hsl(var(--background))",
+      foreground: "hsl(var(--foreground))",
+      destructive: {
         DEFAULT: "hsl(var(--destructive))",
-        foreground: "hsl(var(--destructive-foreground))"
+        foreground: "hsl(var(--destructive-foreground))",
       },
-      "muted": {
+      muted: {
         DEFAULT: "hsl(var(--muted))",
-        foreground: "hsl(var(--muted-foreground))"
+        foreground: "hsl(var(--muted-foreground))",
       },
-      "accent": {
+      accent: {
         DEFAULT: "hsl(var(--accent))",
-        foreground: "hsl(var(--accent-foreground))"
+        foreground: "hsl(var(--accent-foreground))",
       },
-      "popover": {
+      popover: {
         DEFAULT: "hsl(var(--popover))",
-        foreground: "hsl(var(--popover-foreground))"
+        foreground: "hsl(var(--popover-foreground))",
       },
-      "card": {
+      card: {
         DEFAULT: "hsl(var(--card))",
-        foreground: "hsl(var(--card-foreground))"
-      }
+        foreground: "hsl(var(--card-foreground))",
+      },
     },
     fontFamily: {
-      sans: ['Open Sans', 'sans-serif'],
-      poppins: ['Poppins', 'sans-serif'],
-      montserrat: ['Montserrat', 'sans-serif'],
-      satoshi: ['Satoshi', 'sans-serif'],
-      redhat: ['Red Hat Mono', 'monospace'],
-      ibm: ['IBM Plex Sans', 'sans-serif'],
+      sans: ["Open Sans", "sans-serif"],
+      poppins: ["Poppins", "sans-serif"],
+      montserrat: ["Montserrat", "sans-serif"],
+      satoshi: ["Satoshi", "sans-serif"],
+      redhat: ["Red Hat Mono", "monospace"],
+      ibm: ["IBM Plex Sans", "sans-serif"],
     },
     fontWeight: {
       "100": "100",
@@ -117,56 +117,56 @@ const config: Config = {
       "600": "600",
       "700": "700",
       "800": "800",
-      "bold": "700"
+      bold: "700",
     },
     fontSize: {
-      "xs": "14px",
-      "sm": "16px",
-      "md": "20px",
-      "lg": "24px",
-      "xl": "32px",
+      xs: "14px",
+      sm: "16px",
+      md: "20px",
+      lg: "24px",
+      xl: "32px",
       "2xl": "40px",
-      "3xl": "48px"
+      "3xl": "48px",
     },
     extend: {
       screens: {
         xxs: "360px", // minimum width for mobile
         xs: "412px", // originally 370
-        mxs: "445px" // medium xs (could prob rename)
+        mxs: "445px", // medium xs (could prob rename)
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))"
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" }
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" }
+          to: { height: "0" },
         },
-        "gradient": {
+        gradient: {
           "0%": { backgroundPosition: "0% 50%" },
           "50%": { backgroundPosition: "100% 50%" },
-          "100%": { backgroundPosition: "0% 50%" }
-        }
+          "100%": { backgroundPosition: "0% 50%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "gradient": "nameGradient 6s ease infinite"
-      }
-    }
+        gradient: "nameGradient 6s ease infinite",
+      },
+    },
   },
-  plugins: [require("tailwindcss-animate")]
-}
+  plugins: [require("tailwindcss-animate")],
+};
 
-export default config
+export default config;

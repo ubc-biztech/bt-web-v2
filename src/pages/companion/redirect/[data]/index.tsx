@@ -24,7 +24,9 @@ const CompanionRedirectPage = () => {
       }
 
       if (!teamID) {
-        setError("You currently have no team assigned, or need to sign in again");
+        setError(
+          "You currently have no team assigned, or need to sign in again",
+        );
         setLoading(false);
         return;
       }
@@ -48,7 +50,7 @@ const CompanionRedirectPage = () => {
         endpoint: `/team/judge/currentTeam/${teamID}`,
         method: "PUT",
         data: { judgeIDs: decodedData },
-        authenticatedCall: false
+        authenticatedCall: false,
       });
 
       setLoading(false);
@@ -62,19 +64,24 @@ const CompanionRedirectPage = () => {
 
   if (loading) {
     return (
-      <div className='flex justify-center items-center min-h-screen flex-col bg-[#020319]'>
-        <div className='animate-spin w-10 h-10 border-4 border-[#41437D] border-t-[#4CC8BD] rounded-full'></div>
-        <p className='mt-4 text-[#ADAFE4] font-ibm'>Updating judging information...</p>
+      <div className="flex justify-center items-center min-h-screen flex-col bg-[#020319]">
+        <div className="animate-spin w-10 h-10 border-4 border-[#41437D] border-t-[#4CC8BD] rounded-full"></div>
+        <p className="mt-4 text-[#ADAFE4] font-ibm">
+          Updating judging information...
+        </p>
       </div>
     );
   }
 
   if (error.length > 0) {
     return (
-      <div className='flex flex-col justify-center items-center min-h-screen bg-[#020319] p-5'>
-        <div className='text-xl font-ibm text-white text-center'>{error}</div>
-        <div className='ml-6'>
-          <Link href='/companion' className='text-[#4CC8BD] hover:text-[#7EEAE0] underline font-ibm text-sm transition-colors'>
+      <div className="flex flex-col justify-center items-center min-h-screen bg-[#020319] p-5">
+        <div className="text-xl font-ibm text-white text-center">{error}</div>
+        <div className="ml-6">
+          <Link
+            href="/companion"
+            className="text-[#4CC8BD] hover:text-[#7EEAE0] underline font-ibm text-sm transition-colors"
+          >
             Return to Home
           </Link>
         </div>
@@ -83,8 +90,10 @@ const CompanionRedirectPage = () => {
   }
 
   return (
-    <div className='flex justify-center items-center min-h-screen bg-[#020319]'>
-      <div className='text-xl font-ibm text-white'>Request processed successfully!</div>
+    <div className="flex justify-center items-center min-h-screen bg-[#020319]">
+      <div className="text-xl font-ibm text-white">
+        Request processed successfully!
+      </div>
     </div>
   );
 };

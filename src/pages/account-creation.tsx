@@ -1,9 +1,9 @@
-import React from "react"
-import { Amplify } from "aws-amplify"
-import outputs from "../../amplify_outputs.json"
-import Link from "next/link"
+import React from "react";
+import { Amplify } from "aws-amplify";
+import outputs from "../../amplify_outputs.json";
+import Link from "next/link";
 
-Amplify.configure(outputs)
+Amplify.configure(outputs);
 
 const SignUp = () => {
   return (
@@ -457,7 +457,7 @@ const SignUp = () => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;

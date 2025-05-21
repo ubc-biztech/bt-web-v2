@@ -1,5 +1,5 @@
-import Link from "next/link"
-import React from "react"
+import Link from "next/link";
+import React from "react";
 
 const options = [
   {
@@ -7,16 +7,16 @@ const options = [
     description:
       "I am not a user yet and want to make my account and membership all at once!",
     imageUrl: "https://app.ubcbiztech.com/static/media/house.c7c12f3a.svg",
-    ref: "/account-creation"
+    ref: "/account-creation",
   },
   {
     name: "Membership 2023/24 Registration",
     description:
       "I am a user already and am here to sign up or renew my membership status!",
     imageUrl: "https://app.ubcbiztech.com/static/media/login.77830c40.svg",
-    ref: "/login"
-  }
-]
+    ref: "/login",
+  },
+];
 
 const SignUp = () => {
   return (
@@ -56,7 +56,7 @@ const SignUp = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;

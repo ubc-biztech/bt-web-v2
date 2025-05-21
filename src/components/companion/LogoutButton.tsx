@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
-import { COMPANION_EMAIL_KEY } from '@/constants/companion';
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 
 const LogoutButton = () => {
   const handleLogout = () => {
@@ -9,9 +9,9 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button 
-      variant="ghost" 
-      size="sm" 
+    <Button
+      variant="ghost"
+      size="sm"
       onClick={handleLogout}
       className="absolute top-2 right-2"
     >
@@ -21,4 +21,4 @@ const LogoutButton = () => {
   );
 };
 
-export default LogoutButton; 
+export default LogoutButton;

@@ -10,8 +10,11 @@ const ProductX2025 = () => {
   const { userRegistration } = useUserRegistration();
   const router = useRouter();
 
-  !userRegistration?.isPartner && userRegistration?.teamID && localStorage.setItem(TEAM_NAME, userRegistration.teamID);
-  userRegistration?.id && localStorage.setItem(COMPANION_EMAIL_KEY, userRegistration.id);
+  !userRegistration?.isPartner &&
+    userRegistration?.teamID &&
+    localStorage.setItem(TEAM_NAME, userRegistration.teamID);
+  userRegistration?.id &&
+    localStorage.setItem(COMPANION_EMAIL_KEY, userRegistration.id);
 
   useEffect(() => {
     if (!router.isReady) {
@@ -19,7 +22,9 @@ const ProductX2025 = () => {
     }
 
     const { query } = router;
-    const redirectParam = query["redirect"] ? decodeURIComponent(query["redirect"] as string) : undefined;
+    const redirectParam = query["redirect"]
+      ? decodeURIComponent(query["redirect"] as string)
+      : undefined;
     redirectParam && router.push(`/${redirectParam}`);
   }, [router.isReady]);
 
@@ -35,7 +40,7 @@ const ProductX2025 = () => {
     return <User teamID={userRegistration.teamID} />;
   }
 
-  return <TeamCreation />
+  return <TeamCreation />;
 };
 
 export default ProductX2025;
