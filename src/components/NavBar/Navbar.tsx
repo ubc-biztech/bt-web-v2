@@ -12,12 +12,16 @@ import { fetchUserAttributes } from "@aws-amplify/auth";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(true);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   useEffect(() => {
-    const userAgent = navigator.userAgent;
-    setIsMobileDevice(isMobile(userAgent));
+    if (typeof window !== "undefined") {
+      const userAgent = navigator.userAgent;
+      setIsMobileDevice(isMobile(userAgent));
+    }
+  }, []);
 
+  useEffect(() => {
     const fetchUserDetails = async () => {
       try {
         const attributes = await fetchUserAttributes();
@@ -33,6 +37,7 @@ export default function Navbar() {
           setIsSignedIn(false);
         } else {
           console.error(e);
+          setIsSignedIn(false);
         }
       }
     };
@@ -98,7 +103,10 @@ export default function Navbar() {
               ))}
             </div>
             {isSignedIn ? (
-              <NavbarTab navbarItem={logout} />
+              <NavbarTab
+                navbarItem={logout}
+                onLogout={() => setIsSignedIn(false)}
+              />
             ) : (
               <NavbarTab navbarItem={signin} />
             )}

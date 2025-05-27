@@ -9,25 +9,30 @@ interface NavbarProps {
     link: string;
     icon: any;
   };
+  onLogout?: () => void;
 }
 
-const NavbarTab: React.FC<NavbarProps> = ({ navbarItem }) => {
+const NavbarTab: React.FC<NavbarProps> = ({ navbarItem, onLogout }) => {
   const router = useRouter();
   const isSelected = router.pathname === navbarItem.link;
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
     try {
       await signOut();
+      onLogout?.();
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
+  const handleClick = navbarItem.title === "Logout" ? handleLogout : undefined;
+
   return (
     <Link
-      href={navbarItem?.link}
+      href={navbarItem.link || "#"}
       className="h-9 flex w-full mb-4 mt-4 hover:opacity-60 cursor-pointer"
-      onClick={navbarItem.title === "Logout" ? handleLogout : undefined}
+      onClick={handleClick}
     >
       <div className={`w-0.5 ${isSelected && "bg-biztech-green"}`} />
       <div
@@ -36,13 +41,13 @@ const NavbarTab: React.FC<NavbarProps> = ({ navbarItem }) => {
         }`}
       >
         <Image
-          src={navbarItem?.icon}
-          alt="BizTech Logo"
+          src={navbarItem.icon}
+          alt="icon"
           width={20}
           height={20}
           className="m-2"
         />
-        <h6 className="text-white">{navbarItem?.title}</h6>
+        <h6 className="text-white">{navbarItem.title}</h6>
       </div>
     </Link>
   );
