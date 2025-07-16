@@ -127,7 +127,7 @@ export default function Navbar() {
       {/* Mobile Header - shows/hides on scroll */}
       {isMobileDevice && (
         <motion.div
-          className="p-4 h-16 bg-events-navigation-bg border-dark-slate border w-full top-0 left-0 right-0 justify-between flex fixed z-40"
+          className="p-4 h-16 bg-events-navigation-bg border-b border-dark-slate/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
           initial={{ y: 0 }}
           animate={{ y: isNavVisible ? 0 : -64 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -160,7 +160,7 @@ export default function Navbar() {
       <AnimatePresence>
         {isMobileDevice && isOpen && (
           <motion.div
-            className="fixed top-0 left-0 right-0 bottom-0 bg-events-navigation-bg bg-opacity-80 backdrop-filter backdrop-blur-lg z-50"
+            className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-40 backdrop-filter shadow-lg backdrop-blur-lg z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
