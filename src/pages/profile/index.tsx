@@ -5,6 +5,8 @@ import { UserEvents } from "@/components/ProfilePage/UserEvents";
 import { fetchBackend } from "@/lib/db";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Registration } from "@/types/types";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const sortRegistrationsByDate = (registrations: Registration[]) => {
   // sorts events in descending order by createdAt, otherwise by updatedAt if event doesn't have createdAt field
@@ -28,7 +30,7 @@ const fetchEventData = async (email: string): Promise<BiztechEvent[]> => {
     authenticatedCall: false,
   });
   const sortedRegistrations: Registration[] = sortRegistrationsByDate(
-    userRegistrations.data,
+    userRegistrations.data
   ).slice(0, 3);
   const events = await Promise.all(
     sortedRegistrations.map(async (registration) => {
@@ -41,7 +43,7 @@ const fetchEventData = async (email: string): Promise<BiztechEvent[]> => {
       });
 
       return event[event.length - 1];
-    }),
+    })
   );
 
   return events;
@@ -93,6 +95,9 @@ const ProfilePage = () => {
         <h3 className="text-white text-lg lg:text-xl">
           {profile?.fname ? `Welcome back, ${profile.fname}!` : "Welcome back!"}
         </h3>
+        <Link href="/profile/nfc">
+          <Button className="bg-signup-input-border"> View NFC Profile </Button>
+        </Link>
         <div className="flex flex-col gap-6 mt-6 lg:flex-row">
           <UserInfo profile={profile} />
           <UserEvents
