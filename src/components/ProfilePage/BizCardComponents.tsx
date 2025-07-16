@@ -124,5 +124,5 @@ const GenericCard = ({
   </div>
 );
 
-export type {UserQuestionResponse, UserProfile}
-export {HobbyTag, IconButton, LinkButton, GenericCard, DisplayUserField};
+export type { UserQuestionResponse, UserProfile };
+export { HobbyTag, IconButton, LinkButton, GenericCard, DisplayUserField };

@@ -89,7 +89,10 @@ const ProfilePage = () => {
 
       <div className="flex flex-col justify-center col-span-2 space-y-6">
         {/* Member Profile Section */}
-        <GenericCard title={`About ${userProfile.firstName}`} isCollapsible={false}>
+        <GenericCard
+          title={`About ${userProfile.firstName}`}
+          isCollapsible={false}
+        >
           <div className="space-y-4">
             <p className="text-pale-blue text-sm">
               Curious and motivated student exploring the world of tech through
@@ -144,9 +147,7 @@ const ProfilePage = () => {
               <p className="text-sm text-pale-blue mb-2">
                 Q: {userProfile.questions.one.question}
               </p>
-              <p className="text-sm">
-                {userProfile.questions.one.answer}
-              </p>
+              <p className="text-sm">{userProfile.questions.one.answer}</p>
             </div>
 
             <div className="border-border-blue border-[0.5px]" />
@@ -155,9 +156,7 @@ const ProfilePage = () => {
               <p className="text-sm text-pale-blue mb-2">
                 Q: {userProfile.questions.two.question}
               </p>
-              <p className="text-sm">
-                {userProfile.questions.two.answer}
-              </p>
+              <p className="text-sm">{userProfile.questions.two.answer}</p>
             </div>
           </div>
         </GenericCard>

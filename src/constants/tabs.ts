@@ -1,4 +1,13 @@
-import { CalendarCog, CalendarFoldIcon, LineChartIcon, LogIn, LogOut, PlusSquareIcon, ScanBarcode, UserCircle2 } from "lucide-react";
+import {
+  CalendarCog,
+  CalendarFoldIcon,
+  LineChartIcon,
+  LogIn,
+  LogOut,
+  PlusSquareIcon,
+  ScanBarcode,
+  UserCircle2,
+} from "lucide-react";
 
 export const admin = [
   {
