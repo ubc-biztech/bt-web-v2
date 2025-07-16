@@ -14,7 +14,11 @@ interface NavbarProps {
   onTabClick?: () => void; // Add this prop
 }
 
-const NavbarTab: React.FC<NavbarProps> = ({ navbarItem, onLogout, onTabClick }) => {
+const NavbarTab: React.FC<NavbarProps> = ({
+  navbarItem,
+  onLogout,
+  onTabClick,
+}) => {
   const router = useRouter();
   const isSelected = router.pathname === navbarItem.link;
 
@@ -34,7 +38,8 @@ const NavbarTab: React.FC<NavbarProps> = ({ navbarItem, onLogout, onTabClick }) 
     onTabClick?.();
   };
 
-  const handleClick = navbarItem.title === "Logout" ? handleLogout : handleNavClick;
+  const handleClick =
+    navbarItem.title === "Logout" ? handleLogout : handleNavClick;
 
   return (
     <Link
@@ -44,11 +49,14 @@ const NavbarTab: React.FC<NavbarProps> = ({ navbarItem, onLogout, onTabClick }) 
     >
       <div
         className={`flex items-center p-2 gap-3 rounded-md grow ${
-          isSelected && "bg-events-active-tab-bg shadow-[inset_1.6px_1.6px_6.4px_#516495]"
+          isSelected &&
+          "bg-events-active-tab-bg shadow-[inset_1.6px_1.6px_6.4px_#516495]"
         }`}
       >
         <navbarItem.icon className="w-5 h-5 shrink-0 text-pale-blue overflow-visible" />
-        <h6 className="text-pale-blue text-sm font-medium">{navbarItem.title}</h6>
+        <h6 className="text-pale-blue text-sm font-medium">
+          {navbarItem.title}
+        </h6>
       </div>
     </Link>
   );

@@ -30,7 +30,7 @@ const fetchEventData = async (email: string): Promise<BiztechEvent[]> => {
     authenticatedCall: false,
   });
   const sortedRegistrations: Registration[] = sortRegistrationsByDate(
-    userRegistrations.data
+    userRegistrations.data,
   ).slice(0, 3);
   const events = await Promise.all(
     sortedRegistrations.map(async (registration) => {
@@ -43,7 +43,7 @@ const fetchEventData = async (email: string): Promise<BiztechEvent[]> => {
       });
 
       return event[event.length - 1];
-    })
+    }),
   );
 
   return events;

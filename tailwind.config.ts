@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-const { fontFamily } = require('tailwindcss/defaultTheme')
+const { fontFamily } = require("tailwindcss/defaultTheme");
 
 const config: Config = {
   darkMode: ["class"],
@@ -105,7 +105,7 @@ const config: Config = {
       },
     },
     fontFamily: {
-      'sans': ['var(--font-urbanist)', ...fontFamily.sans],
+      sans: ["var(--font-urbanist)", ...fontFamily.sans],
       redhat: ["Red Hat Mono", "monospace"],
     },
     fontWeight: {
