@@ -1,12 +1,14 @@
 import Image from "next/image";
 import NavbarTab from "./NavbarTab";
 import { admin, defaultUser, logout, signin } from "../../constants/tabs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AuthError } from "@aws-amplify/auth";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import Link from "next/link";
 import { Menu } from "lucide-react";
+import { ScreenBreakpoints } from "@/constants/values";
+import { throttle } from "lodash";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,37 +16,36 @@ export default function Navbar() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isMobileDevice, setIsMobile] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
 
-  // Mobile detection
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-
+    const checkMobile = () =>
+      setIsMobile(window.innerWidth < ScreenBreakpoints.Medium);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
+    const throttledHandleScroll = throttle(() => {
       const currentScrollY = window.scrollY;
+      const lastY = lastScrollYRef.current;
 
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setIsNavVisible(false);
-      } else if (currentScrollY < lastScrollY) {
-        setIsNavVisible(true);
+      if (currentScrollY > lastY && currentScrollY > 50) {
+        if (isNavVisible) setIsNavVisible(false);
+      } else if (currentScrollY < lastY) {
+        if (!isNavVisible) setIsNavVisible(true);
       }
 
-      setLastScrollY(currentScrollY);
-    };
+      lastScrollYRef.current = currentScrollY;
+    }, 200);
 
     if (isMobileDevice) {
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
+      window.addEventListener("scroll", throttledHandleScroll);
+      return () => window.removeEventListener("scroll", throttledHandleScroll);
     }
-  }, [lastScrollY, isMobileDevice]);
+  }, [isMobileDevice, isNavVisible]);
 
-  // Close mobile menu when switching to desktop
   useEffect(() => {
     if (!isMobileDevice) {
       setIsOpen(false);

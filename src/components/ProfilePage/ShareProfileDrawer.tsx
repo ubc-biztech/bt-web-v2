@@ -13,7 +13,10 @@ const ShareProfileDrawer = ({
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const handleShare = async () => {
-    if (navigator.share) {
+    if (!navigator.share) {
+      alert("Sharing is not supported on this device/browser.");
+      return;
+    } else {
       try {
         await navigator.share({
           title: "UBC BizTech",
@@ -23,8 +26,6 @@ const ShareProfileDrawer = ({
       } catch (err) {
         console.error("Share failed:", err);
       }
-    } else {
-      alert("Sharing is not supported on this device/browser.");
     }
   };
 
