@@ -64,6 +64,8 @@ const config: Config = {
       "pale-blue": "#C4D5FF",
       "baby-blue": "#B2C9FC",
       "border-blue": "#6B7DA9",
+      "sat-blue": "#4B67AF",
+      "dark-sat-blue": "#0E2B6E",
       "light-blue": "#E0E9FE",
       "light-grey": "#B3B3B3",
       "white-blue": "#F7FAFF",
