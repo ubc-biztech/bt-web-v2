@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+const { fontFamily } = require("tailwindcss/defaultTheme");
 
 const config: Config = {
   darkMode: ["class"],
@@ -18,12 +19,12 @@ const config: Config = {
     },
     colors: {
       primary: {
-        color: "#162039", // biztech navy
+        color: "#0A1429", // biztech navy
         DEFAULT: "hsl(var(--primary))",
         foreground: "hsl(var(--primary-foreground))",
       },
       secondary: {
-        color: "#7AD040", // biztech green
+        color: "#70E442", // biztech green
         DEFAULT: "hsl(var(--secondary))",
         foreground: "hsl(var(--secondary-foreground))",
       },
@@ -45,8 +46,8 @@ const config: Config = {
         "coming-up": "#EC722D",
         "baby-blue": "#B2C9FC",
         "user-card-bg": "#304068",
-        "navigation-bg": "#11192E",
-        "active-tab-bg": "#1C253D",
+        "navigation-bg": "#0B111E",
+        "active-tab-bg": "#1C2C50",
         "card-bg": "#263354",
       },
       // Profile Page Colors
@@ -56,18 +57,21 @@ const config: Config = {
       },
       // Selected Color Palette
       "biztech-navy": "#162039",
-      "biztech-green": "#7AD040",
+      "biztech-green": "#70E442",
       "dark-navy": "#0C1221",
       "desat-navy": "#A2A7B3",
       "dark-slate": "#324269",
       "pale-blue": "#C4D5FF",
       "baby-blue": "#B2C9FC",
+      "border-blue": "#6B7DA9",
+      "sat-blue": "#4B67AF",
+      "dark-sat-blue": "#0E2B6E",
       "light-blue": "#E0E9FE",
       "light-grey": "#B3B3B3",
       "white-blue": "#F7FAFF",
-      "dark-green": "#55922D",
-      "light-green": "#AFE38C",
-      "neon-green": "#39FF14",
+      "dark-green": "#338A10",
+      "light-green": "#ADF591",
+      "neon-green": "#70E442",
       "white-green": "#F2FAEC",
       "light-red": "#FF8686",
       divider: "#8DA1D1",
@@ -101,12 +105,8 @@ const config: Config = {
       },
     },
     fontFamily: {
-      sans: ["Open Sans", "sans-serif"],
-      poppins: ["Poppins", "sans-serif"],
-      montserrat: ["Montserrat", "sans-serif"],
-      satoshi: ["Satoshi", "sans-serif"],
+      sans: ["var(--font-urbanist)", ...fontFamily.sans],
       redhat: ["Red Hat Mono", "monospace"],
-      ibm: ["IBM Plex Sans", "sans-serif"],
     },
     fontWeight: {
       "100": "100",
@@ -117,6 +117,10 @@ const config: Config = {
       "600": "600",
       "700": "700",
       "800": "800",
+      light: "300",
+      normal: "400",
+      medium: "500",
+      semibold: "600",
       bold: "700",
     },
     fontSize: {
