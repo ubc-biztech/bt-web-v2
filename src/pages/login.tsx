@@ -242,7 +242,7 @@ const Login: React.FC = () => {
                   alt="BizTech Logo"
                 />
                 <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
-                  {discordId ? `Sign in` : `Verify your Discord`}
+                  {discordId ? `Verify your Discord` : `Sign in`}
                 </h2>
                 <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
                   New to UBC BizTech? &nbsp;
