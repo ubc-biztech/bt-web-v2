@@ -113,7 +113,6 @@ const Membership = () => {
         const paymentBody = {
           paymentName: "BizTech Membership",
           paymentImages: ["https://imgur.com/TRiZYtG.png"],
-          paymentPrice: 1000,
           paymentType: "OAuthMember",
           success_url: `${
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
