@@ -92,7 +92,7 @@ const Login: React.FC = () => {
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <img
-              className="mx-auto h-24 w-auto"
+              className="mx-auto h-24 w-auto mix-blend-difference"
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
@@ -126,6 +126,12 @@ const Login: React.FC = () => {
                   required
                   placeholder="user@example.com"
                   className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 pl-4 focus:ring-2 focus:ring-inset focus:ring-biztech-green sm:text-sm sm:leading-6 bg-white"
+                  style={{
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
+                    WebkitAppearance: "none",
+                    MozAppearance: "textfield",
+                  }}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -163,6 +169,12 @@ const Login: React.FC = () => {
                   required
                   placeholder="Enter 6 characters or more"
                   className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 pl-4 focus:ring-2 focus:ring-inset focus:ring-biztech-green sm:text-sm sm:leading-6 bg-white"
+                  style={{
+                    color: "#111827",
+                    backgroundColor: "#ffffff",
+                    WebkitAppearance: "none",
+                    MozAppearance: "textfield",
+                  }}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -192,11 +204,20 @@ const Login: React.FC = () => {
 
           <div>
             <div className="relative mt-7 flex items-center justify-center">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="px-4 text-sm font-medium leading-6 text-gray-500">
+              <div
+                className="flex-grow border-t border-gray-300"
+                style={{ borderColor: "#D1D5DB" }}
+              ></div>
+              <span
+                className="px-4 text-sm font-medium leading-6 text-gray-500"
+                style={{ color: "#6B7280" }}
+              >
                 Or
               </span>
-              <div className="flex-grow border-t border-gray-300"></div>
+              <div
+                className="flex-grow border-t border-gray-300"
+                style={{ borderColor: "#D1D5DB" }}
+              ></div>
             </div>
 
             <div className="mt-7 grid grid-cols-2 gap-4">
@@ -219,11 +240,14 @@ const Login: React.FC = () => {
                     fill="#FBBC05"
                   />
                   <path
-                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
+                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26540 14.29L1.27539 17.385C3.25539 21.31 7.31040 24.0001 12.0004 24.0001Z"
                     fill="#34A853"
                   />
                 </svg>
-                <span className="text-sm leading-6 text-gray-900 font-500">
+                <span
+                  className="text-sm leading-6 text-gray-900 font-500"
+                  style={{ color: "#111827" }}
+                >
                   Google
                 </span>
               </a>
@@ -236,7 +260,10 @@ const Login: React.FC = () => {
                   src="https://i.ibb.co/0VtyXLD/Frame-3.png"
                   className="w-8 h-auto"
                 />
-                <span className="text-sm leading-6 text-gray-900 font-500">
+                <span
+                  className="text-sm leading-6 text-gray-900 font-500"
+                  style={{ color: "#111827" }}
+                >
                   Guest
                 </span>
               </a>
