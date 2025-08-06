@@ -355,7 +355,7 @@ const Login: React.FC = () => {
               </div>
 
               <div className="mt-7 grid grid-cols-2 gap-4">
-                <a
+                <Link
                   href="#"
                   className="flex w-full items-center justify-center gap-3 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
                   onClick={handleGoogleSignIn}
@@ -385,9 +385,9 @@ const Login: React.FC = () => {
                   <span className="text-sm leading-6 text-login-form-card font-500">
                     Google
                   </span>
-                </a>
+                </Link>
 
-                <a
+                <Link
                   href="#"
                   className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
                 >
@@ -398,7 +398,7 @@ const Login: React.FC = () => {
                   <span className="text-sm leading-6 text-login-form-card font-500">
                     Guest
                   </span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
@@ -416,12 +416,12 @@ const Login: React.FC = () => {
               </p>
 
                 <div className="mt-6">
-                  <a
+                  <Link
                     href="/"
                     className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   >
                     <p className="text-login-form-card">Go to Dashboard</p>
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -439,12 +439,12 @@ const Login: React.FC = () => {
                 </p>
 
               <div className="mt-6">
-                <a
+                <Link
                   href="/"
                   className="flex w-full justify-center rounded-md bg-[#FF4262] px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-[#df3a55] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   <p className="text-login-form-card">Go to Dashboard</p>
-                </a>
+                </Link>
               </div>
             </div>
           </div>
