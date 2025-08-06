@@ -431,7 +431,7 @@ const Login: React.FC = () => {
                 </div>
                 <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">Failed to linked accounts</h2>
                 <p className="mt-2 text-white">
-                  We couldn't link your Discord account to your membership. Please try again later or contact server admins.
+                  We couldn&apos;t link your Discord account to your membership. Please try again later or contact server admins.
                 </p>
 
                 <div className="mt-6">
