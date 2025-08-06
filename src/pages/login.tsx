@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-import { signIn, getCurrentUser, fetchAuthSession, } from "@aws-amplify/auth";
+import { signIn, getCurrentUser, fetchAuthSession } from "@aws-amplify/auth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -96,10 +96,10 @@ const Login: React.FC = () => {
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
-            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
+            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-gray-900 mb-6">
               Sign in
             </h2>
-            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
+            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-gray-700 mb-4">
               New to UBC BizTech? &nbsp;
               <a
                 href="#"
@@ -113,7 +113,7 @@ const Login: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-gray-900"
               >
                 Email
               </label>
@@ -125,12 +125,12 @@ const Login: React.FC = () => {
                   autoComplete="email"
                   required
                   placeholder="user@example.com"
-                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 pl-4 focus:ring-2 focus:ring-inset focus:ring-biztech-green sm:text-sm sm:leading-6 bg-white"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 {errors.emailError && (
-                  <div className="text-red-500 text-sm">
+                  <div className="text-red-600 text-sm mt-1">
                     {errors.emailError}
                   </div>
                 )}
@@ -141,7 +141,7 @@ const Login: React.FC = () => {
               <div className="flex justify-between items-center w-full mt-2">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-400 leading-6 text-white-blue"
+                  className="block text-sm font-400 leading-6 text-gray-900"
                 >
                   Password
                 </label>
@@ -162,12 +162,12 @@ const Login: React.FC = () => {
                   autoComplete="current-password"
                   required
                   placeholder="Enter 6 characters or more"
-                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-500 pl-4 focus:ring-2 focus:ring-inset focus:ring-biztech-green sm:text-sm sm:leading-6 bg-white"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 {errors.passwordError && (
-                  <div className="text-red-500 text-sm">
+                  <div className="text-red-600 text-sm mt-1">
                     {errors.passwordError}
                   </div>
                 )}
@@ -177,28 +177,32 @@ const Login: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-biztech-green"
               >
-                <p className="text-login-form-card">Sign in</p>
+                Sign in
               </button>
             </div>
 
-            {isLoading && <div className="mt-4">Signing in</div>}
+            {isLoading && (
+              <div className="mt-4 text-gray-700 text-center">
+                Signing in...
+              </div>
+            )}
           </form>
 
           <div>
             <div className="relative mt-7 flex items-center justify-center">
-              <div className="flex-grow border-t border-white-blue"></div>
-              <span className="px-4 text-sm font-medium leading-6 text-white-blue">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="px-4 text-sm font-medium leading-6 text-gray-500">
                 Or
               </span>
-              <div className="flex-grow border-t border-white-blue"></div>
+              <div className="flex-grow border-t border-gray-300"></div>
             </div>
 
             <div className="mt-7 grid grid-cols-2 gap-4">
               <a
                 href="#"
-                className="flex w-full items-center justify-center gap-3 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-3 rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus-visible:ring-transparent"
                 onClick={() => console.log("Google sign in")}
               >
                 <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
@@ -219,20 +223,20 @@ const Login: React.FC = () => {
                     fill="#34A853"
                   />
                 </svg>
-                <span className="text-sm leading-6 text-login-form-card font-500">
+                <span className="text-sm leading-6 text-gray-900 font-500">
                   Google
                 </span>
               </a>
 
               <a
                 href="#"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus-visible:ring-transparent"
               >
                 <img
                   src="https://i.ibb.co/0VtyXLD/Frame-3.png"
                   className="w-8 h-auto"
                 />
-                <span className="text-sm leading-6 text-login-form-card font-500">
+                <span className="text-sm leading-6 text-gray-900 font-500">
                   Guest
                 </span>
               </a>
