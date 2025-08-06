@@ -133,8 +133,9 @@ const Login: React.FC = () => {
           if (userProfile && discordId) {
             // User is a member and wants to link their Discord account
             try {
+              console.log("Linking Discord account...");
               await fetchBackend({
-                endpoint: `/discord/account/mapping`,
+                endpoint: `/bots/discord/account/mapping`,
                 method: "POST",
                 data: {
                   email,
