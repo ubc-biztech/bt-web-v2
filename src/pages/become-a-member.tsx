@@ -8,7 +8,12 @@ export default function Page() {
   return (
     <div className="w-full h-screen flex flex-col text-center items-center justify-center text-white">
       <h2>Join the BizTech community</h2>
-      <p className="mb-4"> {"Membership gives you access to UBC's best tech events and our exclusive partnership network"}</p>
+      <p className="mb-4">
+        {" "}
+        {
+          "Membership gives you access to UBC's best tech events and our exclusive partnership network"
+        }
+      </p>
       <IconButton
         icon={ArrowUpRight}
         iconDirection="right"

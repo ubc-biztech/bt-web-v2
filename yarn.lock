@@ -208,19 +208,16 @@
 "@aws-amplify/backend-output-schemas@^0.4.0":
   version "0.4.0"
 
-"@aws-amplify/backend-output-schemas@^0.5.2":
-  version "0.5.2"
-
 "@aws-amplify/backend-output-schemas@^1.1.0", "@aws-amplify/backend-output-schemas@^1.2.0":
   version "1.2.0"
   resolved "https://registry.npmjs.org/@aws-amplify/backend-output-schemas/-/backend-output-schemas-1.2.0.tgz"
   integrity sha512-UMQfPlfzyvYsV9A/MyoFm8T87MxsLZBzABSkmD5Y/sh8XTIJlqRHibzKStoN7xuK5S1Iz1okRVoxhFxSy0alrg==
 
 "@aws-amplify/backend-output-storage@^0.2.2":
-  version "0.2.11"
+  version "0.2.2"
   dependencies:
-    "@aws-amplify/backend-output-schemas" "^0.5.2"
-    "@aws-amplify/platform-core" "^0.4.3"
+    "@aws-amplify/backend-output-schemas" "^0.4.0"
+    "@aws-amplify/platform-core" "^0.2.0"
 
 "@aws-amplify/backend-output-storage@^1.1.1":
   version "1.1.1"
@@ -749,23 +746,9 @@
     tslib "^2.5.0"
 
 "@aws-amplify/platform-core@^0.2.0":
-  version "0.2.2"
+  version "0.2.0"
   dependencies:
     "@aws-amplify/plugin-types" "^0.4.0"
-    "@aws-sdk/client-sts" "3.445.0"
-    is-ci "^3.0.1"
-    uuid "9.0.1"
-    zod "^3.21.4"
-
-"@aws-amplify/platform-core@^0.4.3":
-  version "0.4.4"
-  dependencies:
-    "@aws-amplify/plugin-types" "^0.8.0"
-    "@aws-sdk/client-sts" "3.445.0"
-    is-ci "^3.0.1"
-    lodash.mergewith "^4.6.2"
-    uuid "^9.0.1"
-    zod "^3.22.2"
 
 "@aws-amplify/platform-core@^1.0.5", "@aws-amplify/platform-core@^1.0.6":
   version "1.0.6"
@@ -780,10 +763,7 @@
     zod "^3.22.2"
 
 "@aws-amplify/plugin-types@^0.4.0", "@aws-amplify/plugin-types@^0.4.1":
-  version "0.4.2"
-
-"@aws-amplify/plugin-types@^0.8.0":
-  version "0.8.0"
+  version "0.4.1"
 
 "@aws-amplify/plugin-types@^1.1.1", "@aws-amplify/plugin-types@^1.2.1":
   version "1.2.1"
@@ -2143,50 +2123,6 @@
     "@smithy/util-retry" "^3.0.3"
     "@smithy/util-utf8" "^3.0.0"
     tslib "^2.6.2"
-
-"@aws-sdk/client-sts@3.445.0":
-  version "3.445.0"
-  dependencies:
-    "@aws-crypto/sha256-browser" "3.0.0"
-    "@aws-crypto/sha256-js" "3.0.0"
-    "@aws-sdk/core" "3.445.0"
-    "@aws-sdk/credential-provider-node" "3.445.0"
-    "@aws-sdk/middleware-host-header" "3.433.0"
-    "@aws-sdk/middleware-logger" "3.433.0"
-    "@aws-sdk/middleware-recursion-detection" "3.433.0"
-    "@aws-sdk/middleware-sdk-sts" "3.433.0"
-    "@aws-sdk/middleware-signing" "3.433.0"
-    "@aws-sdk/middleware-user-agent" "3.438.0"
-    "@aws-sdk/region-config-resolver" "3.433.0"
-    "@aws-sdk/types" "3.433.0"
-    "@aws-sdk/util-endpoints" "3.438.0"
-    "@aws-sdk/util-user-agent-browser" "3.433.0"
-    "@aws-sdk/util-user-agent-node" "3.437.0"
-    "@smithy/config-resolver" "^2.0.16"
-    "@smithy/fetch-http-handler" "^2.2.4"
-    "@smithy/hash-node" "^2.0.12"
-    "@smithy/invalid-dependency" "^2.0.12"
-    "@smithy/middleware-content-length" "^2.0.14"
-    "@smithy/middleware-endpoint" "^2.1.3"
-    "@smithy/middleware-retry" "^2.0.18"
-    "@smithy/middleware-serde" "^2.0.12"
-    "@smithy/middleware-stack" "^2.0.6"
-    "@smithy/node-config-provider" "^2.1.3"
-    "@smithy/node-http-handler" "^2.1.8"
-    "@smithy/protocol-http" "^3.0.8"
-    "@smithy/smithy-client" "^2.1.12"
-    "@smithy/types" "^2.4.0"
-    "@smithy/url-parser" "^2.0.12"
-    "@smithy/util-base64" "^2.0.0"
-    "@smithy/util-body-length-browser" "^2.0.0"
-    "@smithy/util-body-length-node" "^2.1.0"
-    "@smithy/util-defaults-mode-browser" "^2.0.16"
-    "@smithy/util-defaults-mode-node" "^2.0.21"
-    "@smithy/util-endpoints" "^1.0.2"
-    "@smithy/util-retry" "^2.0.5"
-    "@smithy/util-utf8" "^2.0.0"
-    fast-xml-parser "4.2.5"
-    tslib "^2.5.0"
 
 "@aws-sdk/client-sts@3.621.0":
   version "3.621.0"
@@ -4193,11 +4129,6 @@
   resolved "https://registry.npmjs.org/@emotion/weak-memoize/-/weak-memoize-0.4.0.tgz"
   integrity sha512-snKqtPW01tN0ui7yu9rGv69aJXr/a/Ywvl11sUjNtEcRc+ng/mQriFL0wLXMef74iHa/EkftbDzU9F8iFbH+zg==
 
-"@esbuild/darwin-arm64@0.25.0":
-  version "0.25.0"
-  resolved "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.0.tgz"
-  integrity sha512-mVwdUb5SRkPayVadIOI78K7aAnPamoeFR2bT5nszFUZ9P8UpK4ratOdYbZZXYSqPKMHfS1wdHCJk1P1EZpRdvw==
-
 "@eslint-community/eslint-utils@^4.2.0":
   version "4.4.0"
   resolved "https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz"
@@ -4604,18 +4535,6 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-2.0.3.tgz"
   integrity sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==
 
-"@img/sharp-darwin-arm64@0.33.5":
-  version "0.33.5"
-  resolved "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.33.5.tgz"
-  integrity sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==
-  optionalDependencies:
-    "@img/sharp-libvips-darwin-arm64" "1.0.4"
-
-"@img/sharp-libvips-darwin-arm64@1.0.4":
-  version "1.0.4"
-  resolved "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.0.4.tgz"
-  integrity sha512-XblONe153h0O2zuFfTAbQYAX2JhYmDHeWikp1LM9Hul9gVPjFY427k6dFEcOL72O01QxQsWi761svJ/ev9xEDg==
-
 "@inquirer/checkbox@^1.5.2":
   version "1.5.2"
   resolved "https://registry.npmjs.org/@inquirer/checkbox/-/checkbox-1.5.2.tgz"
@@ -4877,10 +4796,15 @@
   dependencies:
     glob "10.3.10"
 
-"@next/swc-darwin-arm64@14.2.28":
+"@next/swc-linux-x64-gnu@14.2.28":
   version "14.2.28"
-  resolved "https://registry.npmjs.org/@next/swc-darwin-arm64/-/swc-darwin-arm64-14.2.28.tgz"
-  integrity sha512-kzGChl9setxYWpk3H6fTZXXPFFjg7urptLq5o5ZgYezCrqlemKttwMT5iFyx/p1e/JeglTwDFRtb923gTJ3R1w==
+  resolved "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.2.28.tgz"
+  integrity sha512-nsiSnz2wO6GwMAX2o0iucONlVL7dNgKUqt/mDTATGO2NY59EO/ZKnKEr80BJFhuA5UC1KZOMblJHWZoqIJddpA==
+
+"@next/swc-linux-x64-musl@14.2.28":
+  version "14.2.28"
+  resolved "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.2.28.tgz"
+  integrity sha512-+IuGQKoI3abrXFqx7GtlvNOpeExUH1mTIqCrh1LGFf8DnlUcTmOOCApEnPJUSLrSbzOdsF2ho2KhnQoO0I1RDw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -4902,11 +4826,6 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
-
-"@parcel/watcher-darwin-arm64@2.4.1":
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/@parcel/watcher-darwin-arm64/-/watcher-darwin-arm64-2.4.1.tgz"
-  integrity sha512-ln41eihm5YXIY043vBrrHfn94SIBlqOWmoROhsMVTSXGh0QahKGy77tfEywQ7v3NywyxBBkGIfrWRHm0hsKtzA==
 
 "@parcel/watcher@^2.4.1":
   version "2.4.1"
@@ -7225,7 +7144,7 @@ aws-amplify@^6.0.7, aws-amplify@^6.3.2, aws-amplify@^6.3.8:
     "@aws-amplify/storage" "6.6.2"
     tslib "^2.5.0"
 
-aws-cdk-lib@^2.110.1, aws-cdk-lib@^2.129.0, aws-cdk-lib@^2.152.0, aws-cdk-lib@^2.189.1:
+aws-cdk-lib@^2.103.0, aws-cdk-lib@^2.129.0, aws-cdk-lib@^2.152.0, aws-cdk-lib@^2.189.1:
   version "2.190.0"
   resolved "https://registry.npmjs.org/aws-cdk-lib/-/aws-cdk-lib-2.190.0.tgz"
   integrity sha512-D6BGf0Gg4s3XCnNiXnCgH1NHXYjngizs676HeytI4ekrUMtsw1ZmH9dlFBattH1x9gYX/9A+UxMkid+P4bNZKA==
@@ -9005,16 +8924,6 @@ fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   integrity sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==
-
-fsevents@~2.3.2, fsevents@2.3.2:
-  version "2.3.2"
-  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
-  integrity sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
-
-fsevents@~2.3.3:
-  version "2.3.3"
-  resolved "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
-  integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 function-bind@^1.1.2:
   version "1.1.2"
@@ -11349,7 +11258,7 @@ semver@^7.5.4, semver@^7.6.3:
   integrity sha512-oVekP1cKtI+CTDvHWYFUcMtsK/00wmAEfyqKfNdARm8u1wNVhSgaX7A8d4UuIlUI5e84iEwOhs7ZPYRmzU9U6A==
 
 semver@^7.7.1:
-  version "7.7.2"
+  version "7.7.1"
 
 sentence-case@^3.0.4:
   version "3.0.4"
@@ -12240,7 +12149,7 @@ util-deprecate@^1.0.2:
   resolved "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
 
-uuid@^9.0.0, uuid@^9.0.1, uuid@9.0.1:
+uuid@^9.0.0, uuid@^9.0.1:
   version "9.0.1"
   resolved "https://registry.npmjs.org/uuid/-/uuid-9.0.1.tgz"
   integrity sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==
@@ -12514,7 +12423,7 @@ yup@^0.32.11:
     toposort "^2.0.2"
 
 zod@^3.21.4, zod@^3.22.3:
-  version "3.25.76"
+  version "3.22.4"
 
 zod@^3.22.2, zod@^3.23.8:
   version "3.23.8"
