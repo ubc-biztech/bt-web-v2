@@ -23,9 +23,13 @@ type formattedEvent = {
   attended: boolean;
 };
 
-export default function EventsAttended({ events, registrations }: EventsAttendedProps) {
-
-  const registeredEventIds = Array.isArray(registrations) ? registrations.map((registration) => registration["eventID;year"]) : [];
+export default function EventsAttended({
+  events,
+  registrations,
+}: EventsAttendedProps) {
+  const registeredEventIds = Array.isArray(registrations)
+    ? registrations.map((registration) => registration["eventID;year"])
+    : [];
 
   const formattedEvents: formattedEvent[] = events.map(
     (event: BiztechEvent) => {
@@ -53,7 +57,7 @@ export default function EventsAttended({ events, registrations }: EventsAttended
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 md:gap-4 text-thin">
-        {formattedEvents.slice(0,8).map(({ slug, date, src, attended }) => (
+        {formattedEvents.slice(0, 8).map(({ slug, date, src, attended }) => (
           <ConditionalLink
             key={date}
             className={cn(
