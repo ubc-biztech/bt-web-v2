@@ -168,7 +168,7 @@ const ProfilePage = () => {
                     }
                     size="lg"
                     className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
-                    disabled={getEventState(highlightedEvent) === 'Past'}
+                    disabled={getEventState(highlightedEvent) === "Past"}
                   />
                 </div>
               ) : (
