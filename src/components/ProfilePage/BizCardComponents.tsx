@@ -37,7 +37,7 @@ interface IconButtonProps {
   label: string;
   subtitle?: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  iconPosition?: 'left' | 'right';
+  iconPosition?: "left" | "right";
   onClick?: () => void;
   className?: string;
 }
@@ -46,7 +46,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   label,
   subtitle,
   icon: Icon = Share,
-  iconPosition = 'left',
+  iconPosition = "left",
   onClick,
   className = "",
 }) => {
@@ -54,7 +54,13 @@ const IconButton: React.FC<IconButtonProps> = ({
     "px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-pale-blue shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-navbar-tab-hover-bg border-border-blue border";
 
   return (
-    <Button className={cn(`${baseClasses} ${className}`, iconPosition === 'right' && 'flex-row-reverse')} onClick={onClick}>
+    <Button
+      className={cn(
+        `${baseClasses} ${className}`,
+        iconPosition === "right" && "flex-row-reverse",
+      )}
+      onClick={onClick}
+    >
       <Icon />
       <div className="text-left text-xs">
         {label}

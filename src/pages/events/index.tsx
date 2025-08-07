@@ -126,9 +126,12 @@ export default function Page({ events }: EventProps) {
           <GuestBanner message="To keep your saved events or view your registered events you need to be signed in." />
         )}
         <div className="mx-auto pt-8 md:px-20 px-5 flex flex-col">
-          <PageHeader title="Event Dashboard" subtitle="Check out our latest & upcoming events!"/>
-          <Divider/>
-          
+          <PageHeader
+            title="Event Dashboard"
+            subtitle="Check out our latest & upcoming events!"
+          />
+          <Divider />
+
           <div className="flex flex-row gap-x-3 space-y-3 flex-wrap md:flex-nowrap mb-8">
             <SearchBar handleChange={handleChange} searchField={searchField} />
             <div className="flex flex-row flex-nowrap w-full gap-x-3">

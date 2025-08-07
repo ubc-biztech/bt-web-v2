@@ -1,12 +1,15 @@
-import { BiztechEvent } from "@/types"
+import { BiztechEvent } from "@/types";
 
-export function sortEventsByDate(events: BiztechEvent[], order: 'asc' | 'desc' = 'asc'): BiztechEvent[] {
+export function sortEventsByDate(
+  events: BiztechEvent[],
+  order: "asc" | "desc" = "asc",
+): BiztechEvent[] {
   return events.sort((a, b) => {
-    const dateA = new Date(a.startDate).getTime()
-    const dateB = new Date(b.startDate).getTime()
+    const dateA = new Date(a.startDate).getTime();
+    const dateB = new Date(b.startDate).getTime();
 
-    return order === 'asc' ? dateA - dateB : dateB - dateA
-  })
+    return order === "asc" ? dateA - dateB : dateB - dateA;
+  });
 }
 
 export function getHighlightedEvent(events: BiztechEvent[]): BiztechEvent {
@@ -16,7 +19,10 @@ export function getHighlightedEvent(events: BiztechEvent[]): BiztechEvent {
 
   const futureEvents = validEvents
     .filter((event) => new Date(event.startDate) >= now)
-    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+    .sort(
+      (a, b) =>
+        new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+    );
 
   if (futureEvents.length > 0) {
     return futureEvents[0];
@@ -24,7 +30,10 @@ export function getHighlightedEvent(events: BiztechEvent[]): BiztechEvent {
 
   const pastEvents = validEvents
     .filter((event) => new Date(event.startDate) < now)
-    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime());
+    .sort(
+      (a, b) =>
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+    );
 
   return pastEvents[0];
 }

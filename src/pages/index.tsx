@@ -47,7 +47,7 @@ const fetchAttendedEvents = async (email: string) => {
   });
 
   return userRegistrations;
-}
+};
 
 const ProfilePage = () => {
   const [events, setEvents] = useState<BiztechEvent[]>([]);
@@ -78,7 +78,7 @@ const ProfilePage = () => {
         setProfile(profileData);
         setEvents(allEvents);
         setHighlightedEvent(highlightedEventResult);
-        setRegistrations(userRegistrations.data)
+        setRegistrations(userRegistrations.data);
       } catch (err) {
         console.error("Failed to fetch user profile data:", err);
       }
@@ -145,7 +145,11 @@ const ProfilePage = () => {
                     label="View Details"
                     icon={ArrowUpRight}
                     iconDirection="right"
-                    onClick={() => router.push(`/event/${highlightedEvent?.id}/${highlightedEvent.year}/register`)}
+                    onClick={() =>
+                      router.push(
+                        `/event/${highlightedEvent?.id}/${highlightedEvent.year}/register`,
+                      )
+                    }
                     size="lg"
                     className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
                   />
@@ -155,7 +159,7 @@ const ProfilePage = () => {
           </GenericCard>
 
           <GenericCard title="Events Attended">
-            <EventsAttended events={events} registrations={registrations}/>
+            <EventsAttended events={events} registrations={registrations} />
           </GenericCard>
         </div>
       </div>
