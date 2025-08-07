@@ -1,4 +1,5 @@
 import {
+  BadgeCheck,
   CalendarCog,
   CalendarFoldIcon,
   HomeIcon,
@@ -35,11 +36,17 @@ export const admin = [
 
 export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
   const links = [
-    {
-      title: "Home",
-      link: "/",
-      icon: HomeIcon,
-    },
+    isSignedIn
+      ? {
+          title: "Home",
+          link: "/",
+          icon: HomeIcon,
+        }
+      : {
+          title: "Membership",
+          link: "/become-a-member",
+          icon: BadgeCheck,
+        },
     {
       title: "Event Dashboard",
       link: "/events",
