@@ -1,7 +1,5 @@
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 import Navbar from "@/components/NavBar/Navbar";
-import { isMobile } from "@/util/isMobile";
-import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Urbanist } from "next/font/google";
 

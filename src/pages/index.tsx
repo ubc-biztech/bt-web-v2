@@ -13,6 +13,8 @@ import { getHighlightedEvent } from "@/util/sort";
 import { format, toDate } from "date-fns";
 import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
+import { useRedirect } from "@/hooks/useRedirect";
+import { Spinner } from "@/components/ui/spinner";
 
 const fetchProfileData = async (email: string) => {
   const profileData = await fetchBackend({
@@ -50,6 +52,7 @@ const fetchAttendedEvents = async (email: string) => {
 };
 
 const ProfilePage = () => {
+  const [loading, setIsLoading] = useState(true);
   const [events, setEvents] = useState<BiztechEvent[]>([]);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [highlightedEvent, setHighlightedEvent] = useState<BiztechEvent | null>(
@@ -59,13 +62,17 @@ const ProfilePage = () => {
 
   const router = useRouter();
 
+  const authLoading = useRedirect();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const attributes = await fetchUserAttributes();
 
         const email = attributes.email;
-        if (!email) throw new Error("No email found");
+        if (!email) {
+          throw new Error("No email found");
+        }
 
         const [profileData, allEvents, userRegistrations] = await Promise.all([
           fetchProfileData(email),
@@ -79,6 +86,7 @@ const ProfilePage = () => {
         setEvents(allEvents);
         setHighlightedEvent(highlightedEventResult);
         setRegistrations(userRegistrations.data);
+        setIsLoading(false);
       } catch (err) {
         console.error("Failed to fetch user profile data:", err);
       }
@@ -91,6 +99,14 @@ const ProfilePage = () => {
     return event && toDate(event.startDate) < toDate(new Date())
       ? "Past"
       : "Upcoming";
+  }
+
+  if (loading || authLoading) {
+    return (
+      <div className="flex flex-row h-screen text-pale-blue w-full justify-center items-center">
+        <Spinner variant="circle-filled" />
+      </div>
+    );
   }
 
   return (
@@ -128,7 +144,7 @@ const ProfilePage = () => {
                 style={{ objectFit: "cover" }}
                 className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
               />
-              {highlightedEvent && (
+              {highlightedEvent ? (
                 <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
                   <div>
                     <h4>{highlightedEvent?.ename}</h4>
@@ -152,7 +168,12 @@ const ProfilePage = () => {
                     }
                     size="lg"
                     className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
+                    disabled={getEventState(highlightedEvent) === 'Past'}
                   />
+                </div>
+              ) : (
+                <div className="h-full w-full place-content-center text-center text-pale-blue">
+                  No event to show - check back soon!
                 </div>
               )}
             </div>
