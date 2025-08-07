@@ -6,6 +6,7 @@ import { format, toDate } from "date-fns";
 import BizImage from "../Common/BizImage";
 import Link from "next/link";
 import { Registration } from "@/types/types";
+import ConditionalLink from "../Common/ConditionalLink";
 
 const img =
   "https://images.unsplash.com/photo-1744740618649-b324f7f1050d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMXx8fGVufDB8fHx8fA%3D%3D";
@@ -51,21 +52,22 @@ export default function EventsAttended({ events, registrations }: EventsAttended
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-4 gap-4 text-thin">
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 md:gap-4 text-thin">
         {formattedEvents.slice(0,8).map(({ slug, date, src, attended }) => (
-          <Link
+          <ConditionalLink
             key={date}
             className={cn(
               "flex flex-col items-start gap-2 brightness-90",
-              !attended && "opacity-40 grayscale",
+              !attended && "opacity-40",
               attended &&
                 "hover:scale-105 hover:brightness-100 transition-all duration-200",
             )}
             href={slug}
+            disabled={!attended}
           >
             <div
               className={cn(
-                "relative w-full aspect-square overflow-hidden rounded-xl",
+                "relative w-full aspect-square rounded-xl overflow-hidden",
               )}
             >
               <BizImage
@@ -77,7 +79,7 @@ export default function EventsAttended({ events, registrations }: EventsAttended
               />
             </div>
             <p className="text-xs text-pale-blue">{date}</p>
-          </Link>
+          </ConditionalLink>
         ))}
       </div>
 

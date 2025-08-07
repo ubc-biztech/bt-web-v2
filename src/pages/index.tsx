@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { BiztechEvent, User } from "@/types";
-import { UserInfo } from "@/components/ProfilePage/UserInfo";
-import { UserEvents } from "@/components/ProfilePage/UserEvents";
 import { fetchBackend } from "@/lib/db";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Registration } from "@/types/types";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import Divider from "@/components/Common/Divider";
 import { GenericCard } from "@/components/Common/Cards";
 import Image from "next/image";
 import { IconButton } from "@/components/Common/IconButton";
 import { ArrowUpRight } from "lucide-react";
 import EventsAttended from "@/components/Blocks/EventsAttended";
-import { sortEventsByDate } from "@/util/sort";
+import { getHighlightedEvent } from "@/util/sort";
 import { format, toDate } from "date-fns";
 import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
@@ -77,9 +73,7 @@ const ProfilePage = () => {
           fetchAttendedEvents(email),
         ]);
 
-        const highlightedEventResult = sortEventsByDate(
-          allEvents.filter((event: BiztechEvent) => event.startDate != null),
-        )[0];
+        const highlightedEventResult = getHighlightedEvent(allEvents);
 
         setProfile(profileData);
         setEvents(allEvents);
@@ -119,7 +113,7 @@ const ProfilePage = () => {
           <GenericCard
             title={
               getEventState(highlightedEvent) === "Past"
-                ? "Our Previous Event"
+                ? "Our Latest Event"
                 : "Our Next Event"
             }
           >
@@ -132,7 +126,7 @@ const ProfilePage = () => {
                   highlightedEvent?.imageUrl || "/assets/images/not-found.png"
                 }
                 style={{ objectFit: "cover" }}
-                className="h-full rounded-md border-[0.5px] border-pale-blue/60"
+                className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
               />
               {highlightedEvent && (
                 <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
