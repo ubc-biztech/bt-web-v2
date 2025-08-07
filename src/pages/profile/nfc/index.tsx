@@ -11,12 +11,12 @@ import {
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
 import {
   DisplayUserField,
-  GenericCard,
   HobbyTag,
   IconButton,
   LinkButton,
   UserProfile,
 } from "@/components/ProfilePage/BizCardComponents";
+import { GenericCardNFC } from "@/components/Common/Cards";
 
 const userProfile: UserProfile = {
   firstName: "Firstname",
@@ -89,7 +89,7 @@ const ProfilePage = () => {
 
       <div className="flex flex-col justify-center col-span-2 space-y-6">
         {/* Member Profile Section */}
-        <GenericCard
+        <GenericCardNFC
           title={`About ${userProfile.firstName}`}
           isCollapsible={false}
         >
@@ -134,14 +134,14 @@ const ProfilePage = () => {
               />
             </div>
           </div>
-        </GenericCard>
+        </GenericCardNFC>
 
         <div className="block md:hidden">
           <UserExternalLinks />
         </div>
 
         {/* Q&A Section */}
-        <GenericCard isCollapsible={false}>
+        <GenericCardNFC isCollapsible={false}>
           <div className="space-y-4">
             <div className="rounded-lg">
               <p className="text-sm text-pale-blue mb-2">
@@ -159,7 +159,7 @@ const ProfilePage = () => {
               <p className="text-sm">{userProfile.questions.two.answer}</p>
             </div>
           </div>
-        </GenericCard>
+        </GenericCardNFC>
       </div>
 
       <ShareProfileDrawer isOpen={isDrawerOpen} setIsOpen={setDrawerOpen} />

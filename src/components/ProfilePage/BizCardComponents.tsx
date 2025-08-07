@@ -1,6 +1,7 @@
 import { Share } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface UserQuestionResponse {
   question: string;
@@ -36,6 +37,7 @@ interface IconButtonProps {
   label: string;
   subtitle?: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  iconPosition?: 'left' | 'right';
   onClick?: () => void;
   className?: string;
 }
@@ -44,6 +46,7 @@ const IconButton: React.FC<IconButtonProps> = ({
   label,
   subtitle,
   icon: Icon = Share,
+  iconPosition = 'left',
   onClick,
   className = "",
 }) => {
@@ -51,7 +54,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     "px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-pale-blue shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-navbar-tab-hover-bg border-border-blue border";
 
   return (
-    <Button className={`${baseClasses} ${className}`} onClick={onClick}>
+    <Button className={cn(`${baseClasses} ${className}`, iconPosition === 'right' && 'flex-row-reverse')} onClick={onClick}>
       <Icon />
       <div className="text-left text-xs">
         {label}
@@ -102,27 +105,5 @@ const LinkButton = ({
   );
 };
 
-const GenericCard = ({
-  title,
-  children,
-  isCollapsible,
-}: {
-  title?: string;
-  children: React.ReactNode;
-  isCollapsible: boolean;
-}) => (
-  <div className="flex flex-col gap-4 bg-biztech-navy/80 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-border-blue border">
-    {title && (
-      <>
-        <div className="flex items-center justify-between">
-          <h2 className="text-md font-semibold">{title}</h2>
-        </div>
-        <div className="border-border-blue border-[0.5px]" />
-      </>
-    )}
-    {children}
-  </div>
-);
-
 export type { UserQuestionResponse, UserProfile };
-export { HobbyTag, IconButton, LinkButton, GenericCard, DisplayUserField };
+export { HobbyTag, IconButton, LinkButton, DisplayUserField };

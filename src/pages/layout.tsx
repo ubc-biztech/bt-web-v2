@@ -13,7 +13,7 @@ const urbanist = Urbanist({
 export default function Layout({ children }: any) {
   return (
     <div className={urbanist.className}>
-      <main className={`bg-primary-color md:pl-[250px] pt-16 md:pt-0`}>
+      <main className={`md:pl-[250px] pt-16 md:pt-0`}>
         <ConfigureAmplifyClientSide />
         {children}
       </main>
