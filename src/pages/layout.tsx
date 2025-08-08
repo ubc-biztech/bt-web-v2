@@ -11,9 +11,11 @@ const urbanist = Urbanist({
 export default function Layout({ children }: any) {
   return (
     <div className={urbanist.className}>
-      <main className={`md:pl-[250px] pt-16 md:pt-0`}>
+      <main className={`md:pl-[250px]`}>
         <ConfigureAmplifyClientSide />
+        <div className="lg:p-16 md:p-8 p-4 min-h-screen">
         {children}
+        </div>
       </main>
 
       <Navbar />

@@ -1,5 +1,9 @@
+import { createServerRunner } from "@aws-amplify/adapter-nextjs";
 import { API_URL } from "./dbconfig";
 import { AuthTokens, fetchAuthSession } from "aws-amplify/auth";
+import { fetchAuthSession as fetchSessionFromServer } from "aws-amplify/auth/server";
+import outputs from "amplify_outputs.json";
+import { GetServerSidePropsContext } from "next";
 
 interface FetchBackendOptions {
   endpoint: string;
@@ -7,6 +11,17 @@ interface FetchBackendOptions {
   data?: Record<string, unknown>;
   authenticatedCall?: boolean;
 }
+
+interface FetchBackendServerOptions extends FetchBackendOptions {
+  nextServerContext: {
+    request: GetServerSidePropsContext["req"];
+    response: GetServerSidePropsContext["res"];
+  };
+}
+
+const { runWithAmplifyServerContext } = createServerRunner({
+  config: outputs,
+});
 
 async function currentSession(): Promise<AuthTokens | null> {
   if (typeof window === "undefined") {
@@ -42,6 +57,63 @@ export async function fetchBackend({
       headers["Authorization"] = `Bearer ${session.idToken}`;
     } else {
       console.warn("Skipping auth: currentSession unavailable in SSR context.");
+    }
+  }
+
+  const body = data ? JSON.stringify(data) : undefined;
+
+  try {
+    const response = await fetch(API_URL + endpoint, {
+      method,
+      headers,
+      body,
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: responseData,
+      };
+    }
+
+    return responseData;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function fetchBackendFromServer({
+  endpoint,
+  method,
+  data,
+  authenticatedCall = true,
+  nextServerContext,
+}: FetchBackendServerOptions) {
+  const headers: Record<string, string> = {};
+
+  if (method === "POST" || method === "PUT") {
+    headers["Accept"] = "application/json";
+    headers["Content-Type"] = "application/json";
+  }
+
+  if (authenticatedCall) {
+    const session = await runWithAmplifyServerContext({
+      nextServerContext,
+      operation: async (contextSpec) => {
+        return await fetchSessionFromServer(contextSpec);
+      },
+    });
+
+    const idToken = session?.tokens?.idToken?.toString();
+
+    if (idToken) {
+      headers["Authorization"] = `Bearer ${idToken}`;
+    } else {
+      if (authenticatedCall) {
+        throw new Error("Authentication required but no valid session found");
+      }
     }
   }
 
