@@ -125,7 +125,7 @@ export default function Page({ events }: EventProps) {
         {!signedIn && (
           <GuestBanner message="To keep your saved events or view your registered events you need to be signed in." />
         )}
-        <div className="mx-auto pt-8 md:px-20 px-5 flex flex-col">
+        <div className="flex flex-col">
           <PageHeader
             title="Event Dashboard"
             subtitle="Check out our latest & upcoming events!"

@@ -49,7 +49,7 @@ export default function ProfilePage({
       : "Guest";
 
   return (
-    <div className="flex flex-col items-center justify-center w-full gap-4">
+    <div className="h-full flex flex-col w-full gap-4 border">
       <HeaderCard
         fname={profileData.fname}
         lname={profileData.lname}
