@@ -129,7 +129,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   return (
     <>
       <AnimatePresence mode="popLayout">
-        <Link href={`/event/${event.id}/${event.year}`}>
+        <Link href={`/event/${event.id}/${event.year}/register`}>
           <motion.div
             key={`${event.id + event.year + event.createdAt}`}
             layout
