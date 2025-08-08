@@ -17,16 +17,17 @@ export function useRedirect() {
           !!session.tokens?.accessToken && !!session.tokens?.idToken;
 
         if (!isAuthenticated && pathname === "/") {
-          router.replace("/become-a-member");
+          router.replace("/login");
         }
 
         if (isAuthenticated && pathname === "/become-a-member") {
           router.replace("/");
         }
+
         setLoading(false);
       } catch (err) {
         if (pathname === "/") {
-          router.replace("/become-a-member");
+          router.replace("/login");
         }
       }
     }

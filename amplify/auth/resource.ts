@@ -17,10 +17,10 @@ export const auth = defineAuth({
         },
       },
       callbackUrls: [
-        "http://localhost:3000/login",
-        "https://app.ubcbiztech.com/login",
+        "http://localhost:3000/",
+        "https://app.ubcbiztech.com/",
       ],
-      logoutUrls: ["http://localhost:3000/", "https://app.ubcbiztech.com/"],
+      logoutUrls: ["http://localhost:3000/login", "https://app.ubcbiztech.com/login"],
     },
   },
 });
