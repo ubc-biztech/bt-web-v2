@@ -2,6 +2,7 @@ import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 import Navbar from "@/components/NavBar/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import { Urbanist } from "next/font/google";
+import ConnectionManager from "@/components/Connections/ConnectionManager";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ export default function Layout({ children }: any) {
 
       <Navbar />
       <Toaster />
+      <ConnectionManager /> 
     </div>
   );
 }
