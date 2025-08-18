@@ -253,7 +253,8 @@ export const EditProfilePage = ({
               />
             ) : (
               <span className="text-3xl font-medium text-biztech-navy">
-                {`${fname?.[0] || ""}${lname?.[0] || ""}`.toUpperCase()}
+                {fname[0].toUpperCase()}
+                {lname[0].toUpperCase()}
               </span>
             )}
           </div>
