@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Share,
@@ -22,11 +22,13 @@ import {
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
 import { fetchBackend } from "@/lib/db";
-import { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { redirect, useRouter as useNavRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { FormTextarea } from "../Events/FormComponents/FormTextarea";
+import { EditProfileForm } from "./EditProfileForm";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -47,7 +49,7 @@ interface ProfileUpdateForm {
   viewableMap: {
     [key: string]: boolean;
   };
-  hobby1?: string;  
+  hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
   funQuestion2?: string;
@@ -58,13 +60,24 @@ interface ProfileUpdateForm {
   [key: string]: unknown;
 }
 
-export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
+export const EditProfilePage = ({
+  profileData,
+  error,
+}: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const navRouter = useNavRouter();
+
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const {
     register,
@@ -85,6 +98,7 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
       additionalLink: profileData?.additionalLink || "",
       description: profileData?.description || "",
     },
+    shouldUnregister: false,
   });
 
   let route = router.asPath;
@@ -129,14 +143,12 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
   const questions = [funQuestion1, funQuestion2];
 
   const onSubmit: SubmitHandler<ProfileUpdateForm> = async (data) => {
-
-    console.log('onSubmit')
+    console.log("Submitting form...");
 
     setIsLoading(true);
 
     try {
-
-    console.log('updating...')
+      console.log("Attemping to update...");
 
       const response = await fetchBackend({
         endpoint: "/profiles/user/",
@@ -152,7 +164,6 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
         setIsEditing(false);
       }
     } catch (error) {
-        console.log('error...')
       console.error("Error updating profile:", error);
       // Handle error (show toast, etc.)
     } finally {
@@ -165,7 +176,7 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
     setIsEditing(false);
   };
 
-  const UserExternalLinks = () => (
+  const UserExternalLinks = React.memo(() => (
     <div className="grid grid-cols-1 gap-4">
       {linkedIn && (
         <LinkButton linkIcon={ExternalLink} label="LinkedIn" url={linkedIn} />
@@ -178,55 +189,54 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
         />
       )}
     </div>
-  );
+  ));
 
-  const EditableField = ({
-    fieldName,
-    registerName,
-    placeholder,
-    type = "text",
-  }: {
-    fieldName: string;
-    registerName: ProfileFormFieldNames;
-    placeholder: string;
-    type?: string;
-  }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-medium text-pale-blue">{fieldName}</label>
-      {type === "textarea" ? (
-        <textarea
-          {...register(registerName)}
-          placeholder={placeholder}
-          className="w-full p-2 rounded-md bg-biztech-navy border border-border-blue text-white placeholder-pale-blue resize-none"
-          rows={3}
-        />
-      ) : (
+  const VisibilityToggle = React.memo(
+    ({ fieldKey, label }: { fieldKey: string; label: string }) => (
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-pale-blue">{label}</span>
         <input
-          {...register(registerName)}
-          type={type}
-          placeholder={placeholder}
-          className="w-full p-2 rounded-md bg-biztech-navy border border-border-blue text-white placeholder-pale-blue"
+          type="checkbox"
+          {...register(`viewableMap.${fieldKey}`)}
+          className="rounded"
         />
-      )}
-    </div>
+      </div>
+    ),
   );
 
-  const VisibilityToggle = ({
-    fieldKey,
-    label,
-  }: {
-    fieldKey: string;
-    label: string;
-  }) => (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-pale-blue">{label}</span>
-      <input
-        type="checkbox"
-        {...register(`viewableMap.${fieldKey}`)}
-        className="rounded"
-      />
-    </div>
+  const EditableField = React.memo(
+    ({
+      fieldName,
+      registerName,
+      placeholder,
+      type = "text",
+    }: {
+      fieldName: string;
+      registerName: ProfileFormFieldNames;
+      placeholder: string;
+      type?: string;
+    }) => (
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-pale-blue">
+          {fieldName}
+        </label>
+        {type === "textarea" ? (
+          <FormTextarea name="description" label="Description*" />
+        ) : (
+          <input
+            {...register(registerName)}
+            type={type}
+            placeholder={placeholder}
+            className="w-full p-2 rounded-md bg-biztech-navy border border-border-blue text-white placeholder-signup-input-border"
+          />
+        )}
+      </div>
+    ),
   );
+
+  UserExternalLinks.displayName = "UserExternalLinks";
+  VisibilityToggle.displayName = "VisibilityToggle";
+  EditableField.displayName = "EditableField";
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
@@ -264,113 +274,7 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
         {isEditing ? (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Edit Form */}
-            <GenericCardNFC title="Edit Profile" isCollapsible={false}>
-              <div className="space-y-4">
-                <EditableField
-                  fieldName="Description"
-                  registerName="description"
-                  placeholder="Tell us about yourself..."
-                  type="textarea"
-                />
-
-                <EditableField
-                  fieldName="Hobby 1"
-                  registerName="hobby1"
-                  placeholder="Your first hobby"
-                />
-
-                <EditableField
-                  fieldName="Hobby 2"
-                  registerName="hobby2"
-                  placeholder="Your second hobby"
-                />
-
-                <EditableField
-                  fieldName="Fun Question 1"
-                  registerName="funQuestion1"
-                  placeholder="Share something fun about yourself"
-                />
-
-                <EditableField
-                  fieldName="Fun Question 2"
-                  registerName="funQuestion2"
-                  placeholder="Another fun fact"
-                />
-
-                <EditableField
-                  fieldName="LinkedIn URL"
-                  registerName="linkedIn"
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  type="url"
-                />
-
-                <EditableField
-                  fieldName="Additional Link"
-                  registerName="additionalLink"
-                  placeholder="https://yourwebsite.com"
-                  type="url"
-                />
-
-                <EditableField
-                  fieldName="Profile Picture URL"
-                  registerName="profilePictureURL"
-                  placeholder="https://example.com/your-photo.jpg"
-                  type="url"
-                />
-              </div>
-            </GenericCardNFC>
-
-            {/* Visibility Settings */}
-            <GenericCardNFC title="Privacy Settings" isCollapsible={false}>
-              <div className="space-y-3">
-                <p className="text-sm text-pale-blue mb-4">
-                  Choose what information is visible on your profile:
-                </p>
-                <VisibilityToggle fieldKey="description" label="Description" />
-                <VisibilityToggle fieldKey="hobby1" label="Hobby 1" />
-                <VisibilityToggle fieldKey="hobby2" label="Hobby 2" />
-                <VisibilityToggle
-                  fieldKey="funQuestion1"
-                  label="Fun Question 1"
-                />
-                <VisibilityToggle
-                  fieldKey="funQuestion2"
-                  label="Fun Question 2"
-                />
-                <VisibilityToggle fieldKey="linkedIn" label="LinkedIn" />
-                <VisibilityToggle
-                  fieldKey="additionalLink"
-                  label="Additional Link"
-                />
-                <VisibilityToggle
-                  fieldKey="profilePictureURL"
-                  label="Profile Picture"
-                />
-              </div>
-            </GenericCardNFC>
-
-            {/* Save/Cancel Buttons */}
-            <div className="flex gap-4 justify-end">
-              <Button
-                type="button"
-                onClick={handleCancelEdit}
-                disabled={isLoading}
-                className="bg-white text-biztech-navy hover:bg-white/80"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isLoading || !isDirty}
-                className="flex items-center gap-2 bg-biztech-green text-biztech-navy hover:bg-[#40ba1e]"
-              >
-                <Save className="w-4 h-4" />
-                {isLoading ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-          </form>
+          <EditProfileForm profileData={profileData} />
         ) : (
           <>
             {/* Display Mode - Original Profile View */}
