@@ -8,23 +8,22 @@ interface UserQuestionResponse {
   answer: string;
 }
 
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  school: string;
-  major: string;
-  faculty: string;
+interface BiztechProfile {
+  profileType: 'EXEC' | 'ATTENDEE';
+  fname: string;
+  lname: string;
+  pronouns: string;
   year: string;
-  hobbies: string[];
-  bio: string;
-  links: {
-    website: string;
-    linkedin: string;
-  };
-  questions: {
-    one: UserQuestionResponse;
-    two: UserQuestionResponse;
-  };
+  major: string;
+  viewableMap: Record<string, boolean>;
+  hobby1?: string;
+  hobby2?: string;
+  funQuestion1?: string;
+  funQuestion2?: string;
+  linkedIn?: string;
+  profilePictureURL?: string;
+  additionalLink?: string;
+  description?: string;
 }
 
 const HobbyTag = ({ hobby }: { hobby: string }) => (
@@ -111,5 +110,5 @@ const LinkButton = ({
   );
 };
 
-export type { UserQuestionResponse, UserProfile };
+export type { UserQuestionResponse, BiztechProfile };
 export { HobbyTag, IconButton, LinkButton, DisplayUserField };

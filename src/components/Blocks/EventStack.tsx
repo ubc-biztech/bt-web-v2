@@ -28,6 +28,16 @@ export default function EventStack({
   const cardHeightPercent = cardWidthPercent / aspectRatio;
   const totalVerticalOffset = (cardsToShow - 1) * actualVerticalSpacing;
 
+  if (events.length === 0) {
+    return (
+      <GenericCard title="Past Events Attended">
+        <div className="text-center h-full place-content-center py-8 text-pale-blue">
+          No events attended yet.
+        </div>
+      </GenericCard>
+    );
+  }
+
   return (
     <GenericCard
       title="Past Events Attended"

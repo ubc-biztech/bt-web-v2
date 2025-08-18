@@ -49,7 +49,7 @@ export default function ProfilePage({
       : "Guest";
 
   return (
-    <div className="h-full flex flex-col w-full gap-4 border">
+    <div className="h-full flex flex-col w-full gap-4">
       <HeaderCard
         fname={profileData.fname}
         lname={profileData.lname}
@@ -57,7 +57,7 @@ export default function ProfilePage({
       />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
         <AttributesCard profileData={profileData} userRole={userRole} />
-        <EventStack events={events} />
+        <EventStack events={[]} />
       </div>
     </div>
   );

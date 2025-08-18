@@ -24,10 +24,10 @@ export default function HeaderCard({fname, lname, userRole}: {fname?: string, ln
             <h5 className="text-pale-blue">{userRole}</h5>
           </div>
         </div>
-        <Link href="/profile/nfc">
+        <Link href="/profile/edit">
           <Button className="justify-self-end bg-signup-input-border">
             {" "}
-            View NFC Profile{" "}
+            View your NFC Profile{" "}
           </Button>
         </Link>
       </GenericCard>
