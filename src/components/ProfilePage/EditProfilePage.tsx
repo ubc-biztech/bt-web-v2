@@ -29,6 +29,7 @@ import { redirect, useRouter as useNavRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { FormTextarea } from "../Events/FormComponents/FormTextarea";
 import { EditProfileForm } from "./EditProfileForm";
+import Image from "next/image";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -242,8 +243,17 @@ export const EditProfilePage = ({
     <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
-          <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center">
-            <span className="text-3xl font-medium text-biztech-navy">FL</span>
+          <div className="w-32 h-32 bg-events-baby-blue relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
+            {profileData.profilePictureURL ? (
+              <Image
+                src={profileData.profilePictureURL}
+                alt="Profile Picture"
+                fill={true}
+                objectFit="cover"
+              />
+            ) : (
+              <span className="text-3xl font-medium text-biztech-navy">{`${fname[0].toUpperCase()}${lname[0].toUpperCase()}`}</span>
+            )}
           </div>
           <h1 className="text-center text-xl font-semibold mb-2">
             {fname} {lname}
