@@ -8,6 +8,7 @@ import {
 } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
+import { User } from "@/types";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -30,24 +31,23 @@ const Login: React.FC = () => {
     const checkUserProfile = async () => {
       try {
         const currentUser = await fetchUserAttributes();
-        if (currentUser) {
-          const email = currentUser.email;
-          try {
-            const userProfile = await fetchBackend({
-              endpoint: `/users/${email}`,
-              method: "GET",
-            });
 
-            if (userProfile) {
-              router.push("/");
-            }
-          } catch (err: any) {
-            if (err.status === 404) {
-              router.push("/membership");
-            } else {
-              console.error("Error fetching user profile:", err);
-            }
+        if (!currentUser) return;
+
+        const email = currentUser.email;
+        try {
+          const userProfile: User = await fetchBackend({
+            endpoint: `/users/${email}`,
+            method: "GET",
+          });
+
+          if (userProfile.isMember) {
+            router.push("/");
+          } else {
+            router.push("/membership");
           }
+        } catch (err: any) {
+          console.error("Error fetching user profile:", err);
         }
       } catch (error) {
         console.log("User not authenticated or an error occurred:", error);
@@ -109,18 +109,15 @@ const Login: React.FC = () => {
             method: "GET",
           });
 
-          if (userProfile) {
+          if (userProfile.isMember) {
             // User is a member, redirect to home page
+            console.log("User profile not found, redirecting to membership.");
             router.push("/");
+          } else {
+            router.push("/membership");
           }
         } catch (err: any) {
-          if (err.status === 404) {
-            // User is signed in but does not have a profile, redirect to membership
-            console.log("User profile not found, redirecting to membership.");
-            router.push("/membership");
-          } else {
-            console.error("Error fetching user profile:", err);
-          }
+          console.error("Error fetching user profile:", err);
         }
       } catch (error: any) {
         console.error("Error signing in", error);
