@@ -51,18 +51,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   try {
     const nextServerContext = { request: req, response: res };
 
-    const userAttributes = await runWithAmplifyServerContext({
-      nextServerContext,
-      operation: (contextSpec) => fetchUserAttributes(contextSpec),
-    });
-
-    const email = userAttributes.email;
-    if (!email) {
-      throw new Error("No email found");
-    }
-
     const profileData = await fetchBackendFromServer({
-      endpoint: `/users/${email}`,
+      endpoint: `/users/self`,
       method: "GET",
       authenticatedCall: true,
       nextServerContext,

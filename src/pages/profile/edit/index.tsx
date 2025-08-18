@@ -17,16 +17,6 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   try {
-    const userAttributes = await runWithAmplifyServerContext({
-      nextServerContext: { request: req, response: res },
-      operation: (contextSpec) => fetchUserAttributes(contextSpec),
-    });
-
-    const email = userAttributes.email;
-    if (!email) {
-      throw new Error("No email found");
-    }
-
     const nextServerContext = {
       request: req,
       response: res,
