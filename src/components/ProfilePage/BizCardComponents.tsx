@@ -9,7 +9,7 @@ interface UserQuestionResponse {
 }
 
 interface BiztechProfile {
-  profileType: 'EXEC' | 'ATTENDEE';
+  profileType: "EXEC" | "ATTENDEE";
   fname: string;
   lname: string;
   pronouns: string;

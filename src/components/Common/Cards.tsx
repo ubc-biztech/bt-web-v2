@@ -37,7 +37,12 @@ function GenericCard({
   className?: string;
 }) {
   return (
-    <div className={cn(className || 'flex flex-col gap-1', "bg-dark-slate/40 rounded-lg p-6 shadow-[inset_0_0_40px_rgba(255,255,255,0.05)] border-profile-separator-bg border-[1px] text-white")}>
+    <div
+      className={cn(
+        className || "flex flex-col gap-1",
+        "bg-dark-slate/40 rounded-lg p-6 shadow-[inset_0_0_40px_rgba(255,255,255,0.05)] border-profile-separator-bg border-[1px] text-white",
+      )}
+    >
       {title && (
         <>
           <h2 className="text-pale-blue text-md font-medium">{title}</h2>

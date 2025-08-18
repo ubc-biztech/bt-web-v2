@@ -1,6 +1,4 @@
-import {
-  BiztechProfile,
-} from "@/components/ProfilePage/BizCardComponents";
+import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 import { GetServerSideProps } from "next";
 import { runWithAmplifyServerContext } from "@/util/amplify-utils";
 import { fetchUserAttributes } from "@aws-amplify/auth/server";
@@ -14,10 +12,7 @@ interface NFCProfilePageProps {
 }
 
 const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
-  
-  return (
-    <EditProfilePage profileData={profileData}/>
-  )
+  return <EditProfilePage profileData={profileData} />;
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
