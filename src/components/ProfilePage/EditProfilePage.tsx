@@ -252,7 +252,9 @@ export const EditProfilePage = ({
                 objectFit="cover"
               />
             ) : (
-              <span className="text-3xl font-medium text-biztech-navy">{`${fname[0].toUpperCase()}${lname[0].toUpperCase()}`}</span>
+              <span className="text-3xl font-medium text-biztech-navy">
+                {`${fname?.[0] || ""}${lname?.[0] || ""}`.toUpperCase()}
+              </span>
             )}
           </div>
           <h1 className="text-center text-xl font-semibold mb-2">
