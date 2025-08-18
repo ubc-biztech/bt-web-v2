@@ -32,7 +32,7 @@ export const profileFormSchema = z.object({
     z.string(),
     z.boolean({
       required_error: "Viewable map values must be boolean",
-    })
+    }),
   ),
 });
 
