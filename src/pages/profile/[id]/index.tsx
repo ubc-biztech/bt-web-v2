@@ -31,8 +31,6 @@ interface NFCProfilePageProps {
 }
 
 const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
-
-
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const router = useRouter();
@@ -50,9 +48,14 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
     return (
       <div className="flex flex-col items-center gap-4 w-full text-pale-blue text-lg">
         Oops! No profile found.
-        <IconButton label="Return to home" onClick={() => navRouter.push('/')} className="w-fit" icon={Home}/>
+        <IconButton
+          label="Return to home"
+          onClick={() => navRouter.push("/")}
+          className="w-fit"
+          icon={Home}
+        />
       </div>
-    )
+    );
   }
 
   const {

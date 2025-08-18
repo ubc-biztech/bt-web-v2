@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Share,
@@ -47,7 +47,7 @@ interface ProfileUpdateForm {
   viewableMap: {
     [key: string]: boolean;
   };
-  hobby1?: string;  
+  hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
   funQuestion2?: string;
@@ -58,7 +58,10 @@ interface ProfileUpdateForm {
   [key: string]: unknown;
 }
 
-export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
+export const EditProfilePage = ({
+  profileData,
+  error,
+}: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -129,14 +132,12 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
   const questions = [funQuestion1, funQuestion2];
 
   const onSubmit: SubmitHandler<ProfileUpdateForm> = async (data) => {
-
-    console.log('onSubmit')
+    console.log("onSubmit");
 
     setIsLoading(true);
 
     try {
-
-    console.log('updating...')
+      console.log("updating...");
 
       const response = await fetchBackend({
         endpoint: "/profiles/user/",
@@ -152,7 +153,7 @@ export const EditProfilePage = ({ profileData, error }: NFCProfilePageProps) => 
         setIsEditing(false);
       }
     } catch (error) {
-        console.log('error...')
+      console.log("error...");
       console.error("Error updating profile:", error);
       // Handle error (show toast, etc.)
     } finally {

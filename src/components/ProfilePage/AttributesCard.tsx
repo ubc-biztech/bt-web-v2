@@ -11,8 +11,6 @@ import {
   LucideIcon,
 } from "lucide-react";
 
-
-
 interface UserAttributeFieldProps {
   icon: LucideIcon;
   fieldName: string;
@@ -35,60 +33,63 @@ const UserAttributeField = ({
   );
 };
 
-export default function AttributesCard({profileData, userRole}: {profileData: User, userRole: string}) {
+export default function AttributesCard({
+  profileData,
+  userRole,
+}: {
+  profileData: User;
+  userRole: string;
+}) {
+  const userAttributeFields: UserAttributeFieldProps[] = [
+    {
+      icon: Settings,
+      fieldName: "Membership Status",
+      value: userRole,
+    },
+    {
+      icon: Mail,
+      fieldName: "Email",
+      value: profileData.id,
+    },
+    {
+      icon: GraduationCap,
+      fieldName: "School",
+      value: profileData.education,
+    },
+    {
+      icon: Calendar,
+      fieldName: "Year",
+      value: profileData.year,
+    },
+    {
+      icon: Building2,
+      fieldName: "Faculty",
+      value: profileData.faculty,
+    },
+    {
+      icon: BookOpen,
+      fieldName: "Major",
+      value: profileData.major,
+    },
+    {
+      icon: Heart,
+      fieldName: "Dietary Restrictions",
+      value: profileData.diet,
+    },
+  ];
 
-    
-
-    const userAttributeFields: UserAttributeFieldProps[] = [
-        {
-          icon: Settings,
-          fieldName: "Membership Status",
-          value: userRole,
-        },
-        {
-          icon: Mail,
-          fieldName: "Email",
-          value: profileData.id,
-        },
-        {
-          icon: GraduationCap,
-          fieldName: "School",
-          value: profileData.education,
-        },
-        {
-          icon: Calendar,
-          fieldName: "Year",
-          value: profileData.year,
-        },
-        {
-          icon: Building2,
-          fieldName: "Faculty",
-          value: profileData.faculty,
-        },
-        {
-          icon: BookOpen,
-          fieldName: "Major",
-          value: profileData.major,
-        },
-        {
-          icon: Heart,
-          fieldName: "Dietary Restrictions",
-          value: profileData.diet,
-        },
-      ];
-
-    return (
-                <GenericCard title="Personal Information" className="w-full">
-          <div className="flex flex-col gap-6">
-            {userAttributeFields.map(({ icon, fieldName, value }, index) => (
-              <UserAttributeField
-                key={index}
-                icon={icon}
-                fieldName={fieldName}
-                value={value}
-              />
-            ))}
-          </div>
-        </GenericCard>
-    )
+  return (
+    <GenericCard title="Personal Information" className="w-full">
+      <div className="flex flex-col gap-6">
+        {userAttributeFields.map(({ icon, fieldName, value }, index) => (
+          <UserAttributeField
+            key={index}
+            icon={icon}
+            fieldName={fieldName}
+            value={value}
+          />
+        ))}
+      </div>
+    </GenericCard>
+  );
 }
