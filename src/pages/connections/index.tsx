@@ -59,14 +59,14 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
             <div className="mb-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+                  <Search className="h-5 w-5 text-desat-navy" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search by user"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-700 border-2 border-blue-500 border-solid rounded-lg text-desat-navy placeholder-light-grey focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-blue-600"
                 />
               </div>
             </div>
@@ -144,8 +144,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       method: "GET",
       nextServerContext,
     });
-
-    console.log(response);
 
     return {
       props: {
