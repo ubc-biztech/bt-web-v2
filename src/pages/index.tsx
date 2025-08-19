@@ -115,7 +115,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const nextServerContext = { request: context.req, response: context.res };
 
   try {
-    const profile = await fetchBackendFromServer({
+    const profile: User = await fetchBackendFromServer({
       endpoint: `/users/self`,
       method: "GET",
       nextServerContext,
@@ -142,6 +142,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         toDate(event.startDate) > toDate(new Date(2024, 9, 1)),
     );
     const highlightedEvent = getHighlightedEvent(allEvents);
+
+    if (!profile.isMember) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    }
 
     return {
       props: {

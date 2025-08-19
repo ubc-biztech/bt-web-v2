@@ -132,9 +132,9 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
             },
           }),
           fetchBackend({
-            endpoint: "/users",
-            method: "POST",
-            data: userBody,
+            endpoint: isUser ? `/users/${userBody.email}` : "/users",
+            method: isUser ? "PATCH" : "POST",
+            data: { ...userBody, admin: undefined },
           }),
         ]);
 
