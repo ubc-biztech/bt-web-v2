@@ -5,7 +5,7 @@ import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
 import * as Yup from "yup";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import outputs from "../../amplify_outputs.json";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import {
   FormInput,
   FormRadio,
@@ -13,6 +13,7 @@ import {
   FormSelect,
 } from "../components/SignUpForm/FormInput";
 import Link from "next/link";
+import { GetServerSideProps } from "next";
 
 interface MembershipFormValues {
   email: string;
@@ -30,9 +31,13 @@ interface MembershipFormValues {
   topics: string[];
 }
 
+interface MembershipProps {
+  isUser: boolean;
+}
+
 Amplify.configure(outputs);
 
-const Membership = () => {
+const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -142,7 +147,7 @@ const Membership = () => {
         const paymentBody = {
           paymentName: "BizTech Membership",
           paymentImages: ["https://imgur.com/TRiZYtG.png"],
-          paymentType: "OAuthMember",
+          paymentType: isUser ? "Member" : "OAuthMember",
           success_url: `${
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
@@ -466,6 +471,39 @@ const Membership = () => {
       </div>
     </FormProvider>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const nextServerContext = { request: req, response: res };
+
+  try {
+    const userProfile = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext,
+    });
+
+    if (userProfile?.isMember) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
+    return {
+      props: {
+        isUser: !!userProfile,
+      },
+    };
+  } catch (error) {
+    return {
+      props: {
+        isUser: false,
+      },
+    };
+  }
 };
 
 export default Membership;

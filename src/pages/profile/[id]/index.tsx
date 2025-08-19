@@ -6,6 +6,7 @@ import {
   IdCardLanyard,
   GraduationCap,
   Home,
+  CheckCircle,
 } from "lucide-react";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
 import {
@@ -17,22 +18,45 @@ import {
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
 import { GetServerSideProps } from "next";
-import { fetchBackend } from "@/lib/db";
-import { useState } from "react";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useRouter as useNavRouter } from "next/navigation";
 import Image from "next/image";
+import ConnectionModal from "@/components/Connections/ConnectionModal/ConnectionModal";
+import { ConnectedButton } from "@/components/ui/connected-button";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
+  profileID: string;
+  isConnected: boolean;
   error?: string;
 }
 
-const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
+const ProfilePage = ({
+  profileData,
+  profileID,
+  isConnected,
+  error,
+}: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
   const router = useRouter();
   const navRouter = useNavRouter();
+
+  const showScanModal = router.query.scan === "true";
+  const handleCloseModal = () => {
+    const currentQuery = { ...router.query };
+    delete currentQuery.scan;
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: currentQuery,
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
 
   let route = router.asPath;
   let domain =
@@ -63,7 +87,6 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
     pronouns,
     year,
     major,
-    viewableMap,
     hobby1,
     hobby2,
     funQuestion1,
@@ -96,9 +119,9 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
           <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-            {profileData.profilePictureURL ? (
+            {profilePictureURL ? (
               <Image
-                src={profileData.profilePictureURL}
+                src={profilePictureURL}
                 alt="Profile Picture"
                 fill={true}
                 className="object-cover"
@@ -130,6 +153,16 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
       </div>
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
+        {/* CONNECTED Button - only show if connected */}
+        {isConnected && (
+          <div className="flex justify-center">
+            <ConnectedButton className="mx-auto mb-4 flex items-center">
+              <CheckCircle />
+              <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+            </ConnectedButton>
+          </div>
+        )}
+
         {/* Member Profile Section */}
         <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
           <div className="space-y-4">
@@ -197,6 +230,13 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
         setIsOpen={setDrawerOpen}
         url={fullURL}
       />
+
+      <ConnectionModal
+        profileData={profileData}
+        profileID={profileID}
+        isVisible={showScanModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
@@ -209,15 +249,29 @@ export const getServerSideProps: GetServerSideProps = async ({
   const humanId = params?.id as string;
 
   try {
-    const profileData = await fetchBackend({
-      endpoint: `/profiles/profile/${humanId}`,
-      method: "GET",
-      authenticatedCall: false,
-    });
+    const nextServerContext = {
+      request: req,
+      response: res,
+    };
+
+    const [profileData, connCheck] = await Promise.all([
+      fetchBackend({
+        endpoint: `/profiles/profile/${humanId}`,
+        method: "GET",
+        authenticatedCall: false,
+      }),
+      fetchBackendFromServer({
+        endpoint: `/interactions/journal/${humanId}`,
+        method: "GET",
+        nextServerContext,
+      }),
+    ]);
 
     return {
       props: {
         profileData,
+        isConnected: connCheck.connected,
+        profileID: humanId,
       },
     };
   } catch (error) {
@@ -225,6 +279,8 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         profileData: null,
+        isConnected: false,
+        profileID: humanId,
       },
     };
   }
