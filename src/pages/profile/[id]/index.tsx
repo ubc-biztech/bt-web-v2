@@ -18,7 +18,7 @@ import {
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
 import { GetServerSideProps } from "next";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useRouter as useNavRouter } from "next/navigation";
@@ -29,17 +29,17 @@ import { ConnectedButton } from "@/components/ui/connected-button";
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
   profileID: string;
+  isConnected: boolean;
   error?: string;
 }
 
 const ProfilePage = ({
   profileData,
   profileID,
+  isConnected,
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoadingConnection, setIsLoadingConnection] = useState(true);
 
   const router = useRouter();
   const navRouter = useNavRouter();
@@ -57,33 +57,6 @@ const ProfilePage = ({
       { shallow: true },
     );
   };
-
-  // Check connection status when component mounts
-  useEffect(() => {
-    const checkConnection = async () => {
-      try {
-        const response = await fetchBackend({
-          endpoint: `/interactions/journal/${profileID}`,
-          method: "GET",
-          authenticatedCall: true,
-        });
-        setIsConnected(response.connected || false);
-      } catch (error: any) {
-        // Handle specific error cases
-        if (error.status === 400) {
-          // User checking their own profile
-          setIsConnected(false);
-        } else {
-          // Other errors (not a member, profile doesn't exist, etc.)
-          setIsConnected(false);
-        }
-      } finally {
-        setIsLoadingConnection(false);
-      }
-    };
-
-    checkConnection();
-  }, [profileID]);
 
   let route = router.asPath;
   let domain =
@@ -181,7 +154,7 @@ const ProfilePage = ({
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
         {/* CONNECTED Button - only show if connected */}
-        {!isLoadingConnection && isConnected && (
+        {isConnected && (
           <div className="flex justify-center">
             <ConnectedButton className="mx-auto mb-4 flex items-center">
               <CheckCircle />
@@ -276,15 +249,28 @@ export const getServerSideProps: GetServerSideProps = async ({
   const humanId = params?.id as string;
 
   try {
-    const profileData = await fetchBackend({
-      endpoint: `/profiles/profile/${humanId}`,
-      method: "GET",
-      authenticatedCall: false,
-    });
+    const nextServerContext = {
+      request: req,
+      response: res,
+    };
+
+    const [profileData, connCheck] = await Promise.all([
+      fetchBackend({
+        endpoint: `/profiles/profile/${humanId}`,
+        method: "GET",
+        authenticatedCall: false,
+      }),
+      fetchBackendFromServer({
+        endpoint: `/interactions/journal/${humanId}`,
+        method: "GET",
+        nextServerContext,
+      }),
+    ]);
 
     return {
       props: {
         profileData,
+        isConnected: connCheck.connected,
         profileID: humanId,
       },
     };
@@ -293,6 +279,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         profileData: null,
+        isConnected: false,
         profileID: humanId,
       },
     };
