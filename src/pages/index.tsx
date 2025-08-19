@@ -33,10 +33,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 }) => {
   const router = useRouter();
 
-  if (!profile) {
-    router.push("/login");
-  }
-
   function getEventState(event: BiztechEvent | null) {
     return event && toDate(event.startDate) < toDate(new Date())
       ? "Past"
@@ -165,13 +161,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    // Optionally handle other errors
     return {
-      props: {
-        profile: null,
-        events: [],
-        registrations: [],
-        highlightedEvent: null,
+      redirect: {
+        destination: "/login",
+        permanent: false,
       },
     };
   }
