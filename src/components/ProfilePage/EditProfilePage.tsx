@@ -250,7 +250,7 @@ export const EditProfilePage = ({
                 src={profileData.profilePictureURL}
                 alt="Profile Picture"
                 fill={true}
-                objectFit="cover"
+                className="object-cover"
               />
             ) : (
               <span className="text-3xl font-medium text-biztech-navy">

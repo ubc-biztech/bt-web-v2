@@ -164,6 +164,137 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
               control={form.control}
             />
 
+            <div className="space-y-6">
+              <h4 className="font-semibold text-white">Privacy Settings</h4>
+              <div className="space-y-3">
+                <p className="text-sm text-pale-blue mb-4">
+                  Choose what information is visible on your profile:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.description"
+                    >
+                      Description
+                    </label>
+                    <input
+                      id="viewableMap.description"
+                      type="checkbox"
+                      {...form.register("viewableMap.description")}
+                      checked={!!form.watch("viewableMap.description")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.hobby1"
+                    >
+                      Hobby 1
+                    </label>
+                    <input
+                      id="viewableMap.hobby1"
+                      type="checkbox"
+                      {...form.register("viewableMap.hobby1")}
+                      checked={!!form.watch("viewableMap.hobby1")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.hobby2"
+                    >
+                      Hobby 2
+                    </label>
+                    <input
+                      id="viewableMap.hobby2"
+                      type="checkbox"
+                      {...form.register("viewableMap.hobby2")}
+                      checked={!!form.watch("viewableMap.hobby2")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.funQuestion1"
+                    >
+                      Fun Question 1
+                    </label>
+                    <input
+                      id="viewableMap.funQuestion1"
+                      type="checkbox"
+                      {...form.register("viewableMap.funQuestion1")}
+                      checked={!!form.watch("viewableMap.funQuestion1")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.funQuestion2"
+                    >
+                      Fun Question 2
+                    </label>
+                    <input
+                      id="viewableMap.funQuestion2"
+                      type="checkbox"
+                      {...form.register("viewableMap.funQuestion2")}
+                      checked={!!form.watch("viewableMap.funQuestion2")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.linkedIn"
+                    >
+                      LinkedIn
+                    </label>
+                    <input
+                      id="viewableMap.linkedIn"
+                      type="checkbox"
+                      {...form.register("viewableMap.linkedIn")}
+                      checked={!!form.watch("viewableMap.linkedIn")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.additionalLink"
+                    >
+                      Additional Link
+                    </label>
+                    <input
+                      id="viewableMap.additionalLink"
+                      type="checkbox"
+                      {...form.register("viewableMap.additionalLink")}
+                      checked={!!form.watch("viewableMap.additionalLink")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between w-[90%]">
+                    <label
+                      className="text-sm text-pale-blue"
+                      htmlFor="viewableMap.profilePictureURL"
+                    >
+                      Profile Picture
+                    </label>
+                    <input
+                      id="viewableMap.profilePictureURL"
+                      type="checkbox"
+                      {...form.register("viewableMap.profilePictureURL")}
+                      checked={!!form.watch("viewableMap.profilePictureURL")}
+                      className="ml-2 rounded"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-4">
               <Button
                 type="submit"
