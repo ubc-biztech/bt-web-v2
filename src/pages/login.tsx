@@ -6,11 +6,13 @@ import {
   fetchUserAttributes,
   resendSignUpCode,
 } from "@aws-amplify/auth";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { User } from "@/types";
+import { GetServerSideProps } from "next";
 
-const Login: React.FC = () => {
+const LoginForm: React.FC = () => {
+  // All the logic and UI from the current Login component goes here
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -23,39 +25,9 @@ const Login: React.FC = () => {
     confirmationError: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [showResend, setShowResend] = useState(false); // New state to show resend button
-  const [isResending, setIsResending] = useState(false); // New state for resend loading
+  const [showResend, setShowResend] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    const checkUserProfile = async () => {
-      try {
-        const currentUser = await fetchUserAttributes();
-
-        if (!currentUser) return;
-
-        const email = currentUser.email;
-        try {
-          const userProfile: User = await fetchBackend({
-            endpoint: `/users/${email}`,
-            method: "GET",
-          });
-
-          if (userProfile.isMember) {
-            router.push("/");
-          } else {
-            router.push("/membership");
-          }
-        } catch (err: any) {
-          console.error("Error fetching user profile:", err);
-        }
-      } catch (error) {
-        console.log("User not authenticated or an error occurred:", error);
-      }
-    };
-
-    checkUserProfile();
-  }, [router]);
 
   const validateEmail = (value: string) => {
     let error = "";
@@ -80,7 +52,6 @@ const Login: React.FC = () => {
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
     setIsLoading(true);
-
     if (emailError || passwordError) {
       setErrors({ emailError, passwordError, confirmationError: "" });
     } else {
@@ -89,9 +60,7 @@ const Login: React.FC = () => {
           username: email,
           password: password,
         });
-
         if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-          // User has not confirmed their email yet
           setShowResend(true);
           setErrors({
             emailError: "",
@@ -101,17 +70,12 @@ const Login: React.FC = () => {
           setIsLoading(false);
           return;
         }
-
-        // Now, we check if the user has a profile in the backend before redirecting
         try {
           const userProfile = await fetchBackend({
-            endpoint: `/users/${email}`,
+            endpoint: `/users/self`,
             method: "GET",
           });
-
           if (userProfile.isMember) {
-            // User is a member, redirect to home page
-            console.log("User profile not found, redirecting to membership.");
             router.push("/");
           } else {
             router.push("/membership");
@@ -140,7 +104,6 @@ const Login: React.FC = () => {
   const handleAuthErrors = (error: any) => {
     let emailError = "";
     let passwordError: React.ReactNode = "";
-
     switch (error.code) {
       case "UserNotConfirmedException":
         setShowResend(true);
@@ -156,7 +119,6 @@ const Login: React.FC = () => {
         passwordError = error.message;
         break;
     }
-
     setErrors({ emailError, passwordError, confirmationError: "" });
   };
 
@@ -330,7 +292,7 @@ const Login: React.FC = () => {
                     fill="#FBBC05"
                   />
                   <path
-                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
+                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26540 14.29L1.27539 17.385C3.25539 21.31 7.31040 24.0001 12.0004 24.0001Z"
                     fill="#34A853"
                   />
                 </svg>
@@ -359,4 +321,43 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const nextServerContext = { request: req, response: res };
+
+  try {
+    const userProfile = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext,
+    });
+
+    console.log(userProfile);
+
+    if (userProfile?.isMember) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    } else if (userProfile) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    } else {
+      return {
+        props: {},
+      };
+    }
+  } catch (error) {
+    console.error(error);
+    return {
+      props: {},
+    };
+  }
+};
+
+export default LoginForm;

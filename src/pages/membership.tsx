@@ -131,11 +131,12 @@ const Membership = () => {
             method: "POST",
             data: userBody,
           }),
-          fetchBackend({
-            endpoint: "/profiles",
-            method: "POST",
-          }),
         ]);
+
+        await fetchBackend({
+          endpoint: "/profiles",
+          method: "POST",
+        });
         router.push(`/`);
       } else {
         const paymentBody = {
