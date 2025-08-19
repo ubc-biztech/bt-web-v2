@@ -9,6 +9,7 @@ interface UserQuestionResponse {
 }
 
 interface BiztechProfile {
+  compositeID: string;
   profileType: "EXEC" | "ATTENDEE";
   fname: string;
   lname: string;

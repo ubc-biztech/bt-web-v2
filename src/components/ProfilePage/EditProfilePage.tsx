@@ -108,7 +108,8 @@ export const EditProfilePage = ({
       ? window.location.origin
       : "v2.ubcbiztech.com";
 
-  const fullURL = `${domain}/profile/`;
+  const profileId = profileData.compositeID.substring(8);
+  const fullURL = `${domain}/profile/${profileId}`;
 
   if (!profileData) {
     return (

@@ -17,13 +17,11 @@ import {
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
 import { GetServerSideProps } from "next";
-import { runWithAmplifyServerContext } from "@/util/amplify-utils";
-import { fetchUserAttributes } from "@aws-amplify/auth/server";
-import { fetchBackendFromServer } from "@/lib/db";
+import { fetchBackend } from "@/lib/db";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
-import { redirect, useRouter as useNavRouter } from "next/navigation";
+import { useRouter as useNavRouter } from "next/navigation";
+import Image from "next/image";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -97,8 +95,20 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
     <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
-          <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center">
-            <span className="text-3xl font-medium text-biztech-navy">FL</span>
+          <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+            {profileData.profilePictureURL ? (
+              <Image
+                src={profileData.profilePictureURL}
+                alt="Profile Picture"
+                fill={true}
+                className="object-cover"
+              />
+            ) : (
+              <span className="text-3xl font-medium text-biztech-navy">
+                {fname[0].toUpperCase()}
+                {lname[0].toUpperCase()}
+              </span>
+            )}
           </div>
           <h1 className="text-center text-xl font-semibold mb-2">
             {fname} {lname}
@@ -199,31 +209,11 @@ export const getServerSideProps: GetServerSideProps = async ({
   const humanId = params?.id as string;
 
   try {
-    const userAttributes = await runWithAmplifyServerContext({
-      nextServerContext: { request: req, response: res },
-      operation: (contextSpec) => fetchUserAttributes(contextSpec),
-    });
-
-    const email = userAttributes.email;
-    if (!email) {
-      throw new Error("No email found");
-    }
-
-    const nextServerContext = {
-      request: req,
-      response: res,
-    };
-
-    console.log(humanId);
-
-    const profileData = await fetchBackendFromServer({
+    const profileData = await fetchBackend({
       endpoint: `/profiles/profile/${humanId}`,
       method: "GET",
       authenticatedCall: false,
-      nextServerContext,
     });
-
-    console.log(profileData);
 
     return {
       props: {
