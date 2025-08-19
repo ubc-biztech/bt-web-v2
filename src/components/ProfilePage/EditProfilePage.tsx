@@ -245,7 +245,8 @@ export const EditProfilePage = ({
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
           <div className="w-32 h-32 bg-events-baby-blue relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
-            {profileData.profilePictureURL ? (
+            {profileData.profilePictureURL &&
+            profileData.viewableMap.profilePictureURL ? (
               <Image
                 src={profileData.profilePictureURL}
                 alt="Profile Picture"
