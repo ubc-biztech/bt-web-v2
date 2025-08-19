@@ -15,6 +15,7 @@ import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
 import { useRedirect } from "@/hooks/useRedirect";
 import { Spinner } from "@/components/ui/spinner";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 
 const fetchProfileData = async (email: string) => {
   const profileData = await fetchBackend({
@@ -102,89 +103,78 @@ const ProfilePage = () => {
   }
 
   if (loading || authLoading) {
-    return (
-      <div className="flex flex-row h-screen text-pale-blue w-full justify-center items-center">
-        <Spinner variant="circle-filled" />
-      </div>
-    );
+    return <PageLoadingState />;
   }
 
   return (
-    <main className="min-h-screen">
-      <div className="container mx-auto p-6 lg:p-10 pt-16 lg:pt-24">
-        <h3 className="text-white text-lg lg:text-xl">
-          {profile?.fname ? `Hey ${profile.fname}!` : "Hey"}
-        </h3>
-        <p className="text-pale-blue">Welcome back to BizTech</p>
-        <Divider />
+    <div className="h-full relative">
+      <h3 className="text-white text-lg lg:text-xl">
+        {profile?.fname ? `Hey ${profile.fname}!` : "Hey"}
+      </h3>
+      <p className="text-pale-blue">Welcome back to BizTech</p>
+      <Divider />
 
-        <Image
-          src={"/assets/bizbot_peeking.png"}
-          width={320}
-          height={320}
-          alt="BizBot"
-          className="absolute top-[59px] right-[60px] h-[150px] w-[auto] hidden lg:block"
-        />
-        <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6">
-          <GenericCard
-            title={
-              getEventState(highlightedEvent) === "Past"
-                ? "Our Latest Event"
-                : "Our Next Event"
-            }
-          >
-            <div className="text-pale-blue h-full flex flex-col justify-center">
-              <BizImage
-                height={480}
-                width={720}
-                alt="Event cover image"
-                src={
-                  highlightedEvent?.imageUrl || "/assets/images/not-found.png"
-                }
-                style={{ objectFit: "cover" }}
-                className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
-              />
-              {highlightedEvent ? (
-                <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
-                  <div>
-                    <h4>{highlightedEvent?.ename}</h4>
+      <Image
+        src={"/assets/bizbot_peeking.png"}
+        width={320}
+        height={320}
+        alt="BizBot"
+        className="absolute -top-[38px] right-[60px] h-[150px] w-[auto] hidden lg:block"
+      />
+      <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6">
+        <GenericCard
+          title={
+            getEventState(highlightedEvent) === "Past"
+              ? "Our Latest Event"
+              : "Our Next Event"
+          }
+        >
+          <div className="text-pale-blue h-full flex flex-col justify-center">
+            <BizImage
+              height={480}
+              width={720}
+              alt="Event cover image"
+              src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
+              style={{ objectFit: "cover" }}
+              className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
+            />
+            {highlightedEvent ? (
+              <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
+                <div>
+                  <h4>{highlightedEvent?.ename}</h4>
 
-                    <p className="text-xs text-pale-blue">
-                      {format(
-                        toDate(highlightedEvent.startDate),
-                        "LLLL d, yyyy",
-                      )}
-                    </p>
-                  </div>
-
-                  <IconButton
-                    label="View Details"
-                    icon={ArrowUpRight}
-                    iconDirection="right"
-                    onClick={() =>
-                      router.push(
-                        `/event/${highlightedEvent?.id}/${highlightedEvent.year}/register`,
-                      )
-                    }
-                    size="lg"
-                    className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
-                    disabled={getEventState(highlightedEvent) === "Past"}
-                  />
+                  <p className="text-xs text-pale-blue">
+                    {format(toDate(highlightedEvent.startDate), "LLLL d, yyyy")}
+                  </p>
                 </div>
-              ) : (
-                <div className="h-full w-full place-content-center text-center text-pale-blue">
-                  No event to show - check back soon!
-                </div>
-              )}
-            </div>
-          </GenericCard>
 
-          <GenericCard title="Events Attended">
-            <EventsAttended events={events} registrations={registrations} />
-          </GenericCard>
-        </div>
+                <IconButton
+                  label="View Details"
+                  icon={ArrowUpRight}
+                  iconDirection="right"
+                  onClick={() =>
+                    router.push(
+                      `/event/${highlightedEvent?.id}/${highlightedEvent.year}/register`,
+                    )
+                  }
+                  size="lg"
+                  className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
+                  disabled={getEventState(highlightedEvent) === "Past"}
+                />
+              </div>
+            ) : (
+              <div className="h-full w-full place-content-center text-center text-pale-blue">
+                No event to show - check back soon!
+              </div>
+            )}
+          </div>
+        </GenericCard>
+
+        <GenericCard title="Events Attended">
+          <EventsAttended events={events} registrations={registrations} />
+        </GenericCard>
       </div>
-    </main>
+    </div>
   );
 };
 
