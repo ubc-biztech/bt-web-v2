@@ -71,6 +71,7 @@ export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
           )}
           ref={ref}
           {...field}
+          {...props}
         />
       </FormControl>
       <FormMessage />
