@@ -8,8 +8,9 @@ import {
 } from "@aws-amplify/auth";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
-import { User } from "@/types";
 import { GetServerSideProps } from "next";
+import { useRedirect } from "@/hooks/useRedirect";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 
 const LoginForm: React.FC = () => {
   // All the logic and UI from the current Login component goes here
@@ -24,13 +25,15 @@ const LoginForm: React.FC = () => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkUserProfile = async () => {
+      if (!router) return;
+
       try {
         const currentUser = await fetchUserAttributes();
         if (!currentUser) {
@@ -43,12 +46,16 @@ const LoginForm: React.FC = () => {
             method: "GET",
           });
 
+          console.log(userProfile);
+
           if (userProfile.isMember) {
-            router.push("/");
+            await router.push("/");
+          } else if (!!userProfile) {
+            await router.push("/membership");
           }
         } catch (err: any) {
           if (err.status === 404) {
-            router.push("/membership");
+            await router.push("/membership");
           } else {
             console.error("Error fetching user profile:", err);
           }
@@ -56,6 +63,8 @@ const LoginForm: React.FC = () => {
       } catch (error) {
         console.log("User not authenticated or an error occurred:", error);
       }
+
+      setIsLoading(false);
     };
 
     checkUserProfile();
@@ -177,6 +186,14 @@ const LoginForm: React.FC = () => {
     }
     setIsResending(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">

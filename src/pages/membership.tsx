@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Amplify } from "aws-amplify";
-import { fetchUserAttributes } from "@aws-amplify/auth";
+import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
 import * as Yup from "yup";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import outputs from "../../amplify_outputs.json";
@@ -209,6 +209,15 @@ const Membership = () => {
                 <Link
                   href="/login"
                   className="text-sm leading-6 text-biztech-green underline"
+                  onClick={async (e) => {
+                    e.preventDefault();
+
+                    try {
+                      await signOut();
+                    } catch (error) {
+                      console.error("error signing in", error);
+                    }
+                  }}
                 >
                   Back to Login Page
                 </Link>
