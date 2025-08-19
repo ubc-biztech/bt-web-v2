@@ -17,7 +17,14 @@ export const profileFormSchema = z.object({
   hobby2: z.string().optional(),
   funQuestion1: z.string().optional(),
   funQuestion2: z.string().optional(),
-  linkedIn: z.string().url("LinkedIn URL must be a valid URL").optional(),
+  linkedIn: z
+    .string()
+    .optional()
+    .refine(
+      (val) =>
+        !val || val.trim() === "" || z.string().url().safeParse(val).success,
+      { message: "LinkedIn URL must be a valid URL" },
+    ),
   profilePictureURL: z
     .string()
     .url("Profile picture URL must be a valid URL")
@@ -41,11 +48,15 @@ interface ProfileFormSchema extends z.infer<typeof profileFormSchema> {}
 interface NFCProfilePageProps {
   profileData: Partial<ProfileFormSchema>;
   error?: string;
+  setProfileData: (data: any) => void;
+  onFinishEdit?: () => void;
 }
 
 export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
   profileData,
   error,
+  setProfileData,
+  onFinishEdit,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -81,7 +92,8 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
           title: "Success",
           description: "Profile updated successfully!",
         });
-        form.reset(data);
+        setProfileData({ ...profileData, ...data });
+        if (onFinishEdit) onFinishEdit();
       }
     } catch (error) {
       toast({

@@ -29,6 +29,38 @@ const LoginForm: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const checkUserProfile = async () => {
+      try {
+        const currentUser = await fetchUserAttributes();
+        if (!currentUser) {
+          return;
+        }
+
+        try {
+          const userProfile = await fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          });
+
+          if (userProfile.isMember) {
+            router.push("/");
+          }
+        } catch (err: any) {
+          if (err.status === 404) {
+            router.push("/membership");
+          } else {
+            console.error("Error fetching user profile:", err);
+          }
+        }
+      } catch (error) {
+        console.log("User not authenticated or an error occurred:", error);
+      }
+    };
+
+    checkUserProfile();
+  }, [router]);
+
   const validateEmail = (value: string) => {
     let error = "";
     if (!value) {
@@ -331,8 +363,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       nextServerContext,
     });
 
-    console.log(userProfile);
-
     if (userProfile?.isMember) {
       return {
         redirect: {
@@ -340,20 +370,29 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
           permanent: false,
         },
       };
-    } else if (userProfile) {
+    }
+
+    if (userProfile) {
       return {
         redirect: {
           destination: "/membership",
           permanent: false,
         },
       };
-    } else {
-      return {
-        props: {},
-      };
     }
-  } catch (error) {
-    console.error(error);
+
+    return {
+      props: {},
+    };
+  } catch (error: any) {
+    if (error.status === 404)
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+
     return {
       props: {},
     };
