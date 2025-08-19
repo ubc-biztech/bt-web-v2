@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Amplify } from "aws-amplify";
-import { fetchUserAttributes } from "@aws-amplify/auth";
+import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
 import * as Yup from "yup";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import outputs from "../../amplify_outputs.json";
@@ -52,13 +52,14 @@ const Membership = () => {
         }
       } catch (error) {
         console.error("Failed to fetch user attributes:", error);
+        router.push(`/login`);
       } finally {
         setLoading(false);
       }
     };
 
     getUserEmail();
-  }, []);
+  }, [router]);
 
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First name is required"),
@@ -103,12 +104,40 @@ const Membership = () => {
 
     try {
       if (userBody.admin) {
+        await Promise.all([
+          fetchBackend({
+            endpoint: "/members",
+            method: "POST",
+            data: {
+              email: userBody.email,
+              education: userBody.education,
+              first_name: userBody.fname,
+              last_name: userBody.lname,
+              pronouns: userBody.gender,
+              student_number: userBody.studentId,
+              faculty: userBody.faculty,
+              year: userBody.year,
+              major: userBody.major,
+              prev_member: userBody.prev_member,
+              international: userBody.international,
+              topics: topicsString,
+              heard_from: values.referral,
+              diet: userBody.diet,
+              admin: userBody.admin,
+            },
+          }),
+          fetchBackend({
+            endpoint: "/users",
+            method: "POST",
+            data: userBody,
+          }),
+        ]);
+
         await fetchBackend({
-          endpoint: "/users",
+          endpoint: "/profiles",
           method: "POST",
-          data: userBody,
         });
-        router.push(`/signup/success/UserMember/${email}`);
+        router.push(`/`);
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
@@ -180,6 +209,15 @@ const Membership = () => {
                 <Link
                   href="/login"
                   className="text-sm leading-6 text-biztech-green underline"
+                  onClick={async (e) => {
+                    e.preventDefault();
+
+                    try {
+                      await signOut();
+                    } catch (error) {
+                      console.error("error signing in", error);
+                    }
+                  }}
                 >
                   Back to Login Page
                 </Link>
@@ -419,7 +457,9 @@ const Membership = () => {
               className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400"
               disabled={isSubmitting}
             >
-              Proceed to Payment
+              {email.toLowerCase().endsWith("@ubcbiztech.com")
+                ? "Create Membership"
+                : "Proceed to Payment"}
             </button>
           </div>
         </form>

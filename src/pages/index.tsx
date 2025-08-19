@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BiztechEvent, User } from "@/types";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackendFromServer } from "@/lib/db";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Registration } from "@/types/types";
 import Divider from "@/components/Common/Divider";
@@ -16,94 +16,27 @@ import { useRouter } from "next/navigation";
 import { useRedirect } from "@/hooks/useRedirect";
 import { Spinner } from "@/components/ui/spinner";
 import PageLoadingState from "@/components/Common/PageLoadingState";
+import { GetServerSideProps } from "next";
 
-const fetchProfileData = async (email: string) => {
-  const profileData = await fetchBackend({
-    endpoint: `/users/${email}`,
-    method: "GET",
-    authenticatedCall: true,
-  });
+interface ProfilePageProps {
+  profile: User | null;
+  events: BiztechEvent[];
+  registrations: Registration[];
+  highlightedEvent: BiztechEvent | null;
+}
 
-  return profileData;
-};
-
-const fetchAllEvents = async () => {
-  const events = await fetchBackend({
-    endpoint: `/events`,
-    method: "GET",
-    authenticatedCall: false,
-  });
-
-  const allEvents = events.filter(
-    (event: BiztechEvent) =>
-      toDate(event.startDate) > toDate(new Date(2024, 9, 1)),
-  );
-
-  return allEvents;
-};
-
-const fetchAttendedEvents = async (email: string) => {
-  const userRegistrations = await fetchBackend({
-    endpoint: `/registrations/?email=${email}`,
-    method: "GET",
-    authenticatedCall: false,
-  });
-
-  return userRegistrations;
-};
-
-const ProfilePage = () => {
-  const [loading, setIsLoading] = useState(true);
-  const [events, setEvents] = useState<BiztechEvent[]>([]);
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
-  const [highlightedEvent, setHighlightedEvent] = useState<BiztechEvent | null>(
-    null,
-  );
-  const [profile, setProfile] = useState<User | null>(null);
-
+const ProfilePage: React.FC<ProfilePageProps> = ({
+  profile,
+  events,
+  registrations,
+  highlightedEvent,
+}) => {
   const router = useRouter();
-
-  const authLoading = useRedirect();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const attributes = await fetchUserAttributes();
-
-        const email = attributes.email;
-        if (!email) {
-          throw new Error("No email found");
-        }
-
-        const [profileData, allEvents, userRegistrations] = await Promise.all([
-          fetchProfileData(email),
-          fetchAllEvents(),
-          fetchAttendedEvents(email),
-        ]);
-
-        const highlightedEventResult = getHighlightedEvent(allEvents);
-
-        setProfile(profileData);
-        setEvents(allEvents);
-        setHighlightedEvent(highlightedEventResult);
-        setRegistrations(userRegistrations.data);
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch user profile data:", err);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   function getEventState(event: BiztechEvent | null) {
     return event && toDate(event.startDate) < toDate(new Date())
       ? "Past"
       : "Upcoming";
-  }
-
-  if (loading || authLoading) {
-    return <PageLoadingState />;
   }
 
   return (
@@ -176,6 +109,65 @@ const ProfilePage = () => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const nextServerContext = { request: context.req, response: context.res };
+
+  try {
+    const profile = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext,
+    });
+
+    const events = await fetchBackendFromServer({
+      endpoint: `/events`,
+      method: "GET",
+      authenticatedCall: false,
+      nextServerContext,
+    });
+
+    // 3. Fetch registrations for this user
+    const registrationsRes = await fetchBackendFromServer({
+      endpoint: `/registrations/?email=${profile.email}`,
+      method: "GET",
+      authenticatedCall: false,
+      nextServerContext,
+    });
+
+    // 4. Filter and highlight events
+    const allEvents = events.filter(
+      (event: BiztechEvent) =>
+        toDate(event.startDate) > toDate(new Date(2024, 9, 1)),
+    );
+    const highlightedEvent = getHighlightedEvent(allEvents);
+
+    return {
+      props: {
+        profile,
+        events: allEvents,
+        registrations: registrationsRes.data,
+        highlightedEvent: highlightedEvent || null,
+      },
+    };
+  } catch (err: any) {
+    if (err.status === 404) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    }
+
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 };
 
 export default ProfilePage;

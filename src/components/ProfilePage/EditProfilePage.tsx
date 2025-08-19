@@ -62,9 +62,10 @@ interface ProfileUpdateForm {
 }
 
 export const EditProfilePage = ({
-  profileData,
+  profileData: initialProfileData,
   error,
 }: NFCProfilePageProps) => {
+  const [profileData, setProfileData] = useState(initialProfileData);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -289,7 +290,11 @@ export const EditProfilePage = ({
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
         {isEditing ? (
-          <EditProfileForm profileData={profileData} />
+          <EditProfileForm
+            profileData={profileData}
+            setProfileData={setProfileData}
+            onFinishEdit={() => setIsEditing(false)}
+          />
         ) : (
           <>
             {/* Display Mode - Original Profile View */}
@@ -304,8 +309,12 @@ export const EditProfilePage = ({
                     <div className="inline-flex flex-wrap items-center gap-2">
                       <span className="text-sm text-pale-blue">Hobbies:</span>
                       <div className="flex flex-wrap gap-2">
-                        {hobby1 && <HobbyTag hobby={hobby1} />}
-                        {hobby2 && <HobbyTag hobby={hobby2} />}
+                        {hobby1 && profileData.viewableMap.hobby1 && (
+                          <HobbyTag hobby={hobby1} />
+                        )}
+                        {hobby2 && profileData.viewableMap.hobby1 && (
+                          <HobbyTag hobby={hobby2} />
+                        )}
                       </div>
                     </div>
                     <div className="border-border-blue border-[0.5px]" />

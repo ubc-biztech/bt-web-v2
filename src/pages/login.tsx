@@ -6,10 +6,14 @@ import {
   fetchUserAttributes,
   resendSignUpCode,
 } from "@aws-amplify/auth";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
+import { GetServerSideProps } from "next";
+import { useRedirect } from "@/hooks/useRedirect";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 
-const Login: React.FC = () => {
+const LoginForm: React.FC = () => {
+  // All the logic and UI from the current Login component goes here
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -21,37 +25,46 @@ const Login: React.FC = () => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResend, setShowResend] = useState(false); // New state to show resend button
-  const [isResending, setIsResending] = useState(false); // New state for resend loading
+  const [isLoading, setIsLoading] = useState(true);
+  const [showResend, setShowResend] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkUserProfile = async () => {
+      if (!router) return;
+
       try {
         const currentUser = await fetchUserAttributes();
-        if (currentUser) {
-          const email = currentUser.email;
-          try {
-            const userProfile = await fetchBackend({
-              endpoint: `/users/${email}`,
-              method: "GET",
-            });
+        if (!currentUser) {
+          return;
+        }
 
-            if (userProfile) {
-              router.push("/");
-            }
-          } catch (err: any) {
-            if (err.status === 404) {
-              router.push("/membership");
-            } else {
-              console.error("Error fetching user profile:", err);
-            }
+        try {
+          const userProfile = await fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          });
+
+          console.log(userProfile);
+
+          if (userProfile.isMember) {
+            await router.push("/");
+          } else if (!!userProfile) {
+            await router.push("/membership");
+          }
+        } catch (err: any) {
+          if (err.status === 404) {
+            await router.push("/membership");
+          } else {
+            console.error("Error fetching user profile:", err);
           }
         }
       } catch (error) {
         console.log("User not authenticated or an error occurred:", error);
       }
+
+      setIsLoading(false);
     };
 
     checkUserProfile();
@@ -80,7 +93,6 @@ const Login: React.FC = () => {
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
     setIsLoading(true);
-
     if (emailError || passwordError) {
       setErrors({ emailError, passwordError, confirmationError: "" });
     } else {
@@ -89,9 +101,7 @@ const Login: React.FC = () => {
           username: email,
           password: password,
         });
-
         if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-          // User has not confirmed their email yet
           setShowResend(true);
           setErrors({
             emailError: "",
@@ -101,26 +111,18 @@ const Login: React.FC = () => {
           setIsLoading(false);
           return;
         }
-
-        // Now, we check if the user has a profile in the backend before redirecting
         try {
           const userProfile = await fetchBackend({
-            endpoint: `/users/${email}`,
+            endpoint: `/users/self`,
             method: "GET",
           });
-
-          if (userProfile) {
-            // User is a member, redirect to home page
+          if (userProfile.isMember) {
             router.push("/");
+          } else {
+            router.push("/membership");
           }
         } catch (err: any) {
-          if (err.status === 404) {
-            // User is signed in but does not have a profile, redirect to membership
-            console.log("User profile not found, redirecting to membership.");
-            router.push("/membership");
-          } else {
-            console.error("Error fetching user profile:", err);
-          }
+          console.error("Error fetching user profile:", err);
         }
       } catch (error: any) {
         console.error("Error signing in", error);
@@ -143,7 +145,6 @@ const Login: React.FC = () => {
   const handleAuthErrors = (error: any) => {
     let emailError = "";
     let passwordError: React.ReactNode = "";
-
     switch (error.code) {
       case "UserNotConfirmedException":
         setShowResend(true);
@@ -159,7 +160,6 @@ const Login: React.FC = () => {
         passwordError = error.message;
         break;
     }
-
     setErrors({ emailError, passwordError, confirmationError: "" });
   };
 
@@ -186,6 +186,14 @@ const Login: React.FC = () => {
     }
     setIsResending(false);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
@@ -333,7 +341,7 @@ const Login: React.FC = () => {
                     fill="#FBBC05"
                   />
                   <path
-                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.2654 14.29L1.27539 17.385C3.25539 21.31 7.3104 24.0001 12.0004 24.0001Z"
+                    d="M12.0004 24.0001C15.2404 24.0001 17.9654 22.935 19.9454 21.095L16.0804 18.095C15.0054 18.82 13.6204 19.245 12.0004 19.245C8.8704 19.245 6.21537 17.135 5.26540 14.29L1.27539 17.385C3.25539 21.31 7.31040 24.0001 12.0004 24.0001Z"
                     fill="#34A853"
                   />
                 </svg>
@@ -362,4 +370,50 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const nextServerContext = { request: req, response: res };
+
+  try {
+    const userProfile = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext,
+    });
+
+    if (userProfile?.isMember) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+
+    if (userProfile) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    }
+
+    return {
+      props: {},
+    };
+  } catch (error: any) {
+    if (error.status === 404)
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+
+    return {
+      props: {},
+    };
+  }
+};
+
+export default LoginForm;

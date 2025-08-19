@@ -29,6 +29,7 @@ export function useRedirect() {
         if (pathname === "/") {
           router.replace("/login");
         }
+        setLoading(false);
       }
     }
 
