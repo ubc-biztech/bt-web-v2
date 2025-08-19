@@ -6,6 +6,7 @@ import {
   IdCardLanyard,
   GraduationCap,
   Home,
+  CheckCircle,
 } from "lucide-react";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
 import {
@@ -18,21 +19,71 @@ import {
 import { GenericCardNFC } from "@/components/Common/Cards";
 import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useRouter as useNavRouter } from "next/navigation";
 import Image from "next/image";
+import ConnectionModal from "@/components/Connections/ConnectionModal/ConnectionModal";
+import { ConnectedButton } from "@/components/ui/connected-button";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
+  profileID: string;
   error?: string;
 }
 
-const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
+const ProfilePage = ({
+  profileData,
+  profileID,
+  error,
+}: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoadingConnection, setIsLoadingConnection] = useState(true);
 
   const router = useRouter();
   const navRouter = useNavRouter();
+
+  const showScanModal = router.query.scan === "true";
+  const handleCloseModal = () => {
+    const currentQuery = { ...router.query };
+    delete currentQuery.scan;
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: currentQuery,
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
+  // Check connection status when component mounts
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const response = await fetchBackend({
+          endpoint: `/interactions/journal/${profileID}`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+        setIsConnected(response.connected || false);
+      } catch (error: any) {
+        // Handle specific error cases
+        if (error.status === 400) {
+          // User checking their own profile
+          setIsConnected(false);
+        } else {
+          // Other errors (not a member, profile doesn't exist, etc.)
+          setIsConnected(false);
+        }
+      } finally {
+        setIsLoadingConnection(false);
+      }
+    };
+
+    checkConnection();
+  }, [profileID]);
 
   let route = router.asPath;
   let domain =
@@ -63,7 +114,6 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
     pronouns,
     year,
     major,
-    viewableMap,
     hobby1,
     hobby2,
     funQuestion1,
@@ -96,9 +146,9 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
           <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
-            {profileData.profilePictureURL ? (
+            {profilePictureURL ? (
               <Image
-                src={profileData.profilePictureURL}
+                src={profilePictureURL}
                 alt="Profile Picture"
                 fill={true}
                 className="object-cover"
@@ -130,6 +180,16 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
       </div>
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
+        {/* CONNECTED Button - only show if connected */}
+        {!isLoadingConnection && isConnected && (
+          <div className="flex justify-center">
+            <ConnectedButton className="mx-auto mb-4 flex items-center">
+              <CheckCircle />
+              <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+            </ConnectedButton>
+          </div>
+        )}
+
         {/* Member Profile Section */}
         <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
           <div className="space-y-4">
@@ -197,6 +257,13 @@ const ProfilePage = ({ profileData, error }: NFCProfilePageProps) => {
         setIsOpen={setDrawerOpen}
         url={fullURL}
       />
+
+      <ConnectionModal
+        profileData={profileData}
+        profileID={profileID}
+        isVisible={showScanModal}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };
@@ -218,6 +285,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         profileData,
+        profileID: humanId,
       },
     };
   } catch (error) {
@@ -225,6 +293,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     return {
       props: {
         profileData: null,
+        profileID: humanId,
       },
     };
   }

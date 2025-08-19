@@ -2,44 +2,33 @@ import React, { useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import { Search } from "lucide-react";
+import { fetchBackendFromServer } from "@/lib/db";
+import { GetServerSideProps } from "next";
+import Link from "next/link";
 
-const ConnectionsPage: React.FC = () => {
+interface Connection {
+  compositeID: string;
+  fname: string;
+  pronouns: string;
+  year: string;
+  createdAt: number;
+  connectionID: string;
+  major: string;
+  lname: string;
+  type: string;
+}
+
+interface ConnectionsPageProps {
+  connections: Connection[];
+}
+
+const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // dummy major
-  const connections = [
-    {
-      id: 1,
-      name: "Firstname Lastname",
-      initials: "FL",
-      pronouns: "she/her",
-      major: "Computer Science",
-    },
-    {
-      id: 2,
-      name: "Firstname Lastname",
-      initials: "FL",
-      pronouns: "she/her",
-      major: "Computer Science",
-    },
-    {
-      id: 3,
-      name: "Firstname Lastname",
-      initials: "FL",
-      pronouns: "she/her",
-      major: "Computer Science",
-    },
-    {
-      id: 4,
-      name: "Firstname Lastname",
-      initials: "FL",
-      pronouns: "she/her",
-      major: "Computer Science",
-    },
-  ];
-
   const filteredConnections = connections.filter((connection) =>
-    connection.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    `${connection.fname} ${connection.lname}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -85,7 +74,7 @@ const ConnectionsPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredConnections.map((connection) => (
                 <div
-                  key={connection.id}
+                  key={connection.connectionID}
                   className="bg-[#131F3B] rounded-lg p-4 border border-[#92A4CD] hover:border-[#92A4CD]/80 transition-colors duration-200 shadow-lg"
                   style={{
                     boxShadow: "inset 0 0 20px rgba(255, 255, 255, 0.1)",
@@ -95,13 +84,14 @@ const ConnectionsPage: React.FC = () => {
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-[#BDC8E3] rounded-full flex items-center justify-center">
                         <span className="text-[#131F3B] font-semibold text-sm">
-                          {connection.initials}
+                          {connection.fname[0]?.toUpperCase()}
+                          {connection.lname[0]?.toUpperCase()}
                         </span>
                       </div>
 
                       <div className="flex-1">
                         <h3 className="text-white font-medium text-lg">
-                          {connection.name}
+                          {connection.fname} {connection.lname}
                         </h3>
                         <p className="text-[#BDC8E3] text-sm mt-1">
                           {connection.pronouns}, {connection.major}
@@ -109,21 +99,23 @@ const ConnectionsPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <button className="text-gray-400 hover:text-white transition-colors duration-200">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                    </button>
+                    <Link href={`/profile/${connection.type.split("#")[1]}`}>
+                      <button className="text-gray-400 hover:text-white transition-colors duration-200">
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -141,6 +133,33 @@ const ConnectionsPage: React.FC = () => {
       </main>
     </>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const nextServerContext = { request: context.req, response: context.res };
+
+  try {
+    const response = await fetchBackendFromServer({
+      endpoint: "/interactions/journal",
+      method: "GET",
+      nextServerContext,
+    });
+
+    console.log(response);
+
+    return {
+      props: {
+        connections: response.data || [],
+      },
+    };
+  } catch (err: any) {
+    // Optionally handle auth errors/redirects here
+    return {
+      props: {
+        connections: [],
+      },
+    };
+  }
 };
 
 export default ConnectionsPage;
