@@ -151,12 +151,16 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
           success_url: `${
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
-              : "https://app.ubcbiztech.com/"
+              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
+                ? "https://dev.v2.ubcbiztech.com/"
+                : "https://app.ubcbiztech.com/"
           }signup/success/Member/${email}`,
           cancel_url: `${
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
-              : "https://app.ubcbiztech.com/"
+              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
+                ? "https://dev.v2.ubcbiztech.com/"
+                : "https://app.ubcbiztech.com/"
           }signup`,
           education: userBody.education,
           student_number: userBody.studentId,
