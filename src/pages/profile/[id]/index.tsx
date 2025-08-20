@@ -254,23 +254,30 @@ export const getServerSideProps: GetServerSideProps = async ({
       response: res,
     };
 
-    const [profileData, connCheck] = await Promise.all([
-      fetchBackend({
-        endpoint: `/profiles/profile/${humanId}`,
-        method: "GET",
-        authenticatedCall: false,
-      }),
-      fetchBackendFromServer({
+    // Fetch profile data first - this is the primary request
+    const profileData = await fetchBackend({
+      endpoint: `/profiles/profile/${humanId}`,
+      method: "GET",
+      authenticatedCall: false,
+    });
+
+    // Try to fetch connection check, but don't fail if it errors
+    let isConnected = false;
+    try {
+      const connCheck = await fetchBackendFromServer({
         endpoint: `/interactions/journal/${humanId}`,
         method: "GET",
         nextServerContext,
-      }),
-    ]);
+      });
+      isConnected = connCheck.connected;
+    } catch (connError) {
+      console.warn("Connection check failed, defaulting to false:", connError);
+    }
 
     return {
       props: {
         profileData,
-        isConnected: connCheck.connected,
+        isConnected,
         profileID: humanId,
       },
     };
