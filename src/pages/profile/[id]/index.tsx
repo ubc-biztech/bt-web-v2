@@ -30,6 +30,7 @@ interface NFCProfilePageProps {
   profileData: BiztechProfile;
   profileID: string;
   isConnected: boolean;
+  signedIn: boolean;
   error?: string;
 }
 
@@ -37,6 +38,7 @@ const ProfilePage = ({
   profileData,
   profileID,
   isConnected,
+  signedIn,
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -230,13 +232,14 @@ const ProfilePage = ({
         setIsOpen={setDrawerOpen}
         url={fullURL}
       />
-
-      <ConnectionModal
-        profileData={profileData}
-        profileID={profileID}
-        isVisible={showScanModal}
-        onClose={handleCloseModal}
-      />
+      {signedIn && (
+        <ConnectionModal
+          profileData={profileData}
+          profileID={profileID}
+          isVisible={showScanModal}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };
@@ -263,6 +266,8 @@ export const getServerSideProps: GetServerSideProps = async ({
 
     // Try to fetch connection check, but don't fail if it errors
     let isConnected = false;
+    let signedIn = false;
+
     try {
       const connCheck = await fetchBackendFromServer({
         endpoint: `/interactions/journal/${humanId}`,
@@ -270,24 +275,24 @@ export const getServerSideProps: GetServerSideProps = async ({
         nextServerContext,
       });
       isConnected = connCheck.connected;
-    } catch (connError) {
-      console.warn("Connection check failed, defaulting to false:", connError);
-    }
+      signedIn = true;
+    } catch (connError) {}
 
     return {
       props: {
         profileData,
         isConnected,
         profileID: humanId,
+        signedIn,
       },
     };
   } catch (error) {
-    console.error("Error in getServerSideProps:", error);
     return {
       props: {
         profileData: null,
         isConnected: false,
         profileID: humanId,
+        signedIn: false,
       },
     };
   }
