@@ -12,6 +12,7 @@ import { GetServerSideProps } from "next";
 import { useRedirect } from "@/hooks/useRedirect";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import DiscordVerifyStatus from "./discord-verify-status";
+import { useParams, useSearchParams } from "next/navigation";
 
 const LoginForm: React.FC = () => {
   // All the logic and UI from the current Login component goes here
@@ -26,28 +27,25 @@ const LoginForm: React.FC = () => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResend, setShowResend] = useState(false); // New state to show resend button
-  const [isResending, setIsResending] = useState(false); // New state for resend loading
-  const [discordId, setDiscordId] = useState(""); // State to store Discord ID if needed
+  const [isLoading, setIsLoading] = useState(true);
+  const [showResend, setShowResend] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [discordId, setDiscordId] = useState("");
   const [statusPage, setStatusPage] = useState("login"); // One of: "login", "success", "error"
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
+    const error = searchParams.get("error");
+    const discordId = searchParams.get("discordId");
 
-    searchParams.forEach((value, key) => {
-      if (key === "error") {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          confirmationError: value,
-        }));
-      }
+    if (error) {
+      setErrors((prev) => ({ ...prev, confirmationError: error }));
+    }
 
-      if (key === "discordId") {
-        setDiscordId(value);
-      }
-    });
+    if (discordId) {
+      setDiscordId(discordId);
+    }
   }, []);
 
   useEffect(() => {
