@@ -10,7 +10,7 @@ const urbanist = Urbanist({
 
 export default function Layout({ children }: any) {
   return (
-    <div className={urbanist.className}>
+    <div lang="en" className={urbanist.className}>
       <div className={`md:pl-[250px]`}>
         <ConfigureAmplifyClientSide />
         <div className="md:pt-8 pt-24 lg:p-16 md:p-12 p-8 w-full min-h-screen place-content-center">

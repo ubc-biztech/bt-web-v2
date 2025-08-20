@@ -69,7 +69,7 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-1 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 bg-bt-blue-600">
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <img
@@ -97,7 +97,7 @@ export default function ForgotPassword() {
                 <button
                   onClick={handleSendCode}
                   disabled={isSendingCode}
-                  className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-dark-green"
+                  className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-bt-green-700"
                 >
                   {isSendingCode ? "Sending Code..." : "Send Reset Code"}
                 </button>
@@ -139,7 +139,7 @@ export default function ForgotPassword() {
                 <button
                   onClick={handleConfirmPassword}
                   disabled={isConfirming}
-                  className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-dark-green"
+                  className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-bt-green-700"
                 >
                   {isConfirming ? "Resetting Password..." : "Confirm Password"}
                 </button>
@@ -153,7 +153,7 @@ export default function ForgotPassword() {
             {/* Back to Login button */}
             <div className="mt-6">
               <button
-                className="flex items-center justify-center text-biztech-green font-semibold hover:text-dark-green"
+                className="flex items-center justify-center text-bt-green-300 font-semibold hover:text-bt-green-700"
                 onClick={() => router.push("/login")}
               >
                 <IoArrowBack className="mr-2" /> {/* Back arrow icon */}

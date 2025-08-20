@@ -7,7 +7,7 @@ Amplify.configure(outputs);
 
 const SignUp = () => {
   return (
-    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
+    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
       <form className="mx-72 mt-12">
         <div className="space-y-12">
           <div className="border-b border-white/10 pb-12 text-center">
@@ -21,7 +21,7 @@ const SignUp = () => {
             <div className="mt-6">
               <Link
                 href="/login"
-                className="text-sm leading-6 text-biztech-green underline"
+                className="text-sm leading-6 text-bt-green-300 underline"
               >
                 Back to Login Page
               </Link>

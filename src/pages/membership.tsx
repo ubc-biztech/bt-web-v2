@@ -200,7 +200,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-bt-blue-600">
         <form
           className="max-w-xl mx-auto mt-12 px-4"
           onSubmit={methods.handleSubmit(onSubmit)}
@@ -217,7 +217,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
               <div className="mt-6">
                 <Link
                   href="/login"
-                  className="text-sm leading-6 text-biztech-green underline"
+                  className="text-sm leading-6 text-bt-green-300 underline"
                   onClick={async (e) => {
                     e.preventDefault();
 
@@ -463,7 +463,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
           <div className="mt-6 flex items-center justify-end gap-x-6">
             <button
               type="submit"
-              className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400"
+              className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
               disabled={isSubmitting}
             >
               {email.toLowerCase().endsWith("@ubcbiztech.com")

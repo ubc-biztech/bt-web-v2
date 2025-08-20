@@ -16,18 +16,18 @@ export const FilterTab: React.FC<{
   >;
 }> = ({ title, filter, filterState, handleUiClick, Icon }) => (
   <div
-    className={`bg-events-card-bg p-2 h-[46px] rounded-lg flex flex-row grow shrink justify-center space-x-2 items-center lg:px-20 cursor-pointer ${
-      filterState === filter ? "!bg-events-baby-blue" : ""
+    className={`bg-bt-blue-0 p-2 h-[46px] rounded-lg flex flex-row grow shrink justify-center space-x-2 items-center lg:px-20 cursor-pointer ${
+      filterState === filter ? "!bg-bt-blue-0" : ""
     }`}
     onClick={() => handleUiClick(filter)}
   >
     <Icon
       height={20}
       width={20}
-      className={`${filterState === filter ? "text-events-user-card-bg fill-current" : ""}`}
+      className={`${filterState === filter ? "text-bt-blue-300 fill-current" : ""}`}
     />{" "}
     <p
-      className={`${filterState === filter ? "text-events-user-card-bg" : ""} text-nowrap`}
+      className={`${filterState === filter ? "text-bt-blue-300" : ""} text-nowrap`}
     >
       {title}
     </p>

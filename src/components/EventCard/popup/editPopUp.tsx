@@ -31,7 +31,7 @@ const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(
 
     return (
       <div
-        className="shadow-2xl w-[200px] absolute bg-events-card-bg flex flex-col gap-2 py-2 rounded-lg"
+        className="shadow-2xl w-[200px] absolute bg-bt-blue-300 flex flex-col gap-2 py-2 rounded-lg"
         ref={ref}
       >
         {editEventPopupItems?.map((item, idx) => (

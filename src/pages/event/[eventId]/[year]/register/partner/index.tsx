@@ -129,7 +129,7 @@ export default function PartnerFormRegister() {
   }
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen">
       <div className="mx-auto flex flex-col">
         {event && event.partnerRegistrationQuestions && (
           <PartnerEventRegistrationForm onSubmit={handleSubmit} event={event} />

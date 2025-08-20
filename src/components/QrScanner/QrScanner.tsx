@@ -63,16 +63,16 @@ const QrCheckIn: React.FC<QrProps> = ({
   const scanStateClassName = (scanStage: string) => {
     switch (scanStage) {
       case QR_SCAN_STAGE.SUCCESS:
-        return "bg-secondary-color";
+        return "bg-bt-green-300";
 
       case QR_SCAN_STAGE.SCANNING:
-        return "bg-secondary-color";
+        return "bg-bt-green-300";
 
       case QR_SCAN_STAGE.FAILED:
         return "bg-[#cc0000]";
 
       default:
-        return "bg-secondary-color";
+        return "bg-bt-green-300";
     }
   };
 
@@ -265,13 +265,13 @@ const QrCheckIn: React.FC<QrProps> = ({
                 {scanStateIcon()}
                 <p className="font-600">{scanStateText()}</p>
               </div>
-              <div className="p-3 px-5 shrink bg-navbar-tab-hover-bg rounded-[10px]">
+              <div className="p-3 px-5 shrink bg-bt-blue-300 rounded-[10px]">
                 <h2 className="text-white pb-2 text-lg md:text-xl">
                   QR Code Check-in
                 </h2>
                 <p className="pb-3">Last Scanned: {checkInName}</p>
                 <p
-                  className="text-secondary-color underline pb-3"
+                  className="text-bt-green-300 underline pb-3"
                   onClick={() => {
                     setQrCode(defaultQrCode);
                     setQrScanStage(QR_SCAN_STAGE.SCANNING);
@@ -280,7 +280,7 @@ const QrCheckIn: React.FC<QrProps> = ({
                   Reset Scanner
                 </p>
                 <p
-                  className="text-secondary-color underline pb-3"
+                  className="text-bt-green-300 underline pb-3"
                   onClick={() => flipCamera()}
                 >
                   Flip Camera Horizontally

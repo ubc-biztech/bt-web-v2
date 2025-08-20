@@ -22,7 +22,7 @@ const SuccessPage = () => {
     }
   };
   return (
-    <div className="bg-primary-color text-white min-h-screen p-8">
+    <div className="bg-bt-blue-600 text-white min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
         {isApplicationBasedBoolean ? (
           <>

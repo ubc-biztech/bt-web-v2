@@ -66,7 +66,7 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
 
   return (
     <Card
-      className="w-9/10 border-none bg-events-card-bg cursor-pointer"
+      className="w-9/10 border-none bg-bt-blue-300 cursor-pointer"
       onClick={handleCardClick}
     >
       <Image
@@ -98,7 +98,7 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
             )}
           </Button>
         </div>
-        <p className="p3 text-baby-blue mt-2 mb-2">{displayDate}</p>
+        <p className="p3 text-bt-blue-100 mt-2 mb-2">{displayDate}</p>
       </CardFooter>
     </Card>
   );

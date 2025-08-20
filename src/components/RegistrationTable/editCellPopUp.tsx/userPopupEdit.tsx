@@ -97,7 +97,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
     <div>
       {dropDownList ? (
         <Select onValueChange={onSelectChange} defaultValue="Not Found">
-          <SelectTrigger className="p3 rounded-none bg-events-active-tab-bg text-white p-0 border-0 border-b-2 border-b-baby-blue">
+          <SelectTrigger className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100">
             <SelectValue>{getLabel(value as string)}</SelectValue>
           </SelectTrigger>
           <SelectContent className="focus:border-0 bg-white">
@@ -113,7 +113,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
         </Select>
       ) : (
         <Input
-          className="p3 rounded-none bg-events-active-tab-bg text-white p-0 border-0 border-b-2 border-b-baby-blue"
+          className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100"
           type="number"
           value={value}
           onChange={handleInputChange}

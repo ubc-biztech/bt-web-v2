@@ -24,7 +24,7 @@ const UserAttributeField = ({
 }: UserAttributeFieldProps) => {
   return (
     <div className="flex flex-row gap-2">
-      <span className="flex flex-row items-center gap-3 font-medium text-pale-blue">
+      <span className="flex flex-row items-center gap-3 font-medium text-bt-blue-0">
         {" "}
         <Icon className="w-5 h-5" /> {fieldName}:
       </span>

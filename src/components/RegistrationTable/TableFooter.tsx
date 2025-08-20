@@ -54,7 +54,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="text-white-blue"
+            className="text-bt-blue-0"
             disabled={!table.getRowCount()}
           >
             <div className="flex items-center space-x-3">
@@ -80,7 +80,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
       </DropdownMenu>
       <div className="flex flex-col lg:flex-row items-center justify-between space-x-2">
         <div className="flex flex-row items-center justify-between space-x-2">
-          <span className="text-sm text-white-blue">Showing</span>
+          <span className="text-sm text-bt-blue-0">Showing</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => {
@@ -88,7 +88,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="bg-login-form-card text-white">
+            <SelectTrigger className="bg-bt-blue-400 text-white">
               <SelectValue placeholder={`${pageSize} Rows`} />
             </SelectTrigger>
             <SelectContent>
@@ -103,7 +103,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
         <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
-            className="text-white-blue"
+            className="text-bt-blue-0"
             size="sm"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
@@ -112,14 +112,14 @@ export const TableFooter: React.FC<TableFooterProps> = ({
           </Button>
           <Button
             variant="ghost"
-            className="text-white-blue"
+            className="text-bt-blue-0"
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             {"<"}
           </Button>
-          <span className="text-sm text-white-blue">
+          <span className="text-sm text-bt-blue-0">
             {table.getState().pagination.pageIndex * pageSize + 1}-
             {Math.min(
               (table.getState().pagination.pageIndex + 1) * pageSize,
@@ -129,7 +129,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
           </span>
           <Button
             variant="ghost"
-            className="text-white-blue"
+            className="text-bt-blue-0"
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
@@ -138,7 +138,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
           </Button>
           <Button
             variant="ghost"
-            className="text-white-blue"
+            className="text-bt-blue-0"
             size="sm"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}

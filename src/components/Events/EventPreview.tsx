@@ -32,7 +32,7 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
             <h3 className="text-white font-bold mt-4">
               {form.watch("eventName") || "Event Name"}
             </h3>
-            <p className="text-biztech-green whitespace-pre-line">
+            <p className="text-bt-green-300 whitespace-pre-line">
               {form.watch("description") ||
                 "Event description will appear here."}
             </p>

@@ -65,7 +65,7 @@ export default function AdminEventView({ events }: Props) {
 
   return (
     <main
-      className="bg-primary-color min-h-screen"
+      className="bg-bt-blue-600 min-h-screen"
       onClick={() => {
         if (isClicked) {
           setIsClicked(false);
@@ -81,7 +81,7 @@ export default function AdminEventView({ events }: Props) {
             <h3 className="text-white">Admin Event Portal</h3>
           )}
           <div className="flex items-center justify-between">
-            <p className="text-baby-blue font-poppins">
+            <p className="text-bt-blue-100 font-poppins">
               Manage published Biztech events.
             </p>
             {!isMobileDevice ? (
@@ -99,7 +99,7 @@ export default function AdminEventView({ events }: Props) {
           </div>
         </span>
         {/*divider*/}
-        <div className="w-full bg-login-form-card my-6" />
+        <div className="w-full bg-bt-blue-400 my-6" />
         {/* conditionally mapping the events gathered from the database to the screen  */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
@@ -143,7 +143,7 @@ export default function AdminEventView({ events }: Props) {
         <div
           className={
             isClicked && (isMobileDevice || isDelete)
-              ? "fixed inset-0 flex items-center justify-center z-50 bg-events-navigation-bg bg-opacity-50 blur-background"
+              ? "fixed inset-0 flex items-center justify-center z-50 bg-bt-blue-700 bg-opacity-50 blur-background"
               : ""
           }
         >

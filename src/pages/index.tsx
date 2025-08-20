@@ -45,7 +45,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       <h3 className="text-white text-lg lg:text-xl">
         {profile?.fname ? `Hey ${profile.fname}!` : "Hey"}
       </h3>
-      <p className="text-pale-blue">Welcome back to BizTech</p>
+      <p className="text-bt-blue-0">Welcome back to BizTech</p>
       <Divider />
 
       <Image
@@ -63,21 +63,21 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               : "Our Next Event"
           }
         >
-          <div className="text-pale-blue h-full flex flex-col justify-center">
+          <div className="text-bt-blue-0 h-full flex flex-col justify-center">
             <BizImage
               height={480}
               width={720}
               alt="Event cover image"
               src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
               style={{ objectFit: "cover" }}
-              className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
+              className="h-full rounded-xl border-[0.5px] border-bt-blue-0/60"
             />
             {highlightedEvent ? (
               <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
                 <div>
                   <h4>{highlightedEvent?.ename}</h4>
 
-                  <p className="text-xs text-pale-blue">
+                  <p className="text-xs text-bt-blue-0">
                     {format(toDate(highlightedEvent.startDate), "LLLL d, yyyy")}
                   </p>
                 </div>
@@ -92,12 +92,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     )
                   }
                   size="lg"
-                  className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
+                  className="bg-bt-green-500 hover:bg-bt-green-700 text-bt-blue-600 rounded-full"
                   disabled={getEventState(highlightedEvent) === "Past"}
                 />
               </div>
             ) : (
-              <div className="h-full w-full place-content-center text-center text-pale-blue">
+              <div className="h-full w-full place-content-center text-center text-bt-blue-0">
                 No event to show - check back soon!
               </div>
             )}

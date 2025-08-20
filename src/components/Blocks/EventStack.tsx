@@ -31,7 +31,7 @@ export default function EventStack({
   if (events.length === 0) {
     return (
       <GenericCard title="Past Events Attended">
-        <div className="text-center h-full place-content-center py-8 text-pale-blue">
+        <div className="text-center h-full place-content-center py-8 text-bt-blue-0">
           No events attended yet.
         </div>
       </GenericCard>
@@ -79,7 +79,7 @@ export default function EventStack({
               }
             >
               <div
-                className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-2xl border border-pale-blue/40 transition-all duration-300"
+                className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-2xl border border-bt-blue-0/40 transition-all duration-300"
                 style={{
                   aspectRatio: aspectRatio.toString(),
                 }}
@@ -94,10 +94,10 @@ export default function EventStack({
                 />
 
                 {/* Enhanced gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-dark-navy/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bt-blue-600/20 to-transparent pointer-events-none" />
 
                 {/* Event info overlay */}
-                <div className="absolute inset-0 bg-dark-navy/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-3 md:p-4">
+                <div className="absolute inset-0 bg-bt-blue-500/50 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-3 md:p-4">
                   <div className="text-white">
                     <h3 className="font-semibold text-sm md:text-md drop-shadow-lg line-clamp-2">
                       {event.ename}

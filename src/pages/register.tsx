@@ -136,23 +136,23 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
-      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-login-form-card rounded-lg">
-        <div className="bg-dark-slate px-6 py-12 shadow sm:rounded-lg sm:px-12">
+    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
+      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
+        <div className="bg-bt-blue-400 px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <img
               className="mx-auto h-24 w-auto"
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
-            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
+            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
               Register
             </h2>
-            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
+            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               Already have an account? &nbsp;
               <Link
                 href="/login"
-                className="text-biztech-green hover:text-dark-green font-semibold"
+                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
               >
                 Login here.
               </Link>
@@ -163,7 +163,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="fullName"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-white"
               >
                 Full Name
               </label>
@@ -191,7 +191,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-white"
               >
                 Email
               </label>
@@ -219,7 +219,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-white"
               >
                 Password
               </label>
@@ -247,7 +247,7 @@ const Register: React.FC = () => {
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-white"
               >
                 Confirm Password
               </label>
@@ -275,9 +275,9 @@ const Register: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="mt-8 flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="mt-8 flex w-full justify-center rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                <p className="text-login-form-card">Sign up</p>
+                <p className="text-bt-blue-400 font-semibold">Sign up</p>
               </button>
             </div>
 
@@ -287,17 +287,17 @@ const Register: React.FC = () => {
           {/* Google Sign-in */}
           <div>
             <div className="relative mt-7 flex items-center justify-center">
-              <div className="flex-grow border-t border-white-blue"></div>
-              <span className="px-4 text-sm font-medium leading-6 text-white-blue">
+              <div className="flex-grow border-t border-bt-blue-0"></div>
+              <span className="px-4 text-sm font-medium leading-6 text-bt-blue-0">
                 Or
               </span>
-              <div className="flex-grow border-t border-white-blue"></div>
+              <div className="flex-grow border-t border-bt-blue-0"></div>
             </div>
 
             <div className="mt-7 grid grid-cols-1 gap-4">
               <a
                 href="#"
-                className="flex w-full items-center justify-center gap-3 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-neutral-200 focus-visible:ring-transparent"
                 onClick={handleGoogleSignIn}
               >
                 <svg className="h-5 w-5" aria-hidden="true" viewBox="0 0 24 24">
@@ -318,7 +318,7 @@ const Register: React.FC = () => {
                     fill="#34A853"
                   />
                 </svg>
-                <span className="text-sm leading-6 text-login-form-card font-500">
+                <span className="text-sm leading-6 text-bt-blue-400 font-500">
                   Sign up with Google
                 </span>
               </a>

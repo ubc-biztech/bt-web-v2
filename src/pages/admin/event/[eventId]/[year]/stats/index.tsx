@@ -47,19 +47,19 @@ export default function Statistics({ initialData }: Props) {
   };
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen">
       <div className="container mx-auto p-10 flex flex-col">
         <span>
           <Button
             variant="ghost"
             onClick={handleBack}
-            className="text-white mb-4 hover:text-baby-blue"
+            className="text-white mb-4 hover:text-bt-blue-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
           <h2 className="text-white">Event Statistics</h2>
-          <p className="text-baby-blue font-poppins">
+          <p className="text-bt-blue-100 font-poppins">
             Statistics {">"} {router.query.eventId} {router.query.year}
           </p>
           <br />

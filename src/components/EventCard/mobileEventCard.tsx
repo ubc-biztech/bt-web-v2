@@ -74,7 +74,7 @@ export default function MobileEventCard({
 
   return (
     <Card
-      className="font-poppins w-full h-[100px] border-none bg-events-card-bg p-2 mb-4 flex"
+      className="font-poppins w-full h-[100px] border-none bg-bt-blue-300 p-2 mb-4 flex"
       onClick={handleClick}
       ref={cardRef}
     >
@@ -88,7 +88,7 @@ export default function MobileEventCard({
       <div className="flex-1 flex items-center justify-between">
         <div className="max-w-[70%] overflow-hidden">
           <p className="p1 text-white font-500 truncate">{event?.ename}</p>
-          <p className="p3 text-baby-blue">{displayDate}</p>
+          <p className="p3 text-bt-blue-100">{displayDate}</p>
         </div>
         <Button
           variant="ghost"
