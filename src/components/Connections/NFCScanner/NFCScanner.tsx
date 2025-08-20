@@ -12,11 +12,11 @@ const NFCScanner: React.FC<NFCScannerProps> = ({ onScanDetected }) => {
 
   useEffect(() => {
     const { scan, profileId, eventId } = router.query;
-    
+
     const scanKey = `${profileId}-${eventId}`;
-    
-    if (scan === 'true' && profileId && processedScanRef.current !== scanKey) {
-      console.log('NFC scan detected:', { profileId, eventId });
+
+    if (scan === "true" && profileId && processedScanRef.current !== scanKey) {
+      console.log("NFC scan detected:", { profileId, eventId });
       processedScanRef.current = scanKey;
       onScanDetected({ profileId, eventId });
     }
