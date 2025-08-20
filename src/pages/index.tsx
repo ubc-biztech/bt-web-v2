@@ -17,6 +17,7 @@ import { useRedirect } from "@/hooks/useRedirect";
 import { Spinner } from "@/components/ui/spinner";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { GetServerSideProps } from "next";
+import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 
 interface ProfilePageProps {
   profile: User | null;
