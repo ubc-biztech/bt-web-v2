@@ -8,9 +8,11 @@ import { cn } from "@/lib/utils";
 const ShareProfileDrawer = ({
   isOpen,
   setIsOpen,
+  url,
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+  url: string;
 }) => {
   const handleShare = async () => {
     if (!navigator.share) {
@@ -21,7 +23,7 @@ const ShareProfileDrawer = ({
         await navigator.share({
           title: "UBC BizTech",
           text: "Check out this profile!",
-          url: window.location.href,
+          url: url,
         });
       } catch (err) {
         console.error("Share failed:", err);
@@ -34,18 +36,16 @@ const ShareProfileDrawer = ({
   };
 
   const copyLink = () => {
-    const profileUrl = "https://example.com/profile";
+    const profileUrl = url;
     navigator.clipboard.writeText(profileUrl);
-    toast({ title: "[test] Link copied to clipboard!" });
+    toast({ title: "Profile URL copied to clipboard!" });
   };
 
   const getAnimationProps = (isMobile: boolean) => ({
     initial: isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 },
     animate: isMobile ? { y: 0 } : { opacity: 1, scale: 1 },
     exit: isMobile ? { y: "100%" } : { opacity: 0, scale: 0.95 },
-    transition: isMobile
-      ? { duration: 0.3, ease: "easeInOut" }
-      : { duration: 0.2, ease: "easeOut" },
+    transition: { duration: 0.2, ease: "easeInOut" },
   });
 
   const QRCodeSection = ({
@@ -71,7 +71,7 @@ const ShareProfileDrawer = ({
           <p className="text-center text-black font-semibold">
             Your Profile QR Code
           </p>
-          <div className="absolute inset-0 bg-gradient-to-br from-sat-blue to-dark-sat-blue mix-blend-plus-lighter opacity-70 m-2"></div>
+          <div className="absolute h-full inset-0 bg-gradient-to-br from-sat-blue to-dark-sat-blue mix-blend-plus-lighter opacity-70 m-2"></div>
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@ const ShareProfileDrawer = ({
       <h5 className="text-left font-medium text-white">Share your Profile</h5>
       <button
         onClick={closeDrawer}
-        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white hover:bg-opacity-10 transition-colors"
+        className="w-8 h-8 flex items-center justify-center rounded-full bg-pale-blue/10 hover:bg-pale-blue/20 trasition-colors duration-200"
       >
         <X className="w-5 h-5 text-white" />
       </button>
@@ -94,17 +94,18 @@ const ShareProfileDrawer = ({
       <div className="text-center place-items-center">
         <button
           onClick={handleShare}
-          className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2"
+          className="w-12 h-12 bg-pale-blue/10 hover:bg-pale-blue/20  trasition-colors duration-200 rounded-full flex items-center justify-center mb-2"
         >
           <Share className="w-6 h-6 text-white" />
         </button>
+
         <span className="text-sm text-white">Share via</span>
       </div>
 
       <div className="text-center place-items-center">
         <button
           onClick={copyLink}
-          className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mb-2"
+          className="w-12 h-12 bg-pale-blue/10 hover:bg-pale-blue/20 trasition-colors duration-200 rounded-full flex items-center justify-center mb-2"
         >
           <Copy className="w-6 h-6 text-white" />
         </button>
@@ -128,16 +129,22 @@ const ShareProfileDrawer = ({
               onClick={closeDrawer}
             />
 
+            <motion.div
+              className="fixed inset-x-0 w-fit h-fit bottom-[60%] mx-auto z-[100] md:hidden"
+              initial={{ y: "55%", opacity: 0, scale: 0.95 }}
+              animate={{ y: "50%", opacity: 1, scale: 1 }}
+              exit={{ y: "55%", opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              <QRCodeSection onClick={(e) => e.stopPropagation()} />
+            </motion.div>
+
             {/* Mobile Layout */}
             <motion.div
               className="fixed inset-x-0 bottom-0 z-[100] md:hidden"
               {...getAnimationProps(true)}
               onClick={closeDrawer}
             >
-              <QRCodeSection
-                className="mb-16"
-                onClick={(e) => e.stopPropagation()}
-              />
               <div
                 className="bg-biztech-navy shadow-[inset_0_0_24px_rgba(255,255,255,0.1)] rounded-t-3xl w-screen mx-auto p-6 space-y-4"
                 onClick={(e) => e.stopPropagation()}

@@ -1,0 +1,123 @@
+import React, { useState } from "react";
+import Image from "next/image";
+import { X, Users, ScanLine } from "lucide-react";
+import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
+import { fetchBackend } from "@/lib/db";
+import { toast } from "@/components/ui/use-toast";
+
+interface ConnectionModalProps {
+  profileData: BiztechProfile;
+  profileID: string;
+  isVisible: boolean;
+  onClose: () => void;
+}
+
+const ConnectionModal: React.FC<ConnectionModalProps> = ({
+  profileData,
+  profileID,
+  isVisible,
+  onClose,
+}) => {
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  if (!isVisible) return null;
+
+  const handleConnect = async () => {
+    try {
+      setIsConnecting(true);
+      const response = await fetchBackend({
+        endpoint: "/interactions/",
+        data: {
+          eventType: "CONNECTION",
+          eventParam: profileID,
+        },
+        method: "POST",
+      });
+
+      if (response) {
+        toast({
+          title: "Success",
+          description: `Connected with ${profileData.fname} ${profileData.lname}!`,
+        });
+        onClose();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to make connection. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6"
+      onClick={onClose}
+    >
+      <div
+        className="bg-[#131F3B] rounded-2xl p-4 sm:p-6 w-full max-w-sm mx-4 relative border border-[#374566]"
+        style={{
+          boxShadow: "inset 0 0 48px rgba(255, 255, 255, 0.1)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 text-white/60 hover:text-white transition-colors"
+        >
+          <X size={18} className="sm:w-5 sm:h-5" />
+        </button>
+
+        <div className="text-center mb-4 sm:mb-6 mt-2 sm:mt-4">
+          <div className="flex justify-center mb-2">
+            <ScanLine className="text-[#BDC8E3] w-6 h-6 sm:w-8 sm:h-8" />
+          </div>
+          <h3 className="text-[#BDC8E3] text-xs sm:text-sm font-medium tracking-wide font-urbanist">
+            BIZCARD SCANNED
+          </h3>
+        </div>
+
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-3 sm:mb-4">
+            <div className="w-full h-full rounded-full overflow-hidden bg-gray-300 border-2 border-white/20">
+              <Image
+                src={
+                  profileData.profilePictureURL
+                    ? profileData.profilePictureURL
+                    : "/assets/biztech_logo.svg"
+                }
+                alt={`${profileData.fname} ${profileData.lname}`}
+                width={96}
+                height={96}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          <h2 className="text-white text-lg sm:text-xl font-semibold mb-1">
+            {profileData.fname} {profileData.lname}
+          </h2>
+          <p className="text-[#BDC8E3] text-xs sm:text-sm font-medium font-urbanist">
+            {profileData.year}, {profileData.major} · {profileData.pronouns}
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            className="w-[140px] h-[48px] sm:w-[155px] sm:h-[56px] bg-[#BDC8E3] bg-opacity-20 border border-[#BDC8E3] text-[#BDC8E3] rounded-lg font-medium hover:bg-[#BDC8E3]/10 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleConnect}
+            disabled={isConnecting}
+          >
+            <Users size={14} className="text-[#BDC8E3] sm:w-4 sm:h-4" />
+            {isConnecting ? "Connecting..." : "Connect"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ConnectionModal;

@@ -4,6 +4,12 @@ import type { AppProps } from "next/app";
 import Layout from "./layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { Urbanist } from "next/font/google";
+
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  variable: "--font-urbanist",
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -83,7 +89,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="canonical" href="https://ubcbiztech.com" />
       </Head>
 
-      <main className={`${isCompanionPath ? "dark" : ""}`}>
+      <main
+        className={`${isCompanionPath ? "dark" : ""} ${urbanist.className}`}
+      >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />
         </div>

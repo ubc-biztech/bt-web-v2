@@ -1,12 +1,15 @@
 import {
+  BadgeCheck,
   CalendarCog,
   CalendarFoldIcon,
+  HomeIcon,
   LineChartIcon,
   LogIn,
   LogOut,
   PlusSquareIcon,
   ScanBarcode,
   UserCircle2,
+  ScanFace,
 } from "lucide-react";
 
 export const admin = [
@@ -34,14 +37,20 @@ export const admin = [
 
 export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
   const links = [
-    // {
-    //   title: "Home",
-    //   link: "/",
-    //   icon: HomeIcon,
-    // },
+    isSignedIn
+      ? {
+          title: "Home",
+          link: "/",
+          icon: HomeIcon,
+        }
+      : {
+          title: "Membership",
+          link: "/become-a-member",
+          icon: BadgeCheck,
+        },
     {
       title: "Event Dashboard",
-      link: "/",
+      link: "/events",
       icon: CalendarFoldIcon,
     },
   ];
@@ -51,6 +60,14 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
       title: `${isAdmin ? "Admin" : "User"} Profile`,
       link: "/profile",
       icon: UserCircle2,
+    });
+  }
+
+  if (isSignedIn) {
+    links.push({
+      title: "Connections",
+      link: "/connections",
+      icon: ScanFace,
     });
   }
 

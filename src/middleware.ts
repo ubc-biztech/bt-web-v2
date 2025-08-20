@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getCurrentUser } from "@aws-amplify/auth/server";
+import { fetchUserAttributes } from "@aws-amplify/auth/server";
 import { runWithAmplifyServerContext } from "./util/amplify-utils";
 
 export async function middleware(request: NextRequest) {
@@ -26,8 +26,7 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request, response },
       operation: async (contextSpec) => {
         try {
-          const { signInDetails } = await getCurrentUser(contextSpec);
-          const email = signInDetails?.loginId;
+          const { email } = await fetchUserAttributes(contextSpec);
           return (
             email &&
             email.substring(email.indexOf("@") + 1, email.length) ===
