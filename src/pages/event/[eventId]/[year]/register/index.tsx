@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -41,6 +42,9 @@ export default function AttendeeFormRegister() {
   const [userRegistered, setUserRegistered] = useState<boolean>(false);
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
+  const [hasShownMemberToast, setHasShownMemberToast] =
+    useState<boolean>(false);
+  const { toast } = useToast();
 
   const samePricing = () => {
     return event.pricing?.members === event.pricing?.nonMembers;
@@ -156,7 +160,27 @@ export default function AttendeeFormRegister() {
     ) {
       setIsNonMemberModalOpen(true);
     }
-  }, [event, user]);
+
+    // Show member discount toast for non-signed-in users
+    if (
+      !userLoading &&
+      !userLoggedIn &&
+      event.pricing?.members &&
+      event.pricing?.nonMembers &&
+      event.pricing.members < event.pricing.nonMembers &&
+      !hasShownMemberToast
+    ) {
+      const priceDifference = (
+        event.pricing.nonMembers - event.pricing.members
+      ).toFixed(2);
+      toast({
+        title: "💡 Member Discount Available!",
+        description: `Sign in as a member to save $${priceDifference} on this event!`,
+        duration: 8000, // Show for 8 seconds
+      });
+      setHasShownMemberToast(true);
+    }
+  }, [event, user, userLoggedIn, userLoading, hasShownMemberToast, toast]);
 
   // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
