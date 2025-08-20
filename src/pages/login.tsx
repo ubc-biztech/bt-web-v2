@@ -9,10 +9,9 @@ import {
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
-import { useRedirect } from "@/hooks/useRedirect";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import DiscordVerifyStatus from "./discord-verify-status";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 const LoginForm: React.FC = () => {
   // All the logic and UI from the current Login component goes here
