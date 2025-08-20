@@ -5,7 +5,9 @@ interface DiscordVerifyStatusProps {
   status: boolean;
 }
 
-const DiscordVerifyStatus: React.FC<DiscordVerifyStatusProps> = ({ status }) => {
+const DiscordVerifyStatus: React.FC<DiscordVerifyStatusProps> = ({
+  status,
+}) => {
   return status ? (
     <div className="bg-dark-slate px-6 py-12 shadow sm:rounded-lg sm:px-12 text-white">
       <div className="px-6 py-12 rounded-2xl text-center max-w-md w-full">
@@ -38,8 +40,8 @@ const DiscordVerifyStatus: React.FC<DiscordVerifyStatusProps> = ({ status }) => 
         Failed to link accounts
       </h2>
       <p className="mt-2 text-white">
-        We couldn&apos;t link your Discord account to your membership.
-        Please try again later or contact server admins.
+        We couldn&apos;t link your Discord account to your membership. Please
+        try again later or contact server admins.
       </p>
 
       <div className="mt-6">
