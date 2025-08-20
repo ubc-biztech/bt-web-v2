@@ -32,9 +32,9 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
               {...field}
               placeholder={placeholder}
               rows={rows}
-              className={`w-full p-2 rounded-md bg-biztech-navy border ${
-                error ? "border-red-500" : "border-border-blue"
-              } text-white placeholder-pale-blue`}
+              className={`w-full p-2 rounded-md bg-bt-blue-300 border ${
+                error ? "border-bt-red-500" : "border-bt-blue-100"
+              } text-white placeholder-bt-blue-100`}
             />
             {error && (
               <p className="text-red-500 text-xs mt-1">{error.message}</p>

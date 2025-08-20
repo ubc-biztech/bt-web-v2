@@ -55,7 +55,7 @@ export default function Verify() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-1 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 bg-bt-blue-600">
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
           <div className="mx-auto w-full max-w-sm lg:w-96">
             <img
@@ -74,7 +74,7 @@ export default function Verify() {
               className={`mt-8 w-full rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${
                 isResending || timer !== null
                   ? "bg-[rgba(122,208,64,0.4)] cursor-not-allowed"
-                  : "bg-biztech-green hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  : "bg-bt-green-300 hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               }`}
             >
               {isResending
@@ -84,11 +84,11 @@ export default function Verify() {
                   : "Resend Verification Email"}
             </button>
 
-            <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-white-blue mb-4">
+            <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-bt-blue-0 mb-4">
               Already verified your email? &nbsp;
               <Link
                 href="/login"
-                className="text-biztech-green hover:text-dark-green font-semibold"
+                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
               >
                 Login here.
               </Link>

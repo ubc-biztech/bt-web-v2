@@ -18,7 +18,7 @@ export default function Page() {
         icon={ArrowUpRight}
         iconDirection="right"
         label="Become a member"
-        className="bg-biztech-green text-dark-navy hover:bg-light-green"
+        className="bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-200"
         onClick={() => router.push("/login")}
       />
     </div>

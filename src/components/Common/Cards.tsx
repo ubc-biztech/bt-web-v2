@@ -11,13 +11,13 @@ function GenericCardNFC({
   isCollapsible?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-4 bg-biztech-navy/80 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-border-blue border">
+    <div className="flex flex-col gap-4 bg-bt-blue-300/20 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-bt-blue-100 border">
       {title && (
         <>
           <div className="flex items-center justify-between">
             <h2 className="text-md font-semibold">{title}</h2>
           </div>
-          <div className="border-border-blue border-[0.5px]" />
+          <div className="border-bt-blue-300 border-[0.5px]" />
         </>
       )}
       {children}
@@ -40,12 +40,12 @@ function GenericCard({
     <div
       className={cn(
         className || "flex flex-col gap-1",
-        "bg-dark-slate/40 rounded-lg p-6 shadow-[inset_0_0_40px_rgba(255,255,255,0.05)] border-profile-separator-bg border-[1px] text-white",
+        "bg-bt-blue-300/20 rounded-lg p-6 shadow-[inset_0_0_40px_rgba(255,255,255,0.05)] border-bt-blue-200 border-[1px] text-white",
       )}
     >
       {title && (
         <>
-          <h2 className="text-pale-blue text-md font-medium">{title}</h2>
+          <h2 className="text-bt-blue-0 text-md font-medium">{title}</h2>
           <Divider />
         </>
       )}

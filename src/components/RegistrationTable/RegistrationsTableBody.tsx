@@ -11,7 +11,7 @@ export const RegistrationsTableBody = <T,>({
   table,
   refreshTable,
 }: RegistrationsTableBodyProps<T>) => (
-  <TableBody className="text-baby-blue font-400">
+  <TableBody className="text-bt-blue-100 font-400">
     {table.getRowModel().rows?.length ? (
       table.getRowModel().rows.map((row) => (
         <TableRow

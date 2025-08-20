@@ -19,7 +19,7 @@ const UserResponses: React.FC<UserResponsesProps> = ({
 
         return (
           <div key={index} className="mb-3 w-full max-w-full overflow-hidden">
-            <p className="text-baby-blue break-words whitespace-normal">
+            <p className="text-bt-blue-100 break-words whitespace-normal">
               {label}
             </p>
             <p className="text-white break-words whitespace-normal">{answer}</p>

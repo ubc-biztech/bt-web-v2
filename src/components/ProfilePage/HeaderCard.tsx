@@ -16,8 +16,8 @@ export default function HeaderCard({
   return (
     <GenericCard className="w-full flex flex-row items-center justify-between">
       <div className="flex flex-row gap-8 items-center">
-        <div className="w-24 h-24 bg-events-baby-blue rounded-full flex items-center justify-center">
-          <span className="text-2xl font-medium text-biztech-navy">
+        <div className="w-24 h-24 bg-events-bt-blue-100 rounded-full flex items-center justify-center">
+          <span className="text-2xl font-medium text-bg-bt-blue-500">
             {userInitials}
           </span>
         </div>
@@ -25,11 +25,11 @@ export default function HeaderCard({
           <h3>
             {fname} {lname}
           </h3>
-          <h5 className="text-pale-blue">{userRole}</h5>
+          <h5 className="text-bt-blue-0">{userRole}</h5>
         </div>
       </div>
       <Link href="/profile/edit">
-        <Button className="justify-self-end bg-signup-input-border">
+        <Button className="justify-self-end bg-bt-blue-200">
           {" "}
           View your NFC Profile{" "}
         </Button>

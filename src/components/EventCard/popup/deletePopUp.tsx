@@ -33,7 +33,7 @@ const DeletePopup: React.FC<Props> = ({ setIsDelete, event }) => {
       <h5 className="text-white my-3">[ {event?.ename} ]</h5>
       <p className="p3 underline text-white">This action cannot be undone</p>
       <button
-        className="w-[220px] h-[44px] bg-light-red rounded-lg text-login-form-card m-3 flex items-center justify-center space-x-2"
+        className="w-[220px] h-[44px] bg-bt-red-200 rounded-lg text-bt-blue-400 m-3 flex items-center justify-center space-x-2"
         onClick={handleDeleteEvent}
       >
         <DeleteSharpIcon />

@@ -40,7 +40,7 @@ const QrCard: FC<{
   return (
     <AnimatePresence mode="popLayout" key={qr.id.toLowerCase()}>
       <motion.div
-        className="w-full rounded-[10px] bg-[#304068] p-5"
+        className="w-full rounded-[10px] bg-bt-blue-300 p-5"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
@@ -70,32 +70,32 @@ const QrCard: FC<{
             </h4>
             <div className="flex flex-row xl:block justify-center">
               <div className="grid grid-cols-1 lg:grid-cols-2 w-max gap-1 gap-x-5">
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   Event: {qr["eventID;year"]}
                 </div>
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   Type: {qr.type ? qr.type : "Booth"}
                 </div>
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   Points: {qr.points}
                 </div>
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   Scans: {qr.isUnlimitedScans ? "Unlimited" : "One-time"}
                 </div>
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   Status: {qr.isActive ? "Active" : "Inactive"}
                 </div>
-                <div className="text-baby-blue text-[13px]">
+                <div className="text-bt-blue-0 text-[13px]">
                   {qr.type === QrType.workshop && qr.data?.workshopID
                     ? `Workshop ID: ${qr.data.workshopID}`
                     : ""}
                 </div>
-                <div className="text-baby-blue text-[13px] max-w-[150px]">
+                <div className="text-bt-blue-0 text-[13px] max-w-[150px]">
                   {qr.type === QrType.partner && qr.data?.partnerID
                     ? `Partner: ${qr.data.partnerID}`
                     : ""}
                 </div>
-                <div className="text-baby-blue text-[13px] max-w-[100px]">
+                <div className="text-bt-blue-0 text-[13px] max-w-[100px]">
                   {qr.type === QrType.partner && qr.data?.linkedin
                     ? `Linkedin: ${qr.data.linkedin}`
                     : ""}
@@ -103,21 +103,21 @@ const QrCard: FC<{
               </div>
             </div>
           </div>
-          <div className="w-full flex flex-row justify-center xl:justify-end items-center h-min px-2">
+          <button
+            className="w-full flex flex-row justify-center xl:justify-end items-center h-min px-2 gap-2"
+            onClick={(e) => {
+              handleDownload(e);
+            }}
+          >
             <DownloadIcon
-              width={20}
-              height={12}
-              className="text-biztech-green fill-current"
+              width={16}
+              height={16}
+              className="text-bt-green-200"
             />
-            <div
-              className="text-biztech-green focus:text-dark-green text-[14px]"
-              onClick={(e) => {
-                handleDownload(e);
-              }}
-            >
+            <div className="text-bt-green-200 focus:text-bt-green-500 text-[14px]">
               Download PNG
             </div>
-          </div>
+          </button>
         </div>
       </motion.div>
     </AnimatePresence>

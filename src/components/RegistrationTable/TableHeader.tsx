@@ -101,7 +101,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             table.getColumn("id")?.setFilterValue(event.target.value)
           }
-          className="bg-white-blue text-login-form-card"
+          className="bg-bt-blue-0 text-bt-blue-400"
         />
 
         <TooltipProvider>
@@ -176,7 +176,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           refreshTable={refreshTable}
         />
         <Select value={selectedValue} onValueChange={handleSelectChange}>
-          <SelectTrigger className="w-[180px] bg-login-form-card text-white">
+          <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
@@ -191,7 +191,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         open={showMassUpdateStatus}
         onOpenChange={setShowMassUpdateStatus}
       >
-        <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
             <DialogTitle className="text-white">Mass Update Status</DialogTitle>
           </DialogHeader>
@@ -214,7 +214,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
           <Select onValueChange={setNewStatus}>
-            <SelectTrigger className="bg-events-active-tab-bg text-white">
+            <SelectTrigger className="bg-bt-blue-400 text-white">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
@@ -225,7 +225,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           </Select>
           <Button
             onClick={handleMassUpdate}
-            className="text-login-form-card bg-biztech-green"
+            className="text-bt-blue-400 bg-bt-green-300"
           >
             Update Selection
           </Button>
@@ -233,7 +233,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       </Dialog>
 
       <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
-        <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
             <DialogTitle className="text-white">Create Team</DialogTitle>
           </DialogHeader>
@@ -267,12 +267,12 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Enter team name"
-              className="bg-events-active-tab-bg text-white border-[#8DA1D1]"
+              className="bg-bt-blue-400 text-white border-[#8DA1D1]"
             />
           </div>
           <Button
             onClick={handleCreateTeam}
-            className="text-login-form-card bg-biztech-green"
+            className="text-bt-blue-400 bg-bt-green-300"
           >
             Make Team
           </Button>

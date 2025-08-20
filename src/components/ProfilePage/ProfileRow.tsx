@@ -9,7 +9,7 @@ export const ProfileField = ({
 }) => {
   return (
     <div className={`w-1/2 font-poppins ${className}`}>
-      <h6 className="text-baby-blue text-sm">{field}</h6>
+      <h6 className="text-bt-blue-100 text-sm">{field}</h6>
       <p className="text-white text-xs">{value}</p>
     </div>
   );

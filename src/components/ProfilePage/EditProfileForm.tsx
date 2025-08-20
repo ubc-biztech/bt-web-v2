@@ -112,7 +112,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
       <div className="flex-1">
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-8 bg-biztech-navy/80 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-border-blue border"
+          className="space-y-8 bg-bt-blue-300/20 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-bt-blue-200 border"
         >
           <div className="space-y-6">
             <h3 className="font-semibold text-white">Edit Profile</h3>
@@ -176,16 +176,16 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
               control={form.control}
             />
 
-            <div className="space-y-6">
-              <h4 className="font-semibold text-white">Privacy Settings</h4>
-              <div className="space-y-3">
-                <p className="text-sm text-pale-blue mb-4">
+            <div className="space-y-6 ">
+              <h4 className="font-semibold text-white mt-12">Privacy Settings</h4>
+              <div className="space-y-3 border border-bt-blue-100 rounded-md p-4">
+                <p className="text-sm text-white mb-4">
                   Choose what information is visible on your profile:
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.description"
                     >
                       Description
@@ -200,7 +200,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.hobby1"
                     >
                       Hobby 1
@@ -215,7 +215,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.hobby2"
                     >
                       Hobby 2
@@ -230,7 +230,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.funQuestion1"
                     >
                       Fun Question 1
@@ -245,7 +245,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.funQuestion2"
                     >
                       Fun Question 2
@@ -260,7 +260,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.linkedIn"
                     >
                       LinkedIn
@@ -275,7 +275,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.additionalLink"
                     >
                       Additional Link
@@ -290,7 +290,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                   </div>
                   <div className="flex items-center justify-between w-[90%]">
                     <label
-                      className="text-sm text-pale-blue"
+                      className="text-sm text-bt-blue-0"
                       htmlFor="viewableMap.profilePictureURL"
                     >
                       Profile Picture
@@ -310,7 +310,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
             <div className="flex gap-4">
               <Button
                 type="submit"
-                className="bg-biztech-green hover:bg-biztech-green/80 text-dark-navy"
+                className="bg-bt-green-300 hover:bg-bt-green-300/80 text-bt-blue-600"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Saving..." : "Save Changes"}

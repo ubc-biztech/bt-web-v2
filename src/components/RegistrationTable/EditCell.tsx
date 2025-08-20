@@ -50,7 +50,7 @@ export const EditCell: React.FC<EditCellProps> = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[750px] w-full max-h-lg bg-events-active-tab-bg border-0">
+      <DialogContent className="max-w-[750px] w-full max-h-lg bg-bt-blue-400 border-0">
         <DialogHeader>
           <DialogTitle className="text-white">
             {row.original.fname} {row.original.basicInformation.lname}

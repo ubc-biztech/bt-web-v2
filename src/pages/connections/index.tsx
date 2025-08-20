@@ -41,7 +41,7 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
         />
       </Head>
 
-      <main className="bg-primary-color min-h-screen w-full">
+      <main className="bg-bt-blue-600 min-h-screen w-full">
         <div className="w-full">
           <div className="mx-auto pt-8 md:px-20 px-5 flex flex-col mt-9">
             <span>
@@ -54,19 +54,19 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
                 </p>
               </div>
             </span>
-            <div className="bg-navbar-tab-hover-bg h-[1px] my-4" />
+            <div className="bg-bt-blue-300 h-[1px] my-4" />
 
             <div className="mb-6">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-desat-navy" />
+                  <Search className="h-5 w-5 text-neutral-500" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search by user"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-700 border-2 border-blue-500 border-solid rounded-lg text-desat-navy placeholder-light-grey focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-blue-600"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 bt-blue-400-500 border-solid rounded-lg text-bt-blue-300 placeholder-neutral-500 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:bt-blue-400-600"
                 />
               </div>
             </div>
@@ -123,7 +123,7 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
 
             {filteredConnections.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-400 text-lg">
+                <p className="text-bt-blue-0 text-lg">
                   No connections found matching your search.
                 </p>
               </div>

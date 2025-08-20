@@ -60,7 +60,7 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
           <TooltipContent>Deselect</TooltipContent>
         </Tooltip>
       </TooltipProvider>
-      <span className="text-login-form-card">{selectedRowsCount} Selected</span>
+      <span className="text-bt-blue-400">{selectedRowsCount} Selected</span>
       <div className="flex flex-row">
         <TooltipProvider>
           <Tooltip>

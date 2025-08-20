@@ -72,7 +72,7 @@ const ProfilePage = ({
 
   if (!profileData) {
     return (
-      <div className="flex flex-col items-center gap-4 w-full text-pale-blue text-lg">
+      <div className="flex flex-col items-center gap-4 w-full text-bt-blue-0 text-lg">
         Oops! No profile found.
         <IconButton
           label="Return to home"
@@ -123,7 +123,7 @@ const ProfilePage = ({
       <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
         <div className="flex flex-col justify-center items-center col-span-1 gap-4">
           <div className="lg:place-items-center flex flex-col justify-center w-fit">
-            <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+            <div className="w-32 h-32 bg-events-bt-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
               {profilePictureURL ? (
                 <Image
                   src={profilePictureURL}
@@ -132,7 +132,7 @@ const ProfilePage = ({
                   className="object-cover"
                 />
               ) : (
-                <span className="text-3xl font-medium text-biztech-navy">
+                <span className="text-3xl font-medium text-bt-blue-500">
                   {fname[0].toUpperCase()}
                   {lname[0].toUpperCase()}
                 </span>
@@ -172,20 +172,20 @@ const ProfilePage = ({
         <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
           <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
             <div className="space-y-4">
-              <p className="text-pale-blue text-sm">
+              <p className="text-bt-blue-0 text-sm">
                 {description || "No description provided."}
               </p>
 
               {(hobby1 || hobby2) && (
                 <>
                   <div className="inline-flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-pale-blue">Hobbies:</span>
+                    <span className="text-sm text-bt-blue-0">Hobbies:</span>
                     <div className="flex flex-wrap gap-2">
                       {hobby1 && <HobbyTag hobby={hobby1} />}
                       {hobby2 && <HobbyTag hobby={hobby2} />}
                     </div>
                   </div>
-                  <div className="border-border-blue border-[0.5px]" />
+                  <div className="border-bt-blue-400 border-[0.5px]" />
                 </>
               )}
 
@@ -218,13 +218,13 @@ const ProfilePage = ({
               {questions.map((question, idx) => (
                 <div key={idx} className="">
                   <span className="rounded-lg">
-                    <p className="text-sm text-pale-blue mb-2">
+                    <p className="text-sm text-bt-blue-0 mb-2">
                       {funQuestion1}
                     </p>
                   </span>
 
                   {questions.length > 1 && (
-                    <div className="border-border-blue border-[0.5px]" />
+                    <div className="border-bt-blue-400 border-[0.5px]" />
                   )}
                 </div>
               ))}

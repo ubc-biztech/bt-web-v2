@@ -20,8 +20,8 @@ export const FormInput: React.FC<FormInputProps> = ({
 }) => {
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-pale-blue">
-        {label} {required && <span className="text-red-500">*</span>}
+      <label className="text-sm font-medium text-white">
+        {label} {required && <span className="text-bt-red-500">*</span>}
       </label>
       <Controller
         name={name}
@@ -32,12 +32,12 @@ export const FormInput: React.FC<FormInputProps> = ({
               {...field}
               type={type}
               placeholder={placeholder}
-              className={`w-full p-2 rounded-md bg-biztech-navy border ${
-                error ? "border-red-500" : "border-border-blue"
-              } text-white placeholder-pale-blue/40`}
+              className={`w-full p-2 rounded-md bg-bt-blue-300 border ${
+                error ? "border-bt-red-500" : "border-bt-blue-100"
+              } text-white placeholder-bt-blue-100`}
             />
             {error && (
-              <p className="text-light-red text-xs mt-1">{error.message}</p>
+              <p className="text-bt-red-200 text-xs mt-1">{error.message}</p>
             )}
           </>
         )}

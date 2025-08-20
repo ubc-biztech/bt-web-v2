@@ -123,7 +123,7 @@ const CreateEventPage: NextPage = () => {
   };
 
   return (
-    <div className="bg-primary-color min-h-screen">
+    <div className="bg-bt-blue-600 min-h-screen">
       <div className="mx-auto flex flex-col">
         <EventForm onSubmit={handleSubmit} />
       </div>

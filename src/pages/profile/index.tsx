@@ -20,7 +20,7 @@ export default function ProfilePage({
 }: ProfilePageProps) {
   if (error) {
     return (
-      <div className="text-light-red text-center">
+      <div className="text-bt-red-200 text-center">
         <h1 className="text-2xl font-bold mb-4">Error</h1>
         <p>{error}</p>
       </div>

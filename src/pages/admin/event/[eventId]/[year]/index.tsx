@@ -52,12 +52,12 @@ export default function AdminEvent({ initialData, eventData }: Props) {
   if (!router.isReady) return null;
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen">
       <div className="container mx-auto p-10 flex flex-col">
         <div className="flex justify-between items-center">
           <span>
             <h2 className="text-white">Event Overview</h2>
-            <p className="text-baby-blue font-poppins">
+            <p className="text-bt-blue-100 font-poppins">
               Manage Events {">"} {router.query.eventId} {router.query.year}
             </p>
           </span>
@@ -67,14 +67,14 @@ export default function AdminEvent({ initialData, eventData }: Props) {
                 `/admin/event/${router.query.eventId}/${router.query.year}/edit`,
               )
             }
-            className="bg-biztech-green"
+            className="bg-bt-green-300"
           >
             Edit Event
           </Button>
         </div>
 
         {/*divider*/}
-        <div className="w-full h-[2px] bg-login-form-card my-6" />
+        <div className="w-full h-[2px] bg-bt-blue-400 my-6" />
 
         {isLoading ? (
           <div className="flex justify-center items-center h-64">

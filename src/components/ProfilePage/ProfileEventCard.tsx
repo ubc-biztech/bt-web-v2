@@ -26,7 +26,7 @@ const ProfileEventCard: React.FC<ProfileEventCardProps> = ({ initialData }) => {
   }, []);
   return (
     <Card
-      className="w-1/3 border-none bg-events-card-bg"
+      className="w-1/3 border-none bg-bt-blue-300"
       style={{ width: isMobileDevice ? "50%" : "33%" }}
     >
       <Image
@@ -38,7 +38,7 @@ const ProfileEventCard: React.FC<ProfileEventCardProps> = ({ initialData }) => {
       />
       <CardFooter className="font-poppins p-3 gap-0.5 flex flex-col text-left items-start">
         <h6 className="text-white font-500 text-sm">{initialData?.ename}</h6>
-        <p className="text-baby-blue text-xs">{displayDate}</p>
+        <p className="text-bt-blue-100 text-xs">{displayDate}</p>
       </CardFooter>
     </Card>
   );
