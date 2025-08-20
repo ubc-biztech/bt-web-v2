@@ -9,10 +9,13 @@ import {
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
-import { useRedirect } from "@/hooks/useRedirect";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 
-const LoginForm: React.FC = () => {
+interface LoginProps {
+  redirect?: string;
+}
+
+const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
   // All the logic and UI from the current Login component goes here
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,10 +49,8 @@ const LoginForm: React.FC = () => {
             method: "GET",
           });
 
-          console.log(userProfile);
-
           if (userProfile.isMember) {
-            await router.push("/");
+            await router.push(redirect ? redirect : "/");
           } else if (!!userProfile) {
             await router.push("/membership");
           }
@@ -117,9 +118,9 @@ const LoginForm: React.FC = () => {
             method: "GET",
           });
           if (userProfile.isMember) {
-            router.push("/");
+            await router.push(redirect ? redirect : "/");
           } else {
-            router.push("/membership");
+            await router.push("/membership");
           }
         } catch (err: any) {
           console.error("Error fetching user profile:", err);
@@ -136,6 +137,7 @@ const LoginForm: React.FC = () => {
     try {
       await signInWithRedirect({
         provider: "Google",
+        customState: redirect ? redirect : undefined,
       });
     } catch (error: any) {
       console.error("Error initiating Google sign-in:", error);
@@ -370,8 +372,27 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+import { GetServerSidePropsContext } from "next";
+import { ParsedUrlQuery } from "querystring";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
+
+export const getServerSideProps: GetServerSideProps = async (
+  context: GetServerSidePropsContext<ParsedUrlQuery>,
+) => {
+  const { req, res, query } = context;
   const nextServerContext = { request: req, response: res };
+
+  let redirect =
+    query && query.redirect && typeof query.redirect === "string"
+      ? query.redirect
+      : null;
+
+  const stateParam = !Array.isArray(query.state) ? query.state : null;
+  if (stateParam && stateParam.split("-").length == 2) {
+    const parts = stateParam.split("-");
+    redirect = Buffer.from(parts[1], "hex").toString();
+    console.log(redirect);
+  }
 
   try {
     const userProfile = await fetchBackendFromServer({
@@ -383,9 +404,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     if (userProfile?.isMember) {
       return {
         redirect: {
-          destination: "/",
+          destination: redirect ? redirect : "/",
           permanent: false,
         },
+        props: {},
       };
     }
 
@@ -395,23 +417,33 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
           destination: "/membership",
           permanent: false,
         },
+        props: {},
       };
     }
 
     return {
-      props: {},
+      props: { redirect },
     };
   } catch (error: any) {
+    if (error.name === "UnauthenticatedUserError") {
+      return {
+        props: { redirect },
+      };
+    }
+
     if (error.status === 404)
+      // membership doesn't exist
       return {
         redirect: {
           destination: "/membership",
           permanent: false,
         },
+        props: {},
       };
 
+    console.error("Error fetching from backend");
     return {
-      props: {},
+      props: { redirect },
     };
   }
 };

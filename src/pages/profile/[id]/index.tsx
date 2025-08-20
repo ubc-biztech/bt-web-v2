@@ -25,6 +25,7 @@ import { useRouter as useNavRouter } from "next/navigation";
 import Image from "next/image";
 import ConnectionModal from "@/components/Connections/ConnectionModal/ConnectionModal";
 import { ConnectedButton } from "@/components/ui/connected-button";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -155,17 +156,15 @@ const ProfilePage = ({
       </div>
 
       <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
-        {/* CONNECTED Button - only show if connected */}
         {isConnected && (
           <div className="flex justify-center">
-            <ConnectedButton className="mx-auto mb-4 flex items-center">
+            <ConnectedButton className="mb-4 text-biztech-green before:bg-none border-biztech-green border bg-biztech-green/10 px-3 py-1 rounded-full text-sm font-medium font-sans">
               <CheckCircle />
               <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
             </ConnectedButton>
           </div>
         )}
 
-        {/* Member Profile Section */}
         <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
           <div className="space-y-4">
             <p className="text-pale-blue text-sm">
@@ -232,9 +231,10 @@ const ProfilePage = ({
         setIsOpen={setDrawerOpen}
         url={fullURL}
       />
-      {signedIn && (
+      {!isConnected && (
         <ConnectionModal
           profileData={profileData}
+          signedIn={signedIn}
           profileID={profileID}
           isVisible={showScanModal}
           onClose={handleCloseModal}
@@ -251,32 +251,55 @@ export const getServerSideProps: GetServerSideProps = async ({
 }) => {
   const humanId = params?.id as string;
 
+  const nextServerContext = {
+    request: req,
+    response: res,
+  };
+
+  let profileData = null;
+  let isConnected = false;
+  let signedIn = false;
+
   try {
-    const nextServerContext = {
-      request: req,
-      response: res,
-    };
-
-    // Fetch profile data first - this is the primary request
-    const profileData = await fetchBackend({
-      endpoint: `/profiles/profile/${humanId}`,
-      method: "GET",
-      authenticatedCall: false,
-    });
-
-    // Try to fetch connection check, but don't fail if it errors
-    let isConnected = false;
-    let signedIn = false;
-
-    try {
-      const connCheck = await fetchBackendFromServer({
+    const [profileResult, connectionResult] = await Promise.allSettled([
+      fetchBackend({
+        endpoint: `/profiles/profile/${humanId}`,
+        method: "GET",
+        authenticatedCall: false,
+      }),
+      fetchBackendFromServer({
         endpoint: `/interactions/journal/${humanId}`,
         method: "GET",
         nextServerContext,
-      });
-      isConnected = connCheck.connected;
+      }),
+    ]);
+
+    if (profileResult.status !== "fulfilled") {
+      console.error("Profile fetch failed:", profileResult.reason);
+      return {
+        props: {
+          profileData: null,
+          isConnected: false,
+          profileID: humanId,
+          signedIn: false,
+        },
+      };
+    }
+
+    profileData = profileResult.value;
+
+    if (
+      connectionResult.status !== "fulfilled" &&
+      connectionResult.reason instanceof Error &&
+      connectionResult.reason.name === "UnauthenticatedUserError"
+    ) {
+      // unauthenticated user
+    } else if (connectionResult.status !== "fulfilled") {
+      console.error("Unable to fetch backend as authenticated user");
+    } else {
+      isConnected = connectionResult.value.connected;
       signedIn = true;
-    } catch (connError) {}
+    }
 
     return {
       props: {
@@ -287,6 +310,8 @@ export const getServerSideProps: GetServerSideProps = async ({
       },
     };
   } catch (error) {
+    console.error("Unexpected error in getServerSideProps:", error);
+
     return {
       props: {
         profileData: null,

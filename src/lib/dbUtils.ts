@@ -78,3 +78,10 @@ export async function updateRegistrationData(
     console.error("Internal Server Error, Update Failed");
   }
 }
+
+export class UnauthenticatedUserError extends Error {
+  constructor(message: string = "User is not authenticated") {
+    super(message);
+    this.name = "UnauthenticatedUserError";
+  }
+}
