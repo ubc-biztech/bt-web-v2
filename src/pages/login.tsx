@@ -412,7 +412,9 @@ const LoginForm: React.FC = () => {
               </div>
             </div>
           </div>
-        ) : <DiscordVerifyStatus status={statusPage === "success"} />}
+        ) : (
+          <DiscordVerifyStatus status={statusPage === "success"} />
+        )}
       </div>
     </div>
   );
