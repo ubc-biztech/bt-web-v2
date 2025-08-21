@@ -124,11 +124,11 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
             {signedIn && (
               <Users size={14} className="text-[#BDC8E3] sm:w-4 sm:h-4" />
             )}
-            {isConnecting
-              ? "Connecting..."
-              : signedIn
-                ? "Connect"
-                : "Login to Connect"}
+            {(() => {
+              if (isConnecting) return "Connecting...";
+              if (signedIn) return "Connect";
+              return "Login to Connect";
+            })()}
           </button>
         </div>
       </div>
