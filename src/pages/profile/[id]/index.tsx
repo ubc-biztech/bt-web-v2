@@ -49,12 +49,10 @@ const ProfilePage = ({
 
   const showScanModal = router.query.scan === "true";
   const handleCloseModal = () => {
-    const currentQuery = { ...router.query };
-    delete currentQuery.scan;
     router.replace(
       {
         pathname: router.pathname,
-        query: currentQuery,
+        query: undefined,
       },
       undefined,
       { shallow: true },
@@ -257,6 +255,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   req,
   res,
   params,
+  query,
 }) => {
   const humanId = params?.id as string;
 
@@ -317,6 +316,14 @@ export const getServerSideProps: GetServerSideProps = async ({
         profileID: humanId,
         signedIn,
       },
+      redirect:
+        isConnected && query && query.scan === "true"
+          ? {
+              destination: `/profile/${humanId}`,
+              permanent: false,
+              query: undefined,
+            }
+          : undefined,
     };
   } catch (error) {
     console.error("Unexpected error in getServerSideProps:", error);
