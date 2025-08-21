@@ -352,8 +352,8 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                 </span>
               </a>
 
-              <a
-                href="#"
+              <Link
+                href="/become-a-member"
                 className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
               >
                 <img
@@ -363,7 +363,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                 <span className="text-sm leading-6 text-login-form-card font-500">
                   Guest
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
