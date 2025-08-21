@@ -32,6 +32,7 @@ interface NFCProfilePageProps {
   profileID: string;
   isConnected: boolean;
   signedIn: boolean;
+  self: boolean;
   error?: string;
 }
 
@@ -40,6 +41,7 @@ const ProfilePage = ({
   profileID,
   isConnected,
   signedIn,
+  self,
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -238,7 +240,7 @@ const ProfilePage = ({
           url={fullURL}
         />
       </div>
-      {!isConnected && (
+      {!isConnected && !self && (
         <ConnectionModal
           profileData={profileData}
           signedIn={signedIn}
@@ -267,6 +269,7 @@ export const getServerSideProps: GetServerSideProps = async ({
   let profileData = null;
   let isConnected = false;
   let signedIn = false;
+  let self = false;
 
   try {
     const [profileResult, connectionResult] = await Promise.allSettled([
@@ -303,7 +306,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     ) {
       // unauthenticated user
     } else if (connectionResult.status !== "fulfilled") {
-      console.error("Unable to fetch backend as authenticated user");
+      if (connectionResult.reason.status === 400) self = true;
     } else {
       isConnected = connectionResult.value.connected;
       signedIn = true;
@@ -314,6 +317,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         profileData,
         isConnected,
         profileID: humanId,
+        self,
         signedIn,
       },
       redirect:
@@ -333,6 +337,7 @@ export const getServerSideProps: GetServerSideProps = async ({
         profileData: null,
         isConnected: false,
         profileID: humanId,
+        self,
         signedIn: false,
       },
     };
