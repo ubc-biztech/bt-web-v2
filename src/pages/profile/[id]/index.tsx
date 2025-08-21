@@ -51,10 +51,11 @@ const ProfilePage = ({
 
   const showScanModal = router.query.scan === "true";
   const handleCloseModal = () => {
+    const { scan, ...restQuery } = router.query;
     router.replace(
       {
         pathname: router.pathname,
-        query: undefined,
+        query: restQuery,
       },
       undefined,
       { shallow: true },
@@ -121,7 +122,7 @@ const ProfilePage = ({
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
         <div className="flex flex-col justify-center items-center col-span-1 gap-4">
-          <div className="place-items-center w-fit">
+          <div className="lg:place-items-center flex flex-col justify-center w-fit">
             <div className="w-32 h-32 bg-events-baby-blue rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
               {profilePictureURL ? (
                 <Image
@@ -149,6 +150,13 @@ const ProfilePage = ({
                   : "Exec"}
             </p>
 
+            {isConnected && (
+              <ConnectedButton className="mb-4 text-biztech-green before:bg-none border-biztech-green border bg-biztech-green/10 px-3 py-1 rounded-full text-sm font-medium font-sans">
+                <CheckCircle />
+                <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
+              </ConnectedButton>
+            )}
+
             <IconButton
               icon={Share}
               label="Share Profile"
@@ -162,15 +170,6 @@ const ProfilePage = ({
         </div>
 
         <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
-          {isConnected && (
-            <div className="flex justify-center">
-              <ConnectedButton className="mb-4 text-biztech-green before:bg-none border-biztech-green border bg-biztech-green/10 px-3 py-1 rounded-full text-sm font-medium font-sans">
-                <CheckCircle />
-                <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
-              </ConnectedButton>
-            </div>
-          )}
-
           <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
             <div className="space-y-4">
               <p className="text-pale-blue text-sm">
@@ -214,7 +213,6 @@ const ProfilePage = ({
             <UserExternalLinks />
           </div>
 
-          {/* Q&A Section */}
           {(funQuestion1 || funQuestion2) && (
             <GenericCardNFC isCollapsible={false}>
               {questions.map((question, idx) => (

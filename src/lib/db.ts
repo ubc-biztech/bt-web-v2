@@ -54,7 +54,7 @@ export async function fetchBackend({
     if (session?.idToken) {
       headers["Authorization"] = `Bearer ${session.idToken}`;
     } else {
-      console.warn("Skipping auth: currentSession unavailable in SSR context.");
+      throw new UnauthenticatedUserError("User is not authenticated");
     }
   }
 

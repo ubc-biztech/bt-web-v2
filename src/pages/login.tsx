@@ -52,7 +52,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       } catch (err: any) {
         if (err.status === 404) {
           await router.push("/membership");
-        } else if (err! instanceof UnauthenticatedUserError) {
+        } else if (!(err instanceof UnauthenticatedUserError)) {
           console.error(err);
         }
       }

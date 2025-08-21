@@ -102,7 +102,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
                 alt={`${profileData.fname} ${profileData.lname}`}
                 width={96}
                 height={96}
-                className="w-full h-full object-cover"
+                className="object-cover"
               />
             </div>
           </div>
@@ -118,7 +118,9 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
         <div className="flex justify-center">
           <button
             className="w-[140px] h-[48px] sm:w-[155px] sm:h-[56px] bg-[#BDC8E3] bg-opacity-20 border border-[#BDC8E3] text-[#BDC8E3] rounded-lg font-medium hover:bg-[#BDC8E3]/10 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed p-4 py-6"
-            onClick={handleConnect}
+            onClick={async (e) => {
+              await handleConnect(e);
+            }}
             disabled={isConnecting}
           >
             {signedIn && (
