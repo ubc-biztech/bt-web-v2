@@ -4,10 +4,12 @@ import { X, Users, ScanLine } from "lucide-react";
 import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 import { fetchBackend } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/router";
 
 interface ConnectionModalProps {
   profileData: BiztechProfile;
   profileID: string;
+  signedIn: boolean;
   isVisible: boolean;
   onClose: () => void;
 }
@@ -15,14 +17,22 @@ interface ConnectionModalProps {
 const ConnectionModal: React.FC<ConnectionModalProps> = ({
   profileData,
   profileID,
+  signedIn,
   isVisible,
   onClose,
 }) => {
   const [isConnecting, setIsConnecting] = useState(false);
+  const router = useRouter();
 
   if (!isVisible) return null;
 
-  const handleConnect = async () => {
+  const handleConnect = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    if (!signedIn) {
+      await router.push(`/login?redirect=/profile/${profileID}?scan=true`);
+    }
+
     try {
       setIsConnecting(true);
       const response = await fetchBackend({
@@ -107,12 +117,18 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
 
         <div className="flex justify-center">
           <button
-            className="w-[140px] h-[48px] sm:w-[155px] sm:h-[56px] bg-[#BDC8E3] bg-opacity-20 border border-[#BDC8E3] text-[#BDC8E3] rounded-lg font-medium hover:bg-[#BDC8E3]/10 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-[140px] h-[48px] sm:w-[155px] sm:h-[56px] bg-[#BDC8E3] bg-opacity-20 border border-[#BDC8E3] text-[#BDC8E3] rounded-lg font-medium hover:bg-[#BDC8E3]/10 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed p-4 py-6"
             onClick={handleConnect}
             disabled={isConnecting}
           >
-            <Users size={14} className="text-[#BDC8E3] sm:w-4 sm:h-4" />
-            {isConnecting ? "Connecting..." : "Connect"}
+            {signedIn && (
+              <Users size={14} className="text-[#BDC8E3] sm:w-4 sm:h-4" />
+            )}
+            {(() => {
+              if (isConnecting) return "Connecting...";
+              if (signedIn) return "Connect";
+              return "Login to Connect";
+            })()}
           </button>
         </div>
       </div>

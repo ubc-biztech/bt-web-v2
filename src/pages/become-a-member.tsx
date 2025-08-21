@@ -19,7 +19,7 @@ export default function Page() {
         iconDirection="right"
         label="Become a member"
         className="bg-biztech-green text-dark-navy hover:bg-light-green"
-        onClick={() => router.push("/membership")}
+        onClick={() => router.push("/login")}
       />
     </div>
   );
