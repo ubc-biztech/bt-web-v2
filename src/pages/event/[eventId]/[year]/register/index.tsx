@@ -50,6 +50,10 @@ export default function AttendeeFormRegister() {
     return event.pricing?.members === event.pricing?.nonMembers;
   };
 
+  const priceDiff = () => {
+    return event.pricing?.nonMembers - event.pricing?.members;
+  };
+
   const isDeadlinePassed = () => {
     const deadline = Date.parse(event.deadline);
     // get the timestamp down to millisconds
@@ -165,17 +169,12 @@ export default function AttendeeFormRegister() {
     if (
       !userLoading &&
       !userLoggedIn &&
-      event.pricing?.members &&
-      event.pricing?.nonMembers &&
-      event.pricing.members < event.pricing.nonMembers &&
+      priceDiff() > 0 &&
       !hasShownMemberToast
     ) {
-      const priceDifference = (
-        event.pricing.nonMembers - event.pricing.members
-      ).toFixed(2);
       toast({
         title: "💡 Member Discount Available!",
-        description: `Sign in as a member to save $${priceDifference} on this event!`,
+        description: `Sign in as a member to save $${priceDiff().toFixed(2)} on this event!`,
         duration: 8000, // Show for 8 seconds
       });
       setHasShownMemberToast(true);

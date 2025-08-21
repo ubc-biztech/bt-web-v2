@@ -141,7 +141,12 @@ const ProfilePage = ({
               {fname} {lname}
             </h1>
             <p className="text-pale-blue mb-4">
-              BizTech {profileType === "ATTENDEE" ? "Member" : "Exec"}
+              BizTech{" "}
+              {profileType === "ATTENDEE"
+                ? "Member"
+                : profileType === "PARTNER"
+                  ? "Partner"
+                  : "Exec"}
             </p>
 
             <IconButton
