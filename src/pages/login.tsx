@@ -228,7 +228,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                   autoComplete="email"
                   required
                   placeholder="user@example.com"
-                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -265,7 +265,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                   autoComplete="current-password"
                   required
                   placeholder="Enter 6 characters or more"
-                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -334,7 +334,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
               <Link
                 href="/become-a-member"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
               >
                 <img
                   src="https://i.ibb.co/0VtyXLD/Frame-3.png"
