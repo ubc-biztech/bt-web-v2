@@ -306,6 +306,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     ) {
       // unauthenticated user
     } else if (connectionResult.status !== "fulfilled") {
+      // error 400 means you checked a connection with yourself
       if (connectionResult.reason.status === 400) self = true;
     } else {
       isConnected = connectionResult.value.connected;
