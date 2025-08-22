@@ -4,6 +4,8 @@ import { AuthTokens, fetchAuthSession } from "aws-amplify/auth";
 import { fetchAuthSession as fetchSessionFromServer } from "aws-amplify/auth/server";
 import outputs from "amplify_outputs.json";
 import { GetServerSidePropsContext } from "next";
+import { runWithAmplifyServerContext } from "@/util/amplify-utils";
+import { UnauthenticatedUserError } from "./dbUtils";
 
 interface FetchBackendOptions {
   endpoint: string;
@@ -18,10 +20,6 @@ interface FetchBackendServerOptions extends FetchBackendOptions {
     response: GetServerSidePropsContext["res"];
   };
 }
-
-const { runWithAmplifyServerContext } = createServerRunner({
-  config: outputs,
-});
 
 async function currentSession(): Promise<AuthTokens | null> {
   if (typeof window === "undefined") {
@@ -56,7 +54,7 @@ export async function fetchBackend({
     if (session?.idToken) {
       headers["Authorization"] = `Bearer ${session.idToken}`;
     } else {
-      console.warn("Skipping auth: currentSession unavailable in SSR context.");
+      throw new UnauthenticatedUserError("User is not authenticated");
     }
   }
 
@@ -102,7 +100,13 @@ export async function fetchBackendFromServer({
     const session = await runWithAmplifyServerContext({
       nextServerContext,
       operation: async (contextSpec) => {
-        return await fetchSessionFromServer(contextSpec);
+        try {
+          return await fetchSessionFromServer(contextSpec);
+        } catch (error) {
+          throw new UnauthenticatedUserError(
+            "User is not authenticated or session does not exist in request",
+          );
+        }
       },
     });
 
