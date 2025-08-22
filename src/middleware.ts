@@ -14,6 +14,7 @@ export async function middleware(request: NextRequest) {
     "/events",
     "/event",
     "/become-a-member",
+    "/membership",
     "/login",
     "/profile",
     "/register",
