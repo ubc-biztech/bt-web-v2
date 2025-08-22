@@ -3,13 +3,16 @@ import { useRouter } from "next/router";
 import {
   signIn,
   signInWithRedirect,
-  fetchUserAttributes,
   resendSignUpCode,
 } from "@aws-amplify/auth";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
+import { GetServerSidePropsContext } from "next";
+import { ParsedUrlQuery } from "querystring";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import Image from "next/image";
 
 interface LoginProps {
   redirect?: string;
@@ -351,11 +354,6 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     </div>
   );
 };
-
-import { GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { UnauthenticatedUserError } from "@/lib/dbUtils";
-import Image from "next/image";
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext<ParsedUrlQuery>,
