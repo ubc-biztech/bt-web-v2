@@ -13,7 +13,7 @@ export default function NotFoundPage() {
         height={324}
       />
       <h2 className="text-bt-blue-0 mb-1">404 - Page Not Found </h2>
-      <p> Sorry, the page you're looking for does not exist. </p>
+      <p> {" Sorry, the page you're looking for does not exist."} </p>
       <Link href="/">
         <IconButton
           variant="outline"
