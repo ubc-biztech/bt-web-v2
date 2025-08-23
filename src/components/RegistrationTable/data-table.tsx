@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { DataTableProps, SortingState, ColumnFiltersState } from "./types";
 import {
   useReactTable,
@@ -37,9 +37,9 @@ export function DataTable({
   const [filterValue, setFilterValue] = useState<
     "attendees" | "partners" | "waitlisted"
   >("attendees");
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [globalFilter, setGlobalFilter] = useState("");
 
-  const refreshTable = async () => {
+  const refreshTable = useCallback(async () => {
     try {
       const registrationData = await fetchBackend({
         endpoint: `/registrations?eventID=${eventId}&year=${year}`,
@@ -50,12 +50,14 @@ export function DataTable({
     } catch (error) {
       console.error("Failed to refresh table data:", error);
     }
-  };
+  }, [eventId, year, setData]);
 
-  const allColumns = [
-    ...createColumns(refreshTable, eventData),
-    ...dynamicColumns,
-  ];
+  const memoizedColumns = useMemo(
+    () => createColumns(refreshTable, eventData),
+    [refreshTable, eventData],
+  );
+
+  const allColumns = [...memoizedColumns, ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);
@@ -103,7 +105,7 @@ export function DataTable({
       columnFilters,
       rowSelection,
       columnVisibility,
-      globalFilter  
+      globalFilter,
     },
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {

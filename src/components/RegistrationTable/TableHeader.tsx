@@ -67,26 +67,6 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [teamName, setTeamName] = useState("");
   const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
 
-  // Debounce / throttle logic
-
-  const [debouncedFilter, setDebouncedFilter] = useState("");
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedFilter(globalFilter);
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [globalFilter]);
-
-  useEffect(() => {
-    if (debouncedFilter) {
-      console.log("Filtering with:", debouncedFilter);
-    }
-  }, [debouncedFilter]);
-
   const handleSelectChange = (value: SelectValue) => {
     setSelectedValue(value);
     onFilterChange(value);
@@ -133,7 +113,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         <SearchBar
           startIcon={Search}
           placeholder="Search by keyword..."
-          value={debouncedFilter}
+          value={globalFilter}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             setGlobalFilter(event.target.value)
           }

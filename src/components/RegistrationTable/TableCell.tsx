@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, memo } from "react";
 import {
   Select,
   SelectContent,
@@ -17,7 +17,8 @@ interface TableCellProps extends CellContext<Registration, unknown> {
   refreshTable: () => Promise<void>;
 }
 
-export const TableCell = ({
+export const TableCell = memo(
+  ({
   getValue,
   column,
   row,
@@ -147,4 +148,15 @@ export const TableCell = ({
   }
 
   return <span>{value as string}</span>;
-};
+},
+  (prevProps, nextProps) => {
+    return (
+      prevProps.getValue() === nextProps.getValue() &&
+      prevProps.column.id === nextProps.column.id &&
+      prevProps.row.original.id === nextProps.row.original.id &&
+      prevProps.row.original["eventID;year"] === nextProps.row.original["eventID;year"]
+    );
+  }
+);
+
+TableCell.displayName = "TableCell";

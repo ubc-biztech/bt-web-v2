@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import Divider from "@/components/Common/Divider";
+import { LayoutGrid, Rows3 } from "lucide-react";
 
 type Props = {
   events: BiztechEvent[] | null;
@@ -82,16 +83,14 @@ export default function AdminEventView({ events }: Props) {
             <h3 className="text-white">Admin Event Portal</h3>
           )}
           <div className="flex items-center justify-between">
-            <p className="text-bt-blue-100">
-              Manage published Biztech events.
-            </p>
+            <p className="text-bt-blue-100">Manage published Biztech events.</p>
             {!isMobileDevice ? (
               <div>
                 <Button variant="ghost" className="bg-transparent">
-                  <Image src={GridViewIcon} alt="Grid View Icon" />
+                  <LayoutGrid />
                 </Button>
                 <Button variant="ghost" className="bg-transparent">
-                  <Image src={CompactViewIcon} alt="Compact View Icon" />
+                  <Rows3 />
                 </Button>
               </div>
             ) : (
@@ -100,14 +99,14 @@ export default function AdminEventView({ events }: Props) {
           </div>
         </span>
         {/*divider*/}
-        <Divider className="mb-8"/>
+        <Divider className="mb-8" />
         {/* conditionally mapping the events gathered from the database to the screen  */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <p className="text-white">Loading...</p>
           </div>
         ) : !isMobileDevice ? (
-          <div className="block md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {data?.map((event) => (
               <EventCard
                 key={event.id}

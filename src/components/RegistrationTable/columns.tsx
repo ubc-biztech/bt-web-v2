@@ -78,7 +78,7 @@ export const createColumns = (
     header: ({ column }) => (
       <SortableHeader title="Reg. Status" column={column} />
     ),
-    cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
+    cell: (props) => <TableCell {...props} refreshTable={refreshTable} key={`${props.row}-${props.column}`}/>,
     meta: {
       type: "select",
       options: [

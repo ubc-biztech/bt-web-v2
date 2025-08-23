@@ -15,7 +15,7 @@ const UserResponses: React.FC<UserResponsesProps> = ({
       {questions.map((question, index) => {
         const label = question.label;
         const questionId = question.questionId;
-        const answer = responses[questionId] || "No response";
+        const answer = responses ? responses[questionId] : "No response";
 
         return (
           <div key={index} className="mb-3 w-full max-w-full overflow-hidden">

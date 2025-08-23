@@ -40,13 +40,13 @@ export const EditCell: React.FC<EditCellProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <SquareArrowOutUpRight className="hover:bg-bt-blue-300 p-1 rounded-sm w-7 h-7 transition-color duration-200 ease-in-out cursor-pointer"/>
+        <SquareArrowOutUpRight className="hover:bg-bt-blue-300 p-1 rounded-sm w-7 h-7 transition-color duration-200 ease-in-out cursor-pointer" />
       </DialogTrigger>
 
       <DialogContent className="max-w-[750px] w-full max-h-lg bg-bt-blue-400/70 backdrop-blur-md border-0 shadow-inner-white-lg">
         <DialogHeader>
           <DialogTitle className="text-white">
-            {row.original.fname} {row.original.basicInformation.lname}
+            {row.original?.fname} {row.original?.basicInformation?.lname}
           </DialogTitle>
           <span className="italic text-white">Form Responses</span>
         </DialogHeader>
@@ -59,7 +59,7 @@ export const EditCell: React.FC<EditCellProps> = ({
               questions={
                 eventData.registrationQuestions as RegistrationQuestion[]
               }
-              responses={row.original.dynamicResponses}
+              responses={row.original?.dynamicResponses}
             />
           </div>
         </div>
