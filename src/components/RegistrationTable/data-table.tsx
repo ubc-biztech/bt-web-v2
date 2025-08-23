@@ -37,6 +37,7 @@ export function DataTable({
   const [filterValue, setFilterValue] = useState<
     "attendees" | "partners" | "waitlisted"
   >("attendees");
+  const [globalFilter, setGlobalFilter] = useState('');
 
   const refreshTable = async () => {
     try {
@@ -92,11 +93,17 @@ export function DataTable({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: (row, columnId, filterValue) => {
+      return String(row.getValue(columnId))
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
+    },
     state: {
       sorting,
       columnFilters,
       rowSelection,
       columnVisibility,
+      globalFilter  
     },
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {
@@ -126,7 +133,7 @@ export function DataTable({
   }
 
   return (
-    <div className="space-y-4 font-poppins">
+    <div className="space-y-4">
       <QrCheckIn
         event={{ id: eventId, year: year }}
         rows={data}
@@ -141,6 +148,8 @@ export function DataTable({
         setQrReaderToggled={setQrReaderToggled}
         refreshTable={refreshTable}
         onFilterChange={setFilterValue}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
       />
 
       <TableComponent>

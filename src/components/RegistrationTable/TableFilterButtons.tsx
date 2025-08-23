@@ -12,6 +12,7 @@ import { Table } from "@tanstack/react-table";
 import CancelIcon from "../../../public/assets/icons/cancel_icon.svg";
 import TeamsIcon from "../../../public/assets/icons/teams_icon.svg";
 import MassUpdateIcon from "../../../public/assets/icons/massupdate_icon.svg";
+import { FilePenLine, UsersRound } from "lucide-react";
 
 interface TableFilterButtonsProps {
   selectedRowsCount: number;
@@ -40,43 +41,15 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
   };
 
   return (
-    <div className="bg-[#95AADC] rounded-md flex items-center space-x-5">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button
-              variant="ghost"
-              onClick={() => table.toggleAllRowsSelected(false)}
-            >
-              <Image
-                src={CancelIcon}
-                alt="Deselect Icon"
-                width={15}
-                height={15}
-                className={"min-w-3"}
-              />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Deselect</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <span className="text-bt-blue-400">{selectedRowsCount} Selected</span>
-      <div className="flex flex-row">
+    <div className="bg-[#2E4AA6] rounded-md flex items-center px-4 h-10 gap-4 shadow-inner-white-md">
+      <span className="text-white font-semibold text-nowrap">
+        {selectedRowsCount} Rows Selected
+      </span>
+      <div className="flex flex-row gap-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Button
-                variant="ghost"
-                onClick={() => handleIconClick("addToTeam")}
-              >
-                <Image
-                  src={TeamsIcon}
-                  alt="Teams Icon"
-                  width={25}
-                  height={25}
-                  className={"min-w-6"}
-                />
-              </Button>
+              <UsersRound onClick={() => handleIconClick("addToTeam")} />
             </TooltipTrigger>
             <TooltipContent>Add to Team</TooltipContent>
           </Tooltip>
@@ -84,18 +57,9 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Button
-                variant="ghost"
+              <FilePenLine
                 onClick={() => handleIconClick("massUpdateStatus")}
-              >
-                <Image
-                  src={MassUpdateIcon}
-                  alt="Mass Update Icon"
-                  width={25}
-                  height={25}
-                  className={"min-w-6"}
-                />
-              </Button>
+              />
             </TooltipTrigger>
             <TooltipContent>Mass Update Status</TooltipContent>
           </Tooltip>

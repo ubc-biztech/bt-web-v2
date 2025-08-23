@@ -142,16 +142,16 @@ export const EventForm: React.FC<EventFormProps> = ({
   };
 
   return (
-    <div className="flex text-white font-satoshi">
+    <div className="flex text-white">
       <div className="flex-1">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8"
           >
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-16">
               <EventPreview form={form} />
-              <div className="space-y-6 bg-[#253251] container py-10">
+              <div className="space-y-6 bg-[#253251] container py-10 rounded-md">
                 {initialData && (
                   <>
                     <div className="space-y-4">
@@ -222,7 +222,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       </div>
 
                       <div className="flex gap-4">
-                        <Button type="submit" className="bg-bt-green-300">
+                        <Button variant="green" type="submit">
                           Save
                         </Button>
                         <Button
@@ -256,7 +256,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
                 {!initialData && (
                   <div className="flex gap-4">
-                    <Button type="submit" className="bg-bt-green-300">
+                    <Button type="submit" variant="green">
                       Save
                     </Button>
                   </div>

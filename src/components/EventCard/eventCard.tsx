@@ -66,17 +66,17 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
 
   return (
     <Card
-      className="w-9/10 border-none bg-bt-blue-300 cursor-pointer"
+      className="w-9/10 border-none bg-bt-blue-400 cursor-pointer p-2 shadow-[inset_0_0_64px_rgba(255,255,255,0.1)]"
       onClick={handleCardClick}
     >
       <Image
-        src={event?.imageUrl || placeHolderImage}
+        src={event?.imageUrl ?? '/assets/images/not-found.png'}
         alt="event-image"
-        className="w-full h-[250px] rounded-t-lg object-cover"
+        className="w-full h-80 rounded-t-lg object-cover overflow-hidden rounded-md"
         width={100}
         height={100}
       />
-      <CardFooter className="font-poppins text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
+      <CardFooter className="text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
         <div className="flex items-center justify-between">
           <h5 className="text-white font-500">{event?.ename}</h5>
           <Button

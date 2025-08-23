@@ -59,7 +59,7 @@ export default function Statistics({ initialData }: Props) {
             Back
           </Button>
           <h2 className="text-white">Event Statistics</h2>
-          <p className="text-bt-blue-100 font-poppins">
+          <p className="text-bt-blue-100">
             Statistics {">"} {router.query.eventId} {router.query.year}
           </p>
           <br />

@@ -309,8 +309,8 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
 
             <div className="flex gap-4">
               <Button
+              variant="green"
                 type="submit"
-                className="bg-bt-green-300 hover:bg-bt-green-300/80 text-bt-blue-600"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Saving..." : "Save Changes"}

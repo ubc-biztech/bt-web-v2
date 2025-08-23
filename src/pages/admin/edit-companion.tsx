@@ -14,7 +14,7 @@ const Page: FC = () => {
               QR Code Management
             </h2>
             <div className="flex items-center justify-between h-[40px]">
-              <p className="text-bt-blue-0 font-poppins">
+              <p className="text-bt-blue-0">
                 Edit QR Codes for our events
               </p>
             </div>

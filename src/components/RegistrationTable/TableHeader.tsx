@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import Image from "next/image";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,8 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { SearchIcon } from "lucide-react";
-import { Input as InputAlt } from "@/components/RegistrationTable/Input";
+import { Filter, Search } from "lucide-react";
 import { TableFilterButtons } from "./TableFilterButtons";
 import { TableIconButtons } from "./TableIconButtons";
 import { Table } from "@tanstack/react-table";
@@ -33,10 +31,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input as SearchBar } from "@/components/RegistrationTable/Input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import FilterIcon from "../../../public/assets/icons/filter_icon.svg";
 
 interface TableHeaderProps {
   table: Table<any>;
@@ -46,6 +43,8 @@ interface TableHeaderProps {
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
   refreshTable: () => Promise<void>;
   onFilterChange: (value: SelectValue) => void;
+  globalFilter: any;
+  setGlobalFilter: (updater: any) => void;
 }
 
 type SelectValue = "attendees" | "partners" | "waitlisted";
@@ -58,6 +57,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   setQrReaderToggled,
   refreshTable,
   onFilterChange,
+  globalFilter,
+  setGlobalFilter,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
@@ -65,6 +66,26 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
   const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
+
+  // Debounce / throttle logic
+
+  const [debouncedFilter, setDebouncedFilter] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedFilter(globalFilter);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [globalFilter]);
+
+  useEffect(() => {
+    if (debouncedFilter) {
+      console.log("Filtering with:", debouncedFilter);
+    }
+  }, [debouncedFilter]);
 
   const handleSelectChange = (value: SelectValue) => {
     setSelectedValue(value);
@@ -94,15 +115,30 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   return (
     <div className="flex flex-col xl:flex-row items-center justify-between">
       <div className="flex items-center space-x-2 relative">
-        <InputAlt
-          startIcon={SearchIcon}
-          placeholder="Search in table"
-          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            table.getColumn("id")?.setFilterValue(event.target.value)
-          }
-          className="bg-bt-blue-0 text-bt-blue-400"
+        {selectedRowsCount > 0 && (
+          <TableFilterButtons
+            selectedRowsCount={selectedRowsCount}
+            table={table}
+            setShowMassUpdateStatus={setShowMassUpdateStatus}
+            setShowCreateTeam={setShowCreateTeam}
+          />
+        )}
+
+        <TableIconButtons
+          isQrReaderToggled={isQrReaderToggled}
+          setQrReaderToggled={setQrReaderToggled}
+          refreshTable={refreshTable}
         />
+
+        <SearchBar
+          startIcon={Search}
+          placeholder="Search by keyword..."
+          value={debouncedFilter}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setGlobalFilter(event.target.value)
+          }
+          className="bg-white shadow-inner-blue-concave"
+        ></SearchBar>
 
         <TooltipProvider>
           <Tooltip>
@@ -111,16 +147,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="bg-[#6578A8] rounded-md"
+                    className="bg-[#6578A8] rounded-md px-2"
                     ref={filterButtonRef}
                   >
-                    <Image
-                      src={FilterIcon}
-                      alt="Filter Icon"
-                      width={25}
-                      height={25}
-                      className={"min-w-6"}
-                    />
+                    <Filter />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={"bg-[#485A85]"}>
@@ -160,21 +190,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         </TooltipProvider>
       </div>
 
-      {selectedRowsCount > 0 && (
-        <TableFilterButtons
-          selectedRowsCount={selectedRowsCount}
-          table={table}
-          setShowMassUpdateStatus={setShowMassUpdateStatus}
-          setShowCreateTeam={setShowCreateTeam}
-        />
-      )}
-
       <div className="flex flex-col sm:flex-row items-center justify-between space-x-2">
-        <TableIconButtons
-          isQrReaderToggled={isQrReaderToggled}
-          setQrReaderToggled={setQrReaderToggled}
-          refreshTable={refreshTable}
-        />
         <Select value={selectedValue} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
             <SelectValue placeholder="Attendees" />

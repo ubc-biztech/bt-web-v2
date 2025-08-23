@@ -29,7 +29,7 @@ export default function HeaderCard({
         </div>
       </div>
       <Link href="/profile/edit">
-        <Button className="justify-self-end bg-bt-blue-200">
+        <Button variant='outline'>
           {" "}
           View your NFC Profile{" "}
         </Button>

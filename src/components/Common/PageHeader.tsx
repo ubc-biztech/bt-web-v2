@@ -8,7 +8,7 @@ export default function PageHeader({ title, subtitle }: HeaderProps) {
     <span>
       <h2 className="text-white text-xl">{title}</h2>
       <div className="flex items-center justify-between">
-        <p className="text-bt-blue-100 font-poppins">{subtitle}</p>
+        <p className="text-bt-blue-100">{subtitle}</p>
       </div>
     </span>
   );

@@ -20,9 +20,8 @@ import {
   exportToPDF,
   formatTableForExport,
 } from "@/util/exportHelpers";
-
-import DownloadIcon from "../../../public/assets/icons/download_icon.svg";
 import { useRouter } from "next/router";
+import { Download } from "lucide-react";
 
 interface TableFooterProps {
   table: Table<any>;
@@ -49,24 +48,16 @@ export const TableFooter: React.FC<TableFooterProps> = ({
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between py-4">
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="ghost"
-            className="text-bt-blue-0"
+            variant="green"
             disabled={!table.getRowCount()}
+            className="flex flex-row gap-2"
           >
-            <div className="flex items-center space-x-3">
-              <Image
-                src={DownloadIcon}
-                alt="Download Icon"
-                width={25}
-                height={25}
-                className={"min-w-6"}
-              />
-              <div className="font-400">Export Files</div>
-            </div>
+              <Download/>
+              <div className="font-semibold">Export Files</div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-[#485A85]">
@@ -78,7 +69,7 @@ export const TableFooter: React.FC<TableFooterProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <div className="flex flex-col lg:flex-row items-center justify-between space-x-2">
+      <div className="flex flex-col lg:flex-row gap-4 items-center justify-between space-x-2">
         <div className="flex flex-row items-center justify-between space-x-2">
           <span className="text-sm text-bt-blue-0">Showing</span>
           <Select

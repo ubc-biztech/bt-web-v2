@@ -88,7 +88,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       !registered.includes(`${ev.id};${ev.year}`)
     ) {
       return (
-        <div className="rounded-full px-3 py-1 font-poppins font-[700]  text-white bg-bt-pink text-[8px] lg:text-[12px] flex items-center">
+        <div className="rounded-full px-3 py-1 font-[700]  text-white bg-bt-pink text-[8px] lg:text-[12px] flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
         </div>
       );

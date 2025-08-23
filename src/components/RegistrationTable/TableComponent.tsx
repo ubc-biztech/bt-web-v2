@@ -1,6 +1,7 @@
 import React from "react";
 import { Table, TableRow, TableHead } from "@/components/ui/table";
 import { flexRender, Table as ReactTable } from "@tanstack/react-table";
+import { cn } from "@/lib/utils";
 
 interface TableComponentProps {
   children: React.ReactNode;
@@ -21,15 +22,19 @@ export const TableHeader = <T,>({ table }: TableHeaderProps<T>) => (
     {table.getHeaderGroups().map((headerGroup) => (
       <TableRow
         key={headerGroup.id}
-        className="bg-[#6578A8] hover:bg-[#6578A8]"
+        className="bg-bt-blue-300 hover:bg-bt-blue-300"
       >
         {headerGroup.headers.map((header) => (
           <TableHead
             key={header.id}
-            className="text-white font-600"
+            className={cn(
+              "text-white font-600 border-bt-blue-200 border truncate",
+              (table.getIsSomePageRowsSelected() ||
+                table.getIsAllPageRowsSelected()) &&
+                "bg-[#556AB2]",
+            )}
             style={{
-              minWidth: header.column.columnDef.size,
-              maxWidth: header.column.columnDef.size,
+              maxWidth: "200px",
             }}
           >
             {header.isPlaceholder

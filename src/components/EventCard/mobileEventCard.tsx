@@ -74,7 +74,7 @@ export default function MobileEventCard({
 
   return (
     <Card
-      className="font-poppins w-full h-[100px] border-none bg-bt-blue-300 p-2 mb-4 flex"
+      className="w-full h-[100px] border-none bg-bt-blue-300 p-2 mb-4 flex"
       onClick={handleClick}
       ref={cardRef}
     >

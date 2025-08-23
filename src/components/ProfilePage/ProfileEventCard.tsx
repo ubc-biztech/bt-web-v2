@@ -36,7 +36,7 @@ const ProfileEventCard: React.FC<ProfileEventCardProps> = ({ initialData }) => {
         width={0}
         height={0}
       />
-      <CardFooter className="font-poppins p-3 gap-0.5 flex flex-col text-left items-start">
+      <CardFooter className="p-3 gap-0.5 flex flex-col text-left items-start">
         <h6 className="text-white font-500 text-sm">{initialData?.ename}</h6>
         <p className="text-bt-blue-100 text-xs">{displayDate}</p>
       </CardFooter>

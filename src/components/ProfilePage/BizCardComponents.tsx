@@ -42,34 +42,6 @@ interface IconButtonProps {
   className?: string;
 }
 
-const IconButton: React.FC<IconButtonProps> = ({
-  label,
-  subtitle,
-  icon: Icon = Share,
-  iconPosition = "left",
-  onClick,
-  className = "",
-}) => {
-  const baseClasses =
-    "px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-bt-blue-0 shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-bt-blue-300 border-bt-blue-100 hover:bg-bt-blue-400 border";
-
-  return (
-    <Button
-      className={cn(
-        `${baseClasses} ${className}`,
-        iconPosition === "right" && "flex-row-reverse",
-      )}
-      onClick={onClick}
-    >
-      <Icon />
-      <div className="text-left text-xs">
-        {label}
-        {subtitle && <p className="text-sm opacity-75">{subtitle}</p>}
-      </div>
-    </Button>
-  );
-};
-
 const DisplayUserField = ({
   icon: Icon,
   fieldName,
@@ -112,4 +84,4 @@ const LinkButton = ({
 };
 
 export type { UserQuestionResponse, BiztechProfile };
-export { HobbyTag, IconButton, LinkButton, DisplayUserField };
+export { HobbyTag, LinkButton, DisplayUserField };

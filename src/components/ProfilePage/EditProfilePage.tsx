@@ -17,7 +17,6 @@ import {
   BiztechProfile,
   DisplayUserField,
   HobbyTag,
-  IconButton,
   LinkButton,
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
@@ -30,6 +29,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { FormTextarea } from "../Events/FormComponents/FormTextarea";
 import { EditProfileForm } from "./EditProfileForm";
 import Image from "next/image";
+import { IconButton } from "../Common/IconButton";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -117,6 +117,7 @@ export const EditProfilePage = ({
       <div className="flex flex-col items-center gap-4 w-full text-bt-blue-0 text-lg">
         Oops! No profile found.
         <IconButton
+          variant="green"
           label="Return to home"
           onClick={() => navRouter.push("/")}
           className="w-fit"
@@ -270,12 +271,14 @@ export const EditProfilePage = ({
 
           <div className="flex gap-2">
             <IconButton
+              variant="outline"
               icon={Share}
               label="Share Profile"
               onClick={() => setDrawerOpen(true)}
             />
 
             <IconButton
+              variant="outline"
               icon={isEditing ? X : Edit}
               label={isEditing ? "Cancel" : "Edit Profile"}
               onClick={isEditing ? handleCancelEdit : () => setIsEditing(true)}

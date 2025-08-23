@@ -10,6 +10,7 @@ import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg"
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
+import Divider from "@/components/Common/Divider";
 
 type Props = {
   events: BiztechEvent[] | null;
@@ -72,7 +73,7 @@ export default function AdminEventView({ events }: Props) {
         }
       }}
     >
-      <div className="mx-auto pt-8 p-5 md:pt-20 md:l-20 md:pr-20  flex flex-col">
+      <div className="mx-auto pt-8 flex flex-col">
         {/* Header Code and displaying view icons depending on device */}
         <span>
           {!isMobileDevice ? (
@@ -81,7 +82,7 @@ export default function AdminEventView({ events }: Props) {
             <h3 className="text-white">Admin Event Portal</h3>
           )}
           <div className="flex items-center justify-between">
-            <p className="text-bt-blue-100 font-poppins">
+            <p className="text-bt-blue-100">
               Manage published Biztech events.
             </p>
             {!isMobileDevice ? (
@@ -99,14 +100,14 @@ export default function AdminEventView({ events }: Props) {
           </div>
         </span>
         {/*divider*/}
-        <div className="w-full bg-bt-blue-400 my-6" />
+        <Divider className="mb-8"/>
         {/* conditionally mapping the events gathered from the database to the screen  */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <p className="text-white">Loading...</p>
           </div>
         ) : !isMobileDevice ? (
-          <div className="block md:grid md:grid-cols-2 md:gap-6">
+          <div className="block md:grid md:grid-cols-2 xl:grid-cols-3 md:gap-6">
             {data?.map((event) => (
               <EventCard
                 key={event.id}

@@ -11,7 +11,7 @@ import { CellContext } from "@tanstack/react-table";
 import { ColumnMeta } from "./columns";
 import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
-import { DBRegistrationStatus } from "@/types";
+import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
   refreshTable: () => Promise<void>;
@@ -73,17 +73,17 @@ export const TableCell = ({
   const getColor = (value: string) => {
     switch (value) {
       case "Registered":
-        return "#7F94FF";
-      case DBRegistrationStatus.CHECKED_IN:
-        return "#7AD040";
+        return "#AAE7FF";
+      case RegistrationStatusField.CHECKED_IN:
+        return "#70E442";
       case "Waitlist":
-        return "#E6CA68";
+        return "#D79EF1";
       case "Incomplete":
-        return "#E6CA68";
-      case DBRegistrationStatus.CANCELLED:
-        return "#E24D83";
-      case DBRegistrationStatus.WAITLISTED:
-        return "#FF8181";
+        return "#FFAD8F";
+      case RegistrationStatusField.CANCELLED:
+        return "#FB6F8E";
+      case RegistrationStatusField.WAITLISTED:
+        return "#D79EF1";
       default:
         return "#ffffff";
     }
@@ -93,7 +93,7 @@ export const TableCell = ({
     switch (value) {
       case "registered":
         return "Registered";
-      case "checkedIn":
+      case "checkedin":
         return "Checked-In";
       case "incomplete":
         return "Incomplete";
@@ -119,7 +119,7 @@ export const TableCell = ({
           onValueChange={onSelectChange}
           defaultValue={initialValue as string}
         >
-          <SelectTrigger style={{ color: getColor(value as string) }}>
+          <SelectTrigger className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2" style={{ backgroundColor: getColor(value as string) }}>
             <SelectValue>{value as string}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -140,6 +140,7 @@ export const TableCell = ({
             setValue(Number(e.target.value))
           }
           onBlur={onBlur}
+          className="w-24 h-8"
         />
       );
     }

@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Registration } from "@/types/types";
 import { BiztechEvent, RegistrationQuestion } from "@/types";
+import Link from "next/link";
+import { ChartLine, Edit, Eye, Pencil, Table2, UsersRound } from "lucide-react";
+import Tabs from "@/components/EventsDashboard/Tabs";
+import DynamicTabs from "@/components/EventsDashboard/Tabs";
 
 type Props = {
   initialData: Registration[] | null;
@@ -51,48 +55,93 @@ export default function AdminEvent({ initialData, eventData }: Props) {
 
   if (!router.isReady) return null;
 
+  const tabs = [
+    {
+      label: (
+        <div className="flex flex-row items-center gap-2 ">
+          <Table2 className="w-4 h-4" /> View Data Table
+        </div>
+      ),
+      value: "dataTable",
+    },
+    {
+      label: (
+        <div className="flex flex-row items-center gap-2 ">
+          <UsersRound className="w-4 h-4" /> View Teams
+        </div>
+      ),
+      value: "teams",
+    },
+    {
+      label: (
+        <div className="flex flex-row items-center gap-2 ">
+          <ChartLine className="w-4 h-4" /> View Analytics
+        </div>
+      ),
+      value: "analytics",
+    },
+  ];
+
+  const panels = [
+    {
+      value: "dataTable",
+      content: isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-white">Loading...</p>
+        </div>
+      ) : !data ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-white">Event not found</p>
+        </div>
+      ) : (
+        <DataTable
+          initialData={data}
+          dynamicColumns={dynamicColumns}
+          eventId={router.query.eventId as string}
+          year={router.query.year as string}
+          eventData={eventData}
+        />
+      ),
+    },
+    { value: "teams", content: <div>Teams Content</div> },
+    { value: "analytics", content: <div>Analytics Content</div> },
+  ];
+
   return (
-    <main className="bg-bt-blue-600 min-h-screen">
-      <div className="container mx-auto p-10 flex flex-col">
-        <div className="flex justify-between items-center">
-          <span>
-            <h2 className="text-white">Event Overview</h2>
-            <p className="text-bt-blue-100 font-poppins">
-              Manage Events {">"} {router.query.eventId} {router.query.year}
+    <main className="min-h-screen">
+      <div className="flex mt-8 flex-col">
+        <div className="flex flex-col justify-start">
+          <h2 className="text-white capitalize mb-2">
+            Event Data - {router.query.eventId} {router.query.year}
+          </h2>
+          <div className="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-4">
+            <p className="text-bt-blue-0">
+              View and edit attendee registration data.
             </p>
-          </span>
-          <Button
-            onClick={() =>
-              router.push(
-                `/admin/event/${router.query.eventId}/${router.query.year}/edit`,
-              )
-            }
-            className="bg-bt-green-300"
-          >
-            Edit Event
-          </Button>
+            <div className="flex flex-row gap-6 text-bt-green-300">
+              <Link
+                href={`/admin/event/${router.query.eventId}/${router.query.year}/edit`}
+                className="flex flex-row gap-2 items-center hover:underline"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit Event Details
+              </Link>
+              <div className="md:block hidden">|</div>
+              <Link
+                href={`/event/${router.query.eventId}/${router.query.year}/edit`}
+                className="flex flex-row gap-2 items-center hover:underline"
+              >
+                <Eye className="w-4 h-4" />
+                View Public Page
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/*divider*/}
-        <div className="w-full h-[2px] bg-bt-blue-400 my-6" />
+        <div className="mt-6 w-full">
+          <DynamicTabs tabs={tabs} panels={panels} />
+        </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="text-white">Loading...</p>
-          </div>
-        ) : !data ? (
-          <div className="flex justify-center items-center h-64">
-            <p className="text-white">Event not found</p>
-          </div>
-        ) : (
-          <DataTable
-            initialData={data}
-            dynamicColumns={dynamicColumns}
-            eventId={router.query.eventId as string}
-            year={router.query.year as string}
-            eventData={eventData}
-          />
-        )}
       </div>
     </main>
   );

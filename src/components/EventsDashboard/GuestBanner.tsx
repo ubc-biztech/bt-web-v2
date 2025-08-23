@@ -28,7 +28,7 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
           >
             <Alert className="relative py-8 rounded-b-[5px] bg-bt-blue-400 border-bt-blue-100 w-full flex flex-col items-center">
               <AlertTitle className="text-white text-sm">{message}</AlertTitle>
-              <AlertDescription className="text-white font-poppins text-sm">
+              <AlertDescription className="text-white text-sm">
                 {" "}
                 Click here to{" "}
                 <Link className="underline" href={`/login`}>

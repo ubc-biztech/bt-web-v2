@@ -70,7 +70,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               alt="Event cover image"
               src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
               style={{ objectFit: "cover" }}
-              className="h-full rounded-xl border-[0.5px] border-bt-blue-0/60"
+              className="h-full aspect-[8/5] rounded-xl border-[0.5px] border-bt-blue-0/60"
             />
             {highlightedEvent ? (
               <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">

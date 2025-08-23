@@ -1,6 +1,7 @@
 import React from "react";
 import { TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, Table } from "@tanstack/react-table";
+import { cn } from "@/lib/utils";
 
 interface RegistrationsTableBodyProps<T> {
   table: Table<T>;
@@ -18,11 +19,11 @@ export const RegistrationsTableBody = <T,>({
           key={row.id}
           data-state={row.getIsSelected() && "selected"}
           style={{
-            backgroundColor: row.getIsSelected() ? "#324269" : "inherit",
+            backgroundColor: row.getIsSelected() ? "#2E4694" : "inherit",
           }}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id}>
+            <TableCell key={cell.id} className={cn("border shadow-inner-white-md max-w-96 truncate p-3 text-bt-blue-0", row.getIsSelected() ? "border-bt-blue-200" : "border-bt-blue-300")}>
               {flexRender(cell.column.columnDef.cell, {
                 ...cell.getContext(),
                 refreshTable,

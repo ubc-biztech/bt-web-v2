@@ -622,7 +622,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal bg-[#3A496D] font-poppins text-white",
+                                  "w-full pl-3 text-left font-normal bg-[#3A496D] text-white",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -660,7 +660,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal  bg-[#3A496D] font-poppins text-white",
+                                  "w-full pl-3 text-left font-normal  bg-[#3A496D] text-white",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >

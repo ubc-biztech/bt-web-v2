@@ -75,7 +75,7 @@ export enum DBRegistrationStatus {
 export enum RegistrationStatusField {
   WAITLISTED = "Waitlisted",
   REGISTERED = "Registered",
-  CHECKED_IN = "Checked In",
+  CHECKED_IN = "Checked-In",
   CANCELLED = "Cancelled",
   INCOMPLETE = "Incomplete",
 }

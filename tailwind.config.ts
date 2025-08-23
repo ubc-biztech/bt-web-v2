@@ -117,6 +117,13 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      boxShadow: {
+        'inner-blue-concave': 'inset 4px 4px 16px rgba(96, 116, 165, 0.5)',
+        'inner-blue-convex': 'inset 2px -2px 8px rgba(15,15,60,0.5)',
+        'inner-white-md': 'inset 0 0 32px rgba(255,255,255,0.1)',
+        'inner-white-lg': 'inset 0 0 64px rgba(255,255,255,0.1)',
+        'inner-white-xl': 'inset 0 0 96px rgba(255,255,255,0.1)',
+      },
       screens: {
         xxs: "360px", // minimum width for mobile
         xs: "412px", // originally 370

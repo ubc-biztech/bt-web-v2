@@ -7,6 +7,7 @@ import { EditCell } from "./EditCell";
 import { SortableHeader } from "./SortableHeader";
 import { BiztechEvent, DBRegistrationStatus } from "@/types/types";
 import { Registration } from "@/types/types";
+import { cn } from "@/lib/utils";
 
 export type ColumnMeta = {
   type?: "select" | "number";
@@ -30,24 +31,42 @@ export const createColumns = (
   },
   {
     id: "select",
-    header: ({ table }) => (
-      <div className="flex items-center">
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value: any) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-        />
-      </div>
-    ),
+    header: ({ table }) => {
+
+      const isChecked = 
+              table.getIsAllPageRowsSelected() ||
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : false
+
+      return (
+        <div className="flex place-items-center ml-1">
+          <Checkbox
+            checked={isChecked}
+            onCheckedChange={(value: any) => {
+              if (
+                table.getIsAllPageRowsSelected() ||
+                table.getIsSomePageRowsSelected()
+              ) {
+                table.toggleAllPageRowsSelected(false);
+              } else {
+                table.toggleAllPageRowsSelected(!!value);
+              }
+            }}
+            aria-label="Select all"
+            className={cn('font-bold', !isChecked ? 'bg-white' : 'bg-[#005BFF] border-none shadow-inner-white-md')}
+          />
+        </div>
+      );
+    },
     size: 50,
     cell: ({ row }) => (
-      <div className="flex items-center">
+      <div className="flex place-items-center ml-2 mr-5">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value: any) => row.toggleSelected(!!value)}
           aria-label="Select row"
+          className={'font-bold bg-white border-none shadow-inner-white-md data-[state=checked]:bg-[#005BFF] data-[state=checked]:text-primary-foreground'}
         />
       </div>
     ),
