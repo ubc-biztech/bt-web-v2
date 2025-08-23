@@ -123,7 +123,7 @@ const ProfilePage = ({
       <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
         <div className="flex flex-col justify-center items-center col-span-1 gap-4">
           <div className="lg:place-items-center flex flex-col justify-center w-fit">
-            <div className="w-32 h-32 bg-events-bt-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
+            <div className="w-32 h-32 bg-bt-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center relative overflow-hidden">
               {profilePictureURL ? (
                 <Image
                   src={profilePictureURL}
@@ -151,7 +151,7 @@ const ProfilePage = ({
             </p>
 
             {isConnected && (
-              <ConnectedButton className="mb-4 text-biztech-green before:bg-none border-biztech-green border bg-biztech-green/10 px-3 py-1 rounded-full text-sm font-medium font-sans">
+              <ConnectedButton className="mb-4 before:bg-none border-bt-blue-0 border hover:bg-bt-blue-0/10 px-3 py-1 rounded-full text-sm font-medium font-sans">
                 <CheckCircle />
                 <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
               </ConnectedButton>
@@ -300,7 +300,7 @@ export const getServerSideProps: GetServerSideProps = async ({
     if (
       connectionResult.status !== "fulfilled" &&
       connectionResult.reason instanceof Error &&
-      connectionResult.reason.name === "UnauthenticatedUserError"
+      connectionResult.reason.name === UnauthenticatedUserError.name
     ) {
       // unauthenticated user
     } else if (connectionResult.status !== "fulfilled") {

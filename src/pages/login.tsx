@@ -31,13 +31,13 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const checkUserProfile = async () => {
+    async function checkUserProfile() {
       if (!router) return;
 
       try {
@@ -55,13 +55,13 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       } catch (err: any) {
         if (err.status === 404) {
           await router.push("/membership");
-        } else if (!(err instanceof UnauthenticatedUserError)) {
+        } else if (err.name !== UnauthenticatedUserError.name) {
           console.error(err);
         }
       }
 
       setIsLoading(false);
-    };
+    }
 
     checkUserProfile();
   }, [router]);
@@ -402,7 +402,7 @@ export const getServerSideProps: GetServerSideProps = async (
       props: { redirect },
     };
   } catch (error: any) {
-    if (error.name === "UnauthenticatedUserError") {
+    if (error.name === UnauthenticatedUserError.name) {
       return {
         props: { redirect },
       };

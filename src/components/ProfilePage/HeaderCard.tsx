@@ -16,8 +16,8 @@ export default function HeaderCard({
   return (
     <GenericCard className="w-full flex flex-row items-center justify-between">
       <div className="flex flex-row gap-8 items-center">
-        <div className="w-24 h-24 bg-events-bt-blue-100 rounded-full flex items-center justify-center">
-          <span className="text-2xl font-medium text-bg-bt-blue-500">
+        <div className="w-24 h-24 bg-bt-blue-100 rounded-full flex items-center justify-center">
+          <span className="text-2xl font-medium text-bt-blue-500">
             {userInitials}
           </span>
         </div>
@@ -29,10 +29,7 @@ export default function HeaderCard({
         </div>
       </div>
       <Link href="/profile/edit">
-        <Button variant='outline'>
-          {" "}
-          View your NFC Profile{" "}
-        </Button>
+        <Button variant="outline"> View your NFC Profile </Button>
       </Link>
     </GenericCard>
   );

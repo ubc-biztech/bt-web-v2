@@ -14,6 +14,7 @@ import {
 } from "../components/SignUpForm/FormInput";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 
 interface MembershipFormValues {
   email: string;
@@ -35,7 +36,7 @@ interface MembershipProps {
   isUser: boolean;
 }
 
-Amplify.configure(outputs);
+Amplify.configure(outputs, { ssr: true });
 
 const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   const [email, setEmail] = useState("");
@@ -49,17 +50,13 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
     const getUserEmail = async () => {
       try {
         const currentUser = await fetchUserAttributes();
-        if (currentUser) {
-          const userEmail = currentUser.email;
-          if (userEmail) {
-            setEmail(userEmail);
-          }
+        if (currentUser && currentUser.email) {
+          setEmail(currentUser.email);
         }
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch user attributes:", error);
-        router.push(`/login`);
-      } finally {
-        setLoading(false);
+        await router.push(`/login`);
       }
     };
 
@@ -161,7 +158,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
               : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
                 ? "https://dev.v2.ubcbiztech.com/"
                 : "https://app.ubcbiztech.com/"
-          }signup`,
+          }membership`,
           education: userBody.education,
           student_number: userBody.studentId,
           fname: userBody.fname,
@@ -195,7 +192,11 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
   }
 
   return (

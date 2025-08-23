@@ -17,6 +17,7 @@ type Props = {
   event: BiztechEvent;
   eventClick: (event: BiztechEvent, isOptionsClick?: boolean) => void;
   modalHandlers: ModalHandlers;
+  viewMode?: "grid" | "list";
 };
 
 const editEventPopupItems: PopUpItem[] = [
@@ -25,7 +26,12 @@ const editEventPopupItems: PopUpItem[] = [
   PopUpItem.DeleteEvent,
 ];
 
-export default function EventCard({ event, eventClick, modalHandlers }: Props) {
+export default function EventCard({
+  event,
+  eventClick,
+  modalHandlers,
+  viewMode = "grid",
+}: Props) {
   const [isModalOpen, setModal] = useState(false);
   const startTime = event ? extractTime(event.startDate) : "";
   const dateTime = event ? extractMonthDay(event.startDate) : "";
@@ -69,37 +75,79 @@ export default function EventCard({ event, eventClick, modalHandlers }: Props) {
       className="w-9/10 border-none bg-bt-blue-400 cursor-pointer p-2 shadow-[inset_0_0_64px_rgba(255,255,255,0.1)]"
       onClick={handleCardClick}
     >
-      <Image
-        src={event?.imageUrl ?? '/assets/images/not-found.png'}
-        alt="event-image"
-        className="w-full h-80 rounded-t-lg object-cover overflow-hidden rounded-md"
-        width={100}
-        height={100}
-      />
-      <CardFooter className="text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
-        <div className="flex items-center justify-between">
-          <h5 className="text-white font-500">{event?.ename}</h5>
-          <Button
-            variant="ghost"
-            className="text-white bg-transparent w-2 h-7"
-            onClick={handleOptionsClick}
-            onMouseLeave={() => setModal(false)}
-          >
-            {isModalOpen ? (
-              <PopupModal
-                editEventPopupItems={editEventPopupItems}
-                ref={ref}
-                modalHandlers={modalHandlers}
-                eventID={event.id}
-                eventYear={event.year}
-              />
-            ) : (
-              <MoreVertIcon />
-            )}
-          </Button>
+      {viewMode === "list" ? (
+        // List view: horizontal layout with image on left
+        <div className="flex gap-4">
+          <div className="flex-shrink-0">
+            <Image
+              src={event?.imageUrl ?? "/assets/images/not-found.png"}
+              alt="event-image"
+              className="w-32 h-24 rounded-lg object-cover"
+              width={128}
+              height={96}
+            />
+          </div>
+          <div className="flex-1 flex flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <h5 className="text-white font-500 text-lg">{event?.ename}</h5>
+              <Button
+                variant="ghost"
+                className="text-white bg-transparent w-2 h-7 flex-shrink-0"
+                onClick={handleOptionsClick}
+                onMouseLeave={() => setModal(false)}
+              >
+                {isModalOpen ? (
+                  <PopupModal
+                    editEventPopupItems={editEventPopupItems}
+                    ref={ref}
+                    modalHandlers={modalHandlers}
+                    eventID={event.id}
+                    eventYear={event.year}
+                  />
+                ) : (
+                  <MoreVertIcon />
+                )}
+              </Button>
+            </div>
+            <p className="p3 text-bt-blue-100 mt-2">{displayDate}</p>
+          </div>
         </div>
-        <p className="p3 text-bt-blue-100 mt-2 mb-2">{displayDate}</p>
-      </CardFooter>
+      ) : (
+        // Grid view: vertical layout with image on top
+        <>
+          <Image
+            src={event?.imageUrl ?? "/assets/images/not-found.png"}
+            alt="event-image"
+            className="w-full h-80 rounded-t-lg object-cover overflow-hidden rounded-md"
+            width={100}
+            height={100}
+          />
+          <div className="text-white block mt-4 mb-4 ml-1 mr-1 pb-0">
+            <div className="flex items-center justify-between">
+              <h5 className="text-white font-500">{event?.ename}</h5>
+              <Button
+                variant="ghost"
+                className="text-white bg-transparent w-2 h-7"
+                onClick={handleOptionsClick}
+                onMouseLeave={() => setModal(false)}
+              >
+                {isModalOpen ? (
+                  <PopupModal
+                    editEventPopupItems={editEventPopupItems}
+                    ref={ref}
+                    modalHandlers={modalHandlers}
+                    eventID={event.id}
+                    eventYear={event.year}
+                  />
+                ) : (
+                  <MoreVertIcon />
+                )}
+              </Button>
+            </div>
+            <p className="p3 text-bt-blue-100 mt-2 mb-2">{displayDate}</p>
+          </div>
+        </>
+      )}
     </Card>
   );
 }

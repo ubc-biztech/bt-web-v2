@@ -5,10 +5,7 @@ import { useEffect, useState } from "react";
 import { isMobile } from "@/util/isMobile";
 import MobilePopup from "@/components/EventCard/popup/mobileEditPopUp";
 import { BiztechEvent } from "@/types/types";
-import GridViewIcon from "../../../public/assets/icons/grid_view_icon.svg";
-import CompactViewIcon from "../../../public/assets/icons/compact_view_icon.svg";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import Divider from "@/components/Common/Divider";
 import { LayoutGrid, Rows3 } from "lucide-react";
@@ -31,6 +28,7 @@ export default function AdminEventView({ events }: Props) {
   const [isClicked, setIsClicked] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [event, setEvent] = useState<BiztechEvent | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const handleEventDelete = () => {
     setIsDelete(true);
@@ -56,14 +54,17 @@ export default function AdminEventView({ events }: Props) {
     }
   };
 
+  // Mobile event click handler
+  const mobileEventClick = (event: BiztechEvent) => {
+    setEvent(event);
+    setIsClicked(true);
+  };
+
   // function to manage mobile device state
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
   }, []);
-
-  // ** had to comment this line out or else get a 'hydration' error
-  // if (!router.isReady) return null;
 
   return (
     <main
@@ -80,22 +81,29 @@ export default function AdminEventView({ events }: Props) {
           {!isMobileDevice ? (
             <h2 className="text-white">Admin Event Portal</h2>
           ) : (
-            <h3 className="text-white">Admin Event Portal</h3>
+            <>
+              <h3 className="text-white">Admin Event Portal</h3>
+              <Divider />
+            </>
           )}
           <div className="flex items-center justify-between">
             <p className="text-bt-blue-100">Manage published Biztech events.</p>
-            {!isMobileDevice ? (
-              <div>
-                <Button variant="ghost" className="bg-transparent">
-                  <LayoutGrid />
-                </Button>
-                <Button variant="ghost" className="bg-transparent">
-                  <Rows3 />
-                </Button>
-              </div>
-            ) : (
-              <div></div>
-            )}
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                className={`bg-transparent ${viewMode === "grid" ? "text-bt-green-300" : "text-white"}`}
+                onClick={() => setViewMode("grid")}
+              >
+                <LayoutGrid />
+              </Button>
+              <Button
+                variant="ghost"
+                className={`bg-transparent ${viewMode === "list" ? "text-bt-green-300" : "text-white"}`}
+                onClick={() => setViewMode("list")}
+              >
+                <Rows3 />
+              </Button>
+            </div>
           </div>
         </span>
         {/*divider*/}
@@ -106,19 +114,32 @@ export default function AdminEventView({ events }: Props) {
             <p className="text-white">Loading...</p>
           </div>
         ) : !isMobileDevice ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid md:grid-cols-2 gap-6"
+                : "flex flex-col gap-4"
+            }
+          >
             {data?.map((event) => (
-              <EventCard
+              <div
                 key={event.id}
-                event={event}
-                eventClick={eventClick}
-                modalHandlers={{
-                  handleEventDelete: handleEventDelete,
-                  handleEditEvent: () =>
-                    router.push(`/admin/event/${event.id}/${event.year}/edit`),
-                  handleViewAsMember: handleViewAsMember,
-                }}
-              />
+                className={viewMode === "list" ? "w-full" : ""}
+              >
+                <EventCard
+                  event={event}
+                  eventClick={eventClick}
+                  modalHandlers={{
+                    handleEventDelete: handleEventDelete,
+                    handleEditEvent: () =>
+                      router.push(
+                        `/admin/event/${event.id}/${event.year}/edit`,
+                      ),
+                    handleViewAsMember: handleViewAsMember,
+                  }}
+                  viewMode={viewMode}
+                />
+              </div>
             ))}
           </div>
         ) : (
@@ -127,13 +148,14 @@ export default function AdminEventView({ events }: Props) {
               <MobileEventCard
                 key={event.id}
                 event={event}
-                eventClick={eventClick}
+                eventClick={mobileEventClick}
                 modalHandlers={{
                   handleEventDelete: handleEventDelete,
                   handleEditEvent: () =>
                     router.push(`/admin/event/${event.id}/${event.year}/edit`),
                   handleViewAsMember: handleViewAsMember,
                 }}
+                viewMode={viewMode}
               />
             ))}
           </div>
