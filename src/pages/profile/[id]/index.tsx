@@ -13,7 +13,6 @@ import {
   BiztechProfile,
   DisplayUserField,
   HobbyTag,
-  IconButton,
   LinkButton,
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
@@ -26,6 +25,7 @@ import Image from "next/image";
 import ConnectionModal from "@/components/Connections/ConnectionModal/ConnectionModal";
 import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import { IconButton } from "@/components/Common/IconButton";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;

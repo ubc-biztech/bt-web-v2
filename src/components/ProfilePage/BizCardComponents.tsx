@@ -33,15 +33,6 @@ const HobbyTag = ({ hobby }: { hobby: string }) => (
   </span>
 );
 
-interface IconButtonProps {
-  label: string;
-  subtitle?: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  iconPosition?: "left" | "right";
-  onClick?: () => void;
-  className?: string;
-}
-
 const DisplayUserField = ({
   icon: Icon,
   fieldName,

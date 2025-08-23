@@ -13,11 +13,7 @@ import { getHighlightedEvent } from "@/util/sort";
 import { format, toDate } from "date-fns";
 import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
-import { useRedirect } from "@/hooks/useRedirect";
-import { Spinner } from "@/components/ui/spinner";
-import PageLoadingState from "@/components/Common/PageLoadingState";
 import { GetServerSideProps } from "next";
-import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 
 interface ProfilePageProps {
   profile: User | null;
