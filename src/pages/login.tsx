@@ -31,7 +31,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
