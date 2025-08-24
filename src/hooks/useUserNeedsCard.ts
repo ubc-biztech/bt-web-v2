@@ -23,7 +23,6 @@ export const useUserNeedsCard = () => {
     setIsLoading(true);
     setError(null);
 
-
     /* original logic */
     try {
       const member = await fetchBackend({

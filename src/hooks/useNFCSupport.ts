@@ -17,7 +17,7 @@ export const useNFCSupport = () => {
         setIsLoading(false);
         return;
       }
-      
+
       // Check if Web NFC API is available in browser
       const hasNFC = "NDEFReader" in window;
       setIsNFCSupported(hasNFC);
@@ -31,4 +31,4 @@ export const useNFCSupport = () => {
     isNFCSupported,
     isLoading,
   };
-}; 
+};
