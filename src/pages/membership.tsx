@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Amplify } from "aws-amplify";
 import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
-import * as Yup from "yup";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import outputs from "../../amplify_outputs.json";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import {
@@ -15,6 +15,8 @@ import {
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { FormField, FormItem } from "@/components/ui/form";
 
 interface MembershipFormValues {
   email: string;
@@ -27,7 +29,7 @@ interface MembershipFormValues {
   major: string;
   internationalStudent: string;
   previousMember: string;
-  dietaryRestrictions?: string;
+  dietaryRestrictions: string;
   referral: string;
   topics: string[];
 }
@@ -38,13 +40,51 @@ interface MembershipProps {
 
 Amplify.configure(outputs, { ssr: true });
 
+const validationSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  studentNumber: z
+    .string()
+    .regex(/^\d{8}$/, "Student number must be an 8 digit number"),
+  pronouns: z.string().min(1, "Please select your pronouns"),
+  levelOfStudy: z.string().min(1, "Level of study is required"),
+  faculty: z.string().min(1, "Faculty is required"),
+  major: z.string().min(1, "Major is required"),
+  internationalStudent: z
+    .string()
+    .min(1, "Please specify if you are an international student"),
+  previousMember: z
+    .string()
+    .min(1, "Please specify if you were a previous member"),
+  dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
+  referral: z.string().min(1, "Referral source is required"),
+  topics: z.array(z.string()),
+});
+
 const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-
-  const methods = useForm<MembershipFormValues>();
+  const methods = useForm<z.infer<typeof validationSchema>>({
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      email: email,
+      firstName: "",
+      lastName: "",
+      studentNumber: "",
+      pronouns: "",
+      levelOfStudy: "",
+      faculty: "",
+      major: "",
+      internationalStudent: "",
+      previousMember: "",
+      dietaryRestrictions: "None",
+      referral: "",
+      topics: [],
+    },
+  });
 
   useEffect(() => {
     const getUserEmail = async () => {
@@ -52,6 +92,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
         const currentUser = await fetchUserAttributes();
         if (currentUser && currentUser.email) {
           setEmail(currentUser.email);
+          methods.setValue("email", currentUser.email);
         }
         setLoading(false);
       } catch (error) {
@@ -61,27 +102,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
     };
 
     getUserEmail();
-  }, [router]);
-
-  const validationSchema = Yup.object({
-    firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().required("Last name is required"),
-    studentNumber: Yup.string().required("Student number is required"),
-    pronouns: Yup.string().required("Please select your pronouns"),
-    levelOfStudy: Yup.string().required("Level of study is required"),
-    faculty: Yup.string().required("Faculty is required"),
-    major: Yup.string().required("Major is required"),
-    internationalStudent: Yup.string().required(
-      "Please specify if you are an international student",
-    ),
-    previousMember: Yup.string().required(
-      "Please specify if you were a previous member",
-    ),
-    dietaryRestrictions: Yup.string().required(
-      "Dietary restrictions are required",
-    ),
-    referral: Yup.string().required("Referral source is required"),
-  });
+  }, [router, methods]);
 
   const onSubmit = async (values: MembershipFormValues) => {
     setIsSubmitting(true);
@@ -240,221 +261,249 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
               </h2>
 
               <div className="mt-10 space-y-8">
-                <Controller
-                  name="email"
+                <FormField
                   control={methods.control}
-                  defaultValue={email}
+                  name="email"
                   render={({ field }) => (
-                    <FormInput
-                      title="Email Address *"
-                      field={field}
-                      type="email"
-                      disabled
-                    />
+                    <FormItem>
+                      <FormInput
+                        title="Email Address *"
+                        field={field}
+                        type="email"
+                        disabled
+                      />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-                  <Controller
-                    name="firstName"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="firstName"
                     render={({ field }) => (
-                      <FormInput
-                        title="First Name *"
-                        field={field}
-                        type="text"
-                      />
+                      <FormItem>
+                        <FormInput
+                          title="First Name *"
+                          field={field}
+                          type="text"
+                        />
+                      </FormItem>
                     )}
                   />
-                  <Controller
-                    name="lastName"
+
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="lastName"
                     render={({ field }) => (
-                      <FormInput
-                        title="Last Name *"
-                        field={field}
-                        type="text"
-                      />
+                      <FormItem>
+                        <FormInput
+                          title="Last Name *"
+                          field={field}
+                          type="text"
+                        />
+                      </FormItem>
                     )}
                   />
                 </div>
 
-                <Controller
-                  name="studentNumber"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="studentNumber"
                   render={({ field }) => (
-                    <FormInput
-                      title="Student Number *"
-                      field={field}
-                      type="text"
-                    />
+                    <FormItem>
+                      <FormInput
+                        title="Student Number *"
+                        field={field}
+                        type="text"
+                      />
+                    </FormItem>
                   )}
                 />
 
-                <Controller
-                  name="pronouns"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="pronouns"
                   render={({ field }) => (
-                    <FormRadio
-                      title="Preferred Pronouns *"
-                      field={field}
-                      items={[
-                        { value: "He/Him/His", label: "He/Him/His" },
-                        { value: "She/Her/Hers", label: "She/Her/Hers" },
-                        {
-                          value: "They/Them/Theirs",
-                          label: "They/Them/Theirs",
-                        },
-                      ]}
-                    />
+                    <FormItem>
+                      <FormRadio
+                        title="Preferred Pronouns *"
+                        field={field}
+                        items={[
+                          { value: "He/Him/His", label: "He/Him/His" },
+                          { value: "She/Her/Hers", label: "She/Her/Hers" },
+                          {
+                            value: "They/Them/Theirs",
+                            label: "They/Them/Theirs",
+                          },
+                        ]}
+                      />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                  <Controller
-                    name="levelOfStudy"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="levelOfStudy"
                     render={({ field }) => (
-                      <FormSelect
-                        title="Level of Study *"
-                        field={field}
-                        items={[
-                          { value: "1st Year", label: "1st Year" },
-                          { value: "2nd Year", label: "2nd Year" },
-                          { value: "3rd Year", label: "3rd Year" },
-                          { value: "4th Year", label: "4th Year" },
-                          { value: "5+ Year", label: "5+ Year" },
-                          { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" },
-                        ]}
-                      />
+                      <FormItem>
+                        <FormSelect
+                          title="Level of Study *"
+                          field={field}
+                          items={[
+                            { value: "1st Year", label: "1st Year" },
+                            { value: "2nd Year", label: "2nd Year" },
+                            { value: "3rd Year", label: "3rd Year" },
+                            { value: "4th Year", label: "4th Year" },
+                            { value: "5+ Year", label: "5+ Year" },
+                            { value: "Other", label: "Other" },
+                            {
+                              value: "Not Applicable",
+                              label: "Not Applicable",
+                            },
+                          ]}
+                        />
+                      </FormItem>
                     )}
                   />
-                  <Controller
-                    name="faculty"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="faculty"
                     render={({ field }) => (
-                      <FormSelect
-                        title="Faculty *"
-                        field={field}
-                        items={[
-                          { value: "Arts", label: "Arts" },
-                          { value: "Commerce", label: "Commerce" },
-                          { value: "Science", label: "Science" },
-                          { value: "Engineering", label: "Engineering" },
-                          { value: "Kinesiology", label: "Kinesiology" },
-                          {
-                            value: "Land and Food Systems",
-                            label: "Land and Food Systems",
-                          },
-                          { value: "Forestry", label: "Forestry" },
-                          { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" },
-                        ]}
-                      />
+                      <FormItem>
+                        <FormSelect
+                          title="Faculty *"
+                          field={field}
+                          items={[
+                            { value: "Arts", label: "Arts" },
+                            { value: "Commerce", label: "Commerce" },
+                            { value: "Science", label: "Science" },
+                            { value: "Engineering", label: "Engineering" },
+                            { value: "Kinesiology", label: "Kinesiology" },
+                            {
+                              value: "Land and Food Systems",
+                              label: "Land and Food Systems",
+                            },
+                            { value: "Forestry", label: "Forestry" },
+                            { value: "Other", label: "Other" },
+                            {
+                              value: "Not Applicable",
+                              label: "Not Applicable",
+                            },
+                          ]}
+                        />
+                      </FormItem>
                     )}
                   />
                 </div>
 
-                <Controller
-                  name="major"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="major"
                   render={({ field }) => (
-                    <FormInput title="Major *" field={field} type="text" />
+                    <FormItem>
+                      <FormInput title="Major *" field={field} type="text" />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-                  <Controller
-                    name="internationalStudent"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="internationalStudent"
                     render={({ field }) => (
+                      <FormItem>
+                        <FormSelect
+                          title="Are you an international student? *"
+                          field={field}
+                          items={[
+                            { value: "Yes", label: "Yes" },
+                            { value: "No", label: "No" },
+                          ]}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={methods.control}
+                    name="dietaryRestrictions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormSelect
+                          title="Do you have dietary restrictions?"
+                          field={field}
+                          items={[
+                            { value: "None", label: "None" },
+                            { value: "Vegetarian", label: "Vegetarian" },
+                            { value: "Vegan", label: "Vegan" },
+                            { value: "Gluten-free", label: "Gluten-free" },
+                          ]}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={methods.control}
+                  name="previousMember"
+                  render={({ field }) => (
+                    <FormItem>
                       <FormSelect
-                        title="Are you an international student? *"
+                        title="Were you a BizTech member last year? *"
                         field={field}
                         items={[
                           { value: "Yes", label: "Yes" },
                           { value: "No", label: "No" },
                         ]}
                       />
-                    )}
-                  />
-                  <Controller
-                    name="dietaryRestrictions"
-                    control={methods.control}
-                    defaultValue="None"
-                    render={({ field }) => (
-                      <FormSelect
-                        title="Do you have any dietary restrictions?"
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={methods.control}
+                  name="topics"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormMultiSelect
+                        title="What topics do you want to see discussed in future events?"
                         field={field}
                         items={[
-                          { value: "None", label: "None" },
-                          { value: "Vegetarian", label: "Vegetarian" },
-                          { value: "Vegan", label: "Vegan" },
-                          { value: "Gluten-free", label: "Gluten-free" },
+                          { value: "Cyber Security", label: "Cyber Security" },
+                          { value: "AI", label: "AI" },
+                          { value: "Tech Startups", label: "Tech Startups" },
+                          { value: "eCommerce", label: "eCommerce" },
+                          { value: "Health Tech", label: "Health Tech" },
+                          {
+                            value: "Careers in the Tech Industry",
+                            label: "Careers in the Tech Industry",
+                          },
                         ]}
                       />
-                    )}
-                  />
-                </div>
-
-                <Controller
-                  name="previousMember"
-                  control={methods.control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <FormSelect
-                      title="Were you a BizTech member last year? *"
-                      field={field}
-                      items={[
-                        { value: "Yes", label: "Yes" },
-                        { value: "No", label: "No" },
-                      ]}
-                    />
+                    </FormItem>
                   )}
                 />
 
-                <Controller
-                  name="topics"
+                <FormField
                   control={methods.control}
-                  defaultValue={[]}
-                  render={({ field }) => (
-                    <FormMultiSelect
-                      title="What topics do you want to see discussed in future events?"
-                      field={field}
-                      items={[
-                        { value: "Cyber Security", label: "Cyber Security" },
-                        { value: "AI", label: "AI" },
-                        { value: "Tech Startups", label: "Tech Startups" },
-                        { value: "eCommerce", label: "eCommerce" },
-                        { value: "Health Tech", label: "Health Tech" },
-                        {
-                          value: "Careers in the Tech Industry",
-                          label: "Careers in the Tech Industry",
-                        },
-                      ]}
-                    />
-                  )}
-                />
-
-                <Controller
                   name="referral"
-                  control={methods.control}
-                  defaultValue=""
                   render={({ field }) => (
-                    <FormInput
-                      title="How did you hear about us?"
-                      field={field}
-                      type="text"
-                    />
+                    <FormItem>
+                      <FormSelect
+                        title="How did you hear about us? *"
+                        field={field}
+                        items={[
+                          { value: "Instagram", label: "Instagram" },
+                          { value: "TikTok", label: "TikTok" },
+                          { value: "Newsletter", label: "Newsletter" },
+                          { value: "Website", label: "Website" },
+                          { value: "LinkedIn", label: "LinkedIn" },
+                          { value: "Word of Mouth", label: "Word of Mouth" },
+                          { value: "Other", label: "Other" },
+                        ]}
+                      />
+                    </FormItem>
                   )}
                 />
               </div>

@@ -63,11 +63,6 @@ export default function App({ Component, pageProps }: AppProps) {
           content={isCompanionPath ? "#030608" : "#2A5298"}
         />
 
-        {/* Font */}
-        <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com"/>
-        <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet"/>
-
         {/* Favicon */}
         <link
           rel="apple-touch-icon"

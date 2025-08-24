@@ -154,7 +154,7 @@ export const FormMultiSelect = React.forwardRef<
           </FormLabel>
         </FormItem>
       ))}
-      <FormMessage />
+      <FormMessage className="mt-3" />
     </div>
   );
 });
