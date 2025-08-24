@@ -18,7 +18,8 @@ const generateSeededImage = (seed: string): string => {
 
 type NfcPopupProps = {
   name: string; // User's display name
-  userId: string; // User's unique identifier
+  email: string; // User's email
+  uuid: string; // User's unique identifier
   image?: string; // Optional profile image URL
   exit: () => void; // Function to close popup and return to QR scanner
   numCards: number; // Number of cards the user has
@@ -26,7 +27,8 @@ type NfcPopupProps = {
 
 const NfcPopup: React.FC<NfcPopupProps> = ({
   name,
-  userId,
+  email,
+  uuid,
   image,
   exit,
   numCards,
@@ -39,8 +41,8 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 
   // Generate consistent profile image if none provided
   const profileImage = useMemo(() => {
-    return image || generateSeededImage(userId);
-  }, [image, userId]);
+    return image || generateSeededImage(uuid);
+  }, [image, uuid]);
 
   // Check device NFC support on component mount
   useEffect(() => {
@@ -76,7 +78,8 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
       {/* NFCWriter component - handles actual NFC tag writing */}
       {showWriter && (
         <NFCWriter
-          token={userId}
+          token={uuid}
+          email={email}
           exit={closeWriter}
           profileSrc={profileImage}
           closeAll={closeAll}

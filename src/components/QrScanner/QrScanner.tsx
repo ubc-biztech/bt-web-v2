@@ -53,6 +53,7 @@ const QrCheckIn: React.FC<QrProps> = ({
   );
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
+  const [memberUUID, setMemberUUID] = useState<string | null>(null);
 
   // NFC popup state - controls when to show membership card writing interface
   const [showNfcPopup, setShowNfcPopup] = useState(false);
@@ -281,14 +282,19 @@ const QrCheckIn: React.FC<QrProps> = ({
         endpoint: `/members/${userID}`,
         method: "GET",
       });
-      if (member && member.cardCount) {
+      if (!member) {
+        // user is not a member hence no need for card
+        return false;
+      }
+      if (member.cardCount) {
         // User already has a card, no need for new one
         return false;
       }
       // User needs a card
+      setMemberUUID(member.profileID);
       return true;
     } catch (e) {
-      // On error, assume user doesn't need a card (fail-safe)
+      // On error, assume user doesn't need a card for now (fail-safe)
       return false;
     }
   };
@@ -383,10 +389,11 @@ const QrCheckIn: React.FC<QrProps> = ({
             </div>
 
             {/* NFC popup for membership card writing */}
-            {showNfcPopup && (
+            {showNfcPopup && memberUUID && (
               <NFCPopup
                 name={checkInName}
-                userId={qrCodeText.split(";")[0]}
+                email={qrCodeText.split(";")[0]}
+                uuid={memberUUID}
                 exit={() => {
                   setShowNfcPopup(false);
                   // Show success message for 3 seconds after NFC popup closes

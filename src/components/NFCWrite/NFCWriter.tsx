@@ -15,6 +15,7 @@ const generateSeededImage = (seed: string): string => {
 
 type NFCWriterProps = {
   token: string; // User ID to write to NFC tag
+  email: string; // User's email
   exit: () => void; // Return to NFCPopup
   closeAll: () => void; // Close everything, return to QR scanner
   profileSrc?: string; // User's profile image URL
@@ -51,6 +52,7 @@ type NDEFReaderLike = {
 
 const NFCWriter = ({
   token,
+  email,
   exit,
   profileSrc,
   closeAll,
@@ -166,7 +168,7 @@ const NFCWriter = ({
       // Update user's card count in database (silently handle errors)
       try {
         await fetchBackend({
-          endpoint: `/members/${token}`,
+          endpoint: `/members/${email}`,
           method: "PATCH",
           data: {
             cardCount: numCards + 1,
