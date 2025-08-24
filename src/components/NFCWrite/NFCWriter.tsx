@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import styles from "./writer.module.css";
 import { fetchBackend } from "@/lib/db";
 
 // Generates consistent avatar images based on user ID seed
@@ -86,18 +85,20 @@ const NFCWriter = ({
 
   // Dynamic ring styling for visual feedback
   const ringClass = useMemo(() => {
-    if (isSuccess) return `${styles.rings} ${styles["rings--success"]}`;
-    if (isError) return `${styles.rings} ${styles["rings--error"]}`;
-    return styles.rings;
+    if (isSuccess)
+      return "absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500 ease-in-out";
+    if (isError)
+      return "absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[560px] h-[560px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500 ease-in-out";
+    return "absolute top-20 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500 ease-in-out";
   }, [isSuccess, isError]);
 
   // Dynamic profile image styling for visual feedback
   const profileClass = useMemo(() => {
     if (isSuccess)
-      return `${styles.profileImage} ${styles["profileImage--success"]}`;
+      return "w-32 aspect-square rounded-full absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] bg-green-400 grid place-items-center overflow-hidden bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out shadow-[0_30px_90px_rgba(45,209,125,0.4)]";
     if (isError)
-      return `${styles.profileImage} ${styles["profileImage--error"]}`;
-    return styles.profileImage;
+      return "w-32 aspect-square rounded-full absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1000] bg-red-400 grid place-items-center overflow-hidden bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out shadow-[0_30px_90px_rgba(212,74,74,0.35)]";
+    return "w-28 aspect-square rounded-full absolute top-8 left-1/2 -translate-x-1/2 z-[1000] bg-cyan-400 grid place-items-center overflow-hidden bg-cover bg-center bg-no-repeat transition-all duration-500 ease-in-out";
   }, [isSuccess, isError]);
 
   // Initialize NFC writing process on component mount
@@ -248,7 +249,7 @@ const NFCWriter = ({
   };
 
   return (
-    <div className={styles.writerContainer}>
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-black/35 backdrop-blur-md absolute top-0 left-0 text-white z-[1000] pb-16">
       {/* Visual feedback elements - animated rings and profile image */}
       {(status === "ready" ||
         status === "writing" ||
@@ -257,51 +258,64 @@ const NFCWriter = ({
         <>
           {/* Animated rings that change color based on status */}
           <div className={ringClass}>
-            <div className={styles.ring} />
-            <div className={styles.ring} />
-            <div className={styles.ring} />
-            <div className={styles.ring} />
+            <div
+              className={`absolute top-0 left-0 w-full h-full rounded-full pointer-events-none ${isSuccess ? "bg-gradient-to-b from-green-400/14 via-green-600/6 to-transparent opacity-90" : isError ? "bg-gradient-to-b from-red-400/19 via-red-600/9 to-transparent opacity-90" : "bg-gradient-radial from-blue-400/32 via-blue-600/11 to-transparent opacity-22"} animate-rings transition-all duration-500 ease-in-out`}
+            />
+            <div
+              className={`absolute w-3/4 h-3/4 left-[12.5%] top-[12.5%] rounded-full pointer-events-none ${isSuccess ? "bg-gradient-to-b from-green-400/14 via-green-600/6 to-transparent opacity-90" : isError ? "bg-gradient-to-b from-red-400/19 via-red-600/9 to-transparent opacity-90" : "bg-gradient-radial from-blue-400/32 via-blue-600/11 to-transparent opacity-35"} animate-rings transition-all duration-500 ease-in-out`}
+              style={{ animationDelay: "0.2s" }}
+            />
+            <div
+              className={`absolute w-[55%] h-[55%] left-[22.5%] top-[22.5%] rounded-full pointer-events-none ${isSuccess ? "bg-gradient-to-b from-green-400/14 via-green-600/6 to-transparent opacity-90" : isError ? "bg-gradient-to-b from-red-400/19 via-red-600/9 to-transparent opacity-90" : "bg-gradient-radial from-blue-400/32 via-blue-600/11 to-transparent opacity-50"} animate-rings transition-all duration-500 ease-in-out`}
+              style={{ animationDelay: "0.4s" }}
+            />
+            <div
+              className={`absolute w-[35%] h-[35%] left-[32.5%] top-[32.5%] rounded-full pointer-events-none ${isSuccess ? "bg-gradient-to-b from-green-400/14 via-green-600/6 to-transparent opacity-90" : isError ? "bg-gradient-to-b from-red-400/19 via-red-600/9 to-transparent opacity-90" : "bg-gradient-radial from-blue-400/32 via-blue-600/11 to-transparent opacity-70"} animate-rings transition-all duration-500 ease-in-out`}
+              style={{ animationDelay: "0.6s" }}
+            />
           </div>
 
           {/* User's profile picture with status-based styling */}
           <div className={profileClass}>
-            <img src={profileImage} alt="Profile" />
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           </div>
         </>
       )}
 
       {/* Status messages for different stages */}
       {status === "ready" && (
-        <div className={styles.statusMessage}>
-          <img className={styles["card-image"]} src="/card.png" alt="Card" />
+        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
+          <img className="w-24 object-cover" src="/card.png" alt="Card" />
           Hold Card Close to Your Device
         </div>
       )}
 
       {status === "writing" && (
-        <div className={styles.statusMessage}>
-          <img className={styles["card-image"]} src="/card.png" alt="Card" />
+        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
+          <img className="w-24 object-cover" src="/card.png" alt="Card" />
           Hold Card Close to Your Device
         </div>
       )}
 
       {status === "success" && (
-        <div
-          className={`${styles.statusMessage} ${styles.success} ${styles.successMessage}`}
-        >
-          <div className={styles.successTitle}>Success!</div>
-          <div className={styles.successSubtext}>
+        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-white absolute w-full left-1/2 top-[calc(56%+8px)] -translate-x-1/2 gap-2 pointer-events-none">
+          <div className="text-5xl font-extrabold tracking-wide">Success!</div>
+          <div className="opacity-95">
             {successSubtext ?? "Hand the card to Leshawn."}
           </div>
         </div>
       )}
 
       {status === "error" && (
-        <div
-          className={`${styles.statusMessage} ${styles.failure} ${styles.failureMessage}`}
-        >
-          <div className={styles.failureTitle}>{failurePrimary}</div>
-          <div className={styles.failureSubtext}>
+        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-white absolute w-full left-1/2 top-[calc(56%+8px)] -translate-x-1/2 gap-2 pointer-events-none">
+          <div className="text-5xl font-extrabold tracking-wide">
+            {failurePrimary}
+          </div>
+          <div className="opacity-95">
             {failureSecondary}
             <br />
             {errorMessage ? errorMessage : ""}
@@ -310,17 +324,17 @@ const NFCWriter = ({
       )}
 
       {status === "not_supported" && (
-        <div className={`${styles.statusMessage} ${styles.error}`}>
+        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-red-400">
           NFC is not supported on this device
         </div>
       )}
 
       {/* Action buttons at bottom */}
-      <div className={styles.bottomActions}>
+      <div className="absolute bottom-12 left-0 right-0 flex gap-3 justify-center z-[1200]">
         {/* Retry button - only shown on error */}
         {status === "error" && (
           <button
-            className={styles.secondaryButton}
+            className="bg-white/24 border border-white/28 w-32 h-10 flex items-center justify-center text-white text-lg cursor-pointer rounded-full"
             onClick={() => setStatus("ready")}
           >
             Try Again
@@ -328,7 +342,10 @@ const NFCWriter = ({
         )}
 
         {/* Done button - always visible */}
-        <button className={styles.cancelButton} onClick={exit}>
+        <button
+          className="bg-white/17 border border-white/20 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full"
+          onClick={exit}
+        >
           Done
         </button>
       </div>

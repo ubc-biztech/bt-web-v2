@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
 import NFCWriter from "./NFCWriter";
-import styles from "./writer.module.css";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -114,7 +113,7 @@ const DeviceNotSupported = ({
   exit: () => void;
 }) => {
   return (
-    <div className={styles.nfcPopupContent}>
+    <div className="flex flex-col items-center justify-center gap-4 h-full w-full bg-black/40 backdrop-blur-md absolute top-0 left-0 text-white z-[998] px-4">
       {manualWrite ? (
         <div>Device not compatible, please find a anroid device to help.</div>
       ) : (
@@ -124,7 +123,10 @@ const DeviceNotSupported = ({
           Refer them to an exec with an android device to help.
         </div>
       )}
-      <button onClick={exit} className={styles.glassButton}>
+      <button
+        onClick={exit}
+        className="bg-white/17 border border-white/20 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full absolute bottom-12 left-1/2 -translate-x-1/2"
+      >
         close
       </button>
     </div>
@@ -142,10 +144,10 @@ const NfcPopupContent = ({
   openWriter: () => void;
 }) => {
   return (
-    <div className={styles.nfcPopupContent}>
+    <div className="flex flex-col items-center justify-center gap-4 h-full w-full bg-black/40 backdrop-blur-md absolute top-0 left-0 text-white z-[998] px-4">
       {/* User's profile picture */}
-      <div className={styles.profileImage}>
-        <img src={image} alt="profile" />
+      <div className="w-28 aspect-square rounded-full absolute top-8 left-1/2 -translate-x-1/2 z-[1000] bg-cyan-400 grid place-items-center overflow-hidden bg-cover bg-center bg-no-repeat">
+        <img src={image} alt="profile" className="w-full h-full object-cover" />
       </div>
 
       {/* Instructions for user */}
@@ -154,7 +156,10 @@ const NfcPopupContent = ({
       </div>
 
       {/* Button to start NFC writing process */}
-      <div onClick={openWriter} className={styles.glassButton}>
+      <div
+        onClick={openWriter}
+        className="bg-white/17 border border-white/20 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full absolute bottom-12 left-1/2 -translate-x-1/2"
+      >
         Write to Card
       </div>
     </div>
