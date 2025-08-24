@@ -18,6 +18,7 @@ export type ModalHandlers = {
   handleEventDelete: () => void;
   handleEditEvent: () => void;
   handleViewAsMember: (eventID: string, eventYear: number) => void;
+  handleViewRegistrations: (eventID: string, eventYear: number) => void;
 };
 
 export default function AdminEventView({ events }: Props) {
@@ -40,6 +41,10 @@ export default function AdminEventView({ events }: Props) {
 
   const handleViewAsMember = (eventID: string, eventYear: number) => {
     router.push(`/event/${eventID}/${eventYear}/register`);
+  };
+
+  const handleViewRegistrations = (eventID: string, eventYear: number) => {
+    router.push(`/admin/event/${eventID}/${eventYear}`);
   };
 
   // Update event click to navigate to registration table view
@@ -130,6 +135,7 @@ export default function AdminEventView({ events }: Props) {
                   event={event}
                   eventClick={eventClick}
                   modalHandlers={{
+                    handleViewRegistrations: handleViewRegistrations,
                     handleEventDelete: handleEventDelete,
                     handleEditEvent: () =>
                       router.push(
@@ -150,6 +156,7 @@ export default function AdminEventView({ events }: Props) {
                 event={event}
                 eventClick={mobileEventClick}
                 modalHandlers={{
+                  handleViewRegistrations: handleViewRegistrations,
                   handleEventDelete: handleEventDelete,
                   handleEditEvent: () =>
                     router.push(`/admin/event/${event.id}/${event.year}/edit`),
@@ -165,7 +172,7 @@ export default function AdminEventView({ events }: Props) {
         <div
           className={
             isClicked && (isMobileDevice || isDelete)
-              ? "fixed inset-0 flex items-center justify-center z-50 bg-bt-blue-700 bg-opacity-50 blur-background"
+              ? "fixed inset-0 flex items-center justify-center z-50 bg-bt-blue-700/50 bg-opacity-50 backdrop-blur-md"
               : ""
           }
         >
@@ -176,6 +183,7 @@ export default function AdminEventView({ events }: Props) {
             event={event!}
             setIsDelete={setIsDelete}
             modalHandlers={{
+              handleViewRegistrations: handleViewRegistrations,
               handleEventDelete: handleEventDelete,
               handleEditEvent: handleEditEvent,
               handleViewAsMember: handleViewAsMember,

@@ -23,6 +23,9 @@ const PopupModal = forwardRef<HTMLDivElement, PopupModalProps>(
         case PopUpItem.ViewAsMember:
           modalHandlers.handleViewAsMember(eventID, eventYear);
           break;
+        case PopUpItem.ViewRegistrations:
+          modalHandlers.handleViewRegistrations(eventID, eventYear);
+          break;
         default:
           console.log(`${item} button clicked`);
           break;
