@@ -37,7 +37,7 @@ export const useUserNeedsCard = () => {
         return { needsCard: false, memberUUID: null };
       }
 
-      if (member.cardCount) {
+      if (member.cardCount && member.cardCount > 0) {
         // User already has a card, no need for new one
         return { needsCard: false, memberUUID: null };
       }
