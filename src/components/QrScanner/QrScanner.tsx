@@ -17,6 +17,25 @@ import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
+import NFCPopup from "../NFCWrite/NFCPopup";
+
+/**
+ * MAIN EVENT CHECK-IN COMPONENT
+ * This component handles QR code-based check-ins for event participants.
+ * It scans QR codes containing participant information and validates them before checking in.
+ *
+ * Check-in Process:
+ * 1. Scans QR code with format: email;event_id;year;first_name
+ * 2. Validates participant is registered for the event
+ * 3. Checks registration status (prevents duplicate check-ins)
+ * 4. Updates registration status to "checkedIn" via API call
+ [ADDITION]
+- Checks if user has a membership Card and If user a is a member
+- if user does not have a membership card and is member, launches nfc writer modal (NFCPopup)
+- Membership modal has it's own flow ...
+[ADDITION]
+ * 5. Provides visual feedback for success/failure states
+ */
 
 // an enumeration for the stages of QR code scanning
 const QrCheckIn: React.FC<QrProps> = ({
@@ -36,6 +55,7 @@ const QrCheckIn: React.FC<QrProps> = ({
   );
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
+  const [showNfcPopup, setShowNfcPopup] = useState(false);
 
   useEffect(() => {
     if (
@@ -194,6 +214,8 @@ const QrCheckIn: React.FC<QrProps> = ({
   };
 
   const checkInUser = (id: string, fname: string) => {
+    // CHECK-IN API CALL: Updates participant registration status to "checkedIn"
+    // This is the core function that marks a participant as checked into the event
     const body = {
       eventID: event.id,
       year: parseInt(event.year),
@@ -206,6 +228,10 @@ const QrCheckIn: React.FC<QrProps> = ({
         method: "PUT",
         data: body,
       });
+
+      // Set showNfcPopup based on whether user needs a card
+      setShowNfcPopup(doesUserNeedCard(id));
+
       // wait 10 seconds, then reset the scan stage
       cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
     } catch (e) {
@@ -215,6 +241,10 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
 
     setQrCode(defaultQrCode);
+  };
+
+  const doesUserNeedCard = (userID: string) => {
+    return false; // !!! to be implemented.
   };
 
   return (
@@ -299,6 +329,14 @@ const QrCheckIn: React.FC<QrProps> = ({
                 <ChevronsUp width={20} height={20} />
               </div>
             </div>
+            {showNfcPopup && (
+              <NFCPopup
+                name={checkInName}
+                userId={qrCodeText}
+                image={qrCodeText}
+                exit={() => setShowNfcPopup(false)}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

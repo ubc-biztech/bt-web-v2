@@ -12,6 +12,8 @@ export async function fetchRegistrationData(eventId: string, year: string) {
 }
 
 // Helper to convert UI registration status to DB format
+// This function handles converting human-readable status labels (like "Checked-In") 
+// to database values (like "checkedIn") for registration updates including check-ins
 export function convertRegistrationStatusToDB(uiStatus: string): string {
   switch (uiStatus.toLowerCase()) {
     case "registered":
