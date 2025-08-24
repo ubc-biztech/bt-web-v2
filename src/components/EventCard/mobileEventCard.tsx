@@ -21,6 +21,7 @@ type Props = {
 };
 
 const editEventPopupItems: PopUpItem[] = [
+  PopUpItem.ViewRegistrations,
   PopUpItem.EditEvent,
   PopUpItem.ViewAsMember,
   PopUpItem.DeleteEvent,

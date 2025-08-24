@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import DeletePopup from "./deletePopUp";
 import { BiztechEvent } from "@/types/types";
 import { ModalHandlers } from "@/pages/admin/home";
+import { PopUpItem } from "../types";
 
 type Props = {
   isClicked: boolean;
@@ -14,13 +15,8 @@ type Props = {
   modalHandlers: ModalHandlers;
 };
 
-const enum PopUpItem {
-  EditEvent = "Edit Event",
-  ViewAsMember = "View as Member",
-  DeleteEvent = "Delete Event",
-}
-
 const editEventPopupItems: String[] = [
+  PopUpItem.ViewRegistrations,
   PopUpItem.EditEvent,
   PopUpItem.ViewAsMember,
   PopUpItem.DeleteEvent,
@@ -36,6 +32,9 @@ export default function MobilePopup({
 }: Props) {
   const handleButtonClick = (item: String) => {
     switch (item) {
+      case PopUpItem.ViewRegistrations:
+        modalHandlers.handleViewRegistrations(event.id, event.year);
+        break;
       case PopUpItem.DeleteEvent:
         modalHandlers.handleEventDelete();
         break;
