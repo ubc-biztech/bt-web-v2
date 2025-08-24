@@ -17,7 +17,7 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NfcPopupProps = {
-  name: string; // User's display name
+  firstName: string; // User's first name
   email: string; // User's email
   uuid: string; // User's unique identifier
   image?: string; // Optional profile image URL
@@ -26,7 +26,7 @@ type NfcPopupProps = {
 };
 
 const NfcPopup: React.FC<NfcPopupProps> = ({
-  name,
+  firstName,
   email,
   uuid,
   image,
@@ -79,6 +79,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
       {showWriter && (
         <NFCWriter
           token={uuid}
+          firstName={firstName}
           email={email}
           exit={closeWriter}
           profileSrc={profileImage}
@@ -90,12 +91,12 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
       {/* Show appropriate content based on device support */}
       {!isDeviceSupported ? (
         // Device doesn't support NFC - show manual instructions
-        <DeviceNotSupported name={name} manualWrite={false} exit={exit} />
+        <DeviceNotSupported name={firstName} manualWrite={false} exit={exit} />
       ) : (
         // Device supports NFC - show writing interface
         <div>
           <NfcPopupContent
-            name={name}
+            name={firstName}
             image={profileImage}
             openWriter={openWriter}
           />

@@ -16,6 +16,7 @@ const generateSeededImage = (seed: string): string => {
 type NFCWriterProps = {
   token: string; // User ID to write to NFC tag
   email: string; // User's email
+  firstName: string; // User's first name
   exit: () => void; // Return to NFCPopup
   closeAll: () => void; // Close everything, return to QR scanner
   profileSrc?: string; // User's profile image URL
@@ -53,6 +54,7 @@ type NDEFReaderLike = {
 const NFCWriter = ({
   token,
   email,
+  firstName,
   exit,
   profileSrc,
   closeAll,
@@ -307,7 +309,7 @@ const NFCWriter = ({
         <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-white absolute w-full left-1/2 top-[calc(56%+8px)] -translate-x-1/2 gap-2 pointer-events-none">
           <div className="text-5xl font-extrabold tracking-wide">Success!</div>
           <div className="opacity-95">
-            {successSubtext ?? "Hand the card to Leshawn."}
+            {successSubtext ?? "Hand the card to " + firstName}
           </div>
         </div>
       )}

@@ -213,6 +213,7 @@ export default function ManageMembers() {
         <NFCWriter
           token={selectedMember.profileID}
           email={selectedMember.id}
+          firstName={selectedMember.firstName}
           exit={closeNfcWriter}
           closeAll={closeAllNfc}
           numCards={1}
