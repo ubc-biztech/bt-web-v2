@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
+import { NFCCardCell } from "./NFCCardCell";
 import { SortableHeader } from "./SortableHeader";
 import { BiztechEvent, DBRegistrationStatus } from "@/types/types";
 import { Registration } from "@/types/types";
@@ -139,6 +140,13 @@ export const createColumns = (
         order.indexOf(rowB.getValue("applicationStatus"))
       );
     },
+  },
+  {
+    id: "nfcCard",
+    header: "NFC Card",
+    cell: (props) => <NFCCardCell {...props} refreshTable={refreshTable} />,
+    size: 120,
+    enableSorting: false,
   },
   {
     accessorKey: "basicInformation.fname",
