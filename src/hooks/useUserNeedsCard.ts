@@ -14,7 +14,9 @@ export const useUserNeedsCard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const checkUserNeedsCard = async (userID: string): Promise<{
+  const checkUserNeedsCard = async (
+    userID: string,
+  ): Promise<{
     needsCard: boolean;
     memberUUID: string | null;
   }> => {
@@ -47,12 +49,12 @@ export const useUserNeedsCard = () => {
         console.log(`${userID} is not a member`);
         return { needsCard: false, memberUUID: null };
       }
-      
+
       // Handle other errors
       const errorMessage = "Failed to check member status";
       setError(errorMessage);
       console.error(errorMessage, e);
-      
+
       // On error, assume user doesn't need a card for now (fail-safe)
       return { needsCard: false, memberUUID: null };
     } finally {
@@ -65,4 +67,4 @@ export const useUserNeedsCard = () => {
     isLoading,
     error,
   };
-}; 
+};
