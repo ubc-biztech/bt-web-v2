@@ -71,7 +71,8 @@ export default function ManageMembers() {
         endpoint: "/members",
         method: "GET",
       });
-      setData(response.data || []);
+      setData(response || []);
+      console.log(response);
     } catch (error) {
       console.error("Failed to refresh member data:", error);
     } finally {
