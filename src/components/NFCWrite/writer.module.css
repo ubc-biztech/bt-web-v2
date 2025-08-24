@@ -367,15 +367,16 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  height: 100%;
+  height: 100svh;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.408);
   backdrop-filter: blur(10px);
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   color: white;
   z-index: 998;
   padding-left: 1rem;
   padding-right: 1rem;
+  text-align: center;
 }

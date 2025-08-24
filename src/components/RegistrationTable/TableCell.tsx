@@ -12,6 +12,8 @@ import { ColumnMeta } from "./columns";
 import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
+import NFCPopup from "../NFCWrite/NFCPopup";
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
   refreshTable: () => Promise<void>;
@@ -23,9 +25,16 @@ export const TableCell = memo(
     const columnMeta = column.columnDef.meta as ColumnMeta;
     const [value, setValue] = useState(initialValue);
 
+    // NFC popup state - controls when to show membership card writing interface
+    const [showNfcPopup, setShowNfcPopup] = useState(false);
+    const [memberUUID, setMemberUUID] = useState<string | null>(null);
+
+    // Use the custom hook for checking if user needs a card
+    const { checkUserNeedsCard } = useUserNeedsCard();
+
     useEffect(() => {
       setValue(getLabel(initialValue as string));
-    }, [initialValue]);
+    }, [initialValue, column.id, row.original.id]);
 
     const onBlur = async () => {
       let eventId = row.original["eventID;year"].slice(
@@ -59,6 +68,16 @@ export const TableCell = memo(
 
       try {
         await updateRegistrationData(row.original.id, row.original.fname, body);
+
+        // Check if user needs an NFC membership card when status is set to checkedIn
+        if (column.id === "registrationStatus" && newValue === "checkedIn") {
+          const { needsCard, memberUUID: uuid } = await checkUserNeedsCard(
+            row.original.id,
+          );
+          setShowNfcPopup(needsCard);
+          setMemberUUID(uuid);
+        }
+
         await refreshTable();
         setValue(newValue);
       } catch (error) {
@@ -110,25 +129,44 @@ export const TableCell = memo(
 
     if (column.id === "registrationStatus" || column.id === "points") {
       if (columnMeta?.type === "select") {
+        const handleSelectChange = (newValue: string) => {
+          onSelectChange(newValue);
+        };
+
         return (
-          <Select
-            onValueChange={onSelectChange}
-            defaultValue={initialValue as string}
-          >
-            <SelectTrigger
-              className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
-              style={{ backgroundColor: getColor(value as string) }}
+          <>
+            <Select
+              onValueChange={handleSelectChange}
+              defaultValue={initialValue as string}
             >
-              <SelectValue>{value as string}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {columnMeta.options?.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <SelectTrigger
+                className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
+                style={{ backgroundColor: getColor(value as string) }}
+              >
+                <SelectValue>{value as string}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {columnMeta.options?.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* NFC popup for membership card writing */}
+            {showNfcPopup && memberUUID && (
+              <NFCPopup
+                firstName={row.original.fname}
+                email={row.original.id}
+                uuid={memberUUID}
+                exit={() => {
+                  setShowNfcPopup(false);
+                }}
+                numCards={0}
+              />
+            )}
+          </>
         );
       } else if (columnMeta?.type === "number") {
         return (

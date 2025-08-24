@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import NFCPopup from "../NFCWrite/NFCPopup";
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 /**
  * MAIN EVENT CHECK-IN COMPONENT
@@ -57,6 +58,9 @@ const QrCheckIn: React.FC<QrProps> = ({
 
   // NFC popup state - controls when to show membership card writing interface
   const [showNfcPopup, setShowNfcPopup] = useState(false);
+
+  // Use the custom hook for checking if user needs a card
+  const { checkUserNeedsCard } = useUserNeedsCard();
 
   // Main QR code processing effect - triggers when QR text is scanned
   useEffect(() => {
@@ -256,8 +260,9 @@ const QrCheckIn: React.FC<QrProps> = ({
       });
 
       // Check if user needs an NFC membership card
-      const needsCard = await doesUserNeedCard(id);
+      const { needsCard, memberUUID: uuid } = await checkUserNeedsCard(id);
       setShowNfcPopup(needsCard);
+      setMemberUUID(uuid);
 
       // Only show success state if no NFC popup is needed
       // If NFC popup is needed, let it handle the flow
@@ -273,30 +278,6 @@ const QrCheckIn: React.FC<QrProps> = ({
 
     // Reset QR code state for next scan
     setQrCode(defaultQrCode);
-  };
-
-  // Checks if user needs an NFC membership card by querying member API
-  const doesUserNeedCard = async (userID: string) => {
-    try {
-      const member = await fetchBackend({
-        endpoint: `/members/${userID}`,
-        method: "GET",
-      });
-      if (!member) {
-        // user is not a member hence no need for card
-        return false;
-      }
-      if (member.cardCount) {
-        // User already has a card, no need for new one
-        return false;
-      }
-      // User needs a card
-      setMemberUUID(member.profileID);
-      return true;
-    } catch (e) {
-      // On error, assume user doesn't need a card for now (fail-safe)
-      return false;
-    }
   };
 
   return (
