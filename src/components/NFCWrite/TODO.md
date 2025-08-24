@@ -1,8 +1,8 @@
 TODO's for NFC Writing
 [] Styling for popup component
-[] Implementation of Profile Image retrieval based on uuid <> endpoints? 
+[] Implementation of Profile Image retrieval based on uuid <> endpoints?
 
-Writing on QR scan: 
+Writing on QR scan:
 [x] Implementation of the funnction doesUserNeedCard <> API endpoints for retrival of card information based on uuid
 
 Writing through manage event table:
