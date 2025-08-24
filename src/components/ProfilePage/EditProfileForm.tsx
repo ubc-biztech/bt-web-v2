@@ -177,7 +177,9 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
             />
 
             <div className="space-y-6 ">
-              <h4 className="font-semibold text-white mt-12">Privacy Settings</h4>
+              <h4 className="font-semibold text-white mt-12">
+                Privacy Settings
+              </h4>
               <div className="space-y-3 border border-bt-blue-100 rounded-md p-4">
                 <p className="text-sm text-white mb-4">
                   Choose what information is visible on your profile:
@@ -308,11 +310,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
             </div>
 
             <div className="flex gap-4">
-              <Button
-              variant="green"
-                type="submit"
-                disabled={isSubmitting}
-              >
+              <Button variant="green" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
             </div>

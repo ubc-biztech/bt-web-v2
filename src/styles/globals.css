@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-
 :root {
-  --font-urbanist: 'Urbanist', sans-serif;
+  --font-urbanist: "Urbanist", sans-serif;
 
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 11, 17, 30;
@@ -40,7 +39,6 @@
 
   --radius: 0.5rem;
 }
-
 
 .anim-bg-gradient {
   padding: 0.6em 1.2em;

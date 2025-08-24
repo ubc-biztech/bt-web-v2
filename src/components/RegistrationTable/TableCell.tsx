@@ -18,145 +18,144 @@ interface TableCellProps extends CellContext<Registration, unknown> {
 }
 
 export const TableCell = memo(
-  ({
-  getValue,
-  column,
-  row,
-  refreshTable,
-}: TableCellProps) => {
-  const initialValue = getValue();
-  const columnMeta = column.columnDef.meta as ColumnMeta;
-  const [value, setValue] = useState(initialValue);
+  ({ getValue, column, row, refreshTable }: TableCellProps) => {
+    const initialValue = getValue();
+    const columnMeta = column.columnDef.meta as ColumnMeta;
+    const [value, setValue] = useState(initialValue);
 
-  useEffect(() => {
-    setValue(getLabel(initialValue as string));
-  }, [initialValue]);
+    useEffect(() => {
+      setValue(getLabel(initialValue as string));
+    }, [initialValue]);
 
-  const onBlur = async () => {
-    let eventId = row.original["eventID;year"].slice(
-      0,
-      row.original["eventID;year"].indexOf(";"),
-    );
-    let year = row.original["eventID;year"].slice(
-      row.original["eventID;year"].indexOf(";") + 1,
-    );
-
-    const body = prepareUpdatePayload(column.id, value, eventId, year);
-
-    try {
-      await updateRegistrationData(row.original.id, row.original.fname, body);
-      await refreshTable();
-    } catch (error) {
-      console.error("Failed to update registration:", error);
-    }
-  };
-
-  const onSelectChange = async (newValue: string) => {
-    let eventId = row.original["eventID;year"].slice(
-      0,
-      row.original["eventID;year"].indexOf(";"),
-    );
-    let year = row.original["eventID;year"].slice(
-      row.original["eventID;year"].indexOf(";") + 1,
-    );
-
-    const body = prepareUpdatePayload(column.id, newValue, eventId, year);
-
-    try {
-      await updateRegistrationData(row.original.id, row.original.fname, body);
-      await refreshTable();
-      setValue(newValue);
-    } catch (error) {
-      console.error("Failed to update registration:", error);
-    }
-  };
-
-  const getColor = (value: string) => {
-    switch (value) {
-      case "Registered":
-        return "#AAE7FF";
-      case RegistrationStatusField.CHECKED_IN:
-        return "#70E442";
-      case "Waitlist":
-        return "#D79EF1";
-      case "Incomplete":
-        return "#FFAD8F";
-      case RegistrationStatusField.CANCELLED:
-        return "#FB6F8E";
-      case RegistrationStatusField.WAITLISTED:
-        return "#D79EF1";
-      default:
-        return "#ffffff";
-    }
-  };
-  // this can probably be defined and imported
-  const getLabel = (value: string) => {
-    switch (value) {
-      case "registered":
-        return "Registered";
-      case "checkedin":
-        return "Checked-In";
-      case "incomplete":
-        return "Incomplete";
-      case "cancelled":
-        return "Cancelled";
-      case "accepted":
-        return "Accepted";
-      case "waitlist":
-        return "Waitlist";
-      case "reviewing":
-        return "Reviewing";
-      case "rejected":
-        return "Rejected";
-      default:
-        return value;
-    }
-  };
-
-  if (column.id === "registrationStatus" || column.id === "points") {
-    if (columnMeta?.type === "select") {
-      return (
-        <Select
-          onValueChange={onSelectChange}
-          defaultValue={initialValue as string}
-        >
-          <SelectTrigger className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2" style={{ backgroundColor: getColor(value as string) }}>
-            <SelectValue>{value as string}</SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {columnMeta.options?.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+    const onBlur = async () => {
+      let eventId = row.original["eventID;year"].slice(
+        0,
+        row.original["eventID;year"].indexOf(";"),
       );
-    } else if (columnMeta?.type === "number") {
-      return (
-        <Input
-          type="number"
-          value={value as number}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setValue(Number(e.target.value))
-          }
-          onBlur={onBlur}
-          className="w-24 h-8"
-        />
+      let year = row.original["eventID;year"].slice(
+        row.original["eventID;year"].indexOf(";") + 1,
       );
-    }
-  }
 
-  return <span>{value as string}</span>;
-},
+      const body = prepareUpdatePayload(column.id, value, eventId, year);
+
+      try {
+        await updateRegistrationData(row.original.id, row.original.fname, body);
+        await refreshTable();
+      } catch (error) {
+        console.error("Failed to update registration:", error);
+      }
+    };
+
+    const onSelectChange = async (newValue: string) => {
+      let eventId = row.original["eventID;year"].slice(
+        0,
+        row.original["eventID;year"].indexOf(";"),
+      );
+      let year = row.original["eventID;year"].slice(
+        row.original["eventID;year"].indexOf(";") + 1,
+      );
+
+      const body = prepareUpdatePayload(column.id, newValue, eventId, year);
+
+      try {
+        await updateRegistrationData(row.original.id, row.original.fname, body);
+        await refreshTable();
+        setValue(newValue);
+      } catch (error) {
+        console.error("Failed to update registration:", error);
+      }
+    };
+
+    const getColor = (value: string) => {
+      switch (value) {
+        case "Registered":
+          return "#AAE7FF";
+        case RegistrationStatusField.CHECKED_IN:
+          return "#70E442";
+        case "Waitlist":
+          return "#D79EF1";
+        case "Incomplete":
+          return "#FFAD8F";
+        case RegistrationStatusField.CANCELLED:
+          return "#FB6F8E";
+        case RegistrationStatusField.WAITLISTED:
+          return "#D79EF1";
+        default:
+          return "#ffffff";
+      }
+    };
+    // this can probably be defined and imported
+    const getLabel = (value: string) => {
+      switch (value) {
+        case "registered":
+          return "Registered";
+        case "checkedin":
+          return "Checked-In";
+        case "incomplete":
+          return "Incomplete";
+        case "cancelled":
+          return "Cancelled";
+        case "accepted":
+          return "Accepted";
+        case "waitlist":
+          return "Waitlist";
+        case "reviewing":
+          return "Reviewing";
+        case "rejected":
+          return "Rejected";
+        default:
+          return value;
+      }
+    };
+
+    if (column.id === "registrationStatus" || column.id === "points") {
+      if (columnMeta?.type === "select") {
+        return (
+          <Select
+            onValueChange={onSelectChange}
+            defaultValue={initialValue as string}
+          >
+            <SelectTrigger
+              className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
+              style={{ backgroundColor: getColor(value as string) }}
+            >
+              <SelectValue>{value as string}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {columnMeta.options?.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      } else if (columnMeta?.type === "number") {
+        return (
+          <Input
+            type="number"
+            value={value as number}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setValue(Number(e.target.value))
+            }
+            onBlur={onBlur}
+            className="w-24 h-8"
+          />
+        );
+      }
+    }
+
+    return <span>{value as string}</span>;
+  },
   (prevProps, nextProps) => {
     return (
       prevProps.getValue() === nextProps.getValue() &&
       prevProps.column.id === nextProps.column.id &&
       prevProps.row.original.id === nextProps.row.original.id &&
-      prevProps.row.original["eventID;year"] === nextProps.row.original["eventID;year"]
+      prevProps.row.original["eventID;year"] ===
+        nextProps.row.original["eventID;year"]
     );
-  }
+  },
 );
 
 TableCell.displayName = "TableCell";

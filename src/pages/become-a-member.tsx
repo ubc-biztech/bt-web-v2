@@ -18,7 +18,7 @@ export default function Page() {
         icon={ArrowUpRight}
         iconDirection="right"
         label="Become a member"
-        variant='green'
+        variant="green"
         onClick={() => router.push("/login")}
       />
     </div>

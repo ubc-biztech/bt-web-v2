@@ -56,8 +56,8 @@ export const TableFooter: React.FC<TableFooterProps> = ({
             disabled={!table.getRowCount()}
             className="flex flex-row gap-2"
           >
-              <Download/>
-              <div className="font-semibold">Export Files</div>
+            <Download />
+            <div className="font-semibold">Export Files</div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="bg-[#485A85]">

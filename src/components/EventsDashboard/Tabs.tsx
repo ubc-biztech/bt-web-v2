@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TabProps {
   tabs: { label: React.ReactNode; value: string }[];
@@ -7,7 +7,7 @@ interface TabProps {
 }
 
 const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
-  const [activeTab, setActiveTab] = useState(tabs[0]?.value || '');
+  const [activeTab, setActiveTab] = useState(tabs[0]?.value || "");
 
   const handleTabClick = (value: string) => {
     setActiveTab(value);
@@ -22,8 +22,8 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
               key={tab.value}
               className={`relative transition-colors duration-200 ease-in-out flex-1 p-3 text-center ${
                 activeTab === tab.value
-                  ? 'text-bt-green-300'
-                  : 'text-bt-blue-300 hover:text-bt-blue-200'
+                  ? "text-bt-green-300"
+                  : "text-bt-blue-300 hover:text-bt-blue-200"
               }`}
               onClick={() => handleTabClick(tab.value)}
             >
@@ -33,7 +33,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
                 <motion.div
                   layoutId="activeTabIndicator"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-bt-green-300"
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />
               )}
             </button>
@@ -57,7 +57,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
                 >
                   {panel.content}
                 </motion.div>
-              )
+              ),
           )}
         </AnimatePresence>
       </div>

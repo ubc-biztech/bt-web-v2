@@ -32,12 +32,10 @@ export const createColumns = (
   {
     id: "select",
     header: ({ table }) => {
-
-      const isChecked = 
-              table.getIsAllPageRowsSelected() ||
-              table.getIsSomePageRowsSelected()
-                ? "indeterminate"
-                : false
+      const isChecked =
+        table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected()
+          ? "indeterminate"
+          : false;
 
       return (
         <div className="flex place-items-center ml-1">
@@ -54,7 +52,12 @@ export const createColumns = (
               }
             }}
             aria-label="Select all"
-            className={cn('font-bold', !isChecked ? 'bg-white' : 'bg-[#005BFF] border-none shadow-inner-white-md')}
+            className={cn(
+              "font-bold",
+              !isChecked
+                ? "bg-white"
+                : "bg-[#005BFF] border-none shadow-inner-white-md",
+            )}
           />
         </div>
       );
@@ -66,7 +69,9 @@ export const createColumns = (
           checked={row.getIsSelected()}
           onCheckedChange={(value: any) => row.toggleSelected(!!value)}
           aria-label="Select row"
-          className={'font-bold bg-white border-none shadow-inner-white-md data-[state=checked]:bg-[#005BFF] data-[state=checked]:text-primary-foreground'}
+          className={
+            "font-bold bg-white border-none shadow-inner-white-md data-[state=checked]:bg-[#005BFF] data-[state=checked]:text-primary-foreground"
+          }
         />
       </div>
     ),
@@ -78,7 +83,13 @@ export const createColumns = (
     header: ({ column }) => (
       <SortableHeader title="Reg. Status" column={column} />
     ),
-    cell: (props) => <TableCell {...props} refreshTable={refreshTable} key={`${props.row}-${props.column}`}/>,
+    cell: (props) => (
+      <TableCell
+        {...props}
+        refreshTable={refreshTable}
+        key={`${props.row}-${props.column}`}
+      />
+    ),
     meta: {
       type: "select",
       options: [

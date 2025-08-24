@@ -48,9 +48,7 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
               Connections History
             </h2>
             <div className="flex items-center justify-between h-[40px]">
-              <p className="text-[#BDC8E3]">
-                View your connection history
-              </p>
+              <p className="text-[#BDC8E3]">View your connection history</p>
             </div>
           </span>
           <div className="bg-bt-blue-300 h-[1px] my-4" />

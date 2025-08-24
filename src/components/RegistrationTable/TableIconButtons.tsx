@@ -44,7 +44,7 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
               onClick={() => setQrReaderToggled(!isQrReaderToggled)}
               className="p-2 shadow-inner-blue-convex"
             >
-             <ScanQrCode/>
+              <ScanQrCode />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Toggle QR Scanner</TooltipContent>
@@ -53,8 +53,12 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <Button variant="green" onClick={refreshTable} className="p-2 shadow-inner-blue-convex">
-              <LucideRefreshCcw/>
+            <Button
+              variant="green"
+              onClick={refreshTable}
+              className="p-2 shadow-inner-blue-convex"
+            >
+              <LucideRefreshCcw />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Refresh Table</TooltipContent>

@@ -141,7 +141,6 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         <div className="mt-6 w-full">
           <DynamicTabs tabs={tabs} panels={panels} />
         </div>
-
       </div>
     </main>
   );

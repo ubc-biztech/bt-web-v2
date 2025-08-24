@@ -23,7 +23,15 @@ export const RegistrationsTableBody = <T,>({
           }}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className={cn("border shadow-inner-white-md max-w-96 truncate p-3 text-bt-blue-0", row.getIsSelected() ? "border-bt-blue-200" : "border-bt-blue-300")}>
+            <TableCell
+              key={cell.id}
+              className={cn(
+                "border shadow-inner-white-md max-w-96 truncate p-3 text-bt-blue-0",
+                row.getIsSelected()
+                  ? "border-bt-blue-200"
+                  : "border-bt-blue-300",
+              )}
+            >
               {flexRender(cell.column.columnDef.cell, {
                 ...cell.getContext(),
                 refreshTable,
