@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import NFCWriter from "./NFCWriter";
 import styles from "./writer.module.css";
+import { useNFCSupport } from "@/hooks/useNFCSupport";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -37,26 +38,13 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
   // Controls whether to show NFCWriter component
   const [showWriter, setShowWriter] = useState(false);
 
-  // Tracks if current device supports NFC writing
-  const [isDeviceSupported, setIsDeviceSupported] = useState(false);
+  // Get NFC support status from hook
+  const { isNFCSupported } = useNFCSupport();
 
   // Generate consistent profile image if none provided
   const profileImage = useMemo(() => {
     return image || generateSeededImage(uuid);
   }, [image, uuid]);
-
-  // Check device NFC support on component mount
-  useEffect(() => {
-    const checkDeviceSupport = () => {
-      // Check if Web NFC API is available in browser
-      if (!("NDEFReader" in window)) {
-        return false;
-      }
-      return true;
-    };
-
-    setIsDeviceSupported(checkDeviceSupport());
-  }, []);
 
   // Opens NFCWriter component for actual tag writing
   const openWriter = () => {
@@ -90,7 +78,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
       )}
 
       {/* Show appropriate content based on device support */}
-      {!isDeviceSupported ? (
+      {!isNFCSupported ? (
         // Device doesn't support NFC - show manual instructions
         <DeviceNotSupported name={firstName} manualWrite={false} exit={exit} />
       ) : (

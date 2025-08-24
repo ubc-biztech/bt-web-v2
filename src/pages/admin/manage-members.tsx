@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon, FilterIcon } from "lucide-react";
 import NFCWriter from "@/components/NFCWrite/NFCWriter";
+import { useNFCSupport } from "@/hooks/useNFCSupport";
 
 type Member = {
   profileID: string;
@@ -32,7 +33,7 @@ export default function ManageMembers() {
   const [filteredData, setFilteredData] = useState<Member[] | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isNfcSupported, setIsNfcSupported] = useState(false);
+  const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
@@ -52,15 +53,8 @@ export default function ManageMembers() {
     setFilteredData(filtered);
   }, [data, searchTerm]);
 
-  // Check NFC support and fetch data on component mount
+  // Fetch data on component mount
   useEffect(() => {
-    const checkNfcSupport = () => {
-      if (typeof window === "undefined") return false;
-      return "NDEFReader" in window;
-    };
-    setIsNfcSupported(checkNfcSupport());
-
-    // Fetch members data on component mount
     refreshData();
   }, []);
 
@@ -153,7 +147,7 @@ export default function ManageMembers() {
                 <TableHead className="text-white font-semibold">
                   Last Name
                 </TableHead>
-                {isNfcSupported && (
+                {isNFCSupported && (
                   <TableHead className="text-white font-semibold">
                     Actions
                   </TableHead>
@@ -170,7 +164,7 @@ export default function ManageMembers() {
                     <TableCell className="font-medium">{member.id}</TableCell>
                     <TableCell>{member.firstName || "N/A"}</TableCell>
                     <TableCell>{member.lastName || "N/A"}</TableCell>
-                    {isNfcSupported && (
+                    {isNFCSupported && (
                       <TableCell>
                         <Button
                           variant="outline"
@@ -187,7 +181,7 @@ export default function ManageMembers() {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={isNfcSupported ? 4 : 3}
+                    colSpan={isNFCSupported ? 4 : 3}
                     className="h-24 text-center text-gray-400"
                   >
                     {searchTerm
