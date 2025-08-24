@@ -5,7 +5,7 @@
   justify-content: center;
   height: 100svh;
   width: 100vw;
-  background-color: rgba(0, 0, 0, 0.345);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   position: absolute;
   top: 0;
@@ -13,8 +13,9 @@
   color: white;
   z-index: 1000;
   padding-bottom: 64px;
+  position: fixed;
+  overflow: hidden;
 }
-
 /* Bottom actions wrapper to allow two buttons side by side */
 .bottomActions {
   position: absolute;

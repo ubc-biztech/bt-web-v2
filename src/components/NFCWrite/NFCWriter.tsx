@@ -281,14 +281,22 @@ const NFCWriter = ({
       {/* Status messages for different stages */}
       {status === "ready" && (
         <div className={styles.statusMessage}>
-          <img className={styles["card-image"]} src="/card.png" alt="Card" />
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
           Hold Card Close to Your Device
         </div>
       )}
 
       {status === "writing" && (
         <div className={styles.statusMessage}>
-          <img className={styles["card-image"]} src="/card.png" alt="Card" />
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
           Hold Card Close to Your Device
         </div>
       )}
