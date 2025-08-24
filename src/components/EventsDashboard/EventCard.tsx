@@ -79,7 +79,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     const deadline = new Date(ev.deadline);
     if (new Date() >= deadline && startDate >= new Date()) {
       return (
-        <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-secondary-color text-[8px] lg:text-[12px]  flex items-center">
+        <div className="rounded-full font-poppin font-[700] px-3 py-1 text-white bg-bt-green-300 text-[8px] lg:text-[12px]  flex items-center">
           COMING UP
         </div>
       );
@@ -88,7 +88,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       !registered.includes(`${ev.id};${ev.year}`)
     ) {
       return (
-        <div className="rounded-full px-3 py-1 font-poppins font-[700]  text-white bg-events-coming-up text-[8px] lg:text-[12px] flex items-center">
+        <div className="rounded-full px-3 py-1 font-[700]  text-white bg-bt-pink text-[8px] lg:text-[12px] flex items-center">
           REGISTER BY {`${deadline.getMonth() + 1}/${deadline.getDate()}`}
         </div>
       );
@@ -143,7 +143,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-events-user-card-bg w-full p-3 rounded-[10px] my-2">
+            <div className="bg-bt-blue-300 w-full p-3 rounded-[10px] my-2">
               <div className="flex flex-row space-x-5 relative">
                 <div className="relative lg:w-[200px] lg:h-[130px] w-[100px] h-[75px] overflow-hidden rounded-lg shrink-0">
                   <Image
@@ -173,11 +173,11 @@ export const EventCard: React.FC<EventCardProps> = ({
                       /> */}
                     </div>
                   </div>
-                  <p className="text-[10px] lg:text-sm text-events-baby-blue">
+                  <p className="text-[10px] lg:text-sm text-events-bt-blue-100">
                     {dateText}
                   </p>
                   <div className="flex flex-row items-center justify-between w-full">
-                    <p className="text-[10px] lg:text-sm text-events-baby-blue">
+                    <p className="text-[10px] lg:text-sm text-events-bt-blue-100">
                       {eventPricingText}
                     </p>
                     <div className="lg:hidden flex grow justify-end mr-0.5">

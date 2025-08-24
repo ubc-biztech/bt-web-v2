@@ -144,7 +144,7 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
   };
 
   return (
-    <div className="font-satoshi">
+    <div className="space-y-4">
       <FormInput
         name="previewFirstName"
         label="First Name*"

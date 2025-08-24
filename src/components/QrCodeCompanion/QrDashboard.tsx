@@ -128,7 +128,7 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
       </div>
       {!viewMore && (
         <div
-          className="text-lg flex flex-row items-center justify-center text-baby-blue my-12 cursor-pointer"
+          className="text-lg flex flex-row items-center justify-center text-bt-blue-100 my-12 cursor-pointer"
           onClick={(e) => {
             setRenderedQRs(filteredQRs);
           }}

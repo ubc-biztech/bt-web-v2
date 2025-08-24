@@ -142,16 +142,16 @@ export const EventForm: React.FC<EventFormProps> = ({
   };
 
   return (
-    <div className="flex text-white font-satoshi">
+    <div className="flex text-white">
       <div className="flex-1">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8"
           >
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-16">
               <EventPreview form={form} />
-              <div className="space-y-6 bg-[#253251] container py-10">
+              <div className="space-y-6 bg-[#253251] container py-10 rounded-md">
                 {initialData && (
                   <>
                     <div className="space-y-4">
@@ -176,7 +176,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       <div className="space-y-2">
                         <Link
                           href={`/event/${eventId}/${eventYear}/register`}
-                          className="flex items-center text-biztech-green hover:underline"
+                          className="flex items-center text-bt-green-300 hover:underline"
                           target="_blank"
                         >
                           <span className="mr-2">
@@ -199,7 +199,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
                         <Link
                           href={`/event/${eventId}/${eventYear}/register/partner`}
-                          className="flex items-center text-biztech-green hover:underline"
+                          className="flex items-center text-bt-green-300 hover:underline"
                           target="_blank"
                         >
                           <span className="mr-2">
@@ -222,19 +222,19 @@ export const EventForm: React.FC<EventFormProps> = ({
                       </div>
 
                       <div className="flex gap-4">
-                        <Button type="submit" className="bg-biztech-green">
+                        <Button variant="green" type="submit">
                           Save
                         </Button>
                         <Button
                           type="button"
-                          className="bg-biztech-green"
+                          className="bg-bt-green-300"
                           onClick={handlePublish}
                         >
                           {form.watch("isPublished") ? "Unpublish" : "Publish"}
                         </Button>
                         <Button
                           type="button"
-                          className="bg-biztech-green"
+                          className="bg-bt-green-300"
                           onClick={handleComplete}
                         >
                           {form.watch("isCompleted")
@@ -244,7 +244,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       </div>
 
                       {!form.watch("isPublished") && formIsDirty && (
-                        <p className="text-light-red">
+                        <p className="text-bt-red-200">
                           Note: There are changes to this event that are not
                           published yet.
                         </p>
@@ -256,7 +256,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
                 {!initialData && (
                   <div className="flex gap-4">
-                    <Button type="submit" className="bg-biztech-green">
+                    <Button type="submit" variant="green">
                       Save
                     </Button>
                   </div>
@@ -272,14 +272,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                   label="Non-BizTech members allowed?"
                 />
 
-                <h4 className="text-baby-blue">Event Cover Photo</h4>
+                <h4 className="text-bt-blue-100">Event Cover Photo</h4>
                 <FormInput
                   name="imageUrl"
                   label="Image URL*"
                   placeholder="Image URL*"
                 />
 
-                <h4 className="text-baby-blue">Event Information</h4>
+                <h4 className="text-bt-blue-100">Event Information</h4>
                 <FormInput name="eventName" label="Event Name*" />
                 <FormInput
                   name="eventSlug"
@@ -312,7 +312,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   />
                 </div>
 
-                <h4 className="text-baby-blue">Pricing</h4>
+                <h4 className="text-bt-blue-100">Pricing</h4>
                 <div className="space-y-4">
                   <FormInput name="price" label="Member Price" type="number" />
                   {!form.watch("nonBizTechAllowed") && (
@@ -330,7 +330,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   )}
                 </div>
 
-                <h4 className="text-baby-blue">Partner Event Information</h4>
+                <h4 className="text-bt-blue-100">Partner Event Information</h4>
                 <FormTextarea
                   name="partnerDescription"
                   label="Partner Description*"

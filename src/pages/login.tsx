@@ -3,13 +3,16 @@ import { useRouter } from "next/router";
 import {
   signIn,
   signInWithRedirect,
-  fetchUserAttributes,
   resendSignUpCode,
 } from "@aws-amplify/auth";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
+import { GetServerSidePropsContext } from "next";
+import { ParsedUrlQuery } from "querystring";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import Image from "next/image";
 
 interface LoginProps {
   redirect?: string;
@@ -34,7 +37,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const checkUserProfile = async () => {
+    async function checkUserProfile() {
       if (!router) return;
 
       try {
@@ -52,13 +55,13 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       } catch (err: any) {
         if (err.status === 404) {
           await router.push("/membership");
-        } else if (!(err instanceof UnauthenticatedUserError)) {
+        } else if (err.name !== UnauthenticatedUserError.name) {
           console.error(err);
         }
       }
 
       setIsLoading(false);
-    };
+    }
 
     checkUserProfile();
   }, [router]);
@@ -190,23 +193,23 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-login-page-bg">
-      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-login-form-card rounded-lg">
-        <div className="bg-dark-slate px-6 py-12 shadow sm:rounded-lg sm:px-12">
+    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
+      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
+        <div className="bg-bt-blue-400 px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <img
               className="mx-auto h-24 w-auto"
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
-            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
+            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
               Sign in
             </h2>
-            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white-blue mb-4">
+            <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               New to UBC BizTech? &nbsp;
               <Link
                 href="/register"
-                className="text-biztech-green hover:text-dark-green font-semibold"
+                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
               >
                 Create an account.
               </Link>
@@ -216,7 +219,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-400 leading-6 text-white-blue"
+                className="block text-sm font-400 leading-6 text-white"
               >
                 Email
               </label>
@@ -228,7 +231,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                   autoComplete="email"
                   required
                   placeholder="user@example.com"
-                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -244,14 +247,14 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
               <div className="flex justify-between items-center w-full mt-2">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-400 leading-6 text-white-blue"
+                  className="block text-sm font-400 leading-6 text-white"
                 >
                   Password
                 </label>
                 <div className="text-sm leading-6">
                   <Link
                     href="/forgot-password"
-                    className="font-semibold text-biztech-green hover:text-dark-green"
+                    className="font-semibold text-bt-green-300 hover:text-bt-green-700"
                   >
                     Forgot password?
                   </Link>
@@ -265,7 +268,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                   autoComplete="current-password"
                   required
                   placeholder="Enter 6 characters or more"
-                  className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -288,7 +291,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                 type="button"
                 onClick={handleResendVerification}
                 disabled={isResending}
-                className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-login-form-card shadow-sm hover:bg-dark-green"
+                className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-400 shadow-sm hover:bg-bt-green-700"
               >
                 {isResending ? "Resending..." : "Resend Verification Email"}
               </button>
@@ -297,9 +300,9 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex w-full justify-center rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                <p className="text-login-form-card">Sign in</p>
+                <p className="text-bt-blue-400 font-semibold">Sign in</p>
               </button>
             </div>
 
@@ -308,17 +311,17 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
           <div>
             <div className="relative mt-7 flex items-center justify-center">
-              <div className="flex-grow border-t border-white-blue"></div>
-              <span className="px-4 text-sm font-medium leading-6 text-white-blue">
+              <div className="flex-grow border-t border-bt-blue-0"></div>
+              <span className="px-4 text-sm font-medium leading-6 text-bt-blue-0">
                 Or
               </span>
-              <div className="flex-grow border-t border-white-blue"></div>
+              <div className="flex-grow border-t border-bt-blue-0"></div>
             </div>
 
             <div className="mt-7 grid grid-cols-2 gap-4">
               <Link
                 href="#"
-                className="flex w-full items-center justify-center gap-3 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-neutral-200 focus-visible:ring-transparent"
                 onClick={handleGoogleSignIn}
               >
                 <Image
@@ -334,13 +337,13 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
               <Link
                 href="/become-a-member"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-white-blue px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
               >
                 <img
                   src="https://i.ibb.co/0VtyXLD/Frame-3.png"
                   className="w-8 h-auto"
                 />
-                <span className="text-sm leading-6 text-login-form-card font-500">
+                <span className="text-sm leading-6 text-bt-blue-400 font-500">
                   Guest
                 </span>
               </Link>
@@ -351,11 +354,6 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     </div>
   );
 };
-
-import { GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
-import { UnauthenticatedUserError } from "@/lib/dbUtils";
-import Image from "next/image";
 
 export const getServerSideProps: GetServerSideProps = async (
   context: GetServerSidePropsContext<ParsedUrlQuery>,
@@ -404,7 +402,7 @@ export const getServerSideProps: GetServerSideProps = async (
       props: { redirect },
     };
   } catch (error: any) {
-    if (error.name === "UnauthenticatedUserError") {
+    if (error.name === UnauthenticatedUserError.name) {
       return {
         props: { redirect },
       };

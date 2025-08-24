@@ -17,6 +17,7 @@ type Props = {
   event: BiztechEvent | null;
   eventClick: (event: BiztechEvent) => void;
   modalHandlers: ModalHandlers;
+  viewMode?: "grid" | "list";
 };
 
 const editEventPopupItems: PopUpItem[] = [
@@ -29,6 +30,7 @@ export default function MobileEventCard({
   event,
   eventClick,
   modalHandlers,
+  viewMode = "grid",
 }: Props) {
   const [isModalOpen, setModal] = useState(false);
   const startTime = event ? extractTime(event.startDate) : "";
@@ -74,42 +76,87 @@ export default function MobileEventCard({
 
   return (
     <Card
-      className="font-poppins w-full h-[100px] border-none bg-events-card-bg p-2 mb-4 flex"
+      className={`w-full border-none bg-bt-blue-300 p-2 mb-4 ${
+        viewMode === "list" ? "h-[100px] flex" : "block"
+      }`}
       onClick={handleClick}
       ref={cardRef}
     >
-      <Image
-        src={event?.imageUrl ?? placeHolderImage}
-        alt="event-image"
-        className="h-full w-2/5 rounded-lg object-cover mr-4"
-        width={100}
-        height={100}
-      />
-      <div className="flex-1 flex items-center justify-between">
-        <div className="max-w-[70%] overflow-hidden">
-          <p className="p1 text-white font-500 truncate">{event?.ename}</p>
-          <p className="p3 text-baby-blue">{displayDate}</p>
-        </div>
-        <Button
-          variant="ghost"
-          className="text-white bg-transparent w-2 h-7 absolute right-8"
-          onClick={handleMobileMoreClick}
-        >
-          <div className="relative">
-            <MoreVertIcon />
-            <div className="absolute z-50 top-full right-[200px]">
-              {isModalOpen && event && (
-                <PopupModal
-                  editEventPopupItems={editEventPopupItems}
-                  modalHandlers={modalHandlers}
-                  eventID={event.id}
-                  eventYear={event.year}
-                />
-              )}
-            </div>
+      {viewMode === "list" ? (
+        // List view: horizontal layout with image on left
+        <>
+          <div className="flex-shrink-0 mr-4">
+            <Image
+              src={event?.imageUrl ?? placeHolderImage}
+              alt="event-image"
+              className="w-20 h-16 rounded-lg object-cover"
+              width={80}
+              height={64}
+            />
           </div>
-        </Button>
-      </div>
+          <div className="flex-1 flex items-center justify-between">
+            <div className="max-w-[70%] overflow-hidden">
+              <p className="p1 text-white font-500 truncate">{event?.ename}</p>
+              <p className="p3 text-bt-blue-100">{displayDate}</p>
+            </div>
+            <Button
+              variant="ghost"
+              className="text-white bg-transparent w-2 h-7 flex-shrink-0"
+              onClick={handleMobileMoreClick}
+            >
+              <div className="relative">
+                <MoreVertIcon />
+                <div className="absolute z-50 top-full right-[200px]">
+                  {isModalOpen && event && (
+                    <PopupModal
+                      editEventPopupItems={editEventPopupItems}
+                      modalHandlers={modalHandlers}
+                      eventID={event.id}
+                      eventYear={event.year}
+                    />
+                  )}
+                </div>
+              </div>
+            </Button>
+          </div>
+        </>
+      ) : (
+        // Grid view: vertical layout with image on top
+        <>
+          <Image
+            src={event?.imageUrl ?? placeHolderImage}
+            alt="event-image"
+            className="w-full h-48 rounded-lg object-cover mb-4"
+            width={100}
+            height={100}
+          />
+          <div className="text-white">
+            <div className="flex items-center justify-between mb-2">
+              <p className="p1 text-white font-500 truncate">{event?.ename}</p>
+              <Button
+                variant="ghost"
+                className="text-white bg-transparent w-2 h-7"
+                onClick={handleMobileMoreClick}
+              >
+                <div className="relative">
+                  <MoreVertIcon />
+                  <div className="absolute z-50 top-full right-[200px]">
+                    {isModalOpen && event && (
+                      <PopupModal
+                        editEventPopupItems={editEventPopupItems}
+                        modalHandlers={modalHandlers}
+                        eventID={event.id}
+                        eventYear={event.year}
+                      />
+                    )}
+                  </div>
+                </div>
+              </Button>
+            </div>
+            <p className="p3 text-bt-blue-100">{displayDate}</p>
+          </div>
+        </>
+      )}
     </Card>
   );
 }

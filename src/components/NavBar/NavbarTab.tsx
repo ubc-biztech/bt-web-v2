@@ -50,11 +50,11 @@ const NavbarTab: React.FC<NavbarProps> = ({
       <div
         className={`flex items-center p-2 gap-3 rounded-md grow ${
           isSelected &&
-          "bg-events-active-tab-bg shadow-[inset_1.6px_1.6px_6.4px_#516495]"
+          "bg-bt-blue-400 shadow-[inset_1.6px_1.6px_6.4px_#516495]"
         }`}
       >
-        <navbarItem.icon className="w-5 h-5 shrink-0 text-pale-blue overflow-visible" />
-        <h6 className="text-pale-blue text-sm font-medium">
+        <navbarItem.icon className="w-5 h-5 shrink-0 text-bt-blue-0 overflow-visible" />
+        <h6 className="text-bt-blue-0 text-sm font-medium">
           {navbarItem.title}
         </h6>
       </div>

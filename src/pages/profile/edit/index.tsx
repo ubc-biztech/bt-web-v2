@@ -1,7 +1,5 @@
 import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 import { GetServerSideProps } from "next";
-import { runWithAmplifyServerContext } from "@/util/amplify-utils";
-import { fetchUserAttributes } from "@aws-amplify/auth/server";
 import { fetchBackendFromServer } from "@/lib/db";
 import { EditProfilePage } from "@/components/ProfilePage/EditProfilePage";
 

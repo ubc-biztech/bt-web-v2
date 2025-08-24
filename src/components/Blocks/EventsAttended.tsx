@@ -48,7 +48,7 @@ export default function EventsAttended({
 
   if (formattedEvents.length <= 0) {
     return (
-      <div className="h-full w-full place-content-center text-center text-pale-blue">
+      <div className="h-full w-full place-content-center text-center text-bt-blue-0">
         No events available!
       </div>
     );
@@ -82,27 +82,27 @@ export default function EventsAttended({
                 sizes="(max-width: 768px) 100vw, 30vw"
               />
             </div>
-            <p className="text-xs text-pale-blue">{date}</p>
+            <p className="text-xs text-bt-blue-0">{date}</p>
           </ConditionalLink>
         ))}
       </div>
 
       {formattedEvents.length > 8 && (
-        <div className="text-pale-blue/50 text-end text-[0.8rem]">
+        <div className="text-bt-blue-0/50 text-end text-[0.8rem]">
           {`(+${formattedEvents.length - 8} more events)`}
         </div>
       )}
 
-      <div className="relative h-2 w-full overflow-hidden rounded-full bg-dark-green/40">
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-bt-green-700/40">
         <div
-          className="absolute left-0 top-0 h-full rounded-full bg-biztech-green transition-all"
+          className="absolute left-0 top-0 h-full rounded-full bg-bt-green-300 transition-all"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <p className="text-left text-sm text-pale-blue">
+      <p className="text-left text-sm text-bt-blue-0">
         You’ve attended{" "}
-        <span className="font-semibold text-biztech-green">
+        <span className="font-semibold text-bt-green-300">
           {attended}/{total}
         </span>{" "}
         of our events this year!

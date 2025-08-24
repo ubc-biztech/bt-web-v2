@@ -22,7 +22,7 @@ export const CompanionConnectionRow: React.FC<{
     <CompanionItemRow href={`/companion/profile/${connection.obfuscatedID}`}>
       <div className="flex items-center space-x-3">
         <Avatar
-          className={`flex w-8 h-8 bg-primary-color items-center justify-center`}
+          className={`flex w-8 h-8 bg-bt-blue-600 items-center justify-center`}
         >
           <AvatarImage src={connection?.profilePic} />
           <AvatarFallback>{avatarInitials}</AvatarFallback>

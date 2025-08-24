@@ -27,9 +27,9 @@ export const SortableHeader = <T,>({
       <div
         className={`${
           column.getIsSorted() === "asc"
-            ? "text-biztech-green" // Color for ascending sort
+            ? "text-bt-green-300" // Color for ascending sort
             : column.getIsSorted() === "desc"
-              ? "text-light-red" // Color for descending sort
+              ? "text-bt-red-200" // Color for descending sort
               : "text-black" // Default color for unsorted
         }`}
       >

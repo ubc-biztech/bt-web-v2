@@ -17,93 +17,6 @@ const config: Config = {
         "2xl": "1400px",
       },
     },
-    colors: {
-      primary: {
-        color: "#0A1429", // biztech navy
-        DEFAULT: "hsl(var(--primary))",
-        foreground: "hsl(var(--primary-foreground))",
-      },
-      secondary: {
-        color: "#70E442", // biztech green
-        DEFAULT: "hsl(var(--secondary))",
-        foreground: "hsl(var(--secondary-foreground))",
-      },
-      // Login Page Colors
-      login: {
-        "page-bg": "#11192E",
-        "form-card": "#1C253D",
-      },
-      signup: {
-        "input-bg": "#3A496D",
-        "input-border": "#7187B8",
-      },
-      // Navbar Page Colors
-      navbar: {
-        "tab-hover-bg": "#324269",
-      },
-      // Events Page Colors
-      events: {
-        "coming-up": "#EC722D",
-        "baby-blue": "#B2C9FC",
-        "user-card-bg": "#304068",
-        "navigation-bg": "#0B111E",
-        "active-tab-bg": "#1C2C50",
-        "card-bg": "#263354",
-      },
-      // Profile Page Colors
-      profile: {
-        "card-bg": "#1E2B4D",
-        "separator-bg": "#394971",
-      },
-      // Selected Color Palette
-      "biztech-navy": "#162039",
-      "biztech-green": "#70E442",
-      "dark-navy": "#0C1221",
-      "desat-navy": "#A2A7B3",
-      "dark-slate": "#324269",
-      "pale-blue": "#C4D5FF",
-      "baby-blue": "#B2C9FC",
-      "border-blue": "#6B7DA9",
-      "sat-blue": "#4B67AF",
-      "dark-sat-blue": "#0E2B6E",
-      "light-blue": "#E0E9FE",
-      "light-grey": "#B3B3B3",
-      "white-blue": "#F7FAFF",
-      "dark-green": "#338A10",
-      "light-green": "#ADF591",
-      "neon-green": "#70E442",
-      "white-green": "#F2FAEC",
-      "light-red": "#FF8686",
-      divider: "#8DA1D1",
-      black: "#000000",
-      placeholder: "#D9D9D9",
-      white: "#ffffff",
-      border: "hsl(var(--border))",
-      input: "hsl(var(--input))",
-      ring: "hsl(var(--ring))",
-      background: "hsl(var(--background))",
-      foreground: "hsl(var(--foreground))",
-      destructive: {
-        DEFAULT: "hsl(var(--destructive))",
-        foreground: "hsl(var(--destructive-foreground))",
-      },
-      muted: {
-        DEFAULT: "hsl(var(--muted))",
-        foreground: "hsl(var(--muted-foreground))",
-      },
-      accent: {
-        DEFAULT: "hsl(var(--accent))",
-        foreground: "hsl(var(--accent-foreground))",
-      },
-      popover: {
-        DEFAULT: "hsl(var(--popover))",
-        foreground: "hsl(var(--popover-foreground))",
-      },
-      card: {
-        DEFAULT: "hsl(var(--card))",
-        foreground: "hsl(var(--card-foreground))",
-      },
-    },
     fontFamily: {
       sans: ["var(--font-urbanist)", ...fontFamily.sans],
       redhat: ["Red Hat Mono", "monospace"],
@@ -133,6 +46,84 @@ const config: Config = {
       "3xl": "48px",
     },
     extend: {
+      colors: {
+        "bt-blue": {
+          0: "#BDC8E3FF",
+          100: "#A2B1D5FF",
+          200: "#7282A8FF",
+          300: "#3B4866FF",
+          400: "#26324DFF",
+          500: "#1B253DFF",
+          600: "#0D172CFF",
+          700: "#0B111EFF",
+        },
+        "bt-green": {
+          0: "#C6F4B4FF",
+          100: "#ADE198FF",
+          200: "#8AD96AFF",
+          300: "#75D450FF",
+          400: "#70E442FF",
+          500: "#5CC433FF",
+          700: "#53B12EFF",
+          900: "#408F20FF",
+        },
+        "bt-red": {
+          0: "#FFE4E8",
+          100: "#FFB8C2",
+          200: "#FF8A9E",
+          300: "#FF647E",
+          400: "#E53E5A",
+          500: "#C12A45",
+          600: "#9A1E34",
+          700: "#731525",
+          800: "#4D0D18",
+        },
+        "bt-pink": "#FF9AF8",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        divider: "#8DA1D1",
+        black: "#000000",
+        placeholder: "#D9D9D9",
+        white: "#ffffff",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      boxShadow: {
+        "inner-blue-concave": "inset 4px 4px 16px rgba(96, 116, 165, 0.5)",
+        "inner-blue-convex": "inset 2px -2px 8px rgba(15,15,60,0.5)",
+        "inner-white-md": "inset 0 0 32px rgba(255,255,255,0.1)",
+        "inner-white-lg": "inset 0 0 64px rgba(255,255,255,0.1)",
+        "inner-white-xl": "inset 0 0 96px rgba(255,255,255,0.1)",
+      },
       screens: {
         xxs: "360px", // minimum width for mobile
         xs: "412px", // originally 370
