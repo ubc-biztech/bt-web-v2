@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
 import {
   Table,
@@ -12,28 +11,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon, FilterIcon } from "lucide-react";
+import NFCWriter from "@/components/NFCWrite/NFCWriter";
 
 type Member = {
+  profileID: string;
   id: string;
   firstName: string;
   lastName: string;
+  faculty?: string;
   year?: string;
   major?: string;
+  international?: boolean;
+  topics?: string[];
   createdAt?: number;
   updatedAt?: number;
 };
 
-type Props = {
-  initialData: Member[] | null;
-};
-
-export default function ManageMembers({ initialData }: Props) {
-  const [data, setData] = useState<Member[] | null>(initialData);
-  const [filteredData, setFilteredData] = useState<Member[] | null>(
-    initialData,
-  );
+export default function ManageMembers() {
+  const [data, setData] = useState<Member[] | null>(null);
+  const [filteredData, setFilteredData] = useState<Member[] | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(!initialData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNfcSupported, setIsNfcSupported] = useState(false);
+  const [showNfcWriter, setShowNfcWriter] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -51,6 +52,18 @@ export default function ManageMembers({ initialData }: Props) {
     setFilteredData(filtered);
   }, [data, searchTerm]);
 
+  // Check NFC support and fetch data on component mount
+  useEffect(() => {
+    const checkNfcSupport = () => {
+      if (typeof window === "undefined") return false;
+      return "NDEFReader" in window;
+    };
+    setIsNfcSupported(checkNfcSupport());
+
+    // Fetch members data on component mount
+    refreshData();
+  }, []);
+
   const refreshData = async () => {
     try {
       setIsLoading(true);
@@ -66,9 +79,19 @@ export default function ManageMembers({ initialData }: Props) {
     }
   };
 
-  const handleAssignCard = (memberId: string) => {
-    // TODO: Implement assign card functionality
-    console.log("Assign card for member:", memberId);
+  const handleAssignCard = (member: Member) => {
+    setSelectedMember(member);
+    setShowNfcWriter(true);
+  };
+
+  const closeNfcWriter = () => {
+    setShowNfcWriter(false);
+    setSelectedMember(null);
+  };
+
+  const closeAllNfc = () => {
+    setShowNfcWriter(false);
+    setSelectedMember(null);
   };
 
   if (isLoading) {
@@ -129,9 +152,11 @@ export default function ManageMembers({ initialData }: Props) {
                 <TableHead className="text-white font-semibold">
                   Last Name
                 </TableHead>
-                <TableHead className="text-white font-semibold">
-                  Actions
-                </TableHead>
+                {isNfcSupported && (
+                  <TableHead className="text-white font-semibold">
+                    Actions
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody className="text-baby-blue">
@@ -144,22 +169,24 @@ export default function ManageMembers({ initialData }: Props) {
                     <TableCell className="font-medium">{member.id}</TableCell>
                     <TableCell>{member.firstName || "N/A"}</TableCell>
                     <TableCell>{member.lastName || "N/A"}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-transparent border-white/20 text-white hover:bg-white/10"
-                        onClick={() => handleAssignCard(member.id)}
-                      >
-                        Assign Card
-                      </Button>
-                    </TableCell>
+                    {isNfcSupported && (
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                          onClick={() => handleAssignCard(member)}
+                        >
+                          Assign Card
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={isNfcSupported ? 4 : 3}
                     className="h-24 text-center text-gray-400"
                   >
                     {searchTerm
@@ -179,28 +206,17 @@ export default function ManageMembers({ initialData }: Props) {
           </div>
         )}
       </div>
+
+      {/* NFC Writer Modal */}
+      {showNfcWriter && selectedMember && (
+        <NFCWriter
+          token={selectedMember.profileID}
+          email={selectedMember.id}
+          exit={closeNfcWriter}
+          closeAll={closeAllNfc}
+          numCards={1}
+        />
+      )}
     </main>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  try {
-    const response = await fetchBackend({
-      endpoint: "/members",
-      method: "GET",
-    });
-
-    return {
-      props: {
-        initialData: response.data || [],
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch members:", error);
-    return {
-      props: {
-        initialData: [],
-      },
-    };
-  }
-};
