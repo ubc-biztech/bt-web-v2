@@ -243,7 +243,11 @@ export const EditProfilePage = ({
   EditableField.displayName = "EditableField";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
+    <div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-white
+                 py-4 gap-6 md:gap-8 space-y-6 md:space-y-0
+                 max-w-6xl mx-auto"
+    >
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
           <div className="w-32 h-32 bg-bt-blue-100 relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -269,7 +273,7 @@ export const EditProfilePage = ({
             BizTech {profileType === "ATTENDEE" ? "Member" : "Exec"}
           </p>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2">
             <IconButton
               variant="outline"
               icon={Share}
@@ -286,12 +290,12 @@ export const EditProfilePage = ({
           </div>
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <UserExternalLinks />
         </div>
       </div>
 
-      <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
+      <div className="flex flex-col justify-center lg:col-span-2 space-y-6 w-full min-w-0">
         {isEditing ? (
           <EditProfileForm
             profileData={profileData}
@@ -344,7 +348,7 @@ export const EditProfilePage = ({
               </div>
             </GenericCardNFC>
 
-            <div className="block md:hidden">
+            <div className="block lg:hidden">
               <UserExternalLinks />
             </div>
 

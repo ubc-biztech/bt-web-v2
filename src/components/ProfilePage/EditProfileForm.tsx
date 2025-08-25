@@ -109,7 +109,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
 
   return (
     <div className="flex text-white font-satoshi">
-      <div className="flex-1">
+      <div className="flex-1 max-w-3xl mx-auto w-full px-4">
         <form
           onSubmit={form.handleSubmit(handleSubmit)}
           className="space-y-8 bg-bt-blue-300/20 rounded-lg p-6 shadow-[inset_0_0_26.59px_rgba(255,255,255,0.1)] border-bt-blue-200 border"
@@ -118,65 +118,75 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
             <h3 className="font-semibold text-white">Edit Profile</h3>
 
             <Separator />
+            <div className="min-h-[112px]">
+              <FormTextarea
+                name="description"
+                label="Description"
+                placeholder="Tell us about yourself..."
+                control={form.control}
+                required
+              />
+            </div>
 
-            <FormTextarea
-              name="description"
-              label="Description"
-              placeholder="Tell us about yourself..."
-              control={form.control}
-              required
-            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FormInput
+                name="hobby1"
+                label="Hobby 1"
+                placeholder="Your first hobby"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="hobby1"
-              label="Hobby 1"
-              placeholder="Your first hobby"
-              control={form.control}
-            />
+              <FormInput
+                name="hobby2"
+                label="Hobby 2"
+                placeholder="Your second hobby"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="hobby2"
-              label="Hobby 2"
-              placeholder="Your second hobby"
-              control={form.control}
-            />
+              <FormInput
+                name="funQuestion1"
+                label="Fun Question 1"
+                placeholder="Share something fun about yourself"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="funQuestion1"
-              label="Fun Question 1"
-              placeholder="Share something fun about yourself"
-              control={form.control}
-            />
+              <FormInput
+                name="funQuestion2"
+                label="Fun Question 2"
+                placeholder="Another fun fact"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="funQuestion2"
-              label="Fun Question 2"
-              placeholder="Another fun fact"
-              control={form.control}
-            />
+              <FormInput
+                name="linkedIn"
+                label="LinkedIn URL"
+                placeholder="https://linkedin.com/in/yourprofile"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="linkedIn"
-              label="LinkedIn URL"
-              placeholder="https://linkedin.com/in/yourprofile"
-              control={form.control}
-            />
+              <FormInput
+                name="additionalLink"
+                label="Additional Link"
+                placeholder="https://yourwebsite.com"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
 
-            <FormInput
-              name="additionalLink"
-              label="Additional Link"
-              placeholder="https://yourwebsite.com"
-              control={form.control}
-            />
+              <FormInput
+                name="profilePictureURL"
+                label="Profile Picture URL"
+                placeholder="https://example.com/your-photo.jpg"
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
+            </div>
 
-            <FormInput
-              name="profilePictureURL"
-              label="Profile Picture URL"
-              placeholder="https://example.com/your-photo.jpg"
-              control={form.control}
-            />
-
-            <div className="space-y-6 ">
+            <div className="space-y-6">
               <h4 className="font-semibold text-white mt-12">
                 Privacy Settings
               </h4>
@@ -184,132 +194,43 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 <p className="text-sm text-white mb-4">
                   Choose what information is visible on your profile:
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.description"
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {(
+                    [
+                      { key: "description", label: "Description" },
+                      { key: "hobby1", label: "Hobby 1" },
+                      { key: "hobby2", label: "Hobby 2" },
+                      { key: "funQuestion1", label: "Fun Question 1" },
+                      { key: "funQuestion2", label: "Fun Question 2" },
+                      { key: "linkedIn", label: "LinkedIn" },
+                      { key: "additionalLink", label: "Additional Link" },
+                      { key: "profilePictureURL", label: "Profile Picture" },
+                    ] as const
+                  ).map(({ key, label }) => (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between gap-4 min-w-0"
                     >
-                      Description
-                    </label>
-                    <input
-                      id="viewableMap.description"
-                      type="checkbox"
-                      {...form.register("viewableMap.description")}
-                      checked={!!form.watch("viewableMap.description")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.hobby1"
-                    >
-                      Hobby 1
-                    </label>
-                    <input
-                      id="viewableMap.hobby1"
-                      type="checkbox"
-                      {...form.register("viewableMap.hobby1")}
-                      checked={!!form.watch("viewableMap.hobby1")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.hobby2"
-                    >
-                      Hobby 2
-                    </label>
-                    <input
-                      id="viewableMap.hobby2"
-                      type="checkbox"
-                      {...form.register("viewableMap.hobby2")}
-                      checked={!!form.watch("viewableMap.hobby2")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.funQuestion1"
-                    >
-                      Fun Question 1
-                    </label>
-                    <input
-                      id="viewableMap.funQuestion1"
-                      type="checkbox"
-                      {...form.register("viewableMap.funQuestion1")}
-                      checked={!!form.watch("viewableMap.funQuestion1")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.funQuestion2"
-                    >
-                      Fun Question 2
-                    </label>
-                    <input
-                      id="viewableMap.funQuestion2"
-                      type="checkbox"
-                      {...form.register("viewableMap.funQuestion2")}
-                      checked={!!form.watch("viewableMap.funQuestion2")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.linkedIn"
-                    >
-                      LinkedIn
-                    </label>
-                    <input
-                      id="viewableMap.linkedIn"
-                      type="checkbox"
-                      {...form.register("viewableMap.linkedIn")}
-                      checked={!!form.watch("viewableMap.linkedIn")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.additionalLink"
-                    >
-                      Additional Link
-                    </label>
-                    <input
-                      id="viewableMap.additionalLink"
-                      type="checkbox"
-                      {...form.register("viewableMap.additionalLink")}
-                      checked={!!form.watch("viewableMap.additionalLink")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between w-[90%]">
-                    <label
-                      className="text-sm text-bt-blue-0"
-                      htmlFor="viewableMap.profilePictureURL"
-                    >
-                      Profile Picture
-                    </label>
-                    <input
-                      id="viewableMap.profilePictureURL"
-                      type="checkbox"
-                      {...form.register("viewableMap.profilePictureURL")}
-                      checked={!!form.watch("viewableMap.profilePictureURL")}
-                      className="ml-2 rounded"
-                    />
-                  </div>
+                      <label
+                        className="text-sm text-bt-blue-0 truncate"
+                        htmlFor={`viewableMap.${key}`}
+                      >
+                        {label}
+                      </label>
+                      <input
+                        id={`viewableMap.${key}`}
+                        type="checkbox"
+                        {...form.register(`viewableMap.${key}` as const)}
+                        checked={!!form.watch(`viewableMap.${key}` as const)}
+                        className="rounded flex-none"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap sm:flex-nowrap">
               <Button variant="green" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
