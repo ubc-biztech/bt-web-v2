@@ -7,7 +7,6 @@ import { Member, User } from "@/types";
 
 type Props = {
   membersData: Member[] | null;
-  usersData: User[] | null;
 };
 
 const getFieldCounts = (
@@ -155,20 +154,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     });
 
-    const usersData = await fetchBackendFromServer({
-      endpoint: `/users`,
-      method: "GET",
-      nextServerContext: {
-        request: context.req,
-        response: context.res,
-      },
-    });
-
     return {
-      props: { membersData, usersData },
+      props: { membersData },
     };
   } catch (error) {
     console.error("Failed to fetch membership data:", error);
-    return { props: { membersData: null, usersData: null } };
+    return { props: { membersData: null } };
   }
 };
