@@ -141,7 +141,7 @@ const ProfilePage = ({
             <h1 className="text-center text-xl font-semibold mb-2">
               {fname} {lname}
             </h1>
-            <p className="text-pale-blue mb-4">
+            <p className="text-pale-blue mb-4 text-center">
               BizTech{" "}
               {profileType === "ATTENDEE"
                 ? "Member"
@@ -161,6 +161,7 @@ const ProfilePage = ({
               icon={Share}
               label="Share Profile"
               onClick={() => setDrawerOpen(true)}
+              className="mx-auto"
             />
           </div>
 
@@ -213,17 +214,13 @@ const ProfilePage = ({
             <UserExternalLinks />
           </div>
 
-          {(funQuestion1 || funQuestion2) && (
+          {questions.length > 0 && (
             <GenericCardNFC isCollapsible={false}>
               {questions.map((question, idx) => (
                 <div key={idx} className="">
-                  <span className="rounded-lg">
-                    <p className="text-sm text-bt-blue-0 mb-2">
-                      {funQuestion1}
-                    </p>
-                  </span>
+                  <p className="text-sm text-bt-blue-0 mb-2">{question}</p>
 
-                  {questions.length > 1 && (
+                  {idx < questions.length - 1 && (
                     <div className="border-bt-blue-400 border-[0.5px]" />
                   )}
                 </div>
