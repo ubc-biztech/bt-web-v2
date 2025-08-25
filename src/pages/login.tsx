@@ -118,7 +118,11 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
             await router.push("/membership");
           }
         } catch (err: any) {
-          console.error("Error fetching user profile:", err);
+          if (err.status === 404) {
+            await router.push("/membership");
+          }
+
+          throw err;
         }
       } catch (error: any) {
         console.error("Error signing in", error);
