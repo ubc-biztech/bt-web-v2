@@ -1,81 +1,78 @@
-import React, { useEffect, useState } from "react";
-import { BiztechEvent, MemberStatus, Profile } from "@/types";
-import { UserInfo } from "@/components/ProfilePage/UserInfo";
-import { UserEvents } from "@/components/ProfilePage/UserEvents";
+import { fetchBackendFromServer, fetchBackend } from "@/lib/db";
+import { fetchUserAttributes } from "@aws-amplify/auth/server";
+import { GetServerSideProps } from "next";
+import { runWithAmplifyServerContext } from "@/util/amplify-utils";
+import { Registration } from "@/types/types";
+import { BiztechEvent, User } from "@/types";
+import HeaderCard from "@/components/ProfilePage/HeaderCard";
+import AttributesCard from "@/components/ProfilePage/AttributesCard";
 
-// Mock event and profile data
-// TO DO: replace these with calls to backend
-const fetchEventData = async () : Promise<BiztechEvent[]> => {
-  let data = [];
-  for (let i = 0; i < 10; i++) {
-    data.push({
-      id: "existingEvent1",
-      year: 2020,
-      capac: 123,
-      createdAt: 1581227718674,
-      description: "I am a description",
-      elocation: "UBC",
-      ename: "cool event",
-      startDate: "2024-07-01T07:00:11.131Z",
-      endDate: "2024-07-01T21:00:11.131Z",
-      imageUrl: "https://i.picsum.photos/id/236/700/400.jpg",
-      updatedAt: 1581227718674,
-    } as BiztechEvent);
+interface ProfilePageProps {
+  profileData: User;
+  events: BiztechEvent[];
+  error?: string;
+}
+
+export default function ProfilePage({
+  profileData,
+  events,
+  error,
+}: ProfilePageProps) {
+  if (error) {
+    return (
+      <div className="text-bt-red-200 text-center">
+        <h1 className="text-2xl font-bold mb-4">Error</h1>
+        <p>{error}</p>
+      </div>
+    );
   }
-  return data;
-};
 
-const fetchProfileData = async () => {
-  const profile = {
-    name: "John Smith",
-    email: "biztechuser@gmail.com",
-    pronouns: "They/Them/Their",
-    school: "UBC",
-    studentId: "12345678",
-    year: "3rd",
-    dietary: "none",
-    faculty: "Commerce",
-    major: "BTM",
-    status: MemberStatus.Member,
-    // image: "https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg",
-  };
-  return profile;
-};
-
-const ProfilePage = () => {
-  const [registeredEvents, setRegisteredEvents] = useState<BiztechEvent[]>([]);
-  const [savedEvents, setSavedEvents] = useState<BiztechEvent[]>([]);
-  const [profile, setProfile] = useState<Profile | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const profile = await fetchProfileData();
-      setProfile(profile);
-      const events: BiztechEvent[] = await fetchEventData();
-      setRegisteredEvents(events);
-      setSavedEvents(events);
-    };
-    fetchData();
-  }, []);
+  const userRole = profileData.isMember
+    ? "BizTech Member"
+    : profileData.admin
+      ? "BizTech Executive"
+      : "Guest";
 
   return (
-    <main className="bg-primary-color min-h-screen">
-      <div className="container mx-auto p-6 lg:p-10 pt-16 lg:pt-24">
-        <h3 className="text-white text-lg lg:text-xl">
-          {profile?.name
-            ? `Welcome back, ${profile.name.split(" ")[0]}!`
-            : "Welcome back!"}
-        </h3>
-        <div className="flex flex-col gap-6 mt-6 lg:flex-row">
-          <UserInfo profile={profile} />
-          <UserEvents
-            registeredEvents={registeredEvents}
-            savedEvents={savedEvents}
-          />
-        </div>
+    <div className="h-full flex flex-col w-full gap-4">
+      <HeaderCard
+        fname={profileData.fname}
+        lname={profileData.lname}
+        userRole={userRole}
+      />
+      <div className="grid grid-cols-1 gap-4 w-full">
+        <AttributesCard profileData={profileData} userRole={userRole} />
       </div>
-    </main>
+    </div>
   );
-};
+}
 
-export default ProfilePage;
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  try {
+    const nextServerContext = { request: req, response: res };
+
+    const profileData = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      authenticatedCall: true,
+      nextServerContext,
+    });
+
+    return {
+      props: {
+        profileData,
+      },
+    };
+  } catch (error) {
+    console.error("Error in getServerSideProps:", error);
+    return {
+      props: {
+        profileData: null,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      },
+    };
+  }
+};

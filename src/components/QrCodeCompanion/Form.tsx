@@ -24,17 +24,24 @@ const formSchema = z
     type: z.string().min(1, "Must select a type"),
     partnerID: z.string().email().or(z.literal("")),
     linkedin: z.string().url().or(z.literal("")),
-    workshopID: z.string().optional()
+    workshopID: z.string().optional(),
   })
   .superRefine((values, ctx) => {
-    if (values.type === QrType.partner && (values.partnerID === "" || values.linkedin === "")) {
+    if (
+      values.type === QrType.partner &&
+      (values.partnerID === "" || values.linkedin === "")
+    ) {
       ctx.addIssue({
         message: "Partner email and linkedin are required",
         code: z.ZodIssueCode.custom,
-        path: ["partnerID", "linkedin"]
+        path: ["partnerID", "linkedin"],
       });
     } else if (values.type === QrType.workshop && values.workshopID === "") {
-      ctx.addIssue({ message: "Workshop ID is required", code: z.ZodIssueCode.custom, path: ["workshopID"] });
+      ctx.addIssue({
+        message: "Workshop ID is required",
+        code: z.ZodIssueCode.custom,
+        path: ["workshopID"],
+      });
     }
   });
 
@@ -50,12 +57,13 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
       type: "",
       partnerID: "",
       linkedin: "",
-      workshopID: ""
-    }
+      workshopID: "",
+    },
   });
   const [submitState, setSubmitState] = useState("");
 
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const generateIDString = (length: number) => {
     let result = "";
     const charactersLength = characters.length;
@@ -85,23 +93,29 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
           if (values.type === "Partner") {
             return {
               partnerID: values.partnerID,
-              linkedin: values.linkedin
+              linkedin: values.linkedin,
             };
           } else if (values.type === "Workshop") {
             return {
-              workshopID: values.workshopID
+              workshopID: values.workshopID,
             };
           } else {
             return {};
           }
-        })()
+        })(),
       };
-      const res = await fetchBackend({ endpoint: "/qr", method: "POST", data: data });
+      const res = await fetchBackend({
+        endpoint: "/qr",
+        method: "POST",
+        data: data,
+      });
       setSubmitState(res.message);
       fetchData();
     } catch (err: any) {
       if (err.status && err.status === 406) {
-        setSubmitState(err.message.message ? err.message.message : "Invalid Inputs");
+        setSubmitState(
+          err.message.message ? err.message.message : "Invalid Inputs",
+        );
       }
       console.error(err);
     }
@@ -110,70 +124,86 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
   // Inputs must be hidden with classes instead of conditionally rendered, otherwise react-hook onSubmit values are not instantiated
   // causes validation error
   return (
-    <div className='w-full'>
+    <div className="w-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <CheckBox form={form} name='isUnlimitedScans' description='Unlimited Scans?' />
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <CheckBox
+            form={form}
+            name="isUnlimitedScans"
+            description="Unlimited Scans?"
+          />
           <TextInput
             form={form}
-            name='name'
-            placeholder='Name*'
-            description='QR Name'
-            className='col-start-1'
-            tooltip='To prevent cheating, a random 5-character string will be attached to the front of the name upon creation.'
+            name="name"
+            placeholder="Name*"
+            description="QR Name"
+            className="col-start-1"
+            tooltip="To prevent cheating, a random 5-character string will be attached to the front of the name upon creation."
           />
-          <TextInput form={form} name='eventID' placeholder='Event ID*' description='Event ID' tooltip='Refers to the slug of the event.' />
+          <TextInput
+            form={form}
+            name="eventID"
+            placeholder="Event ID*"
+            description="Event ID"
+            tooltip="Refers to the slug of the event."
+          />
           <NumberInput
             form={form}
-            name='year'
-            placeholder='Year*'
-            description='Event Year'
-            tooltip='Specify year for the event QR companion'
+            name="year"
+            placeholder="Year*"
+            description="Event Year"
+            tooltip="Specify year for the event QR companion"
           />
           <NumberInput
             form={form}
-            name='points'
-            placeholder='Points*'
-            description='Points'
-            tooltip='Negative values are allowed, which will deduct points (e.g. making a shop).'
+            name="points"
+            placeholder="Points*"
+            description="Points"
+            tooltip="Negative values are allowed, which will deduct points (e.g. making a shop)."
           />
           <DropDown
             form={form}
-            name='type'
-            placeholder='Type*'
+            name="type"
+            placeholder="Type*"
             options={[QrType.booth, QrType.partner, QrType.workshop]}
-            tooltip='Select the type of QR code.'
-            description='Qr Type'
+            tooltip="Select the type of QR code."
+            description="Qr Type"
           />
           <TextInput
             form={form}
-            name='partnerID'
-            placeholder='Partner Email'
-            description='Partner Email'
+            name="partnerID"
+            placeholder="Partner Email"
+            description="Partner Email"
             className={`${type === QrType.partner ? "" : "hidden"}`}
             tooltip="Specify the partner's email."
           />
           <TextInput
             form={form}
-            name='linkedin'
-            placeholder='Linkedin URL'
-            description='Partner Linkedin'
+            name="linkedin"
+            placeholder="Linkedin URL"
+            description="Partner Linkedin"
             className={`${type === QrType.partner ? "" : "hidden"}`}
             tooltip="Specify the partner's linkedin url."
           />
           <TextInput
             form={form}
-            name='workshopID'
-            placeholder='Workshop*'
-            description='Workshop ID'
+            name="workshopID"
+            placeholder="Workshop*"
+            description="Workshop ID"
             className={`${type === QrType.workshop ? "" : "hidden"}`}
-            tooltip='Specifiy the Workshop ID'
+            tooltip="Specifiy the Workshop ID"
           />
-          <div className='flex flex-row items-center space-x-3 h-min'>
-            <Button className='col-start-1 w-[150px] bg-biztech-green text-login-form-card font-400' type='submit'>
+          <div className="flex flex-row items-center space-x-3 h-min">
+            <Button
+              className="col-start-1 w-[150px] bg-bt-green-300 hover:bg-bt-green-500 text-bt-blue-400 font-400"
+              type="submit"
+            >
               ADD QR
             </Button>
-            <p className='text-nowrap text-xs'>{submitState}</p>
+            <p className="text-nowrap text-xs">{submitState}</p>
           </div>
         </form>
       </Form>

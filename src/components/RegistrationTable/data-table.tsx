@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { DataTableProps, SortingState, ColumnFiltersState } from "./types";
 import {
   useReactTable,
@@ -14,7 +14,8 @@ import { TableHeader as TableActionsHeader } from "./TableHeader";
 import { RegistrationsTableBody } from "./RegistrationsTableBody";
 import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
-import { Attendee, createColumns } from "./columns";
+import { createColumns } from "./columns";
+import { Registration } from "@/types/types";
 import QrCheckIn from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
 
@@ -24,7 +25,7 @@ export function DataTable({
   dynamicColumns = [],
   eventId,
   year,
-}: DataTableProps<Attendee>) {
+}: DataTableProps<Registration>) {
   const [data, setData] = useState(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -33,38 +34,48 @@ export function DataTable({
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
   const [filteredData, setFilteredData] = useState(initialData);
-  const [filterValue, setFilterValue] = useState<'attendees' | 'partners' | 'waitlisted'>('attendees');
+  const [filterValue, setFilterValue] = useState<
+    "attendees" | "partners" | "waitlisted"
+  >("attendees");
+  const [globalFilter, setGlobalFilter] = useState("");
 
-  const refreshTable = async () => {
+  const refreshTable = useCallback(async () => {
     try {
       const registrationData = await fetchBackend({
         endpoint: `/registrations?eventID=${eventId}&year=${year}`,
         method: "GET",
-        authenticatedCall: false
+        authenticatedCall: false,
       });
       setData(registrationData.data);
     } catch (error) {
       console.error("Failed to refresh table data:", error);
     }
-  };
+  }, [eventId, year, setData]);
 
-  const allColumns = [...createColumns(refreshTable, eventData), ...dynamicColumns];
+  const memoizedColumns = useMemo(
+    () => createColumns(refreshTable, eventData),
+    [refreshTable, eventData],
+  );
+
+  const allColumns = [...memoizedColumns, ...dynamicColumns];
 
   const { columnVisibility, setColumnVisibility } =
     useColumnVisibility(allColumns);
 
   const filterButtonRef = useRef<HTMLButtonElement>(null);
-  
+
   useEffect(() => {
-    const filtered = data.filter(attendee => {
+    const filtered = data.filter((attendee) => {
       switch (filterValue) {
-        case 'partners':
+        case "partners":
           return attendee.isPartner === true;
-        case 'waitlisted':
-          return attendee.registrationStatus === 'waitlisted';
-        case 'attendees':
+        case "waitlisted":
+          return attendee.registrationStatus === "waitlisted";
+        case "attendees":
         default:
-          return !attendee.isPartner && attendee.registrationStatus !== 'waitlisted';
+          return (
+            !attendee.isPartner && attendee.registrationStatus !== "waitlisted"
+          );
       }
     });
     setFilteredData(filtered);
@@ -74,7 +85,7 @@ export function DataTable({
     setIsClient(true);
   }, []);
 
-  const table = useReactTable<Attendee>({
+  const table = useReactTable<Registration>({
     data: filteredData,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
@@ -84,11 +95,17 @@ export function DataTable({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onRowSelectionChange: setRowSelection,
+    globalFilterFn: (row, columnId, filterValue) => {
+      return String(row.getValue(columnId))
+        .toLowerCase()
+        .includes(filterValue.toLowerCase());
+    },
     state: {
       sorting,
       columnFilters,
       rowSelection,
       columnVisibility,
+      globalFilter,
     },
     onColumnVisibilityChange: setColumnVisibility,
     initialState: {
@@ -107,7 +124,7 @@ export function DataTable({
               };
             }
             return row;
-          })
+          }),
         );
       },
     },
@@ -118,7 +135,7 @@ export function DataTable({
   }
 
   return (
-    <div className="space-y-4 font-poppins">
+    <div className="space-y-4">
       <QrCheckIn
         event={{ id: eventId, year: year }}
         rows={data}
@@ -133,6 +150,8 @@ export function DataTable({
         setQrReaderToggled={setQrReaderToggled}
         refreshTable={refreshTable}
         onFilterChange={setFilterValue}
+        globalFilter={globalFilter}
+        setGlobalFilter={setGlobalFilter}
       />
 
       <TableComponent>

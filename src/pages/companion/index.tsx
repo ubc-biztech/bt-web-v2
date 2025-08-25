@@ -10,7 +10,10 @@ import Image from "next/image";
 import Events from "@/constants/companion-events";
 import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
-import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from "@/constants/companion";
+import {
+  COMPANION_EMAIL_KEY,
+  COMPANION_PROFILE_ID_KEY,
+} from "@/constants/companion";
 import { Badge } from "./badges";
 import { Loader2 } from "lucide-react";
 import BigProdX from "@/assets/2025/productx/biglogo.png";
@@ -37,12 +40,15 @@ interface UserRegistrationContextType {
   userRegistration: Registration | null;
 }
 
-export const UserRegistrationContext = createContext<UserRegistrationContextType | null>(null);
+export const UserRegistrationContext =
+  createContext<UserRegistrationContextType | null>(null);
 
 export const useUserRegistration = () => {
   const context = useContext(UserRegistrationContext);
   if (!context) {
-    throw new Error("useUserRegistration must be used within a UserRegistrationProvider");
+    throw new Error(
+      "useUserRegistration must be used within a UserRegistrationProvider",
+    );
   }
   return context;
 };
@@ -55,7 +61,9 @@ const Companion = () => {
   const [error, setError] = useState("");
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [event, setEvent] = useState<EventData | null>(null);
-  const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
+  const [userRegistration, setUserRegistration] = useState<Registration | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [decodedRedirect, setDecodedRedirect] = useState("");
   const [input, setInput] = useState("");
@@ -76,19 +84,18 @@ const Companion = () => {
   const { eventID, year } = currentEvent || {};
 
   // Animation variants
- // const fadeInUpVariant = {
+  // const fadeInUpVariant = {
   const pageVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-/*     transition: {
+    /*     transition: {
       duration: 0.8,
       ease: [0.6, -0.05, 0.01, 0.99]
     } */
-      exit: { opacity: 0, y: -20 }
-
+    exit: { opacity: 0, y: -20 },
   };
 
-/*   const shineAnimation = {
+  /*   const shineAnimation = {
     animate: {
       x: ["-100%", "100%"]
     },
@@ -112,21 +119,25 @@ const Companion = () => {
       repeat: Infinity,
       ease: "linear"
     } */
-      const transition = {
-        duration: 0.6,
-        ease: [0.6, -0.05, 0.01, 0.99]
+  const transition = {
+    duration: 0.6,
+    ease: [0.6, -0.05, 0.01, 0.99],
   };
 
   // Styles
   const styles = {
-//    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
-    container: "min-h-screen w-screen bg-[#020319] relative overflow-hidden flex items-center justify-center",
+    //    container: "min-h-screen w-screen bg-gradient-to-b from-[#040C12] to-[#030608] relative overflow-hidden",
+    container:
+      "min-h-screen w-screen bg-[#020319] relative overflow-hidden flex items-center justify-center",
     card: "flex justify-center items-center min-h-screen overflow-hidden border-none bg-transparent relative z-10",
-    blueOrb: "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
-    purpleOrb: "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
+    blueOrb:
+      "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
+    purpleOrb:
+      "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
     contentWrapper: "w-full max-w-2xl px-4",
     logoWrapper: "w-full flex justify-center relative",
-    logoGlow: "absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-lg blur-xl",
+    logoGlow:
+      "absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-lg blur-xl",
     logo: "w-1/2 sm:w-3/5 mb-5 relative",
     title: "text-2xl font-bold mb-2 text-white font-satoshi",
     description: "text-center mb-4 text-white p1 font-satoshi",
@@ -136,7 +147,7 @@ const Companion = () => {
       "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
     buttonShine:
       "absolute inset-0 transform bg-gradient-to-r from-[#1E88E5] hover:from-[#1976D2] via-white/20 hover:to-[#1976D2] to-[#1E88E5]",
-    error: "text-red-500 text-center w-4/5 font-satoshi"
+    error: "text-red-500 text-center w-4/5 font-satoshi",
   };
 
   const fetchUserData = async () => {
@@ -148,7 +159,7 @@ const Companion = () => {
         fetchBackend({
           endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         }),
         // fetchBackend({
         //   endpoint: `/profiles/email/${email}/${eventID}/${year}`,
@@ -158,8 +169,8 @@ const Companion = () => {
         fetchBackend({
           endpoint: `/events/${eventID}/${year}`,
           method: "GET",
-          authenticatedCall: false
-        })
+          authenticatedCall: false,
+        }),
       ]);
 
       const reg = registrationResponse.data[0];
@@ -287,8 +298,11 @@ const Companion = () => {
 
   if (pageError) {
     return (
-      <div className='w-screen h-screen flex items-center justify-center'>
-        <div>A page error occurred, please refresh the page. If the problem persists, contact a BizTech exec for support.</div>
+      <div className="w-screen h-screen flex items-center justify-center">
+        <div>
+          A page error occurred, please refresh the page. If the problem
+          persists, contact a BizTech exec for support.
+        </div>
       </div>
     );
   }
@@ -370,7 +384,7 @@ const Companion = () => {
             </div>
           </motion.div>
         </Card> */}
-               {!isLoading && (
+        {!isLoading && (
           <>
             <motion.div
               key="email"
@@ -391,10 +405,13 @@ const Companion = () => {
               <p className="text-center font-ibm text-white text-sm mb-4">
                 Enter your email or access code to get started.
               </p>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                setEmail(input);
-              }} className="w-full">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setEmail(input);
+                }}
+                className="w-full"
+              >
                 <input
                   type="email"
                   value={input}
@@ -404,7 +421,12 @@ const Companion = () => {
                 />
               </form>
               {error && (
-                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="text-red-500 text-center mt-4">
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-red-500 text-center mt-4"
+                >
                   {error}
                 </motion.p>
               )}

@@ -1,10 +1,10 @@
-import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { X } from 'lucide-react';
-import { motion, useAnimation, PanInfo } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import NavbarLogo from '@/assets/2025/blueprint/navbar_logo.png';
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { X } from "lucide-react";
+import { motion, useAnimation, PanInfo } from "framer-motion";
+import { cn } from "@/lib/utils";
+import NavbarLogo from "@/assets/2025/blueprint/navbar_logo.png";
 
 interface SideNavProps {
   isPartner: boolean | undefined;
@@ -13,53 +13,60 @@ interface SideNavProps {
 }
 
 const navLinks = [
-  { href: '/companion', label: 'Home' },
-  { href: '/companion/profile', label: 'User Profile' },
-  { href: '/companion/badges', label: 'Badges' },
-  { href: '/companion/connections', label: 'Connections' },
-  { href: '/companion/companies', label: 'Companies' },
-  { href: 'https://drive.google.com/file/d/1YVWY0SBp_rvIQquEjffxo5XtL1bHv7Li/view', label: 'Event Guide' }
+  { href: "/companion", label: "Home" },
+  { href: "/companion/profile", label: "User Profile" },
+  { href: "/companion/badges", label: "Badges" },
+  { href: "/companion/connections", label: "Connections" },
+  { href: "/companion/companies", label: "Companies" },
+  {
+    href: "https://drive.google.com/file/d/1YVWY0SBp_rvIQquEjffxo5XtL1bHv7Li/view",
+    label: "Event Guide",
+  },
 ];
 
-export const SideNav: React.FC<SideNavProps> = ({ isPartner, isOpen, onClose }) => {
+export const SideNav: React.FC<SideNavProps> = ({
+  isPartner,
+  isOpen,
+  onClose,
+}) => {
   const controls = useAnimation();
-  
+
   React.useEffect(() => {
     controls.start({
       x: isOpen ? 0 : "100%",
-      transition: { duration: 0.3, ease: "easeInOut" }
+      transition: { duration: 0.3, ease: "easeInOut" },
     });
   }, [isOpen, controls]);
 
   const handleDragEnd = async (_: any, info: PanInfo): Promise<void> => {
     const threshold = 100; // pixels to determine swipe
     if (info.offset.x > threshold) {
-      await controls.start({ 
+      await controls.start({
         x: "100%",
-        transition: { duration: 0.3, ease: "easeInOut" }
+        transition: { duration: 0.3, ease: "easeInOut" },
       });
       onClose();
     } else {
-      await controls.start({ 
+      await controls.start({
         x: 0,
-        transition: { duration: 0.3, ease: "easeInOut" }
+        transition: { duration: 0.3, ease: "easeInOut" },
       });
     }
   };
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
         onClick={onClose}
       />
-      <motion.div 
+      <motion.div
         className={cn(
           "fixed top-0 right-0 w-80 h-full bg-black/60 backdrop-blur-xl border-l border-white/10 z-50 touch-pan-y",
-          !isOpen && "pointer-events-none"
+          !isOpen && "pointer-events-none",
         )}
         initial={{ x: "100%" }}
         animate={controls}
@@ -89,27 +96,27 @@ export const SideNav: React.FC<SideNavProps> = ({ isPartner, isOpen, onClose }) 
               />
             </div>
           </div>
-          
+
           <div className="h-[1px] bg-white/10 mb-8" />
-          
+
           <nav className="space-y-6">
             {navLinks.map(({ href, label }) => {
-              if (label === 'Badges' && isPartner) return <></>;
-                return (
-                <Link 
+              if (label === "Badges" && isPartner) return <></>;
+              return (
+                <Link
                   key={href}
-                  href={href} 
+                  href={href}
                   className="flex flex-row-reverse items-center gap-3 text-[22px] py-2 text-white hover:text-gray-300 transition-colors"
                   onClick={onClose}
                 >
                   <span className="text-lg">↗</span>
                   {label}
                 </Link>
-              )})
-            }
+              );
+            })}
           </nav>
         </div>
       </motion.div>
     </>
   );
-}; 
+};

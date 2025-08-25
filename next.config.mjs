@@ -6,46 +6,53 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**"
-      }
-    ]
+        hostname: "**",
+      },
+    ],
+  },
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
   },
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: '*'
-          }
-        ]
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
       },
       {
-        source: '/fonts/:path*',
+        source: "/fonts/:path*",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
-          }
-        ]
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
       },
       {
         // Add headers for Next.js optimized fonts
-        source: '/_next/static/media/:path*',
+        source: "/_next/static/media/:path*",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
           {
-            key: 'Access-Control-Allow-Origin',
-            value: '*'
-          }
-        ]
-      }
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+        ],
+      },
     ];
-  }
+  },
 };
 
 export default nextConfig;

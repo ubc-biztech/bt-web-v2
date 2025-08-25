@@ -11,20 +11,18 @@ export const CompanionConnectionRow: React.FC<{
     connection?.major && connection?.year // check if connection is attendee (has major and year)
       ? `${connection?.major}, ${connection?.year}`
       : connection?.title && connection?.company // else check if connection is delegate
-      ? `${connection?.title}, ${connection?.company}`
-      : "";
+        ? `${connection?.title}, ${connection?.company}`
+        : "";
   const avatarInitials =
     connection.fname && connection.lname
       ? `${connection.fname[0].toUpperCase()}${connection.lname[0].toUpperCase()}`
       : "";
   const fullName = `${connection.fname} ${connection.lname}`;
   return (
-    <CompanionItemRow
-      href={`/companion/profile/${connection.obfuscatedID}`}
-    >
+    <CompanionItemRow href={`/companion/profile/${connection.obfuscatedID}`}>
       <div className="flex items-center space-x-3">
         <Avatar
-          className={`flex w-8 h-8 bg-primary-color items-center justify-center`}
+          className={`flex w-8 h-8 bg-bt-blue-600 items-center justify-center`}
         >
           <AvatarImage src={connection?.profilePic} />
           <AvatarFallback>{avatarInitials}</AvatarFallback>
@@ -37,4 +35,4 @@ export const CompanionConnectionRow: React.FC<{
       <span className="text-base text-white/70">↗</span>
     </CompanionItemRow>
   );
-}; 
+};

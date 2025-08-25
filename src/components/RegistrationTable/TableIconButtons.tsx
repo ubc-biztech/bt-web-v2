@@ -7,11 +7,12 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 import StatsIcon from "../../../public/assets/icons/chart_icon.svg";
 import QrIcon from "../../../public/assets/icons/qr_icon.svg";
 import RefreshIcon from "../../../public/assets/icons/refresh_icon.svg";
+import { LucideRefreshCcw, ScanQrCode } from "lucide-react";
 
 interface TableButtonProps {
   isQrReaderToggled: boolean;
@@ -34,21 +35,16 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
   };
 
   return (
-    <div>
+    <div className="flex flex-row gap-2">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
             <Button
-              variant="ghost"
+              variant="green"
               onClick={() => setQrReaderToggled(!isQrReaderToggled)}
+              className="p-2 shadow-inner-blue-convex"
             >
-              <Image
-                src={QrIcon}
-                alt="QR Icon"
-                width={25}
-                height={25}
-                className={"min-w-6"}
-              />
+              <ScanQrCode />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Toggle QR Scanner</TooltipContent>
@@ -57,33 +53,15 @@ export const TableIconButtons: React.FC<TableButtonProps> = ({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <Button variant="ghost" onClick={refreshTable}>
-              <Image
-                src={RefreshIcon}
-                alt="Refresh Icon"
-                width={25}
-                height={25}
-                className={"min-w-6"}
-              />
+            <Button
+              variant="green"
+              onClick={refreshTable}
+              className="p-2 shadow-inner-blue-convex"
+            >
+              <LucideRefreshCcw />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Refresh Table</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button variant="ghost" onClick={() => handleIconClick("stats")}>
-              <Image
-                src={StatsIcon}
-                alt="Stats Icon"
-                width={25}
-                height={25}
-                className={"min-w-6"}
-              />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>View Statistics</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>

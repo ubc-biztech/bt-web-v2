@@ -1,57 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/Satoshi-Regular.woff2') format('woff2'),
-       url('/fonts/Satoshi-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/Satoshi-Medium.woff2') format('woff2'),
-       url('/fonts/Satoshi-Medium.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Satoshi';
-  src: url('/fonts/Satoshi-Bold.woff2') format('woff2'),
-       url('/fonts/Satoshi-Bold.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --font-urbanist: "Urbanist", sans-serif;
 
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 11, 17, 30;
+  --background-end-rgb: 18, 32, 61;
 
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --background: 220 15% 10%;
+  --foreground: 0 0% 100%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
+  --card: 220 15% 12%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 220 15% 12%;
+  --popover-foreground: 0 0% 100%;
 
   --primary: 222.2 47.4% 11.2%;
   --primary-foreground: 210 40% 98%;
 
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 120 60% 50%;
+  --secondary-foreground: 0 0% 100%;
 
-  --muted: 210 40% 96.1%;
+  --muted: 220 15% 20%;
   --muted-foreground: 215.4 16.3% 46.9%;
 
   --accent: 210 40% 96.1%;
@@ -60,9 +33,9 @@
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+  --border: 220 15% 25%;
+  --input: 220 15% 25%;
+  --ring: 120 60% 50%;
 
   --radius: 0.5rem;
 }
@@ -75,7 +48,7 @@
   background: linear-gradient(120deg, darkmagenta, crimson, orange);
   background-size: 200% 100%;
   background-position: 100% 0;
-  transition: background-position .5s;
+  transition: background-position 0.5s;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -115,13 +88,8 @@
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-          to bottom,
-          transparent,
-          rgb(var(--background-end-rgb))
-  )
-  rgb(var(--background-start-rgb));
+  @apply bg-bt-blue-600;
+  min-height: 100%;
 }
 
 @layer utilities {
@@ -132,37 +100,37 @@ body {
 
 @layer base {
   h1 {
-    @apply font-poppins font-600 text-3xl text-black;
+    @apply font-600 text-3xl text-white;
   }
   h2 {
-    @apply font-poppins font-600 text-2xl text-black;
+    @apply font-600 text-2xl text-white;
   }
   h3 {
-    @apply font-poppins font-600 text-xl text-black;
+    @apply font-600 text-xl text-white;
   }
   h4 {
-    @apply font-poppins font-500 text-lg text-black;
+    @apply font-500 text-lg text-white;
   }
   h5 {
-    @apply font-poppins font-400 text-md text-black;
+    @apply font-400 text-md text-white;
   }
   h6 {
-    @apply font-poppins font-400 text-sm text-black;
+    @apply font-400 text-sm text-white;
   }
   button {
-    @apply font-poppins font-600 text-sm text-black;
+    @apply font-600 text-sm text-white;
   }
   p {
-    @apply font-poppins font-400 text-sm text-black;
+    @apply font-400 text-sm text-white;
   }
   .p1 {
-    @apply font-poppins font-500 text-sm text-black;
+    @apply font-500 text-sm text-white;
   }
   .p2 {
-    @apply font-poppins font-400 text-sm text-black;
+    @apply font-400 text-sm text-white;
   }
   .p3 {
-    @apply font-poppins font-400 text-xs text-black;
+    @apply font-400 text-xs text-white;
   }
   * {
     @apply border-border;
@@ -170,4 +138,20 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.btn-green {
+  @apply bg-bt-green-300 hover:bg-bt-green-500 text-bt-blue-600;
+}
+
+.btn-green-outline {
+  @apply bg-bt-green-300/10 text-bt-green-300 border-bt-green-300 hover:bg-bt-green-300/5 hover:text-bt-green-400 hover:border-bt-green-400 border;
+}
+
+.btn-destructive {
+  @apply bg-bt-red-300 hover:bg-bt-red-500 text-bt-blue-600;
+}
+
+.btn-destructive-outline {
+  @apply bg-bt-red-300/10 text-bt-red-300 border-bt-red-300 hover:bg-bt-red-300/5 hover:text-bt-red-400 hover:border-bt-red-400 border;
 }

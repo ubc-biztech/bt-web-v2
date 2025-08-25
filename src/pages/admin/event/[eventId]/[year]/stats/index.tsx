@@ -42,48 +42,75 @@ export default function Statistics({ initialData }: Props) {
 
   const handleBack = () => {
     const currentPath = window.location.pathname;
-    const parentPath = currentPath.split('/stats')[0];
+    const parentPath = currentPath.split("/stats")[0];
     router.push(parentPath);
   };
 
   return (
-    <main className='bg-primary-color min-h-screen'>
-      <div className='container mx-auto p-10 flex flex-col'>
+    <main className="bg-bt-blue-600 min-h-screen">
+      <div className="container mx-auto p-10 flex flex-col">
         <span>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={handleBack}
-            className="text-white mb-4 hover:text-baby-blue"
+            className="text-white mb-4 hover:text-bt-blue-100"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <h2 className='text-white'>Event Statistics</h2>
-          <p className='text-baby-blue font-poppins'>
+          <h2 className="text-white">Event Statistics</h2>
+          <p className="text-bt-blue-100">
             Statistics {">"} {router.query.eventId} {router.query.year}
           </p>
           <br />
-          <ChartBox height='250px' title='Registration Status'>
-            {initialData && <PercentageBars data={getFieldCounts(initialData, "registrationStatus")} />}
+          <ChartBox height="250px" title="Registration Status">
+            {initialData && (
+              <PercentageBars
+                data={getFieldCounts(initialData, "registrationStatus")}
+              />
+            )}
           </ChartBox>
-          <div className='flex gap-0 flex-col lg:flex-row lg:gap-4'>
-            <ChartBox width='33%' height='300px' title='Attendee Year Level'>
-              {initialData && <BarChart data={getFieldCounts(initialData, "basicInformation.year")} />}
+          <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
+            <ChartBox width="33%" height="300px" title="Attendee Year Level">
+              {initialData && (
+                <BarChart
+                  data={getFieldCounts(initialData, "basicInformation.year")}
+                />
+              )}
             </ChartBox>
-            <ChartBox width='66%' height='300px' title='Heard Event From'>
-              {initialData && <PieChart data={getFieldCounts(initialData, "basicInformation.heardFrom")} />}
+            <ChartBox width="66%" height="300px" title="Heard Event From">
+              {initialData && (
+                <PieChart
+                  data={getFieldCounts(
+                    initialData,
+                    "basicInformation.heardFrom",
+                  )}
+                />
+              )}
             </ChartBox>
           </div>
-          <div className='flex gap-0 flex-col lg:flex-row lg:gap-4'>
-            <ChartBox width='66%' height='300px' title='Faculty'>
-              {initialData && <PieChart data={getFieldCounts(initialData, "basicInformation.faculty")} />}
+          <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
+            <ChartBox width="66%" height="300px" title="Faculty">
+              {initialData && (
+                <PieChart
+                  data={getFieldCounts(initialData, "basicInformation.faculty")}
+                />
+              )}
             </ChartBox>
-            <ChartBox width='33%' height='300px' title='Dietary Restrictions'>
-              {initialData && <StatsTable data={getFieldCounts(initialData, "basicInformation.diet")} />}
+            <ChartBox width="33%" height="300px" title="Dietary Restrictions">
+              {initialData && (
+                <StatsTable
+                  data={getFieldCounts(initialData, "basicInformation.diet")}
+                />
+              )}
             </ChartBox>
           </div>
-          <ChartBox width='66%' height='300px' title='Pronouns'>
-            {initialData && <PieChart data={getFieldCounts(initialData, "basicInformation.gender")} />}
+          <ChartBox width="66%" height="300px" title="Pronouns">
+            {initialData && (
+              <PieChart
+                data={getFieldCounts(initialData, "basicInformation.gender")}
+              />
+            )}
           </ChartBox>
         </span>
       </div>

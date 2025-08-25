@@ -3,8 +3,14 @@
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation"
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import { useRouter } from "next/navigation";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  animate,
+  AnimatePresence,
+} from "framer-motion";
 
 interface TopCompaniesProps {
   isPartner: boolean;
@@ -44,23 +50,22 @@ const topCompanies = [
   },
 ];
 
-
 const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
-  const [isTapped, setIsTapped] = useState(false)
-  const router = useRouter()
-  const opacity = useMotionValue(1)
-  const scale = useMotionValue(1)
-  const y = useMotionValue(0)
+  const [isTapped, setIsTapped] = useState(false);
+  const router = useRouter();
+  const opacity = useMotionValue(1);
+  const scale = useMotionValue(1);
+  const y = useMotionValue(0);
 
   const handleTap = () => {
-    setIsTapped(true)
-    animate(opacity, 0, { duration: 0.5 })
-    animate(scale, 0.8, { duration: 0.5 })
-    animate(y, 20, { duration: 0.5 })
+    setIsTapped(true);
+    animate(opacity, 0, { duration: 0.5 });
+    animate(scale, 0.8, { duration: 0.5 });
+    animate(y, 20, { duration: 0.5 });
     setTimeout(() => {
-      router.push("/companion/wrapped/startPage")
-    }, 800)
-  }
+      router.push("/companion/wrapped/startPage");
+    }, 800);
+  };
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
@@ -81,9 +86,9 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
         >
           People connected with many different companies, big and small.
           <br />
-          Here are the <span className="font-satoshi font-bold">overall top 5.</span>
+          Here are the{" "}
+          <span className="font-satoshi font-bold">overall top 5.</span>
         </motion.h1>
-
 
         {/* Company Rankings */}
         <div className="w-full max-w-lg mt-8 space-y-6">
@@ -97,7 +102,9 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
               transition={{ delay: 0.2 * company.rank }}
             >
               {/* Rank Number */}
-              <p className="text-white text-3xl font-bold w-8 text-center">{company.rank}</p>
+              <p className="text-white text-3xl font-bold w-8 text-center">
+                {company.rank}
+              </p>
 
               {/* Logo inside white circular background */}
               <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-md flex-shrink-0 overflow-hidden aspect-square">
@@ -112,14 +119,15 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
 
               {/* Company Name & NFC Tap Count */}
               <div className="flex flex-col flex-1">
-                <p className="text-white text-lg font-satoshi font-bold">{company.name}</p>
-                <p className="text-gray-400 text-sm font-satoshi">{company.taps} NFC taps</p>
+                <p className="text-white text-lg font-satoshi font-bold">
+                  {company.name}
+                </p>
+                <p className="text-gray-400 text-sm font-satoshi">
+                  {company.taps} NFC taps
+                </p>
               </div>
             </motion.div>
           ))}
-
-
-
         </div>
       </motion.div>
     </NavBarContainer>

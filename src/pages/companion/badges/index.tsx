@@ -21,7 +21,11 @@ export interface Badge {
   isComplete: Boolean;
 }
 
-const hiddenBadges = ["QUEST_BT_BOOTH_H", "QUEST_CONNECT_TEN_H", "QUEST_CONNECT_EXEC_H"];
+const hiddenBadges = [
+  "QUEST_BT_BOOTH_H",
+  "QUEST_CONNECT_TEN_H",
+  "QUEST_CONNECT_EXEC_H",
+];
 
 const Badges = () => {
   const [filter, setFilter] = useState(0);
@@ -53,22 +57,22 @@ const Badges = () => {
           (badge: Omit<Badge, "isComplete">) => ({
             ...badge,
             isComplete: badge.progress >= badge.threshold,
-          })
+          }),
         );
         setBadges(dataWithCompleteStatus);
         const completedCount = dataWithCompleteStatus.filter(
-          (badge: Badge) => badge.isComplete
+          (badge: Badge) => badge.isComplete,
         ).length;
         const completedHiddenCount = dataWithCompleteStatus.filter(
           (badge: Badge) =>
-            badge.isComplete && hiddenBadges.includes(badge.questID)
+            badge.isComplete && hiddenBadges.includes(badge.questID),
         ).length;
         setCompletedBadges(completedCount);
         setCompletedHiddenBadges(completedHiddenCount);
       } catch (error) {
         console.error("Error fetching badges:", error);
         setError("Error fetching your badges");
-      } finally  {
+      } finally {
         setIsLoading(false);
       }
     };
@@ -100,58 +104,63 @@ const Badges = () => {
 
   return (
     <NavBarContainer>
-      {isLoading ? <div className="mt-[-90px]"><Loading /></div>: (
-      <div>
-        <div className="flex flex-row items-center justify-between">
-          <p className="text-[22px] font-satoshi text-white">
-            Badge Collection
-          </p>
-          <p className="text-[12px] text-[rgba(255,255,255,0.8)] font-redhat translate-y-[3px]">
-            {completedBadges}/{badges.length} COLLECTED
-          </p>
+      {isLoading ? (
+        <div className="mt-[-90px]">
+          <Loading />
         </div>
-        <div className="h-[1px] my-3 bg-[#1D262F]"></div>
-        <div className="flex flex-row items-center justify-between">
-          <FilterDropdown
-            options={["Name", "Progress"]}
-            setSortBy={setSortBy}
-            sortBy={sortBy}
-          />
-          <Filter
-            filterOptions={filterOptions}
-            setSelectedFilterOption={setFilter}
-            selectedFilterOption={filter}
-          />
+      ) : (
+        <div>
+          <div className="flex flex-row items-center justify-between">
+            <p className="text-[22px] font-satoshi text-white">
+              Badge Collection
+            </p>
+            <p className="text-[12px] text-[rgba(255,255,255,0.8)] font-redhat translate-y-[3px]">
+              {completedBadges}/{badges.length} COLLECTED
+            </p>
+          </div>
+          <div className="h-[1px] my-3 bg-[#1D262F]"></div>
+          <div className="flex flex-row items-center justify-between">
+            <FilterDropdown
+              options={["Name", "Progress"]}
+              setSortBy={setSortBy}
+              sortBy={sortBy}
+            />
+            <Filter
+              filterOptions={filterOptions}
+              setSelectedFilterOption={setFilter}
+              selectedFilterOption={filter}
+            />
+          </div>
+          {error ? (
+            <div className="text-red-500 text-center mt-4">{error}</div>
+          ) : (
+            <>
+              {sortedBadges &&
+                sortedBadges.map((badge: Badge, index: number) => (
+                  <BadgeRow
+                    key={index}
+                    badge={badge}
+                    isHidden={hiddenBadges.includes(badge.questID)}
+                    badgeIcon={blueprintBadgeIcons[badge.questID]}
+                  />
+                ))}
+              {(filterOptions[filter] === "All" ||
+                filterOptions[filter] === "Incomplete") &&
+                hiddenBadges.length - completedHiddenBadges > 0 && (
+                  <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
+                    <div className="flex flex-col items-center justify-center w-full">
+                      <p className="font-medium text-white">
+                        {`+${hiddenBadges.length - completedHiddenBadges} more hidden ${hiddenBadges.length - completedHiddenBadges === 1 ? "badge" : "badges"} to collect`}
+                      </p>
+                      <p className="text-[#808080] text-[12px] font-redhat">
+                        Details will be revealed at the end of the event
+                      </p>
+                    </div>
+                  </CompanionItemRow>
+                )}
+            </>
+          )}
         </div>
-        {error ? (
-          <div className="text-red-500 text-center mt-4">{error}</div>
-        ) : (
-          <>
-            {sortedBadges &&
-              sortedBadges.map((badge: Badge, index: number) => (
-                <BadgeRow
-                  key={index}
-                  badge={badge}
-                  isHidden={hiddenBadges.includes(badge.questID)}
-                  badgeIcon={blueprintBadgeIcons[badge.questID]}
-                />
-              ))}
-            {(filterOptions[filter] === "All" || filterOptions[filter] === "Incomplete") && 
-            (hiddenBadges.length - completedHiddenBadges > 0) && (
-              <CompanionItemRow className="!before:bg-none border-dashed border-[rgba(206,234,255,0.4)]">
-                <div className="flex flex-col items-center justify-center w-full">
-                  <p className="font-medium text-white">
-                    {`+${hiddenBadges.length - completedHiddenBadges} more hidden ${hiddenBadges.length - completedHiddenBadges === 1 ? "badge" : "badges"} to collect`}
-                  </p>
-                  <p className="text-[#808080] text-[12px] font-redhat">
-                    Details will be revealed at the end of the event
-                  </p>
-                </div>
-              </CompanionItemRow>
-            )}
-          </>
-        )}
-      </div>
       )}
     </NavBarContainer>
   );

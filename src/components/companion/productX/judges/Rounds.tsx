@@ -19,14 +19,18 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
   const teamsJudged = records
     ? Object.values(records)
-      .flat()
-      .sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      })
+        .flat()
+        .sort((a, b) => {
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+        })
     : [];
 
   const [showRubric, setShowRubric] = useState(false);
-  const [teamFeedback, setTeamFeedback] = useState<TeamFeedback>(teamsJudged[0]);
+  const [teamFeedback, setTeamFeedback] = useState<TeamFeedback>(
+    teamsJudged[0],
+  );
   const [teamStatus, setTeamStatus] = useState("CURRENTLY PRESENTING");
   const [currentTeam, setCurrentTeam] = useState<{
     currentTeamID: string;
@@ -43,9 +47,13 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
           fetchBackend({
             endpoint: `/team/judge/currentTeamID/${userRegistration?.id}`,
             method: "GET",
-            authenticatedCall: false
+            authenticatedCall: false,
           }),
-          fetchBackend({ endpoint: `/team/round`, method: "GET", authenticatedCall: false })
+          fetchBackend({
+            endpoint: `/team/round`,
+            method: "GET",
+            authenticatedCall: false,
+          }),
         ];
         const [response, round] = await Promise.all(promises);
 
@@ -53,7 +61,9 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
         if (
           teamsJudged.find((val) => {
-            return val.teamID === response.currentTeamID && val.round === round.round;
+            return (
+              val.teamID === response.currentTeamID && val.round === round.round
+            );
           })
         ) {
           setCurrentTeam(null);
@@ -63,7 +73,9 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
         if (response?.currentTeamName) {
           setCurrentTeam(response);
           const searchFeedback = teamsJudged.find(
-            (feedback) => feedback.teamID === response.currentTeamID && feedback.round === round.round
+            (feedback) =>
+              feedback.teamID === response.currentTeamID &&
+              feedback.round === round.round,
           );
           if (searchFeedback) setTeamFeedback(searchFeedback);
           else {
@@ -76,7 +88,7 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
               feedback: {},
               teamID: response.currentTeamID,
               teamName: response.currentTeamName,
-              createdAt: ""
+              createdAt: "",
             });
           }
         }
@@ -92,13 +104,14 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
   if (!currentTeam && !records) {
     return (
-      <div className='flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8'>
-        <div className=' relative w-[70%] h-[70%]'>
-          <Image src={BizBot} alt='BizBot' className='object-contain' fill />
+      <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
+        <div className=" relative w-[70%] h-[70%]">
+          <Image src={BizBot} alt="BizBot" className="object-contain" fill />
         </div>
-        <header className='text-lg font-ibm'>NO ENTRIES FOUND</header>
-        <span className='pt-2 text-[#656795] text-center max-w-[600px] text-sm'>
-          &quot;When a team begins their presentation for this round, you&apos;ll see an option to begin scoring their project.&quot;
+        <header className="text-lg font-ibm">NO ENTRIES FOUND</header>
+        <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
+          &quot;When a team begins their presentation for this round,
+          you&apos;ll see an option to begin scoring their project.&quot;
         </span>
       </div>
     );
@@ -106,8 +119,8 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
 
   return (
     <>
-      <FadeWrapper className='flex flex-row mt-10 gap-8'>
-        <div className='w-full flex flex-col gap-5'>
+      <FadeWrapper className="flex flex-row mt-10 gap-8">
+        <div className="w-full flex flex-col gap-5">
           {currentTeam && (
             <ProjectRow
               team_name={(currentTeam as any).currentTeamName}
@@ -124,20 +137,22 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
                   feedback: {},
                   teamID: currentTeam?.currentTeamID,
                   teamName: currentTeam?.currentTeamName,
-                  createdAt: ""
+                  createdAt: "",
                 });
                 setShowRubric(true);
               }}
             />
           )}
 
-          <div className='my-4 text-[#3D3E63] flex flex-row items-center'>
+          <div className="my-4 text-[#3D3E63] flex flex-row items-center">
             <span>RECENT HISTORY</span>
-            <figure className='ml-2 w-56 h-[1px] bg-[#3D3E63]' />
+            <figure className="ml-2 w-56 h-[1px] bg-[#3D3E63]" />
           </div>
 
           {teamsJudged.map((teamFeedback: TeamFeedback, index: number) => {
-            const scored = Object.values(teamFeedback.scores).every((score: number) => score != 0);
+            const scored = Object.values(teamFeedback.scores).every(
+              (score: number) => score != 0,
+            );
             return (
               scored && (
                 <ProjectRow
@@ -164,7 +179,8 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
           showRubric={setShowRubric}
           createOrUpdateFlag={
             currentTeam?.currentTeamID === teamFeedback.teamID &&
-            (teamFeedback.round === (currentRound === "2" ? "FINAL ROUND" : "REGULAR JUDGING"))
+            teamFeedback.round ===
+              (currentRound === "2" ? "FINAL ROUND" : "REGULAR JUDGING")
           }
         />
       )}

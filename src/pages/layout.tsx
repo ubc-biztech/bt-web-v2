@@ -1,23 +1,25 @@
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 import Navbar from "@/components/NavBar/Navbar";
-import { isMobile } from "@/util/isMobile";
-import { useEffect, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { Urbanist } from "next/font/google";
+
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  variable: "--font-urbanist",
+});
 
 export default function Layout({ children }: any) {
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
-  useEffect(() => {
-    const userAgent = navigator.userAgent;
-    setIsMobileDevice(isMobile(userAgent));
-  }, []);
   return (
-    <>
-      <main className={`${!isMobileDevice ? "ml-[250px]" : "mt-[52px]"}`}>
+    <div lang="en" className={urbanist.className}>
+      <div className={`md:pl-[250px]`}>
         <ConfigureAmplifyClientSide />
-        {children}
-      </main>
+        <div className="md:pt-8 pt-24 lg:p-16 md:p-12 p-8 w-full min-h-screen place-content-center">
+          {children}
+        </div>
+      </div>
+
       <Navbar />
       <Toaster />
-    </>
+    </div>
   );
 }

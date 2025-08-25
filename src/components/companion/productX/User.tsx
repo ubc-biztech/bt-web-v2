@@ -32,7 +32,10 @@ const User: React.FC<UserProps> = ({ teamID }) => {
   const { userRegistration } = useUserRegistration();
   const [team_info, setTeamInfo] = useState<TeamInfo | null>(null);
   const [teamMemberNames, setTeamMemberNames] = useState<string[]>([]);
-  const [team_feedback, setTeamFeedback] = useState<Record<string, TeamFeedback[]> | null>(null);
+  const [team_feedback, setTeamFeedback] = useState<Record<
+    string,
+    TeamFeedback[]
+  > | null>(null);
   const [eventID, year] = userRegistration?.["eventID;year"].split(";");
 
   useEffect(() => {
@@ -41,7 +44,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
         const response = await fetchBackend({
           endpoint: `/team/feedback/${teamID}`,
           method: "GET",
-          authenticatedCall: false
+          authenticatedCall: false,
         });
 
         if (response?.scores) {
@@ -66,9 +69,9 @@ const User: React.FC<UserProps> = ({ teamID }) => {
           data: {
             user_id: userRegistration?.id,
             eventID: eventID,
-            year: +year
+            year: +year,
           },
-          authenticatedCall: false
+          authenticatedCall: false,
         });
 
         if (response?.response) {
@@ -96,7 +99,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
           const response = await fetchBackend({
             endpoint: `/registrations/?email=${memberID}&eventID=${eventID}&year=${year}`,
             method: "GET",
-            authenticatedCall: false
+            authenticatedCall: false,
           });
 
           if (response.data) {
@@ -118,14 +121,15 @@ const User: React.FC<UserProps> = ({ teamID }) => {
   }, [team_info]);
 
   const teamName = team_info?.teamName;
-  const flattened_team_feedback = team_feedback && Object.values(team_feedback).flat();
+  const flattened_team_feedback =
+    team_feedback && Object.values(team_feedback).flat();
   const hasFeedback = !!flattened_team_feedback?.length;
   const comments = flattened_team_feedback?.flatMap(({ judgeName, feedback }) =>
     Object.entries(feedback).map(([category, message]) => ({
       judgeName,
       category,
-      message
-    }))
+      message,
+    })),
   );
   const pages = [
     {
@@ -142,7 +146,7 @@ const User: React.FC<UserProps> = ({ teamID }) => {
         <div className="p-4 text-center text-gray-500">
           No feedback given yet.
         </div>
-      )
+      ),
     },
     {
       name: "Scores",
@@ -153,11 +157,16 @@ const User: React.FC<UserProps> = ({ teamID }) => {
         <div className="p-4 text-center text-gray-500">
           No feedback given yet.
         </div>
-      )
-    }
+      ),
+    },
   ];
 
-  return <UserDashboardLayout title={`${capitalizeTeamName(teamName || '')} - OVERVIEW`} pages={pages} />;
+  return (
+    <UserDashboardLayout
+      title={`${capitalizeTeamName(teamName || "")} - OVERVIEW`}
+      pages={pages}
+    />
+  );
 };
 
 export default User;

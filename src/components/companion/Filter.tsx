@@ -21,8 +21,9 @@ const Filter: React.FC<FilterProps> = ({
         {filterOptions.map((option, index) => (
           <div
             key={index}
-            className={`px-[10px] rounded-full py-1 flex items-center justify-center ${index === selectedFilterOption ? selectedStyle : unselectedStyle
-              }`}
+            className={`px-[10px] rounded-full py-1 flex items-center justify-center ${
+              index === selectedFilterOption ? selectedStyle : unselectedStyle
+            }`}
             onClick={() => setSelectedFilterOption(index)}
           >
             {option}

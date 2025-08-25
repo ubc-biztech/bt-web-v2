@@ -20,7 +20,7 @@ const Schedule = ({ data, date, location }: ScheduleProps) => {
       </div>
       <div className="space-y-4">
         {data.map((item, index) => (
-          <div 
+          <div
             key={index}
             className="bg-white rounded-lg shadow-md p-4 transition-all hover:shadow-lg"
           >
@@ -42,4 +42,4 @@ const Schedule = ({ data, date, location }: ScheduleProps) => {
   );
 };
 
-export default Schedule; 
+export default Schedule;

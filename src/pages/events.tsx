@@ -2,11 +2,20 @@ import { EventDashboard } from "@/components/EventsDashboard/EventDashboard";
 import { FilterTab } from "@/components/EventsDashboard/FilterTab";
 import GuestBanner from "@/components/EventsDashboard/GuestBanner";
 import { SearchBar } from "@/components/EventsDashboard/SearchBar";
+import { fetchUserAttributes } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
-import { AuthError, getCurrentUser } from "@aws-amplify/auth";
+import { AuthError } from "@aws-amplify/auth";
 import { ListIcon, Bookmark } from "lucide-react";
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import PageHeader from "@/components/Common/PageHeader";
+import Divider from "@/components/Common/Divider";
 
 interface registeredEvent {
   "eventID;year": string;
@@ -19,7 +28,7 @@ interface EventProps {
 
 const filterStates = {
   all: "all",
-  saved: "saved"
+  saved: "saved",
 };
 
 export default function Page({ events }: EventProps) {
@@ -51,28 +60,41 @@ export default function Page({ events }: EventProps) {
     return filteredEvents;
   };
 
-  const displayedEvents = useMemo(() => uiStateFilter(), [uiStateFilter, filterState, searchField, saved]);
+  const displayedEvents = useMemo(
+    () => uiStateFilter(),
+    [uiStateFilter, filterState, searchField, saved],
+  );
 
   const fetchData = async () => {
     try {
-      const { signInDetails } = await getCurrentUser();
-      const email = signInDetails?.loginId;
-      const user = await fetchBackend({ endpoint: `/users/${email}`, method: "GET" });
-      const registeredEvents = await fetchBackend({ endpoint: `/registrations?email=${email}`, method: "GET" });
-      setEmail(email ? email : "");
-      setSaved(user["favedEventsID;year"] ? user["favedEventsID;year"] : []);
+      const attributes = await fetchUserAttributes();
+      const email = attributes.email;
+
+      if (!email) {
+        throw new Error("Email not found in user attributes.");
+      }
+
+      const userData = await fetchBackend({
+        endpoint: `/users/${email}`,
+        method: "GET",
+      });
+      const registeredEvents = await fetchBackend({
+        endpoint: `/registrations?email=${email}`,
+        method: "GET",
+      });
+
+      setEmail(email);
+      setSaved(userData["favedEventsID;year"] ?? []);
       setRegistered(
-        registeredEvents
-          ? registeredEvents.data.map((event: registeredEvent) => {
-              return event["eventID;year"]; 
-            })
-          : []
+        registeredEvents?.data?.map(
+          (event: registeredEvent) => event["eventID;year"],
+        ) ?? [],
       );
     } catch (e) {
       if (e instanceof AuthError && e.name === "UserUnAuthenticatedException") {
         setSignedIn(false);
       } else {
-        console.error(e);
+        console.error("Error in fetchData:", e);
       }
     }
   };
@@ -98,22 +120,23 @@ export default function Page({ events }: EventProps) {
   };
 
   return (
-    <main className='bg-primary-color min-h-screen w-full'>
-      <div className='w-full'>
-        {!signedIn && <GuestBanner message='To keep your saved events or view your registered events you need to be signed in.' />}
-        <div className='mx-auto pt-8 md:px-20 px-5 flex flex-col'>
-          <span>
-            <h2 className='text-white text-xl lg:text-[40px]'>Event Dashboard</h2>
-            <div className='flex items-center justify-between h-[40px]'>
-              <p className='text-baby-blue font-poppins'>View and register for our events!</p>
-            </div>
-          </span>
-          <div className='bg-navbar-tab-hover-bg h-[1px] my-4' />
-          <div className='flex flex-row gap-x-3 space-y-3 flex-wrap md:flex-nowrap mb-8'>
+    <main className="bg-bt-blue-600 min-h-screen w-full">
+      <div className="w-full">
+        {!signedIn && (
+          <GuestBanner message="To keep your saved events or view your registered events you need to be signed in." />
+        )}
+        <div className="flex flex-col">
+          <PageHeader
+            title="Event Dashboard"
+            subtitle="Check out our latest & upcoming events!"
+          />
+          <Divider />
+
+          <div className="flex flex-row gap-x-3 space-y-3 flex-wrap md:flex-nowrap mb-8">
             <SearchBar handleChange={handleChange} searchField={searchField} />
-            <div className='flex flex-row flex-nowrap w-full gap-x-3'>
+            <div className="flex flex-row flex-nowrap w-full gap-x-3">
               <FilterTab
-                title='All Events'
+                title="All Events"
                 filter={filterStates.all}
                 filterState={filterState}
                 handleUiClick={handleUiClick}
@@ -124,8 +147,20 @@ export default function Page({ events }: EventProps) {
             </div>
           </div>
 
-          {displayedEvents.length === 0 ? <div className='text-[20px] text-white flex-row items-center'>No events found...</div> : <></>}
-          <EventDashboard events={displayedEvents} user={email} saved={saved} registered={registered} setSaved={setSaved} />
+          {displayedEvents.length === 0 ? (
+            <div className="text-[20px] text-white flex-row items-center">
+              No events found...
+            </div>
+          ) : (
+            <></>
+          )}
+          <EventDashboard
+            events={displayedEvents}
+            user={email}
+            saved={saved}
+            registered={registered}
+            setSaved={setSaved}
+          />
         </div>
       </div>
     </main>
@@ -134,7 +169,11 @@ export default function Page({ events }: EventProps) {
 
 export async function getStaticProps() {
   try {
-    let events = await fetchBackend({ endpoint: "/events", method: "GET", authenticatedCall: false });
+    let events = await fetchBackend({
+      endpoint: "/events",
+      method: "GET",
+      authenticatedCall: false,
+    });
 
     events.sort((a: BiztechEvent, b: BiztechEvent) => {
       return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
@@ -146,14 +185,14 @@ export async function getStaticProps() {
 
     return {
       props: {
-        events
-      }
+        events,
+      },
     };
   } catch (error) {
     return {
       props: {
-        events: []
-      }
+        events: [],
+      },
     };
   }
 }

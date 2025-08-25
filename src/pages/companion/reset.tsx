@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { COMPANION_EMAIL_KEY, COMPANION_PROFILE_ID_KEY } from '@/constants/companion';
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import {
+  COMPANION_EMAIL_KEY,
+  COMPANION_PROFILE_ID_KEY,
+} from "@/constants/companion";
 
 export default function ResetCompanion() {
   const [isReset, setIsReset] = useState(false);
@@ -14,7 +17,7 @@ export default function ResetCompanion() {
 
     // Redirect after showing the reset message
     const timer = setTimeout(() => {
-      router.push('/companion');
+      router.push("/companion");
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -32,4 +35,4 @@ export default function ResetCompanion() {
       </div>
     </div>
   );
-} 
+}
