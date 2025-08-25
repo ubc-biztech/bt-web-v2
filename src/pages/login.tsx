@@ -201,8 +201,10 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
         <div className="bg-bt-blue-400 px-6 py-12 shadow rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <img
-              className="mx-auto h-24 w-auto"
+            <Image
+              className="mx-auto w-auto"
+              height={96}
+              width={96}
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
@@ -343,8 +345,11 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                 href="/become-a-member"
                 className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
               >
-                <img
+                <Image
                   src="https://i.ibb.co/0VtyXLD/Frame-3.png"
+                  width={24}
+                  height={24}
+                  alt="Guest"
                   className="w-8 h-auto"
                 />
                 <span className="text-sm leading-6 text-bt-blue-400 font-500">

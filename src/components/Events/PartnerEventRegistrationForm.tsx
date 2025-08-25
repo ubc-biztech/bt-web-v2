@@ -23,6 +23,7 @@ import { toast } from "@/components/ui/use-toast";
 import { BiztechEvent } from "@/types";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import Image from "next/image";
 
 const partnerEventRegistrationFormSchema = z.object({
   emailAddress: z.string().email({
@@ -189,12 +190,13 @@ export const PartnerEventRegistrationForm: React.FC<
             <div className="container py-10">
               <div className="space-y-4 p-4 max-w-lg mx-auto">
                 {/* Event Image */}
-                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                   {event?.imageUrl ? (
-                    <img
+                    <Image
                       src={event.imageUrl}
                       alt="Event Cover"
                       className="w-full h-full object-cover"
+                      fill
                     />
                   ) : (
                     <span className="text-gray-400">Event Cover Photo</span>
