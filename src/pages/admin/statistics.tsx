@@ -51,7 +51,7 @@ export default function MembershipsPage({ membersData }: Props) {
   return (
     <main className="bg-primary-color min-h-screen w-full">
       <div className="w-full">
-        <div className="mx-auto pt-8 pb-8 md:px-20 px-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mx-auto pt-8 pb-8 md:px-20 px-5 grid grid-cols-1 xl:grid-cols-2 gap-6">
           <span>
             <h2 className="text-white text-xl lg:text-[40px]">
               Membership Statistics
@@ -80,7 +80,7 @@ export default function MembershipsPage({ membersData }: Props) {
             )}
           </ChartBox>
 
-          <div className="col-span-2">
+          <div className="xl:col-span-2">
             <ChartBox height="300px" width="600 px" title="Major">
               {membersData && (
                 <BarChart data={getFieldCounts(membersData, "major")} />
@@ -112,7 +112,7 @@ export default function MembershipsPage({ membersData }: Props) {
             )}
           </ChartBox>
 
-          <div className="col-span-2">
+          <div className="xl:col-span-2">
             <ChartBox
               height="300px"
               title="What topics did you want to see the most discussed in the future?"
@@ -130,7 +130,7 @@ export default function MembershipsPage({ membersData }: Props) {
             </ChartBox>
           </div>
 
-          <div className="col-span-2">
+          <div className="xl:col-span-2">
             <ChartBox height="300px" title="How did you hear about us?">
               {membersData && (
                 <BarChart data={getFieldCounts(membersData, "heardFrom")} />
