@@ -103,27 +103,6 @@ export type PartnerBasicInformation = BasicInformation & {
   companyName: string;
 };
 
-export type AttendeeBasicInformation = BasicInformation & {
-  major: string;
-  year: string;
-  diet: string;
-  heardFrom: string;
-  faculty: string;
-};
-
-export type MembershipBasicInformation = BasicInformation & {
-    membershipType: string;
-    year: string;
-    faculty: string;
-    major: string;
-    pronouns: string;
-    dietaryRestrictions: string;
-    isInternational: string;
-    wasPreviousMember: string;
-    topicsOfInterest: string;
-    heardFrom: string;
-  };
-  
 export type User = {
   id: string;
   isMember?: boolean;
@@ -178,4 +157,27 @@ export type BackendProfile = {
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
+};
+
+export type Member = {
+  id: string;
+  admin: boolean;
+  createdAt: number;
+  diet: string;
+  discordId?: string;
+  education: string;
+  faculty: string;
+  firstName: string;
+  heardFrom: string;
+  international: boolean;
+  lastName: string;
+  major: string;
+  prevMember: boolean;
+  profileID: string;
+  pronouns: string;
+  studentNumber: string;
+  topics: string;
+  university: string;
+  updatedAt: number;
+  year: string;
 };
