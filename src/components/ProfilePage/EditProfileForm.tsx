@@ -118,15 +118,15 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
             <h3 className="font-semibold text-white">Edit Profile</h3>
 
             <Separator />
-
-            <FormTextarea
-              name="description"
-              label="Description"
-              placeholder="Tell us about yourself..."
-              control={form.control}
-              required
-              className="min-h-[112px]"
-            />
+            <div className="min-h-[112px]">
+              <FormTextarea
+                name="description"
+                label="Description"
+                placeholder="Tell us about yourself..."
+                control={form.control}
+                required
+              />
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <FormInput
@@ -134,7 +134,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Hobby 1"
                 placeholder="Your first hobby"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -142,7 +142,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Hobby 2"
                 placeholder="Your second hobby"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -150,7 +150,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Fun Question 1"
                 placeholder="Share something fun about yourself"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -158,7 +158,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Fun Question 2"
                 placeholder="Another fun fact"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -166,7 +166,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="LinkedIn URL"
                 placeholder="https://linkedin.com/in/yourprofile"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -174,7 +174,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Additional Link"
                 placeholder="https://yourwebsite.com"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
               <FormInput
@@ -182,7 +182,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 label="Profile Picture URL"
                 placeholder="https://example.com/your-photo.jpg"
                 control={form.control}
-                className="w-full truncate [&::placeholder]:text-sm"
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
             </div>
 
