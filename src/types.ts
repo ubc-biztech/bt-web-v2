@@ -103,6 +103,14 @@ export type PartnerBasicInformation = BasicInformation & {
   companyName: string;
 };
 
+export type AttendeeBasicInformation = BasicInformation & {
+  major: string;
+  year: string;
+  diet: string;
+  heardFrom: string;
+  faculty: string;
+};
+
 export type User = {
   id: string;
   isMember?: boolean;
