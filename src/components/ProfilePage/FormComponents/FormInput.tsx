@@ -8,6 +8,10 @@ interface FormInputProps {
   control: Control<any>; // React Hook Form control
   type?: string;
   required?: boolean;
+
+  wrapperClassName?: string; // styles the outer div
+  inputClassName?: string; // styles the <input>
+  labelClassName?: string; // styles the <label>
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
