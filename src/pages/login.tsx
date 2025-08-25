@@ -199,7 +199,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
   return (
     <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
       <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
-        <div className="bg-bt-blue-400 px-6 py-12 shadow sm:rounded-lg sm:px-12">
+        <div className="bg-bt-blue-400 px-6 py-12 shadow rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <img
               className="mx-auto h-24 w-auto"
