@@ -1,7 +1,13 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { X, Share, Copy, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+import QRCode from "qrcode";
 import { toast } from "../ui/use-toast";
 import { cn } from "@/lib/utils";
 
@@ -51,31 +57,69 @@ const ShareProfileDrawer = ({
   const QRCodeSection = ({
     className,
     onClick,
+    data = url,
+    size = 256,
   }: {
     className?: string;
     onClick?: (e: any) => void;
-  }) => (
-    <div className={cn("place-items-center w-full h-fit", className)}>
-      <div
-        className="place-items-center pb-4 h-fit w-fit bg-white relative rounded-lg"
-        onClick={onClick}
-      >
-        <div className="relative">
-          <Image
-            src="/assets/images/qr-example.svg"
-            alt="QR Code Example"
-            width={256}
-            height={256}
-            className="w-full h-full object-cover"
-          />
-          <p className="text-center text-black font-semibold">
-            Profile QR Code
-          </p>
-          <div className="absolute h-full inset-0 bg-gradient-to-br from-bt-blue-300 to-bt-blue-400 mix-blend-plus-lighter opacity-70 m-2"></div>
+    data?: string;
+    size?: number;
+  }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+      const generateQR = async () => {
+        try {
+          if (canvasRef.current && data) {
+            await QRCode.toCanvas(canvasRef.current, data, {
+              width: size,
+              margin: 2,
+              color: {
+                dark: "#000000",
+                light: "#ffffff",
+              },
+            });
+            setError(null);
+          }
+        } catch (err) {
+          setError("Failed to generate QR code");
+          console.error("QR Code generation error:", err);
+        }
+      };
+
+      generateQR();
+    }, [data, size]);
+
+    return (
+      <div className={cn("place-items-center w-full h-fit", className)}>
+        <div
+          className="place-items-center pb-4 h-fit w-fit bg-white relative rounded-lg"
+          onClick={onClick}
+        >
+          <div className="relative">
+            {error ? (
+              <div
+                className="flex items-center justify-center bg-gray-100 rounded"
+                style={{ width: size, height: size }}
+              >
+                <p className="text-red-500 text-sm">{error}</p>
+              </div>
+            ) : (
+              <canvas
+                ref={canvasRef}
+                className="w-full h-full object-cover rounded"
+              />
+            )}
+            <p className="text-center text-black font-semibold mt-2">
+              Profile QR Code
+            </p>
+            <div className="absolute h-full inset-0 bg-gradient-to-br from-bt-blue-300 to-bt-blue-400 mix-blend-plus-lighter opacity-70 m-2 rounded"></div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const DrawerHeader = () => (
     <div className="flex items-center justify-between">
@@ -136,7 +180,7 @@ const ShareProfileDrawer = ({
               exit={{ y: "55%", opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
-              <QRCodeSection onClick={(e) => e.stopPropagation()} />
+              <QRCodeSection onClick={(e) => e.stopPropagation()} data={url}/>
             </motion.div>
 
             {/* Mobile Layout */}
