@@ -180,7 +180,7 @@ const ShareProfileDrawer = ({
               exit={{ y: "55%", opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
-              <QRCodeSection onClick={(e) => e.stopPropagation()} data={url}/>
+              <QRCodeSection onClick={(e) => e.stopPropagation()} data={url} />
             </motion.div>
 
             {/* Mobile Layout */}
