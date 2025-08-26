@@ -1,6 +1,5 @@
-import { truncate } from "lodash";
-import { fetchBackend, fetchBackendFromServer } from "./db";
-import { DBRegistrationStatus, ApplicationStatus } from "@/types";
+import { fetchBackend } from "./db";
+import { DBRegistrationStatus } from "@/types";
 
 export async function fetchRegistrationData(eventId: string, year: string) {
   let registrationData = await fetchBackend({

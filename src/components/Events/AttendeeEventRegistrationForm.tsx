@@ -217,7 +217,9 @@ export const AttendeeEventRegistrationForm: React.FC<
             <div className="container py-10">
               <div className="space-y-4 p-4 max-w-lg mx-auto relative">
                 {/* Event Image */}
-                <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative">
+                <div
+                  className={`aspect-video bg-gray-200 rounded-lg overflow-hidden ${event?.imageUrl ? "relative" : "flex items-center justify-center"}`}
+                >
                   {event?.imageUrl ? (
                     <Image
                       src={event.imageUrl}
