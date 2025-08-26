@@ -15,7 +15,7 @@ export const NFCCardCell: React.FC<NFCCardCellProps> = ({
   refreshTable,
 }) => {
   const [showNfcWriter, setShowNfcWriter] = useState(false);
-  const [memberUUID, setMemberUUID] = useState<string | null>(null);
+  const [profileID, setProfileID] = useState<string | null>(null);
   const [needsCard, setNeedsCard] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
 
@@ -35,7 +35,7 @@ export const NFCCardCell: React.FC<NFCCardCellProps> = ({
       try {
         const result = await checkUserNeedsCard(email);
         setNeedsCard(result.needsCard);
-        setMemberUUID(result.memberUUID);
+        setProfileID(result.profileID);
       } catch (error) {
         console.error("Failed to check card status:", error);
         setNeedsCard(false);
@@ -95,9 +95,9 @@ export const NFCCardCell: React.FC<NFCCardCellProps> = ({
       </Button>
 
       {/* NFC Writer Modal */}
-      {showNfcWriter && memberUUID && (
+      {showNfcWriter && profileID && (
         <NFCWriter
-          token={memberUUID}
+          token={profileID}
           email={email}
           firstName={firstName}
           exit={closeNfcWriter}

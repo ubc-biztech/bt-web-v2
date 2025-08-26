@@ -27,7 +27,7 @@ export const TableCell = memo(
 
     // NFC popup state - controls when to show membership card writing interface
     const [showNfcPopup, setShowNfcPopup] = useState(false);
-    const [memberUUID, setMemberUUID] = useState<string | null>(null);
+    const [profileID, setProfileID] = useState<string | null>(null);
 
     // Use the custom hook for checking if user needs a card
     const { checkUserNeedsCard } = useUserNeedsCard();
@@ -71,11 +71,11 @@ export const TableCell = memo(
 
         // Check if user needs an NFC membership card when status is set to checkedIn
         if (column.id === "registrationStatus" && newValue === "checkedIn") {
-          const { needsCard, memberUUID: uuid } = await checkUserNeedsCard(
+            const { needsCard, profileID } = await checkUserNeedsCard(
             row.original.id,
           );
           setShowNfcPopup(needsCard);
-          setMemberUUID(uuid);
+          setProfileID(profileID);
         }
 
         await refreshTable();
@@ -155,11 +155,11 @@ export const TableCell = memo(
             </Select>
 
             {/* NFC popup for membership card writing */}
-            {showNfcPopup && memberUUID && (
+            {showNfcPopup && profileID && (
               <NFCPopup
                 firstName={row.original.fname}
                 email={row.original.id}
-                uuid={memberUUID}
+                uuid={profileID}
                 exit={() => {
                   setShowNfcPopup(false);
                 }}

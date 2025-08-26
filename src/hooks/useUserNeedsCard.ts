@@ -6,7 +6,7 @@ import { fetchBackend } from "@/lib/db";
  * @param userID - The user's email/ID
  * @returns Object containing:
  *   - needsCard: boolean indicating if user needs a card
- *   - memberUUID: string | null - the user's profile ID if they need a card
+ *   - profileID: string | null - the user's profile ID if they need a card
  *   - isLoading: boolean indicating if the check is in progress
  *   - error: string | null - error message if the check failed
  */
