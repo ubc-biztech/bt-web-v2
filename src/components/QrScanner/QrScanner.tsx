@@ -260,9 +260,9 @@ const QrCheckIn: React.FC<QrProps> = ({
       });
 
       // Check if user needs an NFC membership card
-      const { needsCard, memberUUID: uuid } = await checkUserNeedsCard(id);
+      const { needsCard, profileID } = await checkUserNeedsCard(id);
       setShowNfcPopup(needsCard);
-      setProfileID(uuid);
+      setProfileID(profileID);
 
       // Only show success state if no NFC popup is needed
       // If NFC popup is needed, let it handle the flow

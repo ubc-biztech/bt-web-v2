@@ -18,7 +18,7 @@ export const useUserNeedsCard = () => {
     userID: string,
   ): Promise<{
     needsCard: boolean;
-    memberUUID: string | null;
+    profileID: string | null;
   }> => {
     setIsLoading(true);
     setError(null);
@@ -34,22 +34,22 @@ export const useUserNeedsCard = () => {
         // User is not a member, hence no need for card
         // redundant check, incase the API endpoints updates or returns null.
         console.log(`${userID} is not a member`);
-        return { needsCard: false, memberUUID: null };
+        return { needsCard: false, profileID: null };
       }
 
       if (member.cardCount && member.cardCount > 0) {
         // User already has a card, no need for new one
-        return { needsCard: false, memberUUID: null };
+        return { needsCard: false, profileID: null };
       }
 
       // User needs a card
-      return { needsCard: true, memberUUID: member.profileID };
+      return { needsCard: true, profileID: member.profileID };
     } catch (e: any) {
       // Handle 404 errors specifically (user not found)
       // user is not a member, hence no need for card
       if (e?.status === 404) {
         console.log(`${userID} is not a member`);
-        return { needsCard: false, memberUUID: null };
+        return { needsCard: false, profileID: null };
       }
 
       // Handle other errors
@@ -58,7 +58,7 @@ export const useUserNeedsCard = () => {
       console.error(errorMessage, e);
 
       // On error, assume user doesn't need a card for now (fail-safe)
-      return { needsCard: false, memberUUID: null };
+      return { needsCard: false, profileID: null };
     } finally {
       setIsLoading(false);
     }
