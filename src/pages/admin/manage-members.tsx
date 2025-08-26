@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SearchIcon, FilterIcon } from "lucide-react";
-import NFCWriter from "@/components/NFCWrite/NFCWriter";
+import { NFCWriter } from "@/components/NFCWrite/NFCWriter";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
 import { GetServerSideProps } from "next";
 

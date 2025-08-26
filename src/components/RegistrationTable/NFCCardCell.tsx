@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
-import NFCWriter from "@/components/NFCWrite/NFCWriter";
+import { NFCWriter } from "@/components/NFCWrite/NFCWriter";
 import { CellContext } from "@tanstack/react-table";
 import { Registration } from "@/types/types";
 

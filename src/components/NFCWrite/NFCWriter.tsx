@@ -336,4 +336,4 @@ const NFCWriter = ({
   );
 };
 
-export default NFCWriter;
+export { NFCWriter };

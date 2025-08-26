@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import NFCWriter from "./NFCWriter";
+import { NFCWriter } from "./NFCWriter";
 import styles from "./writer.module.css";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
 
