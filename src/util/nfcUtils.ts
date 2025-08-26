@@ -9,7 +9,7 @@
  */
 export const generateNfcProfileUrl = (token: string): string => {
   const stage = process.env.NEXT_PUBLIC_REACT_APP_STAGE;
-  
+
   if (stage === "production") {
     return `https://app.ubcbiztech.com/profile/${token}?scan=true`;
   } else if (stage === "local") {
@@ -18,4 +18,4 @@ export const generateNfcProfileUrl = (token: string): string => {
     // Default to dev/staging
     return `https://dev.app.ubcbiztech.com/profile/${token}?scan=true`;
   }
-}; 
+};
