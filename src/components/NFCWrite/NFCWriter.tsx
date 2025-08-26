@@ -323,7 +323,7 @@ const NFCWriter = ({
           </button>
         )}
 
-        <button className={styles.cancelButton} onClick={exit}>
+        <button className={styles.cancelButton} onClick={closeAll}>
           Done
         </button>
       </div>
