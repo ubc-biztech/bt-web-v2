@@ -86,7 +86,6 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
   );
 };
 
-// Component shown when device doesn't support NFC
 const DeviceNotSupported = ({
   name,
   exit,
@@ -108,7 +107,6 @@ const DeviceNotSupported = ({
   );
 };
 
-// Main popup content - shows user profile and write button
 const NfcPopupContent = ({
   name,
   image,
