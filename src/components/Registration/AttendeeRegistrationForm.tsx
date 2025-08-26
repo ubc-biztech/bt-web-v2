@@ -34,6 +34,7 @@ import { CalendarIcon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 const customQuestionSchema = z.object({
   type: z.enum(["text", "checkbox", "select", "upload", "workshopSelection"]),
@@ -127,11 +128,12 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <TabsContent value="member">
                     <div className="space-y-4 p-4">
                       {/* Event Image */}
-                      <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden relative">
                         {form.watch("imageUrl") ? (
-                          <img
-                            src={form.watch("imageUrl")}
+                          <Image
+                            src={form.watch("imageUrl") || ""}
                             alt="Event Cover"
+                            fill
                             className="w-full h-full object-cover"
                           />
                         ) : (
