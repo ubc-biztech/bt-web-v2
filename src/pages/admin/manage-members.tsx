@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, FilterIcon } from "lucide-react";
+import { SearchIcon, FilterIcon, Copy, Check } from "lucide-react";
 import { NFCWriter } from "@/components/NFCWrite/NFCWriter";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
+import { generateNfcProfileUrl } from "@/util/nfcUtils";
 import { GetServerSideProps } from "next";
 
 type Member = {
@@ -41,6 +42,7 @@ export default function ManageMembers({ initialData }: Props) {
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -87,6 +89,18 @@ export default function ManageMembers({ initialData }: Props) {
   const closeAllNfc = () => {
     setShowNfcWriter(false);
     setSelectedMember(null);
+  };
+
+  const copyNfcContent = async (member: Member) => {
+    try {
+      const nfcUrl = generateNfcProfileUrl(member.profileID);
+      await navigator.clipboard.writeText(nfcUrl);
+      setCopiedMemberId(member.profileID);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopiedMemberId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy to clipboard:", err);
+    }
   };
 
   if (isLoading) {
@@ -147,11 +161,9 @@ export default function ManageMembers({ initialData }: Props) {
                 <TableHead className="text-white font-semibold">
                   Last Name
                 </TableHead>
-                {isNFCSupported && (
-                  <TableHead className="text-white font-semibold">
-                    Actions
-                  </TableHead>
-                )}
+                <TableHead className="text-white font-semibold">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody className="text-baby-blue">
@@ -164,8 +176,8 @@ export default function ManageMembers({ initialData }: Props) {
                     <TableCell className="font-medium">{member.id}</TableCell>
                     <TableCell>{member.firstName || "N/A"}</TableCell>
                     <TableCell>{member.lastName || "N/A"}</TableCell>
-                    {isNFCSupported && (
-                      <TableCell>
+                    <TableCell>
+                      {isNFCSupported ? (
                         <Button
                           variant="outline"
                           size="sm"
@@ -174,14 +186,33 @@ export default function ManageMembers({ initialData }: Props) {
                         >
                           Assign Card
                         </Button>
-                      </TableCell>
-                    )}
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                          onClick={() => copyNfcContent(member)}
+                        >
+                          {copiedMemberId === member.profileID ? (
+                            <>
+                              <Check className="w-4 h-4 mr-2" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy NFC Content
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={isNFCSupported ? 4 : 3}
+                    colSpan={4}
                     className="h-24 text-center text-gray-400"
                   >
                     {searchTerm

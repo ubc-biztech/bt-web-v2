@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { fetchBackend } from "@/lib/db";
 import styles from "./writer.module.css";
+import { generateNfcProfileUrl } from "@/util/nfcUtils";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -83,12 +84,7 @@ const NFCWriter = ({
   const isSuccess = status === "success";
   const isError = status === "error";
 
-  const nfcUrl =
-    process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
-      ? `https://app.ubcbiztech.com/profile/${token}?scan=true`
-      : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-        ? `http://localhost:3000/profile/${token}?scan=true`
-        : `https://dev.app.ubcbiztech.com/profile/${token}?scan=true`;
+  const nfcUrl = generateNfcProfileUrl(token);
 
   const ringClass = useMemo(() => {
     if (isSuccess) return `${styles.rings} ${styles["rings--success"]}`;

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { NFCWriter } from "./NFCWriter";
 import styles from "./writer.module.css";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
+import { generateNfcProfileUrl } from "@/util/nfcUtils";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -96,12 +97,7 @@ const DeviceNotSupported = ({
   exit: () => void;
   token: string;
 }) => {
-  const nfcUrl =
-    process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
-      ? `https://app.ubcbiztech.com/profile/${token}?scan=true`
-      : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-        ? `http://localhost:3000/profile/${token}?scan=true`
-        : `https://dev.app.ubcbiztech.com/profile/${token}?scan=true`;
+  const nfcUrl = generateNfcProfileUrl(token);
 
   const [copied, setCopied] = useState(false);
 
