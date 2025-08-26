@@ -3,6 +3,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventFormSchema } from "./EventFormSchema";
 import { PreviewForm } from "./PreviewForm";
+import Image from "next/image";
 
 interface EventPreviewProps {
   form: UseFormReturn<EventFormSchema>;
@@ -17,12 +18,15 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
       </TabsList>
       <TabsContent value="member">
         <div className="space-y-4 mt-8">
-          <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+          <div
+            className={`aspect-video bg-gray-200 rounded-lg ${form.watch("imageUrl") ? "relative" : "flex items-center justify-center"} overflow-hidden`}
+          >
             {form.watch("imageUrl") ? (
-              <img
+              <Image
                 src={form.watch("imageUrl")}
                 alt="Event Cover"
                 className="w-full h-full object-cover"
+                fill
               />
             ) : (
               <span className="text-gray-400">Event Cover Photo</span>

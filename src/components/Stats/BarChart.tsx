@@ -6,7 +6,7 @@ import { Chart } from "react-google-charts";
 interface BarChartProps {
   data: StatsChartData[];
   title?: string;
-  width?: number;
+  width?: number | string;
   height?: number;
 }
 

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { signUp, signInWithRedirect } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
+import Image from "next/image";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -140,8 +141,10 @@ const Register: React.FC = () => {
       <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
         <div className="bg-bt-blue-400 px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <img
-              className="mx-auto h-24 w-auto"
+            <Image
+              className="mx-auto w-auto"
+              height={96}
+              width={96}
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />

@@ -29,6 +29,7 @@ import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -348,9 +349,10 @@ export default function AttendeeFormRegister() {
         <div className="space-y-4 p-4 max-w-lg mx-auto py-10">
           <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
             {event?.imageUrl ? (
-              <img
+              <Image
                 src={event.imageUrl}
                 alt="Event Cover"
+                fill
                 className="w-full h-full object-cover"
               />
             ) : (
