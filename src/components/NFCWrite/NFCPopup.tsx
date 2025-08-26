@@ -128,9 +128,7 @@ const NfcPopupContent = ({
         />
       </div>
 
-      <div>
-        {name} does not have a membership card.
-      </div>
+      <div>{name} does not have a membership card.</div>
 
       <div onClick={openWriter} className={styles.glassButton}>
         Write to Card
