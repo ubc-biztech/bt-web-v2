@@ -72,7 +72,6 @@ export default function ProfilePhotoUploader({
       endpoint,
       method: "POST",
       data: { fileType, fileName },
-      authenticatedCall: true,
     });
   };
 
@@ -114,7 +113,6 @@ export default function ProfilePhotoUploader({
           fileName: `${base}-opt.jpg`,
           prefix: "optimized",
         },
-        authenticatedCall: true,
       });
       if (!up1 || !optimizedUrl)
         throw new Error("Missing presign for optimized");
@@ -138,7 +136,6 @@ export default function ProfilePhotoUploader({
               fileName: original.name,
               prefix: "original",
             },
-            authenticatedCall: true,
           });
           if (up2) {
             await fetch(up2, {
