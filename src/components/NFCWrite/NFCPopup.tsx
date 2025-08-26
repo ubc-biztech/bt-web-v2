@@ -73,7 +73,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 
       {/* Show appropriate content based on device support */}
       {!isNFCSupported ? (
-        <DeviceNotSupported name={firstName} exit={exit} />
+        <DeviceNotSupported name={firstName} exit={exit} token={uuid} />
       ) : (
         <div>
           <NfcPopupContent
@@ -90,17 +90,83 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 const DeviceNotSupported = ({
   name,
   exit,
+  token,
 }: {
   name: string;
   exit: () => void;
+  token: string;
 }) => {
+  const nfcUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
+      ? `https://app.ubcbiztech.com/profile/${token}?scan=true`
+      : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+        ? `http://localhost:3000/profile/${token}?scan=true`
+        : `https://dev.app.ubcbiztech.com/profile/${token}?scan=true`;
+
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(nfcUrl);
+      setCopied(true);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy to clipboard:", err);
+    }
+  };
+
   return (
     <div className={styles.nfcPopupContent}>
-      <div>
-        {name} does not have a Membership Card.
-        <br></br>
-        Refer them to an exec with an android device to help.
+      <div className={styles.deviceNotSupportedContent}>
+        <div className={styles.nfcPopupTitle}>
+          {name} does not have a Membership Card. Press copy and paste into an
+          NFC writing app.
+        </div>
+        <div
+          onClick={copyToClipboard}
+          className={styles.copyButton}
+          style={{
+            color: copied ? "#10B981" : "#007AFF",
+            backgroundColor: copied
+              ? "rgba(16, 185, 129, 0.1)"
+              : "rgba(0, 122, 255, 0.1)",
+            border: `1px solid ${copied ? "#10B981" : "#007AFF"}`,
+          }}
+        >
+          {copied ? (
+            <>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              </svg>
+              Copy NFC content
+            </>
+          )}
+        </div>
       </div>
+
       <button onClick={exit} className={styles.glassButton}>
         close
       </button>
