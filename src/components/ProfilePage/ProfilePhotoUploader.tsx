@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
 import imageCompression from "browser-image-compression";
+import Image from "next/image";
 
 type Props = {
   value?: string;
@@ -181,11 +182,11 @@ export default function ProfilePhotoUploader({
           aria-label="Change profile photo"
         >
           {preview || value ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={preview || value!}
               alt="Profile picture"
-              className={`h-full w-full object-cover ${isUploading ? "opacity-70" : ""}`}
+              fill
+              className={`object-cover ${isUploading ? "opacity-70" : ""}`}
             />
           ) : (
             <div className="h-full w-full grid place-content-center bg-white/5 text-xs text-white/60">
