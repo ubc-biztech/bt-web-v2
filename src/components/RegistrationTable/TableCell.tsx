@@ -71,7 +71,7 @@ export const TableCell = memo(
 
         // Check if user needs an NFC membership card when status is set to checkedIn
         if (column.id === "registrationStatus" && newValue === "checkedIn") {
-            const { needsCard, profileID } = await checkUserNeedsCard(
+          const { needsCard, profileID } = await checkUserNeedsCard(
             row.original.id,
           );
           setShowNfcPopup(needsCard);
