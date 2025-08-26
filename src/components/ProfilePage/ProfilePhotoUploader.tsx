@@ -4,6 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
+import imageCompression from "browser-image-compression";
 
 type Props = {
   value?: string;
@@ -13,13 +14,13 @@ type Props = {
   profileId?: string;
 };
 
-const PRESIGN_ENDPOINT = "/profiles/profile-pic-upload-url";
+const MAX_ORIGINAL_MB = 100;
 
 export default function ProfilePhotoUploader({
   value,
   onChange,
   label = "Profile Photo",
-  maxSizeMB = 5,
+  maxSizeMB = 50,
   profileId,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -45,8 +46,38 @@ export default function ProfilePhotoUploader({
     };
   }, []);
 
-  const handleFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
+  const compressImage = (file: File) =>
+    imageCompression(file, {
+      maxSizeMB: 2.5,
+      maxWidthOrHeight: 2048,
+      initialQuality: 0.92,
+      useWebWorker: true,
+      fileType: "image/jpeg",
+      maxIteration: 12,
+    });
+
+  const safeBase = (name: string) =>
+    (name.split(".").slice(0, -1).join(".") || "photo").replace(/\.+$/, "");
+
+  const presign = async (
+    fileType: string,
+    fileName: string,
+    profileId?: string,
+  ) => {
+    const endpoint = profileId
+      ? `/profiles/profile-pic-upload-url?profileId=${encodeURIComponent(profileId)}`
+      : `/profiles/profile-pic-upload-url`;
+
+    return fetchBackend({
+      endpoint,
+      method: "POST",
+      data: { fileType, fileName },
+      authenticatedCall: true,
+    });
+  };
+
+  const handleFile = async (original: File) => {
+    if (!original.type.startsWith("image/")) {
       toast({
         title: "Invalid file",
         description: "Please choose an image.",
@@ -54,55 +85,87 @@ export default function ProfilePhotoUploader({
       });
       return;
     }
-    const maxBytes = (maxSizeMB ?? 5) * 1024 * 1024;
-    if (file.size > maxBytes) {
+
+    if (original.size > MAX_ORIGINAL_MB * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: `Max ${maxSizeMB}MB.`,
+        description: `Max original size ${MAX_ORIGINAL_MB}MB.`,
         variant: "destructive",
       });
       return;
     }
 
-    const localUrl = URL.createObjectURL(file);
+    const localUrl = URL.createObjectURL(original);
     previewBlobRef.current = localUrl;
     setPreview(localUrl);
     setIsUploading(true);
 
     try {
-      const endpoint = profileId
-        ? `${PRESIGN_ENDPOINT}?profileId=${encodeURIComponent(profileId)}`
-        : PRESIGN_ENDPOINT;
+      const compressed = await compressImage(original);
+      const base = safeBase(original.name);
 
-      const { uploadUrl, publicUrl } = await fetchBackend({
-        endpoint,
+      const { uploadUrl: up1, publicUrl: optimizedUrl } = await fetchBackend({
+        endpoint: profileId
+          ? `/profiles/profile-pic-upload-url?profileId=${encodeURIComponent(profileId)}`
+          : `/profiles/profile-pic-upload-url`,
         method: "POST",
-        data: { fileType: file.type, fileName: file.name },
+        data: {
+          fileType: compressed.type,
+          fileName: `${base}-opt.jpg`,
+          prefix: "optimized",
+        },
         authenticatedCall: true,
       });
-      if (!uploadUrl || !publicUrl)
-        throw new Error("Missing uploadUrl/publicUrl");
+      if (!up1 || !optimizedUrl)
+        throw new Error("Missing presign for optimized");
 
-      const putRes = await fetch(uploadUrl, {
+      const put1 = await fetch(up1, {
         method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
+        headers: { "Content-Type": compressed.type },
+        body: compressed,
       });
-      if (!putRes.ok) throw new Error(`Upload failed (${putRes.status})`);
+      if (!put1.ok) throw new Error(`Optimized upload failed (${put1.status})`);
 
-      onChange(publicUrl);
+      (async () => {
+        try {
+          const { uploadUrl: up2 } = await fetchBackend({
+            endpoint: profileId
+              ? `/profiles/profile-pic-upload-url?profileId=${encodeURIComponent(profileId)}`
+              : `/profiles/profile-pic-upload-url`,
+            method: "POST",
+            data: {
+              fileType: original.type,
+              fileName: original.name,
+              prefix: "original",
+            },
+            authenticatedCall: true,
+          });
+          if (up2) {
+            await fetch(up2, {
+              method: "PUT",
+              headers: { "Content-Type": original.type },
+              body: original,
+            });
+          }
+        } catch {
+          // ignore failures for the archival original
+        }
+      })();
+
+      onChange(optimizedUrl);
       clearPreview();
-
-      toast({ title: "Uploaded", description: "Profile photo updated." });
+      toast({
+        title: "Success",
+        description: "Profile photo uploaded! Click Save to confirm.",
+      });
     } catch (e: any) {
       console.error(e);
+      clearPreview();
       toast({
         title: "Upload error",
         description: e?.message ?? "Something went wrong",
         variant: "destructive",
       });
-
-      clearPreview();
     } finally {
       setIsUploading(false);
     }
