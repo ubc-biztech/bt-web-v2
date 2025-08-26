@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import NFCWriter from "./NFCWriter";
 import styles from "./writer.module.css";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
@@ -119,11 +120,16 @@ const NfcPopupContent = ({
   return (
     <div className={styles.nfcPopupContent}>
       <div className={styles.profileImage}>
-        <img src={image} alt="profile" className="w-full h-full object-cover" />
+        <Image
+          src={image || "/assets/icons/profile_icon.svg"}
+          alt="profile"
+          fill
+          className="object-cover"
+        />
       </div>
 
       <div>
-        {name} does not have a membership card. Swipe up to write to card
+        {name} does not have a membership card.
       </div>
 
       <div onClick={openWriter} className={styles.glassButton}>
