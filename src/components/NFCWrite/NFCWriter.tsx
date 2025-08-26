@@ -107,7 +107,7 @@ const NFCWriter = ({
   // Initialize NFC writing process on component mount
   useEffect(() => {
     mountedRef.current = true;
-    startNfcWrite();
+    initNfcWriter();
 
     // Cleanup function to prevent memory leaks and state updates after unmount
     return () => {
@@ -203,7 +203,7 @@ const NFCWriter = ({
     setErrorMessage("Error reading NFC tag");
   };
 
-  const startNfcWrite = async () => {
+  const initNfcWriter = async () => {
     if (typeof window === "undefined") {
       return;
     }
