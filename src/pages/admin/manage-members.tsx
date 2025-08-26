@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchBackend } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import {
   Table,
   TableBody,
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { SearchIcon, FilterIcon } from "lucide-react";
 import NFCWriter from "@/components/NFCWrite/NFCWriter";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
+import { GetServerSideProps } from "next";
 
 type Member = {
   profileID: string;
@@ -28,11 +29,15 @@ type Member = {
   updatedAt?: number;
 };
 
-export default function ManageMembers() {
-  const [data, setData] = useState<Member[] | null>(null);
+type Props = {
+  initialData: Member[] | null;
+};
+
+export default function ManageMembers({ initialData }: Props) {
+  const [data, setData] = useState<Member[] | null>(initialData);
   const [filteredData, setFilteredData] = useState<Member[] | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
@@ -52,11 +57,6 @@ export default function ManageMembers() {
 
     setFilteredData(filtered);
   }, [data, searchTerm]);
-
-  // Fetch data on component mount
-  useEffect(() => {
-    refreshData();
-  }, []);
 
   const refreshData = async () => {
     try {
@@ -93,7 +93,7 @@ export default function ManageMembers() {
     return (
       <main className="bg-primary-color min-h-screen">
         <div className="mx-auto pt-8 p-5 md:pt-20 md:l-20 md:pr-20 flex flex-col">
-          <div className="text-white">Loading members...</div>
+          <div className="text-white">Refreshing members...</div>
         </div>
       </main>
     );
@@ -216,3 +216,29 @@ export default function ManageMembers() {
     </main>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const nextServerContext = { request: context.req, response: context.res };
+
+  try {
+    const data = await fetchBackendFromServer({
+      endpoint: "/members",
+      method: "GET",
+      authenticatedCall: true,
+      nextServerContext,
+    });
+
+    return {
+      props: {
+        initialData: data || [],
+      },
+    };
+  } catch (error) {
+    console.error("Failed to fetch initial member data:", error);
+    return {
+      props: {
+        initialData: null,
+      },
+    };
+  }
+};
