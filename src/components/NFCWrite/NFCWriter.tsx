@@ -15,19 +15,18 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NFCWriterProps = {
-  token: string; // User ID to write to NFC tag
-  email: string; // User's email
-  firstName: string; // User's first name
-  exit: () => void; // Return to NFCPopup
-  closeAll: () => void; // Close everything, return to QR scanner
-  profileSrc?: string; // User's profile image URL
-  successSubtext?: string; // Custom success message
-  failurePrimary?: string; // Custom primary error message
-  failureSecondary?: string; // Custom secondary error message
+  token: string;
+  email: string;
+  firstName: string;
+  exit: () => void; // close itself
+  closeAll: () => void; // Close all modals leading up to and including itself.
+  profileSrc?: string;
+  successSubtext?: string;
+  failurePrimary?: string;
+  failureSecondary?: string;
   numCards: number; // Number of cards the user has
 };
 
-// Possible states during NFC writing process
 type Status = "ready" | "writing" | "success" | "error" | "not_supported";
 
 /**
@@ -64,10 +63,7 @@ const NFCWriter = ({
   failureSecondary = "Please find a Dev Team member.",
   numCards,
 }: NFCWriterProps) => {
-  // Current state of NFC writing process
   const [status, setStatus] = useState<Status>("ready");
-
-  // Error message to display if writing fails
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   // Reference to timeout for operation timeout handling
@@ -79,7 +75,6 @@ const NFCWriter = ({
   // Tracks if component is still mounted (prevents state updates after unmount)
   const mountedRef = useRef<boolean>(false);
 
-  // Generate consistent profile image if none provided
   const profileImage = useMemo(() => {
     return profileSrc || generateSeededImage(token);
   }, [profileSrc, token]);
@@ -88,14 +83,19 @@ const NFCWriter = ({
   const isSuccess = status === "success";
   const isError = status === "error";
 
-  // Dynamic ring styling for visual feedback
+  const nfcUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
+      ? `https://app.ubcbiztech.com/profile/${token}?scan=true`
+      : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+        ? `http://localhost:3000/profile/${token}?scan=true`
+        : `https://dev.app.ubcbiztech.com/profile/${token}?scan=true`;
+
   const ringClass = useMemo(() => {
     if (isSuccess) return `${styles.rings} ${styles["rings--success"]}`;
     if (isError) return `${styles.rings} ${styles["rings--error"]}`;
     return styles.rings;
   }, [isSuccess, isError]);
 
-  // Dynamic profile image styling for visual feedback
   const profileClass = useMemo(() => {
     if (isSuccess)
       return `${styles.profileImage} ${styles["profileImage--success"]}`;
@@ -113,13 +113,11 @@ const NFCWriter = ({
     return () => {
       mountedRef.current = false;
 
-      // Clear any pending timeouts
       if (timeoutIdRef.current !== null) {
         window.clearTimeout(timeoutIdRef.current);
         timeoutIdRef.current = null;
       }
 
-      // Remove event listeners from NFC reader
       if (readerRef.current) {
         try {
           readerRef.current.removeEventListener("reading", onReading);
@@ -132,7 +130,6 @@ const NFCWriter = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Clears the operation timeout
   const clearOpTimeout = () => {
     if (timeoutIdRef.current !== null) {
       window.clearTimeout(timeoutIdRef.current);
@@ -140,7 +137,7 @@ const NFCWriter = ({
     }
   };
 
-  // Sets a timeout for the NFC operation (10 seconds)
+  // (10 seconds)
   const setOpTimeout = () => {
     clearOpTimeout();
     timeoutIdRef.current = window.setTimeout(() => {
@@ -155,15 +152,13 @@ const NFCWriter = ({
       const ndef = readerRef.current;
       if (!ndef) return;
 
-      // Write user ID to NFC tag as text record
       await ndef.write({
-        records: [{ recordType: "text", data: token }],
+        records: [{ recordType: "text", data: nfcUrl }],
       });
 
       clearOpTimeout();
       if (!mountedRef.current) return;
 
-      // Show success state
       setStatus("success");
 
       // Update user's card count in database (silently handle errors)
@@ -176,20 +171,17 @@ const NFCWriter = ({
           },
         });
       } catch (error) {
-        // Silently handle API errors - don't affect user experience
-        // Log error for debugging purposes only
         console.warn("Failed to update card count in database:", error);
       }
 
       // Auto-close after 3 seconds
       window.setTimeout(() => {
-        if (mountedRef.current) exit();
+        if (mountedRef.current) closeAll();
       }, 3000);
     } catch (error) {
       clearOpTimeout();
       if (!mountedRef.current) return;
 
-      // Show error state with details
       setStatus("error");
       setErrorMessage(
         (error as Error)?.message || "Failed to write to NFC tag",
@@ -206,13 +198,11 @@ const NFCWriter = ({
     setErrorMessage("Error reading NFC tag");
   };
 
-  // Initializes and starts the NFC writing process
   const startNfcWrite = async () => {
     if (typeof window === "undefined") {
       return;
     }
 
-    // Check if device supports Web NFC API
     const hasNFC =
       "NDEFReader" in window &&
       typeof (window as unknown as { NDEFReader?: new () => NDEFReaderLike })
@@ -235,7 +225,6 @@ const NFCWriter = ({
       const ndef = new NDEFReaderCtor();
       readerRef.current = ndef;
 
-      // Set operation timeout and start scanning for NFC tags
       setOpTimeout();
       await ndef.scan();
 
@@ -253,7 +242,6 @@ const NFCWriter = ({
 
   return (
     <div className={styles.writerContainer}>
-      {/* Visual feedback elements - animated rings and profile image */}
       {(status === "ready" ||
         status === "writing" ||
         status === "success" ||
@@ -267,7 +255,6 @@ const NFCWriter = ({
             <div className={styles.ring} style={{ animationDelay: "0.6s" }} />
           </div>
 
-          {/* User's profile picture with status-based styling */}
           <div className={profileClass}>
             <img
               src={profileImage}
@@ -278,7 +265,6 @@ const NFCWriter = ({
         </>
       )}
 
-      {/* Status messages for different stages */}
       {status === "ready" && (
         <div className={styles.statusMessage}>
           <img
@@ -327,9 +313,7 @@ const NFCWriter = ({
         </div>
       )}
 
-      {/* Action buttons at bottom */}
       <div className={styles.bottomActions}>
-        {/* Retry button - only shown on error */}
         {status === "error" && (
           <button
             className={styles.secondaryButton}
@@ -339,7 +323,6 @@ const NFCWriter = ({
           </button>
         )}
 
-        {/* Done button - always visible */}
         <button className={styles.cancelButton} onClick={exit}>
           Done
         </button>
