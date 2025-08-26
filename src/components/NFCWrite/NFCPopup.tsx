@@ -19,12 +19,12 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NfcPopupProps = {
-  firstName: string; // User's first name
-  email: string; // User's email
-  uuid: string; // User's unique identifier
-  image?: string; // Optional profile image URL
-  exit: () => void; // Function to close popup and return to QR scanner
-  numCards: number; // Number of cards the user has
+  firstName: string;
+  email: string;
+  uuid: string;
+  image?: string;
+  exit: () => void;
+  numCards: number;
 };
 
 const NfcPopup: React.FC<NfcPopupProps> = ({
@@ -35,23 +35,17 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
   exit,
   numCards,
 }: NfcPopupProps) => {
-  // Controls whether to show NFCWriter component
   const [showWriter, setShowWriter] = useState(false);
-
-  // Get NFC support status from hook
   const { isNFCSupported } = useNFCSupport();
 
-  // Generate consistent profile image if none provided
   const profileImage = useMemo(() => {
     return image || generateSeededImage(uuid);
   }, [image, uuid]);
 
-  // Opens NFCWriter component for actual tag writing
   const openWriter = () => {
     setShowWriter(true);
   };
-
-  // Returns to popup view from NFCWriter
+  // returns to popup view
   const closeWriter = () => {
     setShowWriter(false);
   };
@@ -64,7 +58,6 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 
   return (
     <>
-      {/* NFCWriter component - handles actual NFC tag writing */}
       {showWriter && (
         <NFCWriter
           token={uuid}
@@ -79,10 +72,8 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 
       {/* Show appropriate content based on device support */}
       {!isNFCSupported ? (
-        // Device doesn't support NFC - show manual instructions
         <DeviceNotSupported name={firstName} manualWrite={false} exit={exit} />
       ) : (
-        // Device supports NFC - show writing interface
         <div>
           <NfcPopupContent
             name={firstName}
@@ -135,17 +126,14 @@ const NfcPopupContent = ({
 }) => {
   return (
     <div className={styles.nfcPopupContent}>
-      {/* User's profile picture */}
       <div className={styles.profileImage}>
         <img src={image} alt="profile" className="w-full h-full object-cover" />
       </div>
 
-      {/* Instructions for user */}
       <div>
         {name} does not have a membership card. Swipe up to write to card
       </div>
 
-      {/* Button to start NFC writing process */}
       <div onClick={openWriter} className={styles.glassButton}>
         Write to Card
       </div>
