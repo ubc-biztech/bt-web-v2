@@ -65,17 +65,17 @@ export type AttendeeBasicInformation = BasicInformation & {
 };
 
 export type MembershipBasicInformation = BasicInformation & {
-    membershipType: string;
-    year: string;
-    faculty: string;
-    major: string;
-    pronouns: string;
-    dietaryRestrictions: string;
-    isInternational: string;
-    wasPreviousMember: string;
-    topicsOfInterest: string;
-    heardFrom: string;
-  };
+  membershipType: string;
+  year: string;
+  faculty: string;
+  major: string;
+  pronouns: string;
+  dietaryRestrictions: string;
+  isInternational: string;
+  wasPreviousMember: string;
+  topicsOfInterest: string;
+  heardFrom: string;
+};
 
 export type Registration = {
   "eventID;year": string;
