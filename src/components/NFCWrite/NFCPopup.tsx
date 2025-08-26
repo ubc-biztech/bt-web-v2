@@ -72,7 +72,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 
       {/* Show appropriate content based on device support */}
       {!isNFCSupported ? (
-        <DeviceNotSupported name={firstName} manualWrite={false} exit={exit} />
+        <DeviceNotSupported name={firstName} exit={exit} />
       ) : (
         <div>
           <NfcPopupContent
@@ -89,24 +89,18 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
 // Component shown when device doesn't support NFC
 const DeviceNotSupported = ({
   name,
-  manualWrite,
   exit,
 }: {
   name: string;
-  manualWrite: boolean;
   exit: () => void;
 }) => {
   return (
     <div className={styles.nfcPopupContent}>
-      {manualWrite ? (
-        <div>Device not compatible, please find a anroid device to help.</div>
-      ) : (
-        <div>
-          {name} does not have a Membership Card.
-          <br></br>
-          Refer them to an exec with an android device to help.
-        </div>
-      )}
+      <div>
+        {name} does not have a Membership Card.
+        <br></br>
+        Refer them to an exec with an android device to help.
+      </div>
       <button onClick={exit} className={styles.glassButton}>
         close
       </button>
