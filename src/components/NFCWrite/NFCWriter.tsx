@@ -121,6 +121,11 @@ const NFCWriter = ({
       if (readerRef.current) {
         try {
           readerRef.current.removeEventListener("reading", onReading);
+        } catch {
+          // Ignore errors during cleanup
+        }
+
+        try {
           readerRef.current.removeEventListener("readingerror", onReadingError);
         } catch {
           // Ignore errors during cleanup
