@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { fetchBackend } from "@/lib/db";
-import { Portal } from "./Portal";
 import styles from "./writer.module.css";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
@@ -249,105 +248,103 @@ export const NFCWriter = ({
   };
 
   return (
-    <Portal containerId="nfc-writer-portal">
-      <div className={styles.writerContainer}>
-        {(status === "ready" ||
-          status === "writing" ||
-          status === "success" ||
-          status === "error") && (
-          <>
-            {/* Animated rings that change color based on status */}
-            <div className={ringClass}>
-              <div className={styles.ring} />
-              <div className={styles.ring} style={{ animationDelay: "0.2s" }} />
-              <div className={styles.ring} style={{ animationDelay: "0.4s" }} />
-              <div className={styles.ring} style={{ animationDelay: "0.6s" }} />
-            </div>
+    <div className={styles.writerContainer}>
+      {(status === "ready" ||
+        status === "writing" ||
+        status === "success" ||
+        status === "error") && (
+        <>
+          {/* Animated rings that change color based on status */}
+          <div className={ringClass}>
+            <div className={styles.ring} />
+            <div className={styles.ring} style={{ animationDelay: "0.2s" }} />
+            <div className={styles.ring} style={{ animationDelay: "0.4s" }} />
+            <div className={styles.ring} style={{ animationDelay: "0.6s" }} />
+          </div>
 
-            <div className={profileClass}>
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </>
-        )}
-
-        {status === "ready" && (
-          <div className={styles.statusMessage}>
+          <div className={profileClass}>
             <img
-              className={styles["card-image"]}
-              src="/assets/icons/nfc_write_icon.png"
-              alt="Card"
+              src={profileImage}
+              alt="Profile"
+              className="w-full h-full object-cover"
             />
-            Hold Card Close to Your Device
           </div>
-        )}
+        </>
+      )}
 
-        {status === "writing" && (
-          <div className={styles.statusMessage}>
-            <img
-              className={styles["card-image"]}
-              src="/assets/icons/nfc_write_icon.png"
-              alt="Card"
-            />
-            Hold Card Close to Your Device
-          </div>
-        )}
-
-        {status === "success" && (
-          <div className={`${styles.statusMessage} ${styles.successMessage}`}>
-            <div className={styles.successTitle}>Success!</div>
-            <div className={styles.successSubtext}>
-              {successSubtext ?? "Hand the card to " + firstName}
-            </div>
-          </div>
-        )}
-
-        {status === "error" && (
-          <div className={`${styles.statusMessage} ${styles.failureMessage}`}>
-            <div className={styles.failureTitle}>{failurePrimary}</div>
-            <div className={styles.failureSubtext}>
-              {failureSecondary}
-              <br />
-              {errorMessage ? errorMessage : ""}
-            </div>
-          </div>
-        )}
-
-        {status === "not_supported" && (
-          <div className={`${styles.statusMessage} ${styles.error}`}>
-            NFC is not supported on this device
-          </div>
-        )}
-
-        {status === "loading" && (
-          <div className={styles.statusMessage}>
-            <img
-              className={styles["card-image"]}
-              src="/assets/icons/nfc_write_icon.png"
-              alt="Card"
-            />
-            Checking NFC Support...
-          </div>
-        )}
-
-        <div className={styles.bottomActions}>
-          {status === "error" && (
-            <button
-              className={styles.secondaryButton}
-              onClick={() => setStatus("ready")}
-            >
-              Try Again
-            </button>
-          )}
-
-          <button className={styles.cancelButton} onClick={closeAll}>
-            Done
-          </button>
+      {status === "ready" && (
+        <div className={styles.statusMessage}>
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
+          Hold Card Close to Your Device
         </div>
+      )}
+
+      {status === "writing" && (
+        <div className={styles.statusMessage}>
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
+          Hold Card Close to Your Device
+        </div>
+      )}
+
+      {status === "success" && (
+        <div className={`${styles.statusMessage} ${styles.successMessage}`}>
+          <div className={styles.successTitle}>Success!</div>
+          <div className={styles.successSubtext}>
+            {successSubtext ?? "Hand the card to " + firstName}
+          </div>
+        </div>
+      )}
+
+      {status === "error" && (
+        <div className={`${styles.statusMessage} ${styles.failureMessage}`}>
+          <div className={styles.failureTitle}>{failurePrimary}</div>
+          <div className={styles.failureSubtext}>
+            {failureSecondary}
+            <br />
+            {errorMessage ? errorMessage : ""}
+          </div>
+        </div>
+      )}
+
+      {status === "not_supported" && (
+        <div className={`${styles.statusMessage} ${styles.error}`}>
+          NFC is not supported on this device
+        </div>
+      )}
+
+      {status === "loading" && (
+        <div className={styles.statusMessage}>
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
+          Checking NFC Support...
+        </div>
+      )}
+
+      <div className={styles.bottomActions}>
+        {status === "error" && (
+          <button
+            className={styles.secondaryButton}
+            onClick={() => setStatus("ready")}
+          >
+            Try Again
+          </button>
+        )}
+
+        <button className={styles.cancelButton} onClick={closeAll}>
+          Done
+        </button>
       </div>
-    </Portal>
+    </div>
   );
 };
