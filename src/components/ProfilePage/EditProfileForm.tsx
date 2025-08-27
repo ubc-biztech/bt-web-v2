@@ -10,6 +10,7 @@ import { fetchBackend } from "@/lib/db";
 import { z } from "zod";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormTextarea } from "./FormComponents/FormTextarea";
+import ProfilePhotoUploader from "@/components/ProfilePage/ProfilePhotoUploader";
 
 export const profileFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -177,12 +178,16 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
-              <FormInput
-                name="profilePictureURL"
-                label="Profile Picture URL"
-                placeholder="https://example.com/your-photo.jpg"
-                control={form.control}
-                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              <ProfilePhotoUploader
+                value={form.watch("profilePictureURL")}
+                onChange={(url) =>
+                  form.setValue("profilePictureURL", url, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+                label="Profile Photo"
+                maxSizeMB={5}
               />
             </div>
 

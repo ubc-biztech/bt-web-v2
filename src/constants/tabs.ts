@@ -10,6 +10,7 @@ import {
   ScanBarcode,
   UserCircle2,
   ScanFace,
+  BadgeCheckIcon,
 } from "lucide-react";
 
 export const admin = [
@@ -25,7 +26,7 @@ export const admin = [
   },
   {
     title: "Statistics",
-    link: "",
+    link: "/admin/statistics",
     icon: LineChartIcon,
   },
   {

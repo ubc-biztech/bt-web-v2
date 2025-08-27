@@ -39,6 +39,7 @@
     "@types/pdfmake": "^0.2.9",
     "@types/qrcode": "^1.5.5",
     "aws-amplify": "^6.3.8",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.4.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

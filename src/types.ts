@@ -166,3 +166,26 @@ export type BackendProfile = {
   companyProfileID?: string;
   companyProfilePictureURL?: string;
 };
+
+export type Member = {
+  id: string;
+  admin: boolean;
+  createdAt: number;
+  diet: string;
+  discordId?: string;
+  education: string;
+  faculty: string;
+  firstName: string;
+  heardFrom: string;
+  international: boolean;
+  lastName: string;
+  major: string;
+  prevMember: boolean;
+  profileID: string;
+  pronouns: string;
+  studentNumber: string;
+  topics: string;
+  university: string;
+  updatedAt: number;
+  year: string;
+};
