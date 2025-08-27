@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { NFCWriter } from "./NFCWriter";
+import { Portal } from "./Portal";
 import styles from "./writer.module.css";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
@@ -59,7 +60,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
   };
 
   return (
-    <>
+    <Portal>
       {showWriter && (
         <NFCWriter
           token={uuid}
@@ -84,7 +85,7 @@ const NfcPopup: React.FC<NfcPopupProps> = ({
           />
         </div>
       )}
-    </>
+    </Portal>
   );
 };
 
