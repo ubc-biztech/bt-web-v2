@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from "react";
 import { fetchBackend } from "@/lib/db";
 import styles from "./writer.module.css";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
+import { useNFCSupport } from "@/hooks/useNFCSupport";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -28,7 +29,13 @@ type NFCWriterProps = {
   numCards: number; // Number of cards the user has
 };
 
-type Status = "ready" | "writing" | "success" | "error" | "not_supported";
+type Status =
+  | "ready"
+  | "writing"
+  | "success"
+  | "error"
+  | "not_supported"
+  | "loading";
 
 /**
  * Type definitions for Web NFC API
@@ -64,8 +71,9 @@ export const NFCWriter = ({
   failureSecondary = "Please find a Dev Team member.",
   numCards,
 }: NFCWriterProps) => {
-  const [status, setStatus] = useState<Status>("ready");
+  const [status, setStatus] = useState<Status>("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const { isNFCSupported, isLoading } = useNFCSupport();
 
   // Reference to timeout for operation timeout handling
   const timeoutIdRef = useRef<number | null>(null);
@@ -103,7 +111,15 @@ export const NFCWriter = ({
   // Initialize NFC writing process on component mount
   useEffect(() => {
     mountedRef.current = true;
-    initNfcWriter();
+
+    if (isLoading) {
+      setStatus("loading");
+    } else if (isNFCSupported) {
+      setStatus("ready");
+      initNfcWriter();
+    } else {
+      setStatus("not_supported");
+    }
 
     // Cleanup function to prevent memory leaks and state updates after unmount
     return () => {
@@ -129,7 +145,7 @@ export const NFCWriter = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isNFCSupported, isLoading]);
 
   const clearOpTimeout = () => {
     if (timeoutIdRef.current !== null) {
@@ -201,16 +217,6 @@ export const NFCWriter = ({
 
   const initNfcWriter = async () => {
     if (typeof window === "undefined") {
-      return;
-    }
-
-    const hasNFC =
-      "NDEFReader" in window &&
-      typeof (window as unknown as { NDEFReader?: new () => NDEFReaderLike })
-        .NDEFReader === "function";
-
-    if (!hasNFC) {
-      setStatus("not_supported");
       return;
     }
 
@@ -311,6 +317,17 @@ export const NFCWriter = ({
       {status === "not_supported" && (
         <div className={`${styles.statusMessage} ${styles.error}`}>
           NFC is not supported on this device
+        </div>
+      )}
+
+      {status === "loading" && (
+        <div className={styles.statusMessage}>
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
+          Checking NFC Support...
         </div>
       )}
 
