@@ -52,7 +52,7 @@ type NDEFReaderLike = {
   ) => void;
 };
 
-const NFCWriter = ({
+export const NFCWriter = ({
   token,
   email,
   firstName,
@@ -331,5 +331,3 @@ const NFCWriter = ({
     </div>
   );
 };
-
-export { NFCWriter };
