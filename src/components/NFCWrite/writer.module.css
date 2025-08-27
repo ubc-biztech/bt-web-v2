@@ -1,5 +1,3 @@
-
-
 /* Mobile-specific viewport handling */
 @media screen and (max-width: 768px) {
   .writerContainer,
@@ -20,7 +18,7 @@
     /* Ensure proper z-index stacking */
     z-index: 9999 !important;
   }
-  
+
   /* Handle mobile safe areas */
   .writerContainer {
     padding-top: env(safe-area-inset-top);
@@ -28,66 +26,66 @@
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  
+
   .nfcPopupContent {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: calc(1rem + env(safe-area-inset-left));
     padding-right: calc(1rem + env(safe-area-inset-right));
   }
-  
+
   /* Mobile-specific button positioning */
   .bottomActions {
     bottom: calc(3rem + env(safe-area-inset-bottom)) !important;
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
   }
-  
+
   .glassButton {
     bottom: calc(6rem + env(safe-area-inset-bottom)) !important;
     padding-left: calc(1rem + env(safe-area-inset-left));
     padding-right: calc(1rem + env(safe-area-inset-right));
   }
-  
+
   /* Ensure buttons are properly sized on mobile */
   .cancelButton,
   .secondaryButton {
     min-height: 44px !important; /* iOS minimum touch target */
     min-width: 44px !important;
   }
-  
+
   /* Mobile-specific profile image positioning */
   .profileImage {
     top: calc(2rem + env(safe-area-inset-top)) !important;
   }
-  
+
   .profileImage--success,
   .profileImage--error {
     top: calc(38% + env(safe-area-inset-top)) !important;
   }
-  
+
   /* Mobile-specific rings positioning */
   .rings {
     top: calc(5rem + env(safe-area-inset-top)) !important;
   }
-  
+
   .rings--success,
   .rings--error {
     top: calc(38% + env(safe-area-inset-top)) !important;
   }
-  
+
   /* Adjust ring sizes for mobile */
   .rings {
     width: 350px !important;
     height: 350px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     width: 450px !important;
     height: 450px !important;
   }
-  
+
   /* Mobile-specific status message positioning */
   .statusMessage {
     font-size: 1rem !important;
@@ -95,35 +93,35 @@
     padding-left: 1rem !important;
     padding-right: 1rem !important;
   }
-  
+
   .successMessage,
   .failureMessage {
     top: calc(56% + env(safe-area-inset-top)) !important;
   }
-  
+
   .successTitle,
   .failureTitle {
     font-size: 2.5rem !important;
   }
-  
+
   /* Mobile-specific card image sizing */
   .card-image {
     width: 80px !important;
     height: 80px !important;
   }
-  
+
   /* Mobile-specific device not supported content */
   .deviceNotSupportedContent {
     padding: 1rem !important;
     gap: 1rem !important;
   }
-  
+
   .nfcPopupTitle {
     font-size: 14px !important;
     padding: 12px !important;
     margin-bottom: 16px !important;
   }
-  
+
   .copyButton {
     min-height: 44px !important;
     padding: 12px 16px !important;
@@ -141,29 +139,29 @@
     min-height: 100vh !important;
     min-width: 100vw !important;
   }
-  
+
   /* Adjust positioning for landscape */
   .profileImage {
     top: calc(1rem + env(safe-area-inset-top)) !important;
   }
-  
+
   .rings {
     top: calc(3rem + env(safe-area-inset-top)) !important;
     width: 300px !important;
     height: 300px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     top: calc(30% + env(safe-area-inset-top)) !important;
     width: 400px !important;
     height: 400px !important;
   }
-  
+
   .bottomActions {
     bottom: calc(2rem + env(safe-area-inset-bottom)) !important;
   }
-  
+
   .glassButton {
     bottom: calc(4rem + env(safe-area-inset-bottom)) !important;
   }
@@ -188,35 +186,35 @@
     min-width: 100vw !important;
     min-height: 100vh !important;
   }
-  
+
   /* Adjust sizes for small screens */
   .rings {
     width: 280px !important;
     height: 280px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     width: 350px !important;
     height: 350px !important;
   }
-  
+
   .profileImage {
     width: 90px !important;
     height: 90px !important;
   }
-  
+
   .profileImage--success,
   .profileImage--error {
     width: 110px !important;
     height: 110px !important;
   }
-  
+
   .successTitle,
   .failureTitle {
     font-size: 2rem !important;
   }
-  
+
   .statusMessage {
     font-size: 0.9rem !important;
   }
@@ -296,7 +294,7 @@
     height: 100vh !important;
     min-height: 100vh !important;
   }
-  
+
   /* Ensure portal containers also use dynamic viewport */
   #portal-root,
   #nfc-writer-portal {
@@ -316,29 +314,29 @@
     min-height: 500px !important;
     height: 100vh !important;
   }
-  
+
   /* Adjust positioning for small heights */
   .profileImage {
     top: 1rem !important;
   }
-  
+
   .rings {
     top: 2rem !important;
     width: 250px !important;
     height: 250px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     top: 25% !important;
     width: 300px !important;
     height: 300px !important;
   }
-  
+
   .bottomActions {
     bottom: 1rem !important;
   }
-  
+
   .glassButton {
     bottom: 3rem !important;
   }
@@ -354,7 +352,7 @@
     padding-left: max(env(safe-area-inset-left), 0px);
     padding-right: max(env(safe-area-inset-right), 0px);
   }
-  
+
   /* Ensure portal containers also handle safe areas */
   #portal-root,
   #nfc-writer-portal {
@@ -393,7 +391,7 @@
     right: 0 !important;
     bottom: 0 !important;
   }
-  
+
   /* Ensure portal containers also handle split-screen */
   #portal-root,
   #nfc-writer-portal {
@@ -412,20 +410,20 @@
     height: 100vh !important;
     min-height: 100vh !important;
   }
-  
+
   /* Adjust positioning for wide screens */
   .profileImage {
     top: 1.5rem !important;
   }
-  
+
   .rings {
     top: 3rem !important;
   }
-  
+
   .bottomActions {
     bottom: 2rem !important;
   }
-  
+
   .glassButton {
     bottom: 4rem !important;
   }
@@ -433,31 +431,31 @@
 
 /* Handle high DPI displays and different scaling */
 @media screen and (-webkit-min-device-pixel-ratio: 2),
-       screen and (min-resolution: 192dpi) {
+  screen and (min-resolution: 192dpi) {
   .writerContainer,
   .nfcPopupContent {
     /* Ensure crisp rendering on high DPI displays */
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
   }
-  
+
   /* Adjust sizes for high DPI displays */
   .rings {
     width: 400px !important;
     height: 400px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     width: 500px !important;
     height: 500px !important;
   }
-  
+
   .profileImage {
     width: 120px !important;
     height: 120px !important;
   }
-  
+
   .profileImage--success,
   .profileImage--error {
     width: 140px !important;
@@ -511,35 +509,35 @@
     min-width: 320px !important;
     min-height: 568px !important;
   }
-  
+
   /* Adjust sizes for very small screens */
   .rings {
     width: 250px !important;
     height: 250px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     width: 300px !important;
     height: 300px !important;
   }
-  
+
   .profileImage {
     width: 80px !important;
     height: 80px !important;
   }
-  
+
   .profileImage--success,
   .profileImage--error {
     width: 100px !important;
     height: 100px !important;
   }
-  
+
   .successTitle,
   .failureTitle {
     font-size: 1.8rem !important;
   }
-  
+
   .statusMessage {
     font-size: 0.8rem !important;
   }
@@ -553,24 +551,24 @@
     max-width: 100vw !important;
     max-height: 100vh !important;
   }
-  
+
   /* Adjust sizes for large screens */
   .rings {
     width: 500px !important;
     height: 500px !important;
   }
-  
+
   .rings--success,
   .rings--error {
     width: 600px !important;
     height: 600px !important;
   }
-  
+
   .profileImage {
     width: 130px !important;
     height: 130px !important;
   }
-  
+
   .profileImage--success,
   .profileImage--error {
     width: 150px !important;
