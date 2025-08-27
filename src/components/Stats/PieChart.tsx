@@ -53,7 +53,6 @@ const PieChart: React.FC<PieChartProps> = ({
       textStyle: {
         color: "white",
         bold: false,
-        fontName: "Poppins",
       },
     },
     title,
@@ -62,13 +61,11 @@ const PieChart: React.FC<PieChartProps> = ({
       bold: true,
       alignment: "left",
       color: "white",
-      fontName: "Poppins",
     },
     tooltip: {
       textStyle: {
         color: "black",
         bold: false,
-        fontName: "Poppins",
       },
       showColorCode: true,
     },
@@ -78,7 +75,6 @@ const PieChart: React.FC<PieChartProps> = ({
       width: "100%",
       height: "100%",
     },
-    fontName: "Poppins",
   };
 
   return (

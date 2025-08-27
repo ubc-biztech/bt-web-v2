@@ -49,13 +49,11 @@ const BarChart: React.FC<BarChartProps> = ({
       bold: true,
       alignment: "left",
       color: "white",
-      fontName: "Poppins",
     },
     tooltip: {
       textStyle: {
         color: "black",
         bold: false,
-        fontName: "Poppins",
       },
       showColorCode: true,
     },
@@ -65,7 +63,6 @@ const BarChart: React.FC<BarChartProps> = ({
         fontSize: "16rem",
         alignment: "left",
         color: "#C4D5FF",
-        fontName: "Poppins",
       },
       gridlines: {
         color: "#8997B8",
@@ -81,7 +78,6 @@ const BarChart: React.FC<BarChartProps> = ({
         fontSize: "16rem",
         alignment: "left",
         color: "#C4D5FF",
-        fontName: "Poppins",
       },
       gridlines: {
         color: "#8997B8",
@@ -91,7 +87,6 @@ const BarChart: React.FC<BarChartProps> = ({
         color: "#8997B8",
       },
     },
-    fontName: "Poppins",
   };
 
   return (
