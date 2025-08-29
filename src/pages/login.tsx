@@ -202,11 +202,12 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
         <div className="bg-bt-blue-400 px-6 py-12 shadow rounded-lg sm:px-12">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <Image
-              className="mx-auto w-auto"
-              height={96}
-              width={96}
-              src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
+              className="mx-auto"
+              height={150}
+              width={150}
+              src="/assets/biztech_logo.svg"
               alt="BizTech Logo"
+              // loading="eager"
             />
             <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
               Sign in

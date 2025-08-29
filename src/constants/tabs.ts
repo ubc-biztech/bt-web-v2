@@ -9,6 +9,7 @@ import {
   PlusSquareIcon,
   ScanBarcode,
   UserCircle2,
+  Users,
   ScanFace,
   BadgeCheckIcon,
 } from "lucide-react";
@@ -23,6 +24,11 @@ export const admin = [
     title: "New Event",
     link: "/admin/event/new",
     icon: PlusSquareIcon,
+  },
+  {
+    title: "Manage Members",
+    link: "/admin/manage-members",
+    icon: Users,
   },
   {
     title: "Statistics",

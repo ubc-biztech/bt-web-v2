@@ -153,11 +153,16 @@ const config: Config = {
           "50%": { backgroundPosition: "100% 50%" },
           "100%": { backgroundPosition: "0% 50%" },
         },
+        rings: {
+          "0%": { transform: "scale(1)" },
+          "100%": { transform: "scale(1.12)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         gradient: "nameGradient 6s ease infinite",
+        rings: "rings 2s ease-in-out infinite alternate",
       },
     },
   },

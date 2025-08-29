@@ -19,6 +19,9 @@ export const CAMERA_FACING_MODE = {
 // cycle delay in MS
 export const SCAN_CYCLE_DELAY = 5000;
 
+// REGISTRATION STATUS CONSTANTS: Define all possible states for participant registrations
+// CHECKED_IN is the key status that indicates a participant has been successfully checked into an event
+// This status can be set either through QR code scanning or manual updates in the registration table
 export const REGISTRATION_STATUS = {
   REGISTERED: "registered",
   CHECKED_IN: "checkedIn",

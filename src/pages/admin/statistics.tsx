@@ -64,9 +64,13 @@ export default function MembershipsPage({ membersData }: Props) {
           </span>
           <div className="bg-navbar-tab-hover-bg h-[1px] my-4 flex gap-0 flex-col lg:flex-row lg:gap-4" />
           {/* Type of Member - Field doesn't exist in either type */}
-          {/* <ChartBox height="300px" title="Type of Member">
-            {memberData && <PieChart data={getFieldCounts(memberData, "")} />}
-          </ChartBox> */}
+          <div className="xl:col-span-2">
+            <ChartBox height="300px" title="Type of Member">
+              {membersData && (
+                <BarChart data={getFieldCounts(membersData, "education")} />
+              )}
+            </ChartBox>
+          </div>
 
           <ChartBox height="300px" title="Academic Year Level">
             {membersData && (

@@ -22,7 +22,8 @@ interface MembershipFormValues {
   email: string;
   firstName: string;
   lastName: string;
-  studentNumber: string;
+  studentNumber?: string;
+  education: string;
   pronouns: string;
   levelOfStudy: string;
   faculty: string;
@@ -40,27 +41,39 @@ interface MembershipProps {
 
 Amplify.configure(outputs, { ssr: true });
 
-const validationSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  studentNumber: z
-    .string()
-    .regex(/^\d{8}$/, "Student number must be an 8 digit number"),
-  pronouns: z.string().min(1, "Please select your pronouns"),
-  levelOfStudy: z.string().min(1, "Level of study is required"),
-  faculty: z.string().min(1, "Faculty is required"),
-  major: z.string().min(1, "Major is required"),
-  internationalStudent: z
-    .string()
-    .min(1, "Please specify if you are an international student"),
-  previousMember: z
-    .string()
-    .min(1, "Please specify if you were a previous member"),
-  dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
-  referral: z.string().min(1, "Referral source is required"),
-  topics: z.array(z.string()),
-});
+const validationSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    education: z.string().min(1, "Education selection is required"),
+    studentNumber: z.string().optional(),
+    pronouns: z.string().min(1, "Please select your pronouns"),
+    levelOfStudy: z.string().min(1, "Level of study is required"),
+    faculty: z.string().min(1, "Faculty is required"),
+    major: z.string().min(1, "Major is required"),
+    internationalStudent: z
+      .string()
+      .min(1, "Please specify if you are an international student"),
+    previousMember: z
+      .string()
+      .min(1, "Please specify if you were a previous member"),
+    dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
+    referral: z.string().min(1, "Referral source is required"),
+    topics: z.array(z.string()),
+  })
+  .refine(
+    (data) => {
+      if (data.education === "UBC") {
+        return data.studentNumber && /^\d{8}$/.test(data.studentNumber);
+      }
+      return true;
+    },
+    {
+      message: "Student number must be an 8 digit number for UBC students",
+      path: ["studentNumber"],
+    },
+  );
 
 const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   const [email, setEmail] = useState("");
@@ -73,6 +86,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
       email: email,
       firstName: "",
       lastName: "",
+      education: "",
       studentNumber: "",
       pronouns: "",
       levelOfStudy: "",
@@ -114,7 +128,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
       lname: values.lastName,
       studentId: values.studentNumber,
       gender: values.pronouns,
-      education: "University",
+      education: values.education,
       faculty: values.faculty,
       major: values.major,
       diet: values.dietaryRestrictions || "None",
@@ -309,16 +323,43 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
 
                 <FormField
                   control={methods.control}
-                  name="studentNumber"
+                  name="education"
                   render={({ field }) => (
                     <FormItem>
-                      <FormInput
-                        title="Student Number *"
+                      <FormSelect
+                        title="Education *"
                         field={field}
-                        type="text"
+                        items={[
+                          { label: "I'm a UBC student", value: "UBC" },
+                          { label: "I'm a university student", value: "UNI" },
+                          { label: "Not Applicable", value: "NA" },
+                        ]}
                       />
                     </FormItem>
                   )}
+                />
+
+                <FormField
+                  control={methods.control}
+                  name="studentNumber"
+                  render={({ field }) => {
+                    const education = methods.watch("education");
+                    const isRequired = education === "UBC";
+                    return (
+                      <FormItem>
+                        <FormInput
+                          title={`Student Number${isRequired ? " *" : ""}`}
+                          field={field}
+                          type="text"
+                          placeholder={
+                            isRequired
+                              ? "Enter 8-digit student number"
+                              : "Optional"
+                          }
+                        />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 <FormField
@@ -468,18 +509,32 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                   render={({ field }) => (
                     <FormItem>
                       <FormMultiSelect
-                        title="What topics do you want to see discussed in future events?"
+                        title="Which business or tech career paths are you interested in?"
                         field={field}
                         items={[
-                          { value: "Cyber Security", label: "Cyber Security" },
-                          { value: "AI", label: "AI" },
-                          { value: "Tech Startups", label: "Tech Startups" },
-                          { value: "eCommerce", label: "eCommerce" },
-                          { value: "Health Tech", label: "Health Tech" },
                           {
-                            value: "Careers in the Tech Industry",
-                            label: "Careers in the Tech Industry",
+                            value: "Software Engineering",
+                            label: "Software Engineering",
                           },
+                          {
+                            value: "Product Management",
+                            label: "Product Management",
+                          },
+                          { value: "Consulting", label: "Consulting" },
+                          {
+                            value: "Data Science & Analytics",
+                            label: "Data Science & Analytics",
+                          },
+                          {
+                            value: "Entrepreneurship/Startups",
+                            label: "Entrepreneurship/Startups",
+                          },
+                          {
+                            value: "Marketing/Business Development",
+                            label: "Marketing/Business Development",
+                          },
+                          { value: "UX/UI Design", label: "UX/UI Design" },
+                          { value: "Other", label: "Other" },
                         ]}
                       />
                     </FormItem>

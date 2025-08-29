@@ -101,7 +101,9 @@ const ProfilePage = ({
     description,
   } = profileData;
 
-  const questions = [funQuestion1, funQuestion2];
+  const questions = [funQuestion1, funQuestion2].filter((q) => {
+    return !!q;
+  });
 
   const UserExternalLinks = () => (
     <div className="grid grid-cols-1 gap-4">
