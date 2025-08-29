@@ -149,16 +149,18 @@ export const EventForm: React.FC<EventFormProps> = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-8"
           >
-            <div className="grid grid-cols-2 gap-16">
-              <EventPreview form={form} />
-              <div className="space-y-6 bg-[#253251] container py-10 rounded-md">
+            <div className="grid grid-rows-2 xl:grid-rows-none grid-cols-1 xl:grid-cols-2 gap-16">
+              <div className="xl:col-start-1">
+                <EventPreview form={form} />
+              </div>
+              <div className="row-start-1 xl:col-start-2 space-y-6 bg-[#253251] container py-10 rounded-md">
                 {initialData && (
                   <>
                     <div className="space-y-4">
+                      <h3 className="font-semibold text-white">
+                        Edit Event - {form.watch("eventName")}
+                      </h3>
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-white">
-                          Edit Event - {form.watch("eventName")}
-                        </h3>
                         <div className="flex gap-2">
                           <FormCheckbox
                             name="isPublished"
@@ -221,7 +223,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                         </Link>
                       </div>
 
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 flex-wrap">
                         <Button variant="green" type="submit">
                           Save
                         </Button>
