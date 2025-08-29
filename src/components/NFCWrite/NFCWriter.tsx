@@ -170,7 +170,7 @@ export const NFCWriter = ({
       if (!ndef) return;
 
       await ndef.write({
-        records: [{ recordType: "text", data: nfcUrl }],
+        records: [{ recordType: "url", data: nfcUrl }],
       });
 
       clearOpTimeout();
