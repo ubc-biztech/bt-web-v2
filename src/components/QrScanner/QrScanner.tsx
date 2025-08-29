@@ -17,6 +17,23 @@ import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
+import NFCPopup from "../NFCWrite/NFCPopup";
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+
+/**
+ * MAIN EVENT CHECK-IN COMPONENT
+ * This component handles QR code-based check-ins for event participants.
+ * It scans QR codes containing participant information and validates them before checking in.
+ *
+ * Check-in Process:
+ * 1. Scans QR code with format: email;event_id;year;first_name
+ * 2. Validates participant is registered for the event
+ * 3. Checks registration status (prevents duplicate check-ins)
+ * 4. Updates registration status to "checkedIn" via API call
+ * 5. Checks if user needs NFC membership card
+ * 6. If needed, launches NFC writer modal (NFCPopup)
+ * 7. Provides visual feedback for success/failure states
+ */
 
 // an enumeration for the stages of QR code scanning
 const QrCheckIn: React.FC<QrProps> = ({
@@ -25,6 +42,7 @@ const QrCheckIn: React.FC<QrProps> = ({
   isQrReaderToggled,
   setQrReaderToggled,
 }) => {
+  // State for QR code scanning and processing
   const defaultQrCode = {
     data: "",
   };
@@ -36,7 +54,15 @@ const QrCheckIn: React.FC<QrProps> = ({
   );
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
+  const [profileID, setProfileID] = useState<string | null>(null);
 
+  // NFC popup state - controls when to show membership card writing interface
+  const [showNfcPopup, setShowNfcPopup] = useState(false);
+
+  // Use the custom hook for checking if user needs a card
+  const { checkUserNeedsCard } = useUserNeedsCard();
+
+  // Main QR code processing effect - triggers when QR text is scanned
   useEffect(() => {
     if (
       !qrCode ||
@@ -46,20 +72,36 @@ const QrCheckIn: React.FC<QrProps> = ({
     )
       return;
 
-    // data is arranged: email;event_id;year
-    // id is the array of the data split by ";"
+    // Parse QR code data: email;event_id;year;first_name
     const id = qrCodeText.split(";");
     const userID = id[0];
     const eventIDAndYear = id[1] + ";" + id[2];
     const userFName = id[3];
 
+    // Validate the scanned QR code before proceeding
     if (!isCheckInValid(id, userID, eventIDAndYear)) {
       return;
     }
 
-    checkInUser(userID, userFName);
+    // Process the check-in asynchronously
+    (async () => {
+      await checkInUser(userID, userFName);
+    })();
   }, [qrCodeText]);
 
+  // Cleanup effect - resets all state when QR reader is toggled off
+  useEffect(() => {
+    if (!isQrReaderToggled) {
+      setQrScanStage(QR_SCAN_STAGE.SCANNING);
+      setShowNfcPopup(false);
+      setQrCode(defaultQrCode);
+      setQrCodeText("");
+      setCheckInName("none");
+      setError("");
+    }
+  }, [isQrReaderToggled]);
+
+  // Helper function to determine CSS classes based on scan stage
   const scanStateClassName = (scanStage: string) => {
     switch (scanStage) {
       case QR_SCAN_STAGE.SUCCESS:
@@ -76,15 +118,17 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
+  // Validates if the scanned QR code is valid for check-in
   const isCheckInValid = (
     id: string[],
     userID: string,
     eventIDAndYear: string,
   ): boolean => {
+    // Check if QR code is for the correct event and year
     if (eventIDAndYear !== event.id + ";" + event.year) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
 
-      // if there are not 4 and first item is not an email, then the QR code is invalid
+      // Validate QR code format and email structure
       if (id.length !== 4 && !emailCheck(userID)) {
         setError("Invalid BizTech QR code.");
       } else {
@@ -93,6 +137,7 @@ const QrCheckIn: React.FC<QrProps> = ({
       return false;
     }
 
+    // Find user in registration data
     const user = rows?.filter((row) => row.id === userID)[0];
 
     if (!user) {
@@ -101,10 +146,10 @@ const QrCheckIn: React.FC<QrProps> = ({
       return false;
     }
 
-    // get the person's name
+    // Set the user's display name for UI feedback
     setCheckInName(`${user.fname} ${user.basicInformation.lname} (${userID})`);
 
-    // If the user is already checked in, show an error
+    // Check various registration statuses that prevent check-in
     if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is already checked in.");
@@ -122,6 +167,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     return true;
   };
 
+  // Returns appropriate text based on current scan stage
   const scanStateText = () => {
     switch (qrScanStage) {
       case QR_SCAN_STAGE.SUCCESS:
@@ -138,6 +184,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
+  // Returns appropriate icon based on current scan stage
   const scanStateIcon = () => {
     switch (qrScanStage) {
       case QR_SCAN_STAGE.SUCCESS:
@@ -154,6 +201,7 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
+  // Toggles between front and back camera
   const flipCamera = () => {
     if (cameraFacingMode === CAMERA_FACING_MODE.FRONT) {
       setCameraFacingMode(CAMERA_FACING_MODE.BACK);
@@ -162,9 +210,9 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
+  // Handles QR code scan results from the camera
   const handleScanQR = (result: Result | null | undefined) => {
-    // conditional check may be necessary to prevent re-scans of the same QR code, but this implementation is unintuitive
-    // when wanting to re-scan (requires a manual reset)
+    // Note: Prevents re-scanning same QR code, but requires manual reset
     // if (data.data !== qrCode.data) setQrCode(data);
 
     if (!!result) {
@@ -180,8 +228,8 @@ const QrCheckIn: React.FC<QrProps> = ({
     }
   };
 
-  // puts the QR code scanner in a scanning state after a grace period, like tapping your Compass Card
-  // stage is type QR_SCAN_STAGE
+  // Cycles QR scanner through different stages with automatic reset
+  // Similar to tapping a Compass Card - shows feedback then returns to scanning
   const cycleQrScanStage = (stage: string, ms: number) => {
     setQrScanStage(stage);
     setTimeout(() => {
@@ -189,11 +237,14 @@ const QrCheckIn: React.FC<QrProps> = ({
     }, ms);
   };
 
+  // Validates email format using regex
   const emailCheck = (email: string) => {
     return /(.+)@(.+){2,}\.(.+){2,}/.test(email);
   };
 
-  const checkInUser = (id: string, fname: string) => {
+  // Core check-in function - updates registration status and handles NFC card needs
+  const checkInUser = async (id: string, fname: string) => {
+    // Prepare API request body for check-in
     const body = {
       eventID: event.id,
       year: parseInt(event.year),
@@ -201,19 +252,31 @@ const QrCheckIn: React.FC<QrProps> = ({
     };
 
     try {
-      fetchBackend({
+      // Update user's registration status to "checkedIn"
+      await fetchBackend({
         endpoint: `/registrations/${id}/${fname}`,
         method: "PUT",
         data: body,
       });
-      // wait 10 seconds, then reset the scan stage
-      cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
+
+      // Check if user needs an NFC membership card
+      const { needsCard, profileID } = await checkUserNeedsCard(id);
+      setShowNfcPopup(needsCard);
+      setProfileID(profileID);
+
+      // Only show success state if no NFC popup is needed
+      // If NFC popup is needed, let it handle the flow
+      if (!needsCard) {
+        // Show success for 8 seconds, then reset to scanning
+        cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
+      }
     } catch (e) {
       setError("Internal Server Error, Registration Failed");
-      // wait 10 seconds, then reset the scan stage
+      // Show error for 8 seconds, then reset to scanning
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
     }
 
+    // Reset QR code state for next scan
     setQrCode(defaultQrCode);
   };
 
@@ -233,6 +296,7 @@ const QrCheckIn: React.FC<QrProps> = ({
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Mobile status display */}
             <div
               className={`${scanStateClassName(qrScanStage)} w-full font-size text-lg p-3 rounded-[10px] flex flex-row space-x-3 md:hidden`}
             >
@@ -240,6 +304,7 @@ const QrCheckIn: React.FC<QrProps> = ({
               <p className="font-600">{scanStateText()}</p>
             </div>
 
+            {/* QR code scanner camera view */}
             <div className="w-full md:w-[450px] relative">
               <Image
                 className="rounded-[10px]"
@@ -258,7 +323,9 @@ const QrCheckIn: React.FC<QrProps> = ({
               />
             </div>
 
+            {/* Right sidebar with controls and status */}
             <div className="grow w-full md:h-[450px] flex flex-col md:justify-between md:space-y-3">
+              {/* Desktop status display */}
               <div
                 className={`${scanStateClassName(qrScanStage)} w-full font-size text-lg p-3 rounded-[10px] hidden space-x-3 md:flex md:flex-row`}
               >
@@ -286,6 +353,8 @@ const QrCheckIn: React.FC<QrProps> = ({
                   Flip Camera Horizontally
                 </p>
               </div>
+
+              {/* Collapse button */}
               <div className="grow md:pt-10 flex flex-row content-end justify-center pb-3 space-x-2 mt-3 items-end">
                 <ChevronsUp width={20} height={20} />
                 <div
@@ -299,6 +368,21 @@ const QrCheckIn: React.FC<QrProps> = ({
                 <ChevronsUp width={20} height={20} />
               </div>
             </div>
+
+            {/* NFC popup for membership card writing */}
+            {showNfcPopup && profileID && (
+              <NFCPopup
+                firstName={qrCodeText.split(";")[3]}
+                email={qrCodeText.split(";")[0]}
+                uuid={profileID}
+                exit={() => {
+                  setShowNfcPopup(false);
+                  // Show success message for 3 seconds after NFC popup closes
+                  cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 3000);
+                }}
+                numCards={0}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>

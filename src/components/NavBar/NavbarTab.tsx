@@ -26,9 +26,9 @@ const NavbarTab: React.FC<NavbarProps> = ({
     e.preventDefault();
     try {
       await signOut();
+      await router.push("/");
       onLogout?.();
       onTabClick?.(); // Close mobile menu after logout
-      await router.push("/");
     } catch (error) {
       console.error("Error signing out: ", error);
     }
