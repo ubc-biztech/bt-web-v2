@@ -18,9 +18,7 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
       </TabsList>
       <TabsContent value="member">
         <div className="space-y-4 mt-8">
-          <div
-            className={`aspect-video bg-gray-200 rounded-lg ${form.watch("imageUrl") ? "relative" : "flex items-center justify-center"} overflow-hidden`}
-          >
+          <div className="aspect-video bg-gray-200 rounded-lg relative flex items-center justify-center overflow-hidden">
             {form.watch("imageUrl") ? (
               <Image
                 src={form.watch("imageUrl")}

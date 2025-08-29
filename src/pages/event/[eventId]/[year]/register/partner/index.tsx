@@ -98,9 +98,7 @@ export default function PartnerFormRegister() {
     return (
       <div className="flex text-white">
         <div className="space-y-4 p-4 max-w-lg mx-auto py-10">
-          <div
-            className={`aspect-video bg-gray-200 rounded-lg overflow-hidden ${event?.imageUrl ? "relative" : "flex items-center justify-center"}`}
-          >
+          <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
             {event?.imageUrl ? (
               <Image
                 src={event.imageUrl}

@@ -128,9 +128,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <TabsContent value="member">
                     <div className="space-y-4 p-4">
                       {/* Event Image */}
-                      <div
-                        className={`aspect-video bg-gray-200 rounded-lg overflow-hidden ${form.watch("imageUrl") ? "relative" : "flex items-center justify-center"}`}
-                      >
+                      <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
                         {form.watch("imageUrl") ? (
                           <Image
                             src={form.watch("imageUrl") || ""}
