@@ -37,14 +37,14 @@ export const FormDatePicker: React.FC<FormDatePickerProps> = ({
       name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel className="py-4">{label}</FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-full pl-3 text-left pt-8 pb-8 font-normal bg-[#3A496D] text-white text-wrap",
+                    "w-full h-full pl-3 text-left pt-8 pb-8 font-normal bg-[#3A496D] text-white text-wrap",
                     !field.value && "text-muted-foreground",
                   )}
                 >
