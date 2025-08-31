@@ -136,7 +136,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     // 4. Filter and highlight events
     const allEvents = events.filter(
       (event: BiztechEvent) =>
-        toDate(event.startDate) > toDate(new Date(2024, 9, 1)),
+        toDate(event.startDate) > toDate(new Date(2024, 9, 1)) &&
+        event.isPublished,
     );
     const highlightedEvent = getHighlightedEvent(allEvents);
 
