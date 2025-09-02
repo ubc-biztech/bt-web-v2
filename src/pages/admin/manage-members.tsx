@@ -24,6 +24,7 @@ type Member = {
   faculty?: string;
   year?: string;
   major?: string;
+  cardCount?: number;
   international?: boolean;
   topics?: string[];
   createdAt?: number;
@@ -43,6 +44,7 @@ export default function ManageMembers({ initialData }: Props) {
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!data) return;
@@ -100,6 +102,34 @@ export default function ManageMembers({ initialData }: Props) {
       setTimeout(() => setCopiedMemberId(null), 2000);
     } catch (err) {
       console.error("Failed to copy to clipboard:", err);
+    }
+  };
+
+  const incrementCardCount = async (member: Member) => {
+    try {
+      setUpdatingId(member.id);
+      const currentCount = member.cardCount ?? 0;
+      await fetchBackend({
+        endpoint: `/members/${member.id}`,
+        method: "PATCH",
+        data: {
+          cardCount: currentCount + 1,
+        },
+      });
+      setData((prev) =>
+        (prev || []).map((m) =>
+          m.id === member.id ? { ...m, cardCount: (m.cardCount ?? 0) + 1 } : m,
+        ),
+      );
+      setFilteredData((prev) =>
+        (prev || []).map((m) =>
+          m.id === member.id ? { ...m, cardCount: (m.cardCount ?? 0) + 1 } : m,
+        ),
+      );
+    } catch (err) {
+      console.error("Failed to increment card count:", err);
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -162,6 +192,9 @@ export default function ManageMembers({ initialData }: Props) {
                   Last Name
                 </TableHead>
                 <TableHead className="text-white font-semibold">
+                  Card Count
+                </TableHead>
+                <TableHead className="text-white font-semibold">
                   Actions
                 </TableHead>
               </TableRow>
@@ -176,6 +209,7 @@ export default function ManageMembers({ initialData }: Props) {
                     <TableCell className="font-medium">{member.id}</TableCell>
                     <TableCell>{member.firstName || "N/A"}</TableCell>
                     <TableCell>{member.lastName || "N/A"}</TableCell>
+                    <TableCell>{member.cardCount ?? 0}</TableCell>
                     <TableCell>
                       {isNFCSupported ? (
                         <Button
@@ -206,6 +240,17 @@ export default function ManageMembers({ initialData }: Props) {
                           )}
                         </Button>
                       )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="ml-2 bg-transparent border-white/20 text-white hover:bg-white/10"
+                        onClick={() => incrementCardCount(member)}
+                        disabled={updatingId === member.id}
+                      >
+                        {updatingId === member.id
+                          ? "Updating..."
+                          : "Manually Flag Card as Written"}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -241,7 +286,7 @@ export default function ManageMembers({ initialData }: Props) {
           firstName={selectedMember.firstName}
           exit={closeNfcWriter}
           closeAll={closeAllNfc}
-          numCards={1}
+          numCards={selectedMember.cardCount ?? 0}
         />
       )}
     </main>

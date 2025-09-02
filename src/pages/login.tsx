@@ -428,7 +428,6 @@ export const getServerSideProps: GetServerSideProps = async (
         props: {},
       };
 
-    console.error("Error fetching from backend");
     return {
       props: { redirect },
     };
