@@ -356,7 +356,7 @@ export const QrCheckIn: React.FC<QrProps> = ({
 
             {/* NFC popup for membership card writing */}
             {showNfcPopup && (
-              <NFCPopup
+              <NfcPopup
                 firstName={qrCodeText.split(";")[3]}
                 email={qrCodeText.split(";")[0]}
                 uuid={""}
