@@ -236,11 +236,12 @@ export const NFCWriter = ({
 
         if (!check.needsCard) {
           setStatus("completed");
+        } else {
+          setStatus("writing");
         }
-        console.log("token:", token, "\nstatus:", status);
+      } else {
+        setStatus("writing");
       }
-
-      setStatus("writing");
 
       // Create new NFC reader instance
       const NDEFReaderCtor = (

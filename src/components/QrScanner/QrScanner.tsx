@@ -36,7 +36,7 @@ import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
  */
 
 // an enumeration for the stages of QR code scanning
-const QrCheckIn: React.FC<QrProps> = ({
+export const QrCheckIn: React.FC<QrProps> = ({
   event,
   rows,
   isQrReaderToggled,
@@ -57,9 +57,6 @@ const QrCheckIn: React.FC<QrProps> = ({
 
   // NFC popup state - controls when to show membership card writing interface
   const [showNfcPopup, setShowNfcPopup] = useState(false);
-
-  // Use the custom hook for checking if user needs a card
-  const { checkUserNeedsCard } = useUserNeedsCard();
 
   // Main QR code processing effect - triggers when QR text is scanned
   useEffect(() => {
@@ -377,5 +374,3 @@ const QrCheckIn: React.FC<QrProps> = ({
     </>
   );
 };
-
-export default QrCheckIn;

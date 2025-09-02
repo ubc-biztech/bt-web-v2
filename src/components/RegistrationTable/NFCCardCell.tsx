@@ -10,10 +10,7 @@ interface NFCCardCellProps extends CellContext<Registration, unknown> {
   refreshTable: () => Promise<void>;
 }
 
-export const NFCCardCell: React.FC<NFCCardCellProps> = ({
-  row,
-  refreshTable,
-}) => {
+export const NFCCardCell: React.FC<NFCCardCellProps> = ({ row }) => {
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const { isNFCSupported, isLoading: nfcCheckLoading } = useNFCSupport();
 

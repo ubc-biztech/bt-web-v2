@@ -94,7 +94,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   return (
     <div className="flex flex-col xl:flex-row items-center justify-between">
-      <div className="flex items-center space-x-2 relative">
+      <div className="flex items-center relative gap-2">
         {selectedRowsCount > 0 && (
           <TableFilterButtons
             selectedRowsCount={selectedRowsCount}
@@ -170,7 +170,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         </TooltipProvider>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-center justify-between space-x-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between space-x-2 mt-4 lg:mt-0">
         <Select value={selectedValue} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
             <SelectValue placeholder="Attendees" />

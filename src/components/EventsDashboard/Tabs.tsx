@@ -16,7 +16,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
   return (
     <div className="w-full">
       <div className="w-full flex flex-row items-end">
-        <div className="relative flex border-b border-bt-blue-300 text-nowrap w-fit">
+        <div className="relative flex border-b border-bt-blue-300 text-nowrap flex-wrap xxl:w-fit">
           {tabs.map((tab) => (
             <button
               key={tab.value}
