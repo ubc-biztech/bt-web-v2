@@ -54,7 +54,6 @@ const QrCheckIn: React.FC<QrProps> = ({
   );
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
-  const [profileID, setProfileID] = useState<string | null>(null);
 
   // NFC popup state - controls when to show membership card writing interface
   const [showNfcPopup, setShowNfcPopup] = useState(false);
@@ -259,20 +258,9 @@ const QrCheckIn: React.FC<QrProps> = ({
         data: body,
       });
 
-      // Check if user needs an NFC membership card
-      const { needsCard, profileID } = await checkUserNeedsCard(id);
-      setShowNfcPopup(needsCard);
-      setProfileID(profileID);
-
-      // Only show success state if no NFC popup is needed
-      // If NFC popup is needed, let it handle the flow
-      if (!needsCard) {
-        // Show success for 8 seconds, then reset to scanning
-        cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
-      }
+      setShowNfcPopup(true);
     } catch (e) {
       setError("Internal Server Error, Registration Failed");
-      // Show error for 8 seconds, then reset to scanning
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
     }
 
@@ -370,11 +358,11 @@ const QrCheckIn: React.FC<QrProps> = ({
             </div>
 
             {/* NFC popup for membership card writing */}
-            {showNfcPopup && profileID && (
+            {showNfcPopup && (
               <NFCPopup
                 firstName={qrCodeText.split(";")[3]}
                 email={qrCodeText.split(";")[0]}
-                uuid={profileID}
+                uuid={""}
                 exit={() => {
                   setShowNfcPopup(false);
                   // Show success message for 3 seconds after NFC popup closes
