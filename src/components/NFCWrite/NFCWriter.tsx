@@ -227,7 +227,7 @@ export const NFCWriter = ({
 
     try {
       let check;
-      if (!token) {
+      if (token === "") {
         check = await checkUserNeedsCard(email);
         setToken(check.profileID ?? "");
       }
