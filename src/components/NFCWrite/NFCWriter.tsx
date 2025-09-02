@@ -3,6 +3,7 @@ import { fetchBackend } from "@/lib/db";
 import styles from "./writer.module.css";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -17,7 +18,6 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NFCWriterProps = {
-  token: string;
   email: string;
   firstName: string;
   exit: () => void; // close itself
@@ -31,10 +31,12 @@ type NFCWriterProps = {
 
 type Status =
   | "ready"
+  | "completed"
   | "writing"
   | "success"
   | "error"
   | "not_supported"
+  | "non_member"
   | "loading";
 
 /**
@@ -60,7 +62,6 @@ type NDEFReaderLike = {
 };
 
 export const NFCWriter = ({
-  token,
   email,
   firstName,
   exit,
@@ -72,8 +73,10 @@ export const NFCWriter = ({
   numCards,
 }: NFCWriterProps) => {
   const [status, setStatus] = useState<Status>("loading");
+  const [token, setToken] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { isNFCSupported, isLoading } = useNFCSupport();
+  const { checkUserNeedsCard } = useUserNeedsCard();
 
   // Reference to timeout for operation timeout handling
   const timeoutIdRef = useRef<number | null>(null);
@@ -90,7 +93,7 @@ export const NFCWriter = ({
 
   // Visual styling classes based on current status
   const isSuccess = status === "success";
-  const isError = status === "error";
+  const isError = status === "error" || status === "non_member";
 
   const nfcUrl = generateNfcProfileUrl(token);
 
@@ -221,6 +224,18 @@ export const NFCWriter = ({
     }
 
     try {
+      const check = await checkUserNeedsCard(email);
+      setToken(check.profileID ?? "");
+
+      if (!check.profileID) {
+        setStatus("non_member");
+        return;
+      }
+
+      if (!check.needsCard) {
+        setStatus("completed");
+      }
+
       setStatus("writing");
 
       // Create new NFC reader instance
@@ -251,6 +266,7 @@ export const NFCWriter = ({
     <div className={styles.writerContainer}>
       {(status === "ready" ||
         status === "writing" ||
+        status === "completed" ||
         status === "success" ||
         status === "error") && (
         <>
@@ -280,6 +296,17 @@ export const NFCWriter = ({
             alt="Card"
           />
           Hold Card Close to Your Device
+        </div>
+      )}
+
+      {status === "completed" && (
+        <div className={styles.statusMessage}>
+          <img
+            className={styles["card-image"]}
+            src="/assets/icons/nfc_write_icon.png"
+            alt="Card"
+          />
+          User has already been assigned NFC, only write if necessary
         </div>
       )}
 
@@ -317,6 +344,12 @@ export const NFCWriter = ({
       {status === "not_supported" && (
         <div className={`${styles.statusMessage} ${styles.error}`}>
           NFC is not supported on this device
+        </div>
+      )}
+
+      {status === "non_member" && (
+        <div className={`${styles.statusMessage} ${styles.error}`}>
+          User is not a member, cannot write profile
         </div>
       )}
 

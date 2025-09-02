@@ -38,8 +38,7 @@ export const useUserNeedsCard = () => {
       }
 
       if (member.cardCount && member.cardCount > 0) {
-        // User already has a card, no need for new one
-        return { needsCard: false, profileID: null };
+        return { needsCard: false, profileID: member.profileID };
       }
 
       // User needs a card
