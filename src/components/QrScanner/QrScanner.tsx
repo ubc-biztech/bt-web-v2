@@ -17,7 +17,7 @@ import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
-import NFCPopup from "../NFCWrite/NFCPopup";
+import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 /**

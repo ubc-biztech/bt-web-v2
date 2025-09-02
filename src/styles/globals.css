@@ -155,3 +155,34 @@ body {
 .btn-destructive-outline {
   @apply bg-bt-red-300/10 text-bt-red-300 border-bt-red-300 hover:bg-bt-red-300/5 hover:text-bt-red-400 hover:border-bt-red-400 border;
 }
+
+/* Custom animations for NFC Writer rings */
+@keyframes rings {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}
+
+.ring-animation {
+  animation: rings 2s infinite alternate;
+  animation-timing-function: ease-in-out;
+}
+
+.ring-1 {
+  animation-delay: 0s;
+}
+
+.ring-2 {
+  animation-delay: 0.2s;
+}
+
+.ring-3 {
+  animation-delay: 0.4s;
+}
+
+.ring-4 {
+  animation-delay: 0.6s;
+}

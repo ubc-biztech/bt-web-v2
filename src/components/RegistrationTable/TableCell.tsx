@@ -12,7 +12,7 @@ import { ColumnMeta } from "./columns";
 import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
-import NFCPopup from "../NFCWrite/NFCPopup";
+import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
@@ -141,7 +141,7 @@ export const TableCell = memo(
 
             {/* NFC popup for membership card writing */}
             {showNfcPopup && (
-              <NFCPopup
+              <NfcPopup
                 firstName={row.original.fname}
                 email={row.original.id}
                 uuid={""}
