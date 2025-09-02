@@ -411,7 +411,7 @@ export const getServerSideProps: GetServerSideProps = async (
       };
     }
 
-    if (!userProfile) {
+    if (userProfile) {
       return {
         redirect: {
           destination: "/membership",
