@@ -235,7 +235,7 @@ export default function AttendeeFormRegister() {
         data: registrationData,
         authenticatedCall: false,
       });
-      router.push(`/event/${eventId}/${year}/register/success`);
+      await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
       alert(

@@ -9,6 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -70,7 +71,12 @@ const createDynamicSchema = (event: BiztechEvent) => {
       {} as Record<string, z.ZodTypeAny>,
     ) || {};
 
+  const emailSchema = z.string().email({
+    message: "Please enter a valid email address",
+  });
+
   return attendeeEventRegistrationFormSchema.extend({
+    emailAddress: emailSchema,
     customQuestions: z.object(dynamicSchema),
   });
 };
@@ -87,7 +93,7 @@ export const AttendeeEventRegistrationForm: React.FC<
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: initialData || {
-      emailAddress: "",
+      emailAddress: user.email || user.id,
       firstName: "",
       lastName: "",
       yearLevel: "",
@@ -240,10 +246,33 @@ export const AttendeeEventRegistrationForm: React.FC<
 
                 <FormField
                   control={form.control}
+                  name="emailAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Email*</FormLabel>
+                        <FormMessage />
+                      </div>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          disabled={!!user.email || !!user.id}
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>First Name*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>First Name*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input placeholder="Enter your first name" {...field} />
                       </FormControl>
@@ -255,35 +284,26 @@ export const AttendeeEventRegistrationForm: React.FC<
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Last Name*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Last Name*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input placeholder="Enter your last name" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="emailAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email*</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+
                 <FormField
                   control={form.control}
                   name="yearLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Year Level*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Year Level*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -312,7 +332,10 @@ export const AttendeeEventRegistrationForm: React.FC<
                   name="faculty"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Faculty*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Faculty*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -326,6 +349,9 @@ export const AttendeeEventRegistrationForm: React.FC<
                           <SelectItem value="arts">Arts</SelectItem>
                           <SelectItem value="science">Science</SelectItem>
                           <SelectItem value="commerce">Commerce</SelectItem>
+                          <SelectItem value="engineering">
+                            Engineering
+                          </SelectItem>
                           <SelectItem value="landFoodSystems">
                             Land and Food Systems
                           </SelectItem>
@@ -340,7 +366,10 @@ export const AttendeeEventRegistrationForm: React.FC<
                   name="majorSpecialization"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Major / Specialization*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Major / Specialization*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input placeholder="Enter your major" {...field} />
                       </FormControl>
@@ -352,7 +381,10 @@ export const AttendeeEventRegistrationForm: React.FC<
                   name="preferredPronouns"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Preferred Pronouns*</FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>Preferred Pronouns*</FormLabel>
+                        <FormMessage />
+                      </div>
                       <RadioGroup
                         value={field.value}
                         onValueChange={field.onChange}
@@ -385,9 +417,12 @@ export const AttendeeEventRegistrationForm: React.FC<
                   name="dietaryRestrictions"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>
-                        Do you have any dietary restrictions?*
-                      </FormLabel>
+                      <div className="flex flex-row gap-4 items-center">
+                        <FormLabel>
+                          Do you have any dietary restrictions?*
+                        </FormLabel>
+                        <FormMessage />
+                      </div>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -420,6 +455,7 @@ export const AttendeeEventRegistrationForm: React.FC<
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
+                        <FormMessage />
                         <FormControl>
                           <SelectTrigger className="text-white">
                             <SelectValue placeholder="Select how you heard about the event" />
@@ -446,10 +482,13 @@ export const AttendeeEventRegistrationForm: React.FC<
                     name={`customQuestions.${question.questionId}`} // Use question.id instead of index
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          {question.label}
-                          {question.required && "*"}
-                        </FormLabel>
+                        <div className="flex flex-row gap-4 items-center">
+                          <FormLabel>
+                            {question.label}
+                            {question.required && "*"}
+                          </FormLabel>
+                          <FormMessage />
+                        </div>
                         {question.type === QuestionTypes.TEXT && (
                           <FormControl>
                             <Input
