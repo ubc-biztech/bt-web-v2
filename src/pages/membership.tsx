@@ -112,6 +112,12 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
         setLoading(false);
       } catch (error) {
         console.error("Failed to fetch user attributes:", error);
+        await signOut({
+          global: false,
+          oauth: {
+            redirectUrl: `${generateStageURL()}/login`,
+          },
+        });
         await router.push(`/login`);
       }
     };
