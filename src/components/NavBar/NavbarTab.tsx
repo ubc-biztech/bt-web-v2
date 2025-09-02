@@ -40,7 +40,7 @@ const NavbarTab: React.FC<NavbarProps> = ({
     setIsSigningOut(true);
     try {
       await signOut({
-        global: true,
+        global: false,
         oauth: { redirectUrl: `${generateStageURL()}/login` },
       });
 

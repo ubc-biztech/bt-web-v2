@@ -266,7 +266,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
 
                     try {
                       await signOut({
-                        global: true,
+                        global: false,
                         oauth: { redirectUrl: `${generateStageURL()}/login` },
                       });
                       await router.push("/login");
