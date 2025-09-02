@@ -21,6 +21,7 @@ export async function middleware(request: NextRequest) {
     "/forgot-password",
     "/verify",
     "/assets",
+    "/favicon",
     "/_next",
     "/static",
     "/fonts",
