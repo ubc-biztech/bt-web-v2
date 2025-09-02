@@ -520,10 +520,19 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                             value: "Product Management",
                             label: "Product Management",
                           },
+                          {
+                            value: "Cyber Security",
+                            label: "Cyber Security",
+                          },
                           { value: "Consulting", label: "Consulting" },
                           {
                             value: "Data Science & Analytics",
                             label: "Data Science & Analytics",
+                          },
+                          ,
+                          {
+                            value: "Artificial Intelligence & Machine Learning",
+                            label: "Artificial Intelligence & Machine Learning",
                           },
                           {
                             value: "Entrepreneurship/Startups",

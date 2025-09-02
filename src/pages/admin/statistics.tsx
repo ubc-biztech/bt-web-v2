@@ -123,12 +123,19 @@ export default function MembershipsPage({ membersData }: Props) {
             >
               {membersData && (
                 <BarChart
-                  data={getFieldCounts(membersData, "topics", (t: string) => {
-                    if (typeof t === "string") {
-                      return t.split(",");
-                    }
-                    return [];
-                  })}
+                  data={getFieldCounts(
+                    membersData,
+                    "topics",
+                    (t: string | string[]) => {
+                      if (typeof t === "string") {
+                        return t.split(",").filter((t) => t !== "");
+                      }
+                      if (Array.isArray(t)) {
+                        return t.filter((t) => t !== "");
+                      }
+                      return [];
+                    },
+                  )}
                 />
               )}
             </ChartBox>
