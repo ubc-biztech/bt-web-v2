@@ -226,19 +226,18 @@ export const NFCWriter = ({
     }
 
     try {
-      let check;
-      if (token === "") {
-        check = await checkUserNeedsCard(email);
+      if (token === "" || !token) {
+        const check = await checkUserNeedsCard(email);
         setToken(check.profileID ?? "");
-      }
+        if (!check.profileID) {
+          setStatus("non_member");
+          return;
+        }
 
-      if (check && !check.profileID) {
-        setStatus("non_member");
-        return;
-      }
-
-      if (check && !check.needsCard) {
-        setStatus("completed");
+        if (!check.needsCard) {
+          setStatus("completed");
+        }
+        console.log("token:", token, "\nstatus:", status);
       }
 
       setStatus("writing");
