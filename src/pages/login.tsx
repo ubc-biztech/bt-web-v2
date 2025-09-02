@@ -65,7 +65,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
           await router.push("/membership");
         } else if (err.name !== UnauthenticatedUserError.name) {
           await signOut({
-            global: true,
+            global: false,
             oauth: { redirectUrl: `${generateStageURL()}/login` },
           }).catch((e) => {
             console.warn(e);
