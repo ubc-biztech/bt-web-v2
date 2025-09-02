@@ -529,7 +529,6 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                             value: "Data Science & Analytics",
                             label: "Data Science & Analytics",
                           },
-                          ,
                           {
                             value: "Artificial Intelligence & Machine Learning",
                             label: "Artificial Intelligence & Machine Learning",
