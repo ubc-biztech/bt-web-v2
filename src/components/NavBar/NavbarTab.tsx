@@ -43,7 +43,7 @@ const NavbarTab: React.FC<NavbarProps> = ({
       onLogout?.();
       onTabClick?.();
 
-      router.replace("/sign-in");
+      router.replace("/login");
     } catch (error) {
       console.error("Error signing out:", error);
       setIsSigningOut(false);
