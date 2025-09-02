@@ -18,6 +18,7 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NFCWriterProps = {
+  token?: string;
   email: string;
   firstName: string;
   exit: () => void; // close itself
@@ -62,6 +63,7 @@ type NDEFReaderLike = {
 };
 
 export const NFCWriter = ({
+  token: profileID,
   email,
   firstName,
   exit,
@@ -73,7 +75,7 @@ export const NFCWriter = ({
   numCards,
 }: NFCWriterProps) => {
   const [status, setStatus] = useState<Status>("loading");
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(profileID || "");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { isNFCSupported, isLoading } = useNFCSupport();
   const { checkUserNeedsCard } = useUserNeedsCard();
@@ -224,15 +226,18 @@ export const NFCWriter = ({
     }
 
     try {
-      const check = await checkUserNeedsCard(email);
-      setToken(check.profileID ?? "");
+      let check;
+      if (!token) {
+        check = await checkUserNeedsCard(email);
+        setToken(check.profileID ?? "");
+      }
 
-      if (!check.profileID) {
+      if (check && !check.profileID) {
         setStatus("non_member");
         return;
       }
 
-      if (!check.needsCard) {
+      if (check && !check.needsCard) {
         setStatus("completed");
       }
 
