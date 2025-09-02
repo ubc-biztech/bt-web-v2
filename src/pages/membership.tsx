@@ -17,6 +17,7 @@ import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
+import { generateStageURL } from "@/util/url";
 
 interface MembershipFormValues {
   email: string;
@@ -258,7 +259,10 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                     e.preventDefault();
 
                     try {
-                      await signOut({ global: true });
+                      await signOut({
+                        global: true,
+                        oauth: { redirectUrl: `${generateStageURL()}/login` },
+                      });
                       await router.push("/login");
                     } catch (error) {
                       console.error("error signing in", error);

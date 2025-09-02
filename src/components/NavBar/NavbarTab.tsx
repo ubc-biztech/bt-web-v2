@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { signOut } from "@aws-amplify/auth";
+import { generateStageURL } from "@/util/url";
 
 interface NavbarItem {
   title: string;
@@ -38,7 +39,10 @@ const NavbarTab: React.FC<NavbarProps> = ({
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
-      await signOut({ global: true });
+      await signOut({
+        global: true,
+        oauth: { redirectUrl: `${generateStageURL()}/login` },
+      });
 
       onLogout?.();
       onTabClick?.();

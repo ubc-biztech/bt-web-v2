@@ -4,6 +4,7 @@ import {
   signIn,
   signInWithRedirect,
   resendSignUpCode,
+  signOut,
 } from "@aws-amplify/auth";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
@@ -13,6 +14,10 @@ import { GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import Image from "next/image";
+import { runWithAmplifyServerContext } from "@/util/amplify-utils";
+import { fetchUserAttributes } from "@aws-amplify/auth/server";
+import { fetchUserAttributes as fetchUserAttributesClient } from "@aws-amplify/auth";
+import { generateStageURL } from "@/util/url";
 
 interface LoginProps {
   redirect?: string;
@@ -41,10 +46,13 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       if (!router) return;
 
       try {
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-        });
+        const [userProfile] = await Promise.all([
+          fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          }),
+          fetchUserAttributesClient(),
+        ]);
 
         if (userProfile.isMember) {
           await router.push(redirect ? redirect : "/");
@@ -56,6 +64,12 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
         if (err.status === 404) {
           await router.push("/membership");
         } else if (err.name !== UnauthenticatedUserError.name) {
+          await signOut({
+            global: true,
+            oauth: { redirectUrl: `${generateStageURL()}/login` },
+          }).catch((e) => {
+            console.warn(e);
+          });
           console.error(err);
         }
       }
@@ -207,7 +221,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
               width={150}
               src="/assets/biztech_logo.svg"
               alt="BizTech Logo"
-              // loading="eager"
+              loading="eager"
             />
             <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
               Sign in
@@ -351,7 +365,6 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
                   width={24}
                   height={24}
                   alt="Guest"
-                  className="w-8 h-auto"
                 />
                 <span className="text-sm leading-6 text-bt-blue-400 font-500">
                   Guest
@@ -382,11 +395,23 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 
   try {
-    const userProfile = await fetchBackendFromServer({
-      endpoint: `/users/self`,
-      method: "GET",
-      nextServerContext,
-    });
+    const [userProfile] = await Promise.all([
+      fetchBackendFromServer({
+        endpoint: `/users/self`,
+        method: "GET",
+        nextServerContext,
+      }),
+      runWithAmplifyServerContext({
+        nextServerContext,
+        operation: async (contextSpec) => {
+          try {
+            return await fetchUserAttributes(contextSpec);
+          } catch (error) {
+            throw new UnauthenticatedUserError();
+          }
+        },
+      }),
+    ]);
 
     if (userProfile?.isMember) {
       return {
