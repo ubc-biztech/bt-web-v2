@@ -258,7 +258,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                     e.preventDefault();
 
                     try {
-                      await signOut();
+                      await signOut({ global: true });
                       await router.push("/login");
                     } catch (error) {
                       console.error("error signing in", error);
