@@ -155,4 +155,3 @@ body {
 .btn-destructive-outline {
   @apply bg-bt-red-300/10 text-bt-red-300 border-bt-red-300 hover:bg-bt-red-300/5 hover:text-bt-red-400 hover:border-bt-red-400 border;
 }
-
