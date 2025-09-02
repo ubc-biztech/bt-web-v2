@@ -395,23 +395,11 @@ export const getServerSideProps: GetServerSideProps = async (
   }
 
   try {
-    const [userProfile] = await Promise.all([
-      fetchBackendFromServer({
-        endpoint: `/users/self`,
-        method: "GET",
-        nextServerContext,
-      }),
-      runWithAmplifyServerContext({
-        nextServerContext,
-        operation: async (contextSpec) => {
-          try {
-            return await fetchUserAttributes(contextSpec);
-          } catch (error) {
-            throw new UnauthenticatedUserError();
-          }
-        },
-      }),
-    ]);
+    const userProfile = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext,
+    });
 
     if (userProfile?.isMember) {
       return {
