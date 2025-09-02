@@ -45,7 +45,7 @@ export const NFCCardCell: React.FC<NFCCardCellProps> = ({
     };
 
     checkCardStatus();
-  }, [email, checkUserNeedsCard]);
+  }, [email]);
 
   const handleWriteToCard = () => {
     setShowNfcWriter(true);
