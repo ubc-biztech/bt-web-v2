@@ -6,7 +6,7 @@ import {
   resendSignUpCode,
   signOut,
 } from "@aws-amplify/auth";
-import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
+import { clearAuthCache, fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
@@ -43,7 +43,7 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
   useEffect(() => {
     async function checkUserProfile() {
-      if (!router) return;
+      if (!router.isReady) return;
 
       try {
         const [userProfile] = await Promise.all([
@@ -67,9 +67,11 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
           await signOut({
             global: false,
             oauth: { redirectUrl: `${generateStageURL()}/login` },
-          }).catch((e) => {
-            console.warn(e);
-          });
+          })
+            .then(clearAuthCache)
+            .catch((e) => {
+              console.warn(e);
+            });
           console.error(err);
         }
       }
