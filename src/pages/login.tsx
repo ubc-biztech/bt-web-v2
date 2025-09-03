@@ -4,14 +4,20 @@ import {
   signIn,
   signInWithRedirect,
   resendSignUpCode,
+  signOut,
 } from "@aws-amplify/auth";
 import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import Link from "next/link";
 import { GetServerSideProps } from "next";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 import { GetServerSidePropsContext } from "next";
 import { ParsedUrlQuery } from "querystring";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import Image from "next/image";
+import { runWithAmplifyServerContext } from "@/util/amplify-utils";
+import { fetchUserAttributes } from "@aws-amplify/auth/server";
+import { fetchUserAttributes as fetchUserAttributesClient } from "@aws-amplify/auth";
+import { generateStageURL } from "@/util/url";
 
 interface LoginProps {
   redirect?: string;
@@ -30,50 +36,26 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     passwordError: "",
     confirmationError: "",
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
-  const [isCheckingOAuth, setIsCheckingOAuth] = useState(false);
   const router = useRouter();
 
-  // Check for OAuth callback - only run when there are OAuth-related URL params
   useEffect(() => {
-    async function handleOAuthCallback() {
-      if (!router.isReady) return;
-
-      // Check if this looks like an OAuth callback (has state or code params)
-      const { state, code, error } = router.query;
-      const isOAuthCallback = state || code || error;
-
-      if (!isOAuthCallback) return;
-
-      setIsCheckingOAuth(true);
+    async function checkUserProfile() {
+      if (!router) return;
 
       try {
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-          forceRefresh: true,
-        });
+        const [userProfile] = await Promise.all([
+          fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          }),
+          fetchUserAttributesClient(),
+        ]);
 
         if (userProfile.isMember) {
-          // Check for redirect from OAuth state
-          let redirectUrl = "/";
-          if (
-            state &&
-            typeof state === "string" &&
-            state.split("-").length === 2
-          ) {
-            try {
-              redirectUrl = Buffer.from(state.split("-")[1], "hex").toString();
-            } catch (e) {
-              console.warn("Failed to decode redirect URL from state", e);
-            }
-          } else if (redirect) {
-            redirectUrl = redirect;
-          }
-
-          await router.push(redirectUrl);
+          await router.push(redirect ? redirect : "/");
           return;
         }
 
@@ -81,18 +63,22 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       } catch (err: any) {
         if (err.status === 404) {
           await router.push("/membership");
+        } else if (err.name !== UnauthenticatedUserError.name) {
+          await signOut({
+            global: false,
+            oauth: { redirectUrl: `${generateStageURL()}/login` },
+          }).catch((e) => {
+            console.warn(e);
+          });
+          console.error(err);
         }
-
-        console.error("OAuth callback error:", err);
-        // If there's an auth error, let user try to login normally
-        // Don't redirect them away - they might need to try again
-      } finally {
-        setIsCheckingOAuth(false);
       }
+
+      setIsLoading(false);
     }
 
-    handleOAuthCallback();
-  }, [router.isReady, router.query, redirect]);
+    checkUserProfile();
+  }, [router]);
 
   const validateEmail = (value: string) => {
     let error = "";
@@ -116,54 +102,48 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     e.preventDefault();
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-
+    setIsLoading(true);
     if (emailError || passwordError) {
       setErrors({ emailError, passwordError, confirmationError: "" });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const user = await signIn({
-        username: email,
-        password: password,
-      });
-
-      if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-        setShowResend(true);
-        setErrors({
-          emailError: "",
-          passwordError: "",
-          confirmationError: "Please verify your email before signing in.",
-        });
-        return;
-      }
-
+    } else {
       try {
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-          forceRefresh: true,
+        const user = await signIn({
+          username: email,
+          password: password,
         });
-        if (userProfile.isMember) {
-          await router.push(redirect ? redirect : "/");
-        } else {
-          await router.push("/membership");
+        if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
+          setShowResend(true);
+          setErrors({
+            emailError: "",
+            passwordError: "",
+            confirmationError: "Please verify your email before signing in.",
+          });
+          setIsLoading(false);
+          return;
         }
-      } catch (err: any) {
-        if (err.status === 404) {
-          await router.push("/membership");
-        } else {
+        try {
+          const userProfile = await fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          });
+          if (userProfile.isMember) {
+            await router.push(redirect ? redirect : "/");
+          } else {
+            await router.push("/membership");
+          }
+        } catch (err: any) {
+          if (err.status === 404) {
+            await router.push("/membership");
+          }
+
           throw err;
         }
+      } catch (error: any) {
+        console.error("Error signing in", error);
+        handleAuthErrors(error);
       }
-    } catch (error: any) {
-      console.error("Error signing in", error);
-      handleAuthErrors(error);
-    } finally {
-      setIsLoading(false);
     }
+    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
@@ -222,14 +202,10 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
     setIsResending(false);
   };
 
-  // Show loading state during OAuth callback processing
-  if (isCheckingOAuth) {
+  if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bt-blue-600">
-        <div className="text-center text-white">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Completing sign in...</p>
-        </div>
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
       </div>
     );
   }
