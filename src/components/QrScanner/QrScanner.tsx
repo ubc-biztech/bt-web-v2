@@ -17,7 +17,7 @@ import { Result } from "@zxing/library";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
-import NFCPopup from "../NFCWrite/NFCPopup";
+import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 /**
@@ -36,7 +36,7 @@ import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
  */
 
 // an enumeration for the stages of QR code scanning
-const QrCheckIn: React.FC<QrProps> = ({
+export const QrCheckIn: React.FC<QrProps> = ({
   event,
   rows,
   isQrReaderToggled,
@@ -54,13 +54,9 @@ const QrCheckIn: React.FC<QrProps> = ({
   );
   const [checkInName, setCheckInName] = useState("none");
   const [error, setError] = useState("");
-  const [profileID, setProfileID] = useState<string | null>(null);
 
   // NFC popup state - controls when to show membership card writing interface
   const [showNfcPopup, setShowNfcPopup] = useState(false);
-
-  // Use the custom hook for checking if user needs a card
-  const { checkUserNeedsCard } = useUserNeedsCard();
 
   // Main QR code processing effect - triggers when QR text is scanned
   useEffect(() => {
@@ -259,20 +255,9 @@ const QrCheckIn: React.FC<QrProps> = ({
         data: body,
       });
 
-      // Check if user needs an NFC membership card
-      const { needsCard, profileID } = await checkUserNeedsCard(id);
-      setShowNfcPopup(needsCard);
-      setProfileID(profileID);
-
-      // Only show success state if no NFC popup is needed
-      // If NFC popup is needed, let it handle the flow
-      if (!needsCard) {
-        // Show success for 8 seconds, then reset to scanning
-        cycleQrScanStage(QR_SCAN_STAGE.SUCCESS, 8000);
-      }
+      setShowNfcPopup(true);
     } catch (e) {
       setError("Internal Server Error, Registration Failed");
-      // Show error for 8 seconds, then reset to scanning
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
     }
 
@@ -370,11 +355,11 @@ const QrCheckIn: React.FC<QrProps> = ({
             </div>
 
             {/* NFC popup for membership card writing */}
-            {showNfcPopup && profileID && (
-              <NFCPopup
+            {showNfcPopup && (
+              <NfcPopup
                 firstName={qrCodeText.split(";")[3]}
                 email={qrCodeText.split(";")[0]}
-                uuid={profileID}
+                uuid={""}
                 exit={() => {
                   setShowNfcPopup(false);
                   // Show success message for 3 seconds after NFC popup closes
@@ -389,5 +374,3 @@ const QrCheckIn: React.FC<QrProps> = ({
     </>
   );
 };
-
-export default QrCheckIn;

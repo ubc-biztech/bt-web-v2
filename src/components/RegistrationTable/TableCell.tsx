@@ -12,7 +12,7 @@ import { ColumnMeta } from "./columns";
 import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
-import NFCPopup from "../NFCWrite/NFCPopup";
+import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
@@ -27,10 +27,6 @@ export const TableCell = memo(
 
     // NFC popup state - controls when to show membership card writing interface
     const [showNfcPopup, setShowNfcPopup] = useState(false);
-    const [profileID, setProfileID] = useState<string | null>(null);
-
-    // Use the custom hook for checking if user needs a card
-    const { checkUserNeedsCard } = useUserNeedsCard();
 
     useEffect(() => {
       setValue(getLabel(initialValue as string));
@@ -68,17 +64,6 @@ export const TableCell = memo(
 
       try {
         await updateRegistrationData(row.original.id, row.original.fname, body);
-
-        // Check if user needs an NFC membership card when status is set to checkedIn
-        if (column.id === "registrationStatus" && newValue === "checkedIn") {
-          const { needsCard, profileID } = await checkUserNeedsCard(
-            row.original.id,
-          );
-          setShowNfcPopup(needsCard);
-          setProfileID(profileID);
-        }
-
-        await refreshTable();
         setValue(newValue);
       } catch (error) {
         console.error("Failed to update registration:", error);
@@ -155,11 +140,11 @@ export const TableCell = memo(
             </Select>
 
             {/* NFC popup for membership card writing */}
-            {showNfcPopup && profileID && (
-              <NFCPopup
+            {showNfcPopup && (
+              <NfcPopup
                 firstName={row.original.fname}
                 email={row.original.id}
-                uuid={profileID}
+                uuid={""}
                 exit={() => {
                   setShowNfcPopup(false);
                 }}

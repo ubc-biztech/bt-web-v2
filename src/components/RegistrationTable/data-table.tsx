@@ -16,7 +16,7 @@ import { TableFooter } from "./TableFooter";
 import { useColumnVisibility } from "./hooks/useColumnVisibility";
 import { createColumns } from "./columns";
 import { Registration } from "@/types/types";
-import QrCheckIn from "../QrScanner/QrScanner";
+import { QrCheckIn } from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
 
 export function DataTable({

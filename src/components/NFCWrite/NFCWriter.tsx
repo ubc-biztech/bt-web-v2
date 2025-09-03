@@ -1,14 +1,9 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import { fetchBackend } from "@/lib/db";
-import styles from "./writer.module.css";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
-
-// Generates consistent avatar images based on user ID seed
-// Uses DiceBear API to create unique but repeatable profile pictures
-const generateSeededImage = (seed: string): string => {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
-};
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+import Image from "next/image";
 
 /**
  * NFCWriter Component
@@ -17,7 +12,7 @@ const generateSeededImage = (seed: string): string => {
  */
 
 type NFCWriterProps = {
-  token: string;
+  token?: string;
   email: string;
   firstName: string;
   exit: () => void; // close itself
@@ -31,10 +26,12 @@ type NFCWriterProps = {
 
 type Status =
   | "ready"
+  | "completed"
   | "writing"
   | "success"
   | "error"
   | "not_supported"
+  | "non_member"
   | "loading";
 
 /**
@@ -60,7 +57,7 @@ type NDEFReaderLike = {
 };
 
 export const NFCWriter = ({
-  token,
+  token: profileID,
   email,
   firstName,
   exit,
@@ -72,8 +69,10 @@ export const NFCWriter = ({
   numCards,
 }: NFCWriterProps) => {
   const [status, setStatus] = useState<Status>("loading");
+  const [token, setToken] = useState<string>(profileID || "");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { isNFCSupported, isLoading } = useNFCSupport();
+  const { checkUserNeedsCard } = useUserNeedsCard();
 
   // Reference to timeout for operation timeout handling
   const timeoutIdRef = useRef<number | null>(null);
@@ -84,28 +83,76 @@ export const NFCWriter = ({
   // Tracks if component is still mounted (prevents state updates after unmount)
   const mountedRef = useRef<boolean>(false);
 
-  const profileImage = useMemo(() => {
-    return profileSrc || generateSeededImage(token);
-  }, [profileSrc, token]);
-
   // Visual styling classes based on current status
   const isSuccess = status === "success";
-  const isError = status === "error";
+  const isError = status === "error" || status === "non_member";
 
   const nfcUrl = generateNfcProfileUrl(token);
 
+  // Helper component for consistent status rendering
+  const StatusContent = ({
+    children,
+    hasImage = false,
+    imageSrc = "/assets/icons/nfc_write_icon.png",
+    imageAlt = "Card",
+  }: {
+    children: React.ReactNode;
+    hasImage?: boolean;
+    imageSrc?: string;
+    imageAlt?: string;
+  }) => (
+    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+      {hasImage && (
+        <div className="mb-4">
+          <Image
+            className="w-[70px] h-[70px] object-cover mx-auto"
+            src={imageSrc}
+            alt={imageAlt}
+            width={70}
+            height={70}
+          />
+        </div>
+      )}
+      <div className="text-sm font-medium max-w-xs mx-auto leading-relaxed">
+        {children}
+      </div>
+    </div>
+  );
+
+  // Helper component for success/error states with larger text
+  const StatusMessage = ({
+    title,
+    subtitle,
+  }: {
+    title: string;
+    subtitle?: string;
+  }) => (
+    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+      <div className="text-xl font-extrabold tracking-wide">{title}</div>
+      {subtitle && (
+        <div className="opacity-95 text-sm max-w-sm mx-auto leading-relaxed mt-2 text-wrap">
+          {subtitle}
+        </div>
+      )}
+    </div>
+  );
+
   const ringClass = useMemo(() => {
-    if (isSuccess) return `${styles.rings} ${styles["rings--success"]}`;
-    if (isError) return `${styles.rings} ${styles["rings--error"]}`;
-    return styles.rings;
+    const baseClasses =
+      "absolute top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500";
+    if (isSuccess) return `${baseClasses} top-[30%] w-[400px] h-[400px]`;
+    if (isError) return `${baseClasses} top-[30%] w-[400px] h-[400px]`;
+    return baseClasses;
   }, [isSuccess, isError]);
 
   const profileClass = useMemo(() => {
+    const baseClasses =
+      "w-[90px] aspect-square rounded-full absolute bt-bt-blue-400 top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] bg-bt-blue-200 grid place-items-center overflow-hidden transition-all duration-500";
     if (isSuccess)
-      return `${styles.profileImage} ${styles["profileImage--success"]}`;
+      return `${baseClasses} top-[30%] w-[100px] bg-bt-green-200 shadow-[0_30px_90px_rgba(45,209,125,0.4)] bg-green-500`;
     if (isError)
-      return `${styles.profileImage} ${styles["profileImage--error"]}`;
-    return styles.profileImage;
+      return `${baseClasses} top-[30%] w-[100px] bg-bt-red-200 shadow-[0_30px_90px_rgba(212,74,74,0.35)] bg-red-500`;
+    return baseClasses;
   }, [isSuccess, isError]);
 
   // Initialize NFC writing process on component mount
@@ -221,7 +268,22 @@ export const NFCWriter = ({
     }
 
     try {
-      setStatus("writing");
+      if (token === "" || !token) {
+        const check = await checkUserNeedsCard(email);
+        setToken(check.profileID ?? "");
+        if (!check.profileID) {
+          setStatus("non_member");
+          return;
+        }
+
+        if (!check.needsCard) {
+          setStatus("completed");
+        } else {
+          setStatus("writing");
+        }
+      } else {
+        setStatus("writing");
+      }
 
       // Create new NFC reader instance
       const NDEFReaderCtor = (
@@ -248,100 +310,130 @@ export const NFCWriter = ({
   };
 
   return (
-    <div className={styles.writerContainer}>
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-black/50 backdrop-blur-[10px] fixed top-0 left-0 text-white z-[1000] pb-16 overflow-hidden">
       {(status === "ready" ||
         status === "writing" ||
+        status === "completed" ||
         status === "success" ||
         status === "error") && (
         <>
           {/* Animated rings that change color based on status */}
           <div className={ringClass}>
-            <div className={styles.ring} />
-            <div className={styles.ring} style={{ animationDelay: "0.2s" }} />
-            <div className={styles.ring} style={{ animationDelay: "0.4s" }} />
-            <div className={styles.ring} style={{ animationDelay: "0.6s" }} />
+            <div
+              className={`absolute top-0 left-0 w-full h-full rounded-full pointer-events-none opacity-[0.22] ring-animation ring-1 transition-all duration-500 ${
+                isSuccess
+                  ? "bg-gradient-to-b from-green-400/14 to-green-600/6 opacity-90"
+                  : isError
+                    ? "bg-gradient-to-b from-red-500/19 to-red-700/9 opacity-90"
+                    : "bg-gradient-radial from-blue-400/32 to-blue-800/11"
+              }`}
+            />
+            <div
+              className={`absolute w-3/4 h-3/4 left-[12.5%] top-[12.5%] rounded-full pointer-events-none opacity-[0.35] ring-animation ring-2 transition-all duration-500 ${
+                isSuccess
+                  ? "bg-gradient-to-b from-green-400/14 to-green-600/6 opacity-90"
+                  : isError
+                    ? "bg-gradient-to-b from-red-500/19 to-red-700/9 opacity-90"
+                    : "bg-gradient-radial from-blue-400/32 to-blue-800/11"
+              }`}
+            />
+            <div
+              className={`absolute w-[55%] h-[55%] left-[22.5%] top-[22.5%] rounded-full pointer-events-none opacity-50 ring-animation ring-3 transition-all duration-500 ${
+                isSuccess
+                  ? "bg-gradient-to-b from-green-400/14 to-green-600/6 opacity-90"
+                  : isError
+                    ? "bg-gradient-to-b from-red-500/19 to-red-700/9 opacity-90"
+                    : "bg-gradient-radial from-blue-400/32 to-blue-800/11"
+              }`}
+            />
+            <div
+              className={`absolute w-[35%] h-[35%] left-[32.5%] top-[32.5%] rounded-full pointer-events-none opacity-70 ring-animation ring-4 transition-all duration-500 ${
+                isSuccess
+                  ? "bg-gradient-to-b from-green-400/14 to-green-600/6 opacity-90"
+                  : isError
+                    ? "bg-gradient-to-b from-red-500/19 to-red-700/9 opacity-90"
+                    : "bg-gradient-radial from-blue-400/32 to-blue-800/11"
+              }`}
+            />
           </div>
 
           <div className={profileClass}>
-            <img
-              src={profileImage}
+            <Image
+              src={"/assets/biztech_logo.svg"}
               alt="Profile"
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
             />
           </div>
         </>
       )}
 
       {status === "ready" && (
-        <div className={styles.statusMessage}>
-          <img
-            className={styles["card-image"]}
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
+        <StatusContent hasImage={true}>
           Hold Card Close to Your Device
-        </div>
+        </StatusContent>
+      )}
+
+      {status === "completed" && (
+        <StatusContent hasImage={true}>
+          User has already been assigned NFC, only write if necessary
+        </StatusContent>
       )}
 
       {status === "writing" && (
-        <div className={styles.statusMessage}>
-          <img
-            className={styles["card-image"]}
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
+        <StatusContent hasImage={true}>
           Hold Card Close to Your Device
-        </div>
+        </StatusContent>
       )}
 
       {status === "success" && (
-        <div className={`${styles.statusMessage} ${styles.successMessage}`}>
-          <div className={styles.successTitle}>Success!</div>
-          <div className={styles.successSubtext}>
-            {successSubtext ?? "Hand the card to " + firstName}
-          </div>
-        </div>
+        <StatusMessage
+          title="Success!"
+          subtitle={successSubtext ?? "Hand the card to " + firstName}
+        />
       )}
 
       {status === "error" && (
-        <div className={`${styles.statusMessage} ${styles.failureMessage}`}>
-          <div className={styles.failureTitle}>{failurePrimary}</div>
-          <div className={styles.failureSubtext}>
-            {failureSecondary}
-            <br />
-            {errorMessage ? errorMessage : ""}
-          </div>
-        </div>
+        <StatusMessage
+          title={failurePrimary}
+          subtitle={`${failureSecondary}${errorMessage ? `\n${errorMessage}` : ""}`}
+        />
       )}
 
       {status === "not_supported" && (
-        <div className={`${styles.statusMessage} ${styles.error}`}>
-          NFC is not supported on this device
-        </div>
+        <StatusContent>
+          <span className="text-red-400">
+            NFC is not supported on this device
+          </span>
+        </StatusContent>
+      )}
+
+      {status === "non_member" && (
+        <StatusContent>
+          <span className="text-red-400">
+            User is not a member, cannot write profile
+          </span>
+        </StatusContent>
       )}
 
       {status === "loading" && (
-        <div className={styles.statusMessage}>
-          <img
-            className={styles["card-image"]}
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
-          Checking NFC Support...
-        </div>
+        <StatusContent hasImage={true}>Checking NFC Support...</StatusContent>
       )}
 
-      <div className={styles.bottomActions}>
+      <div className="absolute bottom-12 left-0 right-0 flex gap-3 justify-center z-[1200]">
         {status === "error" && (
           <button
-            className={styles.secondaryButton}
+            className="bg-white/24 border border-white/28 w-30 h-10 flex items-center justify-center text-white text-lg cursor-pointer rounded-full p-2"
             onClick={() => setStatus("ready")}
           >
             Try Again
           </button>
         )}
 
-        <button className={styles.cancelButton} onClick={closeAll}>
+        <button
+          className="bg-white/168 border border-white/204 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full p-2"
+          onClick={closeAll}
+        >
           Done
         </button>
       </div>
