@@ -4,27 +4,15 @@ import {
   signIn,
   signInWithRedirect,
   resendSignUpCode,
-  signOut,
 } from "@aws-amplify/auth";
-import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
+import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
-import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
-import { GetServerSidePropsContext } from "next";
-import { ParsedUrlQuery } from "querystring";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import Image from "next/image";
-import { runWithAmplifyServerContext } from "@/util/amplify-utils";
-import { fetchUserAttributes } from "@aws-amplify/auth/server";
-import { fetchUserAttributes as fetchUserAttributesClient } from "@aws-amplify/auth";
-import { generateStageURL } from "@/util/url";
+import { fetchUserAttributes } from "@aws-amplify/auth";
 
-interface LoginProps {
-  redirect?: string;
-}
-
-const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
-  // All the logic and UI from the current Login component goes here
+const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -43,19 +31,18 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
   useEffect(() => {
     async function checkUserProfile() {
-      if (!router) return;
+      if (!router.isReady) return;
 
       try {
-        const [userProfile] = await Promise.all([
-          fetchBackend({
-            endpoint: `/users/self`,
-            method: "GET",
-          }),
-          fetchUserAttributesClient(),
-        ]);
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
 
         if (userProfile.isMember) {
-          await router.push(redirect ? redirect : "/");
+          // Get redirect from query params or default to home
+          const redirectUrl = (router.query.redirect as string) || "/";
+          await router.push(redirectUrl);
           return;
         }
 
@@ -63,14 +50,12 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
       } catch (err: any) {
         if (err.status === 404) {
           await router.push("/membership");
-        } else if (err.name !== UnauthenticatedUserError.name) {
-          await signOut({
-            global: false,
-            oauth: { redirectUrl: `${generateStageURL()}/login` },
-          }).catch((e) => {
-            console.warn(e);
-          });
-          console.error(err);
+        } else if (err.name === UnauthenticatedUserError.name) {
+          // User is not authenticated, this is expected on login page
+          console.log("User not authenticated, staying on login page");
+        } else {
+          // For network errors, server errors, etc. - just log and stay on login page
+          console.error("Error checking user profile:", err);
         }
       }
 
@@ -127,7 +112,8 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
             method: "GET",
           });
           if (userProfile.isMember) {
-            await router.push(redirect ? redirect : "/");
+            const redirectUrl = (router.query.redirect as string) || "/";
+            await router.push(redirectUrl);
           } else {
             await router.push("/membership");
           }
@@ -148,9 +134,10 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
 
   const handleGoogleSignIn = async () => {
     try {
+      const redirectUrl = router.query.redirect as string;
       await signInWithRedirect({
         provider: "Google",
-        customState: redirect ? redirect : undefined,
+        customState: redirectUrl ? redirectUrl : undefined,
       });
     } catch (error: any) {
       console.error("Error initiating Google sign-in:", error);
@@ -378,73 +365,5 @@ const LoginForm: React.FC<LoginProps> = ({ redirect }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (
-  context: GetServerSidePropsContext<ParsedUrlQuery>,
-) => {
-  const { req, res, query } = context;
-  const nextServerContext = { request: req, response: res };
-
-  let redirect =
-    query && query.redirect && typeof query.redirect === "string"
-      ? query.redirect
-      : null;
-
-  const stateParam = !Array.isArray(query.state) ? query.state : null;
-  if (stateParam && stateParam.split("-").length == 2) {
-    redirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
-  }
-
-  try {
-    const userProfile = await fetchBackendFromServer({
-      endpoint: `/users/self`,
-      method: "GET",
-      nextServerContext,
-    });
-
-    if (userProfile?.isMember) {
-      return {
-        redirect: {
-          destination: redirect ? redirect : "/",
-          permanent: false,
-        },
-        props: {},
-      };
-    }
-
-    if (userProfile) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-        props: {},
-      };
-    }
-
-    return {
-      props: { redirect },
-    };
-  } catch (error: any) {
-    if (error.name === UnauthenticatedUserError.name) {
-      return {
-        props: { redirect },
-      };
-    }
-
-    if (error.status === 404)
-      // membership doesn't exist
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-        props: {},
-      };
-
-    return {
-      props: { redirect },
-    };
-  }
-};
-
+// No server-side props needed - this is now a client-side only component
 export default LoginForm;
