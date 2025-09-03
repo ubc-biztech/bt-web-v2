@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { signOut } from "@aws-amplify/auth";
 import { generateStageURL } from "@/util/url";
+import { clearAuthCache } from "@/lib/db";
 
 interface NavbarItem {
   title: string;
@@ -42,7 +43,9 @@ const NavbarTab: React.FC<NavbarProps> = ({
       await signOut({
         global: false,
         oauth: { redirectUrl: `${generateStageURL()}/login` },
-      });
+      }).then(clearAuthCache);
+
+      // Clear any cached auth data
 
       onLogout?.();
       onTabClick?.();

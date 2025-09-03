@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { Amplify } from "aws-amplify";
 import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
+import { clearAuthCache } from "@/lib/db";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import outputs from "../../amplify_outputs.json";
@@ -117,7 +118,8 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
           oauth: {
             redirectUrl: `${generateStageURL()}/login`,
           },
-        });
+        }).then(clearAuthCache);
+
         await router.push(`/login`);
       }
     };
@@ -268,7 +270,7 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
                       await signOut({
                         global: false,
                         oauth: { redirectUrl: `${generateStageURL()}/login` },
-                      });
+                      }).then(clearAuthCache);
                       await router.push("/login");
                     } catch (error) {
                       console.error("error signing in", error);

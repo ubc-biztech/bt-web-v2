@@ -31,11 +31,52 @@ async function currentSession(
   }
 
   try {
-    const res = (await fetchAuthSession({ forceRefresh })).tokens;
-    return res ?? null;
+    const session = await fetchAuthSession({ forceRefresh });
+    const tokens = session.tokens;
+
+    // Check if tokens are expired
+    const idTokenPayload = tokens?.idToken?.payload;
+    const currentTime = Math.floor(Date.now() / 1000);
+
+    if (
+      idTokenPayload &&
+      idTokenPayload.exp &&
+      idTokenPayload.exp <= currentTime
+    ) {
+      console.log("ID token has expired");
+      return null;
+    }
+
+    return tokens ?? null;
   } catch (err) {
     console.log("Auth session fetch failed:", err);
     return null;
+  }
+}
+
+/**
+ * Clear any cached auth session data
+ * Call this after signOut to ensure tokens are completely cleared
+ */
+export function clearAuthCache(): void {
+  if (typeof window !== "undefined") {
+    // Clear common Amplify localStorage keys
+    const amplifyKeys = Object.keys(localStorage).filter(
+      (key) =>
+        key.includes("amplify") ||
+        key.includes("CognitoIdentity") ||
+        key.includes("aws-amplify"),
+    );
+
+    amplifyKeys.forEach((key) => {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {
+        console.warn(`Failed to clear ${key}:`, e);
+      }
+    });
+
+    console.log("Auth cache cleared");
   }
 }
 
