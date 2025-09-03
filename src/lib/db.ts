@@ -12,6 +12,7 @@ interface FetchBackendOptions {
   method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   data?: Record<string, unknown>;
   authenticatedCall?: boolean;
+  forceRefresh?: boolean;
 }
 
 interface FetchBackendServerOptions extends FetchBackendOptions {
@@ -21,14 +22,16 @@ interface FetchBackendServerOptions extends FetchBackendOptions {
   };
 }
 
-async function currentSession(): Promise<AuthTokens | null> {
+async function currentSession(
+  forceRefresh: boolean = false,
+): Promise<AuthTokens | null> {
   if (typeof window === "undefined") {
     console.log("Server-side: skipping auth session");
     return null;
   }
 
   try {
-    const res = (await fetchAuthSession()).tokens;
+    const res = (await fetchAuthSession({ forceRefresh })).tokens;
     return res ?? null;
   } catch (err) {
     console.log("Auth session fetch failed:", err);
@@ -36,11 +39,17 @@ async function currentSession(): Promise<AuthTokens | null> {
   }
 }
 
+/**
+ * Fetch data from the backend API
+ * @param options - Configuration options
+ * @param options.forceRefresh - If true, forces refresh of auth tokens from Cognito (slower, makes network call)
+ */
 export async function fetchBackend({
   endpoint,
   method,
   data,
   authenticatedCall = true,
+  forceRefresh = false,
 }: FetchBackendOptions): Promise<any> {
   const headers: Record<string, string> = {};
 
@@ -50,7 +59,7 @@ export async function fetchBackend({
   }
 
   if (authenticatedCall) {
-    const session = await currentSession();
+    const session = await currentSession(forceRefresh);
     if (session?.idToken) {
       headers["Authorization"] = `Bearer ${session.idToken}`;
     } else {
