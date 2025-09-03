@@ -5,12 +5,6 @@ import { useNFCSupport } from "@/hooks/useNFCSupport";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 import Image from "next/image";
 
-// Generates consistent avatar images based on user ID seed
-// Uses DiceBear API to create unique but repeatable profile pictures
-const generateSeededImage = (seed: string): string => {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
-};
-
 /**
  * NFCWriter Component
  * Handles the actual NFC tag writing process using Web NFC API
@@ -89,31 +83,75 @@ export const NFCWriter = ({
   // Tracks if component is still mounted (prevents state updates after unmount)
   const mountedRef = useRef<boolean>(false);
 
-  const profileImage = useMemo(() => {
-    return profileSrc || generateSeededImage(token);
-  }, [profileSrc, token]);
-
   // Visual styling classes based on current status
   const isSuccess = status === "success";
   const isError = status === "error" || status === "non_member";
 
   const nfcUrl = generateNfcProfileUrl(token);
 
+  // Helper component for consistent status rendering
+  const StatusContent = ({
+    children,
+    hasImage = false,
+    imageSrc = "/assets/icons/nfc_write_icon.png",
+    imageAlt = "Card",
+  }: {
+    children: React.ReactNode;
+    hasImage?: boolean;
+    imageSrc?: string;
+    imageAlt?: string;
+  }) => (
+    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+      {hasImage && (
+        <div className="mb-4">
+          <Image
+            className="w-[70px] h-[70px] object-cover mx-auto"
+            src={imageSrc}
+            alt={imageAlt}
+            width={70}
+            height={70}
+          />
+        </div>
+      )}
+      <div className="text-sm font-medium max-w-xs mx-auto leading-relaxed">
+        {children}
+      </div>
+    </div>
+  );
+
+  // Helper component for success/error states with larger text
+  const StatusMessage = ({
+    title,
+    subtitle,
+  }: {
+    title: string;
+    subtitle?: string;
+  }) => (
+    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+      <div className="text-xl font-extrabold tracking-wide">{title}</div>
+      {subtitle && (
+        <div className="opacity-95 text-sm max-w-sm mx-auto leading-relaxed mt-2 text-wrap">
+          {subtitle}
+        </div>
+      )}
+    </div>
+  );
+
   const ringClass = useMemo(() => {
     const baseClasses =
-      "absolute top-20 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500";
-    if (isSuccess) return `${baseClasses} top-[38%] w-[560px] h-[560px]`;
-    if (isError) return `${baseClasses} top-[38%] w-[560px] h-[560px]`;
+      "absolute top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none z-[500] flex items-center justify-center transition-all duration-500";
+    if (isSuccess) return `${baseClasses} top-[30%] w-[400px] h-[400px]`;
+    if (isError) return `${baseClasses} top-[30%] w-[400px] h-[400px]`;
     return baseClasses;
   }, [isSuccess, isError]);
 
   const profileClass = useMemo(() => {
     const baseClasses =
-      "w-[110px] aspect-square rounded-full absolute top-8 left-1/2 transform -translate-x-1/2 z-[1000] bg-cyan-400 grid place-items-center overflow-hidden transition-all duration-500";
+      "w-[90px] aspect-square rounded-full absolute bt-bt-blue-400 top-[25%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[1000] bg-bt-blue-200 grid place-items-center overflow-hidden transition-all duration-500";
     if (isSuccess)
-      return `${baseClasses} top-[38%] transform -translate-x-1/2 -translate-y-1/2 w-32 shadow-[0_30px_90px_rgba(45,209,125,0.4)] bg-green-500`;
+      return `${baseClasses} top-[30%] w-[100px] bg-bt-green-200 shadow-[0_30px_90px_rgba(45,209,125,0.4)] bg-green-500`;
     if (isError)
-      return `${baseClasses} top-[38%] transform -translate-x-1/2 -translate-y-1/2 w-32 shadow-[0_30px_90px_rgba(212,74,74,0.35)] bg-red-500`;
+      return `${baseClasses} top-[30%] w-[100px] bg-bt-red-200 shadow-[0_30px_90px_rgba(212,74,74,0.35)] bg-red-500`;
     return baseClasses;
   }, [isSuccess, isError]);
 
@@ -321,7 +359,7 @@ export const NFCWriter = ({
 
           <div className={profileClass}>
             <Image
-              src={profileImage}
+              src={"/assets/biztech_logo.svg"}
               alt="Profile"
               fill
               className="object-cover"
@@ -331,87 +369,61 @@ export const NFCWriter = ({
       )}
 
       {status === "ready" && (
-        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
-          <img
-            className="w-[100px] object-cover"
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
+        <StatusContent hasImage={true}>
           Hold Card Close to Your Device
-        </div>
+        </StatusContent>
       )}
 
       {status === "completed" && (
-        <div className="text-xl text-center max-w-full flex-wrap text-wrap font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
-          <img
-            className="w-[100px] object-cover"
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
+        <StatusContent hasImage={true}>
           User has already been assigned NFC, only write if necessary
-        </div>
+        </StatusContent>
       )}
 
       {status === "writing" && (
-        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
-          <img
-            className="w-[100px] object-cover"
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
+        <StatusContent hasImage={true}>
           Hold Card Close to Your Device
-        </div>
+        </StatusContent>
       )}
 
       {status === "success" && (
-        <div className="absolute w-full left-1/2 top-[calc(56%+8px)] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center">
-          <div className="text-5xl font-extrabold tracking-wide">Success!</div>
-          <div className="opacity-95">
-            {successSubtext ?? "Hand the card to " + firstName}
-          </div>
-        </div>
+        <StatusMessage
+          title="Success!"
+          subtitle={successSubtext ?? "Hand the card to " + firstName}
+        />
       )}
 
       {status === "error" && (
-        <div className="absolute w-full left-1/2 top-[calc(56%+8px)] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center">
-          <div className="text-5xl font-extrabold tracking-wide">
-            {failurePrimary}
-          </div>
-          <div className="opacity-95">
-            {failureSecondary}
-            <br />
-            {errorMessage ? errorMessage : ""}
-          </div>
-        </div>
+        <StatusMessage
+          title={failurePrimary}
+          subtitle={`${failureSecondary}${errorMessage ? `\n${errorMessage}` : ""}`}
+        />
       )}
 
       {status === "not_supported" && (
-        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-red-400">
-          NFC is not supported on this device
-        </div>
+        <StatusContent>
+          <span className="text-red-400">
+            NFC is not supported on this device
+          </span>
+        </StatusContent>
       )}
 
       {status === "non_member" && (
-        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000] text-red-400">
-          User is not a member, cannot write profile
-        </div>
+        <StatusContent>
+          <span className="text-red-400">
+            User is not a member, cannot write profile
+          </span>
+        </StatusContent>
       )}
 
       {status === "loading" && (
-        <div className="text-xl text-center max-w-full font-medium mb-12 flex flex-col items-center gap-6 z-[1000]">
-          <img
-            className="w-[100px] object-cover"
-            src="/assets/icons/nfc_write_icon.png"
-            alt="Card"
-          />
-          Checking NFC Support...
-        </div>
+        <StatusContent hasImage={true}>Checking NFC Support...</StatusContent>
       )}
 
       <div className="absolute bottom-12 left-0 right-0 flex gap-3 justify-center z-[1200]">
         {status === "error" && (
           <button
-            className="bg-white/24 border border-white/28 w-30 h-10 flex items-center justify-center text-white text-lg cursor-pointer rounded-full"
+            className="bg-white/24 border border-white/28 w-30 h-10 flex items-center justify-center text-white text-lg cursor-pointer rounded-full p-2"
             onClick={() => setStatus("ready")}
           >
             Try Again
@@ -419,7 +431,7 @@ export const NFCWriter = ({
         )}
 
         <button
-          className="bg-white/168 border border-white/204 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full"
+          className="bg-white/168 border border-white/204 w-28 h-10 flex items-center justify-center text-white text-xl cursor-pointer shadow-[inset_2px_2px_10px_rgba(255,255,255,0.2)] rounded-full p-2"
           onClick={closeAll}
         >
           Done
