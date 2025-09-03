@@ -144,24 +144,3 @@ export async function fetchBackendFromServer({
     throw error;
   }
 }
-
-export function clearAuthCache(): void {
-  if (typeof window !== "undefined") {
-    const amplifyKeys = Object.keys(localStorage).filter(
-      (key) =>
-        key.includes("amplify") ||
-        key.includes("CognitoIdentity") ||
-        key.includes("aws-amplify"),
-    );
-
-    amplifyKeys.forEach((key) => {
-      try {
-        localStorage.removeItem(key);
-      } catch (e) {
-        console.warn(`Failed to clear ${key}:`, e);
-      }
-    });
-
-    console.log("Auth cache cleared");
-  }
-}
