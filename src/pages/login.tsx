@@ -44,7 +44,26 @@ const LoginForm: React.FC = () => {
           return;
         }
 
-        await router.push("/membership");
+        // User is authenticated, redirect to membership page with redirect parameter
+        // The membership page will handle redirecting to the intended destination if they're already a member
+        const redirectUrl = (router.query.redirect as string) || null;
+        const stateParam = !Array.isArray(router.query.state)
+          ? router.query.state
+          : null;
+        let finalRedirect = redirectUrl;
+
+        if (stateParam && stateParam.split("-").length == 2) {
+          finalRedirect = Buffer.from(
+            stateParam.split("-")[1],
+            "hex",
+          ).toString();
+        }
+
+        const membershipUrl = finalRedirect
+          ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
+          : "/membership";
+
+        await router.push(membershipUrl);
       } catch (err: any) {
         if (
           err instanceof AuthError &&
@@ -114,7 +133,25 @@ const LoginForm: React.FC = () => {
             const redirectUrl = (router.query.redirect as string) || "/";
             await router.push(redirectUrl);
           } else {
-            await router.push("/membership");
+            // User is not a member, redirect to membership with redirect parameter
+            const redirectUrl = (router.query.redirect as string) || null;
+            const stateParam = !Array.isArray(router.query.state)
+              ? router.query.state
+              : null;
+            let finalRedirect = redirectUrl;
+
+            if (stateParam && stateParam.split("-").length == 2) {
+              finalRedirect = Buffer.from(
+                stateParam.split("-")[1],
+                "hex",
+              ).toString();
+            }
+
+            const membershipUrl = finalRedirect
+              ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
+              : "/membership";
+
+            await router.push(membershipUrl);
           }
         } catch (err: any) {
           if (err.status === 404) {
@@ -133,10 +170,19 @@ const LoginForm: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const redirectUrl = router.query.redirect as string;
+      const redirectUrl = (router.query.redirect as string) || null;
+      const stateParam = !Array.isArray(router.query.state)
+        ? router.query.state
+        : null;
+      let finalRedirect = redirectUrl;
+
+      if (stateParam && stateParam.split("-").length == 2) {
+        finalRedirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
+      }
+
       await signInWithRedirect({
         provider: "Google",
-        customState: redirectUrl ? redirectUrl : undefined,
+        customState: finalRedirect ? finalRedirect : undefined,
       });
     } catch (error: any) {
       console.error("Error initiating Google sign-in:", error);
