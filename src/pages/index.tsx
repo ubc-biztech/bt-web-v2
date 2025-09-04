@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BiztechEvent, User } from "@/types";
-import { fetchBackendFromServer } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Registration } from "@/types/types";
 import Divider from "@/components/Common/Divider";
@@ -14,26 +14,80 @@ import { format, toDate } from "date-fns";
 import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
 import { GetServerSideProps } from "next";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import PageLoadingState from "@/components/Common/PageLoadingState";
 
 interface ProfilePageProps {
-  profile: User | null;
   events: BiztechEvent[];
-  registrations: Registration[];
   highlightedEvent: BiztechEvent | null;
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({
-  profile,
   events,
-  registrations,
   highlightedEvent,
 }) => {
   const router = useRouter();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Fetch user profile
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
+
+        setProfile(userProfile);
+
+        // Check if user is a member, if not redirect to membership
+        if (!userProfile.isMember) {
+          await router.push("/membership");
+          return;
+        }
+
+        // Fetch user registrations
+        const registrationsRes = await fetchBackend({
+          endpoint: `/registrations/?email=${userProfile.email}`,
+          method: "GET",
+        });
+
+        setRegistrations(registrationsRes.data || []);
+        setLoading(false);
+      } catch (error: any) {
+        console.error("Error fetching user data:", error);
+
+        if (error.name === UnauthenticatedUserError.name) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.status === 404) {
+          // User profile doesn't exist, redirect to membership
+          await router.push("/membership");
+        } else {
+          // Other errors - just log and show loading state
+          console.error("Failed to fetch user data:", error);
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
 
   function getEventState(event: BiztechEvent | null) {
     return event && toDate(event.startDate) < toDate(new Date())
       ? "Past"
       : "Upcoming";
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
   }
 
   return (
@@ -112,12 +166,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const nextServerContext = { request: context.req, response: context.res };
 
   try {
-    const profile: User = await fetchBackendFromServer({
-      endpoint: `/users/self`,
-      method: "GET",
-      nextServerContext,
-    });
-
+    // Only fetch events on server side
     const events = await fetchBackendFromServer({
       endpoint: `/events`,
       method: "GET",
@@ -125,53 +174,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       nextServerContext,
     });
 
-    // 3. Fetch registrations for this user
-    const registrationsRes = await fetchBackendFromServer({
-      endpoint: `/registrations/?email=${profile.email}`,
-      method: "GET",
-      authenticatedCall: false,
-      nextServerContext,
-    });
-
-    // 4. Filter and highlight events
+    // Filter and highlight events
     const allEvents = events.filter(
       (event: BiztechEvent) =>
-        toDate(event.startDate) > toDate(new Date(2024, 9, 1)) &&
+        toDate(event.startDate) > toDate(new Date(2025, 9, 1)) &&
         event.isPublished,
     );
     const highlightedEvent = getHighlightedEvent(allEvents);
 
-    if (!profile.isMember) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-      };
-    }
-
     return {
       props: {
-        profile,
         events: allEvents,
-        registrations: registrationsRes.data,
         highlightedEvent: highlightedEvent || null,
       },
     };
   } catch (err: any) {
-    if (err.status === 404) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-      };
-    }
-
+    // If events fail to load, return empty data instead of redirecting
+    console.error("Failed to fetch events:", err);
     return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
+      props: {
+        events: [],
+        highlightedEvent: null,
       },
     };
   }
