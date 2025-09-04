@@ -18,6 +18,7 @@ import { useForm, FormProvider, Controller } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { generateStageURL } from "@/util/url";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import { AuthError } from "@aws-amplify/auth";
 
 interface MembershipFormValues {
   email: string;
@@ -105,7 +106,20 @@ const Membership: React.FC = () => {
       if (!router.isReady) return;
 
       try {
-        // First check if user is already a member
+        // First check if user is signed in using the reliable method (same as NavBar)
+        const attributes = await fetchUserAttributes();
+        const userEmail = attributes?.email || "";
+
+        if (!userEmail) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+          return;
+        }
+
+        setEmail(userEmail);
+        methods.setValue("email", userEmail);
+
+        // User is authenticated, now check their profile
         const userProfile = await fetchBackend({
           endpoint: `/users/self`,
           method: "GET",
@@ -119,37 +133,29 @@ const Membership: React.FC = () => {
 
         // User is not a member, get their email for the form
         setIsUser(true);
-        const currentUser = await fetchUserAttributes();
-        if (currentUser && currentUser.email) {
-          setEmail(currentUser.email);
-          methods.setValue("email", currentUser.email);
-        }
+
         setLoading(false);
       } catch (error: any) {
         console.error("Failed to fetch user data:", error);
 
-        if (error.name === UnauthenticatedUserError.name) {
+        if (
+          error instanceof AuthError &&
+          error.name === "UserUnAuthenticatedException"
+        ) {
           // User is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.name === UnauthenticatedUserError.name) {
+          // Backend says user is not authenticated, sign out and redirect to login
+          await signOut({
+            global: false,
+            oauth: {
+              redirectUrl: `${generateStageURL()}/login`,
+            },
+          });
           await router.push("/login");
         } else if (error.status === 404) {
           // User profile doesn't exist, they can stay and fill out membership form
-          setIsUser(false);
-          try {
-            const currentUser = await fetchUserAttributes();
-            if (currentUser && currentUser.email) {
-              setEmail(currentUser.email);
-              methods.setValue("email", currentUser.email);
-            }
-          } catch (emailError) {
-            console.error("Failed to fetch user email:", emailError);
-            await signOut({
-              global: false,
-              oauth: {
-                redirectUrl: `${generateStageURL()}/login`,
-              },
-            });
-            await router.push("/login");
-          }
+
           setLoading(false);
         } else {
           // Other errors - redirect to login
