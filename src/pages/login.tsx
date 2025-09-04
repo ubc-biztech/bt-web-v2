@@ -4,6 +4,7 @@ import {
   signIn,
   signInWithRedirect,
   resendSignUpCode,
+  signOut,
 } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
@@ -30,9 +31,52 @@ const LoginForm: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
   const router = useRouter();
 
+  const clearAuthState = async () => {
+    try {
+      await signOut();
+      if (typeof window !== "undefined") {
+        const clearCookie = (name: string) => {
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+        };
+
+        const cookies = document.cookie.split(";");
+        cookies.forEach((cookie) => {
+          const cookieName = cookie.split("=")[0].trim();
+          if (
+            cookieName.includes("cognito") ||
+            cookieName.startsWith("CognitoIdentityServiceProvider") ||
+            cookieName.includes("idToken") ||
+            cookieName.includes("accessToken") ||
+            cookieName.includes("refreshToken")
+          ) {
+            clearCookie(cookieName);
+          }
+        });
+      }
+    } catch (error) {
+      console.warn("Error clearing auth state:", error);
+    }
+  };
+
   useEffect(() => {
     async function checkUserProfile() {
       if (!router.isReady) return;
+
+      // Check for auth error query parameters and clear state if needed
+      const authError = router.query.error;
+      const clearAuth = router.query.clearAuth;
+
+      if (authError || clearAuth) {
+        console.log(
+          "Auth error detected or clear auth requested, clearing auth state",
+        );
+        await clearAuthState();
+
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const attributes = await fetchUserAttributes();
@@ -71,9 +115,13 @@ const LoginForm: React.FC = () => {
         ) {
           // do nothing.
         } else if (err.name === "NotAuthorizedException") {
-          console.log("User session expired or invalid, staying on login page");
+          console.log(
+            "User session expired or invalid, clearing auth state and staying on login page",
+          );
+          await clearAuthState();
         } else {
           console.error("Error checking user profile:", err);
+          await clearAuthState();
         }
       }
 
