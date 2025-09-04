@@ -126,8 +126,9 @@ const Membership: React.FC = () => {
         });
 
         if (userProfile?.isMember) {
-          // User is already a member, redirect to home
-          await router.push("/");
+          // User is already a member, redirect to intended destination or home
+          const redirectUrl = (router.query.redirect as string) || "/";
+          await router.push(redirectUrl);
           return;
         }
 
