@@ -11,6 +11,7 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import Image from "next/image";
 import { fetchUserAttributes } from "@aws-amplify/auth";
+import { AuthError } from "@aws-amplify/auth";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -34,31 +35,25 @@ const LoginForm: React.FC = () => {
       if (!router.isReady) return;
 
       try {
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-        });
+        const attributes = await fetchUserAttributes();
+        const userEmail = attributes?.email || "";
 
-        if (userProfile.isMember) {
-          // Get redirect from query params or default to home
-          const redirectUrl = (router.query.redirect as string) || "/";
-          await router.push(redirectUrl);
+        if (!userEmail) {
+          console.log("User not authenticated, staying on login page");
+          setIsLoading(false);
           return;
         }
 
         await router.push("/membership");
       } catch (err: any) {
-        if (err.status === 404) {
-          console.log(err, err.status);
-          await router.push("/membership");
-        } else if (err.name === UnauthenticatedUserError.name) {
-          // User is not authenticated, this is expected on login page
-          console.log("User not authenticated, staying on login page");
+        if (
+          err instanceof AuthError &&
+          err.name === "UserUnAuthenticatedException"
+        ) {
+          // do nothing.
         } else if (err.name === "NotAuthorizedException") {
-          // User's session is invalid/expired, stay on login page
           console.log("User session expired or invalid, staying on login page");
         } else {
-          // For network errors, server errors, etc. - just log and stay on login page
           console.error("Error checking user profile:", err);
         }
       }

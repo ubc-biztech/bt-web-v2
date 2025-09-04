@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { GetServerSideProps } from "next";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import PageLoadingState from "@/components/Common/PageLoadingState";
+import { AuthError } from "@aws-amplify/auth";
 
 interface ProfilePageProps {
   events: BiztechEvent[];
@@ -34,7 +35,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Fetch user profile
+        // First check if user is signed in using the reliable method (same as NavBar)
+        const attributes = await fetchUserAttributes();
+        const userEmail = attributes?.email || "";
+
+        if (!userEmail) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+          return;
+        }
+
+        // User is authenticated, now check their profile for membership status
         const userProfile = await fetchBackend({
           endpoint: `/users/self`,
           method: "GET",
@@ -59,8 +70,14 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       } catch (error: any) {
         console.error("Error fetching user data:", error);
 
-        if (error.name === UnauthenticatedUserError.name) {
+        if (
+          error instanceof AuthError &&
+          error.name === "UserUnAuthenticatedException"
+        ) {
           // User is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.name === UnauthenticatedUserError.name) {
+          // Backend says user is not authenticated, redirect to login
           await router.push("/login");
         } else if (error.status === 404) {
           // User profile doesn't exist, redirect to membership
