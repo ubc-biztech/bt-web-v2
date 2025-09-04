@@ -36,14 +36,20 @@ const LoginForm: React.FC = () => {
       await signOut();
       if (typeof window !== "undefined") {
         const clearCookie = (name: string) => {
-          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
-          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/;`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=${window.location.hostname};`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=.${window.location.hostname};`;
+
+          // Method 2: Additional attempts with different path variations (common in SPAs)
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure;`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=strict;`;
+          document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=lax;`;
         };
 
         const cookies = document.cookie.split(";");
         cookies.forEach((cookie) => {
           const cookieName = cookie.split("=")[0].trim();
+          console.log(cookieName);
           if (
             cookieName.includes("cognito") ||
             cookieName.startsWith("CognitoIdentityServiceProvider") ||
@@ -458,5 +464,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-// No server-side props needed - this is now a client-side only component
 export default LoginForm;
