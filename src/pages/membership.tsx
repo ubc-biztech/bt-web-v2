@@ -5,7 +5,7 @@ import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import outputs from "../../amplify_outputs.json";
-import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
+import { fetchBackend } from "@/lib/db";
 import {
   FormInput,
   FormRadio,
@@ -13,11 +13,11 @@ import {
   FormSelect,
 } from "../components/SignUpForm/FormInput";
 import Link from "next/link";
-import { GetServerSideProps } from "next";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { generateStageURL } from "@/util/url";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
 
 interface MembershipFormValues {
   email: string;
@@ -36,9 +36,7 @@ interface MembershipFormValues {
   topics: string[];
 }
 
-interface MembershipProps {
-  isUser: boolean;
-}
+// No props needed - this is now a client-side only component
 
 Amplify.configure(outputs, { ssr: true });
 
@@ -76,10 +74,11 @@ const validationSchema = z
     },
   );
 
-const Membership: React.FC<MembershipProps> = ({ isUser }) => {
+const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUser, setIsUser] = useState(false);
   const router = useRouter();
   const methods = useForm<z.infer<typeof validationSchema>>({
     resolver: zodResolver(validationSchema),
@@ -102,27 +101,70 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   });
 
   useEffect(() => {
-    const getUserEmail = async () => {
+    const checkUserAndGetEmail = async () => {
+      if (!router.isReady) return;
+
       try {
+        // First check if user is already a member
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
+
+        if (userProfile?.isMember) {
+          // User is already a member, redirect to home
+          await router.push("/");
+          return;
+        }
+
+        // User is not a member, get their email for the form
+        setIsUser(true);
         const currentUser = await fetchUserAttributes();
         if (currentUser && currentUser.email) {
           setEmail(currentUser.email);
           methods.setValue("email", currentUser.email);
         }
         setLoading(false);
-      } catch (error) {
-        console.error("Failed to fetch user attributes:", error);
-        await signOut({
-          global: false,
-          oauth: {
-            redirectUrl: `${generateStageURL()}/login`,
-          },
-        });
-        await router.push(`/login`);
+      } catch (error: any) {
+        console.error("Failed to fetch user data:", error);
+
+        if (error.name === UnauthenticatedUserError.name) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.status === 404) {
+          // User profile doesn't exist, they can stay and fill out membership form
+          setIsUser(false);
+          try {
+            const currentUser = await fetchUserAttributes();
+            if (currentUser && currentUser.email) {
+              setEmail(currentUser.email);
+              methods.setValue("email", currentUser.email);
+            }
+          } catch (emailError) {
+            console.error("Failed to fetch user email:", emailError);
+            await signOut({
+              global: false,
+              oauth: {
+                redirectUrl: `${generateStageURL()}/login`,
+              },
+            });
+            await router.push("/login");
+          }
+          setLoading(false);
+        } else {
+          // Other errors - redirect to login
+          await signOut({
+            global: false,
+            oauth: {
+              redirectUrl: `${generateStageURL()}/login`,
+            },
+          });
+          await router.push("/login");
+        }
       }
     };
 
-    getUserEmail();
+    checkUserAndGetEmail();
   }, [router, methods]);
 
   const onSubmit = async (values: MembershipFormValues) => {
@@ -601,37 +643,6 @@ const Membership: React.FC<MembershipProps> = ({ isUser }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const nextServerContext = { request: req, response: res };
-
-  try {
-    const userProfile = await fetchBackendFromServer({
-      endpoint: `/users/self`,
-      method: "GET",
-      nextServerContext,
-    });
-
-    if (userProfile?.isMember) {
-      return {
-        redirect: {
-          destination: "/",
-          permanent: false,
-        },
-      };
-    }
-
-    return {
-      props: {
-        isUser: !!userProfile,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        isUser: false,
-      },
-    };
-  }
-};
+// No server-side props needed - this is now a client-side only component
 
 export default Membership;

@@ -49,10 +49,14 @@ const LoginForm: React.FC = () => {
         await router.push("/membership");
       } catch (err: any) {
         if (err.status === 404) {
+          console.log(err, err.status);
           await router.push("/membership");
         } else if (err.name === UnauthenticatedUserError.name) {
           // User is not authenticated, this is expected on login page
           console.log("User not authenticated, staying on login page");
+        } else if (err.name === "NotAuthorizedException") {
+          // User's session is invalid/expired, stay on login page
+          console.log("User session expired or invalid, staying on login page");
         } else {
           // For network errors, server errors, etc. - just log and stay on login page
           console.error("Error checking user profile:", err);
