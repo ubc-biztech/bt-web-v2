@@ -13,6 +13,7 @@ import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import Image from "next/image";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { AuthError } from "@aws-amplify/auth";
+import { generateStageURL } from "@/util/url";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -33,14 +34,11 @@ const LoginForm: React.FC = () => {
 
   const clearAuthState = async () => {
     try {
-      await signOut();
       if (typeof window !== "undefined") {
         const clearCookie = (name: string) => {
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/;`;
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=${window.location.hostname};`;
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=.${window.location.hostname};`;
-
-          // Method 2: Additional attempts with different path variations (common in SPAs)
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure;`;
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=strict;`;
           document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=lax;`;
@@ -52,6 +50,7 @@ const LoginForm: React.FC = () => {
           console.log(cookieName);
           if (
             cookieName.includes("cognito") ||
+            cookieName.includes("Cognito") ||
             cookieName.startsWith("CognitoIdentityServiceProvider") ||
             cookieName.includes("idToken") ||
             cookieName.includes("accessToken") ||
@@ -61,6 +60,13 @@ const LoginForm: React.FC = () => {
           }
         });
       }
+
+      await signOut({
+        global: false,
+        oauth: {
+          redirectUrl: `${generateStageURL()}/login`,
+        },
+      });
     } catch (error) {
       console.warn("Error clearing auth state:", error);
     }
@@ -70,14 +76,10 @@ const LoginForm: React.FC = () => {
     async function checkUserProfile() {
       if (!router.isReady) return;
 
-      // Check for auth error query parameters and clear state if needed
       const authError = router.query.error;
       const clearAuth = router.query.clearAuth;
 
       if (authError || clearAuth) {
-        console.log(
-          "Auth error detected or clear auth requested, clearing auth state",
-        );
         await clearAuthState();
 
         setIsLoading(false);
@@ -126,7 +128,6 @@ const LoginForm: React.FC = () => {
           );
           await clearAuthState();
         } else {
-          console.error("Error checking user profile:", err);
           await clearAuthState();
         }
       }
@@ -178,42 +179,25 @@ const LoginForm: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        try {
-          const userProfile = await fetchBackend({
-            endpoint: `/users/self`,
-            method: "GET",
-          });
-          if (userProfile.isMember) {
-            const redirectUrl = (router.query.redirect as string) || "/";
-            await router.push(redirectUrl);
-          } else {
-            // User is not a member, redirect to membership with redirect parameter
-            const redirectUrl = (router.query.redirect as string) || null;
-            const stateParam = !Array.isArray(router.query.state)
-              ? router.query.state
-              : null;
-            let finalRedirect = redirectUrl;
 
-            if (stateParam && stateParam.split("-").length == 2) {
-              finalRedirect = Buffer.from(
-                stateParam.split("-")[1],
-                "hex",
-              ).toString();
-            }
+        const redirectUrl = (router.query.redirect as string) || null;
+        const stateParam = !Array.isArray(router.query.state)
+          ? router.query.state
+          : null;
+        let finalRedirect = redirectUrl;
 
-            const membershipUrl = finalRedirect
-              ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
-              : "/membership";
-
-            await router.push(membershipUrl);
-          }
-        } catch (err: any) {
-          if (err.status === 404) {
-            await router.push("/membership");
-          }
-
-          throw err;
+        if (stateParam && stateParam.split("-").length == 2) {
+          finalRedirect = Buffer.from(
+            stateParam.split("-")[1],
+            "hex",
+          ).toString();
         }
+
+        const membershipUrl = finalRedirect
+          ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
+          : "/membership";
+
+        await router.push(membershipUrl);
       } catch (error: any) {
         console.error("Error signing in", error);
         handleAuthErrors(error);
