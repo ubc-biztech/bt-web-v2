@@ -17,7 +17,7 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
 import { generateStageURL } from "@/util/url";
-import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import { clearCognitoCookies, UnauthenticatedUserError } from "@/lib/dbUtils";
 import { AuthError } from "@aws-amplify/auth";
 
 interface MembershipFormValues {
@@ -137,8 +137,6 @@ const Membership: React.FC = () => {
 
         setLoading(false);
       } catch (error: any) {
-        console.error("Failed to fetch user data:", error);
-
         if (
           error instanceof AuthError &&
           error.name === "UserUnAuthenticatedException"
@@ -147,6 +145,7 @@ const Membership: React.FC = () => {
           await router.push("/login");
         } else if (error.name === UnauthenticatedUserError.name) {
           // Backend says user is not authenticated, sign out and redirect to login
+          clearCognitoCookies();
           await signOut({
             global: false,
             oauth: {
@@ -159,7 +158,7 @@ const Membership: React.FC = () => {
 
           setLoading(false);
         } else {
-          // Other errors - redirect to login
+          clearCognitoCookies();
           await signOut({
             global: false,
             oauth: {
@@ -314,6 +313,7 @@ const Membership: React.FC = () => {
                     e.preventDefault();
 
                     try {
+                      clearCognitoCookies();
                       await signOut({
                         global: false,
                         oauth: { redirectUrl: `${generateStageURL()}/login` },

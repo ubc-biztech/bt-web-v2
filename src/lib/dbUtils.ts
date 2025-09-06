@@ -87,3 +87,32 @@ export class UnauthenticatedUserError extends Error {
     this.name = "UnauthenticatedUserError";
   }
 }
+
+export function clearCognitoCookies() {
+  if (typeof window !== "undefined") {
+    const clearCookie = (name: string) => {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=${window.location.hostname};`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=.${window.location.hostname};`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=strict;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=lax;`;
+    };
+
+    const cookies = document.cookie.split(";");
+    cookies.forEach((cookie) => {
+      const cookieName = cookie.split("=")[0].trim();
+      console.log(cookieName);
+      if (
+        cookieName.includes("cognito") ||
+        cookieName.includes("Cognito") ||
+        cookieName.startsWith("CognitoIdentityServiceProvider") ||
+        cookieName.includes("idToken") ||
+        cookieName.includes("accessToken") ||
+        cookieName.includes("refreshToken")
+      ) {
+        clearCookie(cookieName);
+      }
+    });
+  }
+}

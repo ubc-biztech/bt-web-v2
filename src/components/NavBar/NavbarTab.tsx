@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { signOut } from "@aws-amplify/auth";
 import { generateStageURL } from "@/util/url";
+import { clearCognitoCookies } from "@/lib/dbUtils";
 
 interface NavbarItem {
   title: string;
@@ -39,6 +40,7 @@ const NavbarTab: React.FC<NavbarProps> = ({
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
+      clearCognitoCookies();
       await signOut({
         global: false,
         oauth: { redirectUrl: `${generateStageURL()}/login` },
