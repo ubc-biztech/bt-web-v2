@@ -102,7 +102,7 @@ export function clearCognitoCookies() {
     const cookies = document.cookie.split(";");
     cookies.forEach((cookie) => {
       const cookieName = cookie.split("=")[0].trim();
-      console.log(cookieName);
+
       if (
         cookieName.includes("cognito") ||
         cookieName.includes("Cognito") ||
