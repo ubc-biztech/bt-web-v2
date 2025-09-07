@@ -45,6 +45,36 @@ const ProfilePage = ({
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [canCheckIn, setCanCheckIn] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const userProfile = await fetchBackend({
+          endpoint: "/users/self",
+          method: "GET",
+        });
+        const activeEvent = await fetchBackend({
+          endpoint: "/events/getActiveEvent",
+          method: "GET",
+        });
+
+        setCanCheckIn(userProfile.admin && activeEvent);
+        console.log("running useEffect");
+      } catch (error) {
+        console.error("Error checking admin status:", error);
+        // On error, don't allow check-in for security
+        setCanCheckIn(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
+
+  const onCheckIn = async () => {
+    console.log("checking" + profileID + "in");
+    return;
+  };
 
   const router = useRouter();
   const navRouter = useNavRouter();
@@ -159,12 +189,21 @@ const ProfilePage = ({
               </ConnectedButton>
             )}
 
-            <IconButton
-              icon={Share}
-              label="Share Profile"
-              onClick={() => setDrawerOpen(true)}
-              className="mx-auto"
-            />
+            <div className="flex gap-4 justify-center">
+              <IconButton
+                icon={Share}
+                label="Share Profile"
+                onClick={() => setDrawerOpen(true)}
+              />
+
+              {canCheckIn && (
+                <IconButton
+                  icon={CheckCircle}
+                  label="Check User In"
+                  onClick={onCheckIn}
+                />
+              )}
+            </div>
           </div>
 
           <div className="hidden md:block">
