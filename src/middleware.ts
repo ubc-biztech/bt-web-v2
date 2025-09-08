@@ -26,6 +26,7 @@ export async function middleware(request: NextRequest) {
     "/static",
     "/fonts",
     "/videos",
+    "/admin",
   ];
 
   if (
