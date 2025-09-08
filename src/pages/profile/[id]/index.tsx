@@ -46,94 +46,99 @@ const ProfilePage = ({
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
 
-  // the existance of an activeEvent means that checkIn is available.
-  const [activeEvent, setActiveEvent] = useState<{
+  // State for managing check-in availability - only available when user is admin and there's an active event
+  const [checkInEvent, setCheckInEvent] = useState<{
     eventID: string;
     year: number;
   } | null>(null);
 
   useEffect(() => {
-    const initializeCheckInPermissions = async () => {
+    const initializeCheckInAvailability = async () => {
       try {
-        // Check localStorage for cached event
-        const storedActiveEvent = localStorage.getItem("activeEvent");
-        const now = new Date();
-
-        let shouldFetchFromNetwork = true;
-        let fetchedActiveEvent = null;
-
-        if (storedActiveEvent) {
-          try {
-            const [endTimeStr, eventIdAndYear] = storedActiveEvent.split("#");
-            const [eventId, year] = eventIdAndYear.split(";");
-            const endTime = new Date(endTimeStr);
-
-            // Check that cache is not stale.
-            if (endTime > now) {
-              shouldFetchFromNetwork = false;
-              fetchedActiveEvent = {
-                id: eventId,
-                year: parseInt(year),
-                endDate: endTimeStr,
-              };
-            }
-          } catch (parseError) {
-            console.error("Error parsing stored active event:", parseError);
-          }
-        }
-        const userProfile = await fetchBackend({
+        const currentUser = await fetchBackend({
           endpoint: "/users/self",
           method: "GET",
         });
 
-        if (shouldFetchFromNetwork) {
-          fetchedActiveEvent = await fetchBackend({
-            endpoint: "/events/getActiveEvent",
-            method: "GET",
-          });
-          console.log("Fetched active event from network:", fetchedActiveEvent);
+        if (!currentUser.admin) {
+          setCheckInEvent(null);
+          return;
+        }
 
-          // Store in localStorage with format: {endTime#eventID;year}
-          if (fetchedActiveEvent) {
-            const storageKey = `${fetchedActiveEvent.endDate}#${fetchedActiveEvent.id};${fetchedActiveEvent.year}`;
-            localStorage.setItem("activeEvent", storageKey);
+        // Try to get active event from cache first
+        const cachedEventData = localStorage.getItem("activeEvent");
+        const currentTime = new Date();
+        let activeEventData = null;
+
+        if (cachedEventData) {
+          try {
+            const [eventEndTimeStr, eventIdAndYear] =
+              cachedEventData.split("#");
+            const [eventId, year] = eventIdAndYear.split(";");
+            const eventEndTime = new Date(eventEndTimeStr);
+
+            // check that chache is not stale
+            if (eventEndTime > currentTime) {
+              activeEventData = {
+                id: eventId,
+                year: parseInt(year),
+                endDate: eventEndTimeStr,
+              };
+            }
+          } catch (parseError) {
+            console.error("Error parsing cached active event:", parseError);
           }
         }
 
-        if (userProfile.admin && fetchedActiveEvent) {
-          setActiveEvent({
-            eventID: fetchedActiveEvent.id,
-            year: fetchedActiveEvent.year,
+        // Fetch from network if no valid cache
+        if (!activeEventData) {
+          activeEventData = await fetchBackend({
+            endpoint: "/events/getActiveEvent",
+            method: "GET",
+          });
+
+          // Cache the fetched event data with format {activeEvent: endTime#eventID;year}
+          if (activeEventData) {
+            const cacheKey = `${activeEventData.endDate}#${activeEventData.id};${activeEventData.year}`;
+            localStorage.setItem("activeEvent", cacheKey);
+          }
+        }
+
+        // Set check-in event if we have valid data
+        if (activeEventData) {
+          setCheckInEvent({
+            eventID: activeEventData.id,
+            year: activeEventData.year,
           });
         } else {
-          setActiveEvent(null);
+          setCheckInEvent(null);
         }
       } catch (error) {
-        console.error("Error checking admin status:", error);
-        setActiveEvent(null);
+        console.error("Error initializing check-in availability:", error);
+        setCheckInEvent(null);
       }
     };
 
-    initializeCheckInPermissions();
+    initializeCheckInAvailability();
   }, []);
 
-  const onCheckIn = async () => {
-    if (!activeEvent) {
+  const handleUserCheckIn = async () => {
+    if (!checkInEvent) {
       console.error("No active event available for check-in");
       return;
     }
 
-    const body = {
-      eventID: activeEvent.eventID,
-      year: activeEvent.year,
-      registrationStatus: "CHECKED_IN", // Using string instead of enum for now
+    const checkInData = {
+      eventID: checkInEvent.eventID,
+      year: checkInEvent.year,
+      registrationStatus: "CHECKED_IN",
     };
 
     try {
       await fetchBackend({
         endpoint: `/registrations/${profileID}/${fname}`,
         method: "PUT",
-        data: body,
+        data: checkInData,
       });
 
       console.log("Successfully checked in user:", profileID);
@@ -262,11 +267,11 @@ const ProfilePage = ({
                 onClick={() => setDrawerOpen(true)}
               />
 
-              {activeEvent && (
+              {checkInEvent && (
                 <IconButton
                   icon={CheckCircle}
                   label="Check User In"
-                  onClick={onCheckIn}
+                  onClick={handleUserCheckIn}
                 />
               )}
             </div>
