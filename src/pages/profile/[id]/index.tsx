@@ -26,6 +26,7 @@ import ConnectionModal from "@/components/Connections/ConnectionModal/Connection
 import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import { IconButton } from "@/components/Common/IconButton";
+import { REGISTRATION_STATUS } from "@/constants/registrations";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -122,6 +123,8 @@ const ProfilePage = ({
     initializeCheckInAvailability();
   }, []);
 
+  // THIS FUNCTION IS NOT WORKING
+  // !! WE NEED A WAY TO GO FROM profileID to email
   const handleUserCheckIn = async () => {
     if (!checkInEvent) {
       console.error("No active event available for check-in");
@@ -131,7 +134,7 @@ const ProfilePage = ({
     const checkInData = {
       eventID: checkInEvent.eventID,
       year: checkInEvent.year,
-      registrationStatus: "CHECKED_IN",
+      registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
     };
 
     try {
