@@ -195,7 +195,7 @@ const ProfilePage = ({
               <div className="space-y-3">
                 <DisplayUserField
                   icon={IdCardLanyard}
-                  fieldName="School"
+                  fieldName="Pronouns"
                   fieldValue={pronouns}
                 />
                 <DisplayUserField
