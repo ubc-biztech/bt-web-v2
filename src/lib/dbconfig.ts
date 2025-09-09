@@ -18,11 +18,12 @@ export const CLIENT_URL =
       : "https://dev.v2.ubcbiztech.com/";
 
 export const WS_URL =
-  process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
+  process.env.NEXT_PUBLIC_WS_URL ||
+  (process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
     ? "wss://api.ubcbiztech.com"
     : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
       ? "ws://localhost:3002"
-      : "wss://api-dev.ubcbiztech.com";
+      : "wss://bwiujsprij.execute-api.us-west-2.amazonaws.com/dev");
 
 export const INTERACTIONS_URL =
   process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
