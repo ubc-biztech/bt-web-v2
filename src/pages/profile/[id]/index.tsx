@@ -50,24 +50,27 @@ const ProfilePage = ({
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
 
-  // State for managing check-in availability - only available when user is admin and there's an active event
+  // State for managing check-in availability
+  // checkin available when checkInEvent exists
   const [checkInEvent, setCheckInEvent] = useState<{
     eventID: string;
     year: number;
   } | null>(null);
 
   useEffect(() => {
-    const handleUserCheckIn = async (eventData: {
-      eventID: string;
-      year: number;
-    }) => {
+    const handleUserCheckIn = async (
+      eventData: {
+        eventID: string;
+        year: number;
+      },
+      userEmail: string,
+    ) => {
       const checkInData = {
         eventID: eventData.eventID,
         year: eventData.year,
         registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
       };
 
-      // Show loading toast
       const loadingToast = toast({
         title: "Checking user in...",
         description: (
@@ -79,20 +82,12 @@ const ProfilePage = ({
       });
 
       try {
-        const response = await fetchBackend({
-          endpoint: `/members/email/${profileID}`,
-          method: "GET",
-        });
-
         await fetchBackend({
-          endpoint: `/registrations/${response.email}/${profileData.fname}`,
+          endpoint: `/registrations/${userEmail}/${profileData.fname}`,
           method: "PUT",
           data: checkInData,
         });
 
-        console.log("Successfully checked in user:", profileID);
-
-        // Update toast to success
         loadingToast.update({
           id: loadingToast.id,
           title: "User Checked In",
@@ -102,7 +97,6 @@ const ProfilePage = ({
       } catch (error: any) {
         console.error("Check-in failed:", error);
 
-        // Update toast to error
         if (error.status === 409) {
           loadingToast.update({
             id: loadingToast.id,
@@ -173,7 +167,6 @@ const ProfilePage = ({
           }
         }
 
-        // Set check-in event if we have valid data
         if (activeEventData) {
           const eventData = {
             eventID: activeEventData.id,
@@ -181,35 +174,15 @@ const ProfilePage = ({
           };
           setCheckInEvent(eventData);
 
-          // Check if user is already checked in before attempting check-in
           try {
             const response = await fetchBackend({
               endpoint: `/members/email/${profileID}`,
               method: "GET",
             });
 
-            const registrations = await fetchBackend({
-              endpoint: `/registrations?email=${response.email}`,
-              method: "GET",
-            });
-
-            const userRegistration = registrations.data.find(
-              (reg: any) =>
-                reg["eventID;year"] ===
-                `${eventData.eventID};${eventData.year}`,
-            );
-
-            // Only attempt check-in if user is registered and not already checked in
-            if (
-              userRegistration &&
-              userRegistration.registrationStatus !==
-                REGISTRATION_STATUS.CHECKED_IN
-            ) {
-              await handleUserCheckIn(eventData);
-            }
+            await handleUserCheckIn(eventData, response.email);
           } catch (error) {
-            console.error("Error checking user registration status:", error);
-            // If we can't check registration status, don't attempt check-in
+            console.error("Error during check-in process:", error);
           }
         } else {
           setCheckInEvent(null);
@@ -219,7 +192,6 @@ const ProfilePage = ({
         setCheckInEvent(null);
       }
     };
-
     initializeCheckInAvailability();
   }, []);
 
