@@ -96,7 +96,7 @@ const ProfilePage = ({
         loadingToast.update({
           id: loadingToast.id,
           title: "User Checked In",
-          description: `${profileData.fname} ${profileData.lname} has been automatically checked in.`,
+          description: `${profileData.fname} ${profileData.lname} has been checked in.`,
         });
         return true;
       } catch (error: any) {
@@ -221,7 +221,7 @@ const ProfilePage = ({
     };
 
     initializeCheckInAvailability();
-  }, [profileData.fname, profileData.lname, profileID, toast]);
+  }, []);
 
   const router = useRouter();
   const navRouter = useNavRouter();
