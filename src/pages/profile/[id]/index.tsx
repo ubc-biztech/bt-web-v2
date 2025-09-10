@@ -8,6 +8,7 @@ import {
   Home,
   CheckCircle,
 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
 import {
   BiztechProfile,
@@ -46,6 +47,7 @@ const ProfilePage = ({
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const { toast } = useToast();
 
   // State for managing check-in availability - only available when user is admin and there's an active event
   const [checkInEvent, setCheckInEvent] = useState<{
@@ -54,6 +56,53 @@ const ProfilePage = ({
   } | null>(null);
 
   useEffect(() => {
+    const handleUserCheckIn = async (eventData: {
+      eventID: string;
+      year: number;
+    }) => {
+      const checkInData = {
+        eventID: eventData.eventID,
+        year: eventData.year,
+        registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
+      };
+
+      try {
+        const response = await fetchBackend({
+          endpoint: `/members/email/${profileID}`,
+          method: "GET",
+        });
+
+        await fetchBackend({
+          endpoint: `/registrations/${response.email}/${profileData.fname}`,
+          method: "PUT",
+          data: checkInData,
+        });
+
+        console.log("Successfully checked in user:", profileID);
+        toast({
+          title: "User Checked In",
+          description: `${profileData.fname} ${profileData.lname} has been automatically checked in.`,
+        });
+        return true;
+      } catch (error: any) {
+        console.error("Check-in failed:", error);
+        if (error.status === 409) {
+          toast({
+            title: "Check-in Failed",
+            description: "The user is not registered for this event.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Check-in Failed",
+            description: "Failed to automatically check in the user.",
+            variant: "destructive",
+          });
+        }
+        return false;
+      }
+    };
+
     const initializeCheckInAvailability = async () => {
       try {
         const currentUser = await fetchBackend({
@@ -78,7 +127,7 @@ const ProfilePage = ({
             const [eventId, year] = eventIdAndYear.split(";");
             const eventEndTime = new Date(eventEndTimeStr);
 
-            // check that chache is not stale
+            // check that cache is not stale
             if (eventEndTime > currentTime) {
               activeEventData = {
                 id: eventId,
@@ -107,10 +156,14 @@ const ProfilePage = ({
 
         // Set check-in event if we have valid data
         if (activeEventData) {
-          setCheckInEvent({
+          const eventData = {
             eventID: activeEventData.id,
             year: activeEventData.year,
-          });
+          };
+          setCheckInEvent(eventData);
+
+          // Auto check-in the user if conditions are met
+          await handleUserCheckIn(eventData);
         } else {
           setCheckInEvent(null);
         }
@@ -121,34 +174,7 @@ const ProfilePage = ({
     };
 
     initializeCheckInAvailability();
-  }, []);
-
-  // THIS FUNCTION IS NOT WORKING
-  // !! WE NEED A WAY TO GO FROM profileID to email
-  const handleUserCheckIn = async () => {
-    if (!checkInEvent) {
-      console.error("No active event available for check-in");
-      return;
-    }
-
-    const checkInData = {
-      eventID: checkInEvent.eventID,
-      year: checkInEvent.year,
-      registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
-    };
-
-    try {
-      await fetchBackend({
-        endpoint: `/registrations/${profileID}/${fname}`,
-        method: "PUT",
-        data: checkInData,
-      });
-
-      console.log("Successfully checked in user:", profileID);
-    } catch (error) {
-      console.error("Check-in failed:", error);
-    }
-  };
+  }, [profileData.fname, profileData.lname, profileID, toast]);
 
   const router = useRouter();
   const navRouter = useNavRouter();
@@ -269,14 +295,6 @@ const ProfilePage = ({
                 label="Share Profile"
                 onClick={() => setDrawerOpen(true)}
               />
-
-              {checkInEvent && (
-                <IconButton
-                  icon={CheckCircle}
-                  label="Check User In"
-                  onClick={handleUserCheckIn}
-                />
-              )}
             </div>
           </div>
 
