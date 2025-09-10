@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Home,
   CheckCircle,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
@@ -66,6 +67,17 @@ const ProfilePage = ({
         registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
       };
 
+      // Show loading toast
+      const loadingToast = toast({
+        title: "Checking user in...",
+        description: (
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Please wait while we check in the user.</span>
+          </div>
+        ),
+      });
+
       try {
         const response = await fetchBackend({
           endpoint: `/members/email/${profileID}`,
@@ -79,21 +91,28 @@ const ProfilePage = ({
         });
 
         console.log("Successfully checked in user:", profileID);
-        toast({
+
+        // Update toast to success
+        loadingToast.update({
+          id: loadingToast.id,
           title: "User Checked In",
           description: `${profileData.fname} ${profileData.lname} has been automatically checked in.`,
         });
         return true;
       } catch (error: any) {
         console.error("Check-in failed:", error);
+
+        // Update toast to error
         if (error.status === 409) {
-          toast({
+          loadingToast.update({
+            id: loadingToast.id,
             title: "Check-in Failed",
             description: "The user is not registered for this event.",
             variant: "destructive",
           });
         } else {
-          toast({
+          loadingToast.update({
+            id: loadingToast.id,
             title: "Check-in Failed",
             description: "Failed to automatically check in the user.",
             variant: "destructive",
@@ -162,8 +181,36 @@ const ProfilePage = ({
           };
           setCheckInEvent(eventData);
 
-          // Auto check-in the user if conditions are met
-          await handleUserCheckIn(eventData);
+          // Check if user is already checked in before attempting check-in
+          try {
+            const response = await fetchBackend({
+              endpoint: `/members/email/${profileID}`,
+              method: "GET",
+            });
+
+            const registrations = await fetchBackend({
+              endpoint: `/registrations?email=${response.email}`,
+              method: "GET",
+            });
+
+            const userRegistration = registrations.data.find(
+              (reg: any) =>
+                reg["eventID;year"] ===
+                `${eventData.eventID};${eventData.year}`,
+            );
+
+            // Only attempt check-in if user is registered and not already checked in
+            if (
+              userRegistration &&
+              userRegistration.registrationStatus !==
+                REGISTRATION_STATUS.CHECKED_IN
+            ) {
+              await handleUserCheckIn(eventData);
+            }
+          } catch (error) {
+            console.error("Error checking user registration status:", error);
+            // If we can't check registration status, don't attempt check-in
+          }
         } else {
           setCheckInEvent(null);
         }
