@@ -639,7 +639,7 @@ export default function ConnectionWall3D() {
       emissive: color.clone().multiplyScalar(0.18),
       shininess: 28,
       transparent: true,
-      opacity: 0.95,
+      opacity: 0.0,
     });
     const sphere = new THREE.Mesh(
       new THREE.SphereGeometry(Math.max(0.0001, r), 20, 20),
@@ -651,7 +651,7 @@ export default function ConnectionWall3D() {
       new THREE.SpriteMaterial({
         color,
         transparent: true,
-        opacity: 0.22,
+        opacity: 0.0,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
       }),
@@ -691,16 +691,7 @@ export default function ConnectionWall3D() {
         }),
       );
       crown.rotation.x = Math.PI / 2;
-      const glow = new THREE.Sprite(
-        new THREE.SpriteMaterial({
-          color: crownColor,
-          transparent: true,
-          opacity: 0.22,
-          blending: THREE.AdditiveBlending,
-        }),
-      );
-      glow.scale.set(r * 9, r * 9, 1);
-      group.add(glow);
+
       group.add(crown);
     }
 
