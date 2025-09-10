@@ -73,7 +73,6 @@ const ProfilePage = ({
           authenticatedCall: false,
         });
 
-        // Find the registration for this specific event
         const eventRegistration = registrationData.data.find(
           (reg: any) =>
             reg["eventID;year"] === `${eventData.eventID};${eventData.year}`,
@@ -88,7 +87,6 @@ const ProfilePage = ({
           return false;
         }
 
-        // Check if user is already checked in
         if (
           eventRegistration.registrationStatus ===
           REGISTRATION_STATUS.CHECKED_IN
@@ -96,7 +94,6 @@ const ProfilePage = ({
           return false;
         }
 
-        // Check if user's registration was cancelled or waitlisted
         if (
           eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
         ) {
@@ -156,7 +153,16 @@ const ProfilePage = ({
         loadingToast.update({
           id: loadingToast.id,
           title: "User Checked In",
-          description: `${profileData.fname} ${profileData.lname} has been checked in.`,
+          description: (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 text-white" />
+              </div>
+              <span>
+                {profileData.fname} {profileData.lname} has been checked in.
+              </span>
+            </div>
+          ),
         });
         return true;
       } catch (error: any) {
