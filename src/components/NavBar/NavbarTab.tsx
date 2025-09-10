@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { signOut } from "@aws-amplify/auth";
 import { generateStageURL } from "@/util/url";
 import { clearCognitoCookies } from "@/lib/dbUtils";
+import { logout } from "@/util/auth";
 
 interface NavbarItem {
   title: string;
@@ -41,15 +42,9 @@ const NavbarTab: React.FC<NavbarProps> = ({
     setIsSigningOut(true);
     try {
       clearCognitoCookies();
-      await signOut({
-        global: false,
-        oauth: { redirectUrl: `${generateStageURL()}/login` },
-      });
-
+      await logout();
       onLogout?.();
       onTabClick?.();
-
-      router.replace("/login");
     } catch (error) {
       console.error("Error signing out:", error);
       setIsSigningOut(false);

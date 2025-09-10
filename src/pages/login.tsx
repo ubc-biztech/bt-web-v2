@@ -1,19 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import {
   signIn,
   signInWithRedirect,
   resendSignUpCode,
-  signOut,
+  fetchAuthSession,
 } from "@aws-amplify/auth";
-import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
-import { clearCognitoCookies, UnauthenticatedUserError } from "@/lib/dbUtils";
+import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
-import { fetchUserAttributes } from "@aws-amplify/auth";
-import { AuthError } from "@aws-amplify/auth";
-import { generateStageURL } from "@/util/url";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -22,32 +18,25 @@ const LoginForm: React.FC = () => {
     emailError: string;
     passwordError: React.ReactNode;
     confirmationError: string;
-  }>({
-    emailError: "",
-    passwordError: "",
-    confirmationError: "",
-  });
+  }>({ emailError: "", passwordError: "", confirmationError: "" });
   const [isLoading, setIsLoading] = useState(true);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
+
   const router = useRouter();
+  const hasRedirectedRef = useRef(false); // prevent double redirects
 
   const clearAuthState = async () => {
     try {
       clearCognitoCookies();
-
-      await signOut({
-        global: false,
-        oauth: {
-          redirectUrl: `${generateStageURL()}/login`,
-        },
-      });
     } catch (error) {
       console.warn("Error clearing auth state:", error);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
+
     async function checkUserProfile() {
       if (!router.isReady) return;
 
@@ -56,30 +45,29 @@ const LoginForm: React.FC = () => {
 
       if (authError || clearAuth) {
         await clearAuthState();
-
         setIsLoading(false);
         return;
       }
 
       try {
-        const attributes = await fetchUserAttributes();
-        const userEmail = attributes?.email || "";
+        const session = await fetchAuthSession();
+        const isSignedIn = !!session?.tokens?.accessToken;
 
-        if (!userEmail) {
-          console.log("User not authenticated, staying on login page");
+        if (!isSignedIn) {
           setIsLoading(false);
-          return;
+          return; // stay on login
         }
 
-        // User is authenticated, redirect to membership page with redirect parameter
-        // The membership page will handle redirecting to the intended destination if they're already a member
+        if (hasRedirectedRef.current) return;
+        hasRedirectedRef.current = true;
+
         const redirectUrl = (router.query.redirect as string) || null;
         const stateParam = !Array.isArray(router.query.state)
           ? router.query.state
           : null;
         let finalRedirect = redirectUrl;
 
-        if (stateParam && stateParam.split("-").length == 2) {
+        if (stateParam && stateParam.split("-").length === 2) {
           finalRedirect = Buffer.from(
             stateParam.split("-")[1],
             "hex",
@@ -90,95 +78,116 @@ const LoginForm: React.FC = () => {
           ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
           : "/membership";
 
-        await router.push(membershipUrl);
-      } catch (err: any) {
-        if (
-          err instanceof AuthError &&
-          err.name === "UserUnAuthenticatedException"
-        ) {
-          // do nothing.
-        } else if (err.name === "NotAuthorizedException") {
-          console.log(
-            "User session expired or invalid, clearing auth state and staying on login page",
-          );
-          await clearAuthState();
-        } else {
-          await clearAuthState();
-        }
+        await router.replace(membershipUrl);
+      } catch {
+        // treat as signed-out
+        await clearAuthState();
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
-
-      setIsLoading(false);
     }
 
+    const t = setTimeout(() => setIsLoading(false), 8000);
     checkUserProfile();
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
   }, [router]);
 
   const validateEmail = (value: string) => {
-    let error = "";
-    if (!value) {
-      error = "Email is required";
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-      error = "Please enter a valid email address";
-    }
-    return error;
+    if (!value) return "Email is required";
+    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value))
+      return "Please enter a valid email address";
+    return "";
   };
 
-  const validatePassword = (value: string) => {
-    let error = "";
-    if (!value) {
-      error = "Password is required";
-    }
-    return error;
-  };
+  const validatePassword = (value: string) =>
+    !value ? "Password is required" : "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
     setIsLoading(true);
+
     if (emailError || passwordError) {
       setErrors({ emailError, passwordError, confirmationError: "" });
-    } else {
-      try {
-        const user = await signIn({
-          username: email,
-          password: password,
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const user = await signIn({ username: email, password });
+      if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
+        setShowResend(true);
+        setErrors({
+          emailError: "",
+          passwordError: "",
+          confirmationError: "Please verify your email before signing in.",
         });
-        if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
-          setShowResend(true);
-          setErrors({
-            emailError: "",
-            passwordError: "",
-            confirmationError: "Please verify your email before signing in.",
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        const redirectUrl = (router.query.redirect as string) || null;
-        const stateParam = !Array.isArray(router.query.state)
-          ? router.query.state
-          : null;
-        let finalRedirect = redirectUrl;
-
-        if (stateParam && stateParam.split("-").length == 2) {
-          finalRedirect = Buffer.from(
-            stateParam.split("-")[1],
-            "hex",
-          ).toString();
-        }
-
-        const membershipUrl = finalRedirect
-          ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
-          : "/membership";
-
-        await router.push(membershipUrl);
-      } catch (error: any) {
-        console.error("Error signing in", error);
-        handleAuthErrors(error);
+        setIsLoading(false);
+        return;
       }
+
+      const redirectUrl = (router.query.redirect as string) || null;
+      const stateParam = !Array.isArray(router.query.state)
+        ? router.query.state
+        : null;
+      let finalRedirect = redirectUrl;
+
+      if (stateParam && stateParam.split("-").length === 2) {
+        finalRedirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
+      }
+
+      const membershipUrl = finalRedirect
+        ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
+        : "/membership";
+
+      await router.replace(membershipUrl);
+    } catch (error: any) {
+      console.error("Error signing in", error);
+      let emailError = "";
+      let passwordError: React.ReactNode = "";
+      switch (error.code) {
+        case "UserNotConfirmedException":
+          setShowResend(true);
+          emailError = "Your account has not been verified yet.";
+          break;
+        case "UserNotFoundException":
+          emailError = "Incorrect username or password.";
+          break;
+        case "NotAuthorizedException":
+          passwordError = "Incorrect username or password.";
+          break;
+        default:
+          passwordError = error.message;
+          break;
+      }
+      setErrors({ emailError, passwordError, confirmationError: "" });
     }
     setIsLoading(false);
+  };
+
+  const handleResendVerification = async () => {
+    setIsResending(true);
+    setErrors((prev) => ({ ...prev, confirmationError: "" }));
+    try {
+      await resendSignUpCode({ username: email });
+      setErrors((prev) => ({
+        ...prev,
+        confirmationError:
+          "Verification email resent. Please check your inbox.",
+      }));
+    } catch {
+      setErrors((prev) => ({
+        ...prev,
+        confirmationError:
+          "Failed to resend verification email. Please try again.",
+      }));
+    }
+    setIsResending(false);
   };
 
   const handleGoogleSignIn = async () => {
@@ -189,62 +198,17 @@ const LoginForm: React.FC = () => {
         : null;
       let finalRedirect = redirectUrl;
 
-      if (stateParam && stateParam.split("-").length == 2) {
+      if (stateParam && stateParam.split("-").length === 2) {
         finalRedirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
       }
 
       await signInWithRedirect({
         provider: "Google",
-        customState: finalRedirect ? finalRedirect : undefined,
+        customState: finalRedirect || undefined,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error initiating Google sign-in:", error);
     }
-  };
-
-  const handleAuthErrors = (error: any) => {
-    let emailError = "";
-    let passwordError: React.ReactNode = "";
-    switch (error.code) {
-      case "UserNotConfirmedException":
-        setShowResend(true);
-        emailError = "Your account has not been verified yet.";
-        break;
-      case "UserNotFoundException":
-        emailError = "Incorrect username or password.";
-        break;
-      case "NotAuthorizedException":
-        passwordError = "Incorrect username or password.";
-        break;
-      default:
-        passwordError = error.message;
-        break;
-    }
-    setErrors({ emailError, passwordError, confirmationError: "" });
-  };
-
-  const handleResendVerification = async () => {
-    setIsResending(true);
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      confirmationError: "",
-    }));
-    try {
-      await resendSignUpCode({ username: email });
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        confirmationError:
-          "Verification email resent. Please check your inbox.",
-      }));
-    } catch (error) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        confirmationError:
-          "Failed to resend verification email. Please try again.",
-      }));
-      console.error("Error resending verification email:", error);
-    }
-    setIsResending(false);
   };
 
   if (isLoading) {
@@ -281,6 +245,7 @@ const LoginForm: React.FC = () => {
               </Link>
             </h2>
           </div>
+
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div>
               <label
@@ -385,8 +350,9 @@ const LoginForm: React.FC = () => {
             </div>
 
             <div className="mt-7 grid grid-cols-2 gap-4">
-              <Link
-                href="#"
+              {/* ✅ button instead of Link "#" to avoid Safari ghost nav */}
+              <button
+                type="button"
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-neutral-200 focus-visible:ring-transparent"
                 onClick={handleGoogleSignIn}
               >
@@ -399,7 +365,7 @@ const LoginForm: React.FC = () => {
                 <span className="text-sm leading-6 text-login-form-card font-500">
                   Google
                 </span>
-              </Link>
+              </button>
 
               <Link
                 href="/become-a-member"

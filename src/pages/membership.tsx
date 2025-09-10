@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { Amplify } from "aws-amplify";
-import { fetchUserAttributes, signOut } from "@aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import outputs from "../../amplify_outputs.json";
 import { fetchBackend } from "@/lib/db";
 import {
   FormInput,
@@ -14,11 +12,8 @@ import {
 } from "../components/SignUpForm/FormInput";
 import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
-import { generateStageURL } from "@/util/url";
-import { clearCognitoCookies, UnauthenticatedUserError } from "@/lib/dbUtils";
-import { AuthError } from "@aws-amplify/auth";
 
 interface MembershipFormValues {
   email: string;
@@ -36,10 +31,6 @@ interface MembershipFormValues {
   referral: string;
   topics: string[];
 }
-
-// No props needed - this is now a client-side only component
-
-Amplify.configure(outputs, { ssr: true });
 
 const validationSchema = z
   .object({
@@ -63,12 +54,10 @@ const validationSchema = z
     topics: z.array(z.string()),
   })
   .refine(
-    (data) => {
-      if (data.education === "UBC") {
-        return data.studentNumber && /^\d{8}$/.test(data.studentNumber);
-      }
-      return true;
-    },
+    (data) =>
+      data.education === "UBC"
+        ? !!data.studentNumber && /^\d{8}$/.test(data.studentNumber)
+        : true,
     {
       message: "Student number must be an 8 digit number for UBC students",
       path: ["studentNumber"],
@@ -80,11 +69,14 @@ const Membership: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUser, setIsUser] = useState(false);
+
   const router = useRouter();
+  const hasRedirectedRef = useRef(false); // prevent double-redirect
+
   const methods = useForm<z.infer<typeof validationSchema>>({
     resolver: zodResolver(validationSchema),
     defaultValues: {
-      email: email,
+      email: "",
       firstName: "",
       lastName: "",
       education: "",
@@ -102,75 +94,75 @@ const Membership: React.FC = () => {
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     const checkUserAndGetEmail = async () => {
       if (!router.isReady) return;
 
       try {
-        // First check if user is signed in using the reliable method (same as NavBar)
+        // 1. sign-in check
+        const session = await fetchAuthSession();
+        const isSignedIn = !!session?.tokens?.accessToken;
+        if (!isSignedIn) {
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace("/login");
+          }
+          return;
+        }
+
+        // 2.now safe to read attributes
         const attributes = await fetchUserAttributes();
         const userEmail = attributes?.email || "";
-
         if (!userEmail) {
-          // User is not authenticated, redirect to login
-          await router.push("/login");
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace("/login");
+          }
           return;
         }
 
         setEmail(userEmail);
         methods.setValue("email", userEmail);
 
-        // User is authenticated, now check their profile
+        // 3.backend profile/membership
         const userProfile = await fetchBackend({
           endpoint: `/users/self`,
           method: "GET",
         });
 
         if (userProfile?.isMember) {
-          // User is already a member, redirect to intended destination or home
           const redirectUrl = (router.query.redirect as string) || "/";
-          await router.push(redirectUrl);
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace(redirectUrl);
+          }
           return;
         }
 
-        // User is not a member, get their email for the form
+        // Not a member -> render form
         setIsUser(true);
-
         setLoading(false);
-      } catch (error: any) {
-        if (
-          error instanceof AuthError &&
-          error.name === "UserUnAuthenticatedException"
-        ) {
-          // User is not authenticated, redirect to login
-          await router.push("/login");
-        } else if (error.name === UnauthenticatedUserError.name) {
-          // Backend says user is not authenticated, sign out and redirect to login
-          clearCognitoCookies();
-          await signOut({
-            global: false,
-            oauth: {
-              redirectUrl: `${generateStageURL()}/login`,
-            },
-          });
-          await router.push("/login");
-        } else if (error.status === 404) {
-          // User profile doesn't exist, they can stay and fill out membership form
-
-          setLoading(false);
-        } else {
-          clearCognitoCookies();
-          await signOut({
-            global: false,
-            oauth: {
-              redirectUrl: `${generateStageURL()}/login`,
-            },
-          });
-          await router.push("/login");
+      } catch (error) {
+        // Treat any error as unauthenticated -> go to login
+        if (!hasRedirectedRef.current) {
+          hasRedirectedRef.current = true;
+          await router.replace("/login");
+        }
+      } finally {
+        if (!cancelled) {
+          const t = setTimeout(() => setLoading(false), 1000);
+          return () => clearTimeout(t);
         }
       }
     };
 
     checkUserAndGetEmail();
+    const safety = setTimeout(() => setLoading(false), 8000);
+    return () => {
+      cancelled = true;
+      clearTimeout(safety);
+    };
   }, [router, methods]);
 
   const onSubmit = async (values: MembershipFormValues) => {
@@ -191,7 +183,7 @@ const Membership: React.FC = () => {
       international: values.internationalStudent === "Yes",
       prev_member: values.previousMember === "Yes",
       isMember: true,
-      admin: email.endsWith("@ubcbiztech.com"),
+      admin: email.toLowerCase().endsWith("@ubcbiztech.com"),
     };
 
     try {
@@ -225,30 +217,25 @@ const Membership: React.FC = () => {
           }),
         ]);
 
-        await fetchBackend({
-          endpoint: "/profiles",
-          method: "POST",
-        });
+        await fetchBackend({ endpoint: "/profiles", method: "POST" });
         router.push(`/`);
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
           paymentImages: ["https://imgur.com/TRiZYtG.png"],
           paymentType: isUser ? "Member" : "OAuthMember",
-          success_url: `${
+          success_url:
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
               : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
                 ? "https://dev.v2.ubcbiztech.com/"
-                : "https://app.ubcbiztech.com/"
-          }`,
-          cancel_url: `${
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+                : "https://app.ubcbiztech.com/",
+          cancel_url:
+            (process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
               : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
                 ? "https://dev.v2.ubcbiztech.com/"
-                : "https://app.ubcbiztech.com/"
-          }membership`,
+                : "https://app.ubcbiztech.com/") + "membership",
           education: userBody.education,
           student_number: userBody.studentId,
           fname: userBody.fname,
@@ -306,23 +293,10 @@ const Membership: React.FC = () => {
                 member.
               </p>
               <div className="mt-6">
+                {/* ✅ simple link back; no signOut here */}
                 <Link
                   href="/login"
                   className="text-sm leading-6 text-bt-green-300 underline"
-                  onClick={async (e) => {
-                    e.preventDefault();
-
-                    try {
-                      clearCognitoCookies();
-                      await signOut({
-                        global: false,
-                        oauth: { redirectUrl: `${generateStageURL()}/login` },
-                      });
-                      await router.push("/login");
-                    } catch (error) {
-                      console.error("error signing in", error);
-                    }
-                  }}
                 >
                   Back to Login Page
                 </Link>
@@ -364,7 +338,6 @@ const Membership: React.FC = () => {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={methods.control}
                     name="lastName"
@@ -579,10 +552,7 @@ const Membership: React.FC = () => {
                             value: "Product Management",
                             label: "Product Management",
                           },
-                          {
-                            value: "Cyber Security",
-                            label: "Cyber Security",
-                          },
+                          { value: "Cyber Security", label: "Cyber Security" },
                           { value: "Consulting", label: "Consulting" },
                           {
                             value: "Data Science & Analytics",
@@ -649,7 +619,5 @@ const Membership: React.FC = () => {
     </FormProvider>
   );
 };
-
-// No server-side props needed - this is now a client-side only component
 
 export default Membership;
