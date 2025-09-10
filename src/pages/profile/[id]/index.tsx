@@ -65,6 +65,71 @@ const ProfilePage = ({
       },
       userEmail: string,
     ) => {
+      // First, check if user is already checked in
+      try {
+        const registrationData = await fetchBackend({
+          endpoint: `/registrations?email=${userEmail}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        // Find the registration for this specific event
+        const eventRegistration = registrationData.data.find(
+          (reg: any) =>
+            reg["eventID;year"] === `${eventData.eventID};${eventData.year}`,
+        );
+
+        if (!eventRegistration) {
+          toast({
+            title: "Check-in Failed",
+            description: "The user is not registered for this event.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        // Check if user is already checked in
+        if (
+          eventRegistration.registrationStatus ===
+          REGISTRATION_STATUS.CHECKED_IN
+        ) {
+          return false;
+        }
+
+        // Check if user's registration was cancelled or waitlisted
+        if (
+          eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
+        ) {
+          toast({
+            title: "Check-in Failed",
+            description:
+              "The user's registration was cancelled. Cannot check-in.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        if (
+          eventRegistration.registrationStatus ===
+          REGISTRATION_STATUS.WAITLISTED
+        ) {
+          toast({
+            title: "Check-in Failed",
+            description: "The user is on the waitlist. Cannot check-in.",
+            variant: "destructive",
+          });
+          return false;
+        }
+      } catch (error: any) {
+        console.error("Failed to check registration status:", error);
+        toast({
+          title: "Check-in Failed",
+          description: "Failed to verify registration status.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       const checkInData = {
         eventID: eventData.eventID,
         year: eventData.year,
