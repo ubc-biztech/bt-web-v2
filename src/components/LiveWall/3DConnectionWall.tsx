@@ -6,6 +6,7 @@ import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Zap, Trophy, Radio } from "lucide-react";
+// @ts-ignore
 import { forceManyBody, forceCollide } from "d3-force-3d";
 import * as THREE from "three";
 import SpriteText from "three-spritetext";
@@ -1006,7 +1007,6 @@ export default function ConnectionWall3D() {
               zoomFitDone.current = true;
             } catch {}
           }}
-          onRenderFrame={handleRenderFrame}
         />
       </div>
 
