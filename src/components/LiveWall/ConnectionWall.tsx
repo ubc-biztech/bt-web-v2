@@ -946,7 +946,7 @@ export default function ConnectionWall() {
   // UI
   return (
     <div
-      className={`min-h-[90vh] rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
+      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
     >
       {/* Header */}
       {!kiosk && (
@@ -1059,7 +1059,7 @@ export default function ConnectionWall() {
       </div>
 
       {/* Graph */}
-      <div className="relative h-[70vh] sm:h-[80vh] pb-16">
+      <div className="relative h-[75vh] sm:h-[85vh] pb-16">
         <ForceGraph2D
           ref={fgRef as any}
           graphData={graphDataMemo as any}
