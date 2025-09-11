@@ -3,5 +3,9 @@
 import ConnectionWall from "../../components/LiveWall/ConnectionWall";
 
 export default function LiveWallPage() {
-  return <ConnectionWall />;
+  return (
+    <div className="mx-8 my-8">
+      <ConnectionWall />
+    </div>
+  );
 }

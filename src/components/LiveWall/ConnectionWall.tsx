@@ -30,7 +30,7 @@ const COLLIDE_PER_DEG = 4 * VIS;
 // Cool effects and stuff
 const SPOTLIGHT_MS = 6000;
 const HALO_RECENT_MS = 20_000;
-const AUTOPAN_ENABLED_DEFAULT = true;
+const AUTOPAN_ENABLED_DEFAULT = false;
 const AUTOPAN_INTERVAL_MS = 12_000;
 const AUTOPAN_ZOOM = 2.6;
 const AUTOPAN_PAN_MS = 1200;
@@ -79,6 +79,7 @@ type WallNode = {
   vy?: number;
   // timestamp when added live
   __born?: number;
+  __pinUntil?: number;
 };
 
 type WallLink = { source: string; target: string; createdAt: number };
@@ -152,8 +153,22 @@ export default function ConnectionWall() {
   const pairRecentlySeen = useRef<Map<string, number>>(new Map());
 
   // data
-  const [nodes, setNodes] = useState<Record<string, WallNode>>({});
-  const [links, setLinks] = useState<WallLinkLive[]>([]);
+  const graphDataRef = useRef<{ nodes: WallNode[]; links: WallLinkLive[] }>({
+    nodes: [],
+    links: [],
+  });
+
+  const [dataTick, setDataTick] = useState(0);
+
+  const nodesByIdRef = useRef<Record<string, WallNode>>({});
+  const neighborsRef = useRef<Map<string, Set<string>>>(new Map());
+  const pairKeySetRef = useRef<Set<string>>(new Set());
+
+  const pairKey = (l: WallLink | any) => {
+    const s = endId(l.source);
+    const t = endId(l.target);
+    return s < t ? `${s}|${t}` : `${t}|${s}`;
+  };
 
   // ws + errors
   const [wsStatus, setWsStatus] = useState<
@@ -200,22 +215,7 @@ export default function ConnectionWall() {
   const [tickerContentPx, setTickerContentPx] = useState(0);
 
   // derived
-  const graphData = useMemo(
-    () => ({ nodes: Object.values(nodes), links }),
-    [nodes, links],
-  );
-
-  const degree = useMemo(() => {
-    const d: Record<string, number> = {};
-    for (const l of links) {
-      const s = endId((l as any).source);
-      const t = endId((l as any).target);
-      d[s] = (d[s] || 0) + 1;
-      d[t] = (d[t] || 0) + 1;
-    }
-    return d;
-  }, [links]);
-
+  const [degree, setDegree] = useState<Record<string, number>>({});
   const degreeRef = useRef<Record<string, number>>({});
   useEffect(() => {
     degreeRef.current = degree;
@@ -234,26 +234,9 @@ export default function ConnectionWall() {
     return m;
   }, [topRanks]);
 
-  const neighbors = useMemo(() => {
-    const map = new Map<string, Set<string>>();
-    const get = (id: string) =>
-      map.get(id) ?? (map.set(id, new Set()), map.get(id)!);
-    for (const l of links) {
-      const s = endId((l as any).source);
-      const t = endId((l as any).target);
-      get(s).add(t);
-      get(t).add(s);
-    }
-    return map;
-  }, [links]);
-
   // helpers to make it spawn it nicely
-  const getGraphNode = (id: string): any | null => {
-    const g = fgRef.current as any;
-    const arr: any[] | undefined = g?.graphData?.()?.nodes;
-    if (!arr) return null;
-    return arr.find((n) => n.id === id) || null;
-  };
+  const getGraphNode = (id: string): WallNode | null =>
+    nodesByIdRef.current[id] || null;
 
   // spring-like alpha kick
   const alphaKick = (durationMs = 1000, peak = 0.22) => {
@@ -274,6 +257,52 @@ export default function ConnectionWall() {
         }
       }, 120);
     } catch {}
+  };
+
+  const freezeExisting = (ms: number, excludeIds: string[] = []) => {
+    const now = Date.now();
+    const until = now + ms;
+    const excludes = new Set(excludeIds);
+    for (const n of graphDataRef.current.nodes) {
+      if (excludes.has(n.id)) continue;
+      n.__pinUntil = Math.max(n.__pinUntil || 0, until);
+      if (isFiniteNum(n.x) && isFiniteNum(n.y)) {
+        // @ts-ignore
+        (n as any).fx = n.x;
+        // @ts-ignore
+        (n as any).fy = n.y;
+      }
+    }
+    setTimeout(() => {
+      const tnow = Date.now();
+      for (const n of graphDataRef.current.nodes) {
+        if ((n.__pinUntil || 0) <= tnow) {
+          // @ts-ignore
+          delete (n as any).fx;
+          // @ts-ignore
+          delete (n as any).fy;
+          n.__pinUntil = 0;
+        }
+      }
+    }, ms + 20);
+  };
+
+  const linkKey = (l: WallLink | any) =>
+    `${endId(l.source)}|${endId(l.target)}|${l.createdAt}`;
+
+  const ensureNode = (raw: WallNode | any, spawnNearId?: string): WallNode => {
+    const base = normalizeNode(raw);
+    const existing = nodesByIdRef.current[base.id];
+    if (existing) return existing;
+    const seeded = spawnNodeNear(base, spawnNearId);
+
+    // mutate arrays/indices in place
+    nodesByIdRef.current[seeded.id] = seeded;
+    graphDataRef.current.nodes.push(seeded);
+
+    setDataTick((t) => t + 1);
+
+    return seeded;
   };
 
   const spawnNodeNear = (nn: WallNode, nearId?: string): WallNode => {
@@ -302,26 +331,41 @@ export default function ConnectionWall() {
     return { ...nn, __born: born };
   };
 
-  // helpers
-  const upsertNode = (n: WallNode | any, spawnNearId?: string) => {
-    const base = normalizeNode(n);
-    setNodes((prev) => {
-      if (prev[base.id]) return prev;
-      const seeded = spawnNodeNear(base, spawnNearId);
-      return { ...prev, [base.id]: seeded };
-    });
+  const addLinkInPlace = (l: WallLink, bornTs?: number) => {
+    const pk = pairKey(l);
+    if (pairKeySetRef.current.has(pk)) return;
+
+    const live: WallLinkLive = { ...l, __born: bornTs ?? Date.now() };
+    graphDataRef.current.links.push(live);
+    pairKeySetRef.current.add(pk);
+
+    const sId = endId(l.source);
+    const tId = endId(l.target);
+
+    if (!neighborsRef.current.has(sId))
+      neighborsRef.current.set(sId, new Set());
+    if (!neighborsRef.current.has(tId))
+      neighborsRef.current.set(tId, new Set());
+
+    const sNeigh = neighborsRef.current.get(sId)!;
+    const tNeigh = neighborsRef.current.get(tId)!;
+
+    const wasNewNeighbor = !sNeigh.has(tId);
+
+    sNeigh.add(tId);
+    tNeigh.add(sId);
+
+    if (wasNewNeighbor) {
+      setDegree((prev) => {
+        const next = { ...prev };
+        next[sId] = (next[sId] || 0) + 1;
+        next[tId] = (next[tId] || 0) + 1;
+        return next;
+      });
+    }
+
+    setDataTick((t) => t + 1);
   };
-
-  const linkKey = (l: WallLink | any) =>
-    `${endId(l.source)}|${endId(l.target)}|${l.createdAt}`;
-
-  const addLink = (l: WallLink, bornTs?: number) =>
-    setLinks((prev) => {
-      const kset = new Set(prev.map(linkKey));
-      if (kset.has(linkKey(l))) return prev;
-      const live: WallLinkLive = { ...l, __born: bornTs ?? Date.now() };
-      return [...prev, live];
-    });
 
   const pushTicker = (
     from: WallNode | any,
@@ -376,7 +420,7 @@ export default function ConnectionWall() {
             ...prevT,
             {
               id: toastId,
-              text: `${firstName(nodes[id]?.name, id)} is on a streak!`,
+              text: `${firstName(nodesByIdRef.current[id]?.name, id)} is on a streak!`,
               t: createdAt,
             },
           ]);
@@ -406,24 +450,45 @@ export default function ConnectionWall() {
         authenticatedCall: false,
       });
 
-      setNodes((prev) => {
-        const merged = { ...prev };
-        res.nodes.forEach((raw) => {
-          const n = normalizeNode(raw);
-          if (!merged[n.id]) merged[n.id] = n;
-        });
-        return merged;
-      });
+      // merge nodes
+      for (const raw of res.nodes) {
+        const n = normalizeNode(raw);
+        if (!nodesByIdRef.current[n.id]) {
+          const seeded = { ...n, __born: 0 };
+          nodesByIdRef.current[seeded.id] = seeded;
+          graphDataRef.current.nodes.push(seeded);
+        }
+      }
 
-      setLinks((prev) => {
-        const have = new Set(prev.map(linkKey));
-        const out = [...prev];
-        for (const l of res.links)
-          if (!have.has(linkKey(l))) out.push({ ...l, __born: 0 });
-        return out;
-      });
+      // merge links
+      for (const l of res.links) {
+        const pk = pairKey(l);
+        if (!pairKeySetRef.current.has(pk)) {
+          pairKeySetRef.current.add(pk);
+          graphDataRef.current.links.push({ ...l, __born: 0 });
 
-      setTotalToday(res.links.length);
+          const s = endId(l.source);
+          const t = endId(l.target);
+          if (!neighborsRef.current.has(s))
+            neighborsRef.current.set(s, new Set());
+          if (!neighborsRef.current.has(t))
+            neighborsRef.current.set(t, new Set());
+          neighborsRef.current.get(s)!.add(t);
+          neighborsRef.current.get(t)!.add(s);
+        }
+      }
+
+      // recompute degree once for snapshot to sync UI
+      const d: Record<string, number> = {};
+      neighborsRef.current.forEach((set, id) => {
+        d[id] = set.size;
+      });
+      setDegree(d);
+
+      setTotalToday(graphDataRef.current.links.length);
+
+      setDataTick((t) => t + 1);
+
       setLastError(null);
     } catch {
       setLastError("Snapshot fetch failed");
@@ -454,6 +519,115 @@ export default function ConnectionWall() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  useEffect(() => {
+    const g = fgRef.current as any;
+    if (!g) return;
+
+    const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
+    charge
+      .strength((n: any) => {
+        const d = degreeRef.current[n.id] || 0;
+        return CHARGE_BASE + d * CHARGE_PER_DEG;
+      })
+      .distanceMax(CHARGE_DIST_MAX)
+      .distanceMin(2);
+    g.d3Force?.("charge", charge);
+
+    const collide = forceCollide()
+      .radius((n: any) => {
+        const d = degreeRef.current[n.id] || 1;
+        return COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG;
+      })
+      .strength(0.9)
+      .iterations(2);
+    g.d3Force?.("collide", collide);
+
+    try {
+      g.d3AlphaTarget?.(0.12);
+      g.d3ReheatSimulation?.();
+      setTimeout(() => g.d3AlphaTarget?.(0), 600);
+    } catch {}
+  }, []);
+
+  // compute current graph center and max radius (rough bounding circle)
+  const getGraphExtent = () => {
+    const nodes = graphDataRef.current.nodes;
+    if (!nodes.length) return { cx: 0, cy: 0, r: 0 };
+
+    let sx = 0,
+      sy = 0,
+      n = 0;
+    for (const nd of nodes) {
+      if (isFiniteNum(nd.x) && isFiniteNum(nd.y)) {
+        sx += nd.x!;
+        sy += nd.y!;
+        n++;
+      }
+    }
+    const cx = n ? sx / n : 0;
+    const cy = n ? sy / n : 0;
+
+    let r = 0;
+    for (const nd of nodes) {
+      if (isFiniteNum(nd.x) && isFiniteNum(nd.y)) {
+        const d = Math.hypot(nd.x! - cx, nd.y! - cy);
+        if (d > r) r = d;
+      }
+    }
+    return { cx, cy, r };
+  };
+
+  // push a new 2-node component to an empty ring outside existing clusters
+  const placeNewClusterAway = (a: WallNode, b: WallNode) => {
+    const { cx, cy, r } = getGraphExtent();
+    // how far from center to spawn the new mini-cluster
+    const margin = 140 * VIS;
+    const targetR = (r || 220 * VIS) + margin;
+
+    // choose a deterministic angle using ids to spread clusters around the ring
+    const hash = (s: string) => {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0;
+      return h;
+    };
+    const θ = ((hash(a.id + "|" + b.id) % 360) * Math.PI) / 180;
+
+    const tx = cx + targetR * Math.cos(θ);
+    const ty = cy + targetR * Math.sin(θ);
+
+    // small separation so their edge has length > 0 at start
+    const sep = 22 * VIS;
+    a.x = tx - sep;
+    a.y = ty;
+    b.x = tx + sep;
+    b.y = ty;
+
+    const kick = 0.02;
+    a.vx = Math.cos(θ) * kick;
+    a.vy = Math.sin(θ) * kick;
+    b.vx = Math.cos(θ) * kick;
+    b.vy = Math.sin(θ) * kick;
+
+    // @ts-ignore
+    (a as any).fx = a.x; // pin for a moment
+    // @ts-ignore
+    (a as any).fy = a.y;
+    // @ts-ignore
+    (b as any).fx = b.x;
+    // @ts-ignore
+    (b as any).fy = b.y;
+    setTimeout(() => {
+      // @ts-ignore
+      delete (a as any).fx;
+      // @ts-ignore
+      delete (a as any).fy;
+      // @ts-ignore
+      delete (b as any).fx;
+      // @ts-ignore
+      delete (b as any).fy;
+    }, 600);
+  };
+
   // websocket lifecycle
   useEffect(() => {
     let cancelled = false;
@@ -477,49 +651,103 @@ export default function ConnectionWall() {
 
             if (msg.type === "snapshot") {
               const { nodes: ns, links: ls } = msg as SnapshotResponse;
-              setNodes((prev) => {
-                const merged = { ...prev };
-                ns.forEach((raw) => {
-                  const n = normalizeNode(raw);
-                  if (!merged[n.id]) merged[n.id] = n;
-                });
-                return merged;
+              for (const raw of ns) {
+                const n = normalizeNode(raw);
+                if (!nodesByIdRef.current[n.id]) {
+                  const seeded = { ...n, __born: 0 };
+                  nodesByIdRef.current[seeded.id] = seeded;
+                  graphDataRef.current.nodes.push(seeded);
+                }
+              }
+              for (const l of ls) {
+                const pk = pairKey(l);
+                if (!pairKeySetRef.current.has(pk)) {
+                  pairKeySetRef.current.add(pk);
+                  graphDataRef.current.links.push({ ...l, __born: 0 });
+
+                  const s = endId(l.source);
+                  const t = endId(l.target);
+                  if (!neighborsRef.current.has(s))
+                    neighborsRef.current.set(s, new Set());
+                  if (!neighborsRef.current.has(t))
+                    neighborsRef.current.set(t, new Set());
+                  neighborsRef.current.get(s)!.add(t);
+                  neighborsRef.current.get(t)!.add(s);
+                }
+              }
+
+              const d: Record<string, number> = {};
+              neighborsRef.current.forEach((set, id) => {
+                d[id] = set.size;
               });
-              setLinks((prev) => {
-                const have = new Set(prev.map(linkKey));
-                const out = [...prev];
-                for (const l of ls)
-                  if (!have.has(linkKey(l))) out.push({ ...l, __born: 0 });
-                return out;
-              });
+              setDegree(d);
+
+              setDataTick((t) => t + 1);
               return;
             }
 
             if (msg.type === "connection" || msg.type === "edge") {
               const { from, to, createdAt } = msg;
 
-              if (from?.id) upsertNode(from, to?.id);
-              if (to?.id) upsertNode(to, from?.id);
+              let nf: WallNode | undefined;
+              let nt: WallNode | undefined;
 
-              if (from?.id && to?.id) {
+              if (from?.id) nf = ensureNode(from, to?.id);
+              if (to?.id) nt = ensureNode(to, from?.id);
+
+              if (nf?.id && nt?.id) {
+                // If both are new or currently isolated (degree 0), it's a new mini-component
+                const isIsolated = (id: string) =>
+                  (neighborsRef.current.get(id)?.size || 0) === 0;
+
+                if (isIsolated(nf.id) && isIsolated(nt.id)) {
+                  // Seed this 2-node component outside the current graph envelope
+                  placeNewClusterAway(nf, nt);
+                }
+
+                // (optional) lightly freeze others so this doesn’t jostle existing clusters
+                freezeExisting(450, [nf.id, nt.id]);
+
                 const ts = createdAt || Date.now();
-                const key = [from.id, to.id].sort().join("|");
+                const key = [nf.id, nt.id].sort().join("|");
+                const last = pairRecentlySeen.current.get(key) || 0;
+                if (ts - last >= DEDUPE_GRACE_MS) {
+                  pairRecentlySeen.current.set(key, ts);
+                  addLinkInPlace(
+                    { source: nf.id, target: nt.id, createdAt: ts },
+                    ts,
+                  );
+                  setTrails((prev) => [
+                    ...prev.slice(Math.max(0, prev.length - (TRAIL_MAX - 1))),
+                    { s: nf.id, t: nt.id, createdAt: ts },
+                  ]);
+                  pushTicker(nf, nt, ts);
+                }
+              }
+
+              if (nf?.id && nt?.id) {
+                freezeExisting(450, [nf.id, nt.id]);
+
+                const ts = createdAt || Date.now();
+                const key = [nf.id, nt.id].sort().join("|");
                 const last = pairRecentlySeen.current.get(key) || 0;
 
                 if (ts - last < DEDUPE_GRACE_MS) return;
                 pairRecentlySeen.current.set(key, ts);
 
-                addLink({ source: from.id, target: to.id, createdAt: ts }, ts);
+                addLinkInPlace(
+                  { source: nf.id, target: nt.id, createdAt: ts },
+                  ts,
+                );
                 setTrails((prev) => {
                   const next = [
                     ...prev,
-                    { s: from.id, t: to.id, createdAt: ts },
+                    { s: nf!.id, t: nt!.id, createdAt: ts },
                   ].slice(Math.max(0, prev.length - (TRAIL_MAX - 1)));
                   return next;
                 });
 
-                pushTicker(from, to, ts);
-                alphaKick();
+                pushTicker(nf, nt, ts);
               }
               return;
             }
@@ -550,7 +778,7 @@ export default function ConnectionWall() {
   // initial + periodic snapshot
   useEffect(() => {
     fetchSnapshot();
-    const t = setInterval(fetchSnapshot, 60_000);
+    const t = setInterval(fetchSnapshot, 600_000);
     return () => clearInterval(t);
   }, []);
 
@@ -563,36 +791,6 @@ export default function ConnectionWall() {
       );
     }, 2000);
     return () => clearInterval(id);
-  }, []);
-
-  useEffect(() => {
-    const g = fgRef.current as any;
-    if (!g) return;
-
-    const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
-    charge
-      .strength((n: any) => {
-        const d = degreeRef.current[n.id] || 0;
-        return CHARGE_BASE + d * CHARGE_PER_DEG;
-      })
-      .distanceMax(CHARGE_DIST_MAX)
-      .distanceMin(2);
-    g.d3Force?.("charge", charge);
-
-    const collide = forceCollide()
-      .radius((n: any) => {
-        const d = degreeRef.current[n.id] || 1;
-        return COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG;
-      })
-      .strength(0.9)
-      .iterations(2);
-    g.d3Force?.("collide", collide);
-
-    try {
-      g.d3AlphaTarget?.(0.15);
-      g.d3ReheatSimulation?.();
-      setTimeout(() => g.d3AlphaTarget?.(0), 800);
-    } catch {}
   }, []);
 
   // dedupe map cleanup
@@ -610,40 +808,40 @@ export default function ConnectionWall() {
   useEffect(() => {
     if (!autoPan) return;
     const id = setInterval(() => {
-      const g = fgRef.current;
+      const g = fgRef.current as any;
       if (
         !g ||
-        typeof (g as any).centerAt !== "function" ||
-        typeof (g as any).zoom !== "function"
+        typeof g.centerAt !== "function" ||
+        typeof g.zoom !== "function"
       )
         return;
 
       const recent = ticker.slice(-5);
       if (recent.length === 0) {
         try {
-          (g as any).zoomToFit(800, 100);
+          (g as any).zoomToFit?.(800, 100);
         } catch {}
         return;
       }
       const pick = recent[Math.floor(Math.random() * recent.length)];
       const targetId =
-        Object.values(nodes).find((n) => firstName(n.name, n.id) === pick.to)
-          ?.id ||
-        Object.values(nodes).find((n) => firstName(n.name, n.id) === pick.from)
-          ?.id;
+        graphDataRef.current.nodes.find(
+          (n) => firstName(n.name, n.id) === pick.to,
+        )?.id ||
+        graphDataRef.current.nodes.find(
+          (n) => firstName(n.name, n.id) === pick.from,
+        )?.id;
 
       if (!targetId) return;
-      const node = (g as any)
-        .graphData()
-        .nodes.find((n: any) => n.id === targetId);
+      const node = graphDataRef.current.nodes.find((n) => n.id === targetId);
       if (!node || node.x == null || node.y == null) return;
 
-      (g as any).centerAt(node.x, node.y, AUTOPAN_PAN_MS);
-      (g as any).zoom(AUTOPAN_ZOOM, AUTOPAN_ZOOM_MS);
+      g.centerAt(node.x, node.y, AUTOPAN_PAN_MS);
+      g.zoom(AUTOPAN_ZOOM, AUTOPAN_ZOOM_MS);
       setTimeout(
         () => {
           try {
-            (g as any).zoomToFit(800, 100);
+            (g as any).zoomToFit?.(800, 100);
           } catch {}
         },
         Math.max(3000, AUTOPAN_INTERVAL_MS - 2000),
@@ -651,7 +849,7 @@ export default function ConnectionWall() {
     }, AUTOPAN_INTERVAL_MS);
 
     return () => clearInterval(id);
-  }, [autoPan, ticker, nodes]);
+  }, [autoPan, ticker]);
 
   // ticker size/duration
   useEffect(() => {
@@ -682,10 +880,73 @@ export default function ConnectionWall() {
     return ts ? Date.now() - ts : Infinity;
   };
 
+  const graphDataMemo = useMemo(
+    () => ({
+      nodes: graphDataRef.current.nodes,
+      links: graphDataRef.current.links,
+      _v: dataTick,
+    }),
+    [dataTick],
+  );
+
+  const MEDALS = [
+    {
+      name: "Gold",
+      ring: "#FFD700",
+      fill: "linear-gradient(180deg,#FFE680,#FFD700)",
+    },
+    {
+      name: "Silver",
+      ring: "#C0C0C0",
+      fill: "linear-gradient(180deg,#F0F0F0,#C0C0C0)",
+    },
+    {
+      name: "Bronze",
+      ring: "#CD7F32",
+      fill: "linear-gradient(180deg,#E8B27A,#CD7F32)",
+    },
+  ];
+
+  function MedalBadge({ rank }: { rank: number }) {
+    const m = MEDALS[rank] ?? {
+      ring: "rgba(255,255,255,.25)",
+      fill: "linear-gradient(180deg,#FFF,#DDD)",
+    };
+    return (
+      <span
+        className="relative inline-flex items-center justify-center mr-2 shrink-0"
+        title={MEDALS[rank]?.name ?? "Top connector"}
+        style={{ width: 18, height: 18 }}
+      >
+        <span
+          className="relative rounded-full border"
+          style={{
+            width: 18,
+            height: 18,
+            background: m.fill,
+            borderColor: `${m.ring}90`,
+          }}
+        />
+        <span
+          className="absolute rounded-full"
+          style={{
+            top: 2,
+            left: 4,
+            width: 6,
+            height: 3,
+            background: "rgba(255,255,255,.7)",
+            filter: "blur(0.5px)",
+            borderRadius: 999,
+          }}
+        />
+      </span>
+    );
+  }
+
   // UI
   return (
     <div
-      className={`min-h-[70vh] rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
+      className={`min-h-[90vh] rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
     >
       {/* Header */}
       {!kiosk && (
@@ -758,8 +1019,9 @@ export default function ConnectionWall() {
                 .slice(0, 6)
                 .map(([id, d], i) => (
                   <li key={id} className="flex items-center justify-between">
-                    <span className="truncate">
-                      {i + 1}. {firstName(nodes[id]?.name, id)}
+                    <span className="truncate flex items-center">
+                      {i < 3 && <MedalBadge rank={i} />}
+                      {i + 1}. {firstName(nodesByIdRef.current[id]?.name, id)}
                     </span>
                     <span className="text-white/60">{d}</span>
                   </li>
@@ -777,7 +1039,7 @@ export default function ConnectionWall() {
         {spotlights.slice(0, 2).map((s) => (
           <div
             key={s.id}
-            className="px-4 py-2 rounded-full bg-emerald-400/15 border border-emerald-300/30 text-emerald-100 text-lg font-semibold shadow-lg animate-[fadeSlide_6s_ease-out_forwards]"
+            className="mt-20 px-4 py-2 rounded-full bg-emerald-400/15 border border-emerald-300/30 text-emerald-100 text-lg font-semibold shadow-lg animate-[fadeSlide_6s_ease-out_forwards]"
           >
             {s.from} <span className="opacity-70">connected with</span> {s.to}
           </div>
@@ -797,16 +1059,16 @@ export default function ConnectionWall() {
       </div>
 
       {/* Graph */}
-      <div className="h-[60vh] sm:h-[70vh]">
+      <div className="relative h-[70vh] sm:h-[80vh] pb-16">
         <ForceGraph2D
           ref={fgRef as any}
-          graphData={graphData}
+          graphData={graphDataMemo as any}
           backgroundColor="rgba(0,0,0,0)"
           nodeRelSize={9 * VIS}
           warmupTicks={200}
           cooldownTicks={400}
-          d3AlphaDecay={0.01}
-          d3VelocityDecay={0.25}
+          d3AlphaDecay={0.015}
+          d3VelocityDecay={0.75}
           linkCurvature={0}
           linkDirectionalParticles={(l: any) =>
             isRecent(l.createdAt || 0) ? 1 : 0
@@ -822,9 +1084,7 @@ export default function ConnectionWall() {
           ) => {
             try {
               // trails (faint dashed, fade by age)
-              const g = fgRef.current as any;
-              const arr: any[] | undefined = g?.graphData?.()?.nodes;
-              if (!arr) return;
+              const arr: any[] = (graphDataRef.current.nodes as any[]) || [];
               const nodeIndex: Record<string, any> = {};
               for (const n of arr) nodeIndex[n.id] = n;
 
@@ -908,34 +1168,32 @@ export default function ConnectionWall() {
             } catch {}
           }}
           onEngineStop={() => {
-            const g = fgRef.current;
+            const g = fgRef.current as any;
             if (!g || zoomFitDone.current) return;
             try {
-              if (typeof (g as any).zoomToFit === "function")
-                (g as any).zoomToFit(800, 120);
+              g.zoomToFit?.(800, 120);
               zoomFitDone.current = true;
             } catch {}
           }}
           onNodeHover={(n: any) => setHoverId(n ? n.id : null)}
           onNodeClick={(n: any) => {
             setFocusedId(n.id);
-            const g = fgRef.current;
+            const g = fgRef.current as any;
             if (
               !g ||
-              typeof (g as any).centerAt !== "function" ||
-              typeof (g as any).zoom !== "function"
+              typeof g.centerAt !== "function" ||
+              typeof g.zoom !== "function"
             )
               return;
             const dist = 120;
             const ratio = 1 + dist / Math.hypot(n.x || 1, n.y || 1);
-            (g as any).centerAt(n.x * ratio, n.y * ratio, 800);
-            (g as any).zoom(3, 800);
+            g.centerAt(n.x * ratio, n.y * ratio, 800);
+            g.zoom(3, 800);
           }}
           onBackgroundClick={() => {
             setFocusedId(null);
-            const g = fgRef.current;
-            if (g && typeof (g as any).zoomToFit === "function")
-              (g as any).zoomToFit(800, 80);
+            const g = fgRef.current as any;
+            g?.zoomToFit?.(800, 80);
           }}
           // Custom link draw: reveal + pulse
           linkCanvasObjectMode={() => "replace"}
@@ -975,7 +1233,8 @@ export default function ConnectionWall() {
             ctx.strokeStyle = baseColor;
             const hovered = !!hoverId;
             if (hovered) {
-              const nh = neighbors.get(hoverId!) || new Set<string>();
+              const nh =
+                neighborsRef.current.get(hoverId!) || new Set<string>();
               const on =
                 s.id === hoverId ||
                 t.id === hoverId ||
@@ -1132,7 +1391,7 @@ export default function ConnectionWall() {
 
       {/* Footer: single-track ticker */}
       {showTicker && (
-        <div className="px-4 sm:px-6 py-2 border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-bt-blue-500 border-t border-white/10 px-4 sm:px-6 py-2">
           <div className="flex items-center justify-between gap-3">
             <div className="relative w-full">
               {ticker.length === 0 ? (
@@ -1174,7 +1433,6 @@ export default function ConnectionWall() {
             {!!QR_URL && (
               <div className="hidden sm:flex items-center gap-2">
                 <div className="flex items-center gap-2 bg-white/8 border border-white/15 rounded-lg px-2 py-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={QR_URL}
                     alt="Join"

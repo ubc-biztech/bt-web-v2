@@ -23,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
     "/register",
     "/verify",
     "/forgot-password",
+    "/admin/live-wall",
   ];
   const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 
