@@ -25,27 +25,33 @@ import { BiztechEvent, User } from "@/types";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
-
-const attendeeEventRegistrationFormSchema = z.object({
-  emailAddress: z.string().email({
-    message: "Please enter a valid email address",
-  }),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  yearLevel: z.string().min(1, "Year level is required"),
-  faculty: z.string().min(1, "Faculty is required"),
-  majorSpecialization: z.string().min(1, "Major/Specialization is required"),
-  preferredPronouns: z.enum([
-    "He/Him/His",
-    "She/Her/Hers",
-    "They/Them/Their",
-    "Other/Prefer not to say",
-  ]),
-  dietaryRestrictions: z.string().optional(),
-  howDidYouHear: z
-    .string()
-    .min(1, "Please specify how you heard about this event"),
-});
+const baseSchema = (hide: boolean) =>
+  z.object({
+    emailAddress: z
+      .string()
+      .email({ message: "Please enter a valid email address" }),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    yearLevel: hide
+      ? z.string().optional()
+      : z.string().min(1, "Year level is required"),
+    faculty: hide
+      ? z.string().optional()
+      : z.string().min(1, "Faculty is required"),
+    majorSpecialization: hide
+      ? z.string().optional()
+      : z.string().min(1, "Major/Specialization is required"),
+    preferredPronouns: z.enum([
+      "He/Him/His",
+      "She/Her/Hers",
+      "They/Them/Their",
+      "Other/Prefer not to say",
+    ]),
+    dietaryRestrictions: z.string().optional(),
+    howDidYouHear: z
+      .string()
+      .min(1, "Please specify how you heard about this event"),
+  });
 
 interface AttendeeEventRegistrationFormProps {
   event: BiztechEvent;
@@ -60,10 +66,11 @@ interface AttendeeEventRegistrationFormProps {
 }
 
 const createDynamicSchema = (event: BiztechEvent) => {
+  const hide = event?.id === "alumni-night";
   const dynamicSchema =
     event.registrationQuestions?.reduce(
-      (acc, question) => {
-        acc[question.questionId] = question.required
+      (acc, q) => {
+        acc[q.questionId] = q.required
           ? z.string().min(1, "This field is required")
           : z.string().optional();
         return acc;
@@ -71,12 +78,7 @@ const createDynamicSchema = (event: BiztechEvent) => {
       {} as Record<string, z.ZodTypeAny>,
     ) || {};
 
-  const emailSchema = z.string().email({
-    message: "Please enter a valid email address",
-  });
-
-  return attendeeEventRegistrationFormSchema.extend({
-    emailAddress: emailSchema,
+  return baseSchema(hide).extend({
     customQuestions: z.object(dynamicSchema),
   });
 };
@@ -89,6 +91,8 @@ export const AttendeeEventRegistrationForm: React.FC<
   }>({});
   const schema = useMemo(() => createDynamicSchema(event), [event]);
   type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
+
+  const HIDE_STUDENT_FIELDS = event?.id === "alumni-night";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -294,88 +298,93 @@ export const AttendeeEventRegistrationForm: React.FC<
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="yearLevel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex flex-row gap-4 items-center">
-                        <FormLabel>Year Level*</FormLabel>
-                        <FormMessage />
-                      </div>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                {!HIDE_STUDENT_FIELDS && (
+                  <FormField
+                    control={form.control}
+                    name="yearLevel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex flex-row gap-4 items-center">
+                          <FormLabel>Year Level*</FormLabel>
+                          <FormMessage />
+                        </div>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="text-white">
+                              <SelectValue placeholder="Select year level" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="year1">Year 1</SelectItem>
+                            <SelectItem value="year2">Year 2</SelectItem>
+                            <SelectItem value="year3">Year 3</SelectItem>
+                            <SelectItem value="year4">Year 4</SelectItem>
+                            <SelectItem value="year5+">Year 5+</SelectItem>
+                            <SelectItem value="notApplicable">
+                              Not Applicable
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {!HIDE_STUDENT_FIELDS && (
+                  <FormField
+                    control={form.control}
+                    name="faculty"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex flex-row gap-4 items-center">
+                          <FormLabel>Faculty*</FormLabel>
+                          <FormMessage />
+                        </div>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="text-white">
+                              <SelectValue placeholder="Select faculty" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="arts">Arts</SelectItem>
+                            <SelectItem value="science">Science</SelectItem>
+                            <SelectItem value="commerce">Commerce</SelectItem>
+                            <SelectItem value="engineering">
+                              Engineering
+                            </SelectItem>
+                            <SelectItem value="landFoodSystems">
+                              Land and Food Systems
+                            </SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {!HIDE_STUDENT_FIELDS && (
+                  <FormField
+                    control={form.control}
+                    name="majorSpecialization"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex flex-row gap-4 items-center">
+                          <FormLabel>Major / Specialization*</FormLabel>
+                          <FormMessage />
+                        </div>
                         <FormControl>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Select year level" />
-                          </SelectTrigger>
+                          <Input placeholder="Enter your major" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="year1">Year 1</SelectItem>
-                          <SelectItem value="year2">Year 2</SelectItem>
-                          <SelectItem value="year3">Year 3</SelectItem>
-                          <SelectItem value="year4">Year 4</SelectItem>
-                          <SelectItem value="year5+">Year 5+</SelectItem>
-                          <SelectItem value="notApplicable">
-                            Not Applicable
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="faculty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex flex-row gap-4 items-center">
-                        <FormLabel>Faculty*</FormLabel>
-                        <FormMessage />
-                      </div>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="text-white">
-                            <SelectValue placeholder="Select faculty" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="arts">Arts</SelectItem>
-                          <SelectItem value="science">Science</SelectItem>
-                          <SelectItem value="commerce">Commerce</SelectItem>
-                          <SelectItem value="engineering">
-                            Engineering
-                          </SelectItem>
-                          <SelectItem value="landFoodSystems">
-                            Land and Food Systems
-                          </SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="majorSpecialization"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex flex-row gap-4 items-center">
-                        <FormLabel>Major / Specialization*</FormLabel>
-                        <FormMessage />
-                      </div>
-                      <FormControl>
-                        <Input placeholder="Enter your major" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="preferredPronouns"

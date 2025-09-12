@@ -23,7 +23,7 @@ const TICKER_MAX = 24;
 // Layout (physics stays familiar)
 const CHARGE_BASE = -2000;
 const CHARGE_PER_DEG = -80;
-const CHARGE_DIST_MAX = 3000;
+const CHARGE_DIST_MAX = 300;
 const COLLIDE_BASE = 18 * VIS;
 const COLLIDE_PER_DEG = 4 * VIS;
 
@@ -222,6 +222,7 @@ export default function ConnectionWall() {
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const dragModeRef = useRef(false);
+  const draggingIdRef = useRef<string | null>(null);
 
   // derived
   const [degree, setDegree] = useState<Record<string, number>>({});
@@ -787,7 +788,7 @@ export default function ConnectionWall() {
   // initial + periodic snapshot
   useEffect(() => {
     fetchSnapshot();
-    const t = setInterval(fetchSnapshot, 600_000);
+    const t = setInterval(fetchSnapshot, 1800_000);
     return () => clearInterval(t);
   }, []);
 
@@ -823,11 +824,11 @@ export default function ConnectionWall() {
       const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
       charge
         .strength((n: any) => {
-          if (n.id === draggingId) return 0;
+          if (n.id === draggingIdRef.current) return 0;
           const d = degreeRef.current[n.id] || 0;
           return -220 - d * 25;
         })
-        .distanceMax(300)
+        .distanceMax(50)
         .distanceMin(2);
       g.d3Force?.("charge", charge);
 
@@ -1284,9 +1285,11 @@ export default function ConnectionWall() {
             g.zoom(3, 800);
           }}
           onNodeDrag={(n: any) => {
+            if (draggingIdRef.current !== n.id) {
+              draggingIdRef.current = n.id;
+              setDragMode(true);
+            }
             setDraggingId(n.id);
-            setDragMode(true);
-
             (n as any).fx = n.x;
             (n as any).fy = n.y;
           }}
@@ -1298,6 +1301,7 @@ export default function ConnectionWall() {
               delete (n as any).fy;
             }, 80);
 
+            draggingIdRef.current = null;
             setDraggingId(null);
             setDragMode(false);
           }}

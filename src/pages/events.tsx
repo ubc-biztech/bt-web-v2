@@ -179,9 +179,9 @@ export async function getStaticProps() {
       return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
 
-    events = events.filter((e: BiztechEvent) => {
-      return e.isPublished;
-    });
+    events = events.filter(
+      (e: BiztechEvent) => e.isPublished && e.id !== "alumni-night", // temp filter
+    );
 
     return {
       props: {
