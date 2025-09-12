@@ -110,7 +110,7 @@ export const EditProfilePage = ({
       : "v2.ubcbiztech.com";
 
   const profileId = profileData.compositeID.split("#")[1];
-  const fullURL = `${domain}/profile/${profileId}`;
+  const fullURL = `${domain}/profile/${profileId}?scan=true`;
 
   if (!profileData) {
     return (
