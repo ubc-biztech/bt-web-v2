@@ -7,7 +7,7 @@ import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Zap, Trophy, Radio } from "lucide-react";
-import { forceManyBody, forceCollide } from "d3-force";
+import { forceManyBody, forceCollide, forceX, forceY } from "d3-force";
 import type { ForceGraphMethods } from "react-force-graph-2d";
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
@@ -823,28 +823,37 @@ export default function ConnectionWall() {
       const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
       charge
         .strength((n: any) => {
+          if (n.id === draggingId) return 0;
           const d = degreeRef.current[n.id] || 0;
-          return -600 + d * -30;
+          return -220 - d * 25;
         })
-        .distanceMax(4000)
+        .distanceMax(300)
         .distanceMin(2);
       g.d3Force?.("charge", charge);
+
+      const gx = forceX(0).strength(0.02);
+      const gy = forceY(0).strength(0.02);
+      g.d3Force?.("gx", gx);
+      g.d3Force?.("gy", gy);
+
+      const link = g.d3Force && g.d3Force("link");
+      if (link && typeof link.distance === "function") {
+        link.distance((l: any) => 60).strength(0.9);
+        g.d3Force?.("link", link);
+      }
 
       const collide = forceCollide()
         .radius((n: any) => {
           const d = degreeRef.current[n.id] || 1;
-          return (COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG) * 1.2;
+          return (COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG) * 1.15;
         })
-        .strength(1.0)
+        .strength(1)
         .iterations(4);
       g.d3Force?.("collide", collide);
 
       try {
         g.d3VelocityDecay?.(0.86);
-      } catch {}
-
-      try {
-        g.d3AlphaTarget?.(0.02);
+        g.d3AlphaTarget?.(0.08);
         g.d3ReheatSimulation?.();
       } catch {}
     }
@@ -862,6 +871,15 @@ export default function ConnectionWall() {
         .distanceMin(2);
       g.d3Force?.("charge", charge);
 
+      g.d3Force?.("gx", null);
+      g.d3Force?.("gy", null);
+
+      const link = g.d3Force && g.d3Force("link");
+      if (link && typeof link.distance === "function") {
+        link.distance(null).strength(0.7);
+        g.d3Force?.("link", link);
+      }
+
       const collide = forceCollide()
         .radius((n: any) => {
           const d = degreeRef.current[n.id] || 1;
@@ -873,8 +891,6 @@ export default function ConnectionWall() {
 
       try {
         g.d3VelocityDecay?.(0.75);
-      } catch {}
-      try {
         g.d3AlphaTarget?.(0);
         g.d3ReheatSimulation?.();
       } catch {}
