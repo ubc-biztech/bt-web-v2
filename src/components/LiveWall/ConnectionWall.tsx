@@ -23,7 +23,7 @@ const TICKER_MAX = 24;
 // Layout (physics stays familiar)
 const CHARGE_BASE = -2000;
 const CHARGE_PER_DEG = -80;
-const CHARGE_DIST_MAX = 3000;
+const CHARGE_DIST_MAX = 300;
 const COLLIDE_BASE = 18 * VIS;
 const COLLIDE_PER_DEG = 4 * VIS;
 
@@ -828,7 +828,7 @@ export default function ConnectionWall() {
           const d = degreeRef.current[n.id] || 0;
           return -220 - d * 25;
         })
-        .distanceMax(300)
+        .distanceMax(50)
         .distanceMin(2);
       g.d3Force?.("charge", charge);
 
