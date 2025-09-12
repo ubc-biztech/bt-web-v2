@@ -788,7 +788,7 @@ export default function ConnectionWall() {
   // initial + periodic snapshot
   useEffect(() => {
     fetchSnapshot();
-    const t = setInterval(fetchSnapshot, 600_000);
+    const t = setInterval(fetchSnapshot, 1800_000);
     return () => clearInterval(t);
   }, []);
 
