@@ -47,6 +47,8 @@ export default function AttendeeFormRegister() {
     useState<boolean>(false);
   const { toast } = useToast();
 
+  const isAlumniNight = event?.id === "alumni-night";
+
   const samePricing = () => {
     return event.pricing?.members === event.pricing?.nonMembers;
   };
@@ -203,6 +205,19 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
+    const basicInformation = {
+      fname: data["firstName"],
+      lname: data["lastName"],
+      gender: data["preferredPronouns"],
+      diet: data["dietaryRestrictions"],
+      heardFrom: data["howDidYouHear"],
+      ...(!isAlumniNight && {
+        year: data["yearLevel"],
+        faculty: data["faculty"],
+        major: data["majorSpecialization"],
+      }),
+    };
+
     const registrationData = {
       email: data["emailAddress"],
       fname: data["firstName"],
@@ -212,16 +227,7 @@ export default function AttendeeFormRegister() {
       registrationStatus: DBRegistrationStatus.REGISTERED,
       isPartner: false,
       points: 0,
-      basicInformation: {
-        fname: data["firstName"],
-        lname: data["lastName"],
-        year: data["yearLevel"],
-        faculty: data["faculty"],
-        major: data["majorSpecialization"],
-        gender: data["preferredPronouns"],
-        diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"],
-      },
+      basicInformation,
       dynamicResponses: data["customQuestions"],
       applicationStatus: event.isApplicationBased
         ? ApplicationStatus.REVIEWING
