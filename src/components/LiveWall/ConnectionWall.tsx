@@ -214,6 +214,9 @@ export default function ConnectionWall() {
   const [tickerStartPx, setTickerStartPx] = useState(0);
   const [tickerContentPx, setTickerContentPx] = useState(0);
 
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const dragModeRef = useRef(false);
+
   // derived
   const [degree, setDegree] = useState<Record<string, number>>({});
   const degreeRef = useRef<Record<string, number>>({});
@@ -804,6 +807,74 @@ export default function ConnectionWall() {
     return () => clearInterval(id);
   }, []);
 
+  const setDragMode = (on: boolean) => {
+    const g = fgRef.current as any;
+    if (!g) return;
+
+    if (on && !dragModeRef.current) {
+      dragModeRef.current = true;
+
+      const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
+      charge
+        .strength((n: any) => {
+          const d = degreeRef.current[n.id] || 0;
+          return -600 + d * -30;
+        })
+        .distanceMax(4000)
+        .distanceMin(2);
+      g.d3Force?.("charge", charge);
+
+      const collide = forceCollide()
+        .radius((n: any) => {
+          const d = degreeRef.current[n.id] || 1;
+          return (COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG) * 1.2;
+        })
+        .strength(1.0)
+        .iterations(4);
+      g.d3Force?.("collide", collide);
+
+      try {
+        g.d3VelocityDecay?.(0.86);
+      } catch {}
+
+      try {
+        g.d3AlphaTarget?.(0.02);
+        g.d3ReheatSimulation?.();
+      } catch {}
+    }
+
+    if (!on && dragModeRef.current) {
+      dragModeRef.current = false;
+
+      const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
+      charge
+        .strength((n: any) => {
+          const d = degreeRef.current[n.id] || 0;
+          return CHARGE_BASE + d * CHARGE_PER_DEG;
+        })
+        .distanceMax(CHARGE_DIST_MAX)
+        .distanceMin(2);
+      g.d3Force?.("charge", charge);
+
+      const collide = forceCollide()
+        .radius((n: any) => {
+          const d = degreeRef.current[n.id] || 1;
+          return COLLIDE_BASE + Math.sqrt(d) * COLLIDE_PER_DEG;
+        })
+        .strength(0.9)
+        .iterations(2);
+      g.d3Force?.("collide", collide);
+
+      try {
+        g.d3VelocityDecay?.(0.75);
+      } catch {}
+      try {
+        g.d3AlphaTarget?.(0);
+        g.d3ReheatSimulation?.();
+      } catch {}
+    }
+  };
+
   // camera tour
   useEffect(() => {
     if (!autoPan) return;
@@ -1067,7 +1138,7 @@ export default function ConnectionWall() {
           nodeRelSize={9 * VIS}
           warmupTicks={200}
           cooldownTicks={400}
-          d3AlphaDecay={0.015}
+          d3AlphaDecay={0.018}
           d3VelocityDecay={0.75}
           linkCurvature={0}
           linkDirectionalParticles={(l: any) =>
@@ -1189,6 +1260,24 @@ export default function ConnectionWall() {
             const ratio = 1 + dist / Math.hypot(n.x || 1, n.y || 1);
             g.centerAt(n.x * ratio, n.y * ratio, 800);
             g.zoom(3, 800);
+          }}
+          onNodeDrag={(n: any) => {
+            setDraggingId(n.id);
+            setDragMode(true);
+
+            (n as any).fx = n.x;
+            (n as any).fy = n.y;
+          }}
+          onNodeDragEnd={(n: any) => {
+            (n as any).fx = n.x;
+            (n as any).fy = n.y;
+            setTimeout(() => {
+              delete (n as any).fx;
+              delete (n as any).fy;
+            }, 80);
+
+            setDraggingId(null);
+            setDragMode(false);
           }}
           onBackgroundClick={() => {
             setFocusedId(null);
