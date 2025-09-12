@@ -67,6 +67,12 @@ const TRAIL_MAX = 2000; // limit objects for perf
 const TRAIL_LINE_WIDTH = 1 * VIS;
 const TRAIL_DASH: [number, number] = [4 * VIS, 6 * VIS];
 
+// zoom stuff
+
+const LABEL_ZOOM_THRESHOLD = 0.8 / VIS;
+const LABEL_MIN_PX = 10 * VIS;
+const LABEL_BASE_PX = 11 * VIS;
+
 // Types
 
 type WallNode = {
@@ -1454,7 +1460,9 @@ export default function ConnectionWall() {
 
             // label
             const show =
-              globalScale > 1.15 / VIS || hoverId === id || focusedId === id;
+              globalScale > LABEL_ZOOM_THRESHOLD ||
+              hoverId === id ||
+              focusedId === id;
             if (show) {
               const label = firstName(node.name, id);
               const fontSize = Math.max(8 * VIS, (9 * VIS) / globalScale);
