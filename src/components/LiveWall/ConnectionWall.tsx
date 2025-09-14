@@ -16,7 +16,7 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 
 // Tunables
 const VIS = 0.5; // graph visuals scale
-const SNAPSHOT_WINDOW_SEC = 86_400;
+const SNAPSHOT_WINDOW_SEC = 860_400;
 const RECENT_EDGE_WINDOW_MS = 5 * 60_000;
 const TICKER_MAX = 24;
 
