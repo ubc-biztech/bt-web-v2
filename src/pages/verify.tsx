@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { resendSignUpCode } from "@aws-amplify/auth";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Verify() {
   const router = useRouter();
@@ -55,11 +56,13 @@ export default function Verify() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-1 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 bg-bt-blue-600">
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
           <div className="mx-auto w-full max-w-sm lg:w-96">
-            <img
-              className="mx-auto h-24 w-auto"
+            <Image
+              className="mx-auto w-auto"
+              height={96}
+              width={96}
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
@@ -74,7 +77,7 @@ export default function Verify() {
               className={`mt-8 w-full rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${
                 isResending || timer !== null
                   ? "bg-[rgba(122,208,64,0.4)] cursor-not-allowed"
-                  : "bg-biztech-green hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                  : "bg-bt-green-300 hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               }`}
             >
               {isResending
@@ -84,11 +87,11 @@ export default function Verify() {
                   : "Resend Verification Email"}
             </button>
 
-            <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-white-blue mb-4">
+            <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-bt-blue-0 mb-4">
               Already verified your email? &nbsp;
               <Link
                 href="/login"
-                className="text-biztech-green hover:text-dark-green font-semibold"
+                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
               >
                 Login here.
               </Link>
@@ -96,9 +99,10 @@ export default function Verify() {
           </div>
         </div>
         <div className="relative hidden w-0 flex-1 lg:block">
-          <img
+          <Image
             alt=""
             src="https://i.postimg.cc/XVbbxK56/DSC03682-1.jpg"
+            fill
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>

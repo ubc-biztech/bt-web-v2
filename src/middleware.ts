@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { fetchUserAttributes } from "@aws-amplify/auth/server";
-import { runWithAmplifyServerContext } from "./util/amplify-utils";
+import { NextRequest } from "next/server";
+import { fetchBackendFromServer } from "./lib/db";
+import { User } from "./types";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -9,50 +9,56 @@ export async function middleware(request: NextRequest) {
   const pathname = url.pathname;
 
   // Always allow these paths
+  const allowedPrefixes = [
+    "/companion",
+    "/events",
+    "/event",
+    "/become-a-member",
+    "/membership",
+    "/login",
+    "/profile",
+    "/register",
+    "/forgot-password",
+    "/verify",
+    "/assets",
+    "/favicon",
+    "/_next",
+    "/static",
+    "/fonts",
+    "/videos",
+    "/admin",
+  ];
+
   if (
-    pathname.startsWith("/companion") ||
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
-    pathname.startsWith("/fonts") ||
-    pathname.startsWith("/videos") ||
+    allowedPrefixes.some((prefix) => pathname.startsWith(prefix)) ||
     pathname.match(/\.(woff|woff2|ttf|otf)$/)
   ) {
     return NextResponse.next();
   }
 
-  // Check for admin routes
-  if (pathname.startsWith("/admin")) {
-    const isAdmin = await runWithAmplifyServerContext({
-      nextServerContext: { request, response },
-      operation: async (contextSpec) => {
-        try {
-          const { email } = await fetchUserAttributes(contextSpec);
-          return (
-            email &&
-            email.substring(email.indexOf("@") + 1, email.length) ===
-              "ubcbiztech.com"
-          );
-        } catch (error) {
-          console.log(error);
-          return false;
-        }
-      },
+  try {
+    const userProfile: User = await fetchBackendFromServer({
+      endpoint: `/users/self`,
+      method: "GET",
+      nextServerContext: { request: request as any, response: response as any },
     });
 
-    if (!isAdmin) {
+    if (!userProfile.isMember) {
+      return NextResponse.redirect(new URL("/membership", request.url));
+    }
+
+    if (pathname.startsWith("/admin") && !userProfile.admin) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    return response;
-  }
+    return NextResponse.next();
+  } catch (error: any) {
+    if (error.status === 404) {
+      return NextResponse.redirect(new URL("/membership", request.url));
+    }
 
-  // Handle production redirect to /companion
-  if (process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production") {
-    url.pathname = "/companion";
-    return NextResponse.rewrite(url);
+    return NextResponse.redirect(new URL("/login", request.url));
   }
-
-  return NextResponse.next();
 }
 
 export const config = {

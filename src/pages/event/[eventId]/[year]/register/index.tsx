@@ -28,6 +28,8 @@ import { Button } from "@/components/ui/button";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
+import { useToast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -41,9 +43,18 @@ export default function AttendeeFormRegister() {
   const [userRegistered, setUserRegistered] = useState<boolean>(false);
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
+  const [hasShownMemberToast, setHasShownMemberToast] =
+    useState<boolean>(false);
+  const { toast } = useToast();
+
+  const isAlumniNight = event?.id === "alumni-night";
 
   const samePricing = () => {
     return event.pricing?.members === event.pricing?.nonMembers;
+  };
+
+  const priceDiff = () => {
+    return event.pricing?.nonMembers - event.pricing?.members;
   };
 
   const isDeadlinePassed = () => {
@@ -156,7 +167,22 @@ export default function AttendeeFormRegister() {
     ) {
       setIsNonMemberModalOpen(true);
     }
-  }, [event, user]);
+
+    // Show member discount toast for non-signed-in users
+    if (
+      !userLoading &&
+      !userLoggedIn &&
+      priceDiff() > 0 &&
+      !hasShownMemberToast
+    ) {
+      toast({
+        title: "💡 Member Discount Available!",
+        description: `Sign in as a member to save $${priceDiff().toFixed(2)} on this event!`,
+        duration: 8000, // Show for 8 seconds
+      });
+      setHasShownMemberToast(true);
+    }
+  }, [event, user, userLoggedIn, userLoading, hasShownMemberToast, toast]);
 
   // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
@@ -179,6 +205,19 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
+    const basicInformation = {
+      fname: data["firstName"],
+      lname: data["lastName"],
+      gender: data["preferredPronouns"],
+      diet: data["dietaryRestrictions"],
+      heardFrom: data["howDidYouHear"],
+      ...(!isAlumniNight && {
+        year: data["yearLevel"],
+        faculty: data["faculty"],
+        major: data["majorSpecialization"],
+      }),
+    };
+
     const registrationData = {
       email: data["emailAddress"],
       fname: data["firstName"],
@@ -188,16 +227,7 @@ export default function AttendeeFormRegister() {
       registrationStatus: DBRegistrationStatus.REGISTERED,
       isPartner: false,
       points: 0,
-      basicInformation: {
-        fname: data["firstName"],
-        lname: data["lastName"],
-        year: data["yearLevel"],
-        faculty: data["faculty"],
-        major: data["majorSpecialization"],
-        gender: data["preferredPronouns"],
-        diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"],
-      },
+      basicInformation,
       dynamicResponses: data["customQuestions"],
       applicationStatus: event.isApplicationBased
         ? ApplicationStatus.REVIEWING
@@ -211,7 +241,7 @@ export default function AttendeeFormRegister() {
         data: registrationData,
         authenticatedCall: false,
       });
-      router.push(`/event/${eventId}/${year}/register/success`);
+      await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
       alert(
@@ -323,11 +353,14 @@ export default function AttendeeFormRegister() {
     return (
       <div className="flex text-white">
         <div className="space-y-4 p-4 max-w-lg mx-auto py-10">
-          <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+          <div
+            className={`aspect-video bg-gray-200 rounded-lg flex relative items-center justify-center overflow-hidden`}
+          >
             {event?.imageUrl ? (
-              <img
+              <Image
                 src={event.imageUrl}
                 alt="Event Cover"
+                fill
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -497,7 +530,7 @@ export default function AttendeeFormRegister() {
   };
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen">
       <div className="mx-auto flex flex-col">
         {regAlert}
         {event && renderConditionalViews()}

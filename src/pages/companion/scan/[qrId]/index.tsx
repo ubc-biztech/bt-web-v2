@@ -13,6 +13,21 @@ import {
 } from "@/constants/companion";
 import Loading from "@/components/Loading";
 
+/**
+ * COMPANION APP CHECK-IN SYSTEM
+ * This component handles special event interactions through QR/NFC scanning in the companion app.
+ * Unlike the main event check-in, this tracks participant interactions, connections, and
+ * engagement at events rather than just attendance.
+ *
+ * Supported Check-in Types:
+ * - NFC_ATTENDEE: Attendee-to-attendee connections
+ * - NFC_PARTNER: Partner interactions
+ * - NFC_EXEC: Executive interactions
+ * - NFC_COMPANY: Company booth interactions
+ * - NFC_BOOTH: Booth visits
+ * - NFC_WORKSHOP: Workshop participation
+ */
+
 interface Qr {
   data: Record<string, any>;
   id: string;

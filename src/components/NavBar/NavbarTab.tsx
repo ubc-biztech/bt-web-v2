@@ -1,17 +1,21 @@
-import { signOut } from "@aws-amplify/auth";
-import Image from "next/image";
+import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
+import { signOut } from "@aws-amplify/auth";
+import { generateStageURL } from "@/util/url";
+import { clearCognitoCookies } from "@/lib/dbUtils";
+import { logout } from "@/util/auth";
+
+interface NavbarItem {
+  title: string;
+  link: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+}
 
 interface NavbarProps {
-  navbarItem: {
-    title: string;
-    link: string;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  };
+  navbarItem: NavbarItem;
   onLogout?: () => void;
-  onTabClick?: () => void; // Add this prop
+  onTabClick?: () => void;
 }
 
 const NavbarTab: React.FC<NavbarProps> = ({
@@ -20,41 +24,62 @@ const NavbarTab: React.FC<NavbarProps> = ({
   onTabClick,
 }) => {
   const router = useRouter();
-  const isSelected = router.pathname === navbarItem.link;
+  const isSelected = navbarItem.link && router.pathname === navbarItem.link;
+  const isLogout = navbarItem.title.toLowerCase() === "logout";
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
+
+  const baseClasses =
+    "h-9 flex w-full mb-4 mt-4 hover:opacity-80 cursor-pointer";
+  const innerClasses = `flex items-center p-2 gap-3 rounded-md grow ${
+    isSelected ? "bg-bt-blue-400 shadow-[inset_1.6px_1.6px_6.4px_#516495]" : ""
+  }`;
+
+  const Icon = navbarItem.icon;
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (isSigningOut) return;
+    setIsSigningOut(true);
     try {
-      await signOut();
+      clearCognitoCookies();
+      await logout();
       onLogout?.();
-      onTabClick?.(); // Close mobile menu after logout
+      onTabClick?.();
     } catch (error) {
-      console.error("Error signing out: ", error);
+      console.error("Error signing out:", error);
+      setIsSigningOut(false);
     }
   };
 
-  const handleNavClick = (e: React.MouseEvent) => {
-    // For regular navigation, close the mobile menu
-    onTabClick?.();
-  };
-
-  const handleClick =
-    navbarItem.title === "Logout" ? handleLogout : handleNavClick;
+  if (isLogout) {
+    return (
+      <button
+        type="button"
+        className={baseClasses}
+        onClick={handleLogout}
+        disabled={isSigningOut}
+        aria-disabled={isSigningOut}
+      >
+        <div className={innerClasses}>
+          <Icon className="w-5 h-5 shrink-0 text-bt-blue-0 overflow-visible" />
+          <h6 className="text-bt-blue-0 text-sm font-medium">
+            {isSigningOut ? "Signing out…" : navbarItem.title}
+          </h6>
+        </div>
+      </button>
+    );
+  }
 
   return (
     <Link
       href={navbarItem.link || "#"}
-      className="h-9 flex w-full mb-4 mt-4 hover:opacity-80 cursor-pointer"
-      onClick={handleClick}
+      className={baseClasses}
+      onClick={() => onTabClick?.()}
+      prefetch={false}
     >
-      <div
-        className={`flex items-center p-2 gap-3 rounded-md grow ${
-          isSelected &&
-          "bg-events-active-tab-bg shadow-[inset_1.6px_1.6px_6.4px_#516495]"
-        }`}
-      >
-        <navbarItem.icon className="w-5 h-5 shrink-0 text-pale-blue overflow-visible" />
-        <h6 className="text-pale-blue text-sm font-medium">
+      <div className={innerClasses}>
+        <Icon className="w-5 h-5 shrink-0 text-bt-blue-0 overflow-visible" />
+        <h6 className="text-bt-blue-0 text-sm font-medium">
           {navbarItem.title}
         </h6>
       </div>

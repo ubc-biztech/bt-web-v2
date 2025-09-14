@@ -120,7 +120,7 @@ export default function Page({ events }: EventProps) {
   };
 
   return (
-    <main className="bg-primary-color min-h-screen w-full">
+    <main className="bg-bt-blue-600 min-h-screen w-full">
       <div className="w-full">
         {!signedIn && (
           <GuestBanner message="To keep your saved events or view your registered events you need to be signed in." />
@@ -179,9 +179,9 @@ export async function getStaticProps() {
       return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
     });
 
-    events = events.filter((e: BiztechEvent) => {
-      return e.isPublished;
-    });
+    events = events.filter(
+      (e: BiztechEvent) => e.isPublished && e.id !== "alumni-night", // temp filter
+    );
 
     return {
       props: {

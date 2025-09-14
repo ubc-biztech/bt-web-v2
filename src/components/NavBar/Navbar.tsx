@@ -99,7 +99,7 @@ export default function Navbar() {
                   onTabClick={() => setIsOpen(false)}
                 />
               ))}
-              <div className="w-full h-px bg-navbar-tab-hover-bg my-8" />
+              <div className="w-full h-px bg-bt-blue-300 my-8" />
             </>
           )}
           {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
@@ -128,7 +128,7 @@ export default function Navbar() {
       {/* Mobile Header - shows/hides on scroll */}
       {isMobileDevice && (
         <motion.div
-          className="p-4 h-16 bg-events-navigation-bg border-b border-dark-slate/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
+          className="p-4 h-16 bg-bt-blue-700 border-b border-bt-blue-300/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
           initial={{ y: 0 }}
           animate={{ y: isNavVisible ? 0 : -64 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -152,7 +152,7 @@ export default function Navbar() {
       {/* Desktop Sidebar - fixed position, doesn't scroll */}
       {!isMobileDevice && (
         <div className="fixed top-0 left-0 bottom-0 z-30">
-          <div className="pt-9 h-full w-[250px] bg-events-navigation-bg flex flex-col justify-between p-6">
+          <div className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6">
             <RenderNavbarTabs />
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
           >
             <motion.div
-              className="pt-9 h-full w-[250px] bg-events-navigation-bg flex flex-col justify-between p-6"
+              className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6"
               initial={{ x: "100vw" }}
               animate={{ x: "calc(100vw - 250px)" }}
               exit={{ x: "100vw" }}

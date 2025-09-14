@@ -198,7 +198,7 @@ export const CompanionForm: FC<FormProps> = ({ setQRs }) => {
           />
           <div className="flex flex-row items-center space-x-3 h-min">
             <Button
-              className="col-start-1 w-[150px] bg-biztech-green text-login-form-card font-400"
+              className="col-start-1 w-[150px] bg-bt-green-300 hover:bg-bt-green-500 text-bt-blue-400 font-400"
               type="submit"
             >
               ADD QR

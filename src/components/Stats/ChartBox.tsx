@@ -16,7 +16,7 @@ const ChartBox: React.FC<ChartBoxProps> = ({
 }) => {
   return (
     <div
-      className={`bg-dark-slate my-2 p-4 flex flex-col rounded ${styles.dynamicWidth}`}
+      className={`bg-bt-blue-300 my-2 p-4 flex flex-col rounded ${styles.dynamicWidth}`}
       style={
         {
           height: height,

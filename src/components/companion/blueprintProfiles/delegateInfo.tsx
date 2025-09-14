@@ -15,7 +15,7 @@ const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* Company Card */}
           {userData?.company && (
             <div>
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 COMPANY
               </p>
               <p className="text-xs sm:text-sm font-satoshi">
@@ -27,7 +27,7 @@ const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* Role Card */}
           {userData?.role && (
             <div>
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 ROLE
               </p>
               <p className="text-xs sm:text-sm font-satoshi">{userData.role}</p>
@@ -37,7 +37,7 @@ const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* PRONOUNS Card */}
           {userData?.pronouns && (
             <div className="col-span-2">
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 PRONOUNS
               </p>
               <p className="text-xs sm:text-sm font-satoshi">

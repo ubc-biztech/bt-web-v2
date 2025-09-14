@@ -37,7 +37,7 @@ const ExtraInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
                 height={40}
               />
               <div className="flex flex-col">
-                <span className="text-xs sm:text-sm text-light-grey font-redhat">
+                <span className="text-xs sm:text-sm text-neutral-200 font-redhat">
                   LINKEDIN
                 </span>
                 <span className="text-xs sm:text-sm font-satoshi truncate max-w-[135px] xs:max-w-[180px] sm:max-w-none">

@@ -17,7 +17,6 @@ import {
   BiztechProfile,
   DisplayUserField,
   HobbyTag,
-  IconButton,
   LinkButton,
 } from "@/components/ProfilePage/BizCardComponents";
 import { GenericCardNFC } from "@/components/Common/Cards";
@@ -30,6 +29,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { FormTextarea } from "../Events/FormComponents/FormTextarea";
 import { EditProfileForm } from "./EditProfileForm";
 import Image from "next/image";
+import { IconButton } from "../Common/IconButton";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -110,13 +110,14 @@ export const EditProfilePage = ({
       : "v2.ubcbiztech.com";
 
   const profileId = profileData.compositeID.split("#")[1];
-  const fullURL = `${domain}/profile/${profileId}`;
+  const fullURL = `${domain}/profile/${profileId}?scan=true`;
 
   if (!profileData) {
     return (
-      <div className="flex flex-col items-center gap-4 w-full text-pale-blue text-lg">
+      <div className="flex flex-col items-center gap-4 w-full text-bt-blue-0 text-lg">
         Oops! No profile found.
         <IconButton
+          variant="green"
           label="Return to home"
           onClick={() => navRouter.push("/")}
           className="w-fit"
@@ -197,7 +198,7 @@ export const EditProfilePage = ({
   const VisibilityToggle = React.memo(
     ({ fieldKey, label }: { fieldKey: string; label: string }) => (
       <div className="flex items-center justify-between">
-        <span className="text-sm text-pale-blue">{label}</span>
+        <span className="text-sm text-bt-blue-0">{label}</span>
         <input
           type="checkbox"
           {...register(`viewableMap.${fieldKey}`)}
@@ -220,7 +221,7 @@ export const EditProfilePage = ({
       type?: string;
     }) => (
       <div className="space-y-2">
-        <label className="text-sm font-medium text-pale-blue">
+        <label className="text-sm font-medium text-bt-blue-0">
           {fieldName}
         </label>
         {type === "textarea" ? (
@@ -230,7 +231,7 @@ export const EditProfilePage = ({
             {...register(registerName)}
             type={type}
             placeholder={placeholder}
-            className="w-full p-2 rounded-md bg-biztech-navy border border-border-blue text-white placeholder-signup-input-border"
+            className="w-full p-2 rounded-md bg-bt-blue-300/20 border border-bt-blue-400 text-white placeholder-bt-blue-200"
           />
         )}
       </div>
@@ -242,10 +243,14 @@ export const EditProfilePage = ({
   EditableField.displayName = "EditableField";
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 text-white py-4 md:p-8 md:gap-8 space-y-6 md:space-y-0">
+    <div
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-white
+                 py-4 gap-6 md:gap-8 space-y-6 md:space-y-0
+                 max-w-6xl mx-auto"
+    >
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
-          <div className="w-32 h-32 bg-events-baby-blue relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="w-32 h-32 bg-bt-blue-100 relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
             {profileData.profilePictureURL &&
             profileData.viewableMap.profilePictureURL ? (
               <Image
@@ -255,7 +260,7 @@ export const EditProfilePage = ({
                 className="object-cover"
               />
             ) : (
-              <span className="text-3xl font-medium text-biztech-navy">
+              <span className="text-3xl font-medium text-bt-blue-600">
                 {fname[0].toUpperCase()}
                 {lname[0].toUpperCase()}
               </span>
@@ -264,18 +269,20 @@ export const EditProfilePage = ({
           <h1 className="text-center text-xl font-semibold mb-2">
             {fname} {lname}
           </h1>
-          <p className="text-pale-blue mb-4">
+          <p className="text-center text-bt-blue-0 mb-4">
             BizTech {profileType === "ATTENDEE" ? "Member" : "Exec"}
           </p>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap lg:flex-nowrap justify-center gap-2">
             <IconButton
+              variant="outline"
               icon={Share}
               label="Share Profile"
               onClick={() => setDrawerOpen(true)}
             />
 
             <IconButton
+              variant="outline"
               icon={isEditing ? X : Edit}
               label={isEditing ? "Cancel" : "Edit Profile"}
               onClick={isEditing ? handleCancelEdit : () => setIsEditing(true)}
@@ -283,12 +290,12 @@ export const EditProfilePage = ({
           </div>
         </div>
 
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <UserExternalLinks />
         </div>
       </div>
 
-      <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
+      <div className="flex flex-col justify-center lg:col-span-2 space-y-6 w-full min-w-0">
         {isEditing ? (
           <EditProfileForm
             profileData={profileData}
@@ -300,14 +307,14 @@ export const EditProfilePage = ({
             {/* Display Mode - Original Profile View */}
             <GenericCardNFC title={`About ${fname}`} isCollapsible={false}>
               <div className="space-y-4">
-                <p className="text-pale-blue text-sm">
+                <p className="text-bt-blue-0 text-sm">
                   {description || "No description provided."}
                 </p>
 
                 {(hobby1 || hobby2) && (
                   <>
                     <div className="inline-flex flex-wrap items-center gap-2">
-                      <span className="text-sm text-pale-blue">Hobbies:</span>
+                      <span className="text-sm text-bt-blue-0">Hobbies:</span>
                       <div className="flex flex-wrap gap-2">
                         {hobby1 && profileData.viewableMap.hobby1 && (
                           <HobbyTag hobby={hobby1} />
@@ -317,7 +324,7 @@ export const EditProfilePage = ({
                         )}
                       </div>
                     </div>
-                    <div className="border-border-blue border-[0.5px]" />
+                    <div className="border-bt-blue-400 border-[0.5px]" />
                   </>
                 )}
 
@@ -341,7 +348,7 @@ export const EditProfilePage = ({
               </div>
             </GenericCardNFC>
 
-            <div className="block md:hidden">
+            <div className="block lg:hidden">
               <UserExternalLinks />
             </div>
 
@@ -351,11 +358,11 @@ export const EditProfilePage = ({
                 {questions.map((question, idx) => (
                   <div key={idx} className="">
                     <span className="rounded-lg">
-                      <p className="text-sm text-pale-blue mb-2">{question}</p>
+                      <p className="text-sm text-bt-blue-0 mb-2">{question}</p>
                     </span>
 
                     {questions.length > 1 && idx < questions.length - 1 && (
-                      <div className="border-border-blue border-[0.5px]" />
+                      <div className="border-bt-blue-400 border-[0.5px]" />
                     )}
                   </div>
                 ))}

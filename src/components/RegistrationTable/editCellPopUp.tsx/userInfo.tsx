@@ -64,7 +64,7 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
     <div className="text-white gap-4 m-3 grid auto-cols-fr sm:grid-cols-2">
       {fieldsToDisplay.map((key) => (
         <div key={key}>
-          <label className="block font-bold text-baby-blue">
+          <label className="block font-bold text-bt-blue-100">
             {fieldLabels[key] || key}:
           </label>
           {key === "registrationStatus" || key === "applicationStatus" ? (
@@ -96,7 +96,7 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
         >
       ).map((key) => (
         <div key={key}>
-          <label className="block font-bold text-baby-blue">{key}:</label>
+          <label className="block font-bold text-bt-blue-100">{key}:</label>
           <span>{String(row.original.basicInformation[key])}</span>
         </div>
       ))}

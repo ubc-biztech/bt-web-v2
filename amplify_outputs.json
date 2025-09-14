@@ -22,13 +22,20 @@
         "http://localhost:3000/login",
         "https://dev.v2.ubcbiztech.com/login",
         "https://v2.ubcbiztech.com/login",
-        "https://app.ubcbiztech.com/login"
+        "https://app.ubcbiztech.com/login",
+        "https://dev.app.ubcbiztech.com/login"
       ],
       "redirect_sign_out_uri": [
         "http://localhost:3000/",
+        "http://localhost:3000/login",
         "https://dev.v2.ubcbiztech.com/",
+        "https://dev.v2.ubcbiztech.com/login",
         "https://v2.ubcbiztech.com/",
-        "https://app.ubcbiztech.com/"
+        "https://v2.ubcbiztech.com/login",
+        "https://app.ubcbiztech.com/",
+        "https://app.ubcbiztech.com/login",
+        "https://dev.app.ubcbiztech.com/",
+        "https://dev.app.ubcbiztech.com/login"
       ],
       "response_type": "code",
       "scopes": [

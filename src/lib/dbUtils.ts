@@ -1,5 +1,5 @@
 import { fetchBackend } from "./db";
-import { DBRegistrationStatus, ApplicationStatus } from "@/types";
+import { DBRegistrationStatus } from "@/types";
 
 export async function fetchRegistrationData(eventId: string, year: string) {
   let registrationData = await fetchBackend({
@@ -12,6 +12,8 @@ export async function fetchRegistrationData(eventId: string, year: string) {
 }
 
 // Helper to convert UI registration status to DB format
+// This function handles converting human-readable status labels (like "Checked-In")
+// to database values (like "checkedIn") for registration updates including check-ins
 export function convertRegistrationStatusToDB(uiStatus: string): string {
   switch (uiStatus.toLowerCase()) {
     case "registered":
@@ -76,5 +78,41 @@ export async function updateRegistrationData(
     });
   } catch (e) {
     console.error("Internal Server Error, Update Failed");
+  }
+}
+
+export class UnauthenticatedUserError extends Error {
+  constructor(message: string = "User is not authenticated") {
+    super(message);
+    this.name = "UnauthenticatedUserError";
+  }
+}
+
+export function clearCognitoCookies() {
+  if (typeof window !== "undefined") {
+    const clearCookie = (name: string) => {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=${window.location.hostname};`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=.${window.location.hostname};`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=strict;`;
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=lax;`;
+    };
+
+    const cookies = document.cookie.split(";");
+    cookies.forEach((cookie) => {
+      const cookieName = cookie.split("=")[0].trim();
+
+      if (
+        cookieName.includes("cognito") ||
+        cookieName.includes("Cognito") ||
+        cookieName.startsWith("CognitoIdentityServiceProvider") ||
+        cookieName.includes("idToken") ||
+        cookieName.includes("accessToken") ||
+        cookieName.includes("refreshToken")
+      ) {
+        clearCookie(cookieName);
+      }
+    });
   }
 }

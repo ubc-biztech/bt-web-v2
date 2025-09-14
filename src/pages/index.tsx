@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BiztechEvent, User } from "@/types";
-import { fetchBackendFromServer } from "@/lib/db";
+import { fetchBackend, fetchBackendFromServer } from "@/lib/db";
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Registration } from "@/types/types";
 import Divider from "@/components/Common/Divider";
@@ -13,26 +13,85 @@ import { getHighlightedEvent } from "@/util/sort";
 import { format, toDate } from "date-fns";
 import BizImage from "@/components/Common/BizImage";
 import { useRouter } from "next/navigation";
-import { useRedirect } from "@/hooks/useRedirect";
-import { Spinner } from "@/components/ui/spinner";
-import PageLoadingState from "@/components/Common/PageLoadingState";
 import { GetServerSideProps } from "next";
-import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
+import PageLoadingState from "@/components/Common/PageLoadingState";
+import { AuthError } from "@aws-amplify/auth";
 
 interface ProfilePageProps {
-  profile: User | null;
   events: BiztechEvent[];
-  registrations: Registration[];
   highlightedEvent: BiztechEvent | null;
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({
-  profile,
   events,
-  registrations,
   highlightedEvent,
 }) => {
   const router = useRouter();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // First check if user is signed in using the reliable method (same as NavBar)
+        const attributes = await fetchUserAttributes();
+        const userEmail = attributes?.email || "";
+
+        if (!userEmail) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+          return;
+        }
+
+        // User is authenticated, now check their profile for membership status
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
+
+        setProfile(userProfile);
+
+        // Check if user is a member, if not redirect to membership
+        if (!userProfile.isMember) {
+          await router.push("/membership");
+          return;
+        }
+
+        // Fetch user registrations
+        const registrationsRes = await fetchBackend({
+          endpoint: `/registrations/?email=${userProfile.email}`,
+          method: "GET",
+        });
+
+        setRegistrations(registrationsRes.data || []);
+        setLoading(false);
+      } catch (error: any) {
+        console.error("Error fetching user data:", error);
+
+        if (
+          error instanceof AuthError &&
+          error.name === "UserUnAuthenticatedException"
+        ) {
+          // User is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.name === UnauthenticatedUserError.name) {
+          // Backend says user is not authenticated, redirect to login
+          await router.push("/login");
+        } else if (error.status === 404) {
+          // User profile doesn't exist, redirect to membership
+          await router.push("/membership");
+        } else {
+          // Other errors - just log and show loading state
+          console.error("Failed to fetch user data:", error);
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [router]);
 
   function getEventState(event: BiztechEvent | null) {
     return event && toDate(event.startDate) < toDate(new Date())
@@ -40,12 +99,20 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       : "Upcoming";
   }
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full relative">
       <h3 className="text-white text-lg lg:text-xl">
         {profile?.fname ? `Hey ${profile.fname}!` : "Hey"}
       </h3>
-      <p className="text-pale-blue">Welcome back to BizTech</p>
+      <p className="text-bt-blue-0">Welcome back to BizTech</p>
       <Divider />
 
       <Image
@@ -63,21 +130,21 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               : "Our Next Event"
           }
         >
-          <div className="text-pale-blue h-full flex flex-col justify-center">
+          <div className="text-bt-blue-0 h-full flex flex-col justify-center">
             <BizImage
               height={480}
               width={720}
               alt="Event cover image"
               src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
               style={{ objectFit: "cover" }}
-              className="h-full rounded-xl border-[0.5px] border-pale-blue/60"
+              className="h-full aspect-[8/5] rounded-xl border-[0.5px] border-bt-blue-0/60"
             />
             {highlightedEvent ? (
               <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
                 <div>
                   <h4>{highlightedEvent?.ename}</h4>
 
-                  <p className="text-xs text-pale-blue">
+                  <p className="text-xs text-bt-blue-0">
                     {format(toDate(highlightedEvent.startDate), "LLLL d, yyyy")}
                   </p>
                 </div>
@@ -92,12 +159,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     )
                   }
                   size="lg"
-                  className="bg-neon-green hover:bg-dark-green text-dark-navy rounded-full"
+                  className="bg-bt-green-500 hover:bg-bt-green-700 text-bt-blue-600 rounded-full"
                   disabled={getEventState(highlightedEvent) === "Past"}
                 />
               </div>
             ) : (
-              <div className="h-full w-full place-content-center text-center text-pale-blue">
+              <div className="h-full w-full place-content-center text-center text-bt-blue-0">
                 No event to show - check back soon!
               </div>
             )}
@@ -116,12 +183,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const nextServerContext = { request: context.req, response: context.res };
 
   try {
-    const profile: User = await fetchBackendFromServer({
-      endpoint: `/users/self`,
-      method: "GET",
-      nextServerContext,
-    });
-
+    // Only fetch events on server side
     const events = await fetchBackendFromServer({
       endpoint: `/events`,
       method: "GET",
@@ -129,52 +191,29 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       nextServerContext,
     });
 
-    // 3. Fetch registrations for this user
-    const registrationsRes = await fetchBackendFromServer({
-      endpoint: `/registrations/?email=${profile.email}`,
-      method: "GET",
-      authenticatedCall: false,
-      nextServerContext,
-    });
-
-    // 4. Filter and highlight events
+    // Filter and highlight events
     const allEvents = events.filter(
       (event: BiztechEvent) =>
-        toDate(event.startDate) > toDate(new Date(2024, 9, 1)),
+        toDate(event.startDate) > toDate(new Date(2025, 5, 1)) &&
+        event.isPublished &&
+        event.id !== "alumni-night", // temp filter
     );
-    const highlightedEvent = getHighlightedEvent(allEvents);
 
-    if (!profile.isMember) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-      };
-    }
+    const highlightedEvent = getHighlightedEvent(allEvents);
 
     return {
       props: {
-        profile,
         events: allEvents,
-        registrations: registrationsRes.data,
         highlightedEvent: highlightedEvent || null,
       },
     };
   } catch (err: any) {
-    if (err.status === 404) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-      };
-    }
-
+    // If events fail to load, return empty data instead of redirecting
+    console.error("Failed to fetch events:", err);
     return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
+      props: {
+        events: [],
+        highlightedEvent: null,
       },
     };
   }

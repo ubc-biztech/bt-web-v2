@@ -34,7 +34,7 @@ const DropDown: React.FC<{
             nullVal={null}
             placeholder={placeholder}
             options={options}
-            className="w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-baby-blue font-400 p-2 px-4 placeholder:text-muted-foreground"
+            className="w-full bg-[#293553] rounded-none rounded-t-[3px] border-0 border-b-[1px] h-min border-bt-blue-100 font-400 p-2 px-4 placeholder:text-muted-foreground"
           />
         </FormControl>
         <div className="flex flex-row items-center space-x-4">
@@ -48,7 +48,7 @@ const DropDown: React.FC<{
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <FormMessage className="text-baby-blue text-xs" />
+          <FormMessage className="text-bt-blue-100 text-xs" />
         </div>
       </FormItem>
     )}

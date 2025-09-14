@@ -37,7 +37,7 @@ const Profile: FC<ProfileProps> = ({ userData }) => {
   return (
     <div className="flex flex-col items-center mb-6 sm:mb-8">
       <Avatar
-        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-baby-blue flex items-center justify-center text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-black`}
+        className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-bt-blue-100 flex items-center justify-center text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-black`}
       >
         <AvatarImage
           src={userData.profilePictureURL || ""}
@@ -49,7 +49,7 @@ const Profile: FC<ProfileProps> = ({ userData }) => {
       <h5 className="text-xl sm:text-2xl text-center text-white font-sans mb-1">
         {name}
       </h5>
-      <p className="text-xs sm:text-sm text-light-grey uppercase font-redhat">
+      <p className="text-xs sm:text-sm text-neutral-200 uppercase font-redhat">
         {userData.type}
       </p>
     </div>
