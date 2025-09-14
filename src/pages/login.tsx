@@ -273,13 +273,14 @@ const LoginForm: React.FC = () => {
                 )}
               </div>
             </div>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-              <div>
+
+            <div>
+              <div className="flex justify-between items-center w-full mt-2">
                 <label
                   htmlFor="password"
                   className="block text-sm font-400 leading-6 text-white"
                 >
-                  Email
+                  Password
                 </label>
                 <div className="text-sm leading-6">
                   <Link
@@ -306,52 +307,15 @@ const LoginForm: React.FC = () => {
                   <div className="text-red-500 text-sm">
                     {errors.passwordError}
                   </div>
-                </div>
-                <div className="mt-2">
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    placeholder="Enter 6 characters or more"
-                    className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  {errors.passwordError && (
-                    <div className="text-red-500 text-sm">
-                      {errors.passwordError}
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
+            </div>
 
-              {errors.confirmationError && (
-                <div className="text-yellow-500 text-sm">
-                  {errors.confirmationError}
-                </div>
-              )}
-
-              {showResend && (
-                <button
-                  type="button"
-                  onClick={handleResendVerification}
-                  disabled={isResending}
-                  className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-login-form-card shadow-sm hover:bg-dark-green"
-                >
-                  {isResending ? "Resending..." : "Resend Verification Email"}
-                </button>
-              )}
-
-              <div>
-                <button
-                  type="submit"
-                  className="flex w-full justify-center rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-dark-green focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                  <p className="text-login-form-card">Sign in</p>
-                </button>
+            {errors.confirmationError && (
+              <div className="text-yellow-500 text-sm">
+                {errors.confirmationError}
               </div>
+            )}
 
             {showResend && (
               <button
@@ -419,9 +383,7 @@ const LoginForm: React.FC = () => {
               </Link>
             </div>
           </div>
-        ) : (
-          <DiscordVerifyStatus status={statusPage === "success"} />
-        )}
+        </div>
       </div>
     </div>
   );
