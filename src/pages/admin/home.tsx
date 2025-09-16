@@ -65,10 +65,32 @@ export default function AdminEventView({ events }: Props) {
     setIsClicked(true);
   };
 
-  // function to manage mobile device state
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const fresh = await fetchBackend({
+          endpoint: "/events",
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        fresh.sort(
+          (a: BiztechEvent, b: BiztechEvent) =>
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+        );
+
+        setData(fresh);
+      } catch (e) {
+        console.error("Failed to refresh admin events", e);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   return (
@@ -128,7 +150,7 @@ export default function AdminEventView({ events }: Props) {
           >
             {data?.map((event) => (
               <div
-                key={event.id}
+                key={`${event.id}-${event.year}`}
                 className={viewMode === "list" ? "w-full" : ""}
               >
                 <EventCard
@@ -152,7 +174,7 @@ export default function AdminEventView({ events }: Props) {
           <div className="block md:grid md:grid-cols-2 md:gap-6">
             {data?.map((event) => (
               <MobileEventCard
-                key={event.id}
+                key={`${event.id}-${event.year}`}
                 event={event}
                 eventClick={mobileEventClick}
                 modalHandlers={{
