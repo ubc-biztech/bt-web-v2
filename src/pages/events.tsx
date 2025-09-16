@@ -6,7 +6,7 @@ import { fetchUserAttributes } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
 import { AuthError } from "@aws-amplify/auth";
-import { ListIcon, Bookmark } from "lucide-react";
+import { ListIcon } from "lucide-react";
 import React, {
   ChangeEvent,
   useEffect,
@@ -36,7 +36,10 @@ export default function Page({ events }: EventProps) {
   const [searchField, setSearchField] = useState("");
   const [filterState, setFilterState] = useState(filterStates.all);
   const isCooldownRef = useRef(false);
-  // these useStates will be empty arrays by default, but currently have mocks before i verify backend integration works
+
+  const [allEvents, setAllEvents] = useState<BiztechEvent[]>(events);
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(!events?.length);
+
   const [saved, setSaved] = useState<string[]>([]);
   const [registered, setRegistered] = useState<string[]>([]);
   const [email, setEmail] = useState<string>("");
@@ -45,25 +48,48 @@ export default function Page({ events }: EventProps) {
     fetchData();
   }, []);
 
-  const uiStateFilter = () => {
-    let filteredEvents: BiztechEvent[] = events;
+  useEffect(() => {
+    (async () => {
+      try {
+        let fresh = await fetchBackend({
+          endpoint: "/events",
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        fresh.sort(
+          (a: BiztechEvent, b: BiztechEvent) =>
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+        );
+        fresh = fresh.filter(
+          (e: BiztechEvent) => e.isPublished && e.id !== "alumni-night",
+        );
+
+        setAllEvents(fresh);
+      } catch (e) {
+        console.error("Failed to refresh events on client", e);
+      } finally {
+        setLoadingEvents(false);
+      }
+    })();
+  }, []);
+
+  const displayedEvents = useMemo(() => {
+    let filtered: BiztechEvent[] = allEvents;
+
     if (filterState === filterStates.saved) {
-      filteredEvents = filteredEvents.filter((ev) => {
-        return saved.includes(`${ev.id};${ev.year}`);
-      });
+      filtered = filtered.filter((ev) => saved.includes(`${ev.id};${ev.year}`));
     }
 
-    filteredEvents = filteredEvents.filter((ev) => {
-      return ev.ename.startsWith(searchField);
-    });
+    if (searchField.trim()) {
+      const q = searchField.toLowerCase();
+      filtered = filtered.filter((ev) =>
+        (ev.ename || "").toLowerCase().includes(q),
+      );
+    }
 
-    return filteredEvents;
-  };
-
-  const displayedEvents = useMemo(
-    () => uiStateFilter(),
-    [uiStateFilter, filterState, searchField, saved],
-  );
+    return filtered;
+  }, [allEvents, filterState, searchField, saved]);
 
   const fetchData = async () => {
     try {
@@ -101,13 +127,9 @@ export default function Page({ events }: EventProps) {
 
   const handleUiClick = (s: string) => {
     if (isCooldownRef.current) {
-      //return
+      // return
     } else {
-      if (filterState != s) {
-        setFilterState(s);
-      } else {
-        setFilterState(filterStates.all);
-      }
+      setFilterState((prev) => (prev !== s ? s : filterStates.all));
       isCooldownRef.current = true;
       setTimeout(() => {
         isCooldownRef.current = false;
@@ -147,13 +169,16 @@ export default function Page({ events }: EventProps) {
             </div>
           </div>
 
-          {displayedEvents.length === 0 ? (
+          {loadingEvents ? (
+            <div className="text-[20px] text-white flex-row items-center">
+              Loading events...
+            </div>
+          ) : displayedEvents.length === 0 ? (
             <div className="text-[20px] text-white flex-row items-center">
               No events found...
             </div>
-          ) : (
-            <></>
-          )}
+          ) : null}
+
           <EventDashboard
             events={displayedEvents}
             user={email}
@@ -184,15 +209,9 @@ export async function getStaticProps() {
     );
 
     return {
-      props: {
-        events,
-      },
+      props: { events },
     };
   } catch (error) {
-    return {
-      props: {
-        events: [],
-      },
-    };
+    return { props: { events: [] } };
   }
 }
