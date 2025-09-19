@@ -701,7 +701,8 @@ export const AttendeeEventRegistrationForm: React.FC<
                   <Button type="submit">Submit</Button>
                 ) : !user?.admin &&
                   ((user?.isMember && event.pricing?.members > 0) ||
-                    (!user?.isMember && event.pricing?.nonMembers)) ? (
+                    (!user?.isMember && event.pricing?.nonMembers)) &&
+                  !event.isApplicationBased ? (
                   <Button type="submit">Proceed to Payment</Button>
                 ) : (
                   <Button type="submit">Submit</Button>
