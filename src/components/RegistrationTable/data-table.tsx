@@ -152,6 +152,8 @@ export function DataTable({
         onFilterChange={setFilterValue}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
+        eventId={eventId}
+        year={year}
       />
 
       <TableComponent>
