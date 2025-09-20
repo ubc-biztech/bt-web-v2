@@ -238,7 +238,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
-            <DialogTitle className="text-white">Delete Selected Registrations</DialogTitle>
+            <DialogTitle className="text-white">
+              Delete Selected Registrations
+            </DialogTitle>
           </DialogHeader>
 
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
