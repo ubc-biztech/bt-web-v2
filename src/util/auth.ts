@@ -11,7 +11,7 @@ export async function logout() {
     // const domain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN!;
     const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID!;
     const logoutUri = `${generateStageURL()}/login?clearAuth=1`;
-    const u = new URL(`https://${generateStageURL()}/logout`);
+    const u = new URL(`${generateStageURL()}/logout`);
     u.searchParams.set("client_id", clientId);
     u.searchParams.set("logout_uri", logoutUri);
     window.location.assign(u.toString());
