@@ -99,6 +99,7 @@ const Membership: React.FC = () => {
     const checkUserAndGetEmail = async () => {
       if (!router.isReady) return;
 
+      // auth check, should redirect to /login on error
       try {
         // 1. sign-in check
         const session = await fetchAuthSession();
@@ -124,7 +125,18 @@ const Membership: React.FC = () => {
 
         setEmail(userEmail);
         methods.setValue("email", userEmail);
+      } catch (error) {
+        console.log(error);
+        // Treat any error as unauthenticated -> go to login
+        if (!hasRedirectedRef.current) {
+          hasRedirectedRef.current = true;
+          await router.replace("/login");
+        }
+        return;
+      }
 
+      // backend profile check, should NOT redirect to /login on error
+      try {
         // 3.backend profile/membership
         const userProfile = await fetchBackend({
           endpoint: `/users/self`,
@@ -144,11 +156,7 @@ const Membership: React.FC = () => {
         setIsUser(true);
         setLoading(false);
       } catch (error) {
-        // Treat any error as unauthenticated -> go to login
-        if (!hasRedirectedRef.current) {
-          hasRedirectedRef.current = true;
-          await router.replace("/login");
-        }
+        // Don't redirect, avoid infinite loop
       } finally {
         if (!cancelled) {
           const t = setTimeout(() => setLoading(false), 1000);
