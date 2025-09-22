@@ -126,7 +126,6 @@ const Membership: React.FC = () => {
         setEmail(userEmail);
         methods.setValue("email", userEmail);
       } catch (error) {
-        console.log(error);
         // Treat any error as unauthenticated -> go to login
         if (!hasRedirectedRef.current) {
           hasRedirectedRef.current = true;
