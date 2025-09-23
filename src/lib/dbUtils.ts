@@ -114,5 +114,24 @@ export function clearCognitoCookies() {
         clearCookie(cookieName);
       }
     });
+
+    // Clear localStorage items
+    const localStorageKeys = Object.keys(localStorage);
+    localStorageKeys.forEach((key) => {
+      if (
+        key.includes("cognito") ||
+        key.includes("Cognito") ||
+        key.startsWith("CognitoIdentityServiceProvider") ||
+        key.includes("idToken") ||
+        key.includes("accessToken") ||
+        key.includes("refreshToken") ||
+        key.includes("amplify") ||
+        key.includes("aws.cognito") ||
+        key.includes("user") ||
+        key.includes("auth")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
   }
 }

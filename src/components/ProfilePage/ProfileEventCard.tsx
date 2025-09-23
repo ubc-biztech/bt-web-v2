@@ -1,6 +1,6 @@
 import { Card, CardFooter } from "@/components/ui/card";
 import Image from "next/image";
-import { extractTime, extractMonthDay } from "@/util/extractDateAndTime";
+import { extractTime, extractMonthDay } from "@/util/extractDate";
 import { BiztechEvent } from "@/types";
 import { isMobile } from "@/util/isMobile";
 import { useState, useEffect } from "react";
