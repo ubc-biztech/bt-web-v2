@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import LoadingSpinner from "@/components/Loading";
-import { set } from "lodash";
 
 const DiscordVerifyStatus: React.FC = () => {
   const router = useRouter();
