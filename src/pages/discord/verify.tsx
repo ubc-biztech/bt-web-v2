@@ -30,26 +30,42 @@ const DiscordVerifyStatus: React.FC = () => {
         return;
       }
 
-      console.log('Verifying Discord account with ID:', discordId, 'and email:', email);
-      
-      try {        
+      console.log(
+        "Verifying Discord account with ID:",
+        discordId,
+        "and email:",
+        email,
+      );
+
+      try {
         await fetchBackend({
-          endpoint: '/discord/account/mapping',
-          method: 'POST',
+          endpoint: "/discord/account/mapping",
+          method: "POST",
           authenticatedCall: true,
           data: {
             discordId: discordId,
-            email: email
-          }
+            email: email,
+          },
         });
 
         setStatus(true);
-        setMessage("Your Discord account was successfully linked to your membership.");
+        setMessage(
+          "Your Discord account was successfully linked to your membership.",
+        );
       } catch (error) {
-        if (error && typeof error === "object" && "status" in error && (error as { status?: number }).status === 409) {
-          setMessage("This membership is already linked to another Discord account.");
+        if (
+          error &&
+          typeof error === "object" &&
+          "status" in error &&
+          (error as { status?: number }).status === 409
+        ) {
+          setMessage(
+            "This membership is already linked to another Discord account.",
+          );
         } else {
-          setMessage("We couldn't link your Discord account to your membership. Please try again later or contact server admins.");
+          setMessage(
+            "We couldn't link your Discord account to your membership. Please try again later or contact server admins.",
+          );
         }
         setStatus(false);
       } finally {
@@ -74,9 +90,7 @@ const DiscordVerifyStatus: React.FC = () => {
           <h2 className="mt-6 text-center text-2xl font-[600] tracking-wide leading-9 text-white-blue mb-6">
             Successfully linked accounts
           </h2>
-          <p className="mt-2 text-white">
-            {message}
-          </p>
+          <p className="mt-2 text-white">{message}</p>
 
           <div className="mt-6">
             <Link
@@ -100,9 +114,7 @@ const DiscordVerifyStatus: React.FC = () => {
         <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white-blue mb-6">
           Failed to link accounts
         </h2>
-        <p className="mt-2 text-white">
-          {message}
-        </p>
+        <p className="mt-2 text-white">{message}</p>
         <div className="mt-6">
           <Link
             href="/"
