@@ -5,6 +5,7 @@ import Layout from "./layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Urbanist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -97,6 +98,8 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </div>
       </main>
+
+      <Analytics />
     </>
   );
 
