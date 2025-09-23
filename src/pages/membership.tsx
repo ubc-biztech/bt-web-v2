@@ -300,9 +300,9 @@ const Membership: React.FC = () => {
                 member.
               </p>
               <div className="mt-6">
-                {/* ✅ simple link back; no signOut here */}
+                {/* link back while clearing cookies (avoid being redirected back to membership) */}
                 <Link
-                  href="/login"
+                  href="/login?clearAuth=1"
                   className="text-sm leading-6 text-bt-green-300 underline"
                 >
                   Back to Login Page
