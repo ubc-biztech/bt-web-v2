@@ -7,7 +7,9 @@ import {
   GraduationCap,
   Home,
   CheckCircle,
+  Loader2,
 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
 import {
   BiztechProfile,
@@ -26,6 +28,7 @@ import ConnectionModal from "@/components/Connections/ConnectionModal/Connection
 import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import { IconButton } from "@/components/Common/IconButton";
+import { REGISTRATION_STATUS } from "@/constants/registrations";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -45,6 +48,223 @@ const ProfilePage = ({
   error,
 }: NFCProfilePageProps) => {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const { toast } = useToast();
+
+  // State for managing check-in availability
+  // checkin available when checkInEvent exists
+  const [checkInEvent, setCheckInEvent] = useState<{
+    eventID: string;
+    year: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleUserCheckIn = async (
+      eventData: {
+        eventID: string;
+        year: number;
+      },
+      userEmail: string,
+    ) => {
+      // First, check if user is already checked in
+      try {
+        const registrationData = await fetchBackend({
+          endpoint: `/registrations?email=${userEmail}`,
+          method: "GET",
+          authenticatedCall: false,
+        });
+
+        const eventRegistration = registrationData.data.find(
+          (reg: any) =>
+            reg["eventID;year"] === `${eventData.eventID};${eventData.year}`,
+        );
+
+        if (!eventRegistration) {
+          toast({
+            title: "Check-in Failed",
+            description: "The user is not registered for this event.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        if (
+          eventRegistration.registrationStatus ===
+          REGISTRATION_STATUS.CHECKED_IN
+        ) {
+          return false;
+        }
+
+        if (
+          eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
+        ) {
+          toast({
+            title: "Check-in Failed",
+            description:
+              "The user's registration was cancelled. Cannot check-in.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        if (
+          eventRegistration.registrationStatus ===
+          REGISTRATION_STATUS.WAITLISTED
+        ) {
+          toast({
+            title: "Check-in Failed",
+            description: "The user is on the waitlist. Cannot check-in.",
+            variant: "destructive",
+          });
+          return false;
+        }
+      } catch (error: any) {
+        console.error("Failed to check registration status:", error);
+        toast({
+          title: "Check-in Failed",
+          description: "Failed to verify registration status.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      const checkInData = {
+        eventID: eventData.eventID,
+        year: eventData.year,
+        registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
+      };
+
+      const loadingToast = toast({
+        title: "Checking user in...",
+        description: (
+          <div className="flex items-center gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>Please wait while we check in the user.</span>
+          </div>
+        ),
+      });
+
+      try {
+        await fetchBackend({
+          endpoint: `/registrations/${userEmail}/${profileData.fname}`,
+          method: "PUT",
+          data: checkInData,
+        });
+
+        loadingToast.update({
+          id: loadingToast.id,
+          title: "User Checked In",
+          description: (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-3 h-3 text-white" />
+              </div>
+              <span>
+                {profileData.fname} {profileData.lname} has been checked in.
+              </span>
+            </div>
+          ),
+        });
+        return true;
+      } catch (error: any) {
+        console.error("Check-in failed:", error);
+
+        if (error.status === 409) {
+          loadingToast.update({
+            id: loadingToast.id,
+            title: "Check-in Failed",
+            description: "The user is not registered for this event.",
+            variant: "destructive",
+          });
+        } else {
+          loadingToast.update({
+            id: loadingToast.id,
+            title: "Check-in Failed",
+            description: "Failed to automatically check in the user.",
+            variant: "destructive",
+          });
+        }
+        return false;
+      }
+    };
+
+    const initializeCheckInAvailability = async () => {
+      try {
+        const currentUser = await fetchBackend({
+          endpoint: "/users/self",
+          method: "GET",
+        });
+
+        if (!currentUser.admin) {
+          setCheckInEvent(null);
+          return;
+        }
+
+        // Try to get active event from cache first
+        const cachedEventData = localStorage.getItem("activeEvent");
+        const currentTime = new Date();
+        let activeEventData = null;
+
+        if (cachedEventData) {
+          try {
+            const [eventEndTimeStr, eventIdAndYear] =
+              cachedEventData.split("#");
+            const [eventId, year] = eventIdAndYear.split(";");
+            const eventEndTime = new Date(eventEndTimeStr);
+
+            // check that cache is not stale
+            if (eventEndTime > currentTime) {
+              activeEventData = {
+                id: eventId,
+                year: parseInt(year),
+                endDate: eventEndTimeStr,
+              };
+            }
+          } catch (parseError) {
+            console.error("Error parsing cached active event:", parseError);
+          }
+        }
+
+        // Fetch from network if no valid cache
+        if (!activeEventData) {
+          activeEventData = await fetchBackend({
+            endpoint: "/events/getActiveEvent",
+            method: "GET",
+          });
+
+          // Cache the fetched event data with format {activeEvent: endTime#eventID;year}
+          if (activeEventData) {
+            const cacheKey = `${activeEventData.endDate}#${activeEventData.id};${activeEventData.year}`;
+            localStorage.setItem("activeEvent", cacheKey);
+          }
+        }
+
+        if (activeEventData) {
+          const eventData = {
+            eventID: activeEventData.id,
+            year: activeEventData.year,
+          };
+          setCheckInEvent(eventData);
+
+          try {
+            const response = await fetchBackend({
+              endpoint: `/members/email/${profileID}`,
+              method: "GET",
+            });
+
+            await handleUserCheckIn(eventData, response.email);
+          } catch (error) {
+            console.error("Error during check-in process:", error);
+          }
+        } else {
+          setCheckInEvent(null);
+        }
+      } catch (error) {
+        console.error("Error initializing check-in availability:", error);
+        setCheckInEvent(null);
+      }
+    };
+    initializeCheckInAvailability();
+  }, []);
 
   const router = useRouter();
   const navRouter = useNavRouter();
@@ -159,12 +379,13 @@ const ProfilePage = ({
               </ConnectedButton>
             )}
 
-            <IconButton
-              icon={Share}
-              label="Share Profile"
-              onClick={() => setDrawerOpen(true)}
-              className="mx-auto"
-            />
+            <div className="flex gap-4 justify-center">
+              <IconButton
+                icon={Share}
+                label="Share Profile"
+                onClick={() => setDrawerOpen(true)}
+              />
+            </div>
           </div>
 
           <div className="hidden md:block">
