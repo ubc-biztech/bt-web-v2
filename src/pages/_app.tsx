@@ -6,6 +6,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { Urbanist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -100,6 +101,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </main>
 
       <Analytics />
+      <SpeedInsights />
     </>
   );
 

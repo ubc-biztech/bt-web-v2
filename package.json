@@ -39,6 +39,7 @@
     "@types/pdfmake": "^0.2.9",
     "@types/qrcode": "^1.5.5",
     "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "aframe": "^1.7.1",
     "aframe-extras": "^7.6.0",
     "aws-amplify": "^6.3.8",
