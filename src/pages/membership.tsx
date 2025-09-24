@@ -100,7 +100,7 @@ const Membership: React.FC = () => {
       console.log(redirectUrl);
       router.replace(redirectUrl);
     }
-  }
+  };
 
   useEffect(() => {
     let cancelled = false;
