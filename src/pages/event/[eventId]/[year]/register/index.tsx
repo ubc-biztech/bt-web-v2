@@ -75,7 +75,7 @@ export default function AttendeeFormRegister() {
     setUserRegistered(exists);
     return exists;
   };
-  
+
   const redirectUnauthenticatedUser = () => {
     const redirect = router.asPath || `/event/${eventId}/${year}/register`;
     router.replace(`/login?redirect=${encodeURIComponent(redirect)}`);
