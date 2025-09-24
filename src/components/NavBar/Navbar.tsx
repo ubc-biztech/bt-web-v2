@@ -119,13 +119,15 @@ export default function Navbar() {
             </>
           )}
           {/* Issue #276 - Check not only if user is signed in but also if user is a member */}
-          {defaultUser(isAdmin, (isSignedIn && isMember)).map((navbarItem, index) => (
-            <NavbarTab
-              key={index}
-              navbarItem={navbarItem}
-              onTabClick={() => setIsOpen(false)}
-            />
-          ))}
+          {defaultUser(isAdmin, isSignedIn && isMember).map(
+            (navbarItem, index) => (
+              <NavbarTab
+                key={index}
+                navbarItem={navbarItem}
+                onTabClick={() => setIsOpen(false)}
+              />
+            ),
+          )}
         </div>
         {isSignedIn ? (
           <NavbarTab
