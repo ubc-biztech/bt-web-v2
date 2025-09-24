@@ -93,6 +93,14 @@ const Membership: React.FC = () => {
     },
   });
 
+  const redirectBack = () => {
+    const redirectUrl = (router.query.redirect as string) || "/";
+    if (!hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace(redirectUrl);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -143,11 +151,7 @@ const Membership: React.FC = () => {
         });
 
         if (userProfile?.isMember) {
-          const redirectUrl = (router.query.redirect as string) || "/";
-          if (!hasRedirectedRef.current) {
-            hasRedirectedRef.current = true;
-            await router.replace(redirectUrl);
-          }
+          redirectBack();
           return;
         }
 
@@ -611,6 +615,14 @@ const Membership: React.FC = () => {
           </div>
 
           <div className="mt-6 flex items-center justify-end gap-x-6">
+            <button
+              type="button"
+              className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
+              disabled={isSubmitting}
+              onClick={() => redirectBack()}
+            >
+              Maybe Later
+            </button>
             <button
               type="submit"
               className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"

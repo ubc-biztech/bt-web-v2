@@ -76,6 +76,11 @@ export default function AttendeeFormRegister() {
     return exists;
   };
 
+  const redirectUnauthenticatedUser = () => {
+    const redirect = router.asPath || `/event/${eventId}/${year}/register`;
+    router.replace(`/login?redirect=${encodeURIComponent(redirect)}`);
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -86,19 +91,26 @@ export default function AttendeeFormRegister() {
 
           if (!email) throw new Error("Email not found for user");
 
-          const userData = await fetchBackend({
-            endpoint: `/users/${email}`,
-            method: "GET",
-          });
-
-          setUser(userData);
           setUserLoggedIn(true);
+
+          try {
+            const userData = await fetchBackend({
+              endpoint: `/users/${email}`,
+              method: "GET",
+            });
+
+            setUser(userData);
+          } catch (err: any) {
+            // suppress a 404 error to avoid redirect
+          }
+
         } else {
           setUserLoggedIn(false);
         }
       } catch (err: any) {
         console.error("Failed to fetch user:", err);
         setUserLoggedIn(false);
+        redirectUnauthenticatedUser();
       }
       setUserLoading(false);
     };
@@ -295,20 +307,18 @@ export default function AttendeeFormRegister() {
         return true;
       } else {
         const paymentData = {
-          paymentName: `${event.ename} ${
-            user?.isMember || samePricing() ? "" : "(Non-member)"
-          }`,
+          paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"
+            }`,
           paymentImages: [event.imageUrl],
           paymentPrice:
             (user?.isMember
               ? event.pricing?.members
               : event.pricing?.nonMembers) * 100,
           paymentType: "Event",
-          success_url: `${
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+          success_url: `${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
               : CLIENT_URL
-          }event/${event.id}/${event.year}/register/success`,
+            }event/${event.id}/${event.year}/register/success`,
           // cancel_url: `${process.env.REACT_APP_STAGE === "local"
           //   ? "http://localhost:3000/"
           //   : CLIENT_URL
@@ -393,8 +403,8 @@ export default function AttendeeFormRegister() {
                 will be paying $
                 {event?.pricing?.nonMembers && event?.pricing?.members
                   ? (
-                      event.pricing?.nonMembers - event.pricing?.members
-                    ).toFixed(2)
+                    event.pricing?.nonMembers - event.pricing?.members
+                  ).toFixed(2)
                   : "7.00"}{" "}
                 more.
               </p>
