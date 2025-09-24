@@ -77,11 +77,13 @@ export default function AttendeeFormRegister() {
   };
 
   const redirectUnauthenticatedUser = () => {
-    const redirect = router.asPath || `/event/${eventId}/${year}/register`;
-    router.replace(`/login?redirect=${encodeURIComponent(redirect)}`);
+    const redirect = `/event/${eventId}/${year}/register`;
+    router.replace(`/login?redirect=${redirect}`);
   };
 
   useEffect(() => {
+    if (!router.isReady) return; // avoid redirecting to /event/undefined...
+
     const fetchUser = async () => {
       try {
         const { tokens } = await fetchAuthSession();
@@ -114,7 +116,7 @@ export default function AttendeeFormRegister() {
     };
 
     fetchUser();
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     const fetchEvent = async () => {
