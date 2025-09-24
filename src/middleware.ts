@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
   const allowedPrefixes = [
     "/companion",
     "/events",
+    "/event",
     "/become-a-member",
     "/membership",
     "/login",
