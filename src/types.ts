@@ -24,6 +24,7 @@ export type BiztechEvent = {
   isCompleted: boolean;
   hasDomainSpecificQuestions?: boolean;
   counts?: any;
+  registrationQuestionsAlternate?: RegistrationQuestion[] | string;
 };
 
 export type RegistrationQuestion = {
