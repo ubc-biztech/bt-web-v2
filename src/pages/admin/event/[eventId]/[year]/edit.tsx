@@ -114,8 +114,7 @@ const EditEventPage: NextPage = () => {
 
     // Transform custom questions to match v1 format
     const transformCustomQuestion = (q: any) => {
-
-        return {
+      return {
         type: q.type,
         questionId: q.id,
         label: q.question,
@@ -126,7 +125,7 @@ const EditEventPage: NextPage = () => {
         participantCap:
           q.type === "WORKSHOP_SELECTION" ? q.participantCap : undefined,
         isSkillsQuestion: q.type === "SKILLS" ? true : undefined,
-      }
+      };
     };
 
     const body = {
