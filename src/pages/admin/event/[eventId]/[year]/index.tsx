@@ -43,7 +43,17 @@ export default function AdminEvent({ initialData, eventData }: Props) {
                 id: q.label,
                 header: q.label,
                 accessorFn: (row: any) => {
-                  return row.dynamicResponses?.[q.questionId] || "";
+                  return (
+                    row.dynamicResponses?.[q.questionId] ??
+                    row.dynamicResponses?.[
+                      (
+                        eventDetails?.registrationQuestionsAlternate as RegistrationQuestion[]
+                      )?.find(
+                        (altQ: RegistrationQuestion) => altQ.label === q.label,
+                      )?.questionId ?? ""
+                    ] ??
+                    ""
+                  );
                 },
               }),
             ) || [];
