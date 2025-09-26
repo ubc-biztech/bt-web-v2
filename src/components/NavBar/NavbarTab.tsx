@@ -45,6 +45,7 @@ const NavbarTab: React.FC<NavbarProps> = ({
       await logout();
       onLogout?.();
       onTabClick?.();
+      window.location.reload();
     } catch (error) {
       console.error("Error signing out:", error);
       setIsSigningOut(false);
