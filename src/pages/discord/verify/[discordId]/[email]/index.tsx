@@ -21,7 +21,7 @@ const DiscordVerifyStatus: React.FC = () => {
         setIsLoading(true);
         return;
       }
-      
+
       if (!isLoading) {
         return;
       }
