@@ -49,10 +49,14 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
               <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] flex items-center">
                 <FaRegCalendar className="mr-1" />
                 <span className="sm:hidden">
-                  {form.watch("startDate") ? formatDate(form.watch("startDate").toISOString()) : "Date"}
+                  {form.watch("startDate")
+                    ? formatDate(form.watch("startDate").toISOString())
+                    : "Date"}
                 </span>
                 <span className="hidden sm:block">
-                  {form.watch("startDate") ? `${extractTime(form.watch("startDate").toISOString())} ${extractMonthDay(form.watch("startDate").toISOString())}` : "Date"}
+                  {form.watch("startDate")
+                    ? `${extractTime(form.watch("startDate").toISOString())} ${extractMonthDay(form.watch("startDate").toISOString())}`
+                    : "Date"}
                 </span>
               </div>
             </div>
