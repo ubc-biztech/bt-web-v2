@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from "react";
+import { FaRegBuilding, FaRegCalendar } from "react-icons/fa";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { extractTime, extractMonthDay } from "@/util/extractDate";
+import { formatDate } from "@/components/companion/productX/constants/formatDate";
 import {
   Form,
   FormControl,
@@ -239,9 +242,30 @@ export const AttendeeEventRegistrationForm: React.FC<
                     <span className="text-gray-400">Event Cover Photo</span>
                   )}
                 </div>
-
+                
+                <div className="flex flex-col items-start"> 
                 {/* Event Name */}
-                <h3 className="text-white font-bold mt-4">{event?.ename}</h3>
+                  <h3 className="text-white font-bold">{event?.ename}</h3>
+
+                  {/* Event Location and Date */} 
+                  <div className="flex flex-row items-center gap-4">
+                    <div className="rounded-md px-2.5 py-1 font-[700]  text-white bg-[#6578A8] text-[7px] sm:text-[8px] md:text-[9px] lg:text-[12px] flex items-center"> 
+                      <FaRegBuilding className="mr-1" />
+                      {event?.elocation}
+                    </div>
+
+                    <div className="rounded-md px-2.5 py-1 font-[700]  text-white bg-[#6578A8] text-[7px] sm:text-[8px] md:text-[9px] lg:text-[12px] flex items-center">
+                      <FaRegCalendar className="mr-1" />
+                      <span className="sm:hidden">
+                        {formatDate(event?.startDate)}
+                      </span>
+                      <span className="hidden sm:block">
+                        {extractTime(event?.startDate)} {extractMonthDay(event?.startDate)}
+                      </span>
+                    </div>
+
+                  </div>
+                </div>
 
                 {/* Event Description */}
                 <p className="text-white whitespace-pre-line">

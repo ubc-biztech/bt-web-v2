@@ -1,8 +1,11 @@
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
+import { FaRegBuilding, FaRegCalendar } from "react-icons/fa";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventFormSchema } from "./EventFormSchema";
 import { PreviewForm } from "./PreviewForm";
+import { extractTime, extractMonthDay } from "@/util/extractDate";
+import { formatDate } from "@/components/companion/productX/constants/formatDate";
 import Image from "next/image";
 
 interface EventPreviewProps {
@@ -30,9 +33,31 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
               <span className="text-gray-400">Event Cover Photo</span>
             )}
           </div>
-          <h3 className="text-white font-bold mt-4">
-            {form.watch("eventName") || "Event Name"}
-          </h3>
+
+          <div className="flex flex-col items-start">
+            <h3 className="text-white font-bold">
+              {form.watch("eventName") || "Event Name"}
+            </h3>
+
+            {/* Event Location and Date */}
+            <div className="flex flex-row items-center gap-4">
+              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] flex items-center">
+                <FaRegBuilding className="mr-1" />
+                {form.watch("location") || "Location"}
+              </div>
+
+              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] flex items-center">
+                <FaRegCalendar className="mr-1" />
+                <span className="sm:hidden">
+                  {form.watch("startDate") ? formatDate(form.watch("startDate").toISOString()) : "Date"}
+                </span>
+                <span className="hidden sm:block">
+                  {form.watch("startDate") ? `${extractTime(form.watch("startDate").toISOString())} ${extractMonthDay(form.watch("startDate").toISOString())}` : "Date"}
+                </span>
+              </div>
+            </div>
+          </div>
+
           <p className="text-bt-green-300 whitespace-pre-line">
             {form.watch("description") || "Event description will appear here."}
           </p>
