@@ -9,16 +9,20 @@ import LoadingSpinner from "@/components/Loading";
 
 const DiscordVerifyStatus: React.FC = () => {
   const router = useRouter();
-  const discordId = router.query.discordId;
-  const email = router.query.email;
   const [status, setStatus] = useState<boolean | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const discordId = router.query.discordId;
+  const email = router.query.email;
 
   useEffect(() => {
     const verifyDiscordAccount = async () => {
       if (!router.isReady) {
         setIsLoading(true);
+        return;
+      }
+      
+      if (!isLoading) {
         return;
       }
 
