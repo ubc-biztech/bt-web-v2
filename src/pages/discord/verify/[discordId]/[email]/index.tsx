@@ -33,10 +33,7 @@ const DiscordVerifyStatus: React.FC = () => {
         return;
       }
 
-      console.log(
-        "Verifying Discord account with ID:",
-        discordId
-      );
+      console.log("Verifying Discord account with ID:", discordId);
 
       try {
         const attributes = await fetchUserAttributes();
