@@ -5,6 +5,7 @@ import { CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
+import { fetchUserAttributes } from "@aws-amplify/auth";
 import LoadingSpinner from "@/components/Loading";
 
 const DiscordVerifyStatus: React.FC = () => {
@@ -13,7 +14,6 @@ const DiscordVerifyStatus: React.FC = () => {
   const [message, setMessage] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const discordId = router.query.discordId;
-  const email = router.query.email;
 
   useEffect(() => {
     const verifyDiscordAccount = async () => {
@@ -26,7 +26,7 @@ const DiscordVerifyStatus: React.FC = () => {
         return;
       }
 
-      if (!discordId || !email) {
+      if (!discordId) {
         setStatus(false);
         setMessage("Missing Discord ID or email parameters.");
         setIsLoading(false);
@@ -35,12 +35,12 @@ const DiscordVerifyStatus: React.FC = () => {
 
       console.log(
         "Verifying Discord account with ID:",
-        discordId,
-        "and email:",
-        email,
+        discordId
       );
 
       try {
+        const attributes = await fetchUserAttributes();
+        const email = attributes?.email || "";
         await fetchBackend({
           endpoint: "/discord/account/mapping",
           method: "POST",
@@ -77,7 +77,7 @@ const DiscordVerifyStatus: React.FC = () => {
     };
 
     verifyDiscordAccount();
-  }, [router.isReady, discordId, email]);
+  }, [router.isReady, discordId]);
 
   if (isLoading) {
     return <LoadingSpinner />;
