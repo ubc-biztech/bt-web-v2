@@ -76,7 +76,14 @@ export default function AttendeeFormRegister() {
     return exists;
   };
 
+  const redirectUnauthenticatedUser = () => {
+    const redirect = `/event/${eventId}/${year}/register`;
+    router.replace(`/login?redirect=${redirect}`);
+  };
+
   useEffect(() => {
+    if (!router.isReady) return; // avoid redirecting to /event/undefined...
+
     const fetchUser = async () => {
       try {
         const { tokens } = await fetchAuthSession();
@@ -97,6 +104,11 @@ export default function AttendeeFormRegister() {
           setUserLoggedIn(false);
         }
       } catch (err: any) {
+        if (!err.status) {
+          // not authenticated at all
+          redirectUnauthenticatedUser();
+        }
+        // authenticated but not member
         console.error("Failed to fetch user:", err);
         setUserLoggedIn(false);
       }
@@ -104,7 +116,7 @@ export default function AttendeeFormRegister() {
     };
 
     fetchUser();
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     const fetchEvent = async () => {

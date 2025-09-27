@@ -42,9 +42,9 @@ export const admin = [
   },
 ];
 
-export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
+export const defaultUser = (isAdmin: boolean, isSignedInAndMember: boolean) => {
   const links = [
-    isSignedIn
+    isSignedInAndMember
       ? {
           title: "Home",
           link: "/",
@@ -62,7 +62,7 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
     },
   ];
 
-  if (isSignedIn) {
+  if (isSignedInAndMember) {
     links.push({
       title: `${isAdmin ? "Admin" : "User"} Profile`,
       link: "/profile",
@@ -70,7 +70,7 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
     });
   }
 
-  if (isSignedIn) {
+  if (isSignedInAndMember) {
     links.push({
       title: "Connections",
       link: "/connections",
