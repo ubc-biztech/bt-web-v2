@@ -59,18 +59,13 @@ const CourseOverview = () => {
 
   return (
     <div className="min-h-screen bg-[#0D172C]">
-      {/* Custom Header */}
+      {/* header */}
       <header className="bg-[#1B253D] border-b border-[#A2B1D5] px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Left - Logo and Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-              <span className="text-[#1B253D] font-urbanist font-semibold text-sm">$</span>
-            </div>
             <span className="text-white font-urbanist font-semibold text-lg">UBC BizTech</span>
           </div>
           
-          {/* Right - Logout */}
           <button className="flex items-center gap-2 text-[#A2B1D5] hover:text-white transition-colors font-urbanist font-medium text-sm">
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
