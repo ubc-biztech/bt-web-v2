@@ -1,11 +1,10 @@
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { FaRegBuilding, FaRegCalendar } from "react-icons/fa";
+import { Building, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventFormSchema } from "./EventFormSchema";
 import { PreviewForm } from "./PreviewForm";
-import { extractTime, extractMonthDay } from "@/util/extractDate";
-import { formatDate } from "@/components/companion/productX/constants/formatDate";
+import { extractTime, extractMonthDay, shortformatDate } from "@/util/extractDate";
 import Image from "next/image";
 
 interface EventPreviewProps {
@@ -40,18 +39,20 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
             </h3>
 
             {/* Event Location and Date */}
-            <div className="flex flex-row items-center gap-4">
-              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] flex items-center">
-                <FaRegBuilding className="mr-1" />
-                {form.watch("location") || "Location"}
+            <div className="flex flex-row items-center gap-4 w-full">
+              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
+                <Building className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
+                <span className="truncate">
+                  {form.watch("location") || "Location"}
+                </span>
               </div>
 
-              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] flex items-center">
-                <FaRegCalendar className="mr-1" />
-                <span className="sm:hidden">
-                  {form.watch("startDate") ? formatDate(form.watch("startDate").toISOString()) : "Date"}
+              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
+                <Calendar className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
+                <span className="sm:hidden truncate">
+                  {form.watch("startDate") ? shortformatDate(form.watch("startDate").toISOString()) : "Date"}
                 </span>
-                <span className="hidden sm:block">
+                <span className="hidden sm:block truncate">
                   {form.watch("startDate") ? `${extractTime(form.watch("startDate").toISOString())} ${extractMonthDay(form.watch("startDate").toISOString())}` : "Date"}
                 </span>
               </div>

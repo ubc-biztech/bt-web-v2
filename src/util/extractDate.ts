@@ -18,3 +18,19 @@ export function extractMonthDay(dateTimeString: string): string {
   };
   return date.toLocaleDateString("en-US", options);
 }
+
+export const shortformatDate = (createdAt: string) => {
+  const date = new Date(createdAt);
+  const formattedDateTime = `${date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).toLowerCase().replace(" ", "")} ${date
+    .toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })
+    .toUpperCase()}`;
+
+  return formattedDateTime;
+};
