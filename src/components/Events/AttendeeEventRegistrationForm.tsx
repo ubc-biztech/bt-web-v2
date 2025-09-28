@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { Building, Calendar} from 'lucide-react';
+import { Building, Calendar } from "lucide-react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { extractTime, extractMonthDay, shortformatDate } from "@/util/extractDate";
+import {
+  extractTime,
+  extractMonthDay,
+  shortformatDate,
+} from "@/util/extractDate";
 import {
   Form,
   FormControl,
@@ -246,13 +250,11 @@ export const AttendeeEventRegistrationForm: React.FC<
                   {/* Event Name */}
                   <h3 className="text-white font-bold">{event?.ename}</h3>
 
-                  {/* Event Location and Date */} 
+                  {/* Event Location and Date */}
                   <div className="flex flex-row items-center gap-4 w-full">
                     <div className="rounded-md px-2.5 py-1 font-[700] w-full text-white bg-[#6578A8] text-[7px] sm:text-[8px] md:text-[9px] lg:text-[12px] flex whitespace-nowrap overflow-hidden">
                       <Building className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
-                      <span className="truncate">
-                        {event?.elocation}
-                      </span>
+                      <span className="truncate">{event?.elocation}</span>
                     </div>
 
                     <div className="rounded-md px-2.5 py-1 font-[700] w-full text-white bg-[#6578A8] text-[7px] sm:text-[8px] md:text-[9px] lg:text-[12px] flex whitespace-nowrap overflow-hidden">
@@ -261,7 +263,8 @@ export const AttendeeEventRegistrationForm: React.FC<
                         {shortformatDate(event?.startDate)}
                       </span>
                       <span className="hidden sm:block truncate">
-                        {extractTime(event?.startDate)} {extractMonthDay(event?.startDate)}
+                        {extractTime(event?.startDate)}{" "}
+                        {extractMonthDay(event?.startDate)}
                       </span>
                     </div>
                   </div>
