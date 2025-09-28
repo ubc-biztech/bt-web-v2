@@ -44,14 +44,14 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
 
             {/* Event Location and Date */}
             <div className="flex flex-row items-center gap-4 w-full">
-              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
+              <div className="rounded-md items-center px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
                 <Building className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
                 <span className="truncate">
                   {form.watch("location") || "Location"}
                 </span>
               </div>
 
-              <div className="rounded-md px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
+              <div className="rounded-md items-center px-2.5 py-1 font-[700] text-white bg-[#6578A8] text-[7px] md:text-[10px] lg:text-[12px] w-full flex whitespace-nowrap overflow-hidden">
                 <Calendar className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
                 <span className="sm:hidden truncate">
                   {form.watch("startDate")
