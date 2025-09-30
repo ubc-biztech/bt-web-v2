@@ -40,7 +40,9 @@ export default function AttendeeFormRegister() {
   const [user, setUser] = useState<User>({} as User);
   const [isNonMemberModalOpen, setIsNonMemberModalOpen] =
     useState<boolean>(true);
-  const [userRegistered, setUserRegistered] = useState<boolean | undefined>(undefined);
+  const [userRegistered, setUserRegistered] = useState<boolean | undefined>(
+    undefined,
+  );
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [hasShownMemberToast, setHasShownMemberToast] =
@@ -307,18 +309,20 @@ export default function AttendeeFormRegister() {
         return true;
       } else {
         const paymentData = {
-          paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"
-            }`,
+          paymentName: `${event.ename} ${
+            user?.isMember || samePricing() ? "" : "(Non-member)"
+          }`,
           paymentImages: [event.imageUrl],
           paymentPrice:
             (user?.isMember
               ? event.pricing?.members
               : event.pricing?.nonMembers) * 100,
           paymentType: "Event",
-          success_url: `${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+          success_url: `${
+            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
               : CLIENT_URL
-            }event/${event.id}/${event.year}/register/success`,
+          }event/${event.id}/${event.year}/register/success`,
           // cancel_url: `${process.env.REACT_APP_STAGE === "local"
           //   ? "http://localhost:3000/"
           //   : CLIENT_URL
@@ -403,8 +407,8 @@ export default function AttendeeFormRegister() {
                 will be paying $
                 {event?.pricing?.nonMembers && event?.pricing?.members
                   ? (
-                    event.pricing?.nonMembers - event.pricing?.members
-                  ).toFixed(2)
+                      event.pricing?.nonMembers - event.pricing?.members
+                    ).toFixed(2)
                   : "7.00"}{" "}
                 more.
               </p>
@@ -456,7 +460,8 @@ export default function AttendeeFormRegister() {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
-              You&apos;ve already been accepted and confirmed! There's no further action required.
+              You&apos;ve already been accepted and confirmed! There's no
+              further action required.
             </p>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
@@ -496,7 +501,6 @@ export default function AttendeeFormRegister() {
           </button>
         </div>,
       );
-
     } else if (isDeadlinePassed()) {
       return renderErrorText(
         <div className="text-center">

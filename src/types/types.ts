@@ -44,7 +44,7 @@ export enum DBRegistrationStatus {
   CANCELLED = "cancelled",
   INCOMPLETE = "incomplete",
   ACCEPTED = "accepted",
-  ACCEPTED_COMPLETE = "acceptedComplete"
+  ACCEPTED_COMPLETE = "acceptedComplete",
 }
 
 export type BasicInformation = {
