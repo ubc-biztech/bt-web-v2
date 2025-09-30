@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
+import { Terminal, Loader2 } from "lucide-react";
 import {
   fetchAuthSession,
   signIn,
@@ -45,8 +45,8 @@ export default function AttendeeFormRegister() {
   );
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
-  const [hasShownMemberToast, setHasShownMemberToast] =
-    useState<boolean>(false);
+  const [hasShownMemberToast, setHasShownMemberToast] = useState<boolean>(false);
+  const [isGeneratingPaymentLink, setIsGeneratingPaymentLink] = useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
   const [stripeUrl, setStripeUrl] = useState<string>("");
@@ -444,6 +444,42 @@ export default function AttendeeFormRegister() {
     );
   };
 
+  const generatePaymentLink = async (event: BiztechEvent) => {
+    if (!user) return null;
+    
+    setIsGeneratingPaymentLink(true);
+    try {
+      const paymentData = {
+        paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"}`,
+        paymentImages: [event.imageUrl],
+        paymentPrice: (user?.isMember ? event.pricing?.members : event.pricing?.nonMembers) * 100,
+        paymentType: "Event",
+        success_url: `${process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+            ? "http://localhost:3000/"
+            : CLIENT_URL
+          }event/${event.id}/${event.year}/register/success`,
+        email: user.id,
+        fname: user.fname,
+        eventID: event.id,
+        year: event.year,
+      };
+
+      const res = await fetchBackend({
+        endpoint: "/payments",
+        method: "POST",
+        data: paymentData,
+        authenticatedCall: false,
+      });
+
+      return res;
+    } catch (error) {
+      console.error("Error generating payment link:", error);
+      return null;
+    } finally {
+      setIsGeneratingPaymentLink(false);
+    }
+  };
+
   const renderConditionalViews = () => {
     if (userLoading) return null;
 
@@ -472,22 +508,61 @@ export default function AttendeeFormRegister() {
           </div>,
         );
       } else if (registrationStatus === DBRegistrationStatus.ACCEPTED) {
-        // still requires payment
-        return renderErrorText(
-          <div className="text-center">
-            <p className="text-l mb-4 text-white">
-              You&apos;ve already been accepted! Please complete your payment.
-            </p>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
-              onClick={() => (window.location.href = stripeUrl)}
-            >
-              Pay Now
-            </button>
-          </div>,
-        );
-      }
+        const PaymentButton = () => {
+          const [isLoading, setIsLoading] = useState(false);
+          const [error, setError] = useState<string | null>(null);
 
+          const handlePaymentClick = async () => {
+            if (!event || isLoading) return;
+            
+            setIsLoading(true);
+            setError(null);
+            
+            try {
+              const paymentUrl = await generatePaymentLink(event);
+              if (paymentUrl) {
+                window.open(paymentUrl, '_blank');
+              } else {
+                setError('Failed to generate payment link');
+              }
+            } catch (err) {
+              console.error('Payment error:', err);
+              setError('An error occurred. Please try again.');
+            } finally {
+              setIsLoading(false);
+            }
+          };
+
+          return (
+            <div className="text-center">
+              <p className="text-l mb-4 text-white">
+                Your registration has been accepted! Please complete your payment to secure your spot.
+              </p>
+              <button
+                onClick={handlePaymentClick}
+                disabled={isLoading}
+              className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md ${
+                  isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Processing...
+                  </span>
+                ) : (
+                  'Pay Now'
+                )}
+              </button>
+              {error && (
+                <p className="mt-3 text-red-300 text-sm">{error}</p>
+              )}
+            </div>
+          );
+        };
+
+        return renderErrorText(<PaymentButton />);
+      }
       return renderErrorText(
         <div className="text-center">
           <p className="text-l mb-4 text-white">
