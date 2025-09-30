@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input as SearchBar } from "@/components/RegistrationTable/Input";
+import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -45,6 +46,8 @@ interface TableHeaderProps {
   onFilterChange: (value: SelectValue) => void;
   globalFilter: any;
   setGlobalFilter: (updater: any) => void;
+  eventId: string;
+  year: string;
 }
 
 type SelectValue = "attendees" | "partners" | "waitlisted";
@@ -59,10 +62,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   onFilterChange,
   globalFilter,
   setGlobalFilter,
+  eventId,
+  year,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
   const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
@@ -101,6 +107,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             table={table}
             setShowMassUpdateStatus={setShowMassUpdateStatus}
             setShowCreateTeam={setShowCreateTeam}
+            setShowDeleteConfirm={setShowDeleteConfirm}
           />
         )}
 
@@ -224,6 +231,55 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             className="text-bt-blue-400 bg-bt-green-300"
           >
             Update Selection
+          </Button>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              Delete Selected Registrations
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+
+          <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
+            {getSelectedRows().map((row, index) => (
+              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
+                <span className="text-md font-600">
+                  {row.original.id || row.original.email}
+                </span>
+                <br />
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+
+          <Button
+            onClick={async () => {
+              const rows = getSelectedRows();
+              const ids = rows.map((row: any) => row.original.id);
+              try {
+                await fetchBackend({
+                  endpoint: "/registrations",
+                  method: "DELETE",
+                  data: { ids, eventID: eventId, year: Number(year) },
+                  authenticatedCall: true,
+                });
+              } catch (e) {
+                console.error("Failed to delete registrations", e);
+              } finally {
+                setShowDeleteConfirm(false);
+                await refreshTable();
+                table.resetRowSelection();
+              }
+            }}
+            className="text-bt-blue-400 bg-bt-red-300"
+          >
+            Confirm Delete
           </Button>
         </DialogContent>
       </Dialog>

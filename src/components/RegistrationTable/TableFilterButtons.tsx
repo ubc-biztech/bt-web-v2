@@ -12,13 +12,14 @@ import { Table } from "@tanstack/react-table";
 import CancelIcon from "../../../public/assets/icons/cancel_icon.svg";
 import TeamsIcon from "../../../public/assets/icons/teams_icon.svg";
 import MassUpdateIcon from "../../../public/assets/icons/massupdate_icon.svg";
-import { FilePenLine, UsersRound } from "lucide-react";
+import { FilePenLine, UsersRound, Trash2 } from "lucide-react";
 
 interface TableFilterButtonsProps {
   selectedRowsCount: number;
   table: Table<any>;
   setShowMassUpdateStatus: (show: boolean) => void;
   setShowCreateTeam: (show: boolean) => void;
+  setShowDeleteConfirm: (show: boolean) => void;
 }
 
 export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
@@ -26,6 +27,7 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
   table,
   setShowMassUpdateStatus,
   setShowCreateTeam,
+  setShowDeleteConfirm,
 }) => {
   const handleIconClick = (action: string) => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -34,6 +36,8 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
       setShowCreateTeam(true);
     } else if (action === "massUpdateStatus") {
       setShowMassUpdateStatus(true);
+    } else if (action === "delete") {
+      setShowDeleteConfirm(true);
     }
 
     // You can pass the selected rows to the parent component if needed
@@ -62,6 +66,14 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
               />
             </TooltipTrigger>
             <TooltipContent>Mass Update Status</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Trash2 onClick={() => handleIconClick("delete")} />
+            </TooltipTrigger>
+            <TooltipContent>Delete Selected</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
