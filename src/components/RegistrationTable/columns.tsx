@@ -99,6 +99,7 @@ export const createColumns = (
         { value: DBRegistrationStatus.CANCELLED, label: "Cancelled" },
         { value: DBRegistrationStatus.INCOMPLETE, label: "Incomplete" },
         { value: DBRegistrationStatus.WAITLISTED, label: "Waitlisted" },
+        { value: DBRegistrationStatus.ACCEPTED, label: "Accepted" }
       ],
     } as ColumnMeta,
     size: 200,

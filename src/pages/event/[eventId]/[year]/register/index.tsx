@@ -45,6 +45,9 @@ export default function AttendeeFormRegister() {
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [hasShownMemberToast, setHasShownMemberToast] =
     useState<boolean>(false);
+  const [registrationStatus, setRegistrationStatus] =
+    useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
+  const [stripeUrl, setStripeUrl] = useState<string>("");
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
@@ -72,6 +75,15 @@ export default function AttendeeFormRegister() {
     const exists: boolean = registrations.data.some(
       (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
     );
+    if (exists) {
+      const registration = registrations.data.find(
+        (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
+      );
+      setRegistrationStatus(registration.registrationStatus);
+      if (registration.registrationStatus === DBRegistrationStatus.ACCEPTED) {
+        setStripeUrl(registration.checkoutLink);
+      }
+    }
     setUserRegistered(exists);
     return exists;
   };
@@ -440,6 +452,37 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
+      if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;ve already been accepted! There's no further action required. 
+            </p>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+            onClick={() => (window.location.href = "/")}
+          >
+            Upcoming Events 
+          </button>
+        </div>,
+      );
+      } else if (registrationStatus === DBRegistrationStatus.ACCEPTED) {
+        // still requires payment
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;ve already been accepted! Please complete your payment.
+            </p>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+            onClick={() => (window.location.href = stripeUrl)}
+          >
+            Pay Now 
+          </button>
+        </div>,
+      );
+      }
+
       return renderErrorText(
         <div className="text-center">
           <p className="text-l mb-4 text-white">
@@ -453,6 +496,7 @@ export default function AttendeeFormRegister() {
           </button>
         </div>,
       );
+        
     } else if (isDeadlinePassed()) {
       return renderErrorText(
         <div className="text-center">
