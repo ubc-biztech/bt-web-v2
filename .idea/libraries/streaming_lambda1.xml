@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="streaming-lambda1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/node_modules/@aws-amplify/graphql-api-construct/node_modules/@aws-amplify/graphql-searchable-transformer/lib/streaming-lambda.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

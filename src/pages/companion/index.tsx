@@ -4,7 +4,7 @@ import BigProdX from "@/assets/2025/productx/biglogo.png";
 import ProdxBizBot from "@/assets/2025/productx/prodxbizbot.png";
 
 // COMMENTED OUT - Original companion functionality
-// import { useState, useEffect, useContext, createContext } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 // import { fetchBackend } from "@/lib/db";
 // import { useRouter } from "next/router";
 // import CompanionHome from "@/components/companion/CompanionHome";
@@ -19,39 +19,39 @@ import ProdxBizBot from "@/assets/2025/productx/prodxbizbot.png";
 // import { Badge } from "./badges";
 // import { Loader2 } from "lucide-react";
 
-// export interface Registration {
-//   id: string;
-//   fname: string;
-//   points?: number;
-//   isPartner?: boolean;
-//   teamID?: string;
-//   [key: string]: any;
-// }
+export interface Registration {
+  id: string;
+  fname: string;
+  points?: number;
+  isPartner?: boolean;
+  teamID?: string;
+  [key: string]: any;
+}
 
-// interface EventData {
-//   id: string;
-//   year: number;
-//   isCompleted?: boolean;
-//   feedback?: string;
-//   [key: string]: any;
-// }
+interface EventData {
+  id: string;
+  year: number;
+  isCompleted?: boolean;
+  feedback?: string;
+  [key: string]: any;
+}
 
-// interface UserRegistrationContextType {
-//   userRegistration: Registration | null;
-// }
+interface UserRegistrationContextType {
+  userRegistration: Registration | null;
+}
 
-// export const UserRegistrationContext =
-//   createContext<UserRegistrationContextType | null>(null);
+export const UserRegistrationContext =
+  createContext<UserRegistrationContextType | null>(null);
 
-// export const useUserRegistration = () => {
-//   const context = useContext(UserRegistrationContext);
-//   if (!context) {
-//     throw new Error(
-//       "useUserRegistration must be used within a UserRegistrationProvider",
-//     );
-//   }
-//   return context;
-// };
+export const useUserRegistration = () => {
+  const context = useContext(UserRegistrationContext);
+  if (!context) {
+    throw new Error(
+      "useUserRegistration must be used within a UserRegistrationProvider",
+    );
+  }
+  return context;
+};
 
 const Companion = () => {
   // COMMENTED OUT - Original companion logic

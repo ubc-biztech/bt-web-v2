@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lib1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/node_modules/@aws-amplify/graphql-api-construct/node_modules/@aws-amplify/graphql-model-transformer/lib/rds-notification-lambda.zip!/" />
+      <root url="jar://$PROJECT_DIR$/node_modules/@aws-amplify/graphql-api-construct/node_modules/@aws-amplify/graphql-model-transformer/lib/rds-lambda.zip!/" />
+      <root url="jar://$PROJECT_DIR$/node_modules/@aws-amplify/graphql-api-construct/node_modules/@aws-amplify/graphql-model-transformer/lib/rds-patching-lambda.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

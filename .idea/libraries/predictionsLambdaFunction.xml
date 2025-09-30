@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="predictionsLambdaFunction">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/node_modules/@aws-amplify/data-construct/node_modules/@aws-amplify/graphql-predictions-transformer/lib/predictionsLambdaFunction.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
