@@ -98,7 +98,12 @@ export default function AttendeeFormRegister() {
           const email = attributes?.email;
 
           if (!email) throw new Error("Email not found for user");
-          setUser({ id: email, isMember: false });
+
+          setUser({
+            id: email,
+            isMember: false,
+            fname: attributes?.name || undefined,
+          });
           setUserLoggedIn(true);
 
           const userData = await fetchBackend({
@@ -106,7 +111,7 @@ export default function AttendeeFormRegister() {
             method: "GET",
           });
 
-          setUser(userData || { id: email, isMember: false });
+          if (userData) setUser(userData);
         } else {
           setUserLoggedIn(false);
         }
