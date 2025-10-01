@@ -112,7 +112,7 @@ export const createColumns = (
         DBRegistrationStatus.CANCELLED,
         DBRegistrationStatus.ACCEPTED,
         DBRegistrationStatus.ACCEPTED_PENDING,
-        DBRegistrationStatus.ACCEPTED_COMPLETE
+        DBRegistrationStatus.ACCEPTED_COMPLETE,
       ];
       return (
         order.indexOf(rowA.getValue("registrationStatus")) -
