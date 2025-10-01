@@ -52,6 +52,8 @@ export const TableCell = memo(
     };
 
     const onSelectChange = async (newValue: string) => {
+      if (newValue == value) return;
+
       let eventId = row.original["eventID;year"].slice(
         0,
         row.original["eventID;year"].indexOf(";"),
