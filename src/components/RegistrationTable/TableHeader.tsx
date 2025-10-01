@@ -223,6 +223,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             <SelectContent>
               <SelectItem value="registered">Registered</SelectItem>
               <SelectItem value="checked-in">Checked-In</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
               <SelectItem value="waitlisted">Waitlisted</SelectItem>
             </SelectContent>
           </Select>
