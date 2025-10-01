@@ -524,6 +524,31 @@ export default function AttendeeFormRegister() {
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
 
+          const handleConfirmClick = async () => {
+            if (!event || isLoading) return;
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+              const body = {
+                eventID: event.id,
+                year: event.year,
+                registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE,
+              };
+              await fetchBackend({
+                endpoint: `/registrations/${user.id}/${user.fname}`,
+                method: "PUT",
+                data: body,
+              });
+              window.location.reload(); // show updated state
+            } catch (error) {
+              setError("An error occurred. Please try again.");
+            } finally {
+              setIsLoading(false);
+            }
+          };
+
           const handlePaymentClick = async () => {
             if (!event || isLoading) return;
 
@@ -602,7 +627,12 @@ export default function AttendeeFormRegister() {
 
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
-                    onClick={handlePaymentClick}
+                    onClick={
+                      registrationStatus ===
+                      DBRegistrationStatus.ACCEPTED_PENDING
+                        ? handleConfirmClick
+                        : handlePaymentClick
+                    }
                     disabled={isLoading}
                     className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
                   >
