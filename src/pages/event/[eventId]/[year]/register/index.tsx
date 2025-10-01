@@ -29,7 +29,9 @@ import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
+import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
+import { Registration } from "@/types/types";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -47,11 +49,8 @@ export default function AttendeeFormRegister() {
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [hasShownMemberToast, setHasShownMemberToast] =
     useState<boolean>(false);
-  const [isGeneratingPaymentLink, setIsGeneratingPaymentLink] =
-    useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
-  const [stripeUrl, setStripeUrl] = useState<string>("");
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
@@ -84,9 +83,6 @@ export default function AttendeeFormRegister() {
         (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
       );
       setRegistrationStatus(registration.registrationStatus);
-      if (registration.registrationStatus === DBRegistrationStatus.ACCEPTED) {
-        setStripeUrl(registration.checkoutLink);
-      }
     }
     setUserRegistered(exists);
     return exists;
@@ -446,10 +442,12 @@ export default function AttendeeFormRegister() {
     );
   };
 
-  const generatePaymentLink = async (event: BiztechEvent) => {
+  const generatePaymentLink = async (
+    event: BiztechEvent,
+    registrationStatus: DBRegistrationStatus,
+  ) => {
     if (!user) return null;
 
-    setIsGeneratingPaymentLink(true);
     try {
       const paymentData = {
         paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"}`,
@@ -463,7 +461,7 @@ export default function AttendeeFormRegister() {
           process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
             ? "http://localhost:3000/"
             : CLIENT_URL
-        }event/${event.id}/${event.year}/register/success`,
+        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED ? "" : "success"}`,
         email: user.id,
         fname: user.fname,
         eventID: event.id,
@@ -481,8 +479,6 @@ export default function AttendeeFormRegister() {
     } catch (error) {
       console.error("Error generating payment link:", error);
       return null;
-    } finally {
-      setIsGeneratingPaymentLink(false);
     }
   };
 
@@ -502,8 +498,9 @@ export default function AttendeeFormRegister() {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
-              You&apos;ve already been accepted and confirmed! There&apos;s no
-              further action required.
+              You&apos;ve already been accepted and confirmed your attendance!
+              There&apos;s no further action required and we'll see you at the
+              event!
             </p>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
@@ -513,7 +510,10 @@ export default function AttendeeFormRegister() {
             </button>
           </div>,
         );
-      } else if (registrationStatus === DBRegistrationStatus.ACCEPTED) {
+      } else if (
+        registrationStatus === DBRegistrationStatus.ACCEPTED ||
+        registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
+      ) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -525,7 +525,10 @@ export default function AttendeeFormRegister() {
             setError(null);
 
             try {
-              const paymentUrl = await generatePaymentLink(event);
+              const paymentUrl = await generatePaymentLink(
+                event,
+                registrationStatus,
+              );
               if (paymentUrl) {
                 window.open(paymentUrl, "_blank");
               } else {
@@ -540,15 +543,19 @@ export default function AttendeeFormRegister() {
           };
 
           return (
-            <div className="text-center">
+            <div className="text-wrap items-center flex flex-col">
+              <p className="text-xl text-white">
+                You have been accepted to {event.ename}!
+              </p>
               <p className="text-l mb-4 text-white">
-                Your registration has been accepted! Please complete your
-                payment to secure your spot.
+                {registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
+                  ? `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
+                  : `To confirm your attendance on ${extractMonthDay(event.startDate)}, please complete your payment by pressing the button below.`}
               </p>
               <button
                 onClick={handlePaymentClick}
                 disabled={isLoading}
-                className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md ${
+                className={`bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 px-4 rounded shadow-md ${
                   isLoading ? "opacity-75 cursor-not-allowed" : ""
                 }`}
               >

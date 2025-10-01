@@ -26,6 +26,8 @@ export function convertRegistrationStatusToDB(uiStatus: string): string {
       return DBRegistrationStatus.INCOMPLETE;
     case "waitlisted":
       return DBRegistrationStatus.WAITLISTED;
+    case "accepted":
+      return DBRegistrationStatus.ACCEPTED;
     default:
       return uiStatus.toLowerCase();
   }

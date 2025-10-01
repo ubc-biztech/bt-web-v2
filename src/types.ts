@@ -72,6 +72,7 @@ export enum DBRegistrationStatus {
   CANCELLED = "cancelled",
   INCOMPLETE = "incomplete",
   ACCEPTED = "accepted",
+  ACCEPTED_PENDING = "acceptedPending",
   ACCEPTED_COMPLETE = "acceptedComplete",
 }
 
