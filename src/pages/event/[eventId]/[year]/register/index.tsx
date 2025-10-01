@@ -32,6 +32,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
 import { Registration } from "@/types/types";
+import Link from "next/link";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -543,31 +544,61 @@ export default function AttendeeFormRegister() {
           };
 
           return (
-            <div className="text-wrap items-center flex flex-col">
+            <div className="text-wrap items-center flex flex-col w-full">
               <p className="text-xl text-white">
                 You have been accepted to {event.ename}!
               </p>
               <p className="text-l mb-4 text-white">
-                {registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
-                  ? `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
-                  : `To confirm your attendance on ${extractMonthDay(event.startDate)}, please complete your payment by pressing the button below.`}
-              </p>
-              <button
-                onClick={handlePaymentClick}
-                disabled={isLoading}
-                className={`bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 px-4 rounded shadow-md ${
-                  isLoading ? "opacity-75 cursor-not-allowed" : ""
-                }`}
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Processing...
-                  </span>
+                {registrationStatus ===
+                DBRegistrationStatus.ACCEPTED_PENDING ? (
+                  `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                 ) : (
-                  "Pay Now"
+                  <>
+                    To confirm your attendance on
+                    {extractMonthDay(event.startDate)}, please complete your
+                    payment by pressing the button below OR consider purchasing
+                    a membership{" "}
+                    <Link
+                      href="/memberships"
+                      className="font-bold hover:text-white text-bt-blue-0"
+                    >
+                      here
+                    </Link>{" "}
+                    to save{" "}
+                    <span className="font-bold">${priceDiff().toFixed(2)}</span>{" "}
+                    on this event, and to attend our future events for a
+                    significant discount! Make sure you come back to this page
+                    after paying for your membership!`
+                  </>
                 )}
-              </button>
+              </p>
+              <div className="flex flex-row gap-4">
+                <button
+                  onClick={handlePaymentClick}
+                  disabled={isLoading}
+                  className={`bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 px-4 rounded shadow-md ${
+                    isLoading ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center">
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Processing...
+                    </span>
+                  ) : registrationStatus ===
+                    DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    "Confirm Attendance"
+                  ) : (
+                    "Pay and Confirm Attendance"
+                  )}
+                </button>
+                {registrationStatus === DBRegistrationStatus.ACCEPTED &&
+                  !user.isMember && (
+                    <button className="bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 gap-4 px-4 rounded shadow-md">
+                      Pay for Membership
+                    </button>
+                  )}
+              </div>
               {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
             </div>
           );
