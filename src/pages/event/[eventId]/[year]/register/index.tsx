@@ -532,7 +532,7 @@ export default function AttendeeFormRegister() {
 
             try {
               const body = { eventID: event.id, year: event.year, registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE };
-              await fetchBackend({ endpoint: "/registrations", method: "PUT", data: body });
+              await fetchBackend({ endpoint: `/registrations/${user.id}/${user.fname}`, method: "PUT", data: body });
               window.location.reload(); // show updated state
             } catch (error) { 
               setError("An error occurred. Please try again.");
