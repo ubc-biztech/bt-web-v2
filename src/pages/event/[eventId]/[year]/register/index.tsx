@@ -98,20 +98,20 @@ export default function AttendeeFormRegister() {
           const email = attributes?.email;
 
           if (!email) throw new Error("Email not found for user");
+          setUser({ id: email, isMember: false });
+          setUserLoggedIn(true);
 
           const userData = await fetchBackend({
             endpoint: `/users/${email}`,
             method: "GET",
           });
 
-          setUser(userData);
-          setUserLoggedIn(true);
+          setUser(userData || { id: email, isMember: false });
         } else {
           setUserLoggedIn(false);
         }
       } catch (err: any) {
         console.error("Failed to fetch user:", err);
-        setUserLoggedIn(false);
       }
       setUserLoading(false);
     };
@@ -544,65 +544,90 @@ export default function AttendeeFormRegister() {
           };
 
           return (
-            <div className="text-wrap items-center flex flex-col w-full">
-              <p className="text-xl text-white">
-                You have been accepted to {event.ename}!
-              </p>
-              <p className="text-l mb-4 text-white">
-                {registrationStatus ===
-                DBRegistrationStatus.ACCEPTED_PENDING ? (
-                  `If you will be attending our event on ${extractMonthDay(
-                    event.startDate,
-                  )} please submit your confirmation below.`
-                ) : (
-                  <>
-                    To confirm your attendance on{" "}
-                    {extractMonthDay(event.startDate)}, please complete your
-                    payment or purchase a membership and come back to this page.
-                    <div></div>You can save{" "}
-                    <span className="font-bold text-lg">
-                      ${priceDiff().toFixed(2)}
-                    </span>{" "}
-                    on this event{" "}
-                    <span className="text-lg">
-                      {priceDiff() > 0
-                        ? `($${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)})`
-                        : ""}
+            <div className="w-full">
+              <div className="w-full max-w-xl mx-auto rounded-xl border border-white/10 bg-bt-blue-500/40 backdrop-blur p-5 sm:p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-white mb-1">
+                  You&apos;re accepted!
+                </h3>
+
+                <div className="text-white/90 space-y-3">
+                  <p className="text-base">
+                    You have been accepted to{" "}
+                    <span className="font-semibold text-white">
+                      {event.ename}
                     </span>
-                    , and to attend our future events for a significant
-                    discount! Make sure you come back to this page after paying
-                    for your membership!
-                  </>
-                )}
-              </p>
-              <div className="flex flex-row gap-4">
-                <button
-                  onClick={handlePaymentClick}
-                  disabled={isLoading}
-                  className={`bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 px-4 rounded shadow-md ${
-                    isLoading ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center">
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Processing...
-                    </span>
-                  ) : registrationStatus ===
+                    .
+                  </p>
+                  <p className="text-sm sm:text-base">
+                    {registrationStatus ===
                     DBRegistrationStatus.ACCEPTED_PENDING ? (
-                    "Confirm Attendance"
-                  ) : (
-                    "Pay and Confirm Attendance"
+                      `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
+                    ) : (
+                      <>
+                        To confirm your attendance on{" "}
+                        {extractMonthDay(event.startDate)}, please complete your
+                        payment or purchase a membership and return to this
+                        page.
+                      </>
+                    )}
+                  </p>
+
+                  {registrationStatus !==
+                    DBRegistrationStatus.ACCEPTED_PENDING && (
+                    <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
+                      <div className="text-sm sm:text-base text-white">
+                        Become a member and save
+                      </div>
+                      <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
+                        ${priceDiff().toFixed(2)}
+                        {priceDiff() > 0 && (
+                          <span className="ml-2 text-white/80 text-sm font-normal">
+                            (
+                            {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                            )
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs sm:text-sm text-white/80">
+                        Plus, enjoy discounted pricing for future events.
+                      </p>
+                    </div>
                   )}
-                </button>
-                {registrationStatus === DBRegistrationStatus.ACCEPTED &&
-                  !user.isMember && (
-                    <button className="bg-bt-blue-200 hover:bg-bt-blue-0 text-white font-bold py-2 gap-4 px-4 rounded shadow-md">
-                      Pay for Membership
-                    </button>
-                  )}
+                </div>
+
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handlePaymentClick}
+                    disabled={isLoading}
+                    className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </span>
+                    ) : registrationStatus ===
+                      DBRegistrationStatus.ACCEPTED_PENDING ? (
+                      "Confirm Attendance"
+                    ) : (
+                      "Pay and Confirm Attendance"
+                    )}
+                  </Button>
+
+                  {registrationStatus === DBRegistrationStatus.ACCEPTED &&
+                    !user.isMember && (
+                      <Button
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={() => (window.location.href = "/membership")}
+                      >
+                        Become a Member
+                      </Button>
+                    )}
+                </div>
+
+                {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
               </div>
-              {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
             </div>
           );
         };
