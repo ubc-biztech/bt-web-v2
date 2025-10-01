@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
+import { Terminal, Loader2 } from "lucide-react";
 import {
   fetchAuthSession,
   signIn,
@@ -29,7 +29,10 @@ import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
+import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
+import { Registration } from "@/types/types";
+import Link from "next/link";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -40,11 +43,15 @@ export default function AttendeeFormRegister() {
   const [user, setUser] = useState<User>({} as User);
   const [isNonMemberModalOpen, setIsNonMemberModalOpen] =
     useState<boolean>(true);
-  const [userRegistered, setUserRegistered] = useState<boolean>(false);
+  const [userRegistered, setUserRegistered] = useState<boolean | undefined>(
+    undefined,
+  );
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [hasShownMemberToast, setHasShownMemberToast] =
     useState<boolean>(false);
+  const [registrationStatus, setRegistrationStatus] =
+    useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
@@ -72,6 +79,12 @@ export default function AttendeeFormRegister() {
     const exists: boolean = registrations.data.some(
       (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
     );
+    if (exists) {
+      const registration = registrations.data.find(
+        (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
+      );
+      setRegistrationStatus(registration.registrationStatus);
+    }
     setUserRegistered(exists);
     return exists;
   };
@@ -85,20 +98,20 @@ export default function AttendeeFormRegister() {
           const email = attributes?.email;
 
           if (!email) throw new Error("Email not found for user");
+          setUser({ id: email, isMember: false });
+          setUserLoggedIn(true);
 
           const userData = await fetchBackend({
             endpoint: `/users/${email}`,
             method: "GET",
           });
 
-          setUser(userData);
-          setUserLoggedIn(true);
+          setUser(userData || { id: email, isMember: false });
         } else {
           setUserLoggedIn(false);
         }
       } catch (err: any) {
         console.error("Failed to fetch user:", err);
-        setUserLoggedIn(false);
       }
       setUserLoading(false);
     };
@@ -430,8 +443,50 @@ export default function AttendeeFormRegister() {
     );
   };
 
+  const generatePaymentLink = async (
+    event: BiztechEvent,
+    registrationStatus: DBRegistrationStatus,
+  ) => {
+    if (!user) return null;
+
+    try {
+      const paymentData = {
+        paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"}`,
+        paymentImages: [event.imageUrl],
+        paymentPrice:
+          (user?.isMember
+            ? event.pricing?.members
+            : event.pricing?.nonMembers) * 100,
+        paymentType: "Event",
+        success_url: `${
+          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+            ? "http://localhost:3000/"
+            : CLIENT_URL
+        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED ? "" : "success"}`,
+        email: user.id,
+        fname: user.fname,
+        eventID: event.id,
+        year: event.year,
+      };
+
+      const res = await fetchBackend({
+        endpoint: "/payments",
+        method: "POST",
+        data: paymentData,
+        authenticatedCall: false,
+      });
+
+      return res;
+    } catch (error) {
+      console.error("Error generating payment link:", error);
+      return null;
+    }
+  };
+
   const renderConditionalViews = () => {
     if (userLoading) return null;
+
+    if (userRegistered === undefined) return null;
 
     // wait for fields to load, otherwise the views will display a flash change
     if (!event || !user || !event.pricing) return null;
@@ -440,6 +495,145 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
+      if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;ve already been accepted and confirmed your attendance!
+              There&apos;s no further action required and we&apos;ll see you at
+              the event!
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+              onClick={() => (window.location.href = "/")}
+            >
+              Upcoming Events
+            </button>
+          </div>,
+        );
+      } else if (
+        registrationStatus === DBRegistrationStatus.ACCEPTED ||
+        registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
+      ) {
+        const PaymentButton = () => {
+          const [isLoading, setIsLoading] = useState(false);
+          const [error, setError] = useState<string | null>(null);
+
+          const handlePaymentClick = async () => {
+            if (!event || isLoading) return;
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+              const paymentUrl = await generatePaymentLink(
+                event,
+                registrationStatus,
+              );
+              if (paymentUrl) {
+                window.open(paymentUrl, "_blank");
+              } else {
+                setError("Failed to generate payment link");
+              }
+            } catch (err) {
+              console.error("Payment error:", err);
+              setError("An error occurred. Please try again.");
+            } finally {
+              setIsLoading(false);
+            }
+          };
+
+          return (
+            <div className="w-full">
+              <div className="w-full max-w-xl mx-auto rounded-xl border border-white/10 bg-bt-blue-500/40 backdrop-blur p-5 sm:p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-white mb-1">
+                  You&apos;re accepted!
+                </h3>
+
+                <div className="text-white/90 space-y-3">
+                  <p className="text-base">
+                    You have been accepted to{" "}
+                    <span className="font-semibold text-white">
+                      {event.ename}
+                    </span>
+                    .
+                  </p>
+                  <p className="text-sm sm:text-base">
+                    {registrationStatus ===
+                    DBRegistrationStatus.ACCEPTED_PENDING ? (
+                      `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
+                    ) : (
+                      <>
+                        To confirm your attendance on{" "}
+                        {extractMonthDay(event.startDate)}, please complete your
+                        payment or purchase a membership and return to this
+                        page.
+                      </>
+                    )}
+                  </p>
+
+                  {registrationStatus !==
+                    DBRegistrationStatus.ACCEPTED_PENDING && (
+                    <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
+                      <div className="text-sm sm:text-base text-white">
+                        Become a member and save
+                      </div>
+                      <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
+                        ${priceDiff().toFixed(2)}
+                        {priceDiff() > 0 && (
+                          <span className="ml-2 text-white/80 text-sm font-normal">
+                            (
+                            {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                            )
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs sm:text-sm text-white/80">
+                        Plus, enjoy discounted pricing for future events.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handlePaymentClick}
+                    disabled={isLoading}
+                    className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </span>
+                    ) : registrationStatus ===
+                      DBRegistrationStatus.ACCEPTED_PENDING ? (
+                      "Confirm Attendance"
+                    ) : (
+                      "Pay and Confirm Attendance"
+                    )}
+                  </Button>
+
+                  {registrationStatus === DBRegistrationStatus.ACCEPTED &&
+                    !user.isMember && (
+                      <Button
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={() => (window.location.href = "/membership")}
+                      >
+                        Become a Member
+                      </Button>
+                    )}
+                </div>
+
+                {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
+              </div>
+            </div>
+          );
+        };
+
+        return renderErrorText(<PaymentButton />);
+      }
       return renderErrorText(
         <div className="text-center">
           <p className="text-l mb-4 text-white">
