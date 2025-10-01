@@ -500,8 +500,8 @@ export default function AttendeeFormRegister() {
           <div className="text-center">
             <p className="text-l mb-4 text-white">
               You&apos;ve already been accepted and confirmed your attendance!
-              There&apos;s no further action required and we'll see you at the
-              event!
+              There&apos;s no further action required and we&apos;ll see you at
+              the event!
             </p>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
