@@ -12,10 +12,10 @@ export const API_URL =
 
 export const CLIENT_URL =
   process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
-    ? "https://v2.ubcbiztech.com/"
+    ? "https://app.ubcbiztech.com/"
     : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
       ? "http://localhost:3000/"
-      : "https://dev.v2.ubcbiztech.com/";
+      : "https://dev.app.ubcbiztech.com/";
 
 export const WS_URL =
   process.env.NEXT_PUBLIC_WS_URL ||

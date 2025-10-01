@@ -66,7 +66,7 @@ const ProfilePage = ({
   let domain =
     typeof window !== "undefined"
       ? window.location.origin
-      : "v2.ubcbiztech.com";
+      : "app.ubcbiztech.com";
 
   const fullURL = `${domain}${route}`;
 
