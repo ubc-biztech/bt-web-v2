@@ -462,7 +462,7 @@ export default function AttendeeFormRegister() {
           process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
             ? "http://localhost:3000/"
             : CLIENT_URL
-        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED ? "" : "success"}`,
+        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED || registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
         email: user.id,
         fname: user.fname,
         eventID: event.id,
