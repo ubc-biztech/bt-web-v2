@@ -349,7 +349,7 @@ const LoginForm: React.FC = () => {
               <div className="flex-grow border-t border-bt-blue-0"></div>
             </div>
 
-            <div className="mt-7 grid grid-cols-2 gap-4">
+            <div className="mt-7 grid grid-cols-1 gap-4">
               {/* ✅ button instead of Link "#" to avoid Safari ghost nav */}
               <button
                 type="button"
@@ -366,21 +366,6 @@ const LoginForm: React.FC = () => {
                   Google
                 </span>
               </button>
-
-              <Link
-                href="/become-a-member"
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-desat-navy focus-visible:ring-transparent"
-              >
-                <Image
-                  src="https://i.ibb.co/0VtyXLD/Frame-3.png"
-                  width={24}
-                  height={24}
-                  alt="Guest"
-                />
-                <span className="text-sm leading-6 text-bt-blue-400 font-500">
-                  Guest
-                </span>
-              </Link>
             </div>
           </div>
         </div>

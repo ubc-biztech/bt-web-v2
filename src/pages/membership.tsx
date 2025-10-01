@@ -299,13 +299,20 @@ const Membership: React.FC = () => {
                 Create an account to sign up for our events and become a BizTech
                 member.
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-row gap-4">
                 {/* link back while clearing cookies (avoid being redirected back to membership) */}
                 <Link
                   href="/login?clearAuth=1"
                   className="text-sm leading-6 text-bt-green-300 underline"
                 >
                   Back to Login Page
+                </Link>
+
+                <Link
+                  href="/events"
+                  className="text-sm leading-6 text-bt-green-300 underline"
+                >
+                  Continue as Guest
                 </Link>
               </div>
             </div>

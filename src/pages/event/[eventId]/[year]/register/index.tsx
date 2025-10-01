@@ -551,24 +551,27 @@ export default function AttendeeFormRegister() {
               <p className="text-l mb-4 text-white">
                 {registrationStatus ===
                 DBRegistrationStatus.ACCEPTED_PENDING ? (
-                  `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
+                  `If you will be attending our event on ${extractMonthDay(
+                    event.startDate,
+                  )} please submit your confirmation below.`
                 ) : (
                   <>
-                    To confirm your attendance on
+                    To confirm your attendance on{" "}
                     {extractMonthDay(event.startDate)}, please complete your
-                    payment by pressing the button below OR consider purchasing
-                    a membership{" "}
-                    <Link
-                      href="/memberships"
-                      className="font-bold hover:text-white text-bt-blue-0"
-                    >
-                      here
-                    </Link>{" "}
-                    to save{" "}
-                    <span className="font-bold">${priceDiff().toFixed(2)}</span>{" "}
-                    on this event, and to attend our future events for a
-                    significant discount! Make sure you come back to this page
-                    after paying for your membership!`
+                    payment or purchase a membership and come back to this page.
+                    <div></div>You can save{" "}
+                    <span className="font-bold text-lg">
+                      ${priceDiff().toFixed(2)}
+                    </span>{" "}
+                    on this event{" "}
+                    <span className="text-lg">
+                      {priceDiff() > 0
+                        ? `($${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)})`
+                        : ""}
+                    </span>
+                    , and to attend our future events for a significant
+                    discount! Make sure you come back to this page after paying
+                    for your membership!
                   </>
                 )}
               </p>
