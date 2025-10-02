@@ -6,41 +6,61 @@ export interface Video {
     youtubeId: string;
   }
   
-  // TODO: input real videos here 
   export const courseVideos: Video[] = [
     {
       id: "1",
-      title: "HTML Crash Course For Absolute Beginners",
-      duration: "69 minutes",
-      description: "Learn HTML in this complete course for beginners. No prior knowledge needed - start building websites from scratch with HTML5.",
-      youtubeId: "UB1O30fR-EE",
+      title: "HTML Basics",
+      duration: "3 minutes",
+      description: "Learn HTML fundamentals.",
+      youtubeId: "L-pj-0xuBhE",
     },
     {
       id: "2",
-      title: "CSS Crash Course For Absolute Beginners",
-      duration: "85 minutes",
-      description: "Master CSS fundamentals including selectors, the box model, flexbox, grid, and responsive design principles.",
-      youtubeId: "yfoY53QXEnI",
+      title: "CSS Basics",
+      duration: "4 minutes",
+      description: "Master CSS fundamentals.",
+      youtubeId: "GYsE37wY_Vk",
     },
     {
       id: "3",
-      title: "JavaScript Crash Course For Beginners",
-      duration: "100 minutes",
-      description: "Learn JavaScript from scratch - variables, functions, DOM manipulation, events, and modern ES6+ features.",
-      youtubeId: "hdI2bqOjy3c",
+      title: "JavaScript Variables",
+      duration: "3 minutes",
+      description: "Learn variables in Javascript",
+      youtubeId: "vFSTqfyeVaQ",
     },
     {
       id: "4",
-      title: "React JS Crash Course",
-      duration: "105 minutes",
-      description: "Build modern web applications with React. Learn components, hooks, state management, and build a real project.",
-      youtubeId: "w7ejDZ8SWv8",
+      title: "Javascript Variables and Data Types",
+      duration: "1.35 minutes",
+      description: "Learn advanced variables and data types in Javascript.",
+      youtubeId: "mV1QPEKePpY",
     },
     {
       id: "5",
-      title: "Node.js & Express Crash Course",
-      duration: "90 minutes",
-      description: "Learn backend development with Node.js and Express. Build REST APIs and understand server-side JavaScript.",
-      youtubeId: "SccSCuHhOw0",
-    }
+      title: "Javascript Logic Controls",
+      duration: "2 minutes",
+      description: "Learn logic controls in Javascript.",
+      youtubeId: "P4yYjQ6v2xc",
+    },
+    {
+      id: "6",
+      title: "Javascript Functions",
+      duration: "2 minutes",
+      description: "Learn functions in Javascript.",
+      youtubeId: "oeBEeBWi4Ko",
+    },
+    {
+      id: "7",
+      title: "Javascript Interacting With Your Webpage ",
+      duration: "4 minutes",
+      description: "Learn Javascript Interactions.",
+      youtubeId: "FOktXhvvW1o",
+    },
+    {
+      id: "8",
+      title: "Javascript Interacting With Your Webpage 2",
+      duration: "2 minutes",
+      description: "Deeper dive into Javascript Interactions.",
+      youtubeId: "597HYFaLwMY",
+    },
   ];

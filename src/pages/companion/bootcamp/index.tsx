@@ -63,7 +63,7 @@ const BootCamp = () => {
               Boot Camp
             </h1>
             <p className="text-[#A2B1D5] mt-1 text-[14px] font-urbanist font-medium">
-              Course Name Here
+              HelloHacks 2025
             </p>
           </div>
         </div>
@@ -138,6 +138,11 @@ const BootCamp = () => {
               {videos.map((video, index) => (
                 <div
                   key={video.id}
+                  onClick={() =>
+                    router.push(
+                      `/companion/bootcamp/videopage?videoId=${video.id}`,
+                    )
+                  }
                   className="flex items-center gap-4 p-4 bg-[#0D172C] hover:bg-[#0D172C]/80 rounded-lg border border-[#A2B1D5] cursor-pointer transition-colors"
                 >
                   {isVideoCompleted(video.id) ? (

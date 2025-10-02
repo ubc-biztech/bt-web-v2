@@ -58,7 +58,7 @@ const CourseOverview = () => {
               Course Overview
             </h1>
             <p className="text-[#A2B1D5] mt-1 text-[14px] font-urbanist font-medium">
-              Course Name Here
+              HelloHacks 2025
             </p>
           </div>
         </div>
