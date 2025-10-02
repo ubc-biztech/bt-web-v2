@@ -62,7 +62,7 @@ const BootCamp = () => {
 
         <div className="h-[1px] m-2 mb-6 bg-[#A2B1D5] opacity-30"></div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto p-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-8xl mx-auto p-2">
 
           {/* up next modal */}
           <div className="bg-[#1B253D] border border-[#A2B1D5] rounded-2xl p-6">
