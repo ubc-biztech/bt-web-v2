@@ -22,6 +22,8 @@ const VideoPlayer = () => {
     const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
     const [allVideos, setAllVideos] = useState<Video[]>([]);
     const [, setRefresh] = useState(0); // Force re-render when progress updates
+    // const iframeRef = useRef<HTMLIFrameEmbedElement>(null);
+    // const [, setRefresh] = useState(0);
 
 
     useEffect(() => {
@@ -117,13 +119,29 @@ const VideoPlayer = () => {
                     <div className="bg-[#1B253D] border border-[#A2B1D5] rounded-2xl p-6 mb-6">
                         <div className="relative w-full aspect-video">
                             <iframe
-                                src={`https://www.youtube.com/embed/${currentVideo.youtubeId}`}
+                                src={`https://www.youtube.com/embed/${currentVideo.youtubeId}?enablejsapi=1`}
                                 title={currentVideo.title}
                                 className="w-full h-full rounded-lg"
                                 frameBorder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowFullScreen
                             />
+                        </div>
+
+                        <div className="mt-4">
+                            {isVideoCompleted(currentVideo.id) ? (
+                                <div className="flex items-center gap-2 text-[#22C55E]">
+                                    <CheckCircle className="w-5 h-5" />
+                                    <span className="font-urbanist font-medium text-sm">Video completed!</span>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={handleMarkComplete}
+                                    className="w-full bg-[#1B253D] border border-[#A2B1D5] text-white hover:bg-[#1B253D]/80 font-urbanist font-medium py-2 px-4 rounded-lg transition-colors"
+                                >
+                                    Mark as Complete
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -141,8 +159,8 @@ const VideoPlayer = () => {
                             onClick={handlePreviousVideo}
                             disabled={isFirstVideo}
                             className={`flex-1 py-3 px-6 rounded-full font-urbanist font-semibold transition-colors ${isFirstVideo
-                                    ? 'bg-[#1B253D] text-[#A2B1D5] cursor-not-allowed opacity-50'
-                                    : 'bg-[#1B253D] border border-[#A2B1D5] text-white hover:bg-[#1B253D]/80'
+                                ? 'bg-[#1B253D] text-[#A2B1D5] cursor-not-allowed opacity-50'
+                                : 'bg-[#1B253D] border border-[#A2B1D5] text-white hover:bg-[#1B253D]/80'
                                 }`}
                         >
                             Previous Video
@@ -151,8 +169,8 @@ const VideoPlayer = () => {
                             onClick={handleNextVideo}
                             disabled={isLastVideo}
                             className={`flex-1 py-3 px-6 rounded-full font-urbanist font-semibold transition-colors ${isLastVideo
-                                    ? 'bg-[#1B253D] text-[#A2B1D5] cursor-not-allowed opacity-50'
-                                    : 'bg-[#22C55E] text-black hover:bg-[#16A34A]'
+                                ? 'bg-[#1B253D] text-[#A2B1D5] cursor-not-allowed opacity-50'
+                                : 'bg-[#22C55E] text-black hover:bg-[#16A34A]'
                                 }`}
                         >
                             Next Video
@@ -170,8 +188,8 @@ const VideoPlayer = () => {
                                     key={video.id}
                                     onClick={() => router.push(`/companion/bootcamp/videopage?videoId=${video.id}`)}
                                     className={`w-full flex items-center gap-4 p-4 rounded-lg border transition-colors text-left ${video.id === currentVideo.id
-                                            ? 'bg-[#0D172C] border-[#22C55E]'
-                                            : 'bg-[#0D172C] border-[#A2B1D5] hover:bg-[#0D172C]/80'
+                                        ? 'bg-[#0D172C] border-[#22C55E]'
+                                        : 'bg-[#0D172C] border-[#A2B1D5] hover:bg-[#0D172C]/80'
                                         }`}
                                 >
                                     {isVideoCompleted(video.id) ? (

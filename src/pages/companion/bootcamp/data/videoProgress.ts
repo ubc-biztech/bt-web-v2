@@ -35,7 +35,7 @@ export interface VideoProgress {
     const progress = getVideoProgress();
     progress[videoId] = {
       videoId,
-      isCompleted: percentage >= 2, 
+      isCompleted: percentage >= 80, 
       watchedPercentage: percentage,
       lastWatchedAt: new Date().toISOString()
     };

@@ -91,8 +91,19 @@ const BootCamp = () => {
               })()}
             </div>
 
-            <h3 className="text-[20px] font-urbanist font-semibold text-white mb-2">Introduction to HTML</h3>
-            <p className="text-[14px] text-[#A2B1D5] font-urbanist font-medium mb-6">{completedVideos}/{totalVideos}</p>
+            {(() => {
+              const nextVideo = videos.find(v => !isVideoCompleted(v.id)) || videos[0];
+              return nextVideo ? (
+                <>
+                  <h3 className="text-[20px] font-urbanist font-semibold text-white mb-2">
+                    {nextVideo.title}
+                  </h3>
+                  <p className="text-[14px] text-[#A2B1D5] font-urbanist font-medium mb-6">
+                    {completedVideos}/{totalVideos}
+                  </p>
+                </>
+              ) : null;
+            })()}
 
             <button
               onClick={handleOpenCourse}
