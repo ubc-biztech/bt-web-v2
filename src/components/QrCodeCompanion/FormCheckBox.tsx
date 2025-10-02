@@ -31,7 +31,7 @@ const CheckBox: React.FC<{
             <FormDescription className="text-white">
               {description}
             </FormDescription>
-            <FormMessage className="text-baby-blue text-xs" />
+            <FormMessage className="text-bt-blue-100 text-xs" />
           </div>
         </FormItem>
       )}

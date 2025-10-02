@@ -12,12 +12,14 @@ import { Table } from "@tanstack/react-table";
 import CancelIcon from "../../../public/assets/icons/cancel_icon.svg";
 import TeamsIcon from "../../../public/assets/icons/teams_icon.svg";
 import MassUpdateIcon from "../../../public/assets/icons/massupdate_icon.svg";
+import { FilePenLine, UsersRound, Trash2 } from "lucide-react";
 
 interface TableFilterButtonsProps {
   selectedRowsCount: number;
   table: Table<any>;
   setShowMassUpdateStatus: (show: boolean) => void;
   setShowCreateTeam: (show: boolean) => void;
+  setShowDeleteConfirm: (show: boolean) => void;
 }
 
 export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
@@ -25,6 +27,7 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
   table,
   setShowMassUpdateStatus,
   setShowCreateTeam,
+  setShowDeleteConfirm,
 }) => {
   const handleIconClick = (action: string) => {
     const selectedRows = table.getFilteredSelectedRowModel().rows;
@@ -33,6 +36,8 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
       setShowCreateTeam(true);
     } else if (action === "massUpdateStatus") {
       setShowMassUpdateStatus(true);
+    } else if (action === "delete") {
+      setShowDeleteConfirm(true);
     }
 
     // You can pass the selected rows to the parent component if needed
@@ -40,43 +45,15 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
   };
 
   return (
-    <div className="bg-[#95AADC] rounded-md flex items-center space-x-5">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <Button
-              variant="ghost"
-              onClick={() => table.toggleAllRowsSelected(false)}
-            >
-              <Image
-                src={CancelIcon}
-                alt="Deselect Icon"
-                width={15}
-                height={15}
-                className={"min-w-3"}
-              />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Deselect</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <span className="text-login-form-card">{selectedRowsCount} Selected</span>
-      <div className="flex flex-row">
+    <div className="bg-[#2E4AA6] rounded-md flex items-center px-4 h-10 gap-4 shadow-inner-white-md">
+      <span className="text-white font-semibold text-nowrap">
+        {selectedRowsCount} Rows Selected
+      </span>
+      <div className="flex flex-row gap-4">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Button
-                variant="ghost"
-                onClick={() => handleIconClick("addToTeam")}
-              >
-                <Image
-                  src={TeamsIcon}
-                  alt="Teams Icon"
-                  width={25}
-                  height={25}
-                  className={"min-w-6"}
-                />
-              </Button>
+              <UsersRound onClick={() => handleIconClick("addToTeam")} />
             </TooltipTrigger>
             <TooltipContent>Add to Team</TooltipContent>
           </Tooltip>
@@ -84,20 +61,19 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
-              <Button
-                variant="ghost"
+              <FilePenLine
                 onClick={() => handleIconClick("massUpdateStatus")}
-              >
-                <Image
-                  src={MassUpdateIcon}
-                  alt="Mass Update Icon"
-                  width={25}
-                  height={25}
-                  className={"min-w-6"}
-                />
-              </Button>
+              />
             </TooltipTrigger>
             <TooltipContent>Mass Update Status</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Trash2 onClick={() => handleIconClick("delete")} />
+            </TooltipTrigger>
+            <TooltipContent>Delete Selected</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>

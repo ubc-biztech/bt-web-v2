@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { resetPassword, confirmResetPassword } from "@aws-amplify/auth";
 import { IoArrowBack } from "react-icons/io5"; // Importing an arrow icon from react-icons
+import Image from "next/image";
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -69,11 +70,13 @@ export default function ForgotPassword() {
 
   return (
     <>
-      <div className="flex min-h-screen flex-1 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 bg-bt-blue-600">
         <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
           <div className="mx-auto w-full max-w-sm lg:w-96">
-            <img
-              className="mx-auto h-24 w-auto"
+            <Image
+              className="mx-auto w-auto"
+              height={96}
+              width={96}
               src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
               alt="BizTech Logo"
             />
@@ -87,7 +90,7 @@ export default function ForgotPassword() {
                 <div className="mt-4">
                   <input
                     type="email"
-                    className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
+                    className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
                     placeholder="user@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -97,7 +100,7 @@ export default function ForgotPassword() {
                 <button
                   onClick={handleSendCode}
                   disabled={isSendingCode}
-                  className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-dark-green"
+                  className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-bt-green-700"
                 >
                   {isSendingCode ? "Sending Code..." : "Send Reset Code"}
                 </button>
@@ -111,7 +114,7 @@ export default function ForgotPassword() {
                 <div className="mt-4">
                   <input
                     type="text"
-                    className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
+                    className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
                     placeholder="Verification code"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
@@ -120,7 +123,7 @@ export default function ForgotPassword() {
                 <div className="mt-4">
                   <input
                     type="password"
-                    className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
+                    className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
                     placeholder="New password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -129,7 +132,7 @@ export default function ForgotPassword() {
                 <div className="mt-4">
                   <input
                     type="password"
-                    className="text-black block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
+                    className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm placeholder pl-4"
                     placeholder="Confirm new password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -139,7 +142,7 @@ export default function ForgotPassword() {
                 <button
                   onClick={handleConfirmPassword}
                   disabled={isConfirming}
-                  className="mt-4 w-full rounded-md bg-biztech-green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-dark-green"
+                  className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-bt-green-700"
                 >
                   {isConfirming ? "Resetting Password..." : "Confirm Password"}
                 </button>
@@ -153,7 +156,7 @@ export default function ForgotPassword() {
             {/* Back to Login button */}
             <div className="mt-6">
               <button
-                className="flex items-center justify-center text-biztech-green font-semibold hover:text-dark-green"
+                className="flex items-center justify-center text-bt-green-300 font-semibold hover:text-bt-green-700"
                 onClick={() => router.push("/login")}
               >
                 <IoArrowBack className="mr-2" /> {/* Back arrow icon */}
@@ -163,10 +166,11 @@ export default function ForgotPassword() {
           </div>
         </div>
         <div className="relative hidden w-0 flex-1 lg:block">
-          <img
+          <Image
             alt=""
             src="https://i.postimg.cc/zq7TT43B/DSC01353-1.jpg"
             className="absolute inset-0 h-full w-full object-cover"
+            fill
           />
         </div>
       </div>

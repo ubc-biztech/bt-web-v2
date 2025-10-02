@@ -10,7 +10,7 @@ const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* Major Card */}
           {userData?.major && (
             <div>
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 MAJOR
               </p>
               <p className="text-xs sm:text-sm font-satoshi">
@@ -22,7 +22,7 @@ const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* Year Card */}
           {userData?.year && (
             <div>
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 YEAR
               </p>
               <p className="text-xs sm:text-sm font-satoshi">{userData.year}</p>
@@ -32,7 +32,7 @@ const AttendeeInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
           {/* Hobby Card */}
           {userData?.pronouns && (
             <div className="col-span-2">
-              <p className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+              <p className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
                 PRONOUNS
               </p>
               <p className="text-xs sm:text-sm font-satoshi">

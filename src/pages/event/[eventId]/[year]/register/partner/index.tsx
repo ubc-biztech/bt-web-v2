@@ -4,6 +4,7 @@ import { QuestionTypes } from "@/constants/questionTypes";
 import { fetchBackend } from "@/lib/db";
 import { ApplicationStatus, BiztechEvent, DBRegistrationStatus } from "@/types";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -97,11 +98,12 @@ export default function PartnerFormRegister() {
     return (
       <div className="flex text-white">
         <div className="space-y-4 p-4 max-w-lg mx-auto py-10">
-          <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+          <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
             {event?.imageUrl ? (
-              <img
+              <Image
                 src={event.imageUrl}
                 alt="Event Cover"
+                fill
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -129,7 +131,7 @@ export default function PartnerFormRegister() {
   }
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen">
       <div className="mx-auto flex flex-col">
         {event && event.partnerRegistrationQuestions && (
           <PartnerEventRegistrationForm onSubmit={handleSubmit} event={event} />

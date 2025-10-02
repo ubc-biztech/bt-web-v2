@@ -43,6 +43,8 @@ export enum DBRegistrationStatus {
   CHECKED_IN = "checkedIn",
   CANCELLED = "cancelled",
   INCOMPLETE = "incomplete",
+  ACCEPTED = "accepted",
+  ACCEPTED_COMPLETE = "acceptedComplete",
 }
 
 export type BasicInformation = {
@@ -62,6 +64,19 @@ export type AttendeeBasicInformation = BasicInformation & {
   diet: string;
   heardFrom: string;
   faculty: string;
+};
+
+export type MembershipBasicInformation = BasicInformation & {
+  membershipType: string;
+  year: string;
+  faculty: string;
+  major: string;
+  pronouns: string;
+  dietaryRestrictions: string;
+  isInternational: string;
+  wasPreviousMember: string;
+  topicsOfInterest: string;
+  heardFrom: string;
 };
 
 export type Registration = {

@@ -45,7 +45,7 @@ const AdditionalLinks: FC<AdditionalLinksProps> = ({ userData }) => {
   return (
     <AnimatedBorder className="w-full mb-3 sm:mb-4">
       <div className="rounded-lg p-3 sm:p-4">
-        <span className="text-xs sm:text-sm text-light-grey font-redhat mb-1 sm:mb-2">
+        <span className="text-xs sm:text-sm text-neutral-200 font-redhat mb-1 sm:mb-2">
           ADDITIONAL LINKS
         </span>
         <div className="flex justify-between items-center">{renderLinks()}</div>

@@ -5,7 +5,6 @@ import { EventForm } from "@/components/Events/EventForm";
 import { EventFormSchema } from "@/components/Events/EventFormSchema";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
-import { v4 as uuidv4 } from "uuid";
 
 const EditEventPage: NextPage = () => {
   const { toast } = useToast();
@@ -16,7 +15,7 @@ const EditEventPage: NextPage = () => {
 
   // Transform backend question format to frontend format
   const transformBackendQuestion = (q: any) => ({
-    id: uuidv4(), // Generate new ID for form management
+    id: q.questionId,
     type: q.type,
     question: q.label, // Convert back to v2 format
     required: q.required,
@@ -114,17 +113,20 @@ const EditEventPage: NextPage = () => {
     }
 
     // Transform custom questions to match v1 format
-    const transformCustomQuestion = (q: any) => ({
-      type: q.type,
-      label: q.question,
-      choices: q.options.join(","),
-      required: q.required,
-      charLimit: q.charLimit || undefined,
-      questionImageUrl: q.questionImageUrl || "",
-      participantCap:
-        q.type === "WORKSHOP_SELECTION" ? q.participantCap : undefined,
-      isSkillsQuestion: q.type === "SKILLS" ? true : undefined,
-    });
+    const transformCustomQuestion = (q: any) => {
+      return {
+        type: q.type,
+        questionId: q.id,
+        label: q.question,
+        choices: q.options.join(","),
+        required: q.required,
+        charLimit: q.charLimit || undefined,
+        questionImageUrl: q.questionImageUrl || "",
+        participantCap:
+          q.type === "WORKSHOP_SELECTION" ? q.participantCap : undefined,
+        isSkillsQuestion: q.type === "SKILLS" ? true : undefined,
+      };
+    };
 
     const body = {
       ename: data.eventName,
@@ -179,7 +181,7 @@ const EditEventPage: NextPage = () => {
   };
 
   return (
-    <div className="bg-primary-color min-h-screen">
+    <div className="bg-bt-blue-600 min-h-screen">
       <div className="mx-auto flex flex-col">
         {isLoading ? (
           <div>Loading...</div>

@@ -34,6 +34,7 @@ import { CalendarIcon, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
+import Image from "next/image";
 
 const customQuestionSchema = z.object({
   type: z.enum(["text", "checkbox", "select", "upload", "workshopSelection"]),
@@ -127,11 +128,12 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <TabsContent value="member">
                     <div className="space-y-4 p-4">
                       {/* Event Image */}
-                      <div className="aspect-video bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
                         {form.watch("imageUrl") ? (
-                          <img
-                            src={form.watch("imageUrl")}
+                          <Image
+                            src={form.watch("imageUrl") || ""}
                             alt="Event Cover"
+                            fill
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -148,7 +150,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       </h3>
 
                       {/* Event Description */}
-                      <p className="text-biztech-green whitespace-pre-line">
+                      <p className="text-bt-green-300 whitespace-pre-line">
                         {form.watch("description") ||
                           "Event description will appear here."}
                       </p>
@@ -487,7 +489,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               <div className="space-y-6 bg-[#253251] container py-10">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-white">Create New Event</h3>
-                  <Button type="submit" className="bg-biztech-green">
+                  <Button type="submit" className="bg-bt-green-300">
                     SAVE
                   </Button>
                 </div>
@@ -536,7 +538,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <h4 className="text-baby-blue">Event Cover Photo</h4>
+                      <h4 className="text-bt-blue-100">Event Cover Photo</h4>
                       <FormControl>
                         <Input placeholder="Image URL*" {...field} />
                       </FormControl>
@@ -545,7 +547,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   )}
                 />
 
-                <h4 className="text-baby-blue">Event Information</h4>
+                <h4 className="text-bt-blue-100">Event Information</h4>
 
                 <FormField
                   control={form.control}
@@ -622,7 +624,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal bg-[#3A496D] font-poppins text-white",
+                                  "w-full pl-3 text-left font-normal bg-[#3A496D] text-white",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -660,7 +662,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-full pl-3 text-left font-normal  bg-[#3A496D] font-poppins text-white",
+                                  "w-full pl-3 text-left font-normal  bg-[#3A496D] text-white",
                                   !field.value && "text-muted-foreground",
                                 )}
                               >
@@ -737,7 +739,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 />
 
                 <div>
-                  <h4 className="text-baby-blue">
+                  <h4 className="text-bt-blue-100">
                     Attendee Form Custom Questions
                   </h4>
                   {customQuestions?.map((field, index) => (

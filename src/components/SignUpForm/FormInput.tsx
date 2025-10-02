@@ -56,21 +56,22 @@ interface FormSelectProps {
 
 export const FormInput = React.forwardRef<HTMLInputElement, FormInputProps>(
   ({ className, type, title, field, ...props }, ref) => (
-    <FormItem className="w-full font-poppins">
-      <FormLabel className="text-baby-blue">{title}</FormLabel>
+    <FormItem className="w-full ">
+      <FormLabel className="text-bt-blue-0">{title}</FormLabel>
       <FormControl>
         <Input
           type={type}
           className={cn(
-            "bg-signup-input-bg border-2 border-signup-input-border mt-2",
+            "bg-bt-blue-300 border-2 border-bt-blue-200 mt-2",
             "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
             "focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:shadow-none",
-            "focus:border-biztech-green focus:border-opacity-50",
+            "focus:border-bt-green-300 focus:border-opacity-50",
             "transition-colors duration-200",
             className,
           )}
           ref={ref}
           {...field}
+          {...props}
         />
       </FormControl>
       <FormMessage />
@@ -84,9 +85,7 @@ export const FormRadio = React.forwardRef<HTMLDivElement, FormRadioProps>(
   ({ items, title, field }, ref) => {
     return (
       <FormItem className="space-y-3 mr-auto" ref={ref}>
-        <FormLabel className="text-baby-blue font-poppins mr-auto">
-          {title}
-        </FormLabel>
+        <FormLabel className="text-bt-blue-100  mr-auto">{title}</FormLabel>
         <FormControl>
           <RadioGroup
             onValueChange={field.onChange}
@@ -107,7 +106,7 @@ export const FormRadio = React.forwardRef<HTMLDivElement, FormRadioProps>(
                     <div className="h-2.5 w-2.5 rounded-full bg-white transform scale-0 transition-transform duration-200 ease-in-out data-[state=checked]:scale-100" />
                   </RadioGroupItem>
                 </FormControl>
-                <FormLabel className="font-poppins font-medium text-white-blue cursor-pointer">
+                <FormLabel className=" font-medium text-bt-blue-0 cursor-pointer">
                   {item.label}
                 </FormLabel>
               </FormItem>
@@ -127,7 +126,7 @@ export const FormMultiSelect = React.forwardRef<
 >(({ title, items, field }, ref) => {
   return (
     <div className="mr-auto" ref={ref}>
-      <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>
+      <FormLabel className="text-bt-blue-100 ">{title}</FormLabel>
       {items.map((item) => (
         <FormItem
           key={item.value}
@@ -150,12 +149,12 @@ export const FormMultiSelect = React.forwardRef<
               className="border-2 mr-1"
             />
           </FormControl>
-          <FormLabel className="font-poppins font-medium text-white-blue cursor-pointer">
+          <FormLabel className=" font-medium text-bt-blue-0 cursor-pointer">
             {item.label}
           </FormLabel>
         </FormItem>
       ))}
-      <FormMessage />
+      <FormMessage className="mt-3" />
     </div>
   );
 });
@@ -167,13 +166,13 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
     return (
       <FormItem className="w-full">
         <Select onValueChange={field.onChange} defaultValue={field.value}>
-          <FormLabel className="text-baby-blue font-poppins">{title}</FormLabel>
+          <FormLabel className="text-bt-blue-100 ">{title}</FormLabel>
           <FormControl
             className={cn(
-              "bg-signup-input-bg border-2 border-signup-input-border mt-2",
-              "text-white-blue",
+              "bg-bt-blue-300 border-2 border-bt-blue-200 mt-2",
+              "text-bt-blue-0",
               "transition-colors duration-200",
-              "focus:border-biztech-green focus:border-opacity-50",
+              "focus:border-bt-green-300 focus:border-opacity-50",
               "focus:ring-0 focus:ring-offset-0 focus:outline-none focus:shadow-none",
             )}
           >
@@ -181,7 +180,7 @@ export const FormSelect = React.forwardRef<HTMLDivElement, FormSelectProps>(
               <SelectValue placeholder="-Select-" />
             </SelectTrigger>
           </FormControl>
-          <SelectContent>
+          <SelectContent className="bg-bt-blue-300">
             {items.map((item) => (
               <SelectItem key={item.value} value={item.value}>
                 {item.label}

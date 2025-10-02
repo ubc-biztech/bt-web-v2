@@ -1,5 +1,4 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import Image from "next/image";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -22,8 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { SearchIcon } from "lucide-react";
-import { Input as InputAlt } from "@/components/RegistrationTable/Input";
+import { Filter, Search } from "lucide-react";
 import { TableFilterButtons } from "./TableFilterButtons";
 import { TableIconButtons } from "./TableIconButtons";
 import { Table } from "@tanstack/react-table";
@@ -33,10 +31,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input as SearchBar } from "@/components/RegistrationTable/Input";
+import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-import FilterIcon from "../../../public/assets/icons/filter_icon.svg";
 
 interface TableHeaderProps {
   table: Table<any>;
@@ -46,6 +44,10 @@ interface TableHeaderProps {
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
   refreshTable: () => Promise<void>;
   onFilterChange: (value: SelectValue) => void;
+  globalFilter: any;
+  setGlobalFilter: (updater: any) => void;
+  eventId: string;
+  year: string;
 }
 
 type SelectValue = "attendees" | "partners" | "waitlisted";
@@ -58,10 +60,15 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   setQrReaderToggled,
   refreshTable,
   onFilterChange,
+  globalFilter,
+  setGlobalFilter,
+  eventId,
+  year,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
   const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
@@ -93,16 +100,32 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
   return (
     <div className="flex flex-col xl:flex-row items-center justify-between">
-      <div className="flex items-center space-x-2 relative">
-        <InputAlt
-          startIcon={SearchIcon}
-          placeholder="Search in table"
-          value={(table.getColumn("id")?.getFilterValue() as string) ?? ""}
-          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-            table.getColumn("id")?.setFilterValue(event.target.value)
-          }
-          className="bg-white-blue text-login-form-card"
+      <div className="flex items-center relative gap-2">
+        {selectedRowsCount > 0 && (
+          <TableFilterButtons
+            selectedRowsCount={selectedRowsCount}
+            table={table}
+            setShowMassUpdateStatus={setShowMassUpdateStatus}
+            setShowCreateTeam={setShowCreateTeam}
+            setShowDeleteConfirm={setShowDeleteConfirm}
+          />
+        )}
+
+        <TableIconButtons
+          isQrReaderToggled={isQrReaderToggled}
+          setQrReaderToggled={setQrReaderToggled}
+          refreshTable={refreshTable}
         />
+
+        <SearchBar
+          startIcon={Search}
+          placeholder="Search by keyword..."
+          value={globalFilter}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setGlobalFilter(event.target.value)
+          }
+          className="bg-white shadow-inner-blue-concave"
+        ></SearchBar>
 
         <TooltipProvider>
           <Tooltip>
@@ -111,16 +134,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="bg-[#6578A8] rounded-md"
+                    className="bg-[#6578A8] rounded-md px-2"
                     ref={filterButtonRef}
                   >
-                    <Image
-                      src={FilterIcon}
-                      alt="Filter Icon"
-                      width={25}
-                      height={25}
-                      className={"min-w-6"}
-                    />
+                    <Filter />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={"bg-[#485A85]"}>
@@ -160,23 +177,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         </TooltipProvider>
       </div>
 
-      {selectedRowsCount > 0 && (
-        <TableFilterButtons
-          selectedRowsCount={selectedRowsCount}
-          table={table}
-          setShowMassUpdateStatus={setShowMassUpdateStatus}
-          setShowCreateTeam={setShowCreateTeam}
-        />
-      )}
-
-      <div className="flex flex-col sm:flex-row items-center justify-between space-x-2">
-        <TableIconButtons
-          isQrReaderToggled={isQrReaderToggled}
-          setQrReaderToggled={setQrReaderToggled}
-          refreshTable={refreshTable}
-        />
+      <div className="flex flex-col sm:flex-row items-center justify-between space-x-2 mt-4 lg:mt-0">
         <Select value={selectedValue} onValueChange={handleSelectChange}>
-          <SelectTrigger className="w-[180px] bg-login-form-card text-white">
+          <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
@@ -191,7 +194,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         open={showMassUpdateStatus}
         onOpenChange={setShowMassUpdateStatus}
       >
-        <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
             <DialogTitle className="text-white">Mass Update Status</DialogTitle>
           </DialogHeader>
@@ -214,26 +217,76 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
           <Select onValueChange={setNewStatus}>
-            <SelectTrigger className="bg-events-active-tab-bg text-white">
+            <SelectTrigger className="bg-bt-blue-400 text-white">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="registered">Registered</SelectItem>
               <SelectItem value="checked-in">Checked-In</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
               <SelectItem value="waitlisted">Waitlisted</SelectItem>
             </SelectContent>
           </Select>
           <Button
             onClick={handleMassUpdate}
-            className="text-login-form-card bg-biztech-green"
+            className="text-bt-blue-400 bg-bt-green-300"
           >
             Update Selection
           </Button>
         </DialogContent>
       </Dialog>
 
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              Delete Selected Registrations
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+
+          <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
+            {getSelectedRows().map((row, index) => (
+              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
+                <span className="text-md font-600">
+                  {row.original.id || row.original.email}
+                </span>
+                <br />
+              </div>
+            ))}
+          </div>
+
+          <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
+
+          <Button
+            onClick={async () => {
+              const rows = getSelectedRows();
+              const ids = rows.map((row: any) => row.original.id);
+              try {
+                await fetchBackend({
+                  endpoint: "/registrations",
+                  method: "DELETE",
+                  data: { ids, eventID: eventId, year: Number(year) },
+                  authenticatedCall: true,
+                });
+              } catch (e) {
+                console.error("Failed to delete registrations", e);
+              } finally {
+                setShowDeleteConfirm(false);
+                await refreshTable();
+                table.resetRowSelection();
+              }
+            }}
+            className="text-bt-blue-400 bg-bt-red-300"
+          >
+            Confirm Delete
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
-        <DialogContent className="max-w-md w-full bg-events-active-tab-bg">
+        <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
             <DialogTitle className="text-white">Create Team</DialogTitle>
           </DialogHeader>
@@ -267,12 +320,12 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               placeholder="Enter team name"
-              className="bg-events-active-tab-bg text-white border-[#8DA1D1]"
+              className="bg-bt-blue-400 text-white border-[#8DA1D1]"
             />
           </div>
           <Button
             onClick={handleCreateTeam}
-            className="text-login-form-card bg-biztech-green"
+            className="text-bt-blue-400 bg-bt-green-300"
           >
             Make Team
           </Button>

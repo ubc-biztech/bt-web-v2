@@ -27,7 +27,6 @@ const BootCamp = () => {
     const nextVideo = videos.find(v => !isVideoCompleted(v.id)) || videos[0];
     router.push(`/companion/bootcamp/videopage?videoId=${nextVideo.id}`);
   }
-
   if (isLoading) {
     return (
       <div className="mt-[-90px]">
@@ -83,7 +82,7 @@ const BootCamp = () => {
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <div className="w-20 h-20 bg-[#1B253D] border border-[#A2B1D5] rounded-full flex items-center justify-center">
                         <div className="w-16 h-16 bg-[#0D172C] rounded-full flex items-center justify-center">
-                          <Play onClick={handleMostRecent} className="w - 8 h-8 text-white ml-1" />
+                          <Play onClick={handleMostRecent} className="w-8 h-8 text-white ml-1" />
                         </div>
                       </div>
                     </div>

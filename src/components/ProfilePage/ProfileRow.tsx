@@ -8,8 +8,8 @@ export const ProfileField = ({
   className?: string;
 }) => {
   return (
-    <div className={`w-1/2 font-poppins ${className}`}>
-      <h6 className="text-baby-blue text-sm">{field}</h6>
+    <div className={`w-1/2 ${className}`}>
+      <h6 className="text-bt-blue-100 text-sm">{field}</h6>
       <p className="text-white text-xs">{value}</p>
     </div>
   );

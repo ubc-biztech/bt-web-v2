@@ -9,6 +9,9 @@ import {
   PlusSquareIcon,
   ScanBarcode,
   UserCircle2,
+  Users,
+  ScanFace,
+  BadgeCheckIcon,
 } from "lucide-react";
 
 export const admin = [
@@ -23,8 +26,13 @@ export const admin = [
     icon: PlusSquareIcon,
   },
   {
+    title: "Manage Members",
+    link: "/admin/manage-members",
+    icon: Users,
+  },
+  {
     title: "Statistics",
-    link: "",
+    link: "/admin/statistics",
     icon: LineChartIcon,
   },
   {
@@ -59,6 +67,14 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
       title: `${isAdmin ? "Admin" : "User"} Profile`,
       link: "/profile",
       icon: UserCircle2,
+    });
+  }
+
+  if (isSignedIn) {
+    links.push({
+      title: "Connections",
+      link: "/connections",
+      icon: ScanFace,
     });
   }
 

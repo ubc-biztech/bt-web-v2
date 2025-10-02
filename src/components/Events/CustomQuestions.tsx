@@ -39,7 +39,7 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
 
   return (
     <div>
-      <h4 className="text-baby-blue">Attendee Form Custom Questions</h4>
+      <h4 className="text-bt-blue-100">Attendee Form Custom Questions</h4>
       <div className="space-y-6">
         {fields.map((field, index) => (
           <CustomQuestionItem

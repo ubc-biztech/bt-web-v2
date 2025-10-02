@@ -8,67 +8,30 @@ interface UserQuestionResponse {
   answer: string;
 }
 
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  school: string;
-  major: string;
-  faculty: string;
+interface BiztechProfile {
+  compositeID: string;
+  profileType: "EXEC" | "ATTENDEE" | "PARTNER";
+  fname: string;
+  lname: string;
+  pronouns: string;
   year: string;
-  hobbies: string[];
-  bio: string;
-  links: {
-    website: string;
-    linkedin: string;
-  };
-  questions: {
-    one: UserQuestionResponse;
-    two: UserQuestionResponse;
-  };
+  major: string;
+  viewableMap: Record<string, boolean>;
+  hobby1?: string;
+  hobby2?: string;
+  funQuestion1?: string;
+  funQuestion2?: string;
+  linkedIn?: string;
+  profilePictureURL?: string;
+  additionalLink?: string;
+  description?: string;
 }
 
 const HobbyTag = ({ hobby }: { hobby: string }) => (
-  <span className="text-biztech-green border-biztech-green border bg-biztech-green/10 px-3 py-1 rounded-full text-sm font-medium">
+  <span className="text-bt-green-300 border-bt-green-300 border bg-bt-green-300/10 px-3 py-1 rounded-full text-sm font-medium">
     {hobby}
   </span>
 );
-
-interface IconButtonProps {
-  label: string;
-  subtitle?: string;
-  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  iconPosition?: "left" | "right";
-  onClick?: () => void;
-  className?: string;
-}
-
-const IconButton: React.FC<IconButtonProps> = ({
-  label,
-  subtitle,
-  icon: Icon = Share,
-  iconPosition = "left",
-  onClick,
-  className = "",
-}) => {
-  const baseClasses =
-    "px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-pale-blue shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-navbar-tab-hover-bg border-border-blue border";
-
-  return (
-    <Button
-      className={cn(
-        `${baseClasses} ${className}`,
-        iconPosition === "right" && "flex-row-reverse",
-      )}
-      onClick={onClick}
-    >
-      <Icon />
-      <div className="text-left text-xs">
-        {label}
-        {subtitle && <p className="text-sm opacity-75">{subtitle}</p>}
-      </div>
-    </Button>
-  );
-};
 
 const DisplayUserField = ({
   icon: Icon,
@@ -81,8 +44,8 @@ const DisplayUserField = ({
 }) => {
   return (
     <div className="flex items-center gap-2 font-medium">
-      <Icon height={16} width={16} className="text-pale-blue" />
-      <span className="text-sm text-pale-blue inline-flex gap-2">
+      <Icon height={16} width={16} className="text-bt-blue-0" />
+      <span className="text-sm text-bt-blue-0 inline-flex gap-2">
         {fieldName}:<p className="text-white">{fieldValue}</p>
       </span>
     </div>
@@ -100,7 +63,7 @@ const LinkButton = ({
 }) => {
   return (
     <Link href={url} target="_blank" className="w-full">
-      <Button className="w-full px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-pale-blue shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-navbar-tab-hover-bg border-border-blue border">
+      <Button className="w-full px-4 py-2 h-fit rounded-lg flex items-center gap-2 transition-colors text-bt-blue-0 shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] bg-bt-blue-300 border-bt-blue-100 border hover:bg-bt-blue-400">
         <LinkIcon className="flex-shrink-0" />
         <div className="text-left min-w-0 flex-1">
           <div className="truncate">{label}</div>
@@ -111,5 +74,5 @@ const LinkButton = ({
   );
 };
 
-export type { UserQuestionResponse, UserProfile };
-export { HobbyTag, IconButton, LinkButton, DisplayUserField };
+export type { UserQuestionResponse, BiztechProfile };
+export { HobbyTag, LinkButton, DisplayUserField };

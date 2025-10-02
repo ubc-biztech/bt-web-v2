@@ -11,11 +11,11 @@ interface IconButtonProps {
   onClick?: () => void;
   variant?:
     | "default"
-    | "destructive"
     | "outline"
-    | "secondary"
-    | "ghost"
-    | "link";
+    | "green"
+    | "green-outline"
+    | "destructive"
+    | "destructive-outline";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   disabled?: boolean;
@@ -27,7 +27,7 @@ export function IconButton({
   label,
   iconDirection = "left",
   onClick,
-  variant = "ghost",
+  variant = "default",
   size = "icon",
   className,
   disabled,

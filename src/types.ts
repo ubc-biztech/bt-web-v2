@@ -24,6 +24,7 @@ export type BiztechEvent = {
   isCompleted: boolean;
   hasDomainSpecificQuestions?: boolean;
   counts?: any;
+  registrationQuestionsAlternate?: RegistrationQuestion[] | string;
 };
 
 export type RegistrationQuestion = {
@@ -70,12 +71,15 @@ export enum DBRegistrationStatus {
   CHECKED_IN = "checkedIn",
   CANCELLED = "cancelled",
   INCOMPLETE = "incomplete",
+  ACCEPTED = "accepted",
+  ACCEPTED_PENDING = "acceptedPending",
+  ACCEPTED_COMPLETE = "acceptedComplete",
 }
 
 export enum RegistrationStatusField {
   WAITLISTED = "Waitlisted",
   REGISTERED = "Registered",
-  CHECKED_IN = "Checked In",
+  CHECKED_IN = "Checked-In",
   CANCELLED = "Cancelled",
   INCOMPLETE = "Incomplete",
 }
@@ -165,4 +169,27 @@ export type BackendProfile = {
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
+};
+
+export type Member = {
+  id: string;
+  admin: boolean;
+  createdAt: number;
+  diet: string;
+  discordId?: string;
+  education: string;
+  faculty: string;
+  firstName: string;
+  heardFrom: string;
+  international: boolean;
+  lastName: string;
+  major: string;
+  prevMember: boolean;
+  profileID: string;
+  pronouns: string;
+  studentNumber: string;
+  topics: string;
+  university: string;
+  updatedAt: number;
+  year: string;
 };

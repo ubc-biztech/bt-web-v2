@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { Amplify } from "aws-amplify";
-import { fetchUserAttributes } from "@aws-amplify/auth";
-import * as Yup from "yup";
-import { useForm, FormProvider, Controller } from "react-hook-form";
-import outputs from "../../amplify_outputs.json";
+import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
 import {
   FormInput,
@@ -13,72 +11,166 @@ import {
   FormSelect,
 } from "../components/SignUpForm/FormInput";
 import Link from "next/link";
+import PageLoadingState from "@/components/Common/PageLoadingState";
+import { useForm, FormProvider } from "react-hook-form";
+import { FormField, FormItem } from "@/components/ui/form";
 
 interface MembershipFormValues {
   email: string;
   firstName: string;
   lastName: string;
-  studentNumber: string;
+  studentNumber?: string;
+  education: string;
   pronouns: string;
   levelOfStudy: string;
   faculty: string;
   major: string;
   internationalStudent: string;
   previousMember: string;
-  dietaryRestrictions?: string;
+  dietaryRestrictions: string;
   referral: string;
   topics: string[];
 }
 
-Amplify.configure(outputs);
+const validationSchema = z
+  .object({
+    email: z.string().email("Invalid email address"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    education: z.string().min(1, "Education selection is required"),
+    studentNumber: z.string().optional(),
+    pronouns: z.string().min(1, "Please select your pronouns"),
+    levelOfStudy: z.string().min(1, "Level of study is required"),
+    faculty: z.string().min(1, "Faculty is required"),
+    major: z.string().min(1, "Major is required"),
+    internationalStudent: z
+      .string()
+      .min(1, "Please specify if you are an international student"),
+    previousMember: z
+      .string()
+      .min(1, "Please specify if you were a previous member"),
+    dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
+    referral: z.string().min(1, "Referral source is required"),
+    topics: z.array(z.string()),
+  })
+  .refine(
+    (data) =>
+      data.education === "UBC"
+        ? !!data.studentNumber && /^\d{8}$/.test(data.studentNumber)
+        : true,
+    {
+      message: "Student number must be an 8 digit number for UBC students",
+      path: ["studentNumber"],
+    },
+  );
 
-const Membership = () => {
+const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [isUser, setIsUser] = useState(false);
 
-  const methods = useForm<MembershipFormValues>();
+  const router = useRouter();
+  const hasRedirectedRef = useRef(false); // prevent double-redirect
+
+  const methods = useForm<z.infer<typeof validationSchema>>({
+    resolver: zodResolver(validationSchema),
+    defaultValues: {
+      email: "",
+      firstName: "",
+      lastName: "",
+      education: "",
+      studentNumber: "",
+      pronouns: "",
+      levelOfStudy: "",
+      faculty: "",
+      major: "",
+      internationalStudent: "",
+      previousMember: "",
+      dietaryRestrictions: "None",
+      referral: "",
+      topics: [],
+    },
+  });
 
   useEffect(() => {
-    const getUserEmail = async () => {
+    let cancelled = false;
+
+    const checkUserAndGetEmail = async () => {
+      if (!router.isReady) return;
+
+      // auth check, should redirect to /login on error
       try {
-        const currentUser = await fetchUserAttributes();
-        if (currentUser) {
-          const userEmail = currentUser.email;
-          if (userEmail) {
-            setEmail(userEmail);
+        // 1. sign-in check
+        const session = await fetchAuthSession();
+        const isSignedIn = !!session?.tokens?.accessToken;
+        if (!isSignedIn) {
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace("/login");
           }
+          return;
         }
+
+        // 2.now safe to read attributes
+        const attributes = await fetchUserAttributes();
+        const userEmail = attributes?.email || "";
+        if (!userEmail) {
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace("/login");
+          }
+          return;
+        }
+
+        setEmail(userEmail);
+        methods.setValue("email", userEmail);
       } catch (error) {
-        console.error("Failed to fetch user attributes:", error);
-      } finally {
+        // Treat any error as unauthenticated -> go to login
+        if (!hasRedirectedRef.current) {
+          hasRedirectedRef.current = true;
+          await router.replace("/login");
+        }
+        return;
+      }
+
+      // backend profile check, should NOT redirect to /login on error
+      try {
+        // 3.backend profile/membership
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
+
+        if (userProfile?.isMember) {
+          const redirectUrl = (router.query.redirect as string) || "/";
+          if (!hasRedirectedRef.current) {
+            hasRedirectedRef.current = true;
+            await router.replace(redirectUrl);
+          }
+          return;
+        }
+
+        // Not a member -> render form
+        setIsUser(true);
         setLoading(false);
+      } catch (error) {
+        // Don't redirect, avoid infinite loop
+      } finally {
+        if (!cancelled) {
+          const t = setTimeout(() => setLoading(false), 1000);
+          return () => clearTimeout(t);
+        }
       }
     };
 
-    getUserEmail();
-  }, []);
-
-  const validationSchema = Yup.object({
-    firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().required("Last name is required"),
-    studentNumber: Yup.string().required("Student number is required"),
-    pronouns: Yup.string().required("Please select your pronouns"),
-    levelOfStudy: Yup.string().required("Level of study is required"),
-    faculty: Yup.string().required("Faculty is required"),
-    major: Yup.string().required("Major is required"),
-    internationalStudent: Yup.string().required(
-      "Please specify if you are an international student",
-    ),
-    previousMember: Yup.string().required(
-      "Please specify if you were a previous member",
-    ),
-    dietaryRestrictions: Yup.string().required(
-      "Dietary restrictions are required",
-    ),
-    referral: Yup.string().required("Referral source is required"),
-  });
+    checkUserAndGetEmail();
+    const safety = setTimeout(() => setLoading(false), 8000);
+    return () => {
+      cancelled = true;
+      clearTimeout(safety);
+    };
+  }, [router, methods]);
 
   const onSubmit = async (values: MembershipFormValues) => {
     setIsSubmitting(true);
@@ -90,7 +182,7 @@ const Membership = () => {
       lname: values.lastName,
       studentId: values.studentNumber,
       gender: values.pronouns,
-      education: "University",
+      education: values.education,
       faculty: values.faculty,
       major: values.major,
       diet: values.dietaryRestrictions || "None",
@@ -98,32 +190,59 @@ const Membership = () => {
       international: values.internationalStudent === "Yes",
       prev_member: values.previousMember === "Yes",
       isMember: true,
-      admin: email.endsWith("@ubcbiztech.com"),
+      admin: email.toLowerCase().endsWith("@ubcbiztech.com"),
     };
 
     try {
       if (userBody.admin) {
-        await fetchBackend({
-          endpoint: "/users",
-          method: "POST",
-          data: userBody,
-        });
-        router.push(`/signup/success/UserMember/${email}`);
+        await Promise.all([
+          fetchBackend({
+            endpoint: "/members",
+            method: "POST",
+            data: {
+              email: userBody.email,
+              education: userBody.education,
+              first_name: userBody.fname,
+              last_name: userBody.lname,
+              pronouns: userBody.gender,
+              student_number: userBody.studentId,
+              faculty: userBody.faculty,
+              year: userBody.year,
+              major: userBody.major,
+              prev_member: userBody.prev_member,
+              international: userBody.international,
+              topics: topicsString,
+              heard_from: values.referral,
+              diet: userBody.diet,
+              admin: userBody.admin,
+            },
+          }),
+          fetchBackend({
+            endpoint: isUser ? `/users/${userBody.email}` : "/users",
+            method: isUser ? "PATCH" : "POST",
+            data: { ...userBody, admin: undefined },
+          }),
+        ]);
+
+        await fetchBackend({ endpoint: "/profiles", method: "POST" });
+        router.push(`/`);
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
           paymentImages: ["https://imgur.com/TRiZYtG.png"],
-          paymentType: "OAuthMember",
-          success_url: `${
+          paymentType: isUser ? "Member" : "OAuthMember",
+          success_url:
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
-              : "https://app.ubcbiztech.com/"
-          }signup/success/Member/${email}`,
-          cancel_url: `${
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
+                ? "https://dev.v2.ubcbiztech.com/"
+                : "https://app.ubcbiztech.com/",
+          cancel_url:
+            (process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
               ? "http://localhost:3000/"
-              : "https://app.ubcbiztech.com/"
-          }signup`,
+              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
+                ? "https://dev.v2.ubcbiztech.com/"
+                : "https://app.ubcbiztech.com/") + "membership",
           education: userBody.education,
           student_number: userBody.studentId,
           fname: userBody.fname,
@@ -157,12 +276,16 @@ const Membership = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <PageLoadingState />
+      </div>
+    );
   }
 
   return (
     <FormProvider {...methods}>
-      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-login-page-bg">
+      <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-bt-blue-600">
         <form
           className="max-w-xl mx-auto mt-12 px-4"
           onSubmit={methods.handleSubmit(onSubmit)}
@@ -176,12 +299,20 @@ const Membership = () => {
                 Create an account to sign up for our events and become a BizTech
                 member.
               </p>
-              <div className="mt-6">
+              <div className="mt-6 flex flex-row gap-4">
+                {/* link back while clearing cookies (avoid being redirected back to membership) */}
                 <Link
-                  href="/login"
-                  className="text-sm leading-6 text-biztech-green underline"
+                  href="/login?clearAuth=1"
+                  className="text-sm leading-6 text-bt-green-300 underline"
                 >
                   Back to Login Page
+                </Link>
+
+                <Link
+                  href="/events"
+                  className="text-sm leading-6 text-bt-green-300 underline"
+                >
+                  Continue as Guest
                 </Link>
               </div>
             </div>
@@ -192,221 +323,294 @@ const Membership = () => {
               </h2>
 
               <div className="mt-10 space-y-8">
-                <Controller
-                  name="email"
+                <FormField
                   control={methods.control}
-                  defaultValue={email}
+                  name="email"
                   render={({ field }) => (
-                    <FormInput
-                      title="Email Address *"
-                      field={field}
-                      type="email"
-                      disabled
-                    />
+                    <FormItem>
+                      <FormInput
+                        title="Email Address *"
+                        field={field}
+                        type="email"
+                        disabled
+                      />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-                  <Controller
-                    name="firstName"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="firstName"
                     render={({ field }) => (
-                      <FormInput
-                        title="First Name *"
-                        field={field}
-                        type="text"
-                      />
+                      <FormItem>
+                        <FormInput
+                          title="First Name *"
+                          field={field}
+                          type="text"
+                        />
+                      </FormItem>
                     )}
                   />
-                  <Controller
-                    name="lastName"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="lastName"
                     render={({ field }) => (
-                      <FormInput
-                        title="Last Name *"
-                        field={field}
-                        type="text"
-                      />
+                      <FormItem>
+                        <FormInput
+                          title="Last Name *"
+                          field={field}
+                          type="text"
+                        />
+                      </FormItem>
                     )}
                   />
                 </div>
 
-                <Controller
-                  name="studentNumber"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="education"
                   render={({ field }) => (
-                    <FormInput
-                      title="Student Number *"
-                      field={field}
-                      type="text"
-                    />
+                    <FormItem>
+                      <FormSelect
+                        title="Education *"
+                        field={field}
+                        items={[
+                          { label: "I'm a UBC student", value: "UBC" },
+                          { label: "I'm a university student", value: "UNI" },
+                          { label: "Not Applicable", value: "NA" },
+                        ]}
+                      />
+                    </FormItem>
                   )}
                 />
 
-                <Controller
-                  name="pronouns"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="studentNumber"
+                  render={({ field }) => {
+                    const education = methods.watch("education");
+                    const isRequired = education === "UBC";
+                    return (
+                      <FormItem>
+                        <FormInput
+                          title={`Student Number${isRequired ? " *" : ""}`}
+                          field={field}
+                          type="text"
+                          placeholder={
+                            isRequired
+                              ? "Enter 8-digit student number"
+                              : "Optional"
+                          }
+                        />
+                      </FormItem>
+                    );
+                  }}
+                />
+
+                <FormField
+                  control={methods.control}
+                  name="pronouns"
                   render={({ field }) => (
-                    <FormRadio
-                      title="Preferred Pronouns *"
-                      field={field}
-                      items={[
-                        { value: "He/Him/His", label: "He/Him/His" },
-                        { value: "She/Her/Hers", label: "She/Her/Hers" },
-                        {
-                          value: "They/Them/Theirs",
-                          label: "They/Them/Theirs",
-                        },
-                      ]}
-                    />
+                    <FormItem>
+                      <FormRadio
+                        title="Preferred Pronouns *"
+                        field={field}
+                        items={[
+                          { value: "He/Him/His", label: "He/Him/His" },
+                          { value: "She/Her/Hers", label: "She/Her/Hers" },
+                          {
+                            value: "They/Them/Theirs",
+                            label: "They/Them/Theirs",
+                          },
+                        ]}
+                      />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                  <Controller
-                    name="levelOfStudy"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="levelOfStudy"
                     render={({ field }) => (
-                      <FormSelect
-                        title="Level of Study *"
-                        field={field}
-                        items={[
-                          { value: "1st Year", label: "1st Year" },
-                          { value: "2nd Year", label: "2nd Year" },
-                          { value: "3rd Year", label: "3rd Year" },
-                          { value: "4th Year", label: "4th Year" },
-                          { value: "5+ Year", label: "5+ Year" },
-                          { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" },
-                        ]}
-                      />
+                      <FormItem>
+                        <FormSelect
+                          title="Level of Study *"
+                          field={field}
+                          items={[
+                            { value: "1st Year", label: "1st Year" },
+                            { value: "2nd Year", label: "2nd Year" },
+                            { value: "3rd Year", label: "3rd Year" },
+                            { value: "4th Year", label: "4th Year" },
+                            { value: "5+ Year", label: "5+ Year" },
+                            { value: "Other", label: "Other" },
+                            {
+                              value: "Not Applicable",
+                              label: "Not Applicable",
+                            },
+                          ]}
+                        />
+                      </FormItem>
                     )}
                   />
-                  <Controller
-                    name="faculty"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="faculty"
                     render={({ field }) => (
-                      <FormSelect
-                        title="Faculty *"
-                        field={field}
-                        items={[
-                          { value: "Arts", label: "Arts" },
-                          { value: "Commerce", label: "Commerce" },
-                          { value: "Science", label: "Science" },
-                          { value: "Engineering", label: "Engineering" },
-                          { value: "Kinesiology", label: "Kinesiology" },
-                          {
-                            value: "Land and Food Systems",
-                            label: "Land and Food Systems",
-                          },
-                          { value: "Forestry", label: "Forestry" },
-                          { value: "Other", label: "Other" },
-                          { value: "Not Applicable", label: "Not Applicable" },
-                        ]}
-                      />
+                      <FormItem>
+                        <FormSelect
+                          title="Faculty *"
+                          field={field}
+                          items={[
+                            { value: "Arts", label: "Arts" },
+                            { value: "Commerce", label: "Commerce" },
+                            { value: "Science", label: "Science" },
+                            { value: "Engineering", label: "Engineering" },
+                            { value: "Kinesiology", label: "Kinesiology" },
+                            {
+                              value: "Land and Food Systems",
+                              label: "Land and Food Systems",
+                            },
+                            { value: "Forestry", label: "Forestry" },
+                            { value: "Other", label: "Other" },
+                            {
+                              value: "Not Applicable",
+                              label: "Not Applicable",
+                            },
+                          ]}
+                        />
+                      </FormItem>
                     )}
                   />
                 </div>
 
-                <Controller
-                  name="major"
+                <FormField
                   control={methods.control}
-                  defaultValue=""
+                  name="major"
                   render={({ field }) => (
-                    <FormInput title="Major *" field={field} type="text" />
+                    <FormItem>
+                      <FormInput title="Major *" field={field} type="text" />
+                    </FormItem>
                   )}
                 />
 
                 <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-                  <Controller
-                    name="internationalStudent"
+                  <FormField
                     control={methods.control}
-                    defaultValue=""
+                    name="internationalStudent"
                     render={({ field }) => (
+                      <FormItem>
+                        <FormSelect
+                          title="Are you an international student? *"
+                          field={field}
+                          items={[
+                            { value: "Yes", label: "Yes" },
+                            { value: "No", label: "No" },
+                          ]}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={methods.control}
+                    name="dietaryRestrictions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormSelect
+                          title="Do you have dietary restrictions?"
+                          field={field}
+                          items={[
+                            { value: "None", label: "None" },
+                            { value: "Vegetarian", label: "Vegetarian" },
+                            { value: "Vegan", label: "Vegan" },
+                            { value: "Gluten-free", label: "Gluten-free" },
+                          ]}
+                        />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={methods.control}
+                  name="previousMember"
+                  render={({ field }) => (
+                    <FormItem>
                       <FormSelect
-                        title="Are you an international student? *"
+                        title="Were you a BizTech member last year? *"
                         field={field}
                         items={[
                           { value: "Yes", label: "Yes" },
                           { value: "No", label: "No" },
                         ]}
                       />
-                    )}
-                  />
-                  <Controller
-                    name="dietaryRestrictions"
-                    control={methods.control}
-                    defaultValue="None"
-                    render={({ field }) => (
-                      <FormSelect
-                        title="Do you have any dietary restrictions?"
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={methods.control}
+                  name="topics"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormMultiSelect
+                        title="Which business or tech career paths are you interested in?"
                         field={field}
                         items={[
-                          { value: "None", label: "None" },
-                          { value: "Vegetarian", label: "Vegetarian" },
-                          { value: "Vegan", label: "Vegan" },
-                          { value: "Gluten-free", label: "Gluten-free" },
+                          {
+                            value: "Software Engineering",
+                            label: "Software Engineering",
+                          },
+                          {
+                            value: "Product Management",
+                            label: "Product Management",
+                          },
+                          { value: "Cyber Security", label: "Cyber Security" },
+                          { value: "Consulting", label: "Consulting" },
+                          {
+                            value: "Data Science & Analytics",
+                            label: "Data Science & Analytics",
+                          },
+                          {
+                            value: "Artificial Intelligence & Machine Learning",
+                            label: "Artificial Intelligence & Machine Learning",
+                          },
+                          {
+                            value: "Entrepreneurship/Startups",
+                            label: "Entrepreneurship/Startups",
+                          },
+                          {
+                            value: "Marketing/Business Development",
+                            label: "Marketing/Business Development",
+                          },
+                          { value: "UX/UI Design", label: "UX/UI Design" },
+                          { value: "Other", label: "Other" },
                         ]}
                       />
-                    )}
-                  />
-                </div>
-
-                <Controller
-                  name="previousMember"
-                  control={methods.control}
-                  defaultValue=""
-                  render={({ field }) => (
-                    <FormSelect
-                      title="Were you a BizTech member last year? *"
-                      field={field}
-                      items={[
-                        { value: "Yes", label: "Yes" },
-                        { value: "No", label: "No" },
-                      ]}
-                    />
+                    </FormItem>
                   )}
                 />
 
-                <Controller
-                  name="topics"
+                <FormField
                   control={methods.control}
-                  defaultValue={[]}
-                  render={({ field }) => (
-                    <FormMultiSelect
-                      title="What topics do you want to see discussed in future events?"
-                      field={field}
-                      items={[
-                        { value: "Cyber Security", label: "Cyber Security" },
-                        { value: "AI", label: "AI" },
-                        { value: "Tech Startups", label: "Tech Startups" },
-                        { value: "eCommerce", label: "eCommerce" },
-                        { value: "Health Tech", label: "Health Tech" },
-                        {
-                          value: "Careers in the Tech Industry",
-                          label: "Careers in the Tech Industry",
-                        },
-                      ]}
-                    />
-                  )}
-                />
-
-                <Controller
                   name="referral"
-                  control={methods.control}
-                  defaultValue=""
                   render={({ field }) => (
-                    <FormInput
-                      title="How did you hear about us?"
-                      field={field}
-                      type="text"
-                    />
+                    <FormItem>
+                      <FormSelect
+                        title="How did you hear about us? *"
+                        field={field}
+                        items={[
+                          { value: "Instagram", label: "Instagram" },
+                          { value: "TikTok", label: "TikTok" },
+                          { value: "Newsletter", label: "Newsletter" },
+                          { value: "Website", label: "Website" },
+                          { value: "LinkedIn", label: "LinkedIn" },
+                          { value: "Word of Mouth", label: "Word of Mouth" },
+                          { value: "Other", label: "Other" },
+                        ]}
+                      />
+                    </FormItem>
                   )}
                 />
               </div>
@@ -416,10 +620,12 @@ const Membership = () => {
           <div className="mt-6 flex items-center justify-end gap-x-6">
             <button
               type="submit"
-              className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400"
+              className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
               disabled={isSubmitting}
             >
-              Proceed to Payment
+              {email.toLowerCase().endsWith("@ubcbiztech.com")
+                ? "Create Membership"
+                : "Proceed to Payment"}
             </button>
           </div>
         </form>
