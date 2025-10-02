@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import Loading from "@/components/Loading";
 import { ArrowLeft, Play, LogOut } from "lucide-react";
-import { courseVideos, Video } from "./data/video";
+import { courseVideos, Video } from "../../../constants/bootcamp/video";
 // import { isVideoCompleted } from "./data/videoProgress";
 const CourseOverview = () => {
   const router = useRouter();
@@ -16,7 +16,7 @@ const CourseOverview = () => {
   }, []);
 
   const handleBack = () => {
-    router.push('/companion/bootcamp');
+    router.push("/companion/bootcamp");
   };
 
   if (isLoading) {
@@ -33,7 +33,9 @@ const CourseOverview = () => {
       <header className="bg-[#1B253D] border-b border-[#A2B1D5] px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-white font-urbanist font-semibold text-lg">UBC BizTech</span>
+            <span className="text-white font-urbanist font-semibold text-lg">
+              UBC BizTech
+            </span>
           </div>
 
           {/* <button className="flex items-center gap-2 text-[#A2B1D5] hover:text-white transition-colors font-urbanist font-medium text-sm">
@@ -52,8 +54,12 @@ const CourseOverview = () => {
             <ArrowLeft className="w-5 h-5 text-white" />
           </button>
           <div>
-            <h1 className="text-[28px] sm:text-[32px] font-urbanist font-semibold text-white">Course Overview</h1>
-            <p className="text-[#A2B1D5] mt-1 text-[14px] font-urbanist font-medium">Course Name Here</p>
+            <h1 className="text-[28px] sm:text-[32px] font-urbanist font-semibold text-white">
+              Course Overview
+            </h1>
+            <p className="text-[#A2B1D5] mt-1 text-[14px] font-urbanist font-medium">
+              Course Name Here
+            </p>
           </div>
         </div>
 
@@ -66,7 +72,11 @@ const CourseOverview = () => {
               {videos.map((video, index) => (
                 <div
                   key={video.id}
-                  onClick={() => router.push(`/companion/bootcamp/videopage?videoId=${video.id}`)}
+                  onClick={() =>
+                    router.push(
+                      `/companion/bootcamp/videopage?videoId=${video.id}`,
+                    )
+                  }
                   className="flex items-center gap-6 p-4 bg-[#0D172C] border border-[#A2B1D5] rounded-lg hover:bg-[#0D172C]/80 cursor-pointer transition-colors"
                 >
                   {/* thumbnail */}
@@ -83,7 +93,7 @@ const CourseOverview = () => {
                       </div>
                     </div>
                     <div className="absolute bottom-2 right-2 bg-[#0D172C] px-2 py-1 rounded text-[10px] font-urbanist font-medium text-[#A2B1D5]">
-                      {video.duration.split(' ')[0]} min
+                      {video.duration.split(" ")[0]} min
                     </div>
                   </div>
 
