@@ -260,7 +260,7 @@ export const AttendeeEventRegistrationForm: React.FC<
                     <div className="rounded-md items-center px-2.5 py-1 font-[700] w-full text-white bg-[#6578A8] text-[7px] sm:text-[8px] md:text-[9px] lg:text-[12px] flex whitespace-nowrap overflow-hidden">
                       <Calendar className="mr-1 w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 flex-shrink-0" />
 
-                      <span className="block truncate">
+                      <span className="truncate">
                         {extractTime(event?.startDate)}{" "}
                         {extractMonthDay(event?.startDate)}
                       </span>
