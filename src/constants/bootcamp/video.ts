@@ -74,6 +74,7 @@ export const courseVideos: Video[] = [
     id: "10",
     title: "Fetching Data and APIs",
     duration: "3 minutes",
+    description: "Learn how to fetch data from APIs in Javascript.",
     youtubeId: "1YYrjeyl-UQ",
   },
 ];
