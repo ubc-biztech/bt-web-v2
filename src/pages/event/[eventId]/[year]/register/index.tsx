@@ -313,14 +313,6 @@ export default function AttendeeFormRegister() {
         return true;
       } else {
         const paymentData = {
-          paymentName: `${event.ename} ${
-            user?.isMember || samePricing() ? "" : "(Non-member)"
-          }`,
-          paymentImages: [event.imageUrl],
-          paymentPrice:
-            (user?.isMember
-              ? event.pricing?.members
-              : event.pricing?.nonMembers) * 100,
           paymentType: "Event",
           success_url: `${
             process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
