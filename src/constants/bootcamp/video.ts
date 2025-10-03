@@ -70,4 +70,10 @@ export const courseVideos: Video[] = [
     description: "Deeper dive into Javascript Interactions.",
     youtubeId: "597HYFaLwMY",
   },
+  {
+    id: "10",
+    title: "Fetching Data and APIs",
+    duration: "3 minutes",
+    youtubeId: "1YYrjeyl-UQ",
+  },
 ];
