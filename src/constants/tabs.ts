@@ -40,6 +40,11 @@ export const admin = [
     link: "/admin/edit-companion",
     icon: ScanBarcode,
   },
+  {
+    title: "Audit Log",
+    link: "/admin/audit-log",
+    icon: BadgeCheck,
+  },
 ];
 
 export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
