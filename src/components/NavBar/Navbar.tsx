@@ -9,11 +9,13 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { ScreenBreakpoints } from "@/constants/values";
 import { throttle } from "lodash";
+import { fetchBackend } from "@/lib/db";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSignedIn, setIsSignedIn] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const [isMobileDevice, setIsMobile] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -73,7 +75,21 @@ export default function Navbar() {
       }
     };
 
+    const fetchIsMember = async () => {
+      try {
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
+        setIsMember(userProfile.isMember);
+      } catch (error) {
+        // if no row is found, user is not a member by default
+        setIsMember(false);
+      }
+    };
+
     fetchUserDetails();
+    fetchIsMember();
   }, []);
 
   const RenderNavbarTabs = () => {
@@ -102,13 +118,16 @@ export default function Navbar() {
               <div className="w-full h-px bg-bt-blue-300 my-8" />
             </>
           )}
-          {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
-            <NavbarTab
-              key={index}
-              navbarItem={navbarItem}
-              onTabClick={() => setIsOpen(false)}
-            />
-          ))}
+          {/* Issue #276 - Check not only if user is signed in but also if user is a member */}
+          {defaultUser(isAdmin, isSignedIn && isMember).map(
+            (navbarItem, index) => (
+              <NavbarTab
+                key={index}
+                navbarItem={navbarItem}
+                onTabClick={() => setIsOpen(false)}
+              />
+            ),
+          )}
         </div>
         {isSignedIn ? (
           <NavbarTab

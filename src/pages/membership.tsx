@@ -93,6 +93,15 @@ const Membership: React.FC = () => {
     },
   });
 
+  const redirectUser = () => {
+    const redirectUrl = (router.query.redirect as string) || "/";
+    if (!hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      console.log(redirectUrl);
+      router.replace(redirectUrl);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
 
@@ -618,6 +627,14 @@ const Membership: React.FC = () => {
           </div>
 
           <div className="mt-6 flex items-center justify-end gap-x-6">
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => redirectUser()}
+              className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
+            >
+              Maybe Later
+            </button>
             <button
               type="submit"
               className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
