@@ -589,7 +589,6 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {/* display when payment is required, regardless of membership status */}
                     {registrationStatus ===
                     DBRegistrationStatus.ACCEPTED_PENDING ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
@@ -603,15 +602,9 @@ export default function AttendeeFormRegister() {
                     )}
                   </p>
 
-                  {
-                    /*
-                    1. If user doesn't need to just accept
-                    2. If user is not a member
-                    3. Price diff has to be positive
-                    */
-                  }
+                  {/* #292: don't show at all if already member or no price difference */}
                   {(registrationStatus !==
-                    DBRegistrationStatus.ACCEPTED_PENDING && !user?.isMember && priceDiff() > 0) && (
+                    DBRegistrationStatus.ACCEPTED_PENDING && !user?.isMember && !samePricing()) && (
                     <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
                       <div className="text-sm sm:text-base text-white">
                         Become a member and save
