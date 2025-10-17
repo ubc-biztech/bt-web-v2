@@ -589,6 +589,7 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
+                    {/* display when payment is required, regardless of membership status */}
                     {registrationStatus ===
                     DBRegistrationStatus.ACCEPTED_PENDING ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
@@ -602,21 +603,26 @@ export default function AttendeeFormRegister() {
                     )}
                   </p>
 
-                  {registrationStatus !==
-                    DBRegistrationStatus.ACCEPTED_PENDING && (
+                  {
+                    /*
+                    1. If user doesn't need to just accept
+                    2. If user is not a member
+                    3. Price diff has to be positive
+                    */
+                  }
+                  {(registrationStatus !==
+                    DBRegistrationStatus.ACCEPTED_PENDING && !user?.isMember && priceDiff() > 0) && (
                     <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
                       <div className="text-sm sm:text-base text-white">
                         Become a member and save
                       </div>
                       <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
                         ${priceDiff().toFixed(2)}
-                        {priceDiff() > 0 && (
-                          <span className="ml-2 text-white/80 text-sm font-normal">
-                            (
-                            {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
-                            )
-                          </span>
-                        )}
+                        <span className="ml-2 text-white/80 text-sm font-normal">
+                          (
+                          {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                          )
+                        </span>
                       </div>
                       <p className="mt-1 text-xs sm:text-sm text-white/80">
                         Plus, enjoy discounted pricing for future events.
