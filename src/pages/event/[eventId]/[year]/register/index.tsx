@@ -727,6 +727,8 @@ export default function AttendeeFormRegister() {
                 data: body,
               });
               
+              window.location.reload();
+              
               console.log("✅ Confirmation response:", response);
               
               // Update local state instead of reloading
