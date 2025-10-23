@@ -500,7 +500,10 @@ export default function AttendeeFormRegister() {
 
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
+
+    
     if (userRegistered) {
+      // Check if user is fully registered and confirmed
       if (registrationStatus === RegistrationStatus.COMPLETE) {
         return renderErrorText(
           <div className="text-center">
@@ -517,8 +520,62 @@ export default function AttendeeFormRegister() {
             </button>
           </div>,
         );
-      } else if (
-        registrationStatus === RegistrationStatus.PENDING ||
+      }
+      
+      // Check if user is under review (application-based events)
+      if (applicationStatus === ApplicationStatus.REGISTERED && registrationStatus === RegistrationStatus.REVIEWING) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              Your application is under review. We'll notify you once a decision has been made.
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+              onClick={() => (window.location.href = "/")}
+            >
+              Upcoming Events
+            </button>
+          </div>,
+        );
+      }
+      
+      // Check if user is waitlisted
+      if (applicationStatus === ApplicationStatus.WAITLISTED) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;re on the waitlist. We&apos;ll notify you if a spot becomes available.
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+              onClick={() => (window.location.href = "/")}
+            >
+              Upcoming Events
+            </button>
+          </div>,
+        );
+      }
+      
+      // Check if user is rejected
+      if (applicationStatus === ApplicationStatus.REJECTED) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              Unfortunately, your application was not accepted for this event.
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+              onClick={() => (window.location.href = "/")}
+            >
+              Upcoming Events
+            </button>
+          </div>,
+        );
+      }
+      
+      // Check if user needs to pay or confirm 
+      if (
+        registrationStatus === RegistrationStatus.PENDING || 
         registrationStatus === RegistrationStatus.PAYMENTPENDING
       ) {
         const PaymentButton = () => {
@@ -535,7 +592,8 @@ export default function AttendeeFormRegister() {
               const body = {
                 eventID: event.id,
                 year: event.year,
-                registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE,
+                applicationStatus: ApplicationStatus.ACCEPTED,
+                registrationStatus: RegistrationStatus.COMPLETE,
               };
               await fetchBackend({
                 endpoint: `/registrations/${user.id}/${user.fname}`,
