@@ -35,7 +35,7 @@ export function DataTable({
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
   const [filteredData, setFilteredData] = useState(initialData);
   const [filterValue, setFilterValue] = useState<
-    "attendees" | "partners" | "waitlisted"
+    "attendees" | "partners" | "waitlisted" | "pending_payment" | "pending_confirmation" | "complete" | "under_review"
   >("attendees");
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -70,11 +70,21 @@ export function DataTable({
         case "partners":
           return attendee.isPartner === true;
         case "waitlisted":
-          return attendee.registrationStatus === "waitlisted";
+          return attendee.applicationStatus === "WAITLISTED";
+        case "pending_payment":
+          return attendee.registrationStatus === "PAYMENTPENDING";
+        case "pending_confirmation":
+          return attendee.registrationStatus === "PENDING";
+        case "complete":
+          return attendee.registrationStatus === "COMPLETE";
+        case "under_review":
+          return attendee.applicationStatus === "REGISTERED" && attendee.registrationStatus === "REVIEWING";
         case "attendees":
         default:
           return (
-            !attendee.isPartner && attendee.registrationStatus !== "waitlisted"
+            !attendee.isPartner && 
+            attendee.applicationStatus !== "WAITLISTED" &&
+            attendee.applicationStatus !== "REJECTED"
           );
       }
     });

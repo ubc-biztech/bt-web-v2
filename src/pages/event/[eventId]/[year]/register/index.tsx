@@ -227,6 +227,9 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
+    // Get initial statuses based on event type and user membership
+    const statuses = getInitialRegistrationStatuses(event, user);
+
     const basicInformation = {
       fname: data["firstName"],
       lname: data["lastName"],
@@ -246,12 +249,12 @@ export default function AttendeeFormRegister() {
       studentId: data["studentId"],
       eventID: eventId,
       year: parseInt(year as string),
-      registrationStatus: event.isApplicationBased ? RegistrationStatus.REVIEWING : RegistrationStatus.COMPLETE,
+      applicationStatus: statuses.applicationStatus,
+      registrationStatus: statuses.registrationStatus,
       isPartner: false,
       points: 0,
       basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: ApplicationStatus.REGISTERED,
     };
 
     try {
@@ -573,10 +576,118 @@ export default function AttendeeFormRegister() {
         );
       }
       
-      // Check if user needs to pay or confirm 
+      // Check if user needs to pay (non-application paid events)
+      if (applicationStatus === ApplicationStatus.INCOMPLETE && registrationStatus === RegistrationStatus.PAYMENTPENDING) {
+        const PaymentButton = () => {
+          const [isLoading, setIsLoading] = useState(false);
+          const [error, setError] = useState<string | null>(null);
+
+          const handlePaymentClick = async () => {
+            if (!event || isLoading) return;
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+              const paymentUrl = await generatePaymentLink(
+                event,
+                registrationStatus,
+              );
+              if (paymentUrl) {
+                window.open(paymentUrl, "_blank");
+              } else {
+                setError("Failed to generate payment link");
+              }
+            } catch (err) {
+              console.error("Payment error:", err);
+              setError("An error occurred. Please try again.");
+            } finally {
+              setIsLoading(false);
+            }
+          };
+
+          return (
+            <div className="w-full">
+              <div className="w-full max-w-xl mx-auto rounded-xl border border-white/10 bg-bt-blue-500/40 backdrop-blur p-5 sm:p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-white mb-1">
+                  Complete Your Registration
+                </h3>
+
+                <div className="text-white/90 space-y-3">
+                  <p className="text-base">
+                    To confirm your attendance at{" "}
+                    <span className="font-semibold text-white">
+                      {event.ename}
+                    </span>
+                    , please complete your payment.
+                  </p>
+                  <p className="text-sm sm:text-base">
+                    To confirm your attendance on{" "}
+                    {extractMonthDay(event.startDate)}, please complete your
+                    payment or purchase a membership and return to this
+                    page.
+                  </p>
+
+                  <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
+                    <div className="text-sm sm:text-base text-white">
+                      Become a member and save
+                    </div>
+                    <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
+                      ${priceDiff().toFixed(2)}
+                      {priceDiff() > 0 && (
+                        <span className="ml-2 text-white/80 text-sm font-normal">
+                          (
+                          {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                          )
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1 text-xs sm:text-sm text-white/80">
+                      Plus, enjoy discounted pricing for future events.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                  <Button
+                    onClick={handlePaymentClick}
+                    disabled={isLoading}
+                    className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center">
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Processing...
+                      </span>
+                    ) : (
+                      "Pay and Confirm Attendance"
+                    )}
+                  </Button>
+
+                  {!user.isMember && (
+                    <Button
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                      onClick={() => (window.location.href = "/membership")}
+                    >
+                      Become a Member
+                    </Button>
+                  )}
+                </div>
+
+                {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
+              </div>
+            </div>
+          );
+        };
+
+        return renderErrorText(<PaymentButton />);
+      }
+      
       if (
-        registrationStatus === RegistrationStatus.PENDING || 
-        registrationStatus === RegistrationStatus.PAYMENTPENDING
+        applicationStatus === ApplicationStatus.ACCEPTED && 
+        (registrationStatus === RegistrationStatus.PENDING || 
+         registrationStatus === RegistrationStatus.PAYMENTPENDING)
       ) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);

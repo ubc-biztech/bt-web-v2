@@ -38,7 +38,14 @@ const SelectCell: React.FC<SelectCellProps> = ({
     );
     let year = row["eventID;year"].slice(row["eventID;year"].indexOf(";") + 1);
 
-    const body = prepareUpdatePayload(column, value, eventId, year);
+    const body = prepareUpdatePayload(
+      column, 
+      value, 
+      eventId, 
+      year,
+      row.applicationStatus,
+      row.registrationStatus
+    );
 
     try {
       await updateRegistrationData(row.id, row.fname, body);
@@ -56,7 +63,14 @@ const SelectCell: React.FC<SelectCellProps> = ({
     );
     let year = row["eventID;year"].slice(row["eventID;year"].indexOf(";") + 1);
 
-    const body = prepareUpdatePayload(column, newValue, eventId, year);
+    const body = prepareUpdatePayload(
+      column, 
+      newValue, 
+      eventId, 
+      year,
+      row.applicationStatus,
+      row.registrationStatus
+    );
 
     try {
       await updateRegistrationData(row.id, row.fname, body);

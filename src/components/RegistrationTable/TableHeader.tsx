@@ -50,7 +50,7 @@ interface TableHeaderProps {
   year: string;
 }
 
-type SelectValue = "attendees" | "partners" | "waitlisted";
+type SelectValue = "attendees" | "partners" | "waitlisted" | "pending_payment" | "pending_confirmation" | "complete" | "under_review";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
@@ -183,9 +183,13 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
-            <SelectItem value="attendees">Attendees</SelectItem>
+            <SelectItem value="attendees">All Attendees</SelectItem>
             <SelectItem value="partners">Partners</SelectItem>
             <SelectItem value="waitlisted">Waitlisted</SelectItem>
+            <SelectItem value="under_review">Under Review</SelectItem>
+            <SelectItem value="pending_confirmation">Pending Confirmation</SelectItem>
+            <SelectItem value="pending_payment">Payment Pending</SelectItem>
+            <SelectItem value="complete">Complete</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -221,10 +225,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="registered">Registered</SelectItem>
-              <SelectItem value="checked-in">Checked-In</SelectItem>
-              <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="waitlisted">Waitlisted</SelectItem>
+              <SelectItem value="REGISTERED">Registered</SelectItem>
+              <SelectItem value="ACCEPTED">Accepted</SelectItem>
+              <SelectItem value="WAITLISTED">Waitlisted</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="CHECKED_IN">Checked-In</SelectItem>
             </SelectContent>
           </Select>
           <Button

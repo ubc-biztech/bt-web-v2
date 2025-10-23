@@ -6,7 +6,7 @@ import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { NFCCardCell } from "./NFCCardCell";
 import { SortableHeader } from "./SortableHeader";
-import { BiztechEvent, DBRegistrationStatus } from "@/types/types";
+import { ApplicationStatus, BiztechEvent, DBRegistrationStatus, RegistrationStatus } from "@/types/types";
 import { Registration } from "@/types/types";
 import { cn } from "@/lib/utils";
 
@@ -80,6 +80,34 @@ export const createColumns = (
     enableHiding: false,
   },
   {
+    accessorKey: "applicationStatus",
+    header: ({ column }) => (
+      <SortableHeader title="App. Status" column={column} />
+    ),
+    cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
+    meta: {
+      type: "select",
+      options: [
+        { value: ApplicationStatus.REGISTERED, label: "Registered" },
+        { value: ApplicationStatus.INCOMPLETE, label: "Incomplete" },
+        { value: ApplicationStatus.ACCEPTED, label: "Accepted" },
+        { value: ApplicationStatus.WAITLISTED, label: "Waitlisted" },
+        { value: ApplicationStatus.REJECTED, label: "Rejected" },
+        { value: ApplicationStatus.CHECKED_IN, label: "Checked-In" },
+        { value: ApplicationStatus.CANCELLED, label: "Cancelled" },
+      ],
+    } as ColumnMeta,
+    size: 200,
+    enableSorting: true,
+    sortingFn: (rowA, rowB) => {
+      const order = [ApplicationStatus.ACCEPTED, ApplicationStatus.WAITLISTED, ApplicationStatus.REJECTED, ApplicationStatus.CHECKED_IN, ApplicationStatus.CANCELLED, ApplicationStatus.REGISTERED, ApplicationStatus.INCOMPLETE];
+      return (
+        order.indexOf(rowA.getValue("applicationStatus")) -
+        order.indexOf(rowB.getValue("applicationStatus"))
+      );
+    },
+  },
+  {
     accessorKey: "registrationStatus",
     header: ({ column }) => (
       <SortableHeader title="Reg. Status" column={column} />
@@ -94,55 +122,23 @@ export const createColumns = (
     meta: {
       type: "select",
       options: [
-        { value: DBRegistrationStatus.REGISTERED, label: "Registered" },
-        { value: DBRegistrationStatus.CHECKED_IN, label: "Checked-In" },
-        { value: DBRegistrationStatus.CANCELLED, label: "Cancelled" },
-        { value: DBRegistrationStatus.INCOMPLETE, label: "Incomplete" },
-        { value: DBRegistrationStatus.WAITLISTED, label: "Waitlisted" },
-        { value: DBRegistrationStatus.ACCEPTED, label: "Accepted" },
+        { value: RegistrationStatus.COMPLETE, label: "Complete" },
+        { value: RegistrationStatus.PAYMENTPENDING, label: "Payment Pending" },
+        { value: RegistrationStatus.REVIEWING, label: "Reviewing" },
+        { value: RegistrationStatus.PENDING, label: "Pending" },
       ],
     } as ColumnMeta,
     size: 200,
     enableSorting: true,
     sortingFn: (rowA, rowB) => {
       const order = [
-        DBRegistrationStatus.CHECKED_IN,
-        DBRegistrationStatus.REGISTERED,
-        DBRegistrationStatus.INCOMPLETE,
-        DBRegistrationStatus.CANCELLED,
-        DBRegistrationStatus.ACCEPTED,
-        DBRegistrationStatus.ACCEPTED_PENDING,
-        DBRegistrationStatus.ACCEPTED_COMPLETE,
+        RegistrationStatus.COMPLETE,
+        RegistrationStatus.PAYMENTPENDING,
+        RegistrationStatus.REVIEWING,
+        RegistrationStatus.PENDING,
       ];
-      return (
-        order.indexOf(rowA.getValue("registrationStatus")) -
+      return order.indexOf(rowA.getValue("registrationStatus")) -
         order.indexOf(rowB.getValue("registrationStatus"))
-      );
-    },
-  },
-  {
-    accessorKey: "applicationStatus",
-    header: ({ column }) => (
-      <SortableHeader title="App. Status" column={column} />
-    ),
-    cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
-    meta: {
-      type: "select",
-      options: [
-        { value: "Accepted", label: "Accepted" },
-        { value: "Reviewing", label: "Reviewing" },
-        { value: "Waitlist", label: "Waitlist" },
-        { value: "Rejected", label: "Rejected" },
-      ],
-    } as ColumnMeta,
-    size: 200,
-    enableSorting: true,
-    sortingFn: (rowA, rowB) => {
-      const order = ["Accepted", "Reviewing", "Waitlist", "Rejected"];
-      return (
-        order.indexOf(rowA.getValue("applicationStatus")) -
-        order.indexOf(rowB.getValue("applicationStatus"))
-      );
     },
   },
   {

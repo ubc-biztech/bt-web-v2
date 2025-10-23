@@ -11,27 +11,7 @@ export async function fetchRegistrationData(eventId: string, year: string) {
   return registrationData.data;
 }
 
-// Helper to convert UI registration status to DB format
-// This function handles converting human-readable status labels (like "Checked-In")
-// to database values (like "checkedIn") for registration updates including check-ins
-export function convertRegistrationStatusToDB(uiStatus: string): string {
-  switch (uiStatus.toLowerCase()) {
-    case "registered":
-      return DBRegistrationStatus.REGISTERED;
-    case "checked-in":
-      return DBRegistrationStatus.CHECKED_IN;
-    case "cancelled":
-      return DBRegistrationStatus.CANCELLED;
-    case "incomplete":
-      return DBRegistrationStatus.INCOMPLETE;
-    case "waitlisted":
-      return DBRegistrationStatus.WAITLISTED;
-    case "accepted":
-      return DBRegistrationStatus.ACCEPTED;
-    default:
-      return uiStatus.toLowerCase();
-  }
-}
+
 
 // Helper to prepare update payload
 export function prepareUpdatePayload(
@@ -39,16 +19,20 @@ export function prepareUpdatePayload(
   value: any,
   eventId: string,
   year: string,
+  currentApplicationStatus?: string,
+  currentRegistrationStatus?: string,
 ) {
   const basePayload = {
     eventID: eventId,
     year: parseInt(year),
   };
 
-  if (column === "registrationStatus") {
+  if (column === "registrationStatus" || column === "applicationStatus") {
+    // For status updates, send both current statuses so backend can implement proper logic
     return {
       ...basePayload,
-      [column]: convertRegistrationStatusToDB(value as string),
+      applicationStatus: column === "applicationStatus" ? value : currentApplicationStatus,
+      registrationStatus: column === "registrationStatus" ? value : currentRegistrationStatus,
     };
   }
 
@@ -70,16 +54,24 @@ export async function updateRegistrationData(
   fname: string,
   body: any,
 ) {
-  console.log("Updating registration data", body);
+  console.log("🔄 Sending PUT request to backend:", {
+    endpoint: `/registrations/${email}/${fname}`,
+    payload: body
+  });
+  
   try {
-    await fetchBackend({
+    const response = await fetchBackend({
       endpoint: `/registrations/${email}/${fname}`,
       method: "PUT",
       authenticatedCall: false,
       data: body,
     });
+    
+    console.log("✅ Backend response received:", response);
+    return response;
   } catch (e) {
-    console.error("Internal Server Error, Update Failed");
+    console.error("❌ Backend request failed:", e);
+    throw e;
   }
 }
 

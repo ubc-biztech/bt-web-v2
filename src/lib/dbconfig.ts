@@ -8,7 +8,7 @@ export const API_URL =
     ? "https://api.ubcbiztech.com"
     : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
       ? "http://localhost:4000"
-      : "https://api-dev.ubcbiztech.com";
+      : "http://localhost:4000";
 
 export const CLIENT_URL =
   process.env.NEXT_PUBLIC_REACT_APP_STAGE === "production"
