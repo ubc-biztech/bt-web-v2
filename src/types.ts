@@ -76,7 +76,7 @@ export enum DBRegistrationStatus {
   ACCEPTED_COMPLETE = "acceptedComplete",
 }
 
-export enum RegistrationStatusField {
+export enum RegistrationStatusFieldLegacy {
   WAITLISTED = "Waitlisted",
   REGISTERED = "Registered",
   CHECKED_IN = "Checked-In",
@@ -84,11 +84,28 @@ export enum RegistrationStatusField {
   INCOMPLETE = "Incomplete",
 }
 
-export enum ApplicationStatus {
+export enum ApplicationStatusLegacy {
   ACCEPTED = "accepted",
   REJECTED = "rejected",
   WAITLIST = "waitlist",
   REVIEWING = "reviewing",
+}
+
+export enum RegistrationStatusField {
+  REVIEWING = "REVIEWING",
+  PENDING = "PENDING",
+  PAYMENTPENDING = "PAYMENTPENDING", 
+  COMPLETE = "COMPLETE"
+}
+
+export enum ApplicationStatus {
+  REGISTERED = "REGISTERED",
+  INCOMPLETE = "INCOMPLETE", 
+  ACCEPTED = "ACCEPTED",
+  WAITLISTED = "WAITLISTED",
+  REJECTED = "REJECTED",
+  CHECKED_IN = "CHECKED_IN",
+  CANCELLED = "CANCELLED"
 }
 
 export type BasicInformation = {
