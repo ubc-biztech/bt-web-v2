@@ -689,6 +689,13 @@ export default function AttendeeFormRegister() {
         (registrationStatus === RegistrationStatus.PENDING || 
          registrationStatus === RegistrationStatus.PAYMENTPENDING)
       ) {
+        console.log("🎯 Rendering confirmation/payment button for:", {
+          applicationStatus,
+          registrationStatus,
+          isApplicationBased: event.isApplicationBased,
+          eventName: event.ename,
+        });
+        
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -706,13 +713,28 @@ export default function AttendeeFormRegister() {
                 applicationStatus: ApplicationStatus.ACCEPTED,
                 registrationStatus: RegistrationStatus.COMPLETE,
               };
-              await fetchBackend({
+              
+              console.log("🔄 Confirming attendance for application-based free event:", {
+                endpoint: `/registrations/${user.id}/${user.fname}`,
+                payload: body,
+                currentAppStatus: body.applicationStatus,
+                currentRegStatus: body.registrationStatus
+              });
+              
+              const response = await fetchBackend({
                 endpoint: `/registrations/${user.id}/${user.fname}`,
                 method: "PUT",
                 data: body,
               });
-              window.location.reload(); // show updated state
+              
+              console.log("✅ Confirmation response:", response);
+              
+              // Update local state instead of reloading
+              setApplicationStatus(ApplicationStatus.ACCEPTED);
+              setRegistrationStatus(RegistrationStatus.COMPLETE);
+              
             } catch (error) {
+              console.error("❌ Confirmation failed:", error);
               setError("An error occurred. Please try again.");
             } finally {
               setIsLoading(false);
