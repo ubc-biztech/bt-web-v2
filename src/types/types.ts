@@ -37,6 +37,23 @@ export type RegistrationQuestion = {
   questionImageUrl?: string;
 };
 
+export enum ApplicationStatus {
+  REGISTERED = "REGISTERED",
+  INCOMPLETE = "INCOMPLETE",
+  ACCEPTED = "ACCEPTED",
+  WAITLISTED = "WAITLISTED",
+  REJECTED = "REJECTED",
+  CHECKED_IN = "CHECKED_IN",
+  CANCELLED = "CANCELLED",
+}
+
+export enum RegistrationStatus {
+  REVIEWING = "REVIEWING",
+  PENDING = "PENDING",
+  PAYMENTPENDING = "PAYMENTPENDING",
+  COMPLETE = "COMPLETE",
+}
+
 export enum DBRegistrationStatus {
   WAITLISTED = "waitlist",
   REGISTERED = "registered",
