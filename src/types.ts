@@ -91,7 +91,7 @@ export enum ApplicationStatusLegacy {
   REVIEWING = "reviewing",
 }
 
-export enum RegistrationStatusField {
+export enum RegistrationStatus {
   REVIEWING = "REVIEWING",
   PENDING = "PENDING",
   PAYMENTPENDING = "PAYMENTPENDING", 

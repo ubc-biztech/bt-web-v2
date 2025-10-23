@@ -2,6 +2,7 @@
 import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm";
 import {
   ApplicationStatus,
+  RegistrationStatus,
   BiztechEvent,
   DBRegistrationStatus,
   User,
@@ -30,8 +31,8 @@ import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
+import { getInitialRegistrationStatuses, isEventPaidForUser } from "@/util/statusHelpers";
 import Image from "next/image";
-import { Registration } from "@/types/types";
 import Link from "next/link";
 
 export default function AttendeeFormRegister() {
@@ -51,7 +52,9 @@ export default function AttendeeFormRegister() {
   const [hasShownMemberToast, setHasShownMemberToast] =
     useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
-    useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
+    useState<RegistrationStatus>(RegistrationStatus.REVIEWING);
+  const [applicationStatus, setApplicationStatus] =
+    useState<ApplicationStatus>(ApplicationStatus.REGISTERED);
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
@@ -84,6 +87,7 @@ export default function AttendeeFormRegister() {
         (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
       );
       setRegistrationStatus(registration.registrationStatus);
+      setApplicationStatus(registration.applicationStatus);
     }
     setUserRegistered(exists);
     return exists;
@@ -242,14 +246,12 @@ export default function AttendeeFormRegister() {
       studentId: data["studentId"],
       eventID: eventId,
       year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.REGISTERED,
+      registrationStatus: event.isApplicationBased ? RegistrationStatus.REVIEWING : RegistrationStatus.COMPLETE,
       isPartner: false,
       points: 0,
       basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
+      applicationStatus: ApplicationStatus.REGISTERED,
     };
 
     try {
@@ -276,13 +278,17 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
+    // Get initial statuses based on event type and user membership
+    const statuses = getInitialRegistrationStatuses(event, user);
+
     const registrationData = {
       email: data["emailAddress"],
       fname: data["firstName"],
       studentId: data["studentId"],
       eventID: eventId,
       year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.INCOMPLETE,
+      applicationStatus: statuses.applicationStatus,
+      registrationStatus: statuses.registrationStatus,
       isPartner: false,
       points: 0,
       basicInformation: {
@@ -296,9 +302,6 @@ export default function AttendeeFormRegister() {
         heardFrom: data["howDidYouHear"],
       },
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
     };
 
     try {
@@ -340,8 +343,14 @@ export default function AttendeeFormRegister() {
             router.push(
               `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
             );
-          } else {
+          } else if (isEventPaidForUser(event, user)) {
+            // Non-application paid: go to Stripe payment
             window.open(res, "_self");
+          } else {
+            // Non-application free: go to success page (immediately accepted)
+            router.push(
+              `/event/${eventId}/${year}/register/success?isApplicationBased=${false}`,
+            );
           }
           return true;
         } catch (error) {
@@ -442,7 +451,7 @@ export default function AttendeeFormRegister() {
 
   const generatePaymentLink = async (
     event: BiztechEvent,
-    registrationStatus: DBRegistrationStatus,
+    registrationStatus: string,
   ) => {
     if (!user) return null;
 
@@ -492,7 +501,7 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
-      if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+      if (registrationStatus === RegistrationStatus.COMPLETE) {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
@@ -509,8 +518,8 @@ export default function AttendeeFormRegister() {
           </div>,
         );
       } else if (
-        registrationStatus === DBRegistrationStatus.ACCEPTED ||
-        registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
+        registrationStatus === RegistrationStatus.PENDING ||
+        registrationStatus === RegistrationStatus.PAYMENTPENDING
       ) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
@@ -582,7 +591,7 @@ export default function AttendeeFormRegister() {
                   </p>
                   <p className="text-sm sm:text-base">
                     {registrationStatus ===
-                    DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    RegistrationStatus.PENDING ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
@@ -595,7 +604,7 @@ export default function AttendeeFormRegister() {
                   </p>
 
                   {registrationStatus !==
-                    DBRegistrationStatus.ACCEPTED_PENDING && (
+                    RegistrationStatus.PENDING && (
                     <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
                       <div className="text-sm sm:text-base text-white">
                         Become a member and save
@@ -621,7 +630,7 @@ export default function AttendeeFormRegister() {
                   <Button
                     onClick={
                       registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING
+                      RegistrationStatus.PENDING
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -634,14 +643,14 @@ export default function AttendeeFormRegister() {
                         Processing...
                       </span>
                     ) : registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING ? (
+                      RegistrationStatus.PENDING ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
                     )}
                   </Button>
 
-                  {registrationStatus === DBRegistrationStatus.ACCEPTED &&
+                  {registrationStatus === RegistrationStatus.PAYMENTPENDING &&
                     !user.isMember && (
                       <Button
                         variant="outline"
