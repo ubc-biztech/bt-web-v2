@@ -36,24 +36,6 @@ export const REGISTRATION_STATUS = {
   COMPLETE: "COMPLETE",
 };
 
-export const APPLICATION_STATUS_LABELS = {
-  REGISTERED: "Registered",
-  INCOMPLETE: "Incomplete",
-  ACCEPTED: "Accepted",
-  WAITLISTED: "Waitlisted",
-  REJECTED: "Rejected",
-  CHECKED_IN: "Checked In",
-  CANCELLED: "Cancelled",
-};
-
-export const REGISTRATION_STATUS_LABELS = {
-  REVIEWING: "Under Review",
-  PENDING: "Pending Confirmation",
-  PAYMENTPENDING: "Payment Pending",
-  COMPLETE: "Complete",
-};
-
-
 export const LEGACY_REGISTRATION_STATUS = {
   REGISTERED: "registered",
   CHECKED_IN: "checkedIn",
