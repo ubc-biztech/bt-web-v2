@@ -689,11 +689,6 @@ export default function AttendeeFormRegister() {
         (registrationStatus === RegistrationStatus.PENDING || 
          registrationStatus === RegistrationStatus.PAYMENTPENDING)
       ) {
-        console.log("🎯 Rendering confirmation/payment button for:", {
-          applicationStatus,
-          registrationStatus,
-          isApplicationBased: event.isApplicationBased,
-        });
         
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
@@ -713,12 +708,13 @@ export default function AttendeeFormRegister() {
                 registrationStatus: RegistrationStatus.COMPLETE,
               };
               
-              console.log("🔄 Confirming attendance for application-based free event:", {
-                endpoint: `/registrations/${user.id}/${user.fname}`,
-                payload: body,
-                currentAppStatus: applicationStatus,
-                currentRegStatus: registrationStatus
-              });
+              // Debugging
+              // console.log("Confirming attendance for application-based free event:", {
+              //   endpoint: `/registrations/${user.id}/${user.fname}`,
+              //   payload: body,
+              //   currentAppStatus: applicationStatus,
+              //   currentRegStatus: registrationStatus
+              // });
               
               const response = await fetchBackend({
                 endpoint: `/registrations/${user.id}/${user.fname}`,
@@ -726,14 +722,14 @@ export default function AttendeeFormRegister() {
                 data: body,
               });
               
-              console.log("✅ Confirmation response:", response);
+              // Debugging
+              // console.log("Confirmation response:", response);
               
               // Update local state instead of reloading
               setApplicationStatus(ApplicationStatus.ACCEPTED);
               setRegistrationStatus(RegistrationStatus.COMPLETE);
               
             } catch (error) {
-              console.error("❌ Confirmation failed:", error);
               setError("An error occurred. Please try again.");
             } finally {
               setIsLoading(false);
