@@ -693,7 +693,6 @@ export default function AttendeeFormRegister() {
           applicationStatus,
           registrationStatus,
           isApplicationBased: event.isApplicationBased,
-          eventName: event.ename,
         });
         
         const PaymentButton = () => {
@@ -717,8 +716,8 @@ export default function AttendeeFormRegister() {
               console.log("🔄 Confirming attendance for application-based free event:", {
                 endpoint: `/registrations/${user.id}/${user.fname}`,
                 payload: body,
-                currentAppStatus: body.applicationStatus,
-                currentRegStatus: body.registrationStatus
+                currentAppStatus: applicationStatus,
+                currentRegStatus: registrationStatus
               });
               
               const response = await fetchBackend({
@@ -726,8 +725,6 @@ export default function AttendeeFormRegister() {
                 method: "PUT",
                 data: body,
               });
-              
-              window.location.reload();
               
               console.log("✅ Confirmation response:", response);
               

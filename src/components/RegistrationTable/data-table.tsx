@@ -82,9 +82,7 @@ export function DataTable({
         case "attendees":
         default:
           return (
-            !attendee.isPartner && 
-            attendee.applicationStatus !== "WAITLISTED" &&
-            attendee.applicationStatus !== "REJECTED"
+            !attendee.isPartner
           );
       }
     });
