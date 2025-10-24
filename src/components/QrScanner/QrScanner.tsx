@@ -19,6 +19,7 @@ import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+import { ApplicationStatus, RegistrationStatus } from "@/types/types";
 
 /**
  * MAIN EVENT CHECK-IN COMPONENT
@@ -146,17 +147,29 @@ export const QrCheckIn: React.FC<QrProps> = ({
     setCheckInName(`${user.fname} ${user.basicInformation.lname} (${userID})`);
 
     // Check various registration statuses that prevent check-in
-    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
+    if (user.applicationStatus === ApplicationStatus.CHECKED_IN) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is already checked in.");
       return false;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
+    } else if (user.applicationStatus === ApplicationStatus.CANCELLED) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person had their registration cancelled. Cannot check-in.");
       return false;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
+    } else if (user.applicationStatus === ApplicationStatus.WAITLISTED) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is on the waitlist. Cannot check-in.");
+      return false;
+    } else if (user.applicationStatus === ApplicationStatus.REJECTED) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
+      setError("Person's application was rejected. Cannot check-in.");
+      return false;
+    } else if (user.registrationStatus === RegistrationStatus.PENDING) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
+      setError("Person's registration is pending. Cannot check-in.");
+      return false;
+    } else if (user.registrationStatus === RegistrationStatus.PAYMENTPENDING) {
+      cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
+      setError("Person's registration is pending payment. Cannot check-in.");
       return false;
     }
 
@@ -244,7 +257,8 @@ export const QrCheckIn: React.FC<QrProps> = ({
     const body = {
       eventID: event.id,
       year: parseInt(event.year),
-      registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
+      applicationStatus: ApplicationStatus.CHECKED_IN,
+      registrationStatus: RegistrationStatus.COMPLETE,
     };
 
     try {

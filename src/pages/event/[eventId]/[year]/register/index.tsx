@@ -530,7 +530,7 @@ export default function AttendeeFormRegister() {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
-              Your application is under review. We'll notify you once a decision has been made.
+              Your application is under review. We will notify you once a decision has been made.
             </p>
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
