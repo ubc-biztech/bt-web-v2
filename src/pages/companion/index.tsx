@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import BigProdX from "@/assets/2025/productx/biglogo.png";
 import ProdxBizBot from "@/assets/2025/productx/prodxbizbot.png";
+import Link from "next/link";
 
 // COMMENTED OUT - Original companion functionality
 import { useState, useEffect, useContext, createContext } from "react";
@@ -60,7 +61,7 @@ const Companion = () => {
   // const [pageError, setPageError] = useState("");
   // const [error, setError] = useState("");
   // const [registrations, setRegistrations] = useState<Registration[]>([]);
-  // const [event, setEvent] = useState<EventData | null>(null);
+  const [event, setEvent] = useState<EventData | null>(null);
   // const [userRegistration, setUserRegistration] = useState<Registration | null>(
   //   null,
   // );
@@ -269,14 +270,19 @@ const Companion = () => {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-white text-4xl font-bold mb-4">Work in Progress</h1>
 
-        <div className="rounded-lg p-6 mb-8">
-          <p className="mb-2 text-white">
+        <div className="rounded-lg p-6 mb-8 flex flex-col space-y-4">
+          <p className="text-white">
             The companion app is currently under development! For those checking
             their application status, you will be informed via email for the
-            duration of HelloHacks. We sincerely apologize for any confusion
-            this may have caused.
+            duration of UX Open.
           </p>
-          <p className="mb-4 text-white">
+          <Link
+            href="/event/UXOpen/2025/register"
+            className="text-white font-semibold bg-bt-blue-100 rounded-md p-3 inline-block w-fit"
+          >
+            You can check your registration here.
+          </Link>
+          <p className="text-white">
             We&apos;re working hard to bring you an amazing experience.
             You&apos;ll be notified via email when it&apos;s ready to use.
           </p>
@@ -298,13 +304,13 @@ const Companion = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 flex flex-col items-end sm:flex-row sm:items-center">
+      {/*<div className="fixed bottom-4 right-4 flex flex-col items-end sm:flex-row sm:items-center">
         <div className="bg-bt-blue-100 text-black p-3 sm:p-4 rounded-lg shadow-lg mb-2 sm:mb-0 sm:mr-4 max-w-[80vw] sm:max-w-none">
           <p className="font-semibold text-sm sm:text-base">
             Stay tuned for updates!
           </p>
         </div>
-      </div>
+      </div>*/}
 
       {/* ProductX branding at bottom */}
       <div className="absolute bottom-0 w-screen h-[45vh] z-10">
