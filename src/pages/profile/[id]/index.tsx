@@ -61,6 +61,7 @@ const ProfilePage = ({
 
   // State for managing check-in permissions
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [hasCheckedIn, setHasCheckedIn] = useState<boolean>(false);
 
   const handleUserCheckIn = async (
     eventData: {
@@ -188,6 +189,7 @@ const ProfilePage = ({
           </div>
         ),
       });
+      setHasCheckedIn(true);
       return true;
     } catch (error: any) {
       console.error("Check-in failed:", error);
@@ -431,6 +433,7 @@ const ProfilePage = ({
                   icon={CheckCircle}
                   label={`Check In to ${checkInEvent.ename}`}
                   onClick={checkInUserToEvent}
+                  disabled={hasCheckedIn/* Avoid prompting to check-in right after checking in */}
                 />
               </div>
             )}
@@ -590,10 +593,10 @@ export const getServerSideProps: GetServerSideProps = async ({
       redirect:
         isConnected && query && query.scan === "true"
           ? {
-              destination: `/profile/${humanId}`,
-              permanent: false,
-              query: undefined,
-            }
+            destination: `/profile/${humanId}`,
+            permanent: false,
+            query: undefined,
+          }
           : undefined,
     };
   } catch (error) {
