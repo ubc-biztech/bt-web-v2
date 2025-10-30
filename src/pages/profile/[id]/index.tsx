@@ -29,6 +29,7 @@ import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import { IconButton } from "@/components/Common/IconButton";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
+import { User } from "@/types";
 
 interface NFCProfilePageProps {
   profileData: BiztechProfile;
@@ -57,6 +58,9 @@ const ProfilePage = ({
     year: number;
     ename: string;
   } | null>(null);
+
+  // State for managing check-in permissions
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const handleUserCheckIn = async (
     eventData: {
@@ -91,6 +95,12 @@ const ProfilePage = ({
         eventRegistration.registrationStatus ===
         REGISTRATION_STATUS.CHECKED_IN
       ) {
+        toast({
+          title: "Check-in Failed",
+          description:
+            "The user's registration was already checked in. Cannot check-in.",
+          variant: "destructive",
+        });
         return false;
       }
 
@@ -113,6 +123,20 @@ const ProfilePage = ({
         toast({
           title: "Check-in Failed",
           description: "The user is on the waitlist. Cannot check-in.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // ACCEPTEDCOMPLETE -> User has to confirm spot by paying (?)
+      if (
+        eventRegistration.registrationStatus !==
+        REGISTRATION_STATUS.ACCEPTEDCOMPLETE
+      ) {
+        toast({
+          title: "Check-in Failed",
+          description:
+            "The user has not confirmed their spot or paid. Cannot check-in.",
           variant: "destructive",
         });
         return false;
@@ -214,6 +238,8 @@ const ProfilePage = ({
           method: "GET",
         });
 
+        setCurrentUser(currentUser);
+
         if (!currentUser.admin) {
           setCheckInEvent(null);
           return;
@@ -226,7 +252,7 @@ const ProfilePage = ({
 
         if (cachedEventData) {
           try {
-            const [eventEndTimeStr, eventIdAndYear] =
+            const [ename, eventEndTimeStr, eventIdAndYear] =
               cachedEventData.split("#");
             const [eventId, year] = eventIdAndYear.split(";");
             const eventEndTime = new Date(eventEndTimeStr);
@@ -237,6 +263,7 @@ const ProfilePage = ({
                 id: eventId,
                 year: parseInt(year),
                 endDate: eventEndTimeStr,
+                ename
               };
             }
           } catch (parseError) {
@@ -253,7 +280,7 @@ const ProfilePage = ({
 
           // Cache the fetched event data with format {activeEvent: endTime#eventID;year}
           if (activeEventData) {
-            const cacheKey = `${activeEventData.endDate}#${activeEventData.id};${activeEventData.year}`;
+            const cacheKey = `${activeEventData.ename}#${activeEventData.endDate}#${activeEventData.id};${activeEventData.year}`;
             localStorage.setItem("activeEvent", cacheKey);
           }
         }
@@ -398,12 +425,14 @@ const ProfilePage = ({
               />
             </div>
 
-            {checkInEvent && (
-              <IconButton
-                icon={CheckCircle}
-                label={`Check In to ${checkInEvent.ename}`}
-                onClick={checkInUserToEvent}
-              />
+            {(checkInEvent && currentUser?.admin) && (
+              <div className="flex gap-4 justify-center mt-4">
+                <IconButton
+                  icon={CheckCircle}
+                  label={`Check In to ${checkInEvent.ename}`}
+                  onClick={checkInUserToEvent}
+                />
+              </div>
             )}
           </div>
 

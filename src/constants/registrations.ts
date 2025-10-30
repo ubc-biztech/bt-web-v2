@@ -28,6 +28,7 @@ export const REGISTRATION_STATUS = {
   WAITLISTED: "waitlist",
   CANCELLED: "cancelled",
   INCOMPLETE: "incomplete",
+  ACCEPTEDCOMPLETE: "acceptedComplete"
 };
 export const REGISTRATION_LABELS = {
   registered: "Registered",
