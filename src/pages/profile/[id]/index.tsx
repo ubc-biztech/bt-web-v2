@@ -55,137 +55,157 @@ const ProfilePage = ({
   const [checkInEvent, setCheckInEvent] = useState<{
     eventID: string;
     year: number;
+    ename: string;
   } | null>(null);
 
-  useEffect(() => {
-    const handleUserCheckIn = async (
-      eventData: {
-        eventID: string;
-        year: number;
-      },
-      userEmail: string,
-    ) => {
-      // First, check if user is already checked in
-      try {
-        const registrationData = await fetchBackend({
-          endpoint: `/registrations?email=${userEmail}`,
-          method: "GET",
-          authenticatedCall: false,
-        });
+  const handleUserCheckIn = async (
+    eventData: {
+      eventID: string;
+      year: number;
+    },
+    userEmail: string,
+  ) => {
+    // First, check if user is already checked in
+    try {
+      const registrationData = await fetchBackend({
+        endpoint: `/registrations?email=${userEmail}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
 
-        const eventRegistration = registrationData.data.find(
-          (reg: any) =>
-            reg["eventID;year"] === `${eventData.eventID};${eventData.year}`,
-        );
+      const eventRegistration = registrationData.data.find(
+        (reg: any) =>
+          reg["eventID;year"] === `${eventData.eventID};${eventData.year}`,
+      );
 
-        if (!eventRegistration) {
-          toast({
-            title: "Check-in Failed",
-            description: "The user is not registered for this event.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        if (
-          eventRegistration.registrationStatus ===
-          REGISTRATION_STATUS.CHECKED_IN
-        ) {
-          return false;
-        }
-
-        if (
-          eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
-        ) {
-          toast({
-            title: "Check-in Failed",
-            description:
-              "The user's registration was cancelled. Cannot check-in.",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        if (
-          eventRegistration.registrationStatus ===
-          REGISTRATION_STATUS.WAITLISTED
-        ) {
-          toast({
-            title: "Check-in Failed",
-            description: "The user is on the waitlist. Cannot check-in.",
-            variant: "destructive",
-          });
-          return false;
-        }
-      } catch (error: any) {
-        console.error("Failed to check registration status:", error);
+      if (!eventRegistration) {
         toast({
           title: "Check-in Failed",
-          description: "Failed to verify registration status.",
+          description: "The user is not registered for this event.",
           variant: "destructive",
         });
         return false;
       }
 
-      const checkInData = {
-        eventID: eventData.eventID,
-        year: eventData.year,
-        registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
-      };
+      if (
+        eventRegistration.registrationStatus ===
+        REGISTRATION_STATUS.CHECKED_IN
+      ) {
+        return false;
+      }
 
-      const loadingToast = toast({
-        title: "Checking user in...",
+      if (
+        eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
+      ) {
+        toast({
+          title: "Check-in Failed",
+          description:
+            "The user's registration was cancelled. Cannot check-in.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (
+        eventRegistration.registrationStatus ===
+        REGISTRATION_STATUS.WAITLISTED
+      ) {
+        toast({
+          title: "Check-in Failed",
+          description: "The user is on the waitlist. Cannot check-in.",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (error: any) {
+      console.error("Failed to check registration status:", error);
+      toast({
+        title: "Check-in Failed",
+        description: "Failed to verify registration status.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    const checkInData = {
+      eventID: eventData.eventID,
+      year: eventData.year,
+      registrationStatus: REGISTRATION_STATUS.CHECKED_IN,
+    };
+
+    const loadingToast = toast({
+      title: "Checking user in...",
+      description: (
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Please wait while we check in the user.</span>
+        </div>
+      ),
+    });
+
+    try {
+      await fetchBackend({
+        endpoint: `/registrations/${userEmail}/${profileData.fname}`,
+        method: "PUT",
+        data: checkInData,
+      });
+
+      loadingToast.update({
+        id: loadingToast.id,
+        title: "User Checked In",
         description: (
           <div className="flex items-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Please wait while we check in the user.</span>
+            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-3 h-3 text-white" />
+            </div>
+            <span>
+              {profileData.fname} {profileData.lname} has been checked in.
+            </span>
           </div>
         ),
       });
+      return true;
+    } catch (error: any) {
+      console.error("Check-in failed:", error);
 
-      try {
-        await fetchBackend({
-          endpoint: `/registrations/${userEmail}/${profileData.fname}`,
-          method: "PUT",
-          data: checkInData,
-        });
-
+      if (error.status === 409) {
         loadingToast.update({
           id: loadingToast.id,
-          title: "User Checked In",
-          description: (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-3 h-3 text-white" />
-              </div>
-              <span>
-                {profileData.fname} {profileData.lname} has been checked in.
-              </span>
-            </div>
-          ),
+          title: "Check-in Failed",
+          description: "The user is not registered for this event.",
+          variant: "destructive",
         });
-        return true;
-      } catch (error: any) {
-        console.error("Check-in failed:", error);
-
-        if (error.status === 409) {
-          loadingToast.update({
-            id: loadingToast.id,
-            title: "Check-in Failed",
-            description: "The user is not registered for this event.",
-            variant: "destructive",
-          });
-        } else {
-          loadingToast.update({
-            id: loadingToast.id,
-            title: "Check-in Failed",
-            description: "Failed to automatically check in the user.",
-            variant: "destructive",
-          });
-        }
-        return false;
+      } else {
+        loadingToast.update({
+          id: loadingToast.id,
+          title: "Check-in Failed",
+          description: "Failed to automatically check in the user.",
+          variant: "destructive",
+        });
       }
-    };
+      return false;
+    }
+  };
+
+  const checkInUserToEvent = async () => {
+    try {
+      if (!checkInEvent) {
+        // Should never reach this point
+        return;
+      }
+
+      const response = await fetchBackend({
+        endpoint: `/members/email/${profileID}`,
+        method: "GET",
+      });
+
+      await handleUserCheckIn(checkInEvent, response.email);
+    } catch (error) {
+      console.error("Failed to check in user:", error);
+    }
+  };
+
+  useEffect(() => {
 
     const initializeCheckInAvailability = async () => {
       try {
@@ -242,19 +262,10 @@ const ProfilePage = ({
           const eventData = {
             eventID: activeEventData.id,
             year: activeEventData.year,
+            ename: activeEventData.ename,
           };
           setCheckInEvent(eventData);
 
-          try {
-            const response = await fetchBackend({
-              endpoint: `/members/email/${profileID}`,
-              method: "GET",
-            });
-
-            await handleUserCheckIn(eventData, response.email);
-          } catch (error) {
-            console.error("Error during check-in process:", error);
-          }
         } else {
           setCheckInEvent(null);
         }
@@ -386,6 +397,14 @@ const ProfilePage = ({
                 onClick={() => setDrawerOpen(true)}
               />
             </div>
+
+            {checkInEvent && (
+              <IconButton
+                icon={CheckCircle}
+                label={`Check In to ${checkInEvent.ename}`}
+                onClick={checkInUserToEvent}
+              />
+            )}
           </div>
 
           <div className="hidden md:block">
