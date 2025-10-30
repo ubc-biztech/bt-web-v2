@@ -189,7 +189,6 @@ const ProfilePage = ({
           </div>
         ),
       });
-      setHasCheckedIn(true);
       return true;
     } catch (error: any) {
       console.error("Check-in failed:", error);
@@ -225,7 +224,10 @@ const ProfilePage = ({
         method: "GET",
       });
 
-      await handleUserCheckIn(checkInEvent, response.email);
+      const success = await handleUserCheckIn(checkInEvent, response.email);
+      if (success) {
+        setHasCheckedIn(true);
+      }
     } catch (error) {
       console.error("Failed to check in user:", error);
     }
@@ -428,7 +430,7 @@ const ProfilePage = ({
             </div>
 
             {(checkInEvent && currentUser?.admin) && (
-              <div className="flex gap-4 justify-center mt-4">
+              <div className="flex gap-4 justify-center mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
                 <IconButton
                   icon={CheckCircle}
                   label={`Check In to ${checkInEvent.ename}`}
