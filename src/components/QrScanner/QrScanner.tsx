@@ -256,8 +256,12 @@ export const QrCheckIn: React.FC<QrProps> = ({
       });
 
       setShowNfcPopup(true);
-    } catch (e) {
-      setError("Internal Server Error, Registration Failed");
+    } catch (e: any) {
+      if (e.status === 409) {
+        setError("The user is not registered for this event.");
+      } else {
+        setError("Internal Server Error, Registration Failed");
+      }
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, 8000);
     }
 
