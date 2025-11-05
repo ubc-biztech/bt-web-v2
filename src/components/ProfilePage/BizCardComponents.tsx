@@ -25,6 +25,8 @@ interface BiztechProfile {
   profilePictureURL?: string;
   additionalLink?: string;
   description?: string;
+  company?: string;
+  position?: string;
 }
 
 const HobbyTag = ({ hobby }: { hobby: string }) => (

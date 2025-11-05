@@ -8,6 +8,8 @@ import {
   Home,
   CheckCircle,
   Loader2,
+  Building,
+  BriefcaseBusiness
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
@@ -361,6 +363,8 @@ const ProfilePage = ({
     profilePictureURL,
     additionalLink,
     description,
+    company,
+    position,
   } = profileData;
 
   const questions = [funQuestion1, funQuestion2].filter((q) => {
@@ -467,21 +471,32 @@ const ProfilePage = ({
               )}
 
               <div className="space-y-3">
-                <DisplayUserField
+                {pronouns && <DisplayUserField
                   icon={IdCardLanyard}
                   fieldName="Pronouns"
                   fieldValue={pronouns}
-                />
-                <DisplayUserField
+                />}
+                {major && <DisplayUserField
                   icon={GraduationCap}
                   fieldName="Major"
                   fieldValue={major}
-                />
-                <DisplayUserField
+                />}
+                {year && <DisplayUserField
                   icon={Calendar}
                   fieldName="Year"
                   fieldValue={year}
-                />
+                />}
+                {company && <DisplayUserField
+                  icon={Building}
+                  fieldName="Company"
+                  fieldValue={company}
+                />}
+                {position && <DisplayUserField
+                  icon={BriefcaseBusiness}
+                  fieldName="Position"
+                  fieldValue={position}
+                />}
+
               </div>
             </div>
           </GenericCardNFC>
