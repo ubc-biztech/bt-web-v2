@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { fetchBackendFromServer } from "@/lib/db";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Connection {
   compositeID: string;
@@ -77,16 +78,20 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
               />
             </div>
             <div className="w-full sm:w-48">
-              <select
+              <Select
                 value={connectionType}
-                onChange={(e) => setConnectionType(e.target.value)}
-                className="w-full h-[52px] pl-4 pr-10 py-3 bg-white border-2 border-solid border-bt-blue-400-500 rounded-lg text-bt-blue-300 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-transparent"
+                onValueChange={(e) => setConnectionType(e)}
               >
-                <option value="ALL">All Connections</option>
-                <option value="PARTNER">Partners</option>
-                <option value="EXEC">Execs</option>
-                <option value="ATTENDEE">Attendees</option>
-              </select>
+                <SelectTrigger className="h-[52px]">
+                  <SelectValue placeholder="Select Connection Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Connections</SelectItem>
+                  <SelectItem value="PARTNER">Partners</SelectItem>
+                  <SelectItem value="EXEC">Execs</SelectItem>
+                  <SelectItem value="ATTENDEE">Attendees</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
