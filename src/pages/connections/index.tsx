@@ -16,6 +16,7 @@ interface Connection {
   major: string;
   lname: string;
   type: string;
+  connectionType?: 'PARTNER' | 'EXEC' | 'ATTENDEE';
 }
 
 interface ConnectionsPageProps {
@@ -24,12 +25,21 @@ interface ConnectionsPageProps {
 
 const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [connectionType, setConnectionType] = useState<string>("ALL");
 
-  const filteredConnections = connections.filter((connection) =>
-    `${connection.fname} ${connection.lname}`
+  const filteredConnections = connections.filter((connection) => {
+    const matchesSearch = `${connection.fname} ${connection.lname}`
       .toLowerCase()
-      .includes(searchQuery.toLowerCase()),
-  );
+      .includes(searchQuery.toLowerCase());
+    
+    const matchesType = 
+      connectionType === "ALL" ||  // if ALL, let everything go through
+      (connectionType === "PARTNER" && connection.connectionType === "PARTNER") ||
+      (connectionType === "EXEC" && connection.connectionType === "EXEC") ||
+      (connectionType === "ATTENDEE" && (connection.connectionType === "ATTENDEE" || !connection.connectionType));
+    
+    return matchesSearch && matchesType;
+  });
 
   return (
     <>
@@ -53,8 +63,8 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
           </span>
           <div className="bg-bt-blue-300 h-[1px] my-4" />
 
-          <div className="mb-6">
-            <div className="relative">
+          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-neutral-500" />
               </div>
@@ -65,6 +75,18 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border-2 bt-blue-400-500 border-solid rounded-lg text-bt-blue-300 placeholder-neutral-500 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:bt-blue-400-600"
               />
+            </div>
+            <div className="w-full sm:w-48">
+              <select
+                value={connectionType}
+                onChange={(e) => setConnectionType(e.target.value)}
+                className="w-full h-[52px] pl-4 pr-10 py-3 bg-white border-2 border-solid border-bt-blue-400-500 rounded-lg text-bt-blue-300 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:border-transparent"
+              >
+                <option value="ALL">All Connections</option>
+                <option value="PARTNER">Partners</option>
+                <option value="EXEC">Execs</option>
+                <option value="ATTENDEE">Attendees</option>
+              </select>
             </div>
           </div>
 
