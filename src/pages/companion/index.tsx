@@ -1,14 +1,11 @@
 import React from "react";
 import { fetchAuthSession } from "@aws-amplify/auth";
 
-
-
 // COMMENTED OUT - Original companion functionality
 import { useState, useEffect, useContext, createContext } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
-import { motion } from "framer-motion";
 import Events from "@/constants/companion-events";
 import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
@@ -16,8 +13,6 @@ import {
   COMPANION_EMAIL_KEY,
   COMPANION_PROFILE_ID_KEY,
 } from "@/constants/companion";
-import { Badge } from "./badges";
-import { Loader2 } from "lucide-react";
 
 export interface Registration {
   id: string;
@@ -96,7 +91,9 @@ const Companion = () => {
       ]);
 
       const reg = registrationResponse.data[0];
+      console.log("Fetched registration:", reg);
       if (!reg) {
+        console.log("No registration found for email:", email);
         setError("This email does not match an existing entry in our records.");
         setIsLoading(false);
         return;
@@ -127,7 +124,7 @@ const Companion = () => {
         setIsLoading(false);
       } catch (err) {
         console.log("Auth check failed:", err);
-        router.push('/login?redirect=' + encodeURIComponent('/companion'));
+        router.push('/login?redirect=/companion');
         return;
       }
     };
