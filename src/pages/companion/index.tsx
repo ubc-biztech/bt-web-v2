@@ -1,7 +1,7 @@
 import React from "react";
-import Image from "next/image";
-import BigProdX from "@/assets/2025/productx/biglogo.png";
-import ProdxBizBot from "@/assets/2025/productx/prodxbizbot.png";
+import { fetchAuthSession } from "@aws-amplify/auth";
+
+
 
 // COMMENTED OUT - Original companion functionality
 import { useState, useEffect, useContext, createContext } from "react";
@@ -59,17 +59,11 @@ const Companion = () => {
   const [email, setEmail] = useState("");
   const [pageError, setPageError] = useState("");
   const [error, setError] = useState("");
-  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [event, setEvent] = useState<EventData | null>(null);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
-  const [decodedRedirect, setDecodedRedirect] = useState("");
-  const [input, setInput] = useState("");
-  const [connections, setConnections] = useState([]);
-  const [badges, setBadges] = useState(null);
-  const [completedBadges, setCompletedBadges] = useState(0);
 
   const events = Events.sort((a, b) => {
     return b.activeUntil.getTime() - a.activeUntil.getTime();
@@ -82,43 +76,6 @@ const Companion = () => {
     }) || events[0];
 
   const { eventID, year } = currentEvent || {};
-
-  // Animation variants
-  const pageVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20 },
-  };
-
-  const transition = {
-    duration: 0.6,
-    ease: [0.6, -0.05, 0.01, 0.99],
-  };
-
-  // Styles
-  const styles = {
-    container:
-      "min-h-screen w-screen bg-[#020319] relative overflow-hidden flex items-center justify-center",
-    card: "flex justify-center items-center min-h-screen overflow-hidden border-none bg-transparent relative z-10",
-    blueOrb:
-      "absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl",
-    purpleOrb:
-      "absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500/5 blur-3xl",
-    contentWrapper: "w-full max-w-2xl px-4",
-    logoWrapper: "w-full flex justify-center relative",
-    logoGlow:
-      "absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-lg blur-xl",
-    logo: "w-1/2 sm:w-3/5 mb-5 relative",
-    title: "text-2xl font-bold mb-2 text-white font-satoshi",
-    description: "text-center mb-4 text-white p1 font-satoshi",
-    input:
-      "mb-4 w-64 font-satoshi text-white backdrop-blur-sm bg-white/5 border-white/10 transition-all duration-300 focus:bg-white/10 focus:border-white/20",
-    button:
-      "mb-4 font-satoshi relative overflow-hidden bg-[#1E88E5] hover:bg-[#1976D2] text-white px-8 py-2 rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(30,136,229,0.3)] hover:shadow-[0_0_20px_rgba(30,136,229,0.5)]",
-    buttonShine:
-      "absolute inset-0 transform bg-gradient-to-r from-[#1E88E5] hover:from-[#1976D2] via-white/20 hover:to-[#1976D2] to-[#1E88E5]",
-    error: "text-red-500 text-center w-4/5 font-satoshi",
-  };
 
   const fetchUserData = async () => {
     setIsLoading(true);
@@ -158,11 +115,21 @@ const Companion = () => {
 
   useEffect(() => {
     const initializeData = async () => {
-      const savedEmail = localStorage.getItem(COMPANION_EMAIL_KEY);
-      if (savedEmail) {
+      try {
+        const session = await fetchAuthSession();
+        const savedEmail = session?.tokens?.idToken?.payload?.email as string;
+        if (!savedEmail) {
+          throw new Error(
+            "No email found in session"
+          );
+        }
         setEmail(savedEmail);
+        setIsLoading(false);
+      } catch (err) {
+        console.log("Auth check failed:", err);
+        router.push('/login?redirect=' + encodeURIComponent('/companion'));
+        return;
       }
-      setIsLoading(false);
     };
 
     initializeData();
@@ -183,76 +150,6 @@ const Companion = () => {
           A page error occurred, please refresh the page. If the problem
           persists, contact a BizTech exec for support.
         </div>
-      </div>
-    );
-  }
-
-  if (!email || !userRegistration) {
-    return (
-      <div className={styles.container}>
-        {!isLoading && (
-          <>
-            <motion.div
-              key="email"
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={pageVariants}
-              transition={transition}
-              className="flex flex-col items-center w-full max-w-sm z-20"
-            >
-              <Image
-                src={BigProdX}
-                alt="ProductX Logo"
-                width={315}
-                height={100}
-                className="mb-4"
-              />
-              <p className="text-center font-ibm text-white text-sm mb-4">
-                Enter your email or access code to get started.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setEmail(input);
-                }}
-                className="w-full"
-              >
-                <input
-                  type="email"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Start Typing Here..."
-                  className="w-full p-3 font-ibm bg-white text-black focus:outline-none focus:ring-2 focus:ring-[#898BC3]"
-                />
-              </form>
-              {error && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-red-500 text-center mt-4"
-                >
-                  {error}
-                </motion.p>
-              )}
-            </motion.div>
-            <motion.div
-              key="bizbot"
-              initial={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute bottom-0 w-screen h-[45vh] z-10"
-            >
-              <Image
-                src={ProdxBizBot}
-                alt="ProdxBizBot"
-                className="object-contain object-bottom"
-                fill
-                priority
-              />
-            </motion.div>
-          </>
-        )}
       </div>
     );
   }
