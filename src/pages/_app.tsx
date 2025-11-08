@@ -4,13 +4,18 @@ import type { AppProps } from "next/app";
 import Layout from "./layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Urbanist } from "next/font/google";
+import { Urbanist, Bricolage_Grotesque } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
   variable: "--font-urbanist",
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
 });
 
 export default function App({ Component, pageProps }: AppProps) {
@@ -93,7 +98,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main
-        className={`${isCompanionPath ? "dark" : ""} ${urbanist.className}`}
+        className={`${isCompanionPath ? "dark" : ""} ${urbanist.className} ${bricolage.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />
