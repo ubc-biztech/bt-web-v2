@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { Urbanist, Bricolage_Grotesque } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import localFont from 'next/font/local'
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -15,7 +16,7 @@ const urbanist = Urbanist({
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
-  variable: "--font-bricolage",
+  variable: "--font-urbanist",
 });
 
 export default function App({ Component, pageProps }: AppProps) {
