@@ -11,7 +11,6 @@ import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
 import {
   COMPANION_EMAIL_KEY,
-  COMPANION_PROFILE_ID_KEY,
 } from "@/constants/companion";
 
 export interface Registration {
