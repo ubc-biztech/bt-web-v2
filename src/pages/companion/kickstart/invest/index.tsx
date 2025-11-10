@@ -208,12 +208,14 @@ const InvestPage = () => {
     const handleSubmitInvestment = async () => {
         
         if (!selectedTeam || confirmedAmount === null || !comment.trim()) return;
+
+        // TODO remove and test with backend
         if (DISABLE_VERIFY) { 
             setInvestmentStage(InvestmentStage.SUCCESS);
             setSuccessInfo({
                     teamName: selectedTeam.teamName,
                     amount: confirmedAmount,
-                    newBalance: -67,
+                    newBalance: availableFunds - confirmedAmount,
             });  
             return;
         }
