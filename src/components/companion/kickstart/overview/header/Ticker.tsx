@@ -1,9 +1,9 @@
 import React from 'react'
 
-const Marquee = () => {
+const Ticker = () => {
   return (
     <div>Marquee</div>
   )
 }
 
-export default Marquee
+export default Ticker

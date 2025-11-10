@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { GlowButton } from '@/components/companion/kickstart/GlowButton';
+import { GlowButton } from '@/components/companion/kickstart/ui/GlowButton';
 import Logo from '@/assets/2025/kickstart/biztech_logo.svg';
 import NavBarContainer from '@/components/companion/navigation/NavBarContainer';
 import Link from 'next/link';
