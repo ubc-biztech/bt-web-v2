@@ -14,6 +14,18 @@ import Loading from "@/components/Loading";
 import { ArrowRight, MessageCircle, X, DollarSign, CheckCircle2 } from "lucide-react";
 import { set } from "lodash";
 
+// @Elijah
+
+// will try to check if user is logged in, is registered for kickstart 2025, and is assigned to a team
+// Will redirect to login/registration/team pages as necessary
+
+// If there is no team selected, then we show the team selection screen
+// While there is a team selected, we will put a popup on the screen
+//     This will handle the investment flow, and depending on the stage (such as amount, comment, success), will show different parts
+// pressing the x button just sets selected team to null, hiding the popup.
+
+// I have not thought about Partner investment and Admin investment yet as I am not super sure about how their backend/database scheme flows/works. (is it similar to user investment?)
+
 const tempRegistrationData: Registration = {
     id: "temp-id",
     fname: "Temp",
@@ -90,6 +102,7 @@ const InvestPage = () => {
         if (DISABLE_VERIFY) return;
 
         const verifyAccess = async () => {
+            // TODO switch redirected links as I don't know if they are correct
             try {
                 const session = await fetchAuthSession();
                 const email = session?.tokens?.idToken?.payload?.email as string | undefined;
@@ -457,12 +470,6 @@ const InvestPage = () => {
     if (!isReady || !reg) {
         return <Loading />;
     }
-
-
-    // If there is no team selected, then we show the team selection screen
-    // While there is a team selected, we will put a popup on the screen
-    //     This will handle the investment flow, and depending on the stage (such as amount, comment, success), will show different parts
-    // pressing the x button just sets selected team to null, hiding the popup.
 
 
     return (
