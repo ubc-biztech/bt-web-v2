@@ -1,11 +1,44 @@
 import { useState, useEffect } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion/index";
+import { KickstartNav } from "@/components/companion/kickstart/ui/KickstartNav";
 import router from "next/router";
+import Loading from "@/components/Loading";
+import { AnimatePresence, motion } from "framer-motion";
+
+export enum KickstartPages {
+  OVERVIEW = "OVERVIEW",
+  INVEST = "INVEST",
+  SETTINGS = "SETTINGS",
+  PROFILE = "PROFILE",
+}
+
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    x: 50,
+  },
+  in: {
+    opacity: 1,
+    x: 0,
+  },
+  out: {
+    opacity: 0,
+    x: -50,
+  },
+};
+
+const pageTransition = {
+  type: 'tween',
+  ease: 'easeInOut',
+  duration: 0.3,
+};
 
 const Kickstart2025 = () => {
+
   const [team, setTeam] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState<KickstartPages>(KickstartPages.OVERVIEW);
 
   const { userRegistration } = useUserRegistration();
   // check if user is assigned to a team
@@ -44,21 +77,79 @@ const Kickstart2025 = () => {
   }, [userRegistration]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
-  if (!team) {
-    // redirect to team assignment
-    router.push("/companion/team"); 
-    return;
-  }
+  // if (!team) {
+  //   // redirect to team assignment
+  //   router.push("/companion/team"); 
+  //   return;
+  // }
 
-  // route to kickstart dashboard (OVERVIEW)
+  // route to kickstart dashboard
+
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage text-[100px]">
-     Kickstart dashboard!
-    </div>
-  );
+    <KickstartNav page={page} setPage={setPage}>
+      <AnimatePresence mode="wait">
+        {
+          page === KickstartPages.OVERVIEW && (
+            <motion.div 
+              key={KickstartPages.OVERVIEW}
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+              className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage text-[100px]">
+              Kickstart overview!
+            </motion.div>
+          )
+        }
+        {
+          page === KickstartPages.INVEST && (
+            <motion.div 
+              key={KickstartPages.INVEST}
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+              className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage text-[100px]">
+              Kickstart invest!
+            </motion.div>
+          )
+        }
+        {
+          page === KickstartPages.SETTINGS && (
+            <motion.div 
+              key={KickstartPages.SETTINGS}
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+              className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage text-[100px]">
+              Kickstart settings!
+            </motion.div>
+          )
+        }
+        {
+          page === KickstartPages.PROFILE && (
+            <motion.div 
+              key={KickstartPages.PROFILE}
+              variants={pageVariants}
+              initial="initial"
+              animate="in"
+              exit="out"
+              transition={pageTransition}
+              className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage text-[100px]">
+              Kickstart profile!
+            </motion.div>
+          )
+        }
+      </AnimatePresence>
+    </KickstartNav>
+  )
 };
 
 export default Kickstart2025;
