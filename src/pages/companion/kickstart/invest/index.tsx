@@ -490,14 +490,13 @@ const InvestPage = () => {
                    <div className="flex gap-2 items-center w-full overflow-hidden">
                         <input
                             className="flex-grow min-w-0 rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 text-base focus:outline-none"
-                            placeholder="Amount ($)"
-                            type="number"
-                            value={amountInput}
-                            onChange={(e) => setAmountInput(e.target.value)}
+                            placeholder="Search teams..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
                         />
                         <button
                             type="button"
-                            className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 h-full"
+                            className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-2 h-full"
                             onClick={handleProceedToComment}
                         >
                             <ArrowRight className="w-5 h-5" />
