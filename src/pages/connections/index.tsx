@@ -38,24 +38,12 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
     const matchesSearch = `${connection.fname} ${connection.lname}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
+   
+    // note that attendee type connections have no connectionType or can be undefined
+    const currType = connection.connectionType || "ATTENDEE"; 
 
-    const matchesType = (() => {
-      if (connectionType === "ALL") return true; // ALL bypasses everything
-
-      // note that attendee type connections have no connectionType or can be undefined
-      const currType = connection.connectionType || "ATTENDEE"; 
-
-      switch (connectionType) {
-        case "PARTNER":
-          return currType === "PARTNER";
-        case "EXEC":
-          return currType === "EXEC";
-        case "ATTENDEE":
-          return currType === "ATTENDEE";
-        default:
-          return false;
-      }
-    })();
+    // if it's ALL, let everything pass through
+    const matchesType = connectionType === "ALL" || connectionType === currType;
 
     return matchesSearch && matchesType;
   });
