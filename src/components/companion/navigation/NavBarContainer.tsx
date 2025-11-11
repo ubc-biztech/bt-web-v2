@@ -55,12 +55,12 @@ const NavBarContainer: React.FC<NavBarContainerProps> = ({
       }
 
       <motion.div
-        className="flex-1 px-2 space-y-8"
+        className="flex-1 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-col px-2 gap-y-3 mt-4 mb-8">{children}</div>
+        <div className="flex flex-col gap-y-3 mt-4 mb-8">{children}</div>
       </motion.div>
     </div>
   );
