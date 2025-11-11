@@ -80,11 +80,11 @@ const Kickstart2025 = () => {
     return <Loading />;
   }
 
-  // if (!team) {
-  //   // redirect to team assignment
-  //   router.push("/companion/team"); 
-  //   return;
-  // }
+  if (!team) {
+    // redirect to team assignment
+    router.push("/companion/team"); 
+    return;
+  }
 
   // route to kickstart dashboard
 
