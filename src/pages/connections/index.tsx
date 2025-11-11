@@ -42,7 +42,8 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
     const matchesType = (() => {
       if (connectionType === "ALL") return true; // ALL bypasses everything
 
-      const currType = connection.connectionType || "ATTENDEE"; // default to attendee for missing type
+      // note that attendee type connections have no connectionType or can be undefined
+      const currType = connection.connectionType || "ATTENDEE"; 
 
       switch (connectionType) {
         case "PARTNER":
