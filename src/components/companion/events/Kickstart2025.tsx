@@ -10,8 +10,8 @@ import { useUserRegistration } from "@/pages/companion/index";
 import { KickstartNav } from "@/components/companion/kickstart/ui/KickstartNav";
 import Loading from "@/components/Loading";
 import { AnimatePresence, motion } from "framer-motion";
-import router from "next/router";
 import Overview from "../kickstart/overview/Overview";
+import router from "next/router";
 
 export enum KickstartPages {
   OVERVIEW = "OVERVIEW",
@@ -21,15 +21,30 @@ export enum KickstartPages {
   PROFILE = "PROFILE",
 }
 
+export interface TeamData {
+  "eventID;year": string;
+  funding: number;
+  id: string;
+  inventory: string[];
+  memberIDs: string[];
+  metadata: Record<string, any>;
+  points: number;
+  pointsSpent: number;
+  scannedQRs: string[];
+  submission: string;
+  teamName: string;
+  transactions: any[];
+}
+
 interface TeamContextType {
-  team: string;
+  team: TeamData | null;
   isLoading: boolean;
 }
 
 export const TeamContext = createContext<TeamContextType | null>(null);
 
 export const useTeam = () => {
-  const context = useContext(TeamContext);
+  const context = useContext(TeamContext) as TeamContextType;
   if (!context) {
     throw new Error(
       "useTeam must be used within a TeamProvider. Ensure TeamProvider is above the consuming component in the tree.",
@@ -43,7 +58,7 @@ interface TeamProviderProps {
 }
 
 export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
-  const [team, setTeam] = useState<string>("");
+  const [team, setTeam] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const { userRegistration } = useUserRegistration();
@@ -81,12 +96,9 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
       if (userTeam && userTeam.response) {
         setTeam(userTeam.response);
         console.log("Successfully fetched team:", userTeam.response);
-      } else {
-        setTeam("");
       }
     } catch (error) {
       console.error("Error fetching user team:", error);
-      setTeam("");
     } finally {
       setLoading(false);
     }
@@ -98,7 +110,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     }
   }, [userRegistration]);
 
-  const contextValue: TeamContextType = { team, isLoading: loading };
+  const contextValue: TeamContextType = { team: team, isLoading: loading };
 
   if (loading) {
     return <Loading />;

@@ -1,23 +1,50 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { fetchBackend } from "@/lib/db";
+
+export type InvestmentEntry = {
+  investorName: string;
+  amount: number;
+  teamName: string;
+};
+
+const skeleton = Array(10).fill({ investorName: "...", amount: 0, teamName: "..." })
 
 export const Ticker = () => {
   // Sample data for the ticker
-  const entries = [
-    { from: "Kevin", amount: 2400, to: "Biz.ai" },
-    { from: "Alice", amount: 1850, to: "TechCorp" },
-    { from: "David", amount: 3200, to: "StartupXYZ" },
-    { from: "Emma", amount: 2100, to: "CloudSync" },
-    { from: "James", amount: 2750, to: "DataFlow" },
-    { from: "Sarah", amount: 1950, to: "AI Labs" },
-    { from: "Michael", amount: 3100, to: "Nexus" },
-    { from: "Laura", amount: 2600, to: "Quantum" },
-    { from: "Chris", amount: 2300, to: "Velocity" },
-    { from: "Sophie", amount: 2900, to: "Fusion" },
-  ];
+  const [teams, setTeams] = useState<InvestmentEntry[]>(skeleton)
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchBackend({
+          endpoint: `/investments?limit=10`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+
+        console.log("Fetched ticker data:", data);
+
+        const transformedEntries = data.map((investment: { investorName: string; amount: number; teamName: string; }) => ({
+            investorName: investment.investorName,
+            amount: investment.amount,
+            teamName: investment.teamName
+        }));
+
+        if (transformedEntries && transformedEntries.length) {
+          setTeams(transformedEntries);
+        }
+      }
+      catch (error) {
+        console.error("Error fetching ticker data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   return (
     <BorderContainer>
       <div className="relative h-10 flex items-center overflow-hidden whitespace-nowrap">
@@ -28,21 +55,21 @@ export const Ticker = () => {
           }}
         >
           {/* First set of entries */}
-          {entries.map((entry, idx) => (
+          {teams.map((entry, idx) => (
             <Entry
               key={`first-${idx}`}
-              from={entry.from}
+              from={entry.investorName}
               amount={entry.amount}
-              to={entry.to}
+              to={entry.teamName}
             />
           ))}
           {/* Duplicate set for seamless loop */}
-          {entries.map((entry, idx) => (
+          {teams.map((entry, idx) => (
             <Entry
               key={`second-${idx}`}
-              from={entry.from}
+              from={entry.investorName}
               amount={entry.amount}
-              to={entry.to}
+              to={entry.teamName}
             />
           ))}
         </div>
