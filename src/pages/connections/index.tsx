@@ -33,11 +33,22 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     
-    const matchesType = 
-      connectionType === "ALL" ||  // if ALL, let everything go through
-      (connectionType === "PARTNER" && connection.connectionType === "PARTNER") ||
-      (connectionType === "EXEC" && connection.connectionType === "EXEC") ||
-      (connectionType === "ATTENDEE" && (connection.connectionType === "ATTENDEE" || !connection.connectionType));
+    const matchesType = (() => {
+      if (connectionType === "ALL") return true; // ALL bypasses everything
+
+      const currType = connection.connectionType || "ATTENDEE"; // default to attendee for missing type
+
+      switch (connectionType) {
+        case "PARTNER":
+          return currType === "PARTNER";
+        case "EXEC":
+          return currType === "EXEC";
+        case "ATTENDEE":
+          return currType === "ATTENDEE";
+        default:
+          return false;
+      }
+    })();
     
     return matchesSearch && matchesType;
   });
