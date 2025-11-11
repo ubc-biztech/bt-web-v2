@@ -5,7 +5,13 @@ import { Search } from "lucide-react";
 import { fetchBackendFromServer } from "@/lib/db";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Connection {
   compositeID: string;
@@ -17,7 +23,7 @@ interface Connection {
   major: string;
   lname: string;
   type: string;
-  connectionType?: 'PARTNER' | 'EXEC' | 'ATTENDEE';
+  connectionType?: "PARTNER" | "EXEC" | "ATTENDEE";
 }
 
 interface ConnectionsPageProps {
@@ -32,7 +38,7 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
     const matchesSearch = `${connection.fname} ${connection.lname}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    
+
     const matchesType = (() => {
       if (connectionType === "ALL") return true; // ALL bypasses everything
 
@@ -49,7 +55,7 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
           return false;
       }
     })();
-    
+
     return matchesSearch && matchesType;
   });
 
