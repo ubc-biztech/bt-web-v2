@@ -38,9 +38,9 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
     const matchesSearch = `${connection.fname} ${connection.lname}`
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-   
+
     // note that attendee type connections have no connectionType or can be undefined
-    const currType = connection.connectionType || "ATTENDEE"; 
+    const currType = connection.connectionType || "ATTENDEE";
 
     // if it's ALL, let everything pass through
     const matchesType = connectionType === "ALL" || connectionType === currType;
