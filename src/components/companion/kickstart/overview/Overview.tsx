@@ -23,6 +23,7 @@ export interface RawInvestment {
 const Overview = () => {
     const { team } = useTeam();
     const [receivedFunding, setReceivedFunding] = useState<number>(-1);
+    const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(null);
     const [recentInvestments, setReceiveInvestments] = useState<Investment[] | null>(null);
 
     useEffect(() => {
@@ -39,6 +40,7 @@ const Overview = () => {
 
                     if (data) {
                         setReceivedFunding(data.funding || -1);
+                        setRawInvestments(data.investments || null);
                         setReceiveInvestments(processInvestments(data.investments) || []);
                     }
                 }
@@ -54,7 +56,7 @@ const Overview = () => {
         <div className='w-[90%] flex flex-col pb-20'>
             <Header teamName={team?.teamName || ""} />
             <div className='w-full h-[6em] flex flex-row gap-4 mt-4'>
-                <Graph />
+                <Graph investments={rawInvestments || []}/>
                 <div className='w-2/5 h-full flex flex-col gap-3'>
                     <Stats received={receivedFunding}/>
                     <Recent investments={recentInvestments}/>

@@ -1,9 +1,7 @@
 "use client"
 
-import { Maximize2, MessageSquareText } from "lucide-react"
 import { motion } from "framer-motion"
-import { useEffect, useState } from "react"
-import { fetchBackend } from "@/lib/db"
+import { Maximize2, MessageSquareText } from "lucide-react"
 
 const containerVariants = {
   hidden: { opacity: 0 },
