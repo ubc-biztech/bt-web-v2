@@ -23,7 +23,7 @@ const formatNumberToK = (value: number) => {
   if (value >= 1000) {
     return `${(value / 1000).toFixed(0)}k`
   }
-  return `$${value}`
+  return `${value}`
 }
 
 const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
@@ -121,12 +121,12 @@ const processInvestmentData = (rawInvestments: RawInvestment[]) => {
         const datePart = parts[0] || item.time; 
         const timePart = parts[1] || item.time; 
 
-        if (datePart !== lastDate) {
-            lastDate = datePart
-            // Date changed: use the full single-line string, e.g., "Nov 10, 10:00 PM"
-            return { ...item, displayTime: item.time } 
-        }
-        // Date is the same: use only the time part, e.g., "10:00 PM"
+        // if (datePart !== lastDate) {
+        //     lastDate = datePart
+        //     // Date changed: use the full single-line string, e.g., "Nov 10, 10:00 PM"
+        //     return { ...item, displayTime: item.time } 
+        // }
+        // // Date is the same: use only the time part, e.g., "10:00 PM"
         return { ...item, displayTime: timePart }
     })
 
@@ -154,13 +154,13 @@ const processInvestmentData = (rawInvestments: RawInvestment[]) => {
   }
 
   return (
-        <Card className="relative w-3/5 h-full bg-[#111111] border-none shadow-none overflow-hidden">
-        <CardContent className="absolute inset-0 p-0 !flex-none !grid-none">
-            <div className="absolute inset-0 left-0 top-0 w-full h-full">
+    <Card className="relative w-3/5 h-full bg-[#111111] border-none shadow-none overflow-hidden pr-4">
+      <CardContent className="absolute inset-0 p-0 !flex-none !grid-none">
+          <div className="absolute inset-0 left-0 top-0 w-full h-full">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                 data={chartData}
-                margin={{ top: 0, right: 5, left: 0, bottom: 0 }}
+                margin={{ top: 0, right: 40, left: -30, bottom: 0 }}
                 >
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
                 <XAxis
@@ -180,15 +180,26 @@ const processInvestmentData = (rawInvestments: RawInvestment[]) => {
                     tickLine={false}
                 />
                 <Tooltip
-                    contentStyle={{
+                  contentStyle={{
                     backgroundColor: "#111111",
                     border: "0px solid #ffffff",
                     borderRadius: "3px",
-                    }}
-                    labelStyle={{ color: "#ffffff" }}
-                    formatter={(v: any) => [
+                    padding: "8px 12px",        // ↓ smaller internal spacing
+                    fontSize: "16px",          // ↓ smaller text
+                    lineHeight: "1.1",         // ↓ tighter vertical spacing
+                  }}
+                  labelStyle={{
+                    color: "#ffffff",
+                    fontSize: "11px",
+                    marginBottom: "2px",       // ↓ reduce space between label and value
+                  }}
+                  itemStyle={{
+                    color: "#00C2FF",          // optional: consistent color for value
+                    fontSize: "11px",
+                  }}
+                  formatter={(v: any) => [
                     typeof v === "number" ? formatNumberToK(v) : v,
-                    ]}
+                  ]}
                 />
                 <Line
                     type="monotone"
@@ -202,10 +213,9 @@ const processInvestmentData = (rawInvestments: RawInvestment[]) => {
                 />
                 </LineChart>
             </ResponsiveContainer>
-            </div>
-        </CardContent>
-        </Card>
-
+          </div>
+      </CardContent>
+    </Card>
   )
 }
 

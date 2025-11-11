@@ -55,7 +55,7 @@ const Overview = () => {
     return (
         <div className='w-[90%] flex flex-col pb-20'>
             <Header teamName={team?.teamName || ""} />
-            <div className='w-full h-[6em] flex flex-row gap-4 mt-4'>
+            <div className='w-full h-[6em] flex flex-row mt-4'>
                 <Graph investments={rawInvestments || []}/>
                 <div className='w-2/5 h-full flex flex-col gap-3'>
                     <Stats received={receivedFunding}/>
