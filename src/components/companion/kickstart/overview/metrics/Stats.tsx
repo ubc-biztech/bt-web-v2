@@ -75,11 +75,11 @@ export const StatContent = ({ icon: Icon, title, value, duration = 800 }: StatsC
         <div className="bg-[#333333] w-10 h-10 flex flex-row items-center justify-center rounded-md">
           <Icon className="text-[#B4B4B4] w-6 h-6" />
         </div>
-        <span className="text-white text-[32px]">
+        <span className="text-white md:text-[32px] text-[24px]">
           {prefix}
           {displayValue.toLocaleString()}
         </span>
-        <span className="text-[#8C8C8C] text-[16px] -mt-2">{title}</span>
+        <span className="text-[#8C8C8C] md:text-[16px] text-[12px] -mt-2">{title}</span>
       </div>
     </div>
   )

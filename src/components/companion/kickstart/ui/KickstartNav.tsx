@@ -120,7 +120,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
           <div
             className="
             relative 
-            flex 
+            sm:flex hidden 
             items-center 
             bg-[#181818]
             rounded-full
