@@ -114,7 +114,7 @@ interface BorderContainerProps {
 const BorderContainer = ({ children }: BorderContainerProps) => {
   return (
     <div
-      className="w-1/2 h-10 text-white relative"
+      className="w-full md:w-[45vw] h-10 text-white relative"
       style={{
         maskImage:
           "linear-gradient(to right, transparent 0%, black 25%, black 75%, transparent 100%)",

@@ -148,7 +148,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
   }
 
   return (
-    <Card className="relative w-3/5 h-full bg-[#111111] border-none shadow-none overflow-hidden pr-4">
+    <Card className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4">
       {/* Time Range Selector */}
       <div className="absolute top-0 right-10 z-20 flex gap-2 rounded-md px-1 py-1 backdrop-blur-sm bg-[#262626]">
         {(["3 hours", "Day", "Week"] as const).map((range) => (
