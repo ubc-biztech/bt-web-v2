@@ -73,19 +73,30 @@ const CreateTeam = () => {
     const year = parseInt(yearStr);
 
     try {
+      const payload = {
+        eventID,
+        year,
+        team_name: teamName.trim(),
+        memberIDs: [reg.id],
+      };
+
       const res = await fetchBackend({
         endpoint: "/team/make",
         method: "POST",
-        data: {
-          eventID,
-          year,
-          team_name: teamName.trim(),
-          memberIDs: [reg.id],
-        },
+        data: payload,
       });
 
-      if (res.success && res.team) {
-        setTeamData(res.team);
+      console.log("API Request Payload:", payload);
+      console.log("API Response:", res);
+
+      if (res.response) {
+        setTeamData({
+          teamID: res.response.id,
+          eventID: res.response["eventID;year"].split(";")[0],
+          year: parseInt(res.response["eventID;year"].split(";")[1]),
+          teamName: res.response.teamName,
+          members: res.response.memberIDs,
+        });
         setError(null);
       }
     } catch (err: any) {
@@ -124,27 +135,18 @@ const CreateTeam = () => {
       >
         <div className="w-full h-full flex flex-col items-center justify-center font-bricolage bg-[#111111] mt-24 md:mt-32 px-4">
           <div className="flex flex-col items-center w-full max-w-[700px]">
-            {/* Success icon */}
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-white flex items-center justify-center mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="w-12 h-12 md:w-16 md:h-16 text-white"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+            {/* Success icon - same as create team page */}
+            <div className="mb-8">
+              <Logo width={130} height={130} />
             </div>
 
-            <h1 className="text-xl md:text-2xl text-white text-center font-normal mb-2">
+            <h1 className="text-base md:text-lg text-white text-center font-normal mb-6">
               Team created successfully. Your code is:
             </h1>
 
             {/* Team ID with copy button */}
-            <div className="mt-4 flex items-center gap-3">
-              <span className="text-3xl md:text-4xl font-bold text-white">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="text-5xl md:text-6xl font-bold text-white">
                 {teamData.teamID}
               </span>
               <button
@@ -153,9 +155,9 @@ const CreateTeam = () => {
                 aria-label="Copy team code"
               >
                 {copied ? (
-                  <Check className="w-5 h-5 text-green-400" />
+                  <Check className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
                 ) : (
-                  <Copy className="w-5 h-5 text-white" />
+                  <Copy className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 )}
               </button>
             </div>
@@ -163,7 +165,7 @@ const CreateTeam = () => {
             {/* Continue button */}
             <button
               onClick={() => router.push("/companion/team")}
-              className="mt-8 px-8 py-3 bg-[#1D1D1D] text-white font-bricolage border border-white rounded-lg shadow-[inset_0_0_5px_rgba(255,255,255,0.5),inset_0_0_30px_rgba(255,255,255,0.25)] hover:bg-[#1f1f1f] hover:shadow-[inset_0_0_7px_rgba(255,255,255,0.7),inset_0_0_45px_rgba(255,255,255,0.4)] transition-all duration-300"
+              className="px-8 py-3 bg-[#1D1D1D] text-white font-bricolage border border-white rounded-lg shadow-[inset_0_0_5px_rgba(255,255,255,0.5),inset_0_0_30px_rgba(255,255,255,0.25)] hover:bg-[#1f1f1f] hover:shadow-[inset_0_0_7px_rgba(255,255,255,0.7),inset_0_0_45px_rgba(255,255,255,0.4)] transition-all duration-300"
             >
               Continue to dashboard
             </button>
