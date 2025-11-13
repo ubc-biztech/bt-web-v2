@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { GlowButton } from "@/components/companion/kickstart/ui/GlowButton";
 import Logo from "@/assets/2025/kickstart/biztech_logo.svg";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
@@ -8,12 +8,11 @@ import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import { Registration } from "@/pages/companion/index";
 
-// @Ali
-
 const TeamIndex = () => {
   const router = useRouter();
   const [reg, setReg] = useState<Registration | null>(null);
-  const fetchRegistration = async () => {
+
+  const fetchRegistration = useCallback(async () => {
     try {
       const session = await fetchAuthSession();
       const email = session?.tokens?.idToken?.payload?.email as string;
@@ -32,17 +31,14 @@ const TeamIndex = () => {
       }
       setReg(reg);
     } catch (err) {
-      console.error("Error fetching registration:", err);
       router.push("/login?redirect=/companion/team");
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     fetchRegistration();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchRegistration]);
 
-  console.log("reg", reg);
   return (
     <NavBarContainer
       isPartner={reg?.isPartner}
