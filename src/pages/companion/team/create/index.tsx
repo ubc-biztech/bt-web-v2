@@ -41,7 +41,6 @@ const CreateTeam = () => {
       }
       setReg(reg);
     } catch (err) {
-      console.error("Error fetching registration:", err);
       router.push("/login?redirect=/companion/team/create");
     }
   }, [router]);
@@ -67,7 +66,6 @@ const CreateTeam = () => {
       return;
     }
 
-    // Parse eventID and year from the "eventID;year" field
     const eventYearKey = reg["eventID;year"] as string;
     const [eventID, yearStr] = eventYearKey.split(";");
     const year = parseInt(yearStr);
@@ -86,9 +84,6 @@ const CreateTeam = () => {
         data: payload,
       });
 
-      console.log("API Request Payload:", payload);
-      console.log("API Response:", res);
-
       if (res.response) {
         setTeamData({
           teamID: res.response.id,
@@ -100,7 +95,6 @@ const CreateTeam = () => {
         setError(null);
       }
     } catch (err: any) {
-      console.error("Error creating team:", err);
       setError(
         err.message?.message ||
           err.message ||
@@ -117,7 +111,7 @@ const CreateTeam = () => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy to clipboard:", err);
+      // Failed to copy to clipboard
     }
   };
 
@@ -135,7 +129,6 @@ const CreateTeam = () => {
       >
         <div className="w-full h-full flex flex-col items-center justify-center font-bricolage bg-[#111111] mt-24 md:mt-32 px-4">
           <div className="flex flex-col items-center w-full max-w-[700px]">
-            {/* Success icon - same as create team page */}
             <div className="mb-8">
               <Logo width={130} height={130} />
             </div>
@@ -144,7 +137,6 @@ const CreateTeam = () => {
               Team created successfully. Your code is:
             </h1>
 
-            {/* Team ID with copy button */}
             <div className="flex items-center gap-3 mb-8">
               <span className="text-5xl md:text-6xl font-bold text-white">
                 {teamData.teamID}
@@ -162,9 +154,8 @@ const CreateTeam = () => {
               </button>
             </div>
 
-            {/* Continue button */}
             <button
-              onClick={() => router.push("/companion/team")}
+              onClick={() => router.push("/companion")}
               className="px-8 py-3 bg-[#1D1D1D] text-white font-bricolage border border-white rounded-lg shadow-[inset_0_0_5px_rgba(255,255,255,0.5),inset_0_0_30px_rgba(255,255,255,0.25)] hover:bg-[#1f1f1f] hover:shadow-[inset_0_0_7px_rgba(255,255,255,0.7),inset_0_0_45px_rgba(255,255,255,0.4)] transition-all duration-300"
             >
               Continue to dashboard
@@ -175,7 +166,6 @@ const CreateTeam = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <NavBarContainer
@@ -201,7 +191,6 @@ const CreateTeam = () => {
     );
   }
 
-  // Default form state
   return (
     <NavBarContainer
       isPartner={reg?.isPartner}

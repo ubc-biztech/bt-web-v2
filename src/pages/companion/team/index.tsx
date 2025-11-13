@@ -42,39 +42,6 @@ const TeamIndex = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleLeaveTeam = async () => {
-    if (!reg) {
-      alert("Registration data not loaded");
-      return;
-    }
-
-    // Parse eventID and year from the "eventID;year" field
-    const eventYearKey = reg["eventID;year"] as string;
-    const [eventID, year] = eventYearKey.split(";");
-
-    try {
-      const response = await fetchBackend({
-        endpoint: "/team/leave",
-        method: "POST",
-        authenticatedCall: true,
-        data: {
-          eventID: "kickstart",
-          year: 2025,
-          memberID: reg.id,
-        },
-      });
-
-      if (response.message === "success") {
-        alert("Successfully left the team");
-        // Refresh registration data
-        await fetchRegistration();
-      }
-    } catch (err) {
-      console.error("Error leaving team:", err);
-      alert("Failed to leave team. Please try again.");
-    }
-  };
-
   console.log("reg", reg);
   return (
     <NavBarContainer
@@ -99,15 +66,6 @@ const TeamIndex = () => {
           </Link>
           {" instead"}
         </span>
-
-        {reg?.teamID && (
-          <button
-            onClick={handleLeaveTeam}
-            className="mt-8 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors duration-200"
-          >
-            Leave Team
-          </button>
-        )}
       </div>
     </NavBarContainer>
   );
