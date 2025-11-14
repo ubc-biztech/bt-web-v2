@@ -6,6 +6,7 @@ import Loading from "@/components/Loading";
 import { AnimatePresence, motion } from "framer-motion";
 import Overview from "../kickstart/overview/Overview";
 import router from "next/router";
+import { Link } from "lucide-react";
 
 export enum KickstartPages {
   OVERVIEW = "OVERVIEW",
@@ -174,6 +175,11 @@ const Kickstart2025 = () => {
                 transition={pageTransition}
                 className={pageStyle}>
                 Kickstart invest!
+                <button className="items-center justify-center px-6 py-3 bg-[#DE7D02] hover:bg-[#f29224] text-white text-2xl"
+                  onClick={() => router.push('/companion/kickstart/invest')}>
+                    Go to Invest Flow 
+                </button>
+
               </motion.div>
             )
           }
