@@ -12,7 +12,6 @@ import { useRouter } from "next/router";
 import { Registration } from "@/pages/companion/index";
 import Loading from "@/components/Loading";
 import { ArrowRight, MessageCircle, X, DollarSign, CheckCircle2 } from "lucide-react";
-import { set } from "lodash";
 
 // @Elijah
 
@@ -102,10 +101,11 @@ const InvestPage = () => {
         if (DISABLE_VERIFY) return;
 
         const verifyAccess = async () => {
-            // TODO switch redirected links as I don't know if they are correct
             try {
                 const session = await fetchAuthSession();
+
                 const email = session?.tokens?.idToken?.payload?.email as string | undefined;
+                
                 if (!email) {
                     throw new Error("No email found in session");
                 }
@@ -115,12 +115,14 @@ const InvestPage = () => {
                 const res = await fetchBackend({
                     endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
                     method: "GET",
-                    authenticatedCall: false,
+                    authenticatedCall: true,
                 });
+
+                console.log(email + " DEBUG");
 
                 const registration = res.data[0];
                 if (!registration) {
-                    router.replace("/event/kickstart/2025/register");
+                    router.replace("/companion/team");
                     return;
                 }
                 setReg(registration);
@@ -131,18 +133,18 @@ const InvestPage = () => {
                     data: {
                         userID: registration.id || email,
                     },
-                    authenticatedCall: false,
+                    authenticatedCall: true,
                 });
 
                 if (!teamResponse?.team) {
-                    router.replace("/companion/team");
+                    router.replace("/event/kickstart/2025/register");
                     return;
                 }
 
                 const teamsRes = await fetchBackend({
                     endpoint: `/team/kickstart/2025`,
                     method: "GET",
-                    authenticatedCall: false,
+                    authenticatedCall: true,
                 });
                 const teams = teamsRes.data || [];
                 setAllTeams(teams);
@@ -166,11 +168,15 @@ const InvestPage = () => {
 
         const fetchFunding = async () => {
             try {
+                console.log("test1");
+
                 const res = await fetchBackend({
                     endpoint: `/investments/teamStatus/${reg.teamID}`,
                     method: "GET",
-                    authenticatedCall: false,
+                    authenticatedCall: true,
                 });
+
+                console.log("test2");
                 setAvailableFunds(res?.funding ?? 0);
             } catch (error) {
                 console.error("Failed to fetch funding status:", error);
@@ -195,6 +201,12 @@ const InvestPage = () => {
         setComment("");
         setFlowError(null);
         setSuccessInfo(null);
+    };
+
+    const isAmountValid = () => {
+        const parsed = Number(amountInput);
+        if (!Number.isFinite(parsed) || parsed <= 0) return false;
+        return parsed <= availableFunds;
     };
 
     const validateAmount = (): number | null => {
@@ -224,6 +236,7 @@ const InvestPage = () => {
 
         // TODO remove and test with backend
         if (DISABLE_VERIFY) { 
+            setSearchQuery("");
             setInvestmentStage(InvestmentStage.SUCCESS);
             setSuccessInfo({
                     teamName: selectedTeam.teamName,
@@ -232,6 +245,7 @@ const InvestPage = () => {
             });  
             return;
         }
+
         setIsSubmitting(true);
         setFlowError(null);
         try {
@@ -244,7 +258,7 @@ const InvestPage = () => {
                     amount: confirmedAmount,
                     comment: comment.trim(),
                 },
-                authenticatedCall: false,
+                authenticatedCall: true,
             });
 
             setAvailableFunds((prev) => {
@@ -262,6 +276,7 @@ const InvestPage = () => {
             setFlowError(error?.message || "Unable to submit investment. Please try again.");
         } finally {
             setIsSubmitting(false);
+            setSearchQuery("");
         }
     };
 
@@ -369,13 +384,11 @@ const InvestPage = () => {
 
                 <div className="flex flex-col gap-3 bg-[#1A1918]  p-5 rounded-lg ">
                     <div className="flex items-center gap-3 text-sm text-[#B8B8B8]">
-                        <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+                        {(comment != "") ? 
+                        <Progress2_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" /> : 
+                        <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />}
                         We'll deduct from your spending account. This will not decrease your own funding.
-                        {/* <div
-                                className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 w-25 h-10 opacity-30 flex items-center"
-                            >
-                            <p>invest</p>
-                        </div> */}
+
                         <button
                             type="button"
                             className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors disabled:opacity-50"
@@ -451,7 +464,11 @@ const InvestPage = () => {
 
                 <div className="flex flex-col gap-3 bg-[#1A1918]  p-5 rounded-lg ">
                     <div className="flex items-center gap-3 text-sm text-[#B8B8B8]">
-                        <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+                        {(isAmountValid())
+                            ? <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+                            : <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+                        }
+                        {/* <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" /> */}
                         We'll deduct from your spending account. This will not decrease your own funding.
                         <div
                             className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-3 opacity-30 flex items-center"
