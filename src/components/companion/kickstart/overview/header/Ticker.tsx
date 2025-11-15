@@ -13,7 +13,6 @@ export type InvestmentEntry = {
 const skeleton = Array(10).fill({ investorName: "...", amount: 0, teamName: "..." })
 
 export const Ticker = () => {
-  // Sample data for the ticker
   const [teams, setTeams] = useState<InvestmentEntry[]>(skeleton)
 
   useEffect(() => {
@@ -54,7 +53,6 @@ export const Ticker = () => {
             animation: "scroll 60s linear infinite",
           }}
         >
-          {/* First set of entries */}
           {teams.map((entry, idx) => (
             <Entry
               key={`first-${idx}`}
@@ -63,7 +61,6 @@ export const Ticker = () => {
               to={entry.teamName}
             />
           ))}
-          {/* Duplicate set for seamless loop */}
           {teams.map((entry, idx) => (
             <Entry
               key={`second-${idx}`}

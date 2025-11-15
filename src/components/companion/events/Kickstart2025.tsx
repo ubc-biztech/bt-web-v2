@@ -1,12 +1,14 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+import router from "next/router";
+import Loading from "@/components/Loading";
 import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion/index";
 import { KickstartNav } from "@/components/companion/kickstart/ui/KickstartNav";
-import Loading from "@/components/Loading";
 import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect, createContext, useContext, ReactNode } from "react";
+
+// pages
 import Overview from "../kickstart/overview/Overview";
-import router from "next/router";
-import { Link } from "lucide-react";
+import Invest from "../kickstart/invest/Invest";
 
 export enum KickstartPages {
   OVERVIEW = "OVERVIEW",
@@ -108,10 +110,10 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     return <Loading />;
   }
 
-  // if (!team) {
-  //   router.push("/companion/team"); 
-  //   return;
-  // }
+  if (!team) {
+    router.push("/companion/team"); 
+    return;
+  }
 
   return (
     <TeamContext.Provider value={contextValue}>
@@ -141,9 +143,23 @@ const pageTransition = {
   duration: 0.3,
 };
 
+const PageWrapper = ({ children, key }: { children: ReactNode, key: KickstartPages }) => {
+  return (
+    <motion.div 
+    key={key}
+    variants={pageVariants}
+    initial="initial"
+    animate="in"
+    exit="out"
+    transition={pageTransition}
+    className={"w-full mx-auto space-y-8 font-bricolage text-[100px] flex flex-col items-center justify-center"}>
+    {children}
+  </motion.div>
+  )
+}
+
 const Kickstart2025 = () => {
   const [page, setPage] = useState<KickstartPages>(KickstartPages.OVERVIEW);
-  const pageStyle = "w-full mx-auto space-y-8 font-bricolage text-[100px] flex flex-col items-center justify-center";
 
   // route to kickstart dashboard
   return (
@@ -152,63 +168,30 @@ const Kickstart2025 = () => {
         <AnimatePresence mode="wait">
           {
             page === KickstartPages.OVERVIEW && (
-              <motion.div 
-                key={KickstartPages.OVERVIEW}
-                variants={pageVariants}
-                initial="initial"
-                animate="in"
-                exit="out"
-                transition={pageTransition}
-                className={pageStyle}>
+              <PageWrapper key={KickstartPages.OVERVIEW}>
                 <Overview />
-              </motion.div>
+              </PageWrapper>
             )
           }
           {
             page === KickstartPages.INVEST && (
-              <motion.div 
-                key={KickstartPages.INVEST}
-                variants={pageVariants}
-                initial="initial"
-                animate="in"
-                exit="out"
-                transition={pageTransition}
-                className={pageStyle}>
-                Kickstart invest!
-                <button className="items-center justify-center px-6 py-3 bg-[#DE7D02] hover:bg-[#f29224] text-white text-2xl"
-                  onClick={() => router.push('/companion/kickstart/invest')}>
-                    Go to Invest Flow 
-                </button>
-
-              </motion.div>
+              <PageWrapper key={KickstartPages.INVEST}>
+                <Invest setPage={setPage}/>
+              </PageWrapper>
             )
           }
           {
             page === KickstartPages.SETTINGS && (
-              <motion.div 
-                key={KickstartPages.SETTINGS}
-                variants={pageVariants}
-                initial="initial"
-                animate="in"
-                exit="out"
-                transition={pageTransition}
-                className={pageStyle}>
-                Kickstart settings!
-              </motion.div>
+              <PageWrapper key={KickstartPages.SETTINGS}>
+                {"Kickstart Settings!"}
+              </PageWrapper>
             )
           }
           {
             page === KickstartPages.PROFILE && (
-              <motion.div 
-                key={KickstartPages.PROFILE}
-                variants={pageVariants}
-                initial="initial"
-                animate="in"
-                exit="out"
-                transition={pageTransition}
-                className={pageStyle}>
-                Kickstart profile!
-              </motion.div>
+              <PageWrapper key={KickstartPages.PROFILE}>
+                {"Kickstart Profile!"}
+              </PageWrapper>
             )
           }
         </AnimatePresence>
