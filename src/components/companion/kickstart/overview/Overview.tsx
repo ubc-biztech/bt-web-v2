@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { useTeam } from '@/components/companion/events/Kickstart2025';
 import Header from './header/Header';
 import Stats from './metrics/Stats';
 import Recent from './metrics/Recent';
 import Graph from './graph/Graph';
-import { Investment } from './metrics/Recent';
 import { fetchBackend } from '@/lib/db';
+import { Investment } from './metrics/Recent';
+import React, { useEffect, useState } from 'react'
+import { useTeam } from '@/components/companion/events/Kickstart2025';
 
 export interface RawInvestment {
     teamName: string;

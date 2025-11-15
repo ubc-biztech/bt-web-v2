@@ -1,7 +1,8 @@
 import React from 'react'
+import { Plus } from 'lucide-react';
 import { GlowButton } from '../../ui/GlowButton';
 import { Ticker } from '@/components/companion/kickstart/overview/header/Ticker';
-import { Plus } from 'lucide-react';
+
 const Header = ({teamName} : {teamName: string}) => {
     return (
         <div className='w-full h-30 flex flex-col items-center jusitfy-center md:mt-14 sm:mt-6'>
