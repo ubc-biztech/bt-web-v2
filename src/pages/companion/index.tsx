@@ -1,5 +1,5 @@
 import React from "react";
-import { fetchAuthSession } from "@aws-amplify/auth";
+import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 
 // COMMENTED OUT - Original companion functionality
 import { useState, useEffect, useContext, createContext } from "react";
@@ -112,8 +112,8 @@ const Companion = () => {
   useEffect(() => {
     const initializeData = async () => {
       try {
-        const session = await fetchAuthSession();
-        const savedEmail = session?.tokens?.idToken?.payload?.email as string;
+        const session = await fetchUserAttributes();
+        const savedEmail = session?.email;
         if (!savedEmail) {
           throw new Error("No email found in session");
         }
