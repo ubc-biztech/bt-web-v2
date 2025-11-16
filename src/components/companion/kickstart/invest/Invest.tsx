@@ -279,7 +279,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
               ))}
               {filteredTeams.length === 0 && (
                 <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
-                  No teams found.
+                  Loading ...
                 </div>
               )}
             </div>
