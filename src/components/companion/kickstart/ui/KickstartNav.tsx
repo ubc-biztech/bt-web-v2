@@ -21,7 +21,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
   const tabs = [
     { id: KickstartPages.OVERVIEW, label: "Overview", Icon: PenTool },
     { id: KickstartPages.INVEST, label: "Invest", Icon: Coins },
-    { id: KickstartPages.PROFILE, label: "My Team", Icon: Users },
+    { id: KickstartPages.MY_TEAM, label: "My Team", Icon: Users },
     { id: KickstartPages.SETTINGS, label: "Settings", Icon: Settings },
   ];
 
