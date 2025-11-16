@@ -121,8 +121,10 @@ export const EventCard: React.FC<EventCardProps> = ({
         : "Free!"
     } ` +
     `${
-      event.pricing?.nonMembers
+      event.pricing?.nonMembers > 0
         ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
+        : event.pricing?.nonMembers === 0
+        ? "(Non-members Free!)"
         : "(Members only)"
     }`;
 
