@@ -1,4 +1,4 @@
-import router from "next/router";
+import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion/index";
@@ -63,8 +63,8 @@ interface TeamProviderProps {
 export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
   const [team, setTeam] = useState<TeamData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
   const { userRegistration } = useUserRegistration();
+  const router = useRouter();
 
   const fetchUserTeam = async () => {
     setLoading(true);
