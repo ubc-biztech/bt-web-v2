@@ -64,7 +64,7 @@ type TeamListing = {
 const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
-  
+
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<TeamListing | null>(null);
@@ -208,7 +208,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         });
         return updated;
       });
-      
+
       setInvestmentStage(InvestmentStage.SUCCESS);
     } catch (error: any) {
       console.error("Failed to create investment:", error);
