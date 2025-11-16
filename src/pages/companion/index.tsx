@@ -129,7 +129,7 @@ const Companion = () => {
   }, []);
 
   useEffect(() => {
-    if (email && !userRegistration && !pageError) {
+    if (email && !userRegistration && !error) {
       fetchUserData();
     }
   }, [email, router, userRegistration]);
