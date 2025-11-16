@@ -7,6 +7,7 @@ import Comment from "./flow/Comment";
 import Render from "./flow/Render";
 import { KickstartPages, useTeam } from "../../events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
+import { motion } from "framer-motion";
 // @Elijah
 
 // will try to check if user is logged in, is registered for kickstart 2025, and is assigned to a team
@@ -234,7 +235,10 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
       </div>
       
       {!selectedTeam && (
-        <div className="border border-[#5F3F1A] rounded-lg w-full">
+        <motion.div 
+        initial={{ opacity: 0, y: 100 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        className="border border-[#5F3F1A] rounded-lg w-full">
           <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
             <div>
               <p className="text-[#FFCC8A]">INVEST IN A PROJECT</p>
@@ -290,7 +294,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {selectedTeam && <>{renderInvestmentFlow()}</>}
