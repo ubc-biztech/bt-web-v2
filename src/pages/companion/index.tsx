@@ -74,11 +74,10 @@ const Companion = () => {
     setError("");
 
     try {
-      const [registrationResponse, eventData] = await Promise.all([
+      const [regRes, eventData] = await Promise.all([
         fetchBackend({
-          endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
+          endpoint: `/registrations?eventID=${eventID}&year=${year}`,
           method: "GET",
-          authenticatedCall: false,
         }),
         fetchBackend({
           endpoint: `/events/${eventID}/${year}`,
@@ -87,8 +86,10 @@ const Companion = () => {
         }),
       ]);
 
-      const reg = registrationResponse.data[0];
-      console.log("Fetched registration:", reg);
+      console.log(regRes);
+
+      const reg = regRes.data[0];
+
       if (!reg) {
         console.log("No registration found for email:", email);
         setPageError("No registration found for email.");
