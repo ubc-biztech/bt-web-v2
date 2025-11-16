@@ -27,16 +27,19 @@ const Render = ({
   isAmountValid,
 }: RenderProps) => {
   return (
-    
-    <motion.div className="space-y-1" initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }}>
+    <motion.div
+      className="space-y-1"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
       <button
-          type="button"
-          className="absolute top-4 right-4 text-white/70 hover:text-white"
-          onClick={resetFlow}
-          aria-label="Close investment flow"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        type="button"
+        className="absolute top-4 right-4 text-white/70 hover:text-white"
+        onClick={resetFlow}
+        aria-label="Close investment flow"
+      >
+        <X className="w-5 h-5" />
+      </button>
 
       <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
@@ -91,11 +94,11 @@ const Render = ({
             exit={{ opacity: 0.3, rotate: 180 }}
             transition={{ duration: 0.2 }}
           >
-          {isAmountValid() ? (
-            <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
-          ) : (
-            <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
-          )}
+            {isAmountValid() ? (
+              <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+            ) : (
+              <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+            )}
           </motion.div>
           We'll deduct from your spending account. This will not decrease your
           own funding.
