@@ -15,14 +15,13 @@ import {
 // pages
 import Overview from "../kickstart/overview/Overview";
 import Invest from "../kickstart/invest/Invest";
-import ManageTeam from "../team/manageTeam";
+import Settings from "../kickstart/settings/Settings";
 
 export enum KickstartPages {
   OVERVIEW = "OVERVIEW",
   INVEST = "INVEST",
   SETTINGS = "SETTINGS",
   PROFILE = "PROFILE",
-  MY_TEAM = "MY_TEAM",
 }
 
 export interface TeamData {
@@ -31,6 +30,7 @@ export interface TeamData {
   id: string;
   inventory: string[];
   memberIDs: string[];
+  memberNames?: string[];
   metadata: Record<string, any>;
   points: number;
   pointsSpent: number;
@@ -193,22 +193,9 @@ const Kickstart2025 = () => {
               <Invest setPage={setPage} />
             </PageWrapper>
           )}
-          {page === KickstartPages.MY_TEAM && (
-            <motion.div
-              key={KickstartPages.MY_TEAM}
-              variants={pageVariants}
-              initial="initial"
-              animate="in"
-              exit="out"
-              transition={pageTransition}
-              className="w-full max-w-4xl mx-auto p-4 space-y-8 font-bricolage"
-            >
-              <ManageTeam />
-            </motion.div>
-          )}
           {page === KickstartPages.SETTINGS && (
             <PageWrapper key={KickstartPages.SETTINGS}>
-              {"Kickstart Settings!"}
+              <Settings />
             </PageWrapper>
           )}
           {page === KickstartPages.PROFILE && (
