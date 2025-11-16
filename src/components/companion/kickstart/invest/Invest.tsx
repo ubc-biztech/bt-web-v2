@@ -19,36 +19,6 @@ import { useUserRegistration } from "@/pages/companion";
 
 // I have not thought about Partner investment and Admin investment yet as I am not super sure about how their backend/database scheme flows/works. (is it similar to user investment?)
 
-const MOCK_TEAMS = [
-  {
-    teamID: "team123",
-    teamName: "Public Speakers",
-    members: ["John Grey", "Rohan Patel", "Jimmy Sam"],
-  },
-  {
-    teamID: "team456",
-    teamName: "MMD",
-    members: ["Dhrishty Dhawan", "Yumin Chang", "Stephanie Lee"],
-  },
-  {
-    teamID: "team789",
-    teamName: "Team Dev",
-    members: ["Isaac Liu", "Jay Park", "Kevin Xiao"],
-  },
-  {
-    teamID: "team999",
-    teamName: "Team Internal",
-    members: ["Ashley Low", "Erping Sun", "Mikayla Liang"],
-  },
-  {
-    teamID: "team676",
-    teamName: "Team Elijah",
-    members: ["Eli Zhao", "Elijah Zhao", "Elijah Zhou"],
-  },
-];
-
-const DISABLE_VERIFY = false; // flip to false when backend is ready
-
 enum InvestmentStage {
   AMOUNT = "AMOUNT",
   COMMENT = "COMMENT",
@@ -56,7 +26,7 @@ enum InvestmentStage {
 }
 
 type TeamListing = {
-  teamID: string;
+  id: string;
   teamName: string;
   members: string[];
 };
@@ -64,7 +34,6 @@ type TeamListing = {
 const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
-
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<TeamListing | null>(null);
@@ -75,7 +44,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const [confirmedAmount, setConfirmedAmount] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [flowError, setFlowError] = useState<string | null>(null);
-  const [availableFunds, setAvailableFunds] = useState<number>(7500);
+  const [availableFunds, setAvailableFunds] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{
     teamName: string;
@@ -86,12 +55,17 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const teams = await fetchBackend({
+        const teamsRes = await fetchBackend({
           endpoint: `/team/kickstart/2025`,
           method: "GET",
           authenticatedCall: true,
         });
-        setAllTeams(teams ?? []);
+        const teamsData = Array.isArray(teamsRes?.data)
+          ? teamsRes.data
+          : Array.isArray(teamsRes)
+            ? teamsRes
+            : [];
+        setAllTeams(teamsData);
       } catch (err) {
         console.error("Error fetching Kickstart teams:", err);
       }
@@ -102,22 +76,16 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 
   useEffect(() => {
     if (!team?.id) return;
-    if (DISABLE_VERIFY) {
-      setAvailableFunds(7500);
-      return;
-    }
 
     const fetchFunding = async () => {
       try {
-        console.log("test1");
-
         const res = await fetchBackend({
           endpoint: `/investments/teamStatus/${team.id}`,
           method: "GET",
           authenticatedCall: true,
         });
 
-        setAvailableFunds(res?.funding);
+        setAvailableFunds(res?.funding ?? 0);
       } catch (error) {
         console.error("Failed to fetch funding status:", error);
       }
@@ -173,30 +141,20 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const handleSubmitInvestment = async () => {
     if (!selectedTeam || confirmedAmount === null || !comment.trim()) return;
 
-    // TODO remove and test with backend
-    if (DISABLE_VERIFY) {
-      setSearchQuery("");
-      setInvestmentStage(InvestmentStage.SUCCESS);
-      setSuccessInfo({
-        teamName: selectedTeam.teamName,
-        amount: confirmedAmount,
-        newBalance: userRegistration?.balance - confirmedAmount,
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     setFlowError(null);
     try {
+      console.log(selectedTeam);
       await fetchBackend({
         endpoint: `/investments/invest`,
         method: "POST",
         data: {
           investorId: userRegistration?.id,
-          teamId: team?.id,
+          teamId: selectedTeam.id,
           amount: confirmedAmount,
           comment: comment.trim(),
         },
+        authenticatedCall: true,
       });
 
       setAvailableFunds((prev) => {
@@ -204,7 +162,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         setSuccessInfo({
           teamName: selectedTeam.teamName,
           amount: confirmedAmount,
-          newBalance: userRegistration?.balance - confirmedAmount,
+          newBalance: updated,
         });
         return updated;
       });
@@ -298,7 +256,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
             <div className="space-y-3 max-h-[18rem] overflow-y-auto pr-1">
               {filteredTeams.map((team) => (
                 <button
-                  key={team.teamID}
+                  key={team.id}
                   type="button"
                   onClick={() => {
                     setSelectedTeam(team);
@@ -319,10 +277,9 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
                   </p>
                 </button>
               ))}
-              {userRegistration?.balance}
               {filteredTeams.length === 0 && (
                 <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
-                  No teams found.
+                  Loading ...
                 </div>
               )}
             </div>
