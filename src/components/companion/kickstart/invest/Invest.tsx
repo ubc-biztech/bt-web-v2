@@ -1,14 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchAuthSession } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
-import { useRouter } from "next/router";
-import { Registration } from "@/pages/companion/index";
 import Loading from "@/components/Loading";
 import { ArrowRight } from "lucide-react";
 import Success from "./flow/Success";
 import Comment from "./flow/Comment";
 import Render from "./flow/Render";
-import { KickstartPages } from "../../events/Kickstart2025";
+import { KickstartPages, useTeam } from "../../events/Kickstart2025";
+import { useUserRegistration } from "@/pages/companion";
 // @Elijah
 
 // will try to check if user is logged in, is registered for kickstart 2025, and is assigned to a team
@@ -20,15 +18,6 @@ import { KickstartPages } from "../../events/Kickstart2025";
 // pressing the x button just sets selected team to null, hiding the popup.
 
 // I have not thought about Partner investment and Admin investment yet as I am not super sure about how their backend/database scheme flows/works. (is it similar to user investment?)
-
-const tempRegistrationData: Registration = {
-  id: "temp-id",
-  fname: "Temp",
-  lname: "User",
-  email: "temp@example.com",
-  teamID: "temp-team",
-  isPartner: false,
-};
 
 const MOCK_TEAMS = [
   {
@@ -58,7 +47,7 @@ const MOCK_TEAMS = [
   },
 ];
 
-const DISABLE_VERIFY = true; // flip to false when backend is ready
+const DISABLE_VERIFY = false; // flip to false when backend is ready
 
 enum InvestmentStage {
   AMOUNT = "AMOUNT",
@@ -73,10 +62,10 @@ type TeamListing = {
 };
 
 const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
-  const router = useRouter();
-  const [reg, setReg] = useState<Registration | null>(tempRegistrationData);
-  const [isReady, setIsReady] = useState(true);
-  const [allTeams, setAllTeams] = useState<TeamListing[]>(MOCK_TEAMS);
+  const { userRegistration } = useUserRegistration();
+  const { team } = useTeam();
+  
+  const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<TeamListing | null>(null);
   const [investmentStage, setInvestmentStage] = useState<InvestmentStage>(
@@ -95,74 +84,24 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   } | null>(null);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    if (DISABLE_VERIFY) return;
-
-    const verifyAccess = async () => {
+    const fetchTeams = async () => {
       try {
-        const session = await fetchAuthSession();
-
-        const email = session?.tokens?.idToken?.payload?.email as
-          | string
-          | undefined;
-
-        if (!email) {
-          throw new Error("No email found in session");
-        }
-        const eventID = "kickstart";
-        const year = "2025";
-
-        const res = await fetchBackend({
-          endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
-          method: "GET",
-          authenticatedCall: true,
-        });
-
-        console.log(email + " DEBUG");
-
-        const registration = res.data[0];
-        if (!registration) {
-          router.replace("/companion/team");
-          return;
-        }
-        setReg(registration);
-
-        const teamResponse = await fetchBackend({
-          endpoint: `/team/getTeamFromUserID`,
-          method: "POST",
-          data: {
-            userID: registration.id || email,
-          },
-          authenticatedCall: true,
-        });
-
-        if (!teamResponse?.team) {
-          router.replace("/event/kickstart/2025/register");
-          return;
-        }
-
-        const teamsRes = await fetchBackend({
+        const teams = await fetchBackend({
           endpoint: `/team/kickstart/2025`,
           method: "GET",
           authenticatedCall: true,
         });
-        const teams = teamsRes.data || [];
-        setAllTeams(teams);
-
-        setIsReady(true);
+        setAllTeams(teams ?? []);
       } catch (err) {
-        console.error("Error gating invest page:", err);
-        router.replace(
-          `/login?redirect=${encodeURIComponent("/companion/kickstart/invest")}`,
-        );
+        console.error("Error fetching Kickstart teams:", err);
       }
     };
 
-    verifyAccess();
-  }, [router]);
+    fetchTeams();
+  }, []);
 
   useEffect(() => {
-    if (!reg?.teamID) return;
+    if (!team?.id) return;
     if (DISABLE_VERIFY) {
       setAvailableFunds(7500);
       return;
@@ -173,20 +112,19 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         console.log("test1");
 
         const res = await fetchBackend({
-          endpoint: `/investments/teamStatus/${reg.teamID}`,
+          endpoint: `/investments/teamStatus/${team.id}`,
           method: "GET",
           authenticatedCall: true,
         });
 
-        console.log("test2");
-        setAvailableFunds(res?.funding ?? 0);
+        setAvailableFunds(res?.funding);
       } catch (error) {
         console.error("Failed to fetch funding status:", error);
       }
     };
 
     fetchFunding();
-  }, [reg?.teamID]);
+  }, [team?.id]);
 
   const filteredTeams = useMemo(() => {
     if (!searchQuery.trim()) return allTeams;
@@ -208,7 +146,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const isAmountValid = () => {
     const parsed = Number(amountInput);
     if (!Number.isFinite(parsed) || parsed <= 0) return false;
-    return parsed <= availableFunds;
+    return parsed <= userRegistration?.balance;
   };
 
   const validateAmount = (): number | null => {
@@ -217,7 +155,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
       setFlowError("Enter a valid amount greater than zero.");
       return null;
     }
-    if (parsed > availableFunds) {
+    if (parsed > userRegistration?.balance) {
       setFlowError("You cannot invest more than your available funds.");
       return null;
     }
@@ -242,7 +180,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
       setSuccessInfo({
         teamName: selectedTeam.teamName,
         amount: confirmedAmount,
-        newBalance: availableFunds - confirmedAmount,
+        newBalance: userRegistration?.balance - confirmedAmount,
       });
       return;
     }
@@ -251,15 +189,14 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
     setFlowError(null);
     try {
       await fetchBackend({
-        endpoint: `/invest`,
+        endpoint: `/investments/invest`,
         method: "POST",
         data: {
-          investorId: reg?.id,
-          teamId: selectedTeam.teamID,
+          investorId: userRegistration?.id,
+          teamId: team?.id,
           amount: confirmedAmount,
           comment: comment.trim(),
         },
-        authenticatedCall: true,
       });
 
       setAvailableFunds((prev) => {
@@ -267,10 +204,11 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         setSuccessInfo({
           teamName: selectedTeam.teamName,
           amount: confirmedAmount,
-          newBalance: updated,
+          newBalance: userRegistration?.balance - confirmedAmount,
         });
         return updated;
       });
+      
       setInvestmentStage(InvestmentStage.SUCCESS);
     } catch (error: any) {
       console.error("Failed to create investment:", error);
@@ -317,7 +255,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         amountInput={amountInput}
         setAmountInput={setAmountInput}
         handleProceedToComment={handleProceedToComment}
-        availableFunds={availableFunds}
+        availableFunds={userRegistration?.balance}
         flowError={flowError}
         isAmountValid={isAmountValid}
         resetFlow={resetFlow}
@@ -325,7 +263,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
     );
   };
 
-  if (!isReady || !reg) {
+  if (!userRegistration || !team) {
     return <Loading />;
   }
 
@@ -381,6 +319,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
                   </p>
                 </button>
               ))}
+              {userRegistration?.balance}
               {filteredTeams.length === 0 && (
                 <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
                   No teams found.
