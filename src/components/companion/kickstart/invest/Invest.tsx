@@ -34,10 +34,6 @@ type TeamListing = {
 const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
-<<<<<<< HEAD
-
-=======
->>>>>>> 09928a6 (Fix some stuff)
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<TeamListing | null>(null);
