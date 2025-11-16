@@ -132,7 +132,7 @@ const Companion = () => {
     if (email && !userRegistration) {
       fetchUserData();
     }
-  }, [email, router.isReady]);
+  }, [email, router]);
 
   if (isLoading) return <Loading />;
 
