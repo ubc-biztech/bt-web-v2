@@ -102,6 +102,7 @@ const Companion = () => {
     } catch (err) {
       console.error("Error fetching user data:", err);
       setError("An error occurred while fetching your data.");
+      setPageError("Error: Registration not found.");
     }
 
     setIsLoading(false);
