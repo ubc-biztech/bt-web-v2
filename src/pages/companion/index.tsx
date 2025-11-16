@@ -91,6 +91,7 @@ const Companion = () => {
       console.log("Fetched registration:", reg);
       if (!reg) {
         console.log("No registration found for email:", email);
+        setPageError("No registration found for email.");
         setError("This email does not match an existing entry in our records.");
         setIsLoading(false);
         return;
@@ -137,7 +138,7 @@ const Companion = () => {
     }
   }, [email, router, userRegistration]);
 
-  if (isLoading) return <Loading />;
+  // if (isLoading) return <Loading />;
 
   if (pageError) {
     return (
