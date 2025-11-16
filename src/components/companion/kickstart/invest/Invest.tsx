@@ -84,7 +84,6 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
           method: "GET",
           authenticatedCall: true,
         });
-
       } catch (error) {
         console.error("Failed to fetch funding status:", error);
       }
@@ -230,15 +229,16 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
     <InvestWrapper>
       <div className="absolute top-6 left-1/2 -translate-x-1/2">
         <header className="font-instrument text-[32px] flex items-end leading-none">
-            Kickstart
+          Kickstart
         </header>
       </div>
-      
+
       {!selectedTeam && (
-        <motion.div 
-        initial={{ opacity: 0, y: 100 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        className="border border-[#5F3F1A] rounded-lg w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border border-[#5F3F1A] rounded-lg w-full"
+        >
           <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
             <div>
               <p className="text-[#FFCC8A]">INVEST IN A PROJECT</p>

@@ -29,13 +29,13 @@ const Comment = ({
   return (
     <div className="space-y-1">
       <button
-          type="button"
-          className="absolute top-4 right-4 text-white/70 hover:text-white"
-          onClick={resetFlow}
-          aria-label="Close investment flow"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        type="button"
+        className="absolute top-4 right-4 text-white/70 hover:text-white"
+        onClick={resetFlow}
+        aria-label="Close investment flow"
+      >
+        <X className="w-5 h-5" />
+      </button>
       <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
@@ -55,7 +55,11 @@ const Comment = ({
           </div>
         </div>
 
-        <motion.div className="rounded-2xl bg-[#2C2B2A] p-4 space-y-3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+        <motion.div
+          className="rounded-2xl bg-[#2C2B2A] p-4 space-y-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <div className="flex items-center gap-2 text-white font-semibold ">
             <MessageLogo className="text-[#FFFFFF] bg-[#DE7D02] transition-colors rounded-md w-max h-max flex items-center justify-center p-1 shrink-0" />
             Comments
