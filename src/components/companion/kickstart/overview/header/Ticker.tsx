@@ -10,10 +10,14 @@ export type InvestmentEntry = {
   teamName: string;
 };
 
-const skeleton = Array(10).fill({ investorName: "...", amount: 0, teamName: "..." })
+const skeleton = Array(10).fill({
+  investorName: "...",
+  amount: 0,
+  teamName: "...",
+});
 
 export const Ticker = () => {
-  const [teams, setTeams] = useState<InvestmentEntry[]>(skeleton)
+  const [teams, setTeams] = useState<InvestmentEntry[]>(skeleton);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,24 +30,29 @@ export const Ticker = () => {
 
         console.log("Fetched ticker data:", data);
 
-        const transformedEntries = data.map((investment: { investorName: string; amount: number; teamName: string; }) => ({
+        const transformedEntries = data.map(
+          (investment: {
+            investorName: string;
+            amount: number;
+            teamName: string;
+          }) => ({
             investorName: investment.investorName,
             amount: investment.amount,
-            teamName: investment.teamName
-        }));
+            teamName: investment.teamName,
+          }),
+        );
 
         if (transformedEntries && transformedEntries.length) {
           setTeams(transformedEntries);
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error fetching ticker data:", error);
       }
     };
 
     fetchData();
   }, []);
-  
+
   return (
     <BorderContainer>
       <div className="relative h-10 flex items-center overflow-hidden whitespace-nowrap">

@@ -23,9 +23,8 @@ const bricolage = Bricolage_Grotesque({
 const instrument = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-instrument",
-  weight: "400"
+  weight: "400",
 });
-
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Maximize2, MessageSquareText } from "lucide-react"
+import { motion } from "framer-motion";
+import { Maximize2, MessageSquareText } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -12,7 +12,7 @@ const containerVariants = {
       delayChildren: 0.5,
     },
   },
-}
+};
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -21,7 +21,7 @@ const itemVariants = {
     y: 0,
     transition: { duration: 0.5, ease: "easeOut" },
   },
-}
+};
 
 export type Investment = {
   investorName: string;
@@ -31,7 +31,11 @@ export type Investment = {
 
 const MAX_INVESTMENTS_DISPLAY = 4;
 
-export default function Recent({investments}:{investments:Investment[] | null}) {
+export default function Recent({
+  investments,
+}: {
+  investments: Investment[] | null;
+}) {
   return (
     <div className="w-full h-2/3 bg-[#201F1E] rounded-sm text-white p-6 flex flex-col overflow-y-clip">
       <div className="flex flex-row items-center justify-between">
@@ -46,17 +50,23 @@ export default function Recent({investments}:{investments:Investment[] | null}) 
         initial="hidden"
         animate="visible"
       >
-        {
-            investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv, idx) => (
-                <Investment key={idx} variants={itemVariants} investment={inv} />
-            ))
-        }
+        {investments
+          ?.slice(0, MAX_INVESTMENTS_DISPLAY)
+          ?.map((inv, idx) => (
+            <Investment key={idx} variants={itemVariants} investment={inv} />
+          ))}
       </motion.div>
     </div>
-  )
+  );
 }
 
-const Investment = ({ variants, investment }: { variants: any, investment: Investment }) => {
+const Investment = ({
+  variants,
+  investment,
+}: {
+  variants: any;
+  investment: Investment;
+}) => {
   return (
     <motion.div
       className="w-full h-16 flex flex-row items-center justify-between rounded-nd bg-[#363533] p-2"
@@ -69,10 +79,14 @@ const Investment = ({ variants, investment }: { variants: any, investment: Inves
             <span className="text-[14px] mr-2">{investment.investorName}</span>
             <MessageSquareText className="w-4 h-4 text-[#B4B4B4]" />
           </div>
-          <span className="text-[14px] ml-4 mr-1 text-[#8C8C8C] tracking-tight">{investment.timestamp}</span>
+          <span className="text-[14px] ml-4 mr-1 text-[#8C8C8C] tracking-tight">
+            {investment.timestamp}
+          </span>
         </div>
       </div>
-      <div className="text-[12px] text-[#95FF77] h-full">+${investment.amount}</div>
+      <div className="text-[12px] text-[#95FF77] h-full">
+        +${investment.amount}
+      </div>
     </motion.div>
-  )
-}
+  );
+};

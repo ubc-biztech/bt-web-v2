@@ -8,15 +8,15 @@ interface KickstartNavProps {
   children: React.ReactNode;
   page: KickstartPages;
   setPage: (page: KickstartPages) => void;
-} 
+}
 
-export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
+export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
   const [lastNavIdx, setLastNavIdx] = useState(0);
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   const tabs = [
     { id: KickstartPages.OVERVIEW, label: "Overview", Icon: PenTool },
@@ -38,7 +38,8 @@ export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
 
   return (
     <>
-      <div className="
+      <div
+        className="
         font-bricolage
         overflow-x-hidden
         overflow-y-hidden
@@ -46,10 +47,12 @@ export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
         flex 
         flex-col
         items-center
-      ">
+      "
+      >
         {children}
       </div>
-      <nav className={`
+      <nav
+        className={`
           fixed 
           bottom-10 
           left-0 
@@ -65,10 +68,11 @@ export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
           flex 
           justify-center 
           ease-in-out
-        `}>
+        `}
+      >
         <div className="flex items-center justify-center gap-4 px-4 py-2">
-        <div
-          className="
+          <div
+            className="
             relative 
             flex 
             items-center 
@@ -78,44 +82,44 @@ export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
             px-1.5 
             h-11
             w-fit"
-        >
-          <div
-            className="absolute bg-[#141414] rounded-full pointer-events-none transition-all duration-300 ease-out"
-            style={{
-              top: "6px",
-              bottom: "6px",
-              width: `calc(${100 / tabs.length}% - 6px)`,
-              left: `calc(${(sliderIdx * 95) / tabs.length}% + 12px)`,
-              opacity: isProfile ? 0 : 1,
-            }}
-          />
+          >
+            <div
+              className="absolute bg-[#141414] rounded-full pointer-events-none transition-all duration-300 ease-out"
+              style={{
+                top: "6px",
+                bottom: "6px",
+                width: `calc(${100 / tabs.length}% - 6px)`,
+                left: `calc(${(sliderIdx * 95) / tabs.length}% + 12px)`,
+                opacity: isProfile ? 0 : 1,
+              }}
+            />
 
-          {tabs.map((tab, i) => {
-            const isOn = sliderIdx === i && !isProfile;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setPage(tab.id)}
-                className="relative flex items-center gap-2 px-3 py-2.5 z-10"
-              >
-                <tab.Icon
-                  className="w-5 h-5 transition-colors"
-                  style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
-                  strokeWidth={1.5}
-                />
-                <span 
-                  className="text-sm font-medium font-bricolage transition-colors"
-                  style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
+            {tabs.map((tab, i) => {
+              const isOn = sliderIdx === i && !isProfile;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setPage(tab.id)}
+                  className="relative flex items-center gap-2 px-3 py-2.5 z-10"
                 >
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                  <tab.Icon
+                    className="w-5 h-5 transition-colors"
+                    style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
+                    strokeWidth={1.5}
+                  />
+                  <span
+                    className="text-sm font-medium font-bricolage transition-colors"
+                    style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
+                  >
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-        <div
-          className="
+          <div
+            className="
             relative 
             sm:flex hidden 
             items-center 
@@ -124,20 +128,20 @@ export function KickstartNav({ children, page, setPage } : KickstartNavProps) {
             h-11
             p-1.5 
             shadow-[inset_0_-3px_8px_rgba(255,255,255,0.1)]"
-        >
-          <div
-            className="absolute inset-y-1.5 inset-x-1.5 bg-[#181818] rounded-full pointer-events-none transition-opacity duration-300"
-            style={{ opacity: isProfile ? 1 : 0 }}
-          />
-          <button
-            onClick={() => setPage(KickstartPages.PROFILE)}
-            className="relative flex items-center gap-2 pr-1 h-8 z-10"
           >
-            <div 
-              className="w-8 h-8 rounded-full transition-colors"
-              style={{ backgroundColor: isProfile ? "#FFFFFF" : "#B4B4B4" }}
+            <div
+              className="absolute inset-y-1.5 inset-x-1.5 bg-[#181818] rounded-full pointer-events-none transition-opacity duration-300"
+              style={{ opacity: isProfile ? 1 : 0 }}
             />
-              <span 
+            <button
+              onClick={() => setPage(KickstartPages.PROFILE)}
+              className="relative flex items-center gap-2 pr-1 h-8 z-10"
+            >
+              <div
+                className="w-8 h-8 rounded-full transition-colors"
+                style={{ backgroundColor: isProfile ? "#FFFFFF" : "#B4B4B4" }}
+              />
+              <span
                 className="font-medium font-bricolage text-sm transition-colors"
                 style={{ color: isProfile ? "#FFFFFF" : "#B4B4B4" }}
               >

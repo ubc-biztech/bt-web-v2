@@ -1,5 +1,5 @@
-import React from 'react';
-import { Component } from 'lucide-react';
+import React from "react";
+import { Component } from "lucide-react";
 
 interface GlowButtonProps {
   href: string;
@@ -44,7 +44,9 @@ export const GlowButton: React.FC<GlowButtonProps> = ({
         </span>
       )}
 
-      <span className="truncate flex flex-row items-center justify-center">{children}</span>
+      <span className="truncate flex flex-row items-center justify-center">
+        {children}
+      </span>
     </a>
-  )
-}
+  );
+};

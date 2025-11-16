@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
+import type React from "react";
+import { useEffect, useState } from "react";
 import {
   XAxis,
   YAxis,
@@ -10,133 +10,134 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-} from "recharts"
-import { Card, CardContent } from "@/components/ui/card"
-import type { RawInvestment } from "@/components/companion/kickstart/overview/Overview"
+} from "recharts";
+import { Card, CardContent } from "@/components/ui/card";
+import type { RawInvestment } from "@/components/companion/kickstart/overview/Overview";
 
 interface ChartData {
-  time: string
-  displayTime: string
-  totalAmount: number
-  investmentCount: number
-  timestamp: number
+  time: string;
+  displayTime: string;
+  totalAmount: number;
+  investmentCount: number;
+  timestamp: number;
 }
 
 interface GraphProps {
-  investments?: RawInvestment[]
-  teamId?: string
+  investments?: RawInvestment[];
+  teamId?: string;
 }
 
 const formatNumberToK = (value: number) => {
-  if (value >= 1000) return `${(value / 1000).toFixed(0)}k`
-  return `${value}`
-}
+  if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
+  return `${value}`;
+};
 
 const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
-  const [chartData, setChartData] = useState<ChartData[]>([])
-  const [displayedData, setDisplayedData] = useState<ChartData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [maxValue, setMaxValue] = useState(0)
-  const [timeRange, setTimeRange] = useState<"3 hours" | "Day" | "Week">("Day")
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [displayedData, setDisplayedData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [maxValue, setMaxValue] = useState(0);
+  const [timeRange, setTimeRange] = useState<"3 hours" | "Day" | "Week">("Day");
 
   useEffect(() => {
     if (investments && investments.length > 0) {
-      processInvestmentData(investments)
+      processInvestmentData(investments);
     } else {
-      setChartData([])
-      setDisplayedData([])
+      setChartData([]);
+      setDisplayedData([]);
     }
-    setLoading(false)
-  }, [investments])
+    setLoading(false);
+  }, [investments]);
 
   useEffect(() => {
-    filterDataByRange()
-  }, [timeRange, chartData])
+    filterDataByRange();
+  }, [timeRange, chartData]);
 
   const processInvestmentData = (rawInvestments: RawInvestment[]) => {
-    const investmentsByHour: Record<number, { amount: number; count: number }> = {}
-    let minTimestamp = Number.MAX_SAFE_INTEGER
-    let maxTimestamp = 0
+    const investmentsByHour: Record<number, { amount: number; count: number }> =
+      {};
+    let minTimestamp = Number.MAX_SAFE_INTEGER;
+    let maxTimestamp = 0;
 
     rawInvestments.forEach((inv) => {
-      const date = new Date(inv.createdAt)
-      date.setMinutes(0, 0, 0)
-      const hourTimestamp = date.getTime()
+      const date = new Date(inv.createdAt);
+      date.setMinutes(0, 0, 0);
+      const hourTimestamp = date.getTime();
 
-      minTimestamp = Math.min(minTimestamp, hourTimestamp)
-      maxTimestamp = Math.max(maxTimestamp, hourTimestamp)
+      minTimestamp = Math.min(minTimestamp, hourTimestamp);
+      maxTimestamp = Math.max(maxTimestamp, hourTimestamp);
 
       if (!investmentsByHour[hourTimestamp]) {
-        investmentsByHour[hourTimestamp] = { amount: 0, count: 0 }
+        investmentsByHour[hourTimestamp] = { amount: 0, count: 0 };
       }
 
-      investmentsByHour[hourTimestamp].amount += inv.amount
-      investmentsByHour[hourTimestamp].count += 1
-    })
+      investmentsByHour[hourTimestamp].amount += inv.amount;
+      investmentsByHour[hourTimestamp].count += 1;
+    });
 
     if (rawInvestments.length === 0) {
-      setChartData([])
-      return
+      setChartData([]);
+      return;
     }
 
-    const oneHourMs = 60 * 60 * 1000
+    const oneHourMs = 60 * 60 * 1000;
     for (let ts = minTimestamp; ts <= maxTimestamp; ts += oneHourMs) {
       if (!investmentsByHour[ts]) {
-        investmentsByHour[ts] = { amount: 0, count: 0 }
+        investmentsByHour[ts] = { amount: 0, count: 0 };
       }
     }
 
     const sorted = Object.entries(investmentsByHour)
       .map(([timestamp, data]) => {
-        const date = new Date(Number(timestamp))
+        const date = new Date(Number(timestamp));
         const timeString = date.toLocaleString("en-US", {
           month: "short",
           day: "numeric",
           hour: "2-digit",
           minute: "2-digit",
           hour12: true,
-        })
+        });
         return {
           time: timeString,
           displayTime: timeString.split(", ")[1] || timeString,
           totalAmount: data.amount,
           investmentCount: data.count,
           timestamp: Number(timestamp),
-        }
+        };
       })
-      .sort((a, b) => a.timestamp - b.timestamp)
+      .sort((a, b) => a.timestamp - b.timestamp);
 
-    let cumulativeAmount = 0
+    let cumulativeAmount = 0;
     const cumulativeData = sorted.map((item) => {
-      cumulativeAmount += item.totalAmount
-      return { ...item, totalAmount: cumulativeAmount }
-    })
+      cumulativeAmount += item.totalAmount;
+      return { ...item, totalAmount: cumulativeAmount };
+    });
 
-    const max = Math.max(...cumulativeData.map((d) => d.totalAmount), 0)
-    setMaxValue(max * 1.33)
-    setChartData(cumulativeData)
-    setDisplayedData(cumulativeData)
-  }
+    const max = Math.max(...cumulativeData.map((d) => d.totalAmount), 0);
+    setMaxValue(max * 1.33);
+    setChartData(cumulativeData);
+    setDisplayedData(cumulativeData);
+  };
 
   const filterDataByRange = () => {
-    if (chartData.length === 0) return
-    const now = chartData[chartData.length - 1].timestamp
-    let cutoff = now
+    if (chartData.length === 0) return;
+    const now = chartData[chartData.length - 1].timestamp;
+    let cutoff = now;
 
-    if (timeRange === "3 hours") cutoff = now - 3 * 60 * 60 * 1000
-    else if (timeRange === "Day") cutoff = now - 24 * 60 * 60 * 1000
-    else if (timeRange === "Week") cutoff = now - 7 * 24 * 60 * 60 * 1000
+    if (timeRange === "3 hours") cutoff = now - 3 * 60 * 60 * 1000;
+    else if (timeRange === "Day") cutoff = now - 24 * 60 * 60 * 1000;
+    else if (timeRange === "Week") cutoff = now - 7 * 24 * 60 * 60 * 1000;
 
-    const filtered = chartData.filter((d) => d.timestamp >= cutoff)
-    setDisplayedData(filtered)
-  }
+    const filtered = chartData.filter((d) => d.timestamp >= cutoff);
+    setDisplayedData(filtered);
+  };
 
   if (loading) {
     return (
       <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center">
         <p className="text-white">Loading chart...</p>
       </div>
-    )
+    );
   }
 
   if (chartData.length === 0) {
@@ -144,7 +145,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
       <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center">
         <p className="text-white">No investment data available</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -174,7 +175,10 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
               margin={{ top: 0, right: 40, left: -30, bottom: 0 }}
             >
               {/* Add white axis lines manually */}
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="rgba(255, 255, 255, 0.1)"
+              />
               <XAxis
                 dataKey="displayTime"
                 tick={{
@@ -186,12 +190,9 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 tickLine={false}
                 // hide first and last tick labels
                 tickFormatter={(value, index) => {
-                  if (
-                    index === 0 ||
-                    index === displayedData.length - 1
-                  )
-                    return ""
-                  return value
+                  if (index === 0 || index === displayedData.length - 1)
+                    return "";
+                  return value;
                 }}
               />
               <YAxis
@@ -240,7 +241,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
         </div>
       </CardContent>
     </Card>
-  )
-}
+  );
+};
 
-export default Graph
+export default Graph;

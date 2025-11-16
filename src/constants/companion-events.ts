@@ -6,7 +6,6 @@ import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2025 from "@/components/companion/events/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 
-
 export interface Event {
   activeUntil: Date;
   eventID: string;

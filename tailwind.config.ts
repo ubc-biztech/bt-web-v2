@@ -20,8 +20,8 @@ const config: Config = {
     fontFamily: {
       sans: ["var(--font-urbanist)", ...fontFamily.sans],
       redhat: ["Red Hat Mono", "monospace"],
-      bricolage: ['var(--font-bricolage)', ...fontFamily.sans],
-      instrument: ['var(--font-instrument)', ...fontFamily.serif],
+      bricolage: ["var(--font-bricolage)", ...fontFamily.sans],
+      instrument: ["var(--font-instrument)", ...fontFamily.serif],
     },
     fontWeight: {
       "100": "100",
