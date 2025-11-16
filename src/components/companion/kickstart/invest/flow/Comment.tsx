@@ -3,6 +3,7 @@ import Progress2_2 from "@/assets/2025/kickstart/progress2_2.svg";
 import Progress1_2 from "@/assets/2025/kickstart/progress1_2.svg";
 import MessageLogo from "@/assets/2025/kickstart/message.svg";
 import { CreditCard, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CommentProps {
   selectedTeam: { teamName: string };
@@ -27,8 +28,7 @@ const Comment = ({
 }: CommentProps) => {
   return (
     <div className="space-y-1">
-      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
-        <button
+      <button
           type="button"
           className="absolute top-4 right-4 text-white/70 hover:text-white"
           onClick={resetFlow}
@@ -36,7 +36,7 @@ const Comment = ({
         >
           <X className="w-5 h-5" />
         </button>
-
+      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
           <h2 className="text-white text-xl font-semibold mt-1 leading-tight">
@@ -55,7 +55,7 @@ const Comment = ({
           </div>
         </div>
 
-        <div className="rounded-2xl bg-[#2C2B2A] p-4 space-y-3">
+        <motion.div className="rounded-2xl bg-[#2C2B2A] p-4 space-y-3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-2 text-white font-semibold ">
             <MessageLogo className="text-[#FFFFFF] bg-[#DE7D02] transition-colors rounded-md w-max h-max flex items-center justify-center p-1 shrink-0" />
             Comments
@@ -66,23 +66,31 @@ const Comment = ({
             placeholder="Leave a message or feedback"
             className="w-full rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 min-h-[110px] resize-none focus:outline-none"
           />
-        </div>
+        </motion.div>
 
         {flowError && <p className="text-sm text-red-400">{flowError}</p>}
       </div>
 
       <div className="flex flex-col gap-3 bg-[#1A1918]  p-5 rounded-lg ">
         <div className="flex items-center gap-3 text-sm text-[#B8B8B8]">
-          {comment != "" ? (
-            <Progress2_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
-          ) : (
-            <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
-          )}
+          <motion.div
+            key={comment.trim() ? "with-comment" : "no-comment"}
+            initial={{ opacity: 0.85, rotate: -10 }}
+            animate={{ opacity: 1, rotate: 0 }}
+            exit={{ opacity: 0.3, rotate: 180 }}
+            transition={{ duration: 0.2 }}
+          >
+            {comment.trim() ? (
+              <Progress2_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+            ) : (
+              <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
+            )}
+          </motion.div>
           We'll deduct from your spending account. This will not decrease your
           own funding.
           <button
             type="button"
-            className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors disabled:opacity-50"
+            className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors duration-200 disabled:opacity-50 "
             disabled={!comment.trim() || isSubmitting}
             onClick={handleSubmitInvestment}
           >
