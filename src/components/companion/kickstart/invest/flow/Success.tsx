@@ -20,7 +20,10 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
         <button
           type="button"
           className="absolute top-4 right-4 text-white/70 hover:text-white"
-          onClick={resetFlow}
+          onClick={() => {
+            resetFlow();
+            window.location.reload();
+          }}
           aria-label="Close investment flow"
         >
           <X className="w-5 h-5" />
@@ -52,7 +55,10 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
           <button
             type="button"
             className="w-30 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors"
-            onClick={() => setPage(KickstartPages.OVERVIEW)}
+            onClick={() => {
+              setPage(KickstartPages.OVERVIEW);
+              window.location.reload();
+            }}
           >
             Return to Dashboard
           </button>
