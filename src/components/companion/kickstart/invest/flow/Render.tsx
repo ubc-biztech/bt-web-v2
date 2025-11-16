@@ -26,9 +26,9 @@ const Render = ({
   isAmountValid,
 }: RenderProps) => {
   return (
+    
     <div className="space-y-1">
-      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
-        <button
+      <button
           type="button"
           className="absolute top-4 right-4 text-white/70 hover:text-white"
           onClick={resetFlow}
@@ -37,6 +37,7 @@ const Render = ({
           <X className="w-5 h-5" />
         </button>
 
+      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
           <h2 className="text-white text-xl font-semibold mt-1 leading-tight">
@@ -52,7 +53,7 @@ const Render = ({
           </div>
           <div className="flex gap-2">
             <input
-              className="flex-1 rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 text-base focus:outline-none"
+              className="flex-1 rounded-lg bg-white/95 text-[#1F1F1F] px-2 py-2 text-base focus:outline-none"
               placeholder="Amount ($)"
               type="number"
               value={amountInput}

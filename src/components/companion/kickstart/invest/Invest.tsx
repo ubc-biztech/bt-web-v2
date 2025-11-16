@@ -44,7 +44,6 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const [confirmedAmount, setConfirmedAmount] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [flowError, setFlowError] = useState<string | null>(null);
-  const [availableFunds, setAvailableFunds] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{
     teamName: string;
@@ -85,7 +84,6 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
           authenticatedCall: true,
         });
 
-        setAvailableFunds(res?.funding ?? 0);
       } catch (error) {
         console.error("Failed to fetch funding status:", error);
       }
@@ -95,11 +93,16 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   }, [team?.id]);
 
   const filteredTeams = useMemo(() => {
-    if (!searchQuery.trim()) return allTeams;
-    return allTeams.filter((team) =>
-      team.teamName.toLowerCase().includes(searchQuery.toLowerCase()),
+    const availableTeams = team
+      ? allTeams.filter((listing) => listing.id !== team.id)
+      : allTeams;
+
+    if (!searchQuery.trim()) return availableTeams;
+
+    return availableTeams.filter((listing) =>
+      listing.teamName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
-  }, [allTeams, searchQuery]);
+  }, [allTeams, searchQuery, team]);
 
   const resetFlow = () => {
     setSelectedTeam(null);
@@ -157,14 +160,11 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         authenticatedCall: true,
       });
 
-      setAvailableFunds((prev) => {
-        const updated = Math.max(0, prev - confirmedAmount);
-        setSuccessInfo({
-          teamName: selectedTeam.teamName,
-          amount: confirmedAmount,
-          newBalance: updated,
-        });
-        return updated;
+      const newBalance = (userRegistration?.balance ?? 0) - confirmedAmount;
+      setSuccessInfo({
+        teamName: selectedTeam.teamName,
+        amount: confirmedAmount,
+        newBalance,
       });
 
       setInvestmentStage(InvestmentStage.SUCCESS);
@@ -227,6 +227,12 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 
   return (
     <InvestWrapper>
+      <div className="absolute top-6 left-1/2 -translate-x-1/2">
+        <header className="font-instrument text-[32px] flex items-end leading-none">
+            Kickstart
+        </header>
+      </div>
+      
       {!selectedTeam && (
         <div className="border border-[#5F3F1A] rounded-lg w-full">
           <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
@@ -277,7 +283,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
                   </p>
                 </button>
               ))}
-              {filteredTeams.length === 0 && (
+              {filteredTeams.length === 0 && searchQuery === "" && (
                 <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
                   Loading ...
                 </div>
@@ -295,7 +301,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 const InvestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center">
-      <div className="md:w-3/5 text-[18px]">{children}</div>
+      <div className="md:w-3/5 px-4 text-[18px]">{children}</div>
     </div>
   );
 };

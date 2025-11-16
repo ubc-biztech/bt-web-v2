@@ -16,8 +16,7 @@ interface SuccessProps {
 const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
   return (
     <div className="space-y-1">
-      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
-        <button
+      <button
           type="button"
           className="absolute top-4 right-4 text-white/70 hover:text-white"
           onClick={() => {
@@ -28,7 +27,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
         >
           <X className="w-5 h-5" />
         </button>
-
+      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
           <h2 className="text-white text-xl font-semibold mt-1 leading-tight">
