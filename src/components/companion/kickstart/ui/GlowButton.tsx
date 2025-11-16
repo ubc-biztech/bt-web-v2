@@ -1,5 +1,5 @@
-import React from 'react';
-import { Component } from 'lucide-react';
+import React from "react";
+import { Component } from "lucide-react";
 
 interface GlowButtonProps {
   href: string;
@@ -30,7 +30,7 @@ export const GlowButton: React.FC<GlowButtonProps> = ({
         text-white 
         font-bricolage 
         border-[1px] border-white 
-        rounded-lg
+        rounded-sm
         shadow-[inset_0_0_5px_rgba(255,255,255,0.5),inset_0_0_30px_rgba(255,255,255,0.25)]
         hover:bg-[#1f1f1f] 
         hover:shadow-[inset_0_0_7px_rgba(255,255,255,0.7),inset_0_0_45px_rgba(255,255,255,0.4)]
@@ -44,7 +44,9 @@ export const GlowButton: React.FC<GlowButtonProps> = ({
         </span>
       )}
 
-      <span className="truncate">{children}</span>
+      <span className="truncate flex flex-row items-center justify-center">
+        {children}
+      </span>
     </a>
-  )
-}
+  );
+};

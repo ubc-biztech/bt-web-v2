@@ -39,8 +39,14 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
     <>
       <div
         className="
-      pb-20 
-      overflow-y-auto"
+        font-bricolage
+        overflow-x-hidden
+        overflow-y-hidden
+        w-full
+        flex 
+        flex-col
+        items-center
+      "
       >
         {children}
       </div>
@@ -51,6 +57,9 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
           left-0 
           right-0 
           z-50 
+          overflow-x-hidden
+          overflow-y-hidden
+          w-full
           text-[#B4B4B4] 
           ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} 
           transition-opacity 
@@ -98,7 +107,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
                     strokeWidth={1.5}
                   />
                   <span
-                    className="text-sm font-medium transition-colors"
+                    className="text-sm font-medium font-bricolage transition-colors"
                     style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
                   >
                     {tab.label}
@@ -111,7 +120,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
           <div
             className="
             relative 
-            flex 
+            sm:flex hidden 
             items-center 
             bg-[#181818]
             rounded-full
@@ -132,7 +141,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
                 style={{ backgroundColor: isProfile ? "#FFFFFF" : "#B4B4B4" }}
               />
               <span
-                className="font-medium text-sm transition-colors"
+                className="font-medium font-bricolage text-sm transition-colors"
                 style={{ color: isProfile ? "#FFFFFF" : "#B4B4B4" }}
               >
                 Profile
