@@ -9,9 +9,7 @@ import CompanionHome from "@/components/companion/CompanionHome";
 import Events from "@/constants/companion-events";
 import type { Event } from "@/constants/companion-events";
 import Loading from "@/components/Loading";
-import {
-  COMPANION_EMAIL_KEY,
-} from "@/constants/companion";
+import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 
 export interface Registration {
   id: string;
@@ -115,15 +113,13 @@ const Companion = () => {
         const session = await fetchAuthSession();
         const savedEmail = session?.tokens?.idToken?.payload?.email as string;
         if (!savedEmail) {
-          throw new Error(
-            "No email found in session"
-          );
+          throw new Error("No email found in session");
         }
         setEmail(savedEmail);
         setIsLoading(false);
       } catch (err) {
         console.log("Auth check failed:", err);
-        router.push('/login?redirect=/companion');
+        router.push("/login?redirect=/companion");
         return;
       }
     };
@@ -210,7 +206,7 @@ const Companion = () => {
   //       />
   //     </div>
   //   </div>
-//   );
+  //   );
 };
 
 export default Companion;

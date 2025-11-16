@@ -11,7 +11,7 @@ interface TopNavProps {
   onMenuClick: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
   first_last: string | undefined;
-  status: 'Participant' | 'Audience' | 'Judge' | 'Exec';
+  status: "Participant" | "Audience" | "Judge" | "Exec";
 }
 
 export const TopNav: React.FC<TopNavProps> = ({
@@ -57,7 +57,9 @@ export const TopNav: React.FC<TopNavProps> = ({
             `}
             title={`Profile Picture`}
           >
-            <span className="select-none text-[20px]">{first_last ? first_last[0] : "?"}</span>
+            <span className="select-none text-[20px]">
+              {first_last ? first_last[0] : "?"}
+            </span>
           </div>
         </div>
         <div className="flex flex-col mr-10">
@@ -67,7 +69,9 @@ export const TopNav: React.FC<TopNavProps> = ({
               onMenuClick(!isOpen);
             }}
           >
-            <span className="text-white font-bold mr-2 text-[18px] text-center">{first_last}</span>
+            <span className="text-white font-bold mr-2 text-[18px] text-center">
+              {first_last}
+            </span>
             <motion.div
               animate={{ rotate: isOpen ? 180 : 0 }}
               transition={{ duration: 0.2 }}

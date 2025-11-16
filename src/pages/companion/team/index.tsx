@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { GlowButton } from "@/components/companion/kickstart/ui/GlowButton";
 import Logo from "@/assets/2025/kickstart/biztech_logo.svg";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
@@ -7,12 +7,14 @@ import { fetchAuthSession } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import { Registration } from "@/pages/companion/index";
+import { Registration } from "@/pages/companion/index";
 
-const TeamIndex = () => {
+// @Ali
+
+const index = () => {
   const router = useRouter();
   const [reg, setReg] = useState<Registration | null>(null);
-
-  const fetchRegistration = useCallback(async () => {
+  const fetchRegistration = async () => {
     try {
       const session = await fetchAuthSession();
       const email = session?.tokens?.idToken?.payload?.email as string;
@@ -31,18 +33,19 @@ const TeamIndex = () => {
       }
       setReg(reg);
     } catch (err) {
+      console.error("Error fetching registration:", err);
       router.push("/login?redirect=/companion/team");
     }
-  }, [router]);
+  };
 
   useEffect(() => {
     fetchRegistration();
-  }, [fetchRegistration]);
+  }, []);
 
   return (
     <NavBarContainer
       isPartner={reg?.isPartner}
-      userName={reg ? `${reg?.fname} ${reg?.lname}` : "Loading..."}
+      userName={`${reg?.fname} ${reg?.lname}`}
     >
       <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24">
         <Logo width={150} height={150} />
@@ -67,4 +70,4 @@ const TeamIndex = () => {
   );
 };
 
-export default TeamIndex;
+export default index;
