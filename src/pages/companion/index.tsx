@@ -76,7 +76,7 @@ const Companion = () => {
     try {
       const [regRes, eventData] = await Promise.all([
         fetchBackend({
-          endpoint: `/registrations?eventID=${eventID}&year=${year}`,
+          endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
           method: "GET",
         }),
         fetchBackend({
