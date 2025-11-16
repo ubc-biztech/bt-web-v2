@@ -110,7 +110,6 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     if (userRegistration) {
       fetchUserTeam();
     }
-
   }, [userRegistration]);
 
   const contextValue: TeamContextType = { team: team, isLoading: loading };
