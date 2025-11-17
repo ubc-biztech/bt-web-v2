@@ -34,7 +34,15 @@ type TeamListing = {
   members: string[];
 };
 
-const Invest = ({ setPage, sharedTeamId, setPendingSharedTeam }: { setPage: (page: KickstartPages) => void, sharedTeamId: string | null, setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>> }) => {
+const Invest = ({
+  setPage,
+  sharedTeamId,
+  setPendingSharedTeam,
+}: {
+  setPage: (page: KickstartPages) => void;
+  sharedTeamId: string | null;
+  setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>>;
+}) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
@@ -84,14 +92,10 @@ const Invest = ({ setPage, sharedTeamId, setPendingSharedTeam }: { setPage: (pag
       return;
     }
 
-    
     if (!sharedTeamId || !allTeams.length) return;
 
     const teamToSelect = allTeams.find((team) => team.id === sharedTeamId);
     if (!teamToSelect) return;
-
-
-
 
     setSelectedTeam(teamToSelect);
     setInvestmentStage(InvestmentStage.AMOUNT);

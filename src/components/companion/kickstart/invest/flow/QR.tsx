@@ -19,9 +19,9 @@ const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
   );
 
   const qrLink = useMemo(() => {
-    let baseUrl : string = "https://app.ubcbiztech.com/companion";
+    let baseUrl: string = "https://app.ubcbiztech.com/companion";
     if (devTest) {
-         baseUrl = "http://localhost:3000/companion";
+      baseUrl = "http://localhost:3000/companion";
     }
 
     if (!currentTeam) return baseUrl;
