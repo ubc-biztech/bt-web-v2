@@ -5,7 +5,6 @@ import { KickstartPages } from "@/components/companion/events/Kickstart2025";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 
-
 interface SuccessProps {
   successInfo: {
     amount: number;

@@ -179,11 +179,13 @@ const PageWrapper = ({
 const Kickstart2025 = () => {
   const router = useRouter();
   const [sharedTeamId, setSharedTeamId] = useState<string | null>(null);
-  const [pendingSharedTeam, setPendingSharedTeam] = useState<string | null>(null);
+  const [pendingSharedTeam, setPendingSharedTeam] = useState<string | null>(
+    null,
+  );
 
-  useEffect(() => { 
+  useEffect(() => {
     if (!router.isReady) return;
-    const {sharedTeam} = router.query;
+    const { sharedTeam } = router.query;
     if (sharedTeam && typeof sharedTeam === "string") {
       setSharedTeamId(sharedTeam);
     } else {
@@ -199,8 +201,6 @@ const Kickstart2025 = () => {
     setPendingSharedTeam(sharedTeamId);
   }, [sharedTeamId]);
 
-
-
   const [page, setPage] = useState<KickstartPages>(KickstartPages.OVERVIEW);
 
   // route to kickstart dashboard
@@ -215,7 +215,7 @@ const Kickstart2025 = () => {
           )}
           {page === KickstartPages.INVEST && (
             <PageWrapper key={KickstartPages.INVEST}>
-              <Invest 
+              <Invest
                 setPage={setPage}
                 sharedTeamId={pendingSharedTeam}
                 setPendingSharedTeam={setPendingSharedTeam}
