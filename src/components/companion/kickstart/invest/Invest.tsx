@@ -1,13 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import Loading from "@/components/Loading";
 import { ArrowRight } from "lucide-react";
 import Success from "./flow/Success";
 import Comment from "./flow/Comment";
 import Render from "./flow/Render";
+import ScanIcon from "@/assets/2025/kickstart/scan.svg";
 import { KickstartPages, useTeam } from "../../events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
 import { motion } from "framer-motion";
+import QR from "./flow/QR";
 // @Elijah
 
 // will try to check if user is logged in, is registered for kickstart 2025, and is assigned to a team
@@ -32,7 +34,7 @@ type TeamListing = {
   members: string[];
 };
 
-const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
+const Invest = ({ setPage, sharedTeamId, setPendingSharedTeam }: { setPage: (page: KickstartPages) => void, sharedTeamId: string | null, setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>> }) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
@@ -41,6 +43,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const [investmentStage, setInvestmentStage] = useState<InvestmentStage>(
     InvestmentStage.AMOUNT,
   );
+  const [openQR, setOpenQR] = useState(false);
   const [amountInput, setAmountInput] = useState("");
   const [confirmedAmount, setConfirmedAmount] = useState<number | null>(null);
   const [comment, setComment] = useState("");
@@ -73,6 +76,32 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 
     fetchTeams();
   }, []);
+
+  useEffect(() => {
+    console.log(team?.id);
+    if (team?.id === sharedTeamId) {
+      setPendingSharedTeam(null);
+      return;
+    }
+
+    
+    if (!sharedTeamId || !allTeams.length) return;
+
+    const teamToSelect = allTeams.find((team) => team.id === sharedTeamId);
+    if (!teamToSelect) return;
+
+
+
+
+    setSelectedTeam(teamToSelect);
+    setInvestmentStage(InvestmentStage.AMOUNT);
+    setAmountInput("");
+    setConfirmedAmount(null);
+    setComment("");
+    setFlowError(null);
+    setSuccessInfo(null);
+    setPendingSharedTeam(null);
+  }, [sharedTeamId, allTeams, setPendingSharedTeam]);
 
   useEffect(() => {
     if (!team?.id) return;
@@ -233,7 +262,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
         </header>
       </div>
 
-      {!selectedTeam && (
+      {!selectedTeam && !openQR && (
         <motion.div
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
@@ -257,9 +286,9 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
               <button
                 type="button"
                 className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-2 h-full"
-                onClick={handleProceedToComment}
+                onClick={() => setOpenQR(true)}
               >
-                <ArrowRight className="w-5 h-5" />
+                <ScanIcon className="w-max h-max flex items-center justify-center p-0.5 shrink-0" />
               </button>
             </div>
 
@@ -298,6 +327,13 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
       )}
 
       {selectedTeam && <>{renderInvestmentFlow()}</>}
+      {openQR && (
+        <QR
+          resetFlow={resetFlow}
+          setOpenQR={setOpenQR}
+          currentTeam={team?.id ?? ""}
+        />
+      )}
     </InvestWrapper>
   );
 };

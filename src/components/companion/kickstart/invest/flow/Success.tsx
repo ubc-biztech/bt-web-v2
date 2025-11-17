@@ -3,6 +3,8 @@ import Progress2_2 from "@/assets/2025/kickstart/progress2_2.svg";
 import { X } from "lucide-react";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
+
 
 interface SuccessProps {
   successInfo: {
@@ -15,6 +17,13 @@ interface SuccessProps {
 }
 
 const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
+  const router = useRouter();
+
+  const refreshWithoutSharedTeam = async () => {
+    await router.replace(router.pathname, undefined, { shallow: true });
+    window.location.reload();
+  };
+
   return (
     <motion.div
       className="space-y-1"
@@ -26,7 +35,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
         className="absolute top-4 right-4 text-white/70 hover:text-white"
         onClick={() => {
           resetFlow();
-          window.location.reload();
+          refreshWithoutSharedTeam();
         }}
         aria-label="Close investment flow"
       >
@@ -61,7 +70,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
             className="w-30 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors"
             onClick={() => {
               setPage(KickstartPages.OVERVIEW);
-              window.location.reload();
+              refreshWithoutSharedTeam();
             }}
           >
             Return to Dashboard
