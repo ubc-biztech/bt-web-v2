@@ -11,19 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const mockSettingsData = {
-  teamName: "biz.ai",
-  teamCode: "s82jdm",
-  avatar:
-    "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=600&q=80",
-  members: [
-    { name: "Kevin Xiao", email: "kevin@ubcbiztech.com" },
-    { name: "Isaac Liu", email: "isaac@ubcbiztech.com" },
-    { name: "Jay Park", email: "jay@ubcbiztech.com" },
-    { name: "Brian Adhitya", email: "brian@ubcbiztech.com" },
-  ],
-};
-
 const Settings = () => {
   const router = useRouter();
   const { userRegistration } = useUserRegistration();
@@ -41,9 +28,9 @@ const Settings = () => {
   const members =
     team?.memberNames && team?.memberIDs
       ? team.memberNames.map((name, index) => ({
-          name,
-          email: team.memberIDs[index],
-        }))
+        name,
+        email: team.memberIDs[index],
+      }))
       : [];
 
   const teamCode = team?.id || "";
