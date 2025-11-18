@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import InvestmentPopup from "./investmentPopup";
 
 // Types
 export interface RawInvestment {
@@ -15,7 +16,7 @@ export interface RawInvestment {
 }
 
 // Helper functions
-const formatTimestamp = (timestamp: number): string => {
+export const formatTimestamp = (timestamp: number): string => {
   const date = new Date(timestamp);
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -27,9 +28,8 @@ const formatTimestamp = (timestamp: number): string => {
   return `${month}-${day}-${year} - ${hours}:${minutes}${ampm}`;
 };
 
-const formatAmount = (amount: number): string => {
-  const sign = amount < 0 ? "-" : "";
-  return `${sign}$${Math.abs(amount)}`;
+export const formatAmount = (amount: number): string => {
+  return `-$${Math.abs(amount)}`;
 };
 
 const PartnerInvestmentCard = ({
@@ -37,30 +37,45 @@ const PartnerInvestmentCard = ({
 }: {
   investment: RawInvestment;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="bg-[#201F1E] rounded py-4 px-5 flex flex-col justify-between min-h-[120px] w-full">
-      {/* Top Row */}
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-white text-[28px] font-semibold tracking-tight lowercase">
-          {investment.teamName}
-        </span>
-        <div className="border border-[#38d64e] bg-[rgba(56,214,78,0.15)] rounded-full px-4 py-1 flex items-center justify-center">
-          <span className="text-[#38d64e] text-[18px] font-medium tracking-tight">
-            {formatAmount(investment.amount)}
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="bg-[#201F1E] rounded py-4 px-5 flex flex-col justify-between min-h-[120px] w-full text-left"
+      >
+        {/* Top Row */}
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-white text-[28px] font-semibold tracking-tight lowercase">
+            {investment.teamName}
           </span>
+          <div className="border border-[#95FF77] bg-[#95FF771A] rounded-full px-4 py-1 flex items-center justify-center">
+            <span className="text-[#95FF77] text-[16px] font-medium tracking-tight">
+              {formatAmount(investment.amount)}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Middle Comment */}
-      <p className="text-[#d2d2d2] text-sm leading-snug line-clamp-2 mb-2">
-        {investment.comment}
-      </p>
+        {/* Middle Comment */}
+        <p className="text-[#d2d2d2] text-xs leading-snug line-clamp-2 mb-2">
+          {investment.comment}
+        </p>
 
-      {/* Footer Time */}
-      <span className="text-[#8C8C8C] text-xs">
-        {formatTimestamp(investment.createdAt)}
-      </span>
-    </div>
+        {/* Footer Time */}
+        <span className="text-[#8C8C8C] text-xs font-light">
+          {formatTimestamp(investment.createdAt)}
+        </span>
+      </button>
+
+      {isOpen && (
+        <InvestmentPopup
+          investment={investment}
+          onClose={() => setIsOpen(false)}
+        />
+      )}
+    </>
   );
 };
 

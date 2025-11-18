@@ -4,11 +4,16 @@ import Recent from "./metrics/Recent";
 import Graph from "./graph/Graph";
 import { fetchBackend } from "@/lib/db";
 import { Investment } from "./metrics/Recent";
-import React, { useEffect, useState } from "react";
-import { useTeam } from "@/components/companion/events/Kickstart2025";
+import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
+import {
+  useTeam,
+  KickstartPages,
+} from "@/components/companion/events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
 import { truncate } from "node:fs/promises";
 import PartnerInvestmentCard from "./partnerInvestmentCard/partnerInvestmentCard";
+import { GlowButton } from "../ui/GlowButton";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 
 export interface RawInvestment {
   teamName: string;
@@ -23,113 +28,24 @@ export interface RawInvestment {
   id: string;
 }
 
-const Overview = () => {
+interface OverviewProps {
+  setPage: Dispatch<SetStateAction<KickstartPages>>;
+}
+
+const Overview = ({ setPage }: OverviewProps) => {
   const { team } = useTeam();
   const { userRegistration } = useUserRegistration();
-  const isPartner = /*userRegistration?.isPartner || truncate; */ true;
+  const isPartner = userRegistration?.isPartner || true;
   const [receivedFunding, setReceivedFunding] = useState<number>(-1);
   const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(
     null,
   );
 
   console.log("userRegistration", userRegistration);
-  console.log("isPartner", isPartner);
 
   const [recentInvestments, setReceiveInvestments] = useState<
     Investment[] | null
   >(null);
-
-  const mockInvestments: RawInvestment[] = [
-    {
-      id: "1",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-1",
-      investorName: "John Smith",
-      amount: 5000,
-      createdAt: Date.now() - 86400000, // 1 day ago
-      isPartner: true,
-      "eventID;year": "kickstart-2025",
-      comment: "Great idea!",
-    },
-    {
-      id: "2",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-2",
-      investorName: "Sarah Johnson",
-      amount: 7500,
-      createdAt: Date.now() - 172800000, // 2 days ago
-      isPartner: false,
-      "eventID;year": "kickstart-2025",
-      comment:
-        "I really like the concept and think it has potential in the market.",
-    },
-    {
-      id: "3",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-3",
-      investorName: "Michael Chen",
-      amount: 10000,
-      createdAt: Date.now() - 259200000, // 3 days ago
-      isPartner: true,
-      "eventID;year": "kickstart-2025",
-      comment:
-        "This is an excellent project with strong potential. The team has demonstrated great technical skills and I believe in their vision. Looking forward to seeing how this develops.",
-    },
-    {
-      id: "4",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-4",
-      investorName: "Emily Rodriguez",
-      amount: 3000,
-      createdAt: Date.now() - 345600000, // 4 days ago
-      isPartner: false,
-      "eventID;year": "kickstart-2025",
-      comment:
-        "I've been following this project closely and I'm impressed by the team's dedication and the innovative approach they're taking. The problem they're solving is very relevant in today's market, and I think they have a solid plan for execution. The prototype they've shown demonstrates real technical capability, and I'm confident they can deliver on their promises. This investment represents my belief in both the product and the people behind it.",
-    },
-    {
-      id: "5",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-5",
-      investorName: "David Kim",
-      amount: 12000,
-      createdAt: Date.now() - 432000000, // 5 days ago
-      isPartner: true,
-      "eventID;year": "kickstart-2025",
-      comment:
-        "After thoroughly reviewing the business plan, technical documentation, and speaking with the team members, I am convinced this is a worthwhile investment opportunity. The market analysis shows significant demand for this type of solution, and the competitive landscape analysis indicates there's room for innovation. The team has shown exceptional problem-solving skills and has already overcome several technical challenges that would have stumped less capable developers. Their go-to-market strategy is well thought out, and they have clear milestones for the next 6-12 months. I believe this project has the potential to make a real impact in the industry, and I'm excited to be part of their journey. The combination of technical excellence, market opportunity, and team dedication makes this an investment I'm confident about.",
-    },
-    {
-      id: "6",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-6",
-      investorName: "Lisa Wang",
-      amount: 2500,
-      createdAt: Date.now() - 518400000, // 6 days ago
-      isPartner: false,
-      "eventID;year": "kickstart-2025",
-      comment: "Solid.",
-    },
-    {
-      id: "7",
-      teamName: "TechStart",
-      teamId: "team-1",
-      investorId: "investor-7",
-      investorName: "Robert Taylor",
-      amount: 8000,
-      createdAt: Date.now() - 604800000, // 7 days ago
-      isPartner: true,
-      "eventID;year": "kickstart-2025",
-      comment:
-        "The technical implementation looks solid and the user experience design is thoughtful. I appreciate the attention to detail.",
-    },
-  ];
 
   useEffect(() => {
     if (team && team.id) {
@@ -163,25 +79,11 @@ const Overview = () => {
   return (
     <>
       {isPartner ? (
-        <div className="w-[90%] flex flex-col pb-20">
-          <div className="w-full flex flex-col items-center justify-center mt-14">
-            <span className="font-instrument text-[60px] leading-none">
-              ${userRegistration?.balance || 0}
-            </span>
-            <span className="text-[#8C8C8C] text-xs mt-2">
-              available to invest
-            </span>
-          </div>
-          <span className="text-xs">past investments</span>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6 mx-auto">
-            {mockInvestments.map((investment) => (
-              <PartnerInvestmentCard
-                key={investment.id}
-                investment={investment}
-              />
-            ))}
-          </div>
-        </div>
+        <PartnerView
+          userRegistration={userRegistration}
+          investments={rawInvestments || []}
+          setPage={setPage}
+        />
       ) : (
         <div className="w-[90%] flex flex-col pb-20">
           <Header teamName={team?.teamName || ""} />
@@ -231,6 +133,116 @@ const processInvestments = (rawInvestments: RawInvestment[]): Investment[] => {
       timestamp: formatTimestamp(date),
     };
   });
+};
+
+interface PartnerViewProps {
+  userRegistration: any;
+  investments: RawInvestment[];
+  setPage: Dispatch<SetStateAction<KickstartPages>>;
+}
+
+const PartnerView = ({
+  userRegistration,
+  investments,
+  setPage,
+}: PartnerViewProps) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [columns, setColumns] = useState<number>(3);
+
+  const ROWS_PER_PAGE = 3;
+  const itemsPerPage = ROWS_PER_PAGE * columns;
+  const totalPages = Math.ceil(investments.length / itemsPerPage);
+  const clampedPage =
+    currentPage >= totalPages ? Math.max(totalPages - 1, 0) : currentPage;
+  const paginatedInvestments = investments.slice(
+    clampedPage * itemsPerPage,
+    clampedPage * itemsPerPage + itemsPerPage,
+  );
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
+  };
+
+  // Detect screen size to calculate columns
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) {
+        // lg breakpoint - 3 columns
+        setColumns(3);
+      } else if (width >= 640) {
+        // sm breakpoint - 2 columns
+        setColumns(2);
+      } else {
+        // mobile - 1 column
+        setColumns(1);
+      }
+    };
+
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, []);
+
+  return (
+    <div className="w-[90%] flex flex-col pb-20">
+      <div className="w-full flex flex-col items-center justify-center mt-14">
+        <span className="font-instrument text-[60px] leading-none">
+          ${userRegistration?.balance || 0}
+        </span>
+        <span className="text-[#8C8C8C] text-xs mt-2">available to invest</span>
+      </div>
+
+      {/* Past investments header + controls */}
+      <div className="mt-10 w-full max-w-5xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-white text-sm">Past Investments</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePrevPage}
+                disabled={clampedPage === 0}
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#333333] text-[#B4B4B4] disabled:opacity-40"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextPage}
+                disabled={clampedPage >= totalPages - 1}
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#333333] text-[#B4B4B4] disabled:opacity-40"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <GlowButton
+            onClick={() => setPage(KickstartPages.INVEST)}
+            height="h-10"
+            width="w-48"
+            icon={Plus}
+          >
+            <span className="text-[14px]">New Investment</span>
+          </GlowButton>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+          {paginatedInvestments.map((investment) => (
+            <PartnerInvestmentCard
+              key={investment.id}
+              investment={investment}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Overview;
