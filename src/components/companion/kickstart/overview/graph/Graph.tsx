@@ -173,7 +173,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
 
   return (
     <Card
-      className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4 outline-none focus:outline-none"
+      className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none pr-4 outline-none focus:outline-none"
       tabIndex={-1}
     >
       <div
@@ -216,35 +216,46 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
               />
 
               <XAxis
-                dataKey={timeRange === "Week" ? "weekLabel" : "displayTime"}
+                dataKey={"timestamp"}
                 tick={{ fontSize: 12, fill: "#ffffff" }}
                 stroke="#ffffff"
                 axisLine={false}
                 tickLine={false}
-                tickFormatter={(value, index) => {
+                tickFormatter={(timestamp, index) => {
+                  const point = displayedData[index];
+                  if (!point) return "";
+
+                  const label =
+                    timeRange === "Week"
+                      ? point.weekLabel
+                      : point.displayTime;
+
                   if (timeRange === "3 hours") {
-                    if (index === 0 || index === displayedData.length - 1)
-                      return "";
+                    if (index === 0 || index === displayedData.length - 1) return "";
                     const midStart = Math.floor(displayedData.length / 2) - 1;
                     const midEnd = Math.floor(displayedData.length / 2) + 1;
-                    if (index >= midStart && index <= midEnd) return value;
+                    if (index >= midStart && index <= midEnd) return label;
                     return "";
                   }
+
                   if (timeRange === "Day") {
-                    if (index === 0 || index === displayedData.length - 1)
-                      return "";
-                    if (index % 3 === 0) return value;
+                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index % 3 === 0) return label;
                     return "";
                   }
+
                   if (timeRange === "Week") {
                     if (index === 0) return "";
-                    if (index === displayedData.length - 1) return value;
-                    const d = new Date(displayedData[index].timestamp);
-                    if (d.getHours() === 0) return value;
+                    if (index === displayedData.length - 1) return label;
+
+                    const d = new Date(point.timestamp);
+                    if (d.getHours() === 0) return label;
                     return "";
                   }
+
                   return "";
                 }}
+
                 tabIndex={-1}
               />
 
@@ -258,17 +269,18 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 tickLine={false}
                 tabIndex={-1}
               />
-
               <Tooltip
                 isAnimationActive={false}
                 allowEscapeViewBox={{ x: true, y: true }}
                 contentStyle={{
                   backgroundColor: "#111111",
-                  border: "0px solid #ffffff",
+                  border: "1px solid #ffffff",
                   borderRadius: "3px",
-                  padding: "8px 12px",
+                  padding: "4px 4px",
                   fontSize: "16px",
                   lineHeight: "1.1",
+                  zIndex: 100,
+
                 }}
                 labelStyle={{
                   color: "#ffffff",
@@ -279,10 +291,16 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   color: "#00C2FF",
                   fontSize: "11px",
                 }}
-                formatter={(v: any) => [
-                  typeof v === "number" ? formatNumberToK(v) : v,
-                ]}
+                labelFormatter={(label: any, payload: readonly any[]) => {
+                  if (!payload || payload.length === 0) return "";
+
+                  const point = payload[0].payload;
+                  return timeRange === "Week"
+                    ? point.weekLabel
+                    : point.displayTime;
+                }}
               />
+
 
               <Line
                 type="linear"
@@ -290,10 +308,11 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 stroke="#00C2FF"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 4 }}
+                activeDot={{ r:4 }}
                 name="Total Investment"
                 isAnimationActive
                 tabIndex={-1}
+                connectNulls={false}
               />
             </LineChart>
           </ResponsiveContainer>
