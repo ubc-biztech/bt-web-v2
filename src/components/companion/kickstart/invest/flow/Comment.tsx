@@ -90,8 +90,8 @@ const Comment = ({
               <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
             )}
           </motion.div>
-          We&apos;ll deduct from your spending account. This will not decrease your
-          own funding.
+          We&apos;ll deduct from your spending account. This will not decrease
+          your own funding.
           <button
             type="button"
             className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors duration-200 disabled:opacity-50 "
