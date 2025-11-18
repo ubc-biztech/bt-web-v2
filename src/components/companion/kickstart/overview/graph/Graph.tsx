@@ -226,12 +226,11 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   if (!point) return "";
 
                   const label =
-                    timeRange === "Week"
-                      ? point.weekLabel
-                      : point.displayTime;
+                    timeRange === "Week" ? point.weekLabel : point.displayTime;
 
                   if (timeRange === "3 hours") {
-                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index === 0 || index === displayedData.length - 1)
+                      return "";
                     const midStart = Math.floor(displayedData.length / 2) - 1;
                     const midEnd = Math.floor(displayedData.length / 2) + 1;
                     if (index >= midStart && index <= midEnd) return label;
@@ -239,7 +238,8 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   }
 
                   if (timeRange === "Day") {
-                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index === 0 || index === displayedData.length - 1)
+                      return "";
                     if (index % 3 === 0) return label;
                     return "";
                   }
@@ -255,7 +255,6 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
 
                   return "";
                 }}
-
                 tabIndex={-1}
               />
 
@@ -280,7 +279,6 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   fontSize: "16px",
                   lineHeight: "1.1",
                   zIndex: 100,
-
                 }}
                 labelStyle={{
                   color: "#ffffff",
@@ -301,14 +299,13 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 }}
               />
 
-
               <Line
                 type="linear"
                 dataKey="totalAmount"
                 stroke="#00C2FF"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r:4 }}
+                activeDot={{ r: 4 }}
                 name="Total Investment"
                 isAnimationActive
                 tabIndex={-1}
