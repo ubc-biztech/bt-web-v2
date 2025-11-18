@@ -7,7 +7,6 @@ import { fetchAuthSession } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import { Registration } from "@/pages/companion/index";
-import { Registration } from "@/pages/companion/index";
 
 // @Ali
 
