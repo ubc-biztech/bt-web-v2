@@ -11,6 +11,10 @@ import {
 } from "@/components/companion/events/Kickstart2025";
 import { AnimatePresence, motion } from "framer-motion";
 import CommentsModal from "./metrics/CommentsModal";
+import { useUserRegistration } from "@/pages/companion";
+import { GlowButton } from "../ui/GlowButton";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import PartnerInvestmentCard from "./partnerInvestmentCard/partnerInvestmentCard";
 
 export interface RawInvestment {
   teamName: string;
@@ -36,12 +40,17 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   >(null);
   const [modal, setModal] = useState(false);
 
+  const { userRegistration } = useUserRegistration();
+  const isPartner = userRegistration?.isPartner || false;
+
   useEffect(() => {
     if (team && team.id) {
       const fetchFundingStatus = async () => {
         try {
           const data = await fetchBackend({
-            endpoint: `/investments/teamStatus/${team?.id}`,
+            endpoint: isPartner
+              ? `/investments/investorStatus/${userRegistration?.id}`
+              : `/investments/teamStatus/${team?.id}`,
             method: "GET",
             authenticatedCall: true,
           });
@@ -49,7 +58,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
           console.log(data);
 
           if (data) {
-            setReceivedFunding(Math.round(data.funding) || -1);
+            setReceivedFunding(data.funding || -1);
             setRawInvestments(data.investments || null);
             setReceiveInvestments(processInvestments(data.investments) || []);
           }
@@ -59,43 +68,62 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
       };
       fetchFundingStatus();
     }
-  }, [team]);
+  }, [team, isPartner]);
 
   return (
-    <div className="w-[90%] flex flex-col pb-20">
-      <Header teamName={team?.teamName || ""} setPage={setPage} modal={modal} />
-      <AnimatePresence mode="wait">
-        {!modal ? (
-          <motion.div
-            key="overview"
-            className="w-full md:h-[6em] flex md:flex-row flex-col mt-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Graph investments={rawInvestments || []} />
-            <div className="md:w-2/5 w-full h-full flex flex-col gap-3">
-              <Stats received={receivedFunding} />
-              <Recent investments={recentInvestments} setModal={setModal} />
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <CommentsModal
-              investments={processInvestments(rawInvestments || [])}
-              setModal={setModal}
+    <>
+      {isPartner ? (
+        <PartnerView
+          userRegistration={userRegistration}
+          investments={rawInvestments || []}
+          setPage={setPage}
+        />
+      ) : (
+        <>
+          <div className="w-[90%] flex flex-col pb-20">
+            <Header
+              teamName={team?.teamName || ""}
+              setPage={setPage}
+              modal={modal}
             />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+            <AnimatePresence mode="wait">
+              {!modal ? (
+                <motion.div
+                  key="overview"
+                  className="w-full md:h-[6em] flex md:flex-row flex-col mt-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Graph investments={rawInvestments || []} />
+                  <div className="md:w-2/5 w-full h-full flex flex-col gap-3">
+                    <Stats received={receivedFunding} />
+                    <Recent
+                      investments={recentInvestments}
+                      setModal={setModal}
+                    />
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="modal"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CommentsModal
+                    investments={processInvestments(rawInvestments || [])}
+                    setModal={setModal}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
+    </>
   );
 };
 
@@ -135,6 +163,119 @@ export const processInvestments = (
       comment: item.comment,
     };
   });
+};
+
+interface PartnerViewProps {
+  userRegistration: any;
+  investments: RawInvestment[];
+  setPage: (arg0: KickstartPages) => void;
+}
+
+const PartnerView = ({
+  userRegistration,
+  investments,
+  setPage,
+}: PartnerViewProps) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [columns, setColumns] = useState<number>(3);
+
+  const ROWS_PER_PAGE = 3;
+  const itemsPerPage = ROWS_PER_PAGE * columns;
+  const totalPages = Math.ceil(investments.length / itemsPerPage);
+  const clampedPage =
+    currentPage >= totalPages ? Math.max(totalPages - 1, 0) : currentPage;
+  const paginatedInvestments = investments.slice(
+    clampedPage * itemsPerPage,
+    clampedPage * itemsPerPage + itemsPerPage,
+  );
+
+  const handlePrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
+  };
+
+  // Detect screen size to calculate columns
+  useEffect(() => {
+    const updateColumns = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) {
+        // lg breakpoint - 3 columns
+        setColumns(3);
+      } else if (width >= 640) {
+        // sm breakpoint - 2 columns
+        setColumns(2);
+      } else {
+        // mobile - 1 column
+        setColumns(1);
+      }
+    };
+
+    updateColumns();
+    window.addEventListener("resize", updateColumns);
+    return () => window.removeEventListener("resize", updateColumns);
+  }, []);
+
+  return (
+    <div className="w-[90%] flex flex-col pb-20">
+      <div className="w-full flex flex-col items-center justify-center mt-14">
+        <span className="font-instrument text-[60px] leading-none">
+          ${userRegistration?.balance || 0}
+        </span>
+        <span className="text-[#8C8C8C] text-xs mt-2">available to invest</span>
+      </div>
+
+      {/* Past investments header + controls */}
+      <div className="mt-10 w-full max-w-5xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-white text-sm">Past Investments</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePrevPage}
+                disabled={clampedPage === 0}
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#333333] text-[#B4B4B4] disabled:opacity-40"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextPage}
+                disabled={clampedPage >= totalPages - 1}
+                className="w-8 h-8 flex items-center justify-center rounded-md bg-[#333333] text-[#B4B4B4] disabled:opacity-40"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            onClick={() => {
+              setPage(KickstartPages.INVEST);
+            }}
+          >
+            <GlowButton height="h-10" width="sm:w-48 w-20 pl-2" icon={Plus}>
+              <span className="text-[14px] hidden sm:flex">
+                New Investments
+              </span>
+            </GlowButton>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+          {paginatedInvestments.map((investment) => (
+            <PartnerInvestmentCard
+              key={investment.id}
+              investment={investment}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Overview;
