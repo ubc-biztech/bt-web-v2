@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import InvestmentPopup from "./investmentPopup";
+import { formatTimestamp } from "@/lib/utils";
 
 // Types
 export interface RawInvestment {
@@ -14,19 +15,6 @@ export interface RawInvestment {
   comment: string;
   id: string;
 }
-
-// Helper functions
-export const formatTimestamp = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-  return `${month}-${day}-${year} - ${hours}:${minutes}${ampm}`;
-};
 
 export const formatAmount = (amount: number): string => {
   return `-$${Math.abs(amount)}`;

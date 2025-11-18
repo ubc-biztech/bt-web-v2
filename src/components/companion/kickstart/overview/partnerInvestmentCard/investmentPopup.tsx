@@ -2,49 +2,12 @@ import React from "react";
 import { X } from "lucide-react";
 import type { RawInvestment } from "./partnerInvestmentCard";
 import { formatAmount } from "./partnerInvestmentCard";
+import { formatPopupTimestamp } from "@/lib/utils";
 
 interface InvestmentPopupProps {
   investment: RawInvestment;
   onClose: () => void;
 }
-
-const formatPopupTimestamp = (
-  timestamp: number,
-): { month: string; day: string; time: string } => {
-  const date = new Date(timestamp);
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  const month = months[date.getMonth()];
-  const day = date.getDate();
-  const daySuffix =
-    day === 1 || day === 21 || day === 31
-      ? "st"
-      : day === 2 || day === 22
-        ? "nd"
-        : day === 3 || day === 23
-          ? "rd"
-          : "th";
-
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12 || 12;
-  const time = `${hours}:${minutes}${ampm}`;
-
-  return { month, day: `${day}${daySuffix}`, time };
-};
 
 const InvestmentPopup: React.FC<InvestmentPopupProps> = ({
   investment,
