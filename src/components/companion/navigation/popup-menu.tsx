@@ -4,17 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
-import homeIcon from "@/assets/2025/productx/home.svg";
-import rubricIcon from "@/assets/2025/productx/rubric.svg";
-import signOutIcon from "@/assets/2025/productx/signOut.svg";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import SimpleBox from "../productX/ui/Box";
+import { LogOut } from "lucide-react";
 
 interface PopupMenuProps {
   isOpen: boolean;
 }
 
-const navLinks = [{ href: "/companion", label: "Sign out", icon: signOutIcon }];
+const navLinks = [{ href: "/companion", label: "Sign out", icon: LogOut }];
 
 const menuVariants = {
   hidden: {
@@ -55,22 +53,20 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
     <AnimatePresence mode="wait">
       {isOpen && (
         <motion.nav
-          className="fixed top-0 right-0 mr-14 mt-32 z-50 w-56 h-16"
+          className="relative"
           variants={menuVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
         >
-          <SimpleBox
-            innerShadow={40}
-            className="flex flex-col justify-center"
-            hoverEffects={true}
+          <div
+            className="absolute right-0 mt-2 w-48 bg-[#1A1A1A] border border-white/10 rounded-md shadow-lg z-50 hover:bg-[#222222] transition-colors duration-200 ease-out"
           >
-            {navLinks.map(({ href, label, icon }) => (
+            {navLinks.map(({ href, label, icon: NavIcon }) => (
               <Link
                 key={label}
                 href={href}
-                className="flex flex-row items-center text-sm text-white font-ibm ml-8 tracking-wider py-2"
+                className="flex flex-row gap-2 items-center text-sm text-white font-ibm tracking-wider p-2 px-4"
                 onClick={(e) => {
                   if (label === "Sign out") {
                     e.preventDefault(); // Prevent default link behavior
@@ -78,17 +74,14 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
                   }
                 }}
               >
-                <Image
-                  src={icon}
+                <NavIcon
                   width={20}
                   height={20}
-                  alt="icon"
-                  className="mr-3"
                 />
                 {label}
               </Link>
             ))}
-          </SimpleBox>
+          </div>
         </motion.nav>
       )}
     </AnimatePresence>

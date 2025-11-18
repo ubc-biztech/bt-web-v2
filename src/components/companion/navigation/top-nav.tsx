@@ -7,6 +7,7 @@ import Triangle from "@/assets/2025/productx/custom-arrow.svg";
 import Link from "next/link";
 import { Dispatch, SetStateAction } from "react";
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
+import { PopupMenu } from "./popup-menu";
 interface TopNavProps {
   onMenuClick: Dispatch<SetStateAction<boolean>>;
   isOpen: boolean;
@@ -22,7 +23,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 }) => {
   return (
     <motion.div
-      className="flex justify-between items-center font-bricolage pt-0"
+      className="flex justify-between items-start font-bricolage pt-0"
       initial={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.6,
@@ -41,18 +42,24 @@ export const TopNav: React.FC<TopNavProps> = ({
           />
         </Link>
       </div>
-      <div className="flex flex-row items-center justify-center">
-        <div className="w-[30px] h-[30px] relative overflow-hidden rounded-full mr-3">
+      <div className="flex flex-col">
+        {" "}
+        <div
+          className="flex flex-row cursor-pointer select-none items-center gap-4 mb-2"
+          onClick={() => {
+            onMenuClick(!isOpen);
+          }}
+        >
           <div
             className={`
-              w-full h-full 
+              w-10 h-10 
               relative overflow-hidden 
               rounded-full 
-              bg-[#D9D9D9]
+              bg-white/10
               flex items-center justify-center 
-              text-white 
-              text-[10px] 
-              font-semibold 
+              text-white/80
+              text-sm
+              font-light
               leading-none
             `}
             title={`Profile Picture`}
@@ -61,33 +68,29 @@ export const TopNav: React.FC<TopNavProps> = ({
               {first_last ? first_last[0] : "?"}
             </span>
           </div>
-        </div>
-        <div className="flex flex-col mr-10">
-          <div
-            className="flex flex-row cursor-pointer select-none"
-            onClick={() => {
-              onMenuClick(!isOpen);
-            }}
-          >
-            <span className="text-white font-bold mr-2 text-[18px] text-center">
+          <div className="flex flex-col">
+            <span className="text-white font-bold mr-2 text-md text-center">
               {first_last}
             </span>
-            <motion.div
-              animate={{ rotate: isOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transformOrigin: "center",
-              }}
-            >
-              <ChevronDown className="w-6 h-6 text-white" />
-            </motion.div>
+
+            <span className="-mt-1 text-[12px] text-white/80">{status}</span>
           </div>
-          <span className="-mt-1 text-[10px] text-white">{status}</span>
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transformOrigin: "center",
+            }}
+          >
+            <ChevronDown className="w-6 h-6 text-white" />
+          </motion.div>
         </div>
+        <PopupMenu isOpen={isOpen} />
       </div>
+
       {/* <button 
         onClick={onMenuClick}
         className="p-2 hover:bg-[#1C1C1C] rounded-lg transition-colors"
