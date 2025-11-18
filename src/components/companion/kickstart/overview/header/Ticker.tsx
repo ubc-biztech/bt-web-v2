@@ -37,7 +37,7 @@ export const Ticker = () => {
             teamName: string;
           }) => ({
             investorName: investment.investorName,
-            amount: investment.amount,
+            amount: Math.round(investment.amount),
             teamName: investment.teamName,
           }),
         );

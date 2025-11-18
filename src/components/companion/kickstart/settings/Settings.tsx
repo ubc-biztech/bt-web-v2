@@ -86,7 +86,7 @@ const Settings = () => {
 
   return (
     <section className="w-full flex flex-col items-center justify-center text-white text-base gap-8 py-14 px-4 leading-relaxed">
-      <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-center">
+      <h1 className="text-4xl md:text-5xl font-normal text-center">
         KickStart Settings
       </h1>
 
@@ -100,14 +100,14 @@ const Settings = () => {
 
           <div className="text-2xl font-medium text-white/80">
             Team{" "}
-            <span className="text-[#F4B73D] font-semibold">
+            <span className="text-[#DE7D02] font-semibold">
               {team?.teamName || ""}
             </span>
           </div>
 
           <button
             onClick={() => setShowTeamIdDialog(true)}
-            className="flex items-center gap-3 rounded-full border border-white/15 bg-[#1B1B1B] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-white/80 transition hover:border-white/30"
+            className="flex items-center gap-3 rounded-full border border-white/15 bg-[#1B1B1B] px-5 py-2.5 text-sm font-semibold uppercase text-white/80 transition hover:border-white/30"
           >
             View Team ID
           </button>

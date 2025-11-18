@@ -2,7 +2,7 @@ import React from "react";
 import { Component } from "lucide-react";
 
 interface GlowButtonProps {
-  href: string;
+  href?: string;
   children: React.ReactNode;
   icon?: typeof Component;
   height?: string;

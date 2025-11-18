@@ -5,7 +5,9 @@ import Graph from "./graph/Graph";
 import { fetchBackend } from "@/lib/db";
 import { Investment } from "./metrics/Recent";
 import React, { useEffect, useState } from "react";
-import { useTeam } from "@/components/companion/events/Kickstart2025";
+import { KickstartPages, useTeam } from "@/components/companion/events/Kickstart2025";
+import { AnimatePresence, motion } from "framer-motion";
+import CommentsModal from "./metrics/CommentsModal";
 
 export interface RawInvestment {
   teamName: string;
@@ -20,7 +22,7 @@ export interface RawInvestment {
   id: string;
 }
 
-const Overview = () => {
+const Overview = ({ setPage }:{ setPage:(arg0: KickstartPages) => void }) => {
   const { team } = useTeam();
   const [receivedFunding, setReceivedFunding] = useState<number>(-1);
   const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(
@@ -29,6 +31,7 @@ const Overview = () => {
   const [recentInvestments, setReceiveInvestments] = useState<
     Investment[] | null
   >(null);
+  const [modal, setModal] = useState(false);
 
   useEffect(() => {
     if (team && team.id) {
@@ -43,7 +46,7 @@ const Overview = () => {
           console.log(data);
 
           if (data) {
-            setReceivedFunding(data.funding || -1);
+            setReceivedFunding(Math.round(data.funding) || -1);
             setRawInvestments(data.investments || null);
             setReceiveInvestments(processInvestments(data.investments) || []);
           }
@@ -57,19 +60,40 @@ const Overview = () => {
 
   return (
     <div className="w-[90%] flex flex-col pb-20">
-      <Header teamName={team?.teamName || ""} />
-      <div className="w-full md:h-[6em] flex md:flex-row flex-col mt-4">
-        <Graph investments={rawInvestments || []} />
-        <div className="md:w-2/5 w-full h-full flex flex-col gap-3">
-          <Stats received={receivedFunding} />
-          <Recent investments={recentInvestments} />
-        </div>
-      </div>
+      <Header teamName={team?.teamName || ""} setPage={setPage} modal={modal} />
+      <AnimatePresence mode="wait">
+        {!modal ? (
+          <motion.div
+            key="overview"
+            className="w-full md:h-[6em] flex md:flex-row flex-col mt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Graph investments={rawInvestments || []} />
+            <div className="md:w-2/5 w-full h-full flex flex-col gap-3">
+              <Stats received={receivedFunding} />
+              <Recent investments={recentInvestments} setModal={setModal}/>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <CommentsModal investments={processInvestments(rawInvestments || [])} setModal={setModal}/>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-const processInvestments = (rawInvestments: RawInvestment[]): Investment[] => {
+export const processInvestments = (rawInvestments: RawInvestment[]): Investment[] => {
   if (!rawInvestments || rawInvestments.length === 0) {
     return [];
   }
@@ -98,8 +122,9 @@ const processInvestments = (rawInvestments: RawInvestment[]): Investment[] => {
 
     return {
       investorName: item.investorName,
-      amount: item.amount,
+      amount: Math.round(item.amount),
       timestamp: formatTimestamp(date),
+      comment: item.comment,
     };
   });
 };

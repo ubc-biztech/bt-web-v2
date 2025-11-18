@@ -20,6 +20,7 @@ interface ChartData {
   totalAmount: number;
   investmentCount: number;
   timestamp: number;
+  weekLabel: string;
 }
 
 interface GraphProps {
@@ -37,7 +38,8 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
   const [displayedData, setDisplayedData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [maxValue, setMaxValue] = useState(0);
-  const [timeRange, setTimeRange] = useState<"3 hours" | "Day" | "Week">("Day");
+  const [timeRange, setTimeRange] =
+    useState<"3 hours" | "Day" | "Week">("Day");
 
   useEffect(() => {
     if (investments && investments.length > 0) {
@@ -90,16 +92,14 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     const sorted = Object.entries(investmentsByHour)
       .map(([timestamp, data]) => {
         const date = new Date(Number(timestamp));
-        const timeString = date.toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        });
+        const hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const displayTime = `${hours}:${minutes}`;
+
         return {
-          time: timeString,
-          displayTime: timeString.split(", ")[1] || timeString,
+          time: `${date.toLocaleString("en-US", { month: "short", day: "numeric" })} ${displayTime}`,
+          displayTime,
+          weekLabel: date.toLocaleString("en-US", { month: "short", day: "numeric" }),
           totalAmount: data.amount,
           investmentCount: data.count,
           timestamp: Number(timestamp),
@@ -115,26 +115,47 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
 
     const max = Math.max(...cumulativeData.map((d) => d.totalAmount), 0);
     setMaxValue(max * 1.33);
+
     setChartData(cumulativeData);
     setDisplayedData(cumulativeData);
   };
 
   const filterDataByRange = () => {
     if (chartData.length === 0) return;
+
     const now = chartData[chartData.length - 1].timestamp;
     let cutoff = now;
 
-    if (timeRange === "3 hours") cutoff = now - 3 * 60 * 60 * 1000;
+    if (timeRange === "3 hours") cutoff = now - 4 * 60 * 60 * 1000;
     else if (timeRange === "Day") cutoff = now - 24 * 60 * 60 * 1000;
     else if (timeRange === "Week") cutoff = now - 7 * 24 * 60 * 60 * 1000;
 
-    const filtered = chartData.filter((d) => d.timestamp >= cutoff);
+    let filtered = chartData.filter((d) => d.timestamp >= cutoff);
+
+    if (timeRange === "Week") {
+      const reduced: ChartData[] = [];
+
+      for (let i = 0; i < filtered.length; i++) {
+        const d = filtered[i];
+        const date = new Date(d.timestamp);
+
+        const isMidnight = date.getHours() === 0;
+        const isLast = i === filtered.length - 1;
+
+        if (isMidnight || isLast) {
+          reduced.push(d);
+        }
+      }
+
+      filtered = reduced;
+    }
+
     setDisplayedData(filtered);
   };
 
   if (loading) {
     return (
-      <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center">
+      <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center outline-none">
         <p className="text-white">Loading chart...</p>
       </div>
     );
@@ -142,16 +163,15 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
 
   if (chartData.length === 0) {
     return (
-      <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center">
+      <div className="w-3/5 h-full bg-[#111111] rounded-lg flex items-center justify-center outline-none">
         <p className="text-white">No investment data available</p>
       </div>
     );
   }
 
   return (
-    <Card className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4">
-      {/* Time Range Selector */}
-      <div className="absolute top-0 right-10 z-20 flex gap-2 rounded-md px-1 py-1 backdrop-blur-sm bg-[#262626]">
+    <Card className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4 outline-none focus:outline-none" tabIndex={-1}>
+      <div className="absolute top-0 right-10 z-20 flex gap-2 rounded-md px-1 py-1 backdrop-blur-sm bg-[#262626] outline-none focus:outline-none" tabIndex={-1}>
         {(["3 hours", "Day", "Week"] as const).map((range) => (
           <button
             key={range}
@@ -160,50 +180,69 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
               timeRange === range
                 ? "bg-[#1B1B1B] text-[#DE7D02]"
                 : "text-white hover:text-[#DE7D02]"
-            }`}
+            } outline-none focus:outline-none`}
+            tabIndex={-1}
           >
             {range}
           </button>
         ))}
       </div>
 
-      <CardContent className="absolute inset-0 p-0 !flex-none !grid-none">
-        <div className="absolute inset-0 left-0 top-0 w-full h-full">
+      <CardContent className="absolute inset-0 p-0 !flex-none !grid-none outline-none focus:outline-none" tabIndex={-1}>
+        <div className="absolute inset-0 left-0 top-0 w-full h-full outline-none focus:outline-none" tabIndex={-1}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={displayedData}
               margin={{ top: 0, right: 40, left: -30, bottom: 0 }}
+              tabIndex={-1}
             >
-              {/* Add white axis lines manually */}
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke="rgba(255, 255, 255, 0.1)"
               />
+
               <XAxis
-                dataKey="displayTime"
-                tick={{
-                  fontSize: 12,
-                  fill: "#ffffff",
-                }}
+                dataKey={timeRange === "Week" ? "weekLabel" : "displayTime"}
+                tick={{ fontSize: 12, fill: "#ffffff" }}
                 stroke="#ffffff"
                 axisLine={false}
                 tickLine={false}
-                // hide first and last tick labels
                 tickFormatter={(value, index) => {
-                  if (index === 0 || index === displayedData.length - 1)
+                  if (timeRange === "3 hours") {
+                    if (index === 0 || index === displayedData.length - 1) return "";
+                    const midStart = Math.floor(displayedData.length / 2) - 1;
+                    const midEnd = Math.floor(displayedData.length / 2) + 1;
+                    if (index >= midStart && index <= midEnd) return value;
                     return "";
-                  return value;
+                  }
+                  if (timeRange === "Day") {
+                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index % 3 === 0) return value;
+                    return "";
+                  }
+                  if (timeRange === "Week") {
+                    if (index === 0) return "";
+                    if (index === displayedData.length - 1) return value;
+                    const d = new Date(displayedData[index].timestamp);
+                    if (d.getHours() === 0) return value;
+                    return "";
+                  }
+                  return "";
                 }}
+                tabIndex={-1}
               />
+
               <YAxis
                 tick={{ fontSize: 12, fill: "#ffffff" }}
                 stroke="#ffffff"
                 domain={[0, maxValue]}
                 tickCount={8}
-                tickFormatter={(v: number) => formatNumberToK(v)}
+                tickFormatter={(v) => formatNumberToK(v)}
                 axisLine={false}
                 tickLine={false}
+                tabIndex={-1}
               />
+
               <Tooltip
                 contentStyle={{
                   backgroundColor: "#111111",
@@ -222,19 +261,19 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   color: "#00C2FF",
                   fontSize: "11px",
                 }}
-                formatter={(v: any) => [
-                  typeof v === "number" ? formatNumberToK(v) : v,
-                ]}
+                formatter={(v: any) => [typeof v === "number" ? formatNumberToK(v) : v]}
               />
+
               <Line
                 type="monotone"
                 dataKey="totalAmount"
                 stroke="#00C2FF"
                 strokeWidth={2}
-                dot={{ fill: "#00C2FF", r: 4 }}
-                activeDot={{ r: 6 }}
+                dot={false}
+                activeDot={false}
                 name="Total Investment"
                 isAnimationActive
+                tabIndex={-1}
               />
             </LineChart>
           </ResponsiveContainer>

@@ -7,17 +7,18 @@ import { CreditCardIcon, HandCoinsIcon } from "lucide-react";
 
 const Stats = ({ received }: { received: number }) => {
   const { userRegistration } = useUserRegistration();
+
   return (
-    <div className="w-full h-1/3 flex flex-row items-center justify-between overflow-x-hidden text-[16px] gap-2">
+    <div className="w-full h-1/3 flex flex-row items-stretch justify-between gap-2">
       <StatContent
         icon={CreditCardIcon}
-        value={`$${userRegistration?.balance || -1}`}
+        value={`$${Math.round(userRegistration?.balance || 0)}`}
         title="Available to invest"
         duration={1200}
       />
       <StatContent
         icon={HandCoinsIcon}
-        value={`$${received || -1}`}
+        value={`$${Math.round(received || 0)}`}
         title="Investment Received"
         duration={1200}
       />
@@ -58,37 +59,37 @@ export const StatContent = ({
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const easedProgress = easeInOutCubic(progress);
-      setDisplayValue(Math.floor(numericValue * easedProgress));
+      setDisplayValue(Math.round(numericValue * easedProgress));
 
       if (progress < 1) {
         animationId = requestAnimationFrame(animate);
       } else {
-        setDisplayValue(numericValue);
+        setDisplayValue(Math.round(numericValue));
       }
     };
 
     animationId = requestAnimationFrame(animate);
 
     return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
+      if (animationId) cancelAnimationFrame(animationId);
     };
   }, [numericValue, duration]);
 
   return (
-    <div className="bg-[#201F1E] w-full h-full overflow-hidden rounded-sm">
-      <div className="flex flex-col justify-center items-start p-6 gap-2">
-        <div className="bg-[#333333] w-10 h-10 flex flex-row items-center justify-center rounded-md">
+    <div className="bg-[#201F1E] w-full h-full overflow-hidden rounded-sm flex-1 flex flex-col">
+      <div className="flex flex-col justify-center items-start h-full p-6 gap-2 min-h-0">
+        <div className="bg-[#333333] w-10 h-10 flex items-center justify-center rounded-md">
           <Icon className="text-[#B4B4B4] w-6 h-6" />
         </div>
-        <span className="text-white md:text-[32px] text-[24px]">
-          {prefix}
-          {displayValue.toLocaleString()}
-        </span>
-        <span className="text-[#8C8C8C] md:text-[16px] text-[12px] -mt-2">
-          {title}
-        </span>
+        <div className="flex flex-col min-h-0 w-full">
+          <span className="text-white md:text-[32px] text-[24px] whitespace-nowrap">
+            {prefix}
+            {displayValue.toLocaleString()}
+          </span>
+          <span className="text-[#8C8C8C] md:text-[16px] text-[12px] whitespace-nowrap">
+            {title}
+          </span>
+        </div>
       </div>
     </div>
   );

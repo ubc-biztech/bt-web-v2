@@ -210,7 +210,7 @@ const Kickstart2025 = () => {
         <AnimatePresence mode="wait">
           {page === KickstartPages.OVERVIEW && (
             <PageWrapper key={KickstartPages.OVERVIEW}>
-              <Overview />
+              <Overview setPage={setPage} />
             </PageWrapper>
           )}
           {page === KickstartPages.INVEST && (
