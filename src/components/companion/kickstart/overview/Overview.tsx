@@ -5,7 +5,10 @@ import Graph from "./graph/Graph";
 import { fetchBackend } from "@/lib/db";
 import { Investment } from "./metrics/Recent";
 import React, { useEffect, useState } from "react";
-import { KickstartPages, useTeam } from "@/components/companion/events/Kickstart2025";
+import {
+  KickstartPages,
+  useTeam,
+} from "@/components/companion/events/Kickstart2025";
 import { AnimatePresence, motion } from "framer-motion";
 import CommentsModal from "./metrics/CommentsModal";
 
@@ -22,7 +25,7 @@ export interface RawInvestment {
   id: string;
 }
 
-const Overview = ({ setPage }:{ setPage:(arg0: KickstartPages) => void }) => {
+const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   const { team } = useTeam();
   const [receivedFunding, setReceivedFunding] = useState<number>(-1);
   const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(
@@ -74,7 +77,7 @@ const Overview = ({ setPage }:{ setPage:(arg0: KickstartPages) => void }) => {
             <Graph investments={rawInvestments || []} />
             <div className="md:w-2/5 w-full h-full flex flex-col gap-3">
               <Stats received={receivedFunding} />
-              <Recent investments={recentInvestments} setModal={setModal}/>
+              <Recent investments={recentInvestments} setModal={setModal} />
             </div>
           </motion.div>
         ) : (
@@ -85,7 +88,10 @@ const Overview = ({ setPage }:{ setPage:(arg0: KickstartPages) => void }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <CommentsModal investments={processInvestments(rawInvestments || [])} setModal={setModal}/>
+            <CommentsModal
+              investments={processInvestments(rawInvestments || [])}
+              setModal={setModal}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -93,7 +99,9 @@ const Overview = ({ setPage }:{ setPage:(arg0: KickstartPages) => void }) => {
   );
 };
 
-export const processInvestments = (rawInvestments: RawInvestment[]): Investment[] => {
+export const processInvestments = (
+  rawInvestments: RawInvestment[],
+): Investment[] => {
   if (!rawInvestments || rawInvestments.length === 0) {
     return [];
   }

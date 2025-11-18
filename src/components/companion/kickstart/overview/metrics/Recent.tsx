@@ -37,7 +37,8 @@ export type Investment = {
 const MAX_INVESTMENTS_DISPLAY = 4;
 
 export default function Recent({
-  investments, setModal
+  investments,
+  setModal,
 }: {
   investments: Investment[] | null;
   setModal: (arg0: boolean) => void;
@@ -46,8 +47,12 @@ export default function Recent({
     <div className="w-full h-2/3 bg-[#201F1E] rounded-sm text-white p-6 flex flex-col overflow-y-clip">
       <div className="flex flex-row items-center justify-between">
         <span className="text-[24px]">Recent Investments</span>
-        <div onClick={() => {setModal(true)}} 
-             className="group w-8 h-8 bg-[#333333] flex flex-row items-center justify-center rounded-sm hover:cursor-pointer">
+        <div
+          onClick={() => {
+            setModal(true);
+          }}
+          className="group w-8 h-8 bg-[#333333] flex flex-row items-center justify-center rounded-sm hover:cursor-pointer"
+        >
           <Maximize2 className="text-[#B4B4B4] hover:text-white size-5 group-hover:scale-105 transition ease-in-out duration-200" />
         </div>
       </div>
@@ -58,13 +63,17 @@ export default function Recent({
         animate="visible"
         key={investments?.length || 0} // Force re-animation when investments change
       >
-        {investments
-          ?.slice(0, MAX_INVESTMENTS_DISPLAY)
-          ?.map((inv, idx) => (
-            <div key={`${inv.investorName}-${idx}`} className="w-full" onClick={() => {setModal(true)}} >
-              <Investment variants={itemVariants} investment={inv} />
-            </div>
-          ))}
+        {investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv, idx) => (
+          <div
+            key={`${inv.investorName}-${idx}`}
+            className="w-full"
+            onClick={() => {
+              setModal(true);
+            }}
+          >
+            <Investment variants={itemVariants} investment={inv} />
+          </div>
+        ))}
       </motion.div>
     </div>
   );

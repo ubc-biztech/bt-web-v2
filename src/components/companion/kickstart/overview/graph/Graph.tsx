@@ -38,8 +38,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
   const [displayedData, setDisplayedData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
   const [maxValue, setMaxValue] = useState(0);
-  const [timeRange, setTimeRange] =
-    useState<"3 hours" | "Day" | "Week">("Day");
+  const [timeRange, setTimeRange] = useState<"3 hours" | "Day" | "Week">("Day");
 
   useEffect(() => {
     if (investments && investments.length > 0) {
@@ -99,7 +98,10 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
         return {
           time: `${date.toLocaleString("en-US", { month: "short", day: "numeric" })} ${displayTime}`,
           displayTime,
-          weekLabel: date.toLocaleString("en-US", { month: "short", day: "numeric" }),
+          weekLabel: date.toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+          }),
           totalAmount: data.amount,
           investmentCount: data.count,
           timestamp: Number(timestamp),
@@ -170,8 +172,14 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
   }
 
   return (
-    <Card className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4 outline-none focus:outline-none" tabIndex={-1}>
-      <div className="absolute top-0 right-10 z-20 flex gap-2 rounded-md px-1 py-1 backdrop-blur-sm bg-[#262626] outline-none focus:outline-none" tabIndex={-1}>
+    <Card
+      className="relative md:w-3/5 w-full md:h-full h-[4em] bg-[#111111] border-none shadow-none overflow-hidden pr-4 outline-none focus:outline-none"
+      tabIndex={-1}
+    >
+      <div
+        className="absolute top-0 right-10 z-20 flex gap-2 rounded-md px-1 py-1 backdrop-blur-sm bg-[#262626] outline-none focus:outline-none"
+        tabIndex={-1}
+      >
         {(["3 hours", "Day", "Week"] as const).map((range) => (
           <button
             key={range}
@@ -188,8 +196,14 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
         ))}
       </div>
 
-      <CardContent className="absolute inset-0 p-0 !flex-none !grid-none outline-none focus:outline-none" tabIndex={-1}>
-        <div className="absolute inset-0 left-0 top-0 w-full h-full outline-none focus:outline-none" tabIndex={-1}>
+      <CardContent
+        className="absolute inset-0 p-0 !flex-none !grid-none outline-none focus:outline-none"
+        tabIndex={-1}
+      >
+        <div
+          className="absolute inset-0 left-0 top-0 w-full h-full outline-none focus:outline-none"
+          tabIndex={-1}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={displayedData}
@@ -209,14 +223,16 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 tickLine={false}
                 tickFormatter={(value, index) => {
                   if (timeRange === "3 hours") {
-                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index === 0 || index === displayedData.length - 1)
+                      return "";
                     const midStart = Math.floor(displayedData.length / 2) - 1;
                     const midEnd = Math.floor(displayedData.length / 2) + 1;
                     if (index >= midStart && index <= midEnd) return value;
                     return "";
                   }
                   if (timeRange === "Day") {
-                    if (index === 0 || index === displayedData.length - 1) return "";
+                    if (index === 0 || index === displayedData.length - 1)
+                      return "";
                     if (index % 3 === 0) return value;
                     return "";
                   }
@@ -261,7 +277,9 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                   color: "#00C2FF",
                   fontSize: "11px",
                 }}
-                formatter={(v: any) => [typeof v === "number" ? formatNumberToK(v) : v]}
+                formatter={(v: any) => [
+                  typeof v === "number" ? formatNumberToK(v) : v,
+                ]}
               />
 
               <Line
