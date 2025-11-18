@@ -38,7 +38,7 @@ const NavBarContainer: React.FC<NavBarContainerProps> = ({
     <div className="relative flex flex-col min-h-screen bg-[#111111] text-white font-ibm">
       {!hide && (
         <div className="mb-20">
-          <div className="fixed top-0 left-0 right-0 z-50 px-2 md:px-8 pt-2 md:pt-8 bg-gradient-to-b from-[#040C12] to-transparent pb-4">
+          <div className="fixed top-0 left-0 right-0 z-50 px-6 md:px-8 pt-6 md:pt-8 pb-4">
             {/* <TopNav onMenuClick={() => setIsSideNavOpen(true)} /> */}
             <TopNav
               onMenuClick={setIsPopupMenuOpen}
@@ -48,7 +48,7 @@ const NavBarContainer: React.FC<NavBarContainerProps> = ({
             />
           </div>
           {/* <SideNav isPartner={isPartner} isOpen={isSideNavOpen} onClose={() => setIsSideNavOpen(false)} /> */}
-          <PopupMenu isOpen={isPopupMenuOpen} />
+          {/* <PopupMenu isOpen={isPopupMenuOpen} /> */}
         </div>
       )}
 

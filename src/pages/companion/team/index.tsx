@@ -48,7 +48,7 @@ const Index = () => {
     >
       <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24">
         <Logo width={150} height={150} />
-        <header className="text-[32px]">
+        <header className="text-[32px] text-center">
           Welcome to Kickstart, <span className="font-bold">{reg?.fname}</span>
         </header>
         <GlowButton href="/companion/team/create" height="h-10" width="w-56">

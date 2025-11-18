@@ -112,7 +112,7 @@ const JoinTeam = () => {
     return (
       <NavBarContainer
         isPartner={reg?.isPartner}
-        userName={`${reg?.fname} ${reg?.lname}`}
+        userName={`${reg?.fname} ${reg?.lname || ""}`}
       >
         <div className="w-full h-full flex flex-col items-center justify-center font-bricolage bg-[#111111] mt-24 md:mt-32 px-4">
           <div className="flex flex-col items-center w-full max-w-[700px]">
@@ -140,7 +140,7 @@ const JoinTeam = () => {
     return (
       <NavBarContainer
         isPartner={reg?.isPartner}
-        userName={`${reg?.fname} ${reg?.lname}`}
+        userName={`${reg?.fname} ${reg?.lname || ""}`}
       >
         <div className="w-full h-full flex flex-col items-center justify-center font-bricolage bg-[#111111] mt-24 md:mt-32 px-4">
           <div className="flex flex-col items-center w-full max-w-[700px]">
@@ -164,7 +164,7 @@ const JoinTeam = () => {
   return (
     <NavBarContainer
       isPartner={reg?.isPartner}
-      userName={`${reg?.fname} ${reg?.lname}`}
+      userName={`${reg?.fname} ${reg?.lname || ""}`}
     >
       <div className="w-full h-full flex flex-col items-center justify-center font-bricolage bg-[#111111] mt-24 md:mt-32 px-4">
         <div className="flex flex-col items-center w-full max-w-[700px]">
