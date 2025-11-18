@@ -100,8 +100,8 @@ const Render = ({
               <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
             )}
           </motion.div>
-          We&apos;ll deduct from your spending account. This will not decrease your
-          own funding.
+          We&apos;ll deduct from your spending account. This will not decrease
+          your own funding.
           <div className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-3 opacity-30 flex items-center">
             <p>invest</p>
           </div>
