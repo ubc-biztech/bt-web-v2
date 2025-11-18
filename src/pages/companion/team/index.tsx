@@ -10,7 +10,7 @@ import { Registration } from "@/pages/companion/index";
 
 // @Ali
 
-const index = () => {
+const Index = () => {
   const router = useRouter();
   const [reg, setReg] = useState<Registration | null>(null);
   const fetchRegistration = async () => {
@@ -69,4 +69,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
