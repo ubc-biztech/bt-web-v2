@@ -34,7 +34,7 @@ interface OverviewProps {
 const Overview = ({ setPage }: OverviewProps) => {
   const { team } = useTeam();
   const { userRegistration } = useUserRegistration();
-  const isPartner = userRegistration?.isPartner || true;
+  const isPartner = userRegistration?.isPartner || false;
   const [receivedFunding, setReceivedFunding] = useState<number>(-1);
   const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(
     null,
