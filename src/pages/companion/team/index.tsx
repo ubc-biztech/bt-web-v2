@@ -33,7 +33,7 @@ const Index = () => {
       setReg(reg);
     } catch (err) {
       console.error("Error fetching registration:", err);
-      router.push("/login?redirect=/companion/team");
+      router.push("/companion");
     }
   };
 
@@ -46,24 +46,42 @@ const Index = () => {
       isPartner={reg?.isPartner}
       userName={`${reg?.fname} ${reg?.lname || ""}`}
     >
-      <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24">
-        <Logo width={150} height={150} />
-        <header className="text-[32px] text-center">
-          Welcome to Kickstart, <span className="font-bold">{reg?.fname}</span>
-        </header>
-        <GlowButton href="/companion/team/create" height="h-10" width="w-56">
-          Create a team
-        </GlowButton>
-        <span>
-          {"or "}
-          <Link
-            className="text-[#DE7D02] underline"
-            href="/companion/team/join"
-          >
-            join an existing team
-          </Link>
-          {" instead"}
-        </span>
+      <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24 relative">
+        {reg && reg.registrationStatus !== "checkedIn" ? (
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+            <h1 className="text-2xl font-bold text-center">
+              You Have Not Checked In!
+            </h1>
+            <h2 className="text-[20px] opacity-50 text-center font-light">
+              Please check in with a BizTech exec to continue.
+            </h2>
+          </div>
+        ) : (
+          <>
+            <Logo width={150} height={150} />
+            <header className="text-[32px] text-center">
+              Welcome to Kickstart,{" "}
+              <span className="font-bold">{reg?.fname}</span>
+            </header>
+            <GlowButton
+              href="/companion/team/create"
+              height="h-10"
+              width="w-56"
+            >
+              Create a team
+            </GlowButton>
+            <span>
+              {"or "}
+              <Link
+                className="text-[#DE7D02] underline"
+                href="/companion/team/join"
+              >
+                join an existing team
+              </Link>
+              {" instead"}
+            </span>
+          </>
+        )}
       </div>
     </NavBarContainer>
   );
