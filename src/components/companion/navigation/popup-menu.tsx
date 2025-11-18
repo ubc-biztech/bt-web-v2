@@ -59,9 +59,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
           animate="visible"
           exit="exit"
         >
-          <div
-            className="absolute right-0 mt-2 w-48 bg-[#1A1A1A] border border-white/10 rounded-md shadow-lg z-50 hover:bg-[#222222] transition-colors duration-200 ease-out"
-          >
+          <div className="absolute right-0 mt-2 w-48 bg-[#1A1A1A] border border-white/10 rounded-md shadow-lg z-50 hover:bg-[#222222] transition-colors duration-200 ease-out">
             {navLinks.map(({ href, label, icon: NavIcon }) => (
               <Link
                 key={label}
@@ -74,10 +72,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
                   }
                 }}
               >
-                <NavIcon
-                  width={20}
-                  height={20}
-                />
+                <NavIcon width={20} height={20} />
                 {label}
               </Link>
             ))}
