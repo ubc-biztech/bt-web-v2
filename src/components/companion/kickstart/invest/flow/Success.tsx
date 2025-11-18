@@ -36,7 +36,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
           <h2 className="text-white text-xl font-semibold mt-1 leading-tight">
-            Congratulations! You've invested{" "}
+            Congratulations! You&apos;ve invested{" "}
             <span className="text-[#FFB35C]">
               ${successInfo.amount.toLocaleString()}
             </span>{" "}

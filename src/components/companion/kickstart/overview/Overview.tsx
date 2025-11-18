@@ -10,7 +10,6 @@ import {
   KickstartPages,
 } from "@/components/companion/events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
-import { truncate } from "node:fs/promises";
 import PartnerInvestmentCard from "./partnerInvestmentCard/partnerInvestmentCard";
 import { GlowButton } from "../ui/GlowButton";
 import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
