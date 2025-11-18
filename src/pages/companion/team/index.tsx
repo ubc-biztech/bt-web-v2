@@ -45,7 +45,7 @@ const index = () => {
   return (
     <NavBarContainer
       isPartner={reg?.isPartner}
-      userName={`${reg?.fname} ${reg?.lname}`}
+      userName={`${reg?.fname} ${reg?.lname || ""}`}
     >
       <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24">
         <Logo width={150} height={150} />
