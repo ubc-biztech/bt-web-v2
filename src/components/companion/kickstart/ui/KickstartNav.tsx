@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { PenTool, Coins, Settings, Users } from "lucide-react";
+import { PenTool, Coins, Settings } from "lucide-react";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
 
 interface KickstartNavProps {
@@ -21,7 +21,6 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
   const tabs = [
     { id: KickstartPages.OVERVIEW, label: "Overview", Icon: PenTool },
     { id: KickstartPages.INVEST, label: "Invest", Icon: Coins },
-    { id: KickstartPages.MY_TEAM, label: "My Team", Icon: Users },
     { id: KickstartPages.SETTINGS, label: "Settings", Icon: Settings },
   ];
 
