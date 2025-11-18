@@ -2,6 +2,8 @@ import React from "react";
 import Progress2_2 from "@/assets/2025/kickstart/progress2_2.svg";
 import { X } from "lucide-react";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
+import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 
 interface SuccessProps {
   successInfo: {
@@ -14,18 +16,31 @@ interface SuccessProps {
 }
 
 const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
-  return (
-    <div className="space-y-1">
-      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
-        <button
-          type="button"
-          className="absolute top-4 right-4 text-white/70 hover:text-white"
-          onClick={resetFlow}
-          aria-label="Close investment flow"
-        >
-          <X className="w-5 h-5" />
-        </button>
+  const router = useRouter();
 
+  const refreshWithoutSharedTeam = async () => {
+    await router.replace(router.pathname, undefined, { shallow: true });
+    window.location.reload();
+  };
+
+  return (
+    <motion.div
+      className="space-y-1"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <button
+        type="button"
+        className="absolute top-4 right-4 text-white/70 hover:text-white"
+        onClick={() => {
+          resetFlow();
+          refreshWithoutSharedTeam();
+        }}
+        aria-label="Close investment flow"
+      >
+        <X className="w-5 h-5" />
+      </button>
+      <div className="space-y-5 bg-[#1A1918] p-5 rounded-lg">
         <div>
           <p className="text-[#FFCC8A] text-xs">INVEST IN A PROJECT</p>
           <h2 className="text-white text-xl font-semibold mt-1 leading-tight">
@@ -52,13 +67,16 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
           <button
             type="button"
             className="w-30 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors"
-            onClick={() => setPage(KickstartPages.OVERVIEW)}
+            onClick={() => {
+              setPage(KickstartPages.OVERVIEW);
+              refreshWithoutSharedTeam();
+            }}
           >
             Return to Dashboard
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

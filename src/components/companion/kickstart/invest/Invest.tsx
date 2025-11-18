@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
 import { fetchBackend } from "@/lib/db";
 import Loading from "@/components/Loading";
 import { ArrowRight } from "lucide-react";
 import Success from "./flow/Success";
 import Comment from "./flow/Comment";
 import Render from "./flow/Render";
+import ScanIcon from "@/assets/2025/kickstart/scan.svg";
 import { KickstartPages, useTeam } from "../../events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
+import { motion } from "framer-motion";
+import QR from "./flow/QR";
 // @Elijah
 
 // will try to check if user is logged in, is registered for kickstart 2025, and is assigned to a team
@@ -19,36 +22,6 @@ import { useUserRegistration } from "@/pages/companion";
 
 // I have not thought about Partner investment and Admin investment yet as I am not super sure about how their backend/database scheme flows/works. (is it similar to user investment?)
 
-const MOCK_TEAMS = [
-  {
-    teamID: "team123",
-    teamName: "Public Speakers",
-    members: ["John Grey", "Rohan Patel", "Jimmy Sam"],
-  },
-  {
-    teamID: "team456",
-    teamName: "MMD",
-    members: ["Dhrishty Dhawan", "Yumin Chang", "Stephanie Lee"],
-  },
-  {
-    teamID: "team789",
-    teamName: "Team Dev",
-    members: ["Isaac Liu", "Jay Park", "Kevin Xiao"],
-  },
-  {
-    teamID: "team999",
-    teamName: "Team Internal",
-    members: ["Ashley Low", "Erping Sun", "Mikayla Liang"],
-  },
-  {
-    teamID: "team676",
-    teamName: "Team Elijah",
-    members: ["Eli Zhao", "Elijah Zhao", "Elijah Zhou"],
-  },
-];
-
-const DISABLE_VERIFY = false; // flip to false when backend is ready
-
 enum InvestmentStage {
   AMOUNT = "AMOUNT",
   COMMENT = "COMMENT",
@@ -56,26 +29,33 @@ enum InvestmentStage {
 }
 
 type TeamListing = {
-  teamID: string;
+  id: string;
   teamName: string;
   members: string[];
 };
 
-const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
+const Invest = ({
+  setPage,
+  sharedTeamId,
+  setPendingSharedTeam,
+}: {
+  setPage: (page: KickstartPages) => void;
+  sharedTeamId: string | null;
+  setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>>;
+}) => {
   const { userRegistration } = useUserRegistration();
   const { team } = useTeam();
-
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTeam, setSelectedTeam] = useState<TeamListing | null>(null);
   const [investmentStage, setInvestmentStage] = useState<InvestmentStage>(
     InvestmentStage.AMOUNT,
   );
+  const [openQR, setOpenQR] = useState(false);
   const [amountInput, setAmountInput] = useState("");
   const [confirmedAmount, setConfirmedAmount] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [flowError, setFlowError] = useState<string | null>(null);
-  const [availableFunds, setAvailableFunds] = useState<number>(7500);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{
     teamName: string;
@@ -86,12 +66,17 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const teams = await fetchBackend({
+        const teamsRes = await fetchBackend({
           endpoint: `/team/kickstart/2025`,
           method: "GET",
           authenticatedCall: true,
         });
-        setAllTeams(teams ?? []);
+        const teamsData = Array.isArray(teamsRes?.data)
+          ? teamsRes.data
+          : Array.isArray(teamsRes)
+            ? teamsRes
+            : [];
+        setAllTeams(teamsData);
       } catch (err) {
         console.error("Error fetching Kickstart teams:", err);
       }
@@ -101,23 +86,37 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   }, []);
 
   useEffect(() => {
-    if (!team?.id) return;
-    if (DISABLE_VERIFY) {
-      setAvailableFunds(7500);
+    console.log(team?.id);
+    if (team?.id === sharedTeamId) {
+      setPendingSharedTeam(null);
       return;
     }
 
+    if (!sharedTeamId || !allTeams.length) return;
+
+    const teamToSelect = allTeams.find((team) => team.id === sharedTeamId);
+    if (!teamToSelect) return;
+
+    setSelectedTeam(teamToSelect);
+    setInvestmentStage(InvestmentStage.AMOUNT);
+    setAmountInput("");
+    setConfirmedAmount(null);
+    setComment("");
+    setFlowError(null);
+    setSuccessInfo(null);
+    setPendingSharedTeam(null);
+  }, [sharedTeamId, allTeams, setPendingSharedTeam]);
+
+  useEffect(() => {
+    if (!team?.id) return;
+
     const fetchFunding = async () => {
       try {
-        console.log("test1");
-
         const res = await fetchBackend({
           endpoint: `/investments/teamStatus/${team.id}`,
           method: "GET",
           authenticatedCall: true,
         });
-
-        setAvailableFunds(res?.funding);
       } catch (error) {
         console.error("Failed to fetch funding status:", error);
       }
@@ -127,11 +126,16 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   }, [team?.id]);
 
   const filteredTeams = useMemo(() => {
-    if (!searchQuery.trim()) return allTeams;
-    return allTeams.filter((team) =>
-      team.teamName.toLowerCase().includes(searchQuery.toLowerCase()),
+    const availableTeams = team
+      ? allTeams.filter((listing) => listing.id !== team.id)
+      : allTeams;
+
+    if (!searchQuery.trim()) return availableTeams;
+
+    return availableTeams.filter((listing) =>
+      listing.teamName.toLowerCase().includes(searchQuery.toLowerCase()),
     );
-  }, [allTeams, searchQuery]);
+  }, [allTeams, searchQuery, team]);
 
   const resetFlow = () => {
     setSelectedTeam(null);
@@ -173,40 +177,27 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
   const handleSubmitInvestment = async () => {
     if (!selectedTeam || confirmedAmount === null || !comment.trim()) return;
 
-    // TODO remove and test with backend
-    if (DISABLE_VERIFY) {
-      setSearchQuery("");
-      setInvestmentStage(InvestmentStage.SUCCESS);
-      setSuccessInfo({
-        teamName: selectedTeam.teamName,
-        amount: confirmedAmount,
-        newBalance: userRegistration?.balance - confirmedAmount,
-      });
-      return;
-    }
-
     setIsSubmitting(true);
     setFlowError(null);
     try {
+      console.log(selectedTeam);
       await fetchBackend({
         endpoint: `/investments/invest`,
         method: "POST",
         data: {
           investorId: userRegistration?.id,
-          teamId: team?.id,
+          teamId: selectedTeam.id,
           amount: confirmedAmount,
           comment: comment.trim(),
         },
+        authenticatedCall: true,
       });
 
-      setAvailableFunds((prev) => {
-        const updated = Math.max(0, prev - confirmedAmount);
-        setSuccessInfo({
-          teamName: selectedTeam.teamName,
-          amount: confirmedAmount,
-          newBalance: userRegistration?.balance - confirmedAmount,
-        });
-        return updated;
+      const newBalance = (userRegistration?.balance ?? 0) - confirmedAmount;
+      setSuccessInfo({
+        teamName: selectedTeam.teamName,
+        amount: confirmedAmount,
+        newBalance,
       });
 
       setInvestmentStage(InvestmentStage.SUCCESS);
@@ -269,8 +260,18 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 
   return (
     <InvestWrapper>
-      {!selectedTeam && (
-        <div className="border border-[#5F3F1A] rounded-lg w-full">
+      <div className="absolute top-6 left-1/2 -translate-x-1/2">
+        <header className="font-instrument text-[32px] flex items-end leading-none">
+          Kickstart
+        </header>
+      </div>
+
+      {!selectedTeam && !openQR && (
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border border-[#5F3F1A] rounded-lg w-full"
+        >
           <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
             <div>
               <p className="text-[#FFCC8A]">INVEST IN A PROJECT</p>
@@ -289,16 +290,16 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
               <button
                 type="button"
                 className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-2 h-full"
-                onClick={handleProceedToComment}
+                onClick={() => setOpenQR(true)}
               >
-                <ArrowRight className="w-5 h-5" />
+                <ScanIcon className="w-max h-max flex items-center justify-center p-0.5 shrink-0" />
               </button>
             </div>
 
             <div className="space-y-3 max-h-[18rem] overflow-y-auto pr-1">
               {filteredTeams.map((team) => (
                 <button
-                  key={team.teamID}
+                  key={team.id}
                   type="button"
                   onClick={() => {
                     setSelectedTeam(team);
@@ -319,18 +320,24 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
                   </p>
                 </button>
               ))}
-              {userRegistration?.balance}
-              {filteredTeams.length === 0 && (
+              {filteredTeams.length === 0 && searchQuery === "" && (
                 <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
-                  No teams found.
+                  Loading ...
                 </div>
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {selectedTeam && <>{renderInvestmentFlow()}</>}
+      {openQR && (
+        <QR
+          resetFlow={resetFlow}
+          setOpenQR={setOpenQR}
+          currentTeam={team?.id ?? ""}
+        />
+      )}
     </InvestWrapper>
   );
 };
@@ -338,7 +345,7 @@ const Invest = ({ setPage }: { setPage: (page: KickstartPages) => void }) => {
 const InvestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center">
-      <div className="md:w-3/5 text-[18px]">{children}</div>
+      <div className="md:w-3/5 px-4 text-[18px]">{children}</div>
     </div>
   );
 };
