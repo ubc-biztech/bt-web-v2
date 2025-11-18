@@ -4,7 +4,7 @@ import { GlowButton } from "../../ui/GlowButton";
 import { Ticker } from "@/components/companion/kickstart/overview/header/Ticker";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
 
-const charLimit = 12
+const charLimit = 12;
 
 const Header = ({
   teamName,
@@ -24,7 +24,9 @@ const Header = ({
         <header
           className={`font-instrument text-[42px] flex items-end leading-none ${modal ? "text-[#DE7D02]" : "text-white"} transition duration-500 ease-in-out`}
         >
-          {teamName.length > charLimit ? `${teamName.substring(0, charLimit)}..` : teamName}{" "}
+          {teamName.length > charLimit
+            ? `${teamName.substring(0, charLimit)}..`
+            : teamName}{" "}
           <span
             className={`transition duration-200 ease-in-out text-white ml-2 ${modal ? "opacity-100" : "opacity-0"}`}
           >
