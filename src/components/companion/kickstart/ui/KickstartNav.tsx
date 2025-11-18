@@ -23,8 +23,8 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
     { id: KickstartPages.INVEST, label: "Invest", Icon: Coins },
     { id: KickstartPages.SETTINGS, label: "Settings", Icon: Settings },
   ];
-
-  const isProfile = page === KickstartPages.PROFILE;
+  const isProfile = false;
+  // const isProfile = page === KickstartPages.PROFILE;
   const currentIdx = tabs.findIndex((t) => t.id === page);
   const sliderIdx = currentIdx === -1 ? lastNavIdx : currentIdx;
 
@@ -115,7 +115,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
               );
             })}
           </div>
-
+{/* 
           <div
             className="
             relative 
@@ -146,7 +146,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
                 Profile
               </span>
             </button>
-          </div>
+          </div> */}
         </div>
       </nav>
     </>

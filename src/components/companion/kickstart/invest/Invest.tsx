@@ -260,7 +260,7 @@ const Invest = ({
 
   return (
     <InvestWrapper>
-      <div className="absolute top-6 left-1/2 -translate-x-1/2">
+      <div className="absolute top-0 left-0 mt-4 flex flex-row items-center justify-center w-full">
         <header className="font-instrument text-[32px] flex items-end leading-none">
           Kickstart
         </header>
@@ -344,7 +344,7 @@ const Invest = ({
 
 const InvestWrapper = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center">
+    <div className="w-screen h-screen flex flex-col items-center justify-center relative">
       <div className="md:w-3/5 px-4 text-[18px]">{children}</div>
     </div>
   );

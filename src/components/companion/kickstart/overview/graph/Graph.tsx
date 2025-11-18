@@ -260,6 +260,8 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
               />
 
               <Tooltip
+                isAnimationActive={false}
+                allowEscapeViewBox={{ x: true, y: true }}
                 contentStyle={{
                   backgroundColor: "#111111",
                   border: "0px solid #ffffff",
@@ -283,12 +285,12 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
               />
 
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="totalAmount"
                 stroke="#00C2FF"
                 strokeWidth={2}
                 dot={false}
-                activeDot={false}
+                activeDot={{ r: 4 }}
                 name="Total Investment"
                 isAnimationActive
                 tabIndex={-1}
