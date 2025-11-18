@@ -28,9 +28,9 @@ const Settings = () => {
   const members =
     team?.memberNames && team?.memberIDs
       ? team.memberNames.map((name, index) => ({
-        name,
-        email: team.memberIDs[index],
-      }))
+          name,
+          email: team.memberIDs[index],
+        }))
       : [];
 
   const teamCode = team?.id || "";
