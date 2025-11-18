@@ -41,7 +41,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   const [modal, setModal] = useState(false);
 
   const { userRegistration } = useUserRegistration();
-  const isPartner = userRegistration?.isPartner || true;
+  const isPartner = userRegistration?.isPartner || false;
 
   useEffect(() => {
     if (team && team.id) {
