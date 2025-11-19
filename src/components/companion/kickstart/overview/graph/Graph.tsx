@@ -82,10 +82,35 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     }
 
     const oneHourMs = 60 * 60 * 1000;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    
+    const oneDayBeforeTimestamp = minTimestamp - oneDayMs;
+    const oneHourBeforeTimestamp = minTimestamp - oneHourMs;
+    
+    investmentsByHour[oneDayBeforeTimestamp] = { amount: 0, count: 0 };
+    investmentsByHour[oneHourBeforeTimestamp] = { amount: 0, count: 0 };
+    minTimestamp = oneDayBeforeTimestamp;
+
     for (let ts = minTimestamp; ts <= maxTimestamp; ts += oneHourMs) {
       if (!investmentsByHour[ts]) {
         investmentsByHour[ts] = { amount: 0, count: 0 };
       }
+    }
+
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+    const currentHourTimestamp = now.getTime();
+    
+    if (currentHourTimestamp > maxTimestamp) {
+      const lastInvestmentData = investmentsByHour[maxTimestamp];
+      for (let ts = maxTimestamp + oneHourMs; ts <= currentHourTimestamp; ts += oneHourMs) {
+        investmentsByHour[ts] = { 
+          amount: 0, 
+          count: 0 
+        };
+      }
+      
+      maxTimestamp = currentHourTimestamp;
     }
 
     const sorted = Object.entries(investmentsByHour)
