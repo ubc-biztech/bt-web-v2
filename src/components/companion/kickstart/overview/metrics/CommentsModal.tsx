@@ -49,7 +49,11 @@ const CommentsModal = ({ investments, setModal }: CommentsModalProps) => {
               >
                 <div className="h-full flex flex-row items-center">
                   <div className="flex flex-row items-center h-20 w-full">
-                    <div className="w-12 h-12 rounded-md border-[1px] border-[#DE7D02] bg-[#B4B4B4]"></div>
+                    <div className="w-12 h-12 rounded-md border-[1px] border-[#DE7D02]">
+                      <span className="text-[24px] text-white flex items-center justify-center h-full">
+                        {inv.investorName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
                     <div className="h-16 flex flex-col items-start justify-center py-3">
                       <div className="flex flex-row items-center justify-center ml-3">
                         <span className="text-[16px] mr-2">

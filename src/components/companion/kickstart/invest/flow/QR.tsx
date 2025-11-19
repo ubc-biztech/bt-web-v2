@@ -1,15 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import QRCode from "qrcode";
 import { X } from "lucide-react";
 import { motion } from "framer-motion";
-import QRCode from "qrcode";
+import { CLIENT_URL } from "@/lib/dbconfig";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 interface SuccessProps {
   resetFlow: () => void;
   setOpenQR: (open: boolean) => void;
   currentTeam: string;
 }
-
-const devTest = true;
 
 const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,10 +18,7 @@ const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
   );
 
   const qrLink = useMemo(() => {
-    let baseUrl: string = "https://app.ubcbiztech.com/companion";
-    if (devTest) {
-      baseUrl = "http://localhost:3000/companion";
-    }
+    let baseUrl: string = `${CLIENT_URL}companion`;
 
     if (!currentTeam) return baseUrl;
     const params = new URLSearchParams({ sharedTeam: currentTeam });

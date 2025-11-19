@@ -93,7 +93,11 @@ const Investment = ({
       whileHover={{ scale: 1.02 }}
     >
       <div className="h-full flex flex-row items-center">
-        <div className="w-10 h-10 rounded-[2px] border-[1px] border-[#DE7D02] bg-[#B4B4B4]"></div>
+        <div className="w-10 h-10 rounded-[2px] border-[1px] border-[#DE7D02]">
+          <span className="text-[20px] text-white flex items-center justify-center h-full">
+            {investment.investorName.charAt(0).toUpperCase()}
+          </span>
+        </div>
         <div className="h-16 flex flex-col items-start justify-center py-3">
           <div className="flex flex-row items-center justify-center ml-4">
             <span className="text-[14px] mr-2">{investment.investorName}</span>
