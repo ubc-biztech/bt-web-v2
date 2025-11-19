@@ -59,7 +59,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
 
           if (data) {
             setReceivedFunding(data.funding || -1);
-            setRawInvestments(data.investments || null);
+            setRawInvestments(data.investments || []);
             setReceiveInvestments(processInvestments(data.investments) || []);
           }
         } catch (error) {

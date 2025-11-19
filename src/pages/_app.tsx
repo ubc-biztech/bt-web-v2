@@ -108,7 +108,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main
-        className={`${isCompanionPath ? "dark" : ""} ${urbanist.className} ${bricolage.variable} ${instrument.variable}`}
+        className={`${isCompanionPath ? `dark ${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />
