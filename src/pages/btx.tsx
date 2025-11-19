@@ -11,6 +11,7 @@ import {
   Activity,
   Wifi,
   WifiOff,
+  Search,
 } from "lucide-react";
 import {
   LineChart,
@@ -54,22 +55,52 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-// Formatting helper
+// Formatting helpers
 
 const round2 = (value: number): number =>
   Number.isFinite(value) ? Math.round(value * 100) / 100 : 0;
 
-const formatCurrencyShort = (value: number | null | undefined) => {
-  if (value == null || Number.isNaN(value)) return "—";
-  if (value >= 1000) {
-    return `$${(value / 1000).toFixed(1)}k`;
-  }
-  return `$${value.toFixed(2)}`;
+const formatNumber = (
+  value: number | null | undefined,
+  options?: Intl.NumberFormatOptions,
+  fallback: string = "—",
+): string => {
+  if (value == null || Number.isNaN(value)) return fallback;
+  return value.toLocaleString("en-US", options);
 };
 
-const formatCurrency = (value: number | null | undefined) => {
+const formatInteger = (value: number | null | undefined): string =>
+  formatNumber(value, { maximumFractionDigits: 0 });
+
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+const compactCurrencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+// e.g. $1.2K, $3.4M
+const formatCurrencyShort = (value: number | null | undefined): string => {
   if (value == null || Number.isNaN(value)) return "—";
-  return `$${value.toFixed(2)}`;
+
+  const numeric = Number(value);
+  if (Math.abs(numeric) < 1000) {
+    return currencyFormatter.format(numeric);
+  }
+
+  return compactCurrencyFormatter.format(numeric);
+};
+
+const formatCurrency = (value: number | null | undefined): string => {
+  if (value == null || Number.isNaN(value)) return "—";
+  return currencyFormatter.format(value);
 };
 
 const safeNumber = (
@@ -143,6 +174,41 @@ type TimeframeChange = {
 type MarketFilter = "ALL" | "UP" | "DOWN";
 type MarketSortKey = "CHANGE" | "VOLUME" | "TICKER";
 
+type PricePoint = {
+  ts: number;
+  value: number;
+};
+
+type PriceTooltipProps = {
+  active?: boolean;
+  payload?: {
+    value: number;
+    payload: PricePoint;
+  }[];
+};
+
+const PriceTooltip: React.FC<PriceTooltipProps> = ({ active, payload }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const point = payload[0]?.payload;
+  const price = payload[0]?.value as number;
+
+  if (!point) return null;
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/80 px-3 py-2 text-xs shadow-xl">
+      <div className="mb-1 flex items-center justify-between gap-3">
+        <span className="font-mono text-[12px] text-slate-300">
+          {formatTimestamp(point.ts)}
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-mono text-[12px]">
+          {formatCurrency(price)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const BtxPage: React.FC = () => {
   const {
     projects,
@@ -207,6 +273,9 @@ const BtxPage: React.FC = () => {
 
       let windowPoints = history;
 
+        if (timeframe !== "ALL") {
+          const cutoff = now - TIMEFRAME_MS[timeframe];
+          points = points.filter((pt) => pt.ts >= cutoff);
       if (timeframe !== "ALL") {
         const cutoff = now - TIMEFRAME_MS[timeframe];
         windowPoints = history.filter((pt) => pt.ts >= cutoff);
@@ -237,6 +306,19 @@ const BtxPage: React.FC = () => {
     return result;
   }, [projects, priceHistory, timeframe]);
 
+  const formatTooltipTimeForTimeframe = (
+    ts: number,
+    timeframe: TimeframeKey,
+  ) => {
+    const d = new Date(ts);
+    return d.toLocaleString([], {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
   // market-wide stats
 
   const { topGainer, mostActive } = useMemo(() => {
@@ -262,6 +344,28 @@ const BtxPage: React.FC = () => {
       mostActive: byVolume[0],
     };
   }, [projects, timeframeChanges]);
+
+  const formatXAxisTick = (ts: number, timeframe: TimeframeKey) => {
+    const d = new Date(ts);
+
+    // short time for intraday windows
+    if (timeframe === "1M" || timeframe === "5M" || timeframe === "15M") {
+      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    if (timeframe === "1H" || timeframe === "4H") {
+      return d.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    return d.toLocaleString([], {
+      month: "numeric",
+      day: "numeric",
+      hour: "2-digit",
+    });
+  };
 
   // market snapshot
 
@@ -454,16 +558,37 @@ const BtxPage: React.FC = () => {
               },
             ];
 
-    if (timeframe !== "ALL") {
+    // Timeframe filtering
+    if (timeframe !== "ALL" && points.length > 1) {
       const cutoff = now - TIMEFRAME_MS[timeframe];
-      points = points.filter((pt) => pt.ts >= cutoff);
+      const filtered = points.filter((pt) => pt.ts >= cutoff);
+      if (filtered.length >= 2) {
+        points = filtered;
+      }
     }
 
-    return points.map((pt) => ({
-      ts: pt.ts,
-      time: formatTimeLabel(pt.ts),
-      value: pt.price,
-    }));
+    // Sort by timestamp just to be safe
+    points = points.slice().sort((a, b) => a.ts - b.ts);
+
+    const shouldCoalesce =
+      timeframe === "1M" || timeframe === "5M" || timeframe === "15M";
+
+    const EPS = 1e-6;
+    const coalesced: { ts: number; value: number }[] = [];
+
+    for (const pt of points) {
+      const value = pt.price;
+      const last = coalesced[coalesced.length - 1];
+
+      if (shouldCoalesce && last && Math.abs(last.value - value) < EPS) {
+        last.ts = pt.ts;
+        continue;
+      }
+
+      coalesced.push({ ts: pt.ts, value });
+    }
+
+    return coalesced;
   }, [headerProject, priceHistory, trades, timeframe]);
 
   const recentActivityData = useMemo(() => {
@@ -507,7 +632,7 @@ const BtxPage: React.FC = () => {
     );
   }, [headerProject, timeframeChanges]);
 
-  // --------- Trade estimates (approximate, execution may differ) ---------
+  //  Trade estimates (approximate, execution may differ)
 
   const tradeEstimates = useMemo(() => {
     if (!headerProject) {
@@ -550,6 +675,16 @@ const BtxPage: React.FC = () => {
   const estimatedValue = tradeEstimates.cost;
   const estimatedExecutionPrice = tradeEstimates.execPrice;
   // const estimatedFinalPrice = tradeEstimates.finalPrice
+
+  const tradeSize = Number(tradeShares) || 0;
+
+  const livePrice =
+    headerProject?.currentPrice ?? headerProject?.basePrice ?? 0;
+
+  const slippagePct =
+    tradeSize && livePrice && estimatedExecutionPrice
+      ? ((estimatedExecutionPrice - livePrice) / livePrice) * 100
+      : 0;
 
   // position metrics
 
@@ -695,7 +830,16 @@ const BtxPage: React.FC = () => {
     </div>
   );
 
-  // --------- Render ---------
+  const testTickerProjects = useMemo(() => {
+    const MULTIPLIER = 4;
+    if (!projects.length) return projects;
+
+    const out: typeof projects = [];
+    for (let i = 0; i < MULTIPLIER; i++) {
+      out.push(...projects);
+    }
+    return out;
+  }, [projects]);
 
   return (
     <>
@@ -707,53 +851,65 @@ const BtxPage: React.FC = () => {
         className={`${bricolageGrotesque.className} min-h-screen bg-[#111111] text-white w-full overflow-x-hidden`}
       >
         <div className="max-w-7xl mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-          {/* HEADER: title + live price + portfolio snapshot */}
-          <div className="mb-4 flex-shrink-0 flex flex-wrap items-start justify-between gap-4">
-            {/* Left: selected project headline */}
-            <div className="flex flex-col gap-2 min-w-0">
-              <div className="flex flex-wrap items-baseline gap-4">
-                <h1
-                  className={`${instrumentSerif.className} text-3xl sm:text-4xl font-light leading-tight truncate`}
-                >
-                  {headerProject ? headerProject.name : "BizTech Exchange"}
-                </h1>
+          {/* HEADER: title + live price + portfolio snapshot + market stats */}
+          <section className="mb-4 flex-shrink-0 rounded-xl border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#111111] to-[#161616] px-4 py-3 sm:px-5 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.9)]">
+            {/* Top row: project + portfolio */}
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              {/* Left: selected project headline */}
+              <div className="flex flex-col gap-2 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
+                  <h1
+                    className={`${instrumentSerif.className} text-2xl sm:text-3xl md:text-4xl font-light leading-tight truncate`}
+                  >
+                    {headerProject ? headerProject.name : "BizTech Exchange"}
+                  </h1>
+
+                  {/* Price + change */}
+                  <div className="flex flex-wrap items-baseline gap-4">
+                    <p
+                      className={`${instrumentSerif.className} text-2xl sm:text-3xl font-light leading-none`}
+                    >
+                      {formatCurrency(
+                        headerProject?.currentPrice ??
+                          headerProject?.basePrice ??
+                          0,
+                      )}
+                    </p>
+
+                    <div
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-light ${
+                        headerTimeframeChange.change >= 0
+                          ? "bg-emerald-900/40 text-bt-green-300 border border-emerald-500/40"
+                          : "bg-red-900/40 text-bt-red-300 border border-red-500/40"
+                      }`}
+                    >
+                      {headerTimeframeChange.change >= 0 ? (
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      ) : (
+                        <TrendingDown className="h-3.5 w-3.5" />
+                      )}
+                      <span className="font-mono text-[11px]">
+                        {headerTimeframeChange.change >= 0 ? "+" : "-"}
+                        {formatCurrencyShort(
+                          Math.abs(headerTimeframeChange.change),
+                        )}{" "}
+                        ({headerTimeframeChange.pct >= 0 ? "+" : "-"}
+                        {Math.abs(headerTimeframeChange.pct).toFixed(2)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
                 {headerProject && (
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline gap-3">
-                      <p
-                        className={`${instrumentSerif.className} text-2xl sm:text-3xl font-light leading-none`}
-                      >
-                        {formatCurrencyShort(
-                          headerProject.currentPrice ??
-                            headerProject.basePrice ??
-                            0,
-                        )}
-                      </p>
-                      <div
-                        className={`flex items-center gap-1 text-sm font-light leading-none ${
-                          headerTimeframeChange.change >= 0
-                            ? "text-bt-green-300"
-                            : "text-bt-red-300"
-                        }`}
-                      >
-                        {headerTimeframeChange.change >= 0 ? (
-                          <TrendingUp className="h-4 w-4" />
-                        ) : (
-                          <TrendingDown className="h-4 w-4" />
-                        )}
-                        <span className="truncate">
-                          {headerTimeframeChange.change >= 0 ? "+" : "-"}
-                          {formatCurrencyShort(
-                            Math.abs(headerTimeframeChange.change),
-                          )}{" "}
-                          ({headerTimeframeChange.pct >= 0 ? "+" : "-"}
-                          {Math.abs(headerTimeframeChange.pct).toFixed(2)}%)
+                  <div className="flex flex-col gap-1.5">
+                    {/* Status + timeframe controls */}
+                    <div className="flex flex-wrap items-center gap-3 text-[10px] text-slate-400">
+                      {headerProject && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-slate-700/70 bg-black/40 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.18em] text-slate-300">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          {headerProject.ticker}
                         </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-1 text-xs text-muted-foreground flex flex-wrap items-center gap-3">
+                      )}
                       <span className="inline-flex items-center gap-2">
                         {wsChip}
                         <span className="text-[10px] text-slate-400">
@@ -762,235 +918,176 @@ const BtxPage: React.FC = () => {
                             : "Market running"}
                         </span>
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-slate-400">
-                        Timeframe:
-                        {(
-                          [
-                            "1M",
-                            "5M",
-                            "15M",
-                            "1H",
-                            "4H",
-                            "1D",
-                            "ALL",
-                          ] as TimeframeKey[]
-                        ).map((tf) => (
-                          <button
-                            key={tf}
-                            onClick={() => setTimeframe(tf)}
-                            className={`px-1.5 py-0.5 rounded-full border transition-colors ${
-                              timeframe === tf
-                                ? "border-white text-white bg-white/10"
-                                : "border-transparent hover:border-white/30 hover:bg-white/5"
+
+                      <div className="inline-flex flex-wrap items-center gap-1.5">
+                        <span className="uppercase tracking-[0.18em] text-slate-500">
+                          Timeframe
+                        </span>
+                        <div className="inline-flex rounded-full border border-slate-700/70 bg-black/40 px-0.5 py-0.5">
+                          {(
+                            [
+                              "1M",
+                              "5M",
+                              "15M",
+                              "1H",
+                              "4H",
+                              "1D",
+                              "ALL",
+                            ] as TimeframeKey[]
+                          ).map((tf) => {
+                            const active = timeframe === tf;
+                            return (
+                              <button
+                                key={tf}
+                                onClick={() => setTimeframe(tf)}
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                                  active
+                                    ? "bg-slate-100 text-[#111] shadow-sm"
+                                    : "text-slate-400 hover:bg-slate-600/40 hover:text-slate-50"
+                                }`}
+                              >
+                                {TIMEFRAME_LABELS[tf]}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right: portfolio mini-summary */}
+              <div className="flex flex-col items-end gap-1.5 text-xs text-[#D0D0D0] max-w-xs sm:max-w-sm">
+                {loadingPortfolio ? (
+                  <span className="text-[11px] text-slate-400">
+                    Loading portfolio…
+                  </span>
+                ) : portfolio && portfolioSnapshot ? (
+                  <>
+                    <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2 w-full sm:w-auto">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                          Portfolio value
+                        </span>
+                        <span className="font-mono text-xs text-slate-50">
+                          {formatCurrency(
+                            portfolioSnapshot.totalPortfolioValue,
+                          )}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between gap-4 text-[10px] text-slate-400">
+                        <span>Cash</span>
+                        <span className="font-mono text-slate-100">
+                          {formatCurrency(
+                            portfolioSnapshot.account.cashBalance,
+                          )}
+                        </span>
+                      </div>
+                      {portfolioBreakdown && (
+                        <div className="mt-1 flex items-center justify-between gap-4 text-[10px] text-slate-400">
+                          <span>Open P&amp;L</span>
+                          <span
+                            className={`font-mono ${
+                              portfolioBreakdown.openPnl > 0
+                                ? "text-bt-green-300"
+                                : portfolioBreakdown.openPnl < 0
+                                  ? "text-bt-red-300"
+                                  : "text-slate-300"
                             }`}
                           >
-                            {TIMEFRAME_LABELS[tf]}
-                          </button>
-                        ))}
-                      </span>
+                            {formatCurrency(portfolioBreakdown.openPnl)}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Market stat chips */}
-              <div className="flex flex-wrap gap-3 text-[11px] text-slate-300">
-                {topGainer && (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-900/10 px-3 py-1">
-                    <span className="uppercase tracking-wide text-emerald-300">
-                      Top gainer
-                    </span>
-                    <span className="font-mono text-xs">
-                      {topGainer.ticker}
-                    </span>
-                    <span className="flex items-center gap-1 text-emerald-300">
-                      <TrendingUp className="h-3 w-3" />
-                      {(() => {
-                        const pct =
-                          timeframeChanges[topGainer.projectId]?.pct ??
-                          safePct(topGainer.priceChangePct);
-                        return (
-                          <>
-                            {pct >= 0 ? "+" : ""}
-                            {pct.toFixed(1)}%
-                          </>
-                        );
-                      })()}
-                    </span>
-                  </div>
-                )}
-                {mostActive && (
-                  <div className="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-900/10 px-3 py-1">
-                    <span className="uppercase tracking-wide text-sky-300">
-                      Most active
-                    </span>
-                    <span className="font-mono text-xs">
-                      {mostActive.ticker}
-                    </span>
-                    <span className="text-sky-200">
-                      Vol:{" "}
-                      <span className="font-mono">
-                        {mostActive.totalVolume ?? 0}
-                      </span>
-                    </span>
-                  </div>
+                    {portfolioError && (
+                      <div className="text-[10px] text-red-300 text-right">
+                        {portfolioError}
+                      </div>
+                    )}
+                  </>
+                ) : portfolio ? (
+                  <>
+                    <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2 w-full sm:w-auto space-y-0.5">
+                      <div className="flex items-center justify-between gap-4">
+                        <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                          Portfolio value
+                        </span>
+                        <span className="font-mono text-xs text-slate-50">
+                          {formatCurrency(portfolio.totalPortfolioValue)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 text-[10px] text-slate-400">
+                        <span>Cash</span>
+                        <span className="font-mono text-slate-100">
+                          {formatCurrency(portfolio.account.cashBalance)}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <span className="text-[11px] text-[#888] text-right">
+                    Browsing as guest. Log in to trade and see your portfolio.
+                  </span>
                 )}
               </div>
             </div>
 
-            {/* right: portfolio mini-summary */}
-            <div className="flex flex-col items-end text-xs text-[#D0D0D0] space-y-1 max-w-xs">
-              {loadingPortfolio ? (
-                <span>Loading portfolio…</span>
-              ) : portfolio && portfolioSnapshot ? (
-                <>
-                  <div>
-                    Cash:{" "}
-                    <span className="font-mono">
-                      {formatCurrency(portfolioSnapshot.account.cashBalance)}
-                    </span>
-                  </div>
-                  <div>
-                    Portfolio value:{" "}
-                    <span className="font-mono">
-                      {formatCurrency(portfolioSnapshot.totalPortfolioValue)}
-                    </span>
-                  </div>
-                  {portfolioBreakdown && (
-                    <div className="text-[11px] text-slate-400">
-                      Open P&amp;L:{" "}
-                      <span
-                        className={`font-mono ${
-                          portfolioBreakdown.openPnl > 0
-                            ? "text-bt-green-300"
-                            : portfolioBreakdown.openPnl < 0
-                              ? "text-bt-red-300"
-                              : "text-slate-300"
-                        }`}
-                      >
-                        {formatCurrency(portfolioBreakdown.openPnl)}
-                      </span>
-                    </div>
-                  )}
-                  {portfolioError && (
-                    <div className="text-[10px] text-red-300 text-right">
-                      {portfolioError}
-                    </div>
-                  )}
-                </>
-              ) : portfolio ? (
-                <>
-                  <div>
-                    Cash:{" "}
-                    <span className="font-mono">
-                      {formatCurrency(portfolio.account.cashBalance)}
-                    </span>
-                  </div>
-                  <div>
-                    Portfolio value:{" "}
-                    <span className="font-mono">
-                      {formatCurrency(portfolio.totalPortfolioValue)}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <span className="text-xs text-[#888] text-right">
-                  Browsing as guest. Log in to trade and see your portfolio.
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Market snapshot row */}
-          {marketSnapshot && (
-            <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-slate-400">
-                  Market breadth
-                </span>
-                <div className="flex gap-3 font-mono">
-                  <span className="text-bt-green-300">
-                    ↑ {marketSnapshot.up}
+            {/* Market snapshot row inside header */}
+            {marketSnapshot && (
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                    Market breadth
                   </span>
-                  <span className="text-bt-red-300">
-                    ↓ {marketSnapshot.down}
+                  <div className="flex gap-3 font-mono text-[11px]">
+                    <span className="text-bt-green-300">
+                      ↑ {marketSnapshot.up}
+                    </span>
+                    <span className="text-bt-red-300">
+                      ↓ {marketSnapshot.down}
+                    </span>
+                    <span className="text-slate-400">
+                      · {marketSnapshot.flat}
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                    Total BTX volume
                   </span>
-                  <span className="text-slate-400">
-                    · {marketSnapshot.flat}
+                  <span className="font-mono text-[12px]">
+                    {marketSnapshot.totalVolume.toLocaleString()}
+                  </span>
+                </div>
+                <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
+                  <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                    Total BTX market cap
+                  </span>
+                  <span className="font-mono text-[12px]">
+                    {formatCurrency(marketSnapshot.totalCap)}
                   </span>
                 </div>
               </div>
-              <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-slate-400">
-                  Total volume
-                </span>
-                <span className="font-mono">
-                  {marketSnapshot.totalVolume.toLocaleString()}
-                </span>
-              </div>
-              <div className="rounded-md border border-[#2A2A2A] bg-[#171717] px-3 py-2 flex items-center justify-between">
-                <span className="text-[10px] uppercase tracking-wide text-slate-400">
-                  Total market cap
-                </span>
-                <span className="font-mono">
-                  {formatCurrencyShort(marketSnapshot.totalCap)}
-                </span>
-              </div>
-            </div>
-          )}
+            )}
 
-          {/* Error banner if snapshot failed */}
-          {error && (
-            <div className="mb-3 rounded border border-red-500/60 bg-red-900/40 px-3 py-2 text-xs text-red-200">
-              BTX failed to load. Check backend logs and your serverless stack.
-            </div>
-          )}
+            {/* Error banner if snapshot failed */}
+            {error && (
+              <div className="mt-3 rounded border border-red-500/60 bg-red-900/40 px-3 py-2 text-xs text-red-200">
+                BTX failed to load. Check backend logs and your serverless
+                stack.
+              </div>
+            )}
+          </section>
 
           {/* Market ticker strip */}
-          <div className="mb-4 rounded-md border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#151515] to-[#181818] px-3 py-2 overflow-x-auto whitespace-nowrap scrollbar-thin scrollbar-thumb-[#444] scrollbar-track-transparent">
-            {projects.length === 0 ? (
-              <span className="text-[11px] text-slate-400">
-                No projects yet. Once teams are listed, they&apos;ll show up
-                here.
-              </span>
-            ) : (
-              projects.map((p) => {
-                const tfChange = timeframeChanges[p.projectId];
-                const pct = tfChange?.pct ?? safePct(p.priceChangePct ?? 0);
-                const positive = pct >= 0;
-                const isActive = p.projectId === selectedProjectId;
-                return (
-                  <button
-                    key={p.projectId}
-                    onClick={() => selectProject(p.projectId)}
-                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] mr-2 border transition-colors ${
-                      isActive
-                        ? "border-white/80 bg-white/10"
-                        : "border-transparent bg-black/20 hover:bg-black/40"
-                    }`}
-                  >
-                    <span className="font-mono uppercase">{p.ticker}</span>
-                    <span className="text-slate-200">
-                      {formatCurrencyShort(p.currentPrice)}
-                    </span>
-                    <span
-                      className={`flex items-center gap-1 font-mono ${
-                        positive ? "text-bt-green-300" : "text-bt-red-300"
-                      }`}
-                    >
-                      {positive ? (
-                        <TrendingUp className="h-3 w-3" />
-                      ) : (
-                        <TrendingDown className="h-3 w-3" />
-                      )}
-                      {positive ? "+" : ""}
-                      {pct.toFixed(1)}%
-                    </span>
-                  </button>
-                );
-              })
-            )}
-          </div>
+          <StaticTicker
+            projects={projects}
+            selectedProjectId={selectedProjectId}
+            onSelectProject={selectProject}
+            timeframeChanges={timeframeChanges}
+          />
 
           {/* MAIN LAYOUT: left (chart + trade) / right (market + portfolio) */}
           <div className="mt-2 grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.3fr)] gap-6 lg:gap-8">
@@ -1072,47 +1169,44 @@ const BtxPage: React.FC = () => {
                             />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid
-                          stroke="rgba(255,255,255,0.05)"
-                          vertical={false}
-                        />
+
                         <XAxis
-                          dataKey="time"
-                          tickMargin={8}
-                          tickFormatter={(t) => t}
-                          tick={{ fill: "#FFFFFF", fontSize: 12 }}
-                          axisLine={{
-                            stroke: "rgba(255,255,255,0.25)",
-                            strokeWidth: 1,
+                          dataKey="ts"
+                          tickFormatter={(value) =>
+                            formatXAxisTick(value as number, timeframe)
+                          }
+                          minTickGap={40}
+                          tick={{
+                            fill: "rgba(248,250,252,0.85)",
+                            fontSize: 9,
                           }}
-                          tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
+                          axisLine={false}
+                          tickLine={false}
                         />
                         <YAxis
-                          tickMargin={8}
-                          domain={["dataMin", "dataMax"]}
+                          tickMargin={10}
+                          domain={[
+                            (min: number) => min * 0.98,
+                            (max: number) => max * 1.02,
+                          ]}
                           tickFormatter={(value: number) =>
                             formatCurrencyShort(value)
                           }
-                          tick={{ fill: "#FFFFFF", fontSize: 12 }}
-                          axisLine={{
-                            stroke: "rgba(255,255,255,0.25)",
-                            strokeWidth: 1,
+                          tick={{
+                            fill: "rgba(148,163,184,0.85)",
+                            fontSize: 11,
                           }}
-                          tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
+                          axisLine={false}
+                          tickLine={false}
                         />
                         <ChartTooltip
-                          cursor={false}
-                          content={
-                            <ChartTooltipContent
-                              hideLabel
-                              formatter={(value) => (
-                                <span className="font-mono">
-                                  {formatCurrency(value as number)}
-                                </span>
-                              )}
-                            />
-                          }
+                          cursor={{
+                            stroke: "rgba(148,163,184,0.6)",
+                            strokeDasharray: "4 4",
+                          }}
+                          content={<PriceTooltip />}
                         />
+
                         <Area
                           type="monotone"
                           dataKey="value"
@@ -1120,11 +1214,13 @@ const BtxPage: React.FC = () => {
                           fill="url(#priceGradient)"
                           isAnimationActive={false}
                         />
+
                         <ReferenceLine
                           y={headerProject.basePrice}
-                          stroke="rgba(255,255,255,0.25)"
-                          strokeDasharray="3 3"
+                          stroke="rgba(148,163,184,0.35)"
+                          strokeDasharray="4 4"
                         />
+
                         <Line
                           dataKey="value"
                           type="linear"
@@ -1176,228 +1272,514 @@ const BtxPage: React.FC = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="font-light flex flex-col gap-4">
+                <CardContent className="font-light flex flex-col gap-5 sm:gap-6">
                   {headerProject ? (
                     <>
-                      {/* position + fundamentals */}
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                        <div className="space-y-1 text-xs text-slate-200">
-                          <div>
-                            Shares:{" "}
-                            <span className="font-mono">
-                              {portfolioHolding?.shares ?? 0}
-                            </span>
-                          </div>
-                          <div>
-                            Avg price:{" "}
-                            <span className="font-mono">
-                              {portfolioHolding
-                                ? formatCurrency(portfolioHolding.avgPrice)
-                                : "—"}
-                            </span>
-                          </div>
-                          <div>
-                            Market value:{" "}
-                            <span className="font-mono">
-                              {portfolioHolding
-                                ? formatCurrency(portfolioHolding.marketValue)
-                                : "—"}
-                            </span>
-                          </div>
-                          <div>
-                            P&amp;L:{" "}
-                            <span
-                              className={`font-mono ${
-                                portfolioHolding && portfolioHolding.pnl !== 0
-                                  ? portfolioHolding.pnl > 0
-                                    ? "text-bt-green-300"
-                                    : "text-bt-red-300"
-                                  : "text-slate-300"
-                              }`}
-                            >
-                              {portfolioHolding
-                                ? formatCurrency(portfolioHolding.pnl)
-                                : "—"}
-                            </span>
-                          </div>
-                          {portfolioHolding && (
-                            <>
-                              <div>
-                                P&amp;L %:{" "}
-                                <span
-                                  className={`font-mono ${
-                                    positionPnlPct > 0
-                                      ? "text-bt-green-300"
-                                      : positionPnlPct < 0
-                                        ? "text-bt-red-300"
-                                        : "text-slate-300"
-                                  }`}
-                                >
-                                  {positionPnlPct.toFixed(2)}%
-                                </span>
+                      {/* POSITION + PROJECT SNAPSHOT */}
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+                        <div className="flex-1 rounded-xl border border-[#343331] bg-gradient-to-br from-[#161514] via-[#181716] to-[#131211] px-3 py-3 sm:px-4 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.8)]">
+                          <div className="flex items-center justify-between gap-2 mb-3">
+                            <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+                              Your position
+                            </div>
+                            {portfolioBreakdown && portfolioHolding && (
+                              <div
+                                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                  positionPortfolioPct >= 25
+                                    ? "bg-red-900/40 text-red-200 border border-red-500/40"
+                                    : positionPortfolioPct >= 10
+                                      ? "bg-amber-900/40 text-amber-200 border border-amber-500/40"
+                                      : "bg-emerald-900/30 text-emerald-200 border border-emerald-500/30"
+                                }`}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {positionPortfolioPct >= 25
+                                  ? "High concentration"
+                                  : positionPortfolioPct >= 10
+                                    ? "Moderate concentration"
+                                    : "Well sized"}
                               </div>
-                              {portfolioBreakdown && (
+                            )}
+                          </div>
+
+                          {!portfolioHolding ||
+                          (portfolioHolding?.shares ?? 0) === 0 ? (
+                            <div className="rounded-lg border border-dashed border-slate-600/60 bg-black/20 px-3 py-3 text-[11px] text-slate-300">
+                              You don&apos;t own this stock yet. Start with a
+                              small probing position to see how it trades.
+                            </div>
+                          ) : (
+                            <>
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-3 text-[11px] sm:text-xs">
                                 <div>
-                                  Of portfolio:{" "}
-                                  <span className="font-mono">
-                                    {positionPortfolioPct.toFixed(2)}%
-                                  </span>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    Shares
+                                  </div>
+                                  <div className="mt-0.5 font-mono text-sm text-slate-50">
+                                    {portfolioHolding.shares.toLocaleString()}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    Market value
+                                  </div>
+                                  <div className="mt-0.5 font-mono text-sm text-slate-50">
+                                    {formatCurrency(
+                                      portfolioHolding.marketValue,
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    Avg entry
+                                  </div>
+                                  <div className="mt-0.5 font-mono text-sm text-slate-50">
+                                    {formatCurrency(portfolioHolding.avgPrice)}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    Last price
+                                  </div>
+                                  <div className="mt-0.5 font-mono text-sm text-slate-50">
+                                    {formatCurrency(
+                                      headerProject.currentPrice ??
+                                        headerProject.basePrice ??
+                                        0,
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    P&amp;L
+                                  </div>
+                                  <div
+                                    className={`mt-0.5 font-mono text-sm ${
+                                      portfolioHolding.pnl > 0
+                                        ? "text-bt-green-300"
+                                        : portfolioHolding.pnl < 0
+                                          ? "text-bt-red-300"
+                                          : "text-slate-200"
+                                    }`}
+                                  >
+                                    {formatCurrency(portfolioHolding.pnl)}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="text-[10px] uppercase tracking-wide text-slate-400">
+                                    P&amp;L %
+                                  </div>
+                                  <div
+                                    className={`mt-0.5 font-mono text-sm ${
+                                      positionPnlPct > 0
+                                        ? "text-bt-green-300"
+                                        : positionPnlPct < 0
+                                          ? "text-bt-red-300"
+                                          : "text-slate-200"
+                                    }`}
+                                  >
+                                    {positionPnlPct.toFixed(2)}%
+                                  </div>
+                                </div>
+                              </div>
+
+                              {portfolioBreakdown && (
+                                <div className="mt-3 space-y-1">
+                                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                                    <span>Share of portfolio</span>
+                                    <span className="font-mono text-[11px] text-slate-100">
+                                      {positionPortfolioPct.toFixed(2)}%
+                                    </span>
+                                  </div>
+                                  <div className="h-1.5 rounded-full bg-black/60 overflow-hidden">
+                                    <div
+                                      className="h-full bg-gradient-to-r from-bt-blue-400 via-bt-green-400 to-emerald-300"
+                                      style={{
+                                        width: `${Math.min(positionPortfolioPct, 100)}%`,
+                                      }}
+                                    />
+                                  </div>
                                 </div>
                               )}
                             </>
                           )}
                         </div>
-                        <div className="space-y-1 text-xs text-right text-slate-400 max-w-[260px]">
-                          {/* <div>
-                            Base: {formatCurrency(headerProject.basePrice)}
+
+                        {/* Project fundamentals */}
+                        <div className="w-full lg:w-[280px] rounded-xl border border-[#343331] bg-[#151515] px-3 py-3 sm:px-4 sm:py-4 text-[11px] text-slate-300 space-y-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="uppercase tracking-[0.16em] text-[10px] text-slate-400">
+                                Project stats
+                              </div>
+                              <div className="mt-1 font-mono text-sm text-slate-100">
+                                {headerProject.ticker} ·{" "}
+                                {formatCurrencyShort(
+                                  headerProject.currentPrice ??
+                                    headerProject.basePrice ??
+                                    0,
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right text-[10px] text-slate-500">
+                              Net shares:{" "}
+                              <span className="font-mono">
+                                {headerProject.netShares ?? 0}
+                              </span>
+                              <br />
+                              Trades:{" "}
+                              <span className="font-mono">
+                                {headerProject.totalTrades ?? 0}
+                              </span>
+                            </div>
                           </div>
-                          <div>
-                            Seed:{" "}
-                            {formatCurrency(headerProject.seedAmount ?? 0)}
-                          </div> */}
+
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                                Base price
+                              </div>
+                              <div className="mt-0.5 font-mono text-[11px] text-slate-100">
+                                {formatCurrency(headerProject.basePrice)}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                                Total volume
+                              </div>
+                              <div className="mt-0.5 font-mono text-[11px] text-slate-100">
+                                {(
+                                  headerProject.totalVolume ?? 0
+                                ).toLocaleString()}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                                Market cap
+                              </div>
+                              <div className="mt-0.5 font-mono text-[11px] text-slate-100">
+                                {formatCurrencyShort(
+                                  headerProject.marketCap ?? 0,
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[10px] uppercase tracking-wide text-slate-500">
+                                24h / timeframe
+                              </div>
+                              <div className="mt-0.5 font-mono text-[11px] text-slate-100">
+                                {headerTimeframeChange.pct >= 0 ? "+" : ""}
+                                {headerTimeframeChange.pct.toFixed(2)}%
+                              </div>
+                            </div>
+                          </div>
+
                           {headerProject.description && (
-                            <div className="mt-1 text-[11px] text-slate-300 line-clamp-3 text-left sm:text-right">
+                            <div className="pt-2 border-t border-[#2b2a28] text-[11px] text-slate-300 leading-snug line-clamp-4">
                               {headerProject.description}
                             </div>
                           )}
                         </div>
                       </div>
 
-                      {/* Trade controls */}
-                      <div className="mt-3 border-t border-[#3A3938] pt-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs uppercase tracking-wide text-slate-400">
-                            Trade ticket
-                          </span>
-                          {isSubmittingTrade && (
+                      {/* TRADE TICKET */}
+                      <div className="mt-3 border-t border-[#3A3938] pt-3 sm:pt-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex flex-col">
+                            <span className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                              Trade ticket
+                            </span>
                             <span className="text-[10px] text-slate-500">
+                              Market-style order · simulated exchange
+                            </span>
+                          </div>
+                          {isSubmittingTrade && (
+                            <span className="text-[10px] text-slate-400 italic">
                               Submitting…
                             </span>
                           )}
                         </div>
 
-                        <div className="flex flex-col gap-3">
-                          {/* qty + summary */}
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
-                            {/* Size input */}
-                            <div className="flex-1 sm:max-w-[180px]">
-                              <label className="mb-1 block text-[11px] uppercase tracking-wide text-slate-400">
-                                Size
+                        <div className="flex flex-col gap-4 sm:gap-5">
+                          {/* SUMMARY STRIP */}
+                          <div className="rounded-lg border border-slate-700/80 bg-gradient-to-r from-[#181818] to-[#111111] px-3 py-2.5 sm:px-4 sm:py-3">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                              {/* Left: main numbers */}
+                              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                                <div className="flex flex-col">
+                                  <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                    Est. cost (incl. fee)
+                                  </span>
+                                  <span className="font-mono text-base sm:text-lg text-slate-50 leading-tight">
+                                    {formatCurrency(estimatedValue)}
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-col">
+                                  <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                    Est. execution price
+                                  </span>
+                                  <span className="font-mono text-sm sm:text-base text-slate-100 leading-tight">
+                                    {estimatedExecutionPrice
+                                      ? formatCurrency(estimatedExecutionPrice)
+                                      : "—"}
+                                  </span>
+                                </div>
+
+                                {/* <div className="flex flex-col">
+                                  <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                    Size
+                                  </span>
+                                  <span className="font-mono text-sm text-slate-100">
+                                    {tradeSize.toLocaleString()}{" "}
+                                    <span className="text-[11px]">sh</span>
+                                  </span>
+                                </div> */}
+                              </div>
+
+                              {/* Right: impact + cash */}
+                              <div className="flex flex-col items-start sm:items-end gap-1.5 text-[11px]">
+                                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1">
+                                  <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                    Execution premium
+                                  </span>
+                                  <span
+                                    className={`font-mono text-xs ${
+                                      slippagePct > 0.05
+                                        ? "text-bt-red-300"
+                                        : slippagePct < -0.05
+                                          ? "text-bt-green-300"
+                                          : "text-slate-200"
+                                    }`}
+                                  >
+                                    {livePrice && estimatedExecutionPrice
+                                      ? `${slippagePct >= 0 ? "+" : ""}${slippagePct.toFixed(2)}%`
+                                      : "—"}
+                                  </span>
+                                </div>
+
+                                {portfolioSnapshot && (
+                                  <div className="text-[10px] text-slate-400">
+                                    Cash after est. fill:{" "}
+                                    <span className="font-mono text-slate-100">
+                                      {formatCurrency(
+                                        portfolioSnapshot.account.cashBalance -
+                                          estimatedValue,
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* SIZE + DETAILS */}
+                          <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+                            {/* LEFT: size + presets + buttons */}
+                            <div className="flex-1 lg:max-w-sm">
+                              <label className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                                Order size
                               </label>
+
                               <div className="flex items-center gap-2">
                                 <Input
-                                  className="h-9 flex-1 bg-[#111111] text-xs border-[#444]"
-                                  type="number"
-                                  min={1}
-                                  step={1}
+                                  className="h-10 flex-1 rounded-md bg-[#0B0B0B] text-sm border border-slate-700/70 hover:border-slate-400 focus-visible:border-sky-400 focus-visible:ring-0 font-mono"
+                                  type="text"
+                                  inputMode="numeric"
+                                  pattern="[0-9]*"
                                   value={tradeShares}
                                   onChange={(e) => {
-                                    const raw = Number(e.target.value);
-                                    if (!Number.isFinite(raw) || raw <= 0) {
-                                      setTradeShares("1");
-                                      return;
-                                    }
-                                    setTradeShares(String(Math.floor(raw)));
+                                    const next = e.target.value.replace(
+                                      /[^0-9]/g,
+                                      "",
+                                    );
+                                    setTradeShares(next);
                                   }}
+                                  onBlur={(e) => {
+                                    const cleaned = e.target.value.replace(
+                                      /[^0-9]/g,
+                                      "",
+                                    );
+                                    const n = Number(cleaned);
+                                    if (
+                                      !cleaned ||
+                                      !Number.isFinite(n) ||
+                                      n <= 0
+                                    ) {
+                                      setTradeShares("1");
+                                    } else {
+                                      setTradeShares(String(Math.floor(n)));
+                                    }
+                                  }}
+                                  placeholder="0"
                                 />
                                 <span className="text-xs text-slate-500">
                                   shares
                                 </span>
                               </div>
+
+                              {/* Presets */}
+                              <div className="mt-2 inline-flex flex-wrap items-center gap-1.5 text-[10px] text-slate-300">
+                                <span className="text-[10px] uppercase tracking-[0.18em] text-slate-500">
+                                  Presets
+                                </span>
+                                <div className="inline-flex rounded-full border border-slate-700/70 bg-black/40 px-0.5 py-0.5">
+                                  <button
+                                    type="button"
+                                    className="rounded-full px-2 py-0.5 text-[10px] hover:bg-slate-600/40 hover:text-slate-50 transition-colors"
+                                    onClick={() => setTradeShares("1")}
+                                  >
+                                    1
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="rounded-full px-2 py-0.5 text-[10px] hover:bg-slate-600/40 hover:text-slate-50 transition-colors"
+                                    onClick={() => setTradeShares("10")}
+                                  >
+                                    10
+                                  </button>
+                                  {portfolioHolding?.shares ? (
+                                    <button
+                                      type="button"
+                                      className="rounded-full px-2 py-0.5 text-[10px] hover:bg-slate-600/40 hover:text-slate-50 transition-colors"
+                                      onClick={() =>
+                                        setTradeShares(
+                                          String(portfolioHolding.shares),
+                                        )
+                                      }
+                                    >
+                                      Max sell ({portfolioHolding.shares})
+                                    </button>
+                                  ) : null}
+                                </div>
+                              </div>
+
+                              {/* Buy / Sell buttons stacked under input */}
+                              <div className="mt-4 flex flex-col gap-2 pr-14">
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 h-10 bg-bt-green-700 hover:bg-bt-green-500 text-sm"
+                                    disabled={
+                                      isSubmittingTrade || loadingPortfolio
+                                    }
+                                    onClick={() => handleTrade("BUY")}
+                                  >
+                                    Buy
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="flex-1 h-10 bg-bt-red-600 text-red-100 hover:bg-bt-red-500 text-sm"
+                                    disabled={
+                                      isSubmittingTrade || loadingPortfolio
+                                    }
+                                    onClick={() => handleTrade("SELL")}
+                                  >
+                                    Sell
+                                  </Button>
+                                </div>
+
+                                {portfolioSnapshot && (
+                                  <div className="text-[16px] text-slate-400 mt-2">
+                                    Available cash:{" "}
+                                    <span className="font-mono text-slate-100">
+                                      {formatCurrency(
+                                        portfolioSnapshot.account.cashBalance,
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {tradeError && (
+                                  <div className="text-[11px] text-red-300">
+                                    {tradeError}
+                                  </div>
+                                )}
+                                {tradeSuccess && (
+                                  <div className="text-[11px] text-bt-green-300">
+                                    {tradeSuccess}
+                                  </div>
+                                )}
+                              </div>
                             </div>
 
-                            {/* Cost / price summary */}
-                            <div className="flex-1 text-[11px] text-slate-400 space-y-1 sm:text-right">
-                              <div>
-                                Est. execution cost{" "}
-                                <span className="text-[10px] text-slate-500">
-                                  (incl. slippage & 2% fee)
-                                </span>
-                                :{" "}
-                                <span className="font-mono">
-                                  {formatCurrency(estimatedValue)}
-                                </span>
-                              </div>
-                              <div className="flex justify-between gap-4 sm:justify-end sm:gap-6">
-                                <span className="text-[10px] text-slate-500">
-                                  Est. execution price
-                                </span>
-                                <span className="font-mono text-[10px]">
-                                  {estimatedExecutionPrice
-                                    ? formatCurrency(estimatedExecutionPrice)
-                                    : "—"}
-                                </span>
-                              </div>
-                              <div className="text-[10px] text-slate-500 sm:max-w-xs sm:ml-auto">
-                                Actual execution and final price are set at the
-                                time of fill and may differ slightly from these
-                                estimates due to live order flow and randomness.
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* buttons + cash + messages */}
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="flex gap-2 sm:w-1/2">
-                                <Button
-                                  size="sm"
-                                  className="flex-1 bg-emerald-600 hover:bg-emerald-500"
-                                  disabled={
-                                    isSubmittingTrade || loadingPortfolio
-                                  }
-                                  onClick={() => handleTrade("BUY")}
-                                >
-                                  Buy
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="flex-1 bg-red-800 text-red-100 hover:bg-red-600"
-                                  disabled={
-                                    isSubmittingTrade || loadingPortfolio
-                                  }
-                                  onClick={() => handleTrade("SELL")}
-                                >
-                                  Sell
-                                </Button>
-                              </div>
-
-                              {portfolioSnapshot && (
-                                <div className="text-[11px] text-slate-400 sm:text-right">
-                                  Available cash:{" "}
-                                  <span className="font-mono">
-                                    {formatCurrency(
-                                      portfolioSnapshot.account.cashBalance,
-                                    )}
+                            {/* RIGHT: order summary / price details */}
+                            <div className="flex-1  lg:mt-0 lg:flex lg:flex-col lg:items-end">
+                              <div className="w-full lg:max-w-xs rounded-lg border border-slate-700/70 bg-black/30 px-3 py-2.5">
+                                <div className="mb-2 flex items-baseline justify-between gap-3">
+                                  <span className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+                                    Order summary
+                                  </span>
+                                  <span className="font-mono text-sm text-slate-50">
+                                    {formatCurrency(estimatedValue)}
                                   </span>
                                 </div>
-                              )}
-                            </div>
 
-                            {tradeError && (
-                              <div className="text-[11px] text-red-300">
-                                {tradeError}
+                                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
+                                  <span className="text-[10px] text-slate-500">
+                                    Last price
+                                  </span>
+                                  <span className="font-mono text-right text-slate-200">
+                                    {livePrice
+                                      ? formatCurrency(livePrice)
+                                      : "—"}
+                                  </span>
+
+                                  <span className="text-[10px] text-slate-500">
+                                    Est. execution price
+                                  </span>
+                                  <span className="font-mono text-right text-slate-100">
+                                    {estimatedExecutionPrice
+                                      ? formatCurrency(estimatedExecutionPrice)
+                                      : "—"}
+                                  </span>
+
+                                  <span className="text-[10px] text-slate-500">
+                                    Notional (≈ price × size)
+                                  </span>
+                                  <span className="font-mono text-right text-slate-200">
+                                    {tradeSize && estimatedExecutionPrice
+                                      ? formatCurrency(
+                                          tradeSize * estimatedExecutionPrice,
+                                        )
+                                      : "—"}
+                                  </span>
+
+                                  <span className="text-[10px] text-slate-500">
+                                    Fees &amp; slippage baked in
+                                  </span>
+                                  <span className="font-mono text-right text-slate-100">
+                                    {formatCurrency(estimatedValue)}
+                                  </span>
+                                </div>
                               </div>
-                            )}
-                            {tradeSuccess && (
-                              <div className="text-[11px] text-bt-green-300">
-                                {tradeSuccess}
-                              </div>
-                            )}
+
+                              <p
+                                className="mt-1.5 text-[10px] 
+                              text-slate-500 leading-snug lg:text-right lg:max-w-xs"
+                              >
+                                Large orders move the price and include a 2%
+                                transaction fee. Your final fill and mark may
+                                differ slightly once the trade hits the book.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Recent Activity */}
-                      <div className="pt-3 border-t border-[#3A3938] mt-1">
+                      {/* RECENT ACTIVITY */}
+                      <div className="pt-3 sm:pt-4 border-t border-[#3A3938] mt-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-sm font-semibold">
-                            Recent activity
+                          <h3 className="text-sm font-semibold tracking-tight flex items-center gap-2">
+                            Live tape
+                            <span className="text-[10px] font-normal text-slate-500">
+                              {recentActivityTotal} trade
+                              {recentActivityTotal === 1 ? "" : "s"}
+                            </span>
                           </h3>
                           <span className="text-[10px] text-slate-500">
-                            Showing most recent {recentActivity.length} of{" "}
-                            {recentActivityTotal} trade
-                            {recentActivityTotal === 1 ? "" : "s"}
+                            Showing {recentActivity.length} most recent
                           </span>
                         </div>
 
@@ -1412,17 +1794,22 @@ const BtxPage: React.FC = () => {
                             recentActivity.map((investment) => {
                               const cashSign =
                                 investment.side === "BUY" ? "-" : "+";
-                              const cashColor =
-                                investment.side === "BUY"
-                                  ? "text-bt-red-300"
-                                  : "text-bt-green-300";
+                              const isBuy = investment.side === "BUY";
+                              const cashColor = isBuy
+                                ? "text-bt-red-300"
+                                : "text-bt-green-300";
 
                               return (
                                 <div
                                   key={investment.id}
-                                  className="flex items-center gap-3 p-3 bg-[#363533] hover:bg-[#4A4947] transition-colors border border-transparent font-light"
+                                  className="flex items-center gap-3 rounded-lg border border-[#403f3d] bg-gradient-to-r from-[#262523] via-[#2b2a28] to-[#1f1e1c] px-3 py-2.5 hover:border-slate-300/60 transition-colors"
                                 >
-                                  <Avatar className="h-10 w-10 flex-shrink-0">
+                                  <div
+                                    className={`h-full w-1 rounded-full ${
+                                      isBuy ? "bg-emerald-400" : "bg-red-400"
+                                    }`}
+                                  />
+                                  <Avatar className="h-9 w-9 flex-shrink-0">
                                     <AvatarFallback className="bg-bt-blue-300 text-bt-blue-600">
                                       {getInitials(investment.investorName)}
                                     </AvatarFallback>
@@ -1434,23 +1821,27 @@ const BtxPage: React.FC = () => {
                                       </p>
                                       <span
                                         className={`text-[10px] uppercase tracking-wide px-1.5 py-0.5 rounded-full ${
-                                          investment.side === "BUY"
-                                            ? "bg-emerald-900/60 text-emerald-200"
-                                            : "bg-red-900/60 text-red-200"
+                                          isBuy
+                                            ? "bg-emerald-900/70 text-emerald-200"
+                                            : "bg-red-900/70 text-red-200"
                                         }`}
                                       >
                                         {investment.side}
                                       </span>
-                                      <MessageSquare className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      {investment.timestamp} ·{" "}
-                                      {investment.shares} shares @{" "}
-                                      {formatCurrency(investment.price)}
+                                    <p className="text-[11px] text-slate-300 mt-0.5 flex flex-wrap gap-1">
+                                      <span className="font-mono">
+                                        {investment.shares} @{" "}
+                                        {formatCurrency(investment.price)}
+                                      </span>
+                                      <span className="text-slate-500">·</span>
+                                      <span className="text-[10px] text-slate-400">
+                                        {investment.timestamp}
+                                      </span>
                                     </p>
                                   </div>
                                   <p
-                                    className={`text-sm font-light flex-shrink-0 ${cashColor}`}
+                                    className={`text-sm font-light flex-shrink-0 font-mono ${cashColor}`}
                                   >
                                     {cashSign}
                                     {formatCurrencyShort(investment.amount)}
@@ -1476,74 +1867,105 @@ const BtxPage: React.FC = () => {
             <div className="space-y-6">
               {/* Market board */}
               <Card className="bg-[#201F1E] rounded-none border border-[#2A2A2A]">
-                <CardHeader className="pb-3 space-y-3">
+                <CardHeader className="pb-3 space-y-3 border-b border-[#2A2A2A] bg-[#181716]">
                   <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-lg font-light">
+                    <CardTitle className="text-lg font-light tracking-[0.18em] uppercase text-slate-100">
                       Market board
                     </CardTitle>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                      {projects.length} stock
-                      {projects.length === 1 ? "" : "s"}
-                      {isMarketFiltered &&
-                        ` · showing ${filteredProjects.length}`}
-                    </span>
+
+                    <div className="flex flex-col items-end gap-0.5 text-right">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">
+                        {TIMEFRAME_LABELS[timeframe]} change
+                      </span>
+                      <span className="text-[10px] text-slate-500">
+                        {projects.length} stock
+                        {projects.length === 1 ? "" : "s"}
+                        {isMarketFiltered &&
+                          ` · showing ${filteredProjects.length}`}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 justify-between">
-                    <div className="flex items-center gap-2 flex-1 min-w-[160px] max-w-xs">
-                      <Input
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by name or ticker…"
-                        className="h-8 bg-[#111111] border-[#444] text-xs"
-                      />
+                  {/* Controls row */}
+                  <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                    {/* Search */}
+                    <div className="w-full sm:max-w-xs">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" />
+                        <Input
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Search by name or ticker…"
+                          className="h-8 w-full bg-[#111111] border border-slate-700/70 text-xs pl-8 pr-2 rounded-md placeholder:text-slate-500 focus-visible:ring-0 focus-visible:border-sky-400"
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-wide text-slate-400">
-                      <span>Filter:</span>
-                      {(["ALL", "UP", "DOWN"] as MarketFilter[]).map((f) => (
-                        <button
-                          key={f}
-                          onClick={() => setMarketFilter(f)}
-                          className={`px-2 py-0.5 rounded-full border ${
-                            marketFilter === f
-                              ? "border-white bg-white/10 text-white"
-                              : "border-transparent hover:border-white/30 hover:bg-white/5"
-                          }`}
-                        >
-                          {f === "ALL"
-                            ? "All"
-                            : f === "UP"
-                              ? "Gainers"
-                              : "Losers"}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-wide text-slate-400">
-                      <span>Sort:</span>
-                      {(["CHANGE", "VOLUME", "TICKER"] as MarketSortKey[]).map(
-                        (key) => (
-                          <button
-                            key={key}
-                            onClick={() => setSortKey(key)}
-                            className={`px-2 py-0.5 rounded-full border ${
-                              sortKey === key
-                                ? "border-white bg-white/10 text-white"
-                                : "border-transparent hover:border-white/30 hover:bg-white/5"
-                            }`}
-                          >
-                            {key === "CHANGE"
-                              ? "% Change"
-                              : key === "VOLUME"
-                                ? "Volume"
-                                : "Ticker"}
-                          </button>
-                        ),
-                      )}
+
+                    {/* Filter + sort chips */}
+                    <div className="flex flex-wrap items-center gap-2 justify-start sm:justify-end">
+                      {/* Filter */}
+                      <div className="inline-flex items-center gap-1 text-[8px] uppercase tracking-[0.18em] text-slate-400">
+                        <span>Filter</span>
+                        <div className="inline-flex rounded-full border border-slate-700/70 bg-black/40 px-0.5 py-0.5">
+                          {(["ALL", "UP", "DOWN"] as MarketFilter[]).map(
+                            (f) => {
+                              const active = marketFilter === f;
+                              return (
+                                <button
+                                  key={f}
+                                  onClick={() => setMarketFilter(f)}
+                                  className={`rounded-full px-2 py-0.5 text-[8px] transition-colors ${
+                                    active
+                                      ? "bg-slate-100 text-[#111] font-semibold"
+                                      : "text-slate-400 hover:bg-slate-600/40 hover:text-slate-50"
+                                  }`}
+                                >
+                                  {f === "ALL"
+                                    ? "All"
+                                    : f === "UP"
+                                      ? "Gainers"
+                                      : "Losers"}
+                                </button>
+                              );
+                            },
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Sort */}
+                      <div className="inline-flex items-center gap-1 text-[8px] uppercase tracking-[0.18em] text-slate-400">
+                        <span>Sort</span>
+                        <div className="inline-flex rounded-full border border-slate-700/70 bg-black/40 px-0.5 py-0.5">
+                          {(
+                            ["CHANGE", "VOLUME", "TICKER"] as MarketSortKey[]
+                          ).map((key) => {
+                            const active = sortKey === key;
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => setSortKey(key)}
+                                className={`rounded-full px-2 py-0.5 text-[8px] transition-colors ${
+                                  active
+                                    ? "bg-slate-100 text-[#111] font-semibold"
+                                    : "text-slate-400 hover:bg-slate-600/40 hover:text-slate-50"
+                                }`}
+                              >
+                                {key === "CHANGE"
+                                  ? "% Change"
+                                  : key === "VOLUME"
+                                    ? "Volume"
+                                    : "Ticker"}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+
+                <CardContent className="pt-3">
+                  <div className="max-h-64 overflow-y-auto pr-1 space-y-1.5">
                     {loadingSnapshot && !projects.length ? (
                       <div className="text-xs text-slate-400">
                         Loading market…
@@ -1564,60 +1986,103 @@ const BtxPage: React.FC = () => {
                         const pct = tfChange?.pct ?? safePct(p.priceChangePct);
                         const isPositive = pct >= 0;
                         const mc = p.marketCap ?? 0;
+
                         return (
                           <button
                             key={p.projectId}
                             onClick={() => selectProject(p.projectId)}
-                            className={`w-full p-3 transition-all text-left border ${
-                              isSelected
-                                ? "bg-[#363533] border-[#5A5A58]"
-                                : "bg-[#363533] hover:bg-[#111111] border-transparent"
-                            }`}
+                            className={`
+                group w-full rounded-md border px-3 py-2.5 text-left transition-all
+                ${
+                  isSelected
+                    ? "border-sky-500/80 bg-[#151515] shadow-[0_0_0_1px_rgba(56,189,248,0.5)]"
+                    : "border-transparent bg-[#151515] hover:bg-[#101010] hover:border-slate-600/70"
+                }
+              `}
                           >
-                            <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-3">
+                              {/* Direction strip */}
+                              <div
+                                className={`h-10 w-1 rounded-full ${
+                                  isPositive
+                                    ? "bg-bt-green-400"
+                                    : "bg-bt-red-400"
+                                }`}
+                              />
+
+                              {/* Main info */}
                               <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-sm truncate">
-                                  {p.name}
-                                </p>
-                                <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-2">
-                                  <span>
-                                    {formatCurrencyShort(p.currentPrice)} ·{" "}
-                                    <span className="font-mono text-[10px] uppercase">
-                                      {p.ticker}
+                                <div className="flex items-center gap-2">
+                                  <p className="truncate text-sm font-medium text-slate-100">
+                                    {p.name}
+                                  </p>
+                                  <span className="font-mono text-[10px] uppercase text-slate-400 bg-black/40 border border-slate-700/70 px-1.5 py-0.5 rounded-full">
+                                    {p.ticker}
+                                  </span>
+                                </div>
+
+                                <div className="mt-1 flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
+                                  <span className="flex items-baseline gap-1">
+                                    <span className="text-slate-300">
+                                      {formatCurrencyShort(p.currentPrice)}
+                                    </span>
+                                    <span className="text-[9px] uppercase tracking-[0.16em] text-slate-500">
+                                      Last
                                     </span>
                                   </span>
-                                  <span className="text-[10px] text-slate-400">
-                                    MC:{" "}
-                                    <span className="font-mono">
+
+                                  <span className="flex items-center gap-1 text-[11px]">
+                                    {isPositive ? (
+                                      <TrendingUp className="h-3 w-3 text-bt-green-300" />
+                                    ) : (
+                                      <TrendingDown className="h-3 w-3 text-bt-red-300" />
+                                    )}
+                                    <span
+                                      className={`font-mono ${
+                                        isPositive
+                                          ? "text-bt-green-300"
+                                          : "text-bt-red-300"
+                                      }`}
+                                    >
+                                      {isPositive ? "+" : ""}
+                                      {pct.toFixed(1)}%
+                                    </span>
+                                  </span>
+
+                                  <span className="text-[10px] text-slate-500">
+                                    MC{" "}
+                                    <span className="font-mono text-slate-300">
                                       {formatCurrencyShort(mc)}
                                     </span>
                                   </span>
-                                </p>
+
+                                  <span className="text-[10px] text-slate-500">
+                                    Vol{" "}
+                                    <span className="font-mono text-slate-300">
+                                      {p.totalVolume ?? 0}
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
-                              <div className="ml-3 flex-shrink-0 text-right">
-                                <div
-                                  className={`flex items-center justify-end gap-1 text-xs font-semibold ${
+
+                              <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                <span
+                                  className={`font-mono text-sm ${
                                     isPositive
                                       ? "text-bt-green-300"
                                       : "text-bt-red-300"
                                   }`}
                                 >
-                                  {isPositive ? (
-                                    <TrendingUp className="h-3 w-3" />
-                                  ) : (
-                                    <TrendingDown className="h-3 w-3" />
-                                  )}
-                                  <span>
-                                    {isPositive ? "+" : ""}
-                                    {pct.toFixed(1)}%
-                                  </span>
-                                </div>
-                                <div className="text-[10px] text-slate-400 mt-0.5">
-                                  Vol:{" "}
-                                  <span className="font-mono">
-                                    {p.totalVolume ?? 0}
-                                  </span>
-                                </div>
+                                  {isPositive ? "+" : ""}
+                                  {pct.toFixed(1)}%
+                                </span>
+                                <span className="rounded-full bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.18em] text-slate-400">
+                                  {isPositive
+                                    ? "Gainer"
+                                    : pct === 0
+                                      ? "Flat"
+                                      : "Loser"}
+                                </span>
                               </div>
                             </div>
                           </button>
@@ -1630,61 +2095,165 @@ const BtxPage: React.FC = () => {
 
               {/* Portfolio breakdown */}
               <Card className="bg-[#201F1E] rounded-none border border-[#2A2A2A]">
-                <CardHeader className="pb-3 flex items-center justify-between">
-                  <CardTitle className="text-lg font-light">
-                    Your portfolio
-                  </CardTitle>
-                  {portfolioBreakdown && (
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wide">
-                      {portfolioBreakdown.positions.length} position
-                      {portfolioBreakdown.positions.length === 1 ? "" : "s"}
-                    </span>
-                  )}
+                <CardHeader className="pb-6 space-y-3 border-b border-[#2A2A2A] bg-[#181716]">
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-lg font-light tracking-[0.18em] uppercase text-slate-100">
+                      Your portfolio
+                    </CardTitle>
+
+                    {portfolioSnapshot && portfolioBreakdown ? (
+                      <div className="flex flex-col items-end gap-0.5 text-right">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-[0.2em]">
+                          {portfolioBreakdown.positions.length} position
+                          {portfolioBreakdown.positions.length === 1 ? "" : "s"}
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          Total value{" "}
+                          <span className="font-mono text-slate-200">
+                            {formatCurrency(portfolioBreakdown.total)}
+                          </span>
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-slate-500">
+                        Log in to see live allocation &amp; P&amp;L
+                      </span>
+                    )}
+                  </div>
                 </CardHeader>
-                <CardContent className="space-y-3 text-xs text-slate-200">
+
+                <CardContent className="pt-3 space-y-4 sm:space-y-5 text-xs text-slate-200">
                   {!portfolioSnapshot ? (
                     <div className="text-[11px] text-slate-400">
-                      Log in to see allocation and top holdings.
+                      Log in to see allocation, P&amp;L, and top holdings.
                     </div>
                   ) : portfolioBreakdown ? (
                     <>
-                      <div className="space-y-1">
-                        <div className="flex justify-between">
-                          <span>Total value</span>
-                          <span className="font-mono">
+                      {/* HIGH-LEVEL STATS */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2.5">
+                          <div className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                            Total value
+                          </div>
+                          <div className="mt-1 font-mono text-xs text-slate-50">
                             {formatCurrency(portfolioBreakdown.total)}
-                          </span>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-[11px] text-slate-400">
-                          <span>Cash</span>
-                          <span className="font-mono">
-                            {formatCurrency(portfolioBreakdown.cash)} (
-                            {portfolioBreakdown.cashPct.toFixed(0)}%)
-                          </span>
+                        <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2.5">
+                          <div className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                            Cash
+                          </div>
+                          <div className="mt-1 font-mono text-xs text-slate-50">
+                            {formatCurrency(portfolioBreakdown.cash)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {portfolioBreakdown.cashPct.toFixed(0)}% of
+                            portfolio
+                          </div>
                         </div>
-                        <div className="flex justify-between text-[11px] text-slate-400">
-                          <span>Equity</span>
-                          <span className="font-mono">
-                            {formatCurrency(portfolioBreakdown.equity)} (
-                            {portfolioBreakdown.equityPct.toFixed(0)}%)
-                          </span>
+                        <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2.5">
+                          <div className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                            Equity
+                          </div>
+                          <div className="mt-1 font-mono text-xs text-slate-50">
+                            {formatCurrency(portfolioBreakdown.equity)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {portfolioBreakdown.equityPct.toFixed(0)}% invested
+                          </div>
                         </div>
-                        <div className="h-1.5 rounded-full bg-[#111111] mt-1 overflow-hidden">
+                        <div className="rounded-lg border border-[#333230] bg-[#141414] px-3 py-2.5">
+                          <div className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                            Open P&amp;L
+                          </div>
                           <div
-                            className="h-full bg-bt-green-400"
-                            style={{
-                              width: `${portfolioBreakdown.equityPct}%`,
-                            }}
-                          />
+                            className={`mt-1 font-mono text-xs ${
+                              portfolioBreakdown.openPnl > 0
+                                ? "text-bt-green-300"
+                                : portfolioBreakdown.openPnl < 0
+                                  ? "text-bt-red-300"
+                                  : "text-slate-50"
+                            }`}
+                          >
+                            {formatCurrency(portfolioBreakdown.openPnl)}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            Unrealized on current positions
+                          </div>
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-[#3A3938] space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] uppercase tracking-wide text-slate-400">
-                            Top holdings
+                      {/* ALLOCATION BAR */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] text-slate-400">
+                          <span className="uppercase tracking-[0.16em]">
+                            Allocation
+                          </span>
+                          <span className="font-mono text-[10px] text-slate-300">
+                            Cash {portfolioBreakdown.cashPct.toFixed(0)}% ·
+                            Equity {portfolioBreakdown.equityPct.toFixed(0)}%
                           </span>
                         </div>
+                        <div className="h-2 rounded-full bg-[#101010] overflow-hidden flex">
+                          <div
+                            className="h-full bg-gradient-to-r from-sky-400 to-sky-300"
+                            style={{
+                              width: `${Math.min(portfolioBreakdown.cashPct, 100)}%`,
+                            }}
+                          />
+                          <div
+                            className="h-full bg-gradient-to-r from-bt-green-400 to-emerald-300"
+                            style={{
+                              width: `${Math.min(portfolioBreakdown.equityPct, 100)}%`,
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-slate-500">
+                          <span>Dry powder</span>
+                          <span>Capital at work</span>
+                        </div>
+                      </div>
+
+                      {/* DIVERSIFICATION TAG */}
+                      {portfolioBreakdown.positions.length > 0 && (
+                        <div className="text-[10px] text-slate-400">
+                          <span className="mr-1.5">Diversification:</span>
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 ${
+                              portfolioBreakdown.positions.length <= 2
+                                ? "border-red-500/40 bg-red-900/30 text-red-200"
+                                : portfolioBreakdown.positions.length <= 5
+                                  ? "border-amber-500/40 bg-amber-900/30 text-amber-200"
+                                  : "border-emerald-500/40 bg-emerald-900/30 text-emerald-200"
+                            }`}
+                          >
+                            <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                            {portfolioBreakdown.positions.length <= 2
+                              ? "Very concentrated"
+                              : portfolioBreakdown.positions.length <= 5
+                                ? "Moderately concentrated"
+                                : "Broadly diversified"}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* TOP HOLDINGS */}
+                      <div className="pt-3 border-t border-[#3A3938] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
+                            Top holdings
+                          </span>
+                          {portfolioBreakdown.topHoldings.length > 0 && (
+                            <span className="text-[10px] text-slate-500">
+                              Showing {portfolioBreakdown.topHoldings.length} of{" "}
+                              {portfolioBreakdown.positions.length} position
+                              {portfolioBreakdown.positions.length === 1
+                                ? ""
+                                : "s"}
+                            </span>
+                          )}
+                        </div>
+
                         {portfolioBreakdown.topHoldings.length === 0 ? (
                           <div className="text-[11px] text-slate-500">
                             No holdings yet. Buy your first stock to see it
@@ -1697,41 +2266,67 @@ const BtxPage: React.FC = () => {
                                 ? (h.marketValue / portfolioBreakdown.total) *
                                   100
                                 : 0;
+
+                            const positionPnl =
+                              typeof h.pnl === "number" ? h.pnl : 0;
+                            const positionPnlPct =
+                              h.avgPrice && h.shares
+                                ? (positionPnl / (h.avgPrice * h.shares)) * 100
+                                : 0;
+
+                            const pnlColor =
+                              positionPnl > 0
+                                ? "text-bt-green-300"
+                                : positionPnl < 0
+                                  ? "text-bt-red-300"
+                                  : "text-slate-300";
+
                             return (
                               <button
                                 key={h.projectId}
                                 type="button"
                                 onClick={() => selectProject(h.projectId)}
-                                className="w-full text-left"
+                                className="w-full text-left rounded-lg border border-transparent hover:border-slate-500/70 hover:bg-[#171716] transition-colors px-2.5 py-2"
                               >
-                                <div className="flex items-center justify-between text-[11px]">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono uppercase">
+                                <div className="flex items-center justify-between text-[11px] gap-3">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span className="font-mono uppercase text-[11px] text-slate-100">
                                       {h.ticker}
                                     </span>
-                                    <span className="truncate max-w-[120px] text-slate-300">
+                                    <span className="truncate max-w-[140px] text-slate-300">
                                       {h.name}
                                     </span>
                                   </div>
-                                  <div className="text-right">
-                                    <div className="font-mono">
+                                  <div className="text-right flex flex-col items-end gap-0.5">
+                                    <div className="font-mono text-[11px] text-slate-100">
                                       {formatCurrencyShort(h.marketValue)}
                                     </div>
-                                    <div className="text-[10px] text-slate-400">
-                                      {pctOfPort.toFixed(1)}%
+                                    <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                                      <span>
+                                        {pctOfPort.toFixed(1)}% of port
+                                      </span>
+                                      <span className={pnlColor}>
+                                        {positionPnl >= 0 ? "+" : ""}
+                                        {formatCurrencyShort(positionPnl)} (
+                                        {positionPnlPct >= 0 ? "+" : ""}
+                                        {positionPnlPct.toFixed(1)}%)
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-                                <div className="mt-1 h-1 rounded-full bg-[#111111] overflow-hidden">
+                                <div className="mt-1.5 h-1.5 rounded-full bg-[#111111] overflow-hidden">
                                   <div
-                                    className="h-full bg-bt-blue-400"
-                                    style={{ width: `${pctOfPort}%` }}
+                                    className="h-full bg-gradient-to-r from-bt-blue-400 via-bt-green-400 to-emerald-300"
+                                    style={{
+                                      width: `${Math.min(pctOfPort, 100)}%`,
+                                    }}
                                   />
                                 </div>
                               </button>
                             );
                           })
                         )}
+
                         {portfolioBreakdown.otherValue > 0 && (
                           <div className="text-[10px] text-slate-500">
                             +{" "}
@@ -1753,3 +2348,112 @@ const BtxPage: React.FC = () => {
 };
 
 export default BtxPage;
+
+type TickerProject = {
+  projectId: string;
+  ticker: string;
+  currentPrice?: number | null;
+  priceChangePct?: number | null;
+};
+
+type TickerProps = {
+  projects: TickerProject[];
+  selectedProjectId: string | null;
+  onSelectProject: (id: string) => void;
+  timeframeChanges: Record<
+    string,
+    {
+      change: number;
+      pct: number;
+    }
+  >;
+};
+
+const TICKER_MIN_ITEMS_FOR_MARQUEE = 6;
+
+const StaticTicker: React.FC<TickerProps> = React.memo(
+  ({ projects, selectedProjectId, onSelectProject, timeframeChanges }) => {
+    if (!projects.length) {
+      return (
+        <div className="mb-4 rounded-md border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#151515] to-[#181818] overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#2A2A2A] text-[10px] uppercase tracking-[0.18em] text-slate-400">
+            <span>Market ticker</span>
+            <span className="text-[9px] text-slate-500">
+              Tap a symbol to jump to that stock
+            </span>
+          </div>
+          <div className="px-3 py-2 text-[11px] text-slate-400">
+            No projects yet. Once teams are listed, they&apos;ll show up here.
+          </div>
+        </div>
+      );
+    }
+
+    const items = projects.map((p) => {
+      const tfChange = timeframeChanges[p.projectId];
+      const pct = tfChange?.pct ?? safePct(p.priceChangePct);
+      const positive = pct >= 0;
+
+      return {
+        ...p,
+        pct,
+        positive,
+      };
+    });
+
+    return (
+      <div className="mb-4 rounded-md border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#151515] to-[#181818] overflow-hidden">
+        <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#2A2A2A] text-[10px] uppercase tracking-[0.18em] text-slate-400">
+          <span>Market ticker</span>
+          <span className="text-[9px] text-slate-500">
+            Tap a symbol to jump to that stock
+          </span>
+        </div>
+
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-[#181818] to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[#181818] to-transparent" />
+
+          <div className="flex gap-2 py-2 px-3 min-w-full overflow-x-auto">
+            {items.map((p) => {
+              const isActive = p.projectId === selectedProjectId;
+
+              return (
+                <button
+                  key={p.projectId}
+                  onClick={() => onSelectProject(p.projectId)}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] border transition-colors whitespace-nowrap ${
+                    isActive
+                      ? "border-white/80 bg-white/10"
+                      : "border-slate-700/60 bg-black/30 hover:bg-black/50"
+                  }`}
+                >
+                  <span className="font-mono uppercase text-slate-100">
+                    {p.ticker}
+                  </span>
+                  <span className="text-slate-200">
+                    {formatCurrencyShort(p.currentPrice)}
+                  </span>
+                  <span
+                    className={`flex items-center gap-1 font-mono ${
+                      p.positive ? "text-bt-green-300" : "text-bt-red-300"
+                    }`}
+                  >
+                    {p.positive ? (
+                      <TrendingUp className="h-3 w-3" />
+                    ) : (
+                      <TrendingDown className="h-3 w-3" />
+                    )}
+                    {p.positive ? "+" : ""}
+                    {p.pct.toFixed(1)}%
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  },
+);
+StaticTicker.displayName = "StaticTicker";
