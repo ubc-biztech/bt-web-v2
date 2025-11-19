@@ -120,19 +120,18 @@ export const EventCard: React.FC<EventCardProps> = ({
       : "Free!"
     } ` +
     `${event.pricing?.nonMembers > 0
-      event.pricing?.nonMembers > 0
-    ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
-    : event.pricing?.nonMembers === 0
-      ? "(Non-members Free!)"
-      : "(Members only)"
-}`;
+      ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
+      : event.pricing?.nonMembers === 0
+        ? "(Non-members Free!)"
+        : "(Members only)"
+    }`;
 
   return (
     <>
       <AnimatePresence mode="popLayout">
-        <Link href={`/ event / ${ event.id } /${event.year}/register`}>
+        <Link href={`/ event / ${event.id} /${event.year}/register`}>
           <motion.div
-            key={`${ event.id + event.year + event.createdAt } `}
+            key={`${event.id + event.year + event.createdAt} `}
             layout
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
