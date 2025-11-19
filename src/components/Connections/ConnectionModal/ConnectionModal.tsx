@@ -111,7 +111,9 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
             {profileData.fname} {profileData.lname}
           </h2>
           <p className="text-[#BDC8E3] text-xs sm:text-sm font-medium font-urbanist">
-            {profileData.year}, {profileData.major} · {profileData.pronouns}
+            {profileData.profileType === "PARTNER" ? `${profileData.company}, ${profileData.position} · ${profileData.pronouns}` :
+              `${profileData.year}, ${profileData.major} · ${profileData.pronouns}`
+            }
           </p>
         </div>
 
