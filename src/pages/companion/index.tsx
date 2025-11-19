@@ -5,6 +5,7 @@ import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 import { useState, useEffect, useContext, createContext } from "react";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import CompanionHome from "@/components/companion/CompanionHome";
 import Events from "@/constants/companion-events";
 import type { Event } from "@/constants/companion-events";
@@ -68,6 +69,9 @@ const Companion = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
 
+  const [showKickstartRegistrationMessage, setShowKickstartRegistrationMessage] =
+    useState(false);
+
   const events = Events.sort((a, b) => {
     return b.activeUntil.getTime() - a.activeUntil.getTime();
   });
@@ -120,6 +124,11 @@ const Companion = () => {
       console.log("event data", eventData);
 
       if (!regRes) {
+        if (eventID === "kickstart") {
+          setShowKickstartRegistrationMessage(true);
+          setIsLoading(false);
+          return;
+        }
         console.log("No registration found for email:", email);
         setPageError("No registration found for email.");
         setError("This email does not match an existing entry in our records.");
@@ -169,6 +178,35 @@ const Companion = () => {
   }, [email, router, userRegistration]);
 
   // if (isLoading) return <Loading />;
+
+  if (showKickstartRegistrationMessage) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-[#111111] text-white">
+        <div className="text-center max-w-2xl px-4">
+          <h1 className="text-3xl font-bold mb-6">
+            Registration Not Found
+          </h1>
+          <p className="text-lg mb-8">
+            If you want to check your status go to{" "}
+            <Link
+              href="/event/kickstart/2025/register"
+              className="text-bt-green-300 hover:underline"
+            >
+              Kickstart Registration
+            </Link>
+            . If you want to register for Showcase go to{" "}
+            <Link
+              href="/event/kickstart-showcase/2025/register"
+              className="text-bt-green-300 hover:underline"
+            >
+              Showcase Registration
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (pageError) {
     return (
