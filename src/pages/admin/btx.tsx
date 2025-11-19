@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { API_URL } from "@/lib/dbconfig";
+import { fetchBackend } from "@/lib/db";
 
 type BtxProject = {
   projectId: string;
@@ -22,11 +23,6 @@ type BtxProject = {
   isActive?: boolean;
   createdAt?: number;
   updatedAt?: number;
-};
-
-type ApiResponse<T> = {
-  message: string;
-  data: T;
 };
 
 const formatCurrency = (n: number | undefined | null) =>
@@ -108,99 +104,73 @@ const BtxAdminPage: React.FC = () => {
   // API calls
 
   const loadProjects = async () => {
-    const url = `${API_URL}/btx/projects`;
     try {
       setLoadingProjects(true);
       setError(null);
+
+      const endpoint = "/btx/projects";
 
       setLastRequestDebug(
         JSON.stringify(
           {
             ts: new Date().toISOString(),
             method: "GET",
-            url,
+            endpoint,
           },
           null,
           2,
         ),
       );
-      setLastResponseDebug(null);
 
-      // eslint-disable-next-line no-console
-      console.log("[BTX admin] GET projects →", url);
-
-      const res = await fetch(url, {
+      const response = await fetchBackend({
+        endpoint,
         method: "GET",
-        credentials: "include",
+        authenticatedCall: true,
       });
-
-      const rawText = await res.text();
 
       setLastResponseDebug(
         JSON.stringify(
           {
             ts: new Date().toISOString(),
-            status: res.status,
-            ok: res.ok,
-            url: res.url,
-            bodyPreview: rawText.slice(0, 500),
+            ok: true,
+            bodyPreview: JSON.stringify(response).slice(0, 500),
           },
           null,
           2,
         ),
       );
 
-      // eslint-disable-next-line no-console
-      console.log(
-        "[BTX admin] GET projects response:",
-        res.status,
-        res.statusText,
-        rawText,
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          `Failed to load projects (${res.status}): ${
-            rawText || res.statusText
-          }`,
-        );
-      }
-
-      let json: ApiResponse<BtxProject[]>;
-      try {
-        json = JSON.parse(rawText) as ApiResponse<BtxProject[]>;
-      } catch (parseErr: any) {
-        // eslint-disable-next-line no-console
-        console.error(
-          "[BTX admin] GET projects JSON parse error:",
-          parseErr,
-          "raw=",
-          rawText,
-        );
-        throw new Error(
-          `Projects response was not valid JSON: ${
-            parseErr?.message || String(parseErr)
-          }`,
-        );
-      }
-
-      const list = Array.isArray(json.data) ? json.data : [];
-
-      list.sort((a, b) => {
-        const ta = (a.ticker || "").toUpperCase();
-        const tb = (b.ticker || "").toUpperCase();
-        if (ta < tb) return -1;
-        if (ta > tb) return 1;
-        return (a.name || "").localeCompare(b.name || "");
-      });
-
+      const list = Array.isArray(response.data) ? response.data : [];
+      // @ts-ignore
+      list.sort((a, b) => (a.ticker || "").localeCompare(b.ticker || ""));
       setProjects(list);
     } catch (err: any) {
-      // eslint-disable-next-line no-console
       console.error("[BTX admin] loadProjects error", err);
-      setError(
-        err?.message ||
-          "Failed to load BTX projects. Check the backend logs for details.",
+
+      const msg =
+        typeof err?.message === "string"
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : (() => {
+                try {
+                  return JSON.stringify(err);
+                } catch {
+                  return "Failed to load BTX projects.";
+                }
+              })();
+
+      setError(msg);
+      setLastResponseDebug(
+        JSON.stringify(
+          {
+            ts: new Date().toISOString(),
+            ok: false,
+            error: msg,
+          },
+          null,
+          2,
+        ),
       );
     } finally {
       setLoadingProjects(false);
@@ -216,144 +186,65 @@ const BtxAdminPage: React.FC = () => {
     setFormError(null);
     setFormSuccess(null);
 
-    const trimmedProjectId = projectId.trim();
-    const trimmedTicker = ticker.trim();
-
-    if (!trimmedProjectId || !trimmedTicker) {
-      setFormError("projectId and ticker are required.");
-      return;
-    }
-
-    const parsedSeed = Number(seedAmount);
-    if (seedAmount !== "" && (!Number.isFinite(parsedSeed) || parsedSeed < 0)) {
-      setFormError("Seed amount must be a non-negative number.");
-      return;
-    }
-
     const payload = {
-      projectId: trimmedProjectId,
+      projectId: projectId.trim(),
       eventId: "kickstart",
-      ticker: trimmedTicker,
+      ticker: ticker.trim(),
       name: name.trim(),
       description: description.trim(),
-      seedAmount: Number.isFinite(parsedSeed) ? parsedSeed : 0,
+      seedAmount: Number(seedAmount) || 0,
     };
 
-    const params = new URLSearchParams();
-    Object.entries(payload).forEach(([key, value]) => {
-      if (
-        value !== undefined &&
-        value !== null &&
-        String(value).trim().length > 0
-      ) {
-        params.append(key, String(value));
-      }
-    });
-
-    const url = `${API_URL}/btx/admin/project?${params.toString()}`;
+    const query = new URLSearchParams(payload as any).toString();
+    const endpoint = `/btx/admin/project?${query}`;
 
     setSubmitting(true);
+
     try {
       setLastRequestDebug(
         JSON.stringify(
           {
             ts: new Date().toISOString(),
             method: "GET",
-            url,
+            endpoint,
             query: payload,
           },
           null,
           2,
         ),
       );
-      setLastResponseDebug(null);
 
-      // eslint-disable-next-line no-console
-      console.log("[BTX admin] GET /btx/admin/project →", url, payload);
-
-      const res = await fetch(url, { method: "GET" }).catch((err) => {
-        console.error("[BTX admin] fetch network error", err);
-        setLastResponseDebug(
-          JSON.stringify(
-            {
-              ts: new Date().toISOString(),
-              networkError: true,
-              message: err?.message || String(err),
-            },
-            null,
-            2,
-          ),
-        );
-        throw err;
+      const response = await fetchBackend({
+        endpoint,
+        method: "POST",
+        authenticatedCall: true,
       });
-
-      const rawText = await res.text();
 
       setLastResponseDebug(
         JSON.stringify(
           {
             ts: new Date().toISOString(),
-            status: res.status,
-            ok: res.ok,
-            url: res.url,
-            bodyPreview: rawText.slice(0, 500),
+            ok: true,
+            bodyPreview: JSON.stringify(response).slice(0, 500),
           },
           null,
           2,
         ),
       );
 
-      console.log(
-        "[BTX admin] GET /btx/admin/project response:",
-        res.status,
-        res.statusText,
-        rawText,
-      );
-
-      if (!res.ok) {
-        throw new Error(
-          rawText ||
-            `Admin project call failed with status ${res.status}: ${res.statusText}`,
-        );
-      }
-
-      let json: ApiResponse<BtxProject>;
-      try {
-        json = JSON.parse(rawText) as ApiResponse<BtxProject>;
-      } catch (parseErr: any) {
-        console.error(
-          "[BTX admin] admin/project JSON parse error:",
-          parseErr,
-          "raw=",
-          rawText,
-        );
-        throw new Error(
-          `Admin project response was not valid JSON: ${
-            parseErr?.message || String(parseErr)
-          }`,
-        );
-      }
-
-      const created = json.data;
-
-      if (!created || !created.projectId) {
-        throw new Error("Admin endpoint returned an invalid project payload.");
-      }
+      const created = response.data;
+      if (!created?.projectId) throw new Error("Invalid response payload.");
 
       setProjects((prev) => {
         const idx = prev.findIndex((p) => p.projectId === created.projectId);
-        if (idx === -1) {
-          return [...prev, created].sort((a, b) => {
-            const ta = (a.ticker || "").toUpperCase();
-            const tb = (b.ticker || "").toUpperCase();
-            if (ta < tb) return -1;
-            if (ta > tb) return 1;
-            return (a.name || "").localeCompare(b.name || "");
-          });
-        }
-        const copy = [...prev];
-        copy[idx] = created;
-        return copy;
+        const next =
+          idx === -1
+            ? [...prev, created]
+            : prev.map((p) =>
+                p.projectId === created.projectId ? created : p,
+              );
+
+        return next.sort((a, b) => a.ticker.localeCompare(b.ticker));
       });
 
       setSelectedProjectId(created.projectId);
@@ -362,9 +253,31 @@ const BtxAdminPage: React.FC = () => {
       );
     } catch (err: any) {
       console.error("[BTX admin] save project error", err);
-      setFormError(
-        err?.message ||
-          "Failed to save project. Ensure you're an admin and check backend logs.",
+
+      const msg =
+        typeof err?.message === "string"
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : (() => {
+                try {
+                  return JSON.stringify(err);
+                } catch {
+                  return "Failed to save project.";
+                }
+              })();
+
+      setFormError(msg);
+      setLastResponseDebug(
+        JSON.stringify(
+          {
+            ts: new Date().toISOString(),
+            ok: false,
+            error: msg,
+          },
+          null,
+          2,
+        ),
       );
     } finally {
       setSubmitting(false);
@@ -384,8 +297,7 @@ const BtxAdminPage: React.FC = () => {
                 BTX Admin – Projects
               </h1>
               <p className="text-sm text-slate-400">
-                Create and update BizTech Exchange (BTX) stocks for the
-                KickStart event.
+                Create and update BizTech Exchange (BTX) stocks
               </p>
               <p className="mt-1 text-[11px] text-slate-500">
                 Using API base:
@@ -527,12 +439,12 @@ const BtxAdminPage: React.FC = () => {
                       </label>
                       <Input
                         className="h-9 bg-slate-950 text-xs"
-                        placeholder="e.g. TMA"
+                        placeholder="e.g. TEMA"
                         value={ticker}
                         onChange={(e) => setTicker(e.target.value)}
                       />
                       <p className="text-[11px] text-slate-500">
-                        Short symbol shown in the BTX UI (e.g. &quot;TMA&quot;
+                        Short symbol shown in the BTX UI (e.g. &quot;TEMA&quot;
                         for Team A).
                       </p>
                     </div>
@@ -550,8 +462,7 @@ const BtxAdminPage: React.FC = () => {
                         onChange={(e) => setName(e.target.value)}
                       />
                       <p className="text-[11px] text-slate-500">
-                        Display name. If left blank, the backend may try to
-                        hydrate this from the team table.
+                        Display name.
                       </p>
                     </div>
 
@@ -569,8 +480,7 @@ const BtxAdminPage: React.FC = () => {
                       />
                       <p className="text-[11px] text-slate-500">
                         Non-negative number. Backend uses it to compute base
-                        price with BTX&apos;s{" "}
-                        <span className="italic">seed → price</span> formula.
+                        price with BTX&apos;s . Leave at 0 for default.
                       </p>
                     </div>
                   </div>
@@ -765,7 +675,7 @@ const BtxAdminPage: React.FC = () => {
               <Card className="bg-slate-900/80">
                 <div className="border-b border-slate-800 px-4 py-3">
                   <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-300">
-                    Debug (frontend)
+                    Debug
                   </h2>
                   <p className="mt-1 text-[11px] text-slate-500">
                     Use this to see the last request/response that the admin UI
