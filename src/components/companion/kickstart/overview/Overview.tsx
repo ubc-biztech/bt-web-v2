@@ -31,7 +31,7 @@ export interface RawInvestment {
 
 const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   const { team } = useTeam();
-  const [receivedFunding, setReceivedFunding] = useState<number>(-1);
+  const [receivedFunding, setReceivedFunding] = useState<number>(0);
   const [rawInvestments, setRawInvestments] = useState<RawInvestment[] | null>(
     null,
   );
@@ -58,7 +58,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
           });
 
           if (data) {
-            setReceivedFunding(data.funding || -1);
+            setReceivedFunding(data.funding || 0);
             setRawInvestments(data.investments || []);
             setReceiveInvestments(processInvestments(data.investments) || []);
           }
