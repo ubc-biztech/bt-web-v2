@@ -43,8 +43,10 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   const { userRegistration } = useUserRegistration();
   const isPartner = userRegistration?.isPartner || false;
 
+  console.log("overview > isPartner", isPartner);
+
   useEffect(() => {
-    if (team && team.id) {
+    if ((team && team.id) || userRegistration?.isPartner) {
       const fetchFundingStatus = async () => {
         try {
           const data = await fetchBackend({
@@ -54,7 +56,6 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
             method: "GET",
             authenticatedCall: true,
           });
-
 
           if (data) {
             setReceivedFunding(data.funding || -1);
@@ -68,6 +69,8 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
       fetchFundingStatus();
     }
   }, [team, isPartner]);
+
+  console.log("overview > rawInvestments", rawInvestments);
 
   return (
     <>

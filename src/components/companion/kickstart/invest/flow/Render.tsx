@@ -28,7 +28,7 @@ const Render = ({
 }: RenderProps) => {
   return (
     <motion.div
-      className="space-y-1"
+      className="space-y-1 relative"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
     >

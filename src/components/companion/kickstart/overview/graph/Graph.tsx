@@ -272,24 +272,24 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
                 isAnimationActive={false}
                 allowEscapeViewBox={{ x: true, y: true }}
                 contentStyle={{
-                  backgroundColor: "#111111",
-                  border: "1px solid #ffffff",
-                  borderRadius: "3px",
-                  padding: "4px 4px",
-                  fontSize: "16px",
+                  backgroundColor: "#141414",
+                  border: "1px solid #b4b4b4",
+                  borderRadius: "2px",
+                  padding: "8px 8px",
+                  fontSize: "20px",
                   lineHeight: "1.1",
                   zIndex: 100,
                 }}
                 labelStyle={{
                   color: "#ffffff",
-                  fontSize: "11px",
-                  marginBottom: "2px",
+                  fontSize: "12px",
+                  marginBottom: "1px",
                 }}
                 itemStyle={{
                   color: "#00C2FF",
-                  fontSize: "11px",
+                  fontSize: "10px",
                 }}
-                labelFormatter={(label: any, payload: readonly any[]) => {
+                labelFormatter={(_: any, payload: readonly any[]) => {
                   if (!payload || payload.length === 0) return "";
 
                   const point = payload[0].payload;
