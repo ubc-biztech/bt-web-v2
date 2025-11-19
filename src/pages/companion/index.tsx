@@ -168,6 +168,7 @@ const Companion = () => {
     initializeData();
   }, []);
 
+
   useEffect(() => {
     if (email && !userRegistration && !error) {
       fetchUserData();
