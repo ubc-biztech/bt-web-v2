@@ -12,7 +12,7 @@ import {
   Line,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
-import type { RawInvestment } from "@/components/companion/kickstart/overview/Overview";
+import type { RawInvestment } from "../invest/investmentsGrid/InvestmentCard";
 
 interface ChartData {
   time: string;
@@ -57,19 +57,19 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     const now = new Date();
     now.setMinutes(0, 0, 0);
     const currentHourTimestamp = now.getTime();
-    
+
     const oneHourMs = 60 * 60 * 1000;
     const oneDayMs = 24 * 60 * 60 * 1000;
-    
+
     const startTimestamp = currentHourTimestamp - oneDayMs;
     const emptyData: ChartData[] = [];
-    
+
     for (let ts = startTimestamp; ts <= currentHourTimestamp; ts += oneHourMs) {
       const date = new Date(ts);
       const hours = date.getHours();
       const minutes = date.getMinutes().toString().padStart(2, "0");
       const displayTime = `${hours}:${minutes}`;
-      
+
       emptyData.push({
         time: `${date.toLocaleString("en-US", { month: "short", day: "numeric" })} ${displayTime}`,
         displayTime,
@@ -82,7 +82,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
         timestamp: ts,
       });
     }
-    
+
     setMaxValue(100);
     setChartData(emptyData);
     setDisplayedData(emptyData);
@@ -117,10 +117,10 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
 
     const oneHourMs = 60 * 60 * 1000;
     const oneDayMs = 24 * 60 * 60 * 1000;
-    
+
     const oneDayBeforeTimestamp = minTimestamp - oneDayMs;
     const oneHourBeforeTimestamp = minTimestamp - oneHourMs;
-    
+
     investmentsByHour[oneDayBeforeTimestamp] = { amount: 0, count: 0 };
     investmentsByHour[oneHourBeforeTimestamp] = { amount: 0, count: 0 };
     minTimestamp = oneDayBeforeTimestamp;
@@ -134,15 +134,19 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     const now = new Date();
     now.setMinutes(0, 0, 0);
     const currentHourTimestamp = now.getTime();
-    
+
     if (currentHourTimestamp > maxTimestamp) {
-      for (let ts = maxTimestamp + oneHourMs; ts <= currentHourTimestamp; ts += oneHourMs) {
-        investmentsByHour[ts] = { 
-          amount: 0, 
-          count: 0 
+      for (
+        let ts = maxTimestamp + oneHourMs;
+        ts <= currentHourTimestamp;
+        ts += oneHourMs
+      ) {
+        investmentsByHour[ts] = {
+          amount: 0,
+          count: 0,
         };
       }
-      
+
       maxTimestamp = currentHourTimestamp;
     }
 

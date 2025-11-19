@@ -1,7 +1,7 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { RawInvestment } from "./partnerInvestmentCard";
-import { formatAmount } from "./partnerInvestmentCard";
+import type { RawInvestment } from "./InvestmentCard";
+import { formatAmount } from "./InvestmentCard";
 import { formatPopupTimestamp } from "@/lib/utils";
 
 interface InvestmentPopupProps {
