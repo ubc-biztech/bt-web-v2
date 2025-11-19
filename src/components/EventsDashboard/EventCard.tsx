@@ -115,15 +115,17 @@ export const EventCard: React.FC<EventCardProps> = ({
     `${dateString.toTimeString().slice(0, 5)}`;
 
   const eventPricingText =
-    `${event.pricing && event.pricing?.members > 0
-      ? "$" + event.pricing?.members.toFixed(2)
-      : "Free!"
+    `${
+      event.pricing && event.pricing?.members > 0
+        ? "$" + event.pricing?.members.toFixed(2)
+        : "Free!"
     } ` +
-    `${event.pricing?.nonMembers > 0
-      ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
-      : event.pricing?.nonMembers === 0
-        ? "(Non-members Free!)"
-        : "(Members only)"
+    `${
+      event.pricing?.nonMembers > 0
+        ? `(Non-members ${event.pricing?.nonMembers.toFixed(2)})`
+        : event.pricing?.nonMembers === 0
+          ? "(Non-members Free!)"
+          : "(Members only)"
     }`;
 
   return (
