@@ -22,4 +22,3 @@ export interface TeamStock {
   investmentReceived: number;
   recentInvestments: RecentInvestment[];
 }
-

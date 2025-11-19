@@ -27,6 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
     "/forgot-password",
     "/admin/live-wall",
     "/investments",
+    "/btx",
   ];
   const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 
