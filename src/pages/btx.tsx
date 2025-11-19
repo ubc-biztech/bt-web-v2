@@ -33,7 +33,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   ChartConfig,
-} from "@/components/ui/chart";
+} from "@/components/ui/btx-chart";
 
 const EVENT_ID = "kickstart";
 
