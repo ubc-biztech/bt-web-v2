@@ -191,13 +191,26 @@ const Kickstart2025 = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
+
+    // If registered for kickoff-showcase event, redirect to /investments
+    console.log(userRegistration, "HERE");
+
+    if (
+      userRegistration &&
+      typeof userRegistration["eventID;year"] === "string" &&
+      userRegistration["eventID;year"].split(";")[0] === "kickstart-showcase"
+    ) {
+      router.push("/investments");
+      return;
+    }
+
     const { sharedTeam } = router.query;
     if (sharedTeam && typeof sharedTeam === "string") {
       setSharedTeamId(sharedTeam);
     } else {
       setSharedTeamId(null);
     }
-  }, [router.isReady, router.query.sharedTeam]);
+  }, [router.isReady, router.query.sharedTeam, userRegistration]);
 
   // If there's a sharedTeamId in the URL, navigate to INVEST page
   useEffect(() => {

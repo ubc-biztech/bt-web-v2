@@ -19,6 +19,7 @@ export async function middleware(request: NextRequest) {
     "/register",
     "/forgot-password",
     "/verify",
+    "/investments",
     "/assets",
     "/favicon",
     "/_next",
