@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
   const allowedPrefixes = [
     "/companion",
     "/events",
+    "/event",
     "/become-a-member",
     "/membership",
     "/login",
@@ -42,10 +43,6 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request: request as any, response: response as any },
     });
 
-    if (pathname.startsWith("/event")) {
-      return NextResponse.next();
-    }
-
     if (!userProfile.isMember) {
       return NextResponse.redirect(new URL("/membership", request.url));
     }
@@ -56,10 +53,6 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (error: any) {
-    if (error.status === 404 && pathname.startsWith("/event")) {
-      return NextResponse.next();
-    }
-
     if (error.status === 404) {
       return NextResponse.redirect(new URL("/membership", request.url));
     }
