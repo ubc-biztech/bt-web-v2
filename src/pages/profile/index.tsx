@@ -39,6 +39,7 @@ export default function ProfilePage({
         fname={profileData.fname}
         lname={profileData.lname}
         userRole={userRole}
+        isMember={profileData.isMember}
       />
       <div className="grid grid-cols-1 gap-4 w-full">
         <AttributesCard profileData={profileData} userRole={userRole} />

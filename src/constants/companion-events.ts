@@ -3,6 +3,8 @@ import Blueprint2025 from "@/components/companion/events/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 import ProductX2025 from "@/components/companion/events/ProductX2025";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
+import Kickstart2025 from "@/components/companion/events/Kickstart2025";
+import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 
 export interface Event {
   activeUntil: Date;
@@ -77,6 +79,27 @@ const Events: Event[] = [
         { text: "Points", id: "points" },
         { text: "Showcase", id: "showcase" },
       ],
+    },
+  },
+  {
+    activeUntil: new Date("2025-11-27"),
+    eventID: "kickstart",
+    year: 2025,
+    ChildComponent: Kickstart2025,
+    options: {
+      disableWelcomeHeader: true,
+      BiztechLogo: KickstartLogo.src,
+      Logo: KickstartLogo.src,
+      title: "Kickstart 2025",
+      date: "November 19, 2025",
+      location: "idk, UBC",
+      colors: {
+        primary: "#111111",
+        background: "#111111",
+      },
+      getScheduleData: (regData) => [],
+      welcomeData: [],
+      headers: [],
     },
   },
 ];
