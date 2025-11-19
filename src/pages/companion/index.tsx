@@ -8,8 +8,19 @@ import { useRouter } from "next/router";
 import CompanionHome from "@/components/companion/CompanionHome";
 import Events from "@/constants/companion-events";
 import type { Event } from "@/constants/companion-events";
-import Loading from "@/components/Loading";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
+import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+  weight: "400",
+});
 
 export interface Registration {
   id: string;
@@ -171,9 +182,11 @@ const Companion = () => {
   }
 
   return (
-    <UserRegistrationContext.Provider value={{ userRegistration }}>
-      <CompanionHome ChildComponent={currentEvent.ChildComponent} />
-    </UserRegistrationContext.Provider>
+    <div className={`${bricolage.className} ${instrument.className}`}>
+      <UserRegistrationContext.Provider value={{ userRegistration }}>
+        <CompanionHome ChildComponent={currentEvent.ChildComponent} />
+      </UserRegistrationContext.Provider>
+    </div>
   );
 
   // WORK IN PROGRESS PAGE - Similar design to registration success page
