@@ -255,7 +255,6 @@ const BtxPage: React.FC = () => {
   // timeframe-based change for every project
 
   const timeframeChanges: Record<string, TimeframeChange> = useMemo(() => {
-    const now = Date.now();
     const result: Record<string, TimeframeChange> = {};
 
     projects.forEach((p) => {
@@ -273,14 +272,16 @@ const BtxPage: React.FC = () => {
 
       let windowPoints = history;
 
-        if (timeframe !== "ALL") {
-          const cutoff = now - TIMEFRAME_MS[timeframe];
-          points = points.filter((pt) => pt.ts >= cutoff);
       if (timeframe !== "ALL") {
-        const cutoff = now - TIMEFRAME_MS[timeframe];
-        windowPoints = history.filter((pt) => pt.ts >= cutoff);
+        const lastTs = history[history.length - 1].ts;
+        const cutoff = lastTs - TIMEFRAME_MS[timeframe];
 
-        if (windowPoints.length < 2) {
+        const filtered = history.filter((pt) => pt.ts >= cutoff);
+
+        // if we don't have enough data in this window yet, keep change = 0
+        if (filtered.length >= 2) {
+          windowPoints = filtered;
+        } else {
           result[p.projectId] = { change: 0, pct: 0 };
           return;
         }
@@ -558,17 +559,20 @@ const BtxPage: React.FC = () => {
               },
             ];
 
-    // Timeframe filtering
+    // Always sort first so we can safely use the last timestamp
+    points = points.slice().sort((a, b) => a.ts - b.ts);
+
     if (timeframe !== "ALL" && points.length > 1) {
-      const cutoff = now - TIMEFRAME_MS[timeframe];
+      const lastTs = points[points.length - 1].ts;
+      const cutoff = lastTs - TIMEFRAME_MS[timeframe];
       const filtered = points.filter((pt) => pt.ts >= cutoff);
+
+      // only narrow to the window if we actually have a reasonable series
       if (filtered.length >= 2) {
         points = filtered;
       }
+      // else: keep all points so the chart doesn't collapse to a dot
     }
-
-    // Sort by timestamp just to be safe
-    points = points.slice().sort((a, b) => a.ts - b.ts);
 
     const shouldCoalesce =
       timeframe === "1M" || timeframe === "5M" || timeframe === "15M";
