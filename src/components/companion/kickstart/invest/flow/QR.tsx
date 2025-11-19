@@ -63,7 +63,7 @@ const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
 
   return (
     <motion.div
-      className="space-y-1"
+      className="space-y-1 relative"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
     >
