@@ -41,7 +41,11 @@ const Header = ({
             setPage(KickstartPages.INVEST);
           }}
         >
-          <GlowButton height="h-10" width="sm:w-48 w-20 sm:pl-0 pl-2" icon={Plus}>
+          <GlowButton
+            height="h-10"
+            width="sm:w-48 w-20 sm:pl-0 pl-2"
+            icon={Plus}
+          >
             <span className="text-[14px] hidden sm:flex">New Investments</span>
           </GlowButton>
         </div>
