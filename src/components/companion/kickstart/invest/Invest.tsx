@@ -72,8 +72,10 @@ const Invest = ({
           authenticatedCall: true,
         });
         const teamsData = Array.isArray(teamsRes)
-            ? (teamsRes as TeamListing[]).filter((t: TeamListing) => (!team || t.id != team.id))
-            : [];
+          ? (teamsRes as TeamListing[]).filter(
+              (t: TeamListing) => !team || t.id != team.id,
+            )
+          : [];
         setAllTeams(teamsData);
       } catch (err) {
         console.error("Error fetching Kickstart teams:", err);

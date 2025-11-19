@@ -28,7 +28,6 @@ export const Ticker = () => {
           authenticatedCall: true,
         });
 
-
         const transformedEntries = data.map(
           (investment: {
             investorName: string;
