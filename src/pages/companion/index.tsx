@@ -69,8 +69,10 @@ const Companion = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
 
-  const [showKickstartRegistrationMessage, setShowKickstartRegistrationMessage] =
-    useState(false);
+  const [
+    showKickstartRegistrationMessage,
+    setShowKickstartRegistrationMessage,
+  ] = useState(false);
 
   const events = Events.sort((a, b) => {
     return b.activeUntil.getTime() - a.activeUntil.getTime();
@@ -183,9 +185,7 @@ const Companion = () => {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-[#111111] text-white">
         <div className="text-center max-w-2xl px-4">
-          <h1 className="text-3xl font-bold mb-6">
-            Registration Not Found
-          </h1>
+          <h1 className="text-3xl font-bold mb-6">Registration Not Found</h1>
           <p className="text-lg mb-8">
             If you want to check your status go to{" "}
             <Link
