@@ -100,7 +100,6 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
 
       if (userTeam && userTeam.response) {
         setTeam(userTeam.response);
-        console.log("Successfully fetched team:", userTeam.response);
       }
     } catch (error) {
       console.error("Error fetching user team:", error);

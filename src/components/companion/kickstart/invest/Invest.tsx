@@ -71,10 +71,8 @@ const Invest = ({
           method: "GET",
           authenticatedCall: true,
         });
-        const teamsData = Array.isArray(teamsRes?.data)
-          ? teamsRes.data
-          : Array.isArray(teamsRes)
-            ? teamsRes
+        const teamsData = Array.isArray(teamsRes)
+            ? (teamsRes as TeamListing[]).filter((t: TeamListing) => (!team || t.id != team.id))
             : [];
         setAllTeams(teamsData);
       } catch (err) {
@@ -86,7 +84,6 @@ const Invest = ({
   }, []);
 
   useEffect(() => {
-    console.log(team?.id);
     if (team?.id === sharedTeamId) {
       setPendingSharedTeam(null);
       return;
@@ -180,7 +177,6 @@ const Invest = ({
     setIsSubmitting(true);
     setFlowError(null);
     try {
-      console.log(selectedTeam);
       await fetchBackend({
         endpoint: `/investments/invest`,
         method: "POST",

@@ -28,7 +28,6 @@ export const Ticker = () => {
           authenticatedCall: true,
         });
 
-        console.log("Fetched ticker data:", data);
 
         const transformedEntries = data.map(
           (investment: {
