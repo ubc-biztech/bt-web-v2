@@ -57,9 +57,11 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
             authenticatedCall: true,
           });
 
+          console.log(data)
+
           if (data) {
             setReceivedFunding(data.funding || -1);
-            setRawInvestments(data.investments || null);
+            setRawInvestments(data.investments || []);
             setReceiveInvestments(processInvestments(data.investments) || []);
           }
         } catch (error) {
