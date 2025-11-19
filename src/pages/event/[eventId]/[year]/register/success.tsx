@@ -81,17 +81,6 @@ const SuccessPage = () => {
           </div>
         </div>
       </div>
-
-      <div className="fixed bottom-4 right-4 flex flex-col items-end sm:flex-row sm:items-center">
-        <div className="bg-white text-black p-3 sm:p-4 rounded-lg shadow-lg mb-2 sm:mb-0 sm:mr-4 max-w-[80vw] sm:max-w-none">
-          <p className="font-semibold text-sm sm:text-base">
-            Got some more stuff cooking, stay tuned!
-          </p>
-        </div>
-        <div className="bg-green-500 w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center">
-          <span className="text-xl sm:text-2xl">🏠</span>
-        </div>
-      </div>
     </div>
   );
 };
