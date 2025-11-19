@@ -126,13 +126,14 @@ const Settings = () => {
               </div>
             ))}
           </div>
+          {/*
           <button
             onClick={handleLeaveTeam}
             disabled={isLeaving}
             className="mt-4 inline-flex h-11 items-center justify-center rounded-lg border border-[#FF4D4D] bg-[#2B0C0C] px-6 text-sm font-semibold text-[#FF6B6B] transition hover:bg-[#FF4D4D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLeaving ? "Leaving..." : "Leave Team"}
-          </button>
+          </button>*/}
         </div>
       </div>
 
