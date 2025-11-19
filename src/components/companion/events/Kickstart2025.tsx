@@ -200,7 +200,7 @@ const Kickstart2025 = () => {
       typeof userRegistration["eventID;year"] === "string" &&
       userRegistration["eventID;year"].split(";")[0] === "kickstart-showcase"
     ) {
-      router.push("/investments");
+      router.push("/btx");
       return;
     }
 
