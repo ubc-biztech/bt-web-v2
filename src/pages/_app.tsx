@@ -8,11 +8,6 @@ import { Urbanist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const urbanist = Urbanist({
-  subsets: ["latin"],
-  variable: "--font-urbanist",
-});
-
 import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
 
 const bricolage = Bricolage_Grotesque({
@@ -24,6 +19,11 @@ const instrument = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-instrument",
   weight: "400",
+});
+
+const urbanist = Urbanist({
+  subsets: ["latin"],
+  variable: "--font-urbanist",
 });
 
 export default function App({ Component, pageProps }: AppProps) {
