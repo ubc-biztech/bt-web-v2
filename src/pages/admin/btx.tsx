@@ -142,11 +142,36 @@ const BtxAdminPage: React.FC = () => {
 
       const list = Array.isArray(response.data) ? response.data : [];
       // @ts-ignore
-      list.sort((a, b) => a.ticker.localeCompare(b.ticker));
+      list.sort((a, b) => (a.ticker || "").localeCompare(b.ticker || ""));
       setProjects(list);
     } catch (err: any) {
       console.error("[BTX admin] loadProjects error", err);
-      setError(err?.message || "Failed to load BTX projects.");
+
+      const msg =
+        typeof err?.message === "string"
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : (() => {
+                try {
+                  return JSON.stringify(err);
+                } catch {
+                  return "Failed to load BTX projects.";
+                }
+              })();
+
+      setError(msg);
+      setLastResponseDebug(
+        JSON.stringify(
+          {
+            ts: new Date().toISOString(),
+            ok: false,
+            error: msg,
+          },
+          null,
+          2,
+        ),
+      );
     } finally {
       setLoadingProjects(false);
     }
@@ -191,7 +216,7 @@ const BtxAdminPage: React.FC = () => {
 
       const response = await fetchBackend({
         endpoint,
-        method: "GET",
+        method: "POST",
         authenticatedCall: true,
       });
 
@@ -228,7 +253,32 @@ const BtxAdminPage: React.FC = () => {
       );
     } catch (err: any) {
       console.error("[BTX admin] save project error", err);
-      setFormError(err?.message || "Failed to save project.");
+
+      const msg =
+        typeof err?.message === "string"
+          ? err.message
+          : typeof err === "string"
+            ? err
+            : (() => {
+                try {
+                  return JSON.stringify(err);
+                } catch {
+                  return "Failed to save project.";
+                }
+              })();
+
+      setFormError(msg);
+      setLastResponseDebug(
+        JSON.stringify(
+          {
+            ts: new Date().toISOString(),
+            ok: false,
+            error: msg,
+          },
+          null,
+          2,
+        ),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -389,12 +439,12 @@ const BtxAdminPage: React.FC = () => {
                       </label>
                       <Input
                         className="h-9 bg-slate-950 text-xs"
-                        placeholder="e.g. TMA"
+                        placeholder="e.g. TEMA"
                         value={ticker}
                         onChange={(e) => setTicker(e.target.value)}
                       />
                       <p className="text-[11px] text-slate-500">
-                        Short symbol shown in the BTX UI (e.g. &quot;TMA&quot;
+                        Short symbol shown in the BTX UI (e.g. &quot;TEMA&quot;
                         for Team A).
                       </p>
                     </div>
