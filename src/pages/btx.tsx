@@ -193,40 +193,44 @@ const BtxPage: React.FC = () => {
     const result: Record<string, TimeframeChange> = {};
 
     projects.forEach((p) => {
-      const history = priceHistory[p.projectId] || [];
-      const baseChange = safeNumber(p.priceChange, 0);
-      const basePct = safePct(p.priceChangePct);
+      const history = (priceHistory[p.projectId] || [])
+        .slice()
+        .sort((a, b) => a.ts - b.ts);
 
-      if (history.length >= 2) {
-        let points = history;
+      if (history.length < 2) {
+        result[p.projectId] = {
+          change: safeNumber(p.priceChange, 0),
+          pct: safePct(p.priceChangePct),
+        };
+        return;
+      }
 
-        if (timeframe !== "ALL") {
-          const cutoff = now - TIMEFRAME_MS[timeframe];
-          const filtered = history.filter((pt) => pt.ts >= cutoff);
-          if (filtered.length >= 2) {
-            points = filtered;
-          }
-        }
+      let windowPoints = history;
 
-        const start = points[0]?.price;
-        const end = points[points.length - 1]?.price;
+      if (timeframe !== "ALL") {
+        const cutoff = now - TIMEFRAME_MS[timeframe];
+        windowPoints = history.filter((pt) => pt.ts >= cutoff);
 
-        if (Number.isFinite(start) && Number.isFinite(end) && start !== 0) {
-          const changeRaw = end - start;
-          const pctRaw = (changeRaw / start) * 100;
-
-          result[p.projectId] = {
-            change: safeNumber(changeRaw, baseChange),
-            pct: safeNumber(pctRaw, basePct),
-          };
+        if (windowPoints.length < 2) {
+          result[p.projectId] = { change: 0, pct: 0 };
           return;
         }
       }
 
-      // fallback to snapshot-based change if we cant compute from history
+      const start = windowPoints[0].price;
+      const end = windowPoints[windowPoints.length - 1].price;
+
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start === 0) {
+        result[p.projectId] = { change: 0, pct: 0 };
+        return;
+      }
+
+      const change = end - start;
+      const pct = (change / start) * 100;
+
       result[p.projectId] = {
-        change: baseChange,
-        pct: basePct,
+        change: safeNumber(change, 0),
+        pct: safeNumber(pct, 0),
       };
     });
 
@@ -450,12 +454,9 @@ const BtxPage: React.FC = () => {
               },
             ];
 
-    if (timeframe !== "ALL" && points.length > 1) {
+    if (timeframe !== "ALL") {
       const cutoff = now - TIMEFRAME_MS[timeframe];
-      const filtered = points.filter((pt) => pt.ts >= cutoff);
-      if (filtered.length >= 2) {
-        points = filtered;
-      }
+      points = points.filter((pt) => pt.ts >= cutoff);
     }
 
     return points.map((pt) => ({
