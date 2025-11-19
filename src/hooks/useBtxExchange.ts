@@ -117,14 +117,43 @@ export function useBtxExchange({
       });
 
       lastPricesRef.current = lastPrices;
-
       enriched.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
-
       setProjects(enriched);
 
       if (!selectedProjectId && enriched.length) {
         setSelectedProjectId(enriched[0].projectId);
       }
+
+      // update price history from snapshot so charts keep moving even if WS is fucked
+      const now = Date.now();
+      setPriceHistory((prev) => {
+        const next: Record<string, PricePoint[]> = { ...prev };
+
+        enriched.forEach((p) => {
+          const projectId = p.projectId;
+          const price = Number(p.currentPrice || p.basePrice || 0);
+          if (!Number.isFinite(price)) return;
+
+          const existing = next[projectId] || [];
+          const last = existing[existing.length - 1];
+
+          if (last && last.price === price) {
+            return;
+          }
+
+          const updated = [
+            ...existing,
+            { ts: now, price, source: "snapshot" as const },
+          ];
+
+          next[projectId] =
+            updated.length > 10000
+              ? updated.slice(updated.length - 10000)
+              : updated;
+        });
+
+        return next;
+      });
     } catch (err: any) {
       console.error("[BTX] snapshot error", err);
       setError(
@@ -185,11 +214,18 @@ export function useBtxExchange({
 
       setPriceHistory((prev) => ({
         ...prev,
-        [projectId]: rows.map((r) => ({
-          ts: r.ts,
-          price: r.price,
-          source: r.source,
-        })),
+        [projectId]: rows
+          .map((r) => {
+            const rawTs = r.ts;
+            // if ts looks like seconds, convert to ms
+            const ts = rawTs < 1e12 ? rawTs * 1000 : rawTs;
+            return {
+              ts,
+              price: r.price,
+              source: r.source,
+            };
+          })
+          .sort((a, b) => a.ts - b.ts),
       }));
     } catch (err) {
       console.error("[BTX] price history error", err);
@@ -256,11 +292,8 @@ export function useBtxExchange({
     if (!selectedProjectId) return;
 
     fetchTrades(selectedProjectId);
-
-    if (!priceHistory[selectedProjectId]) {
-      fetchPriceHistoryFn(selectedProjectId);
-    }
-  }, [selectedProjectId, fetchTrades, fetchPriceHistoryFn, priceHistory]);
+    fetchPriceHistoryFn(selectedProjectId);
+  }, [selectedProjectId, fetchTrades, fetchPriceHistoryFn]);
 
   // ws connection for live price updates
   useEffect(() => {
@@ -303,14 +336,16 @@ export function useBtxExchange({
 
         const projectId = msg.projectId as string;
         const newPrice = Number(msg.currentPrice ?? msg.basePrice ?? 0);
-
         if (!projectId || !Number.isFinite(newPrice)) return;
+
+        // normalize ts
+        const rawTs = msg.updatedAt ?? Date.now();
+        const ts = rawTs < 1e12 ? rawTs * 1000 : rawTs;
 
         // update projects list
         setProjects((prev) => {
           const map = new Map(prev.map((p) => [p.projectId, p]));
           const existing = map.get(projectId);
-
           if (!existing) return prev;
 
           const prevPrice = existing.currentPrice || newPrice;
@@ -327,7 +362,7 @@ export function useBtxExchange({
             priceChange: change,
             priceChangePct: pct,
             marketCap: msg.marketCap ?? existing.marketCap,
-            updatedAt: msg.updatedAt ?? Date.now(),
+            updatedAt: ts,
           };
 
           map.set(projectId, updated);
@@ -339,7 +374,6 @@ export function useBtxExchange({
         // append to price history
         setPriceHistory((prev) => {
           const current = prev[projectId] || [];
-          const ts = msg.updatedAt || Date.now();
           const last = current[current.length - 1];
 
           if (last && last.ts === ts && last.price === newPrice) {
@@ -354,6 +388,7 @@ export function useBtxExchange({
               source: msg.source,
             },
           ];
+
           const trimmed =
             next.length > 10000 ? next.slice(next.length - 10000) : next;
 
