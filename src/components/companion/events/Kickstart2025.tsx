@@ -121,7 +121,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     return <Loading />;
   }
 
-  if (!team) {
+  if (!team && userRegistration?.["eventID;year"] === "kickstart;2025" && !userRegistration?.isPartner) {
     router.push("/companion/team");
     return;
   }

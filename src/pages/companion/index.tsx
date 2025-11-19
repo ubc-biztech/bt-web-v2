@@ -74,7 +74,7 @@ const Companion = () => {
     setError("");
 
     try {
-      const [regRes, eventData] = await Promise.all([
+      const [regResKickstart, eventDataKickStart] = await Promise.all([
         fetchBackend({
           endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
           method: "GET",
@@ -86,11 +86,29 @@ const Companion = () => {
         }),
       ]);
 
-      console.log(regRes);
+      const [regResShowcase, eventDataShowcase] = await Promise.all([
+        fetchBackend({
+          endpoint: `/registrations?eventID=${eventID}-showcase&year=${year}&email=${email}`,
+          method: "GET",
+        }),
+        fetchBackend({
+          endpoint: `/events/${eventID}-showcase/${year}`,
+          method: "GET",
+          authenticatedCall: false,
+        }),
+      ]);
 
-      const reg = regRes.data[0];
+      const regRes = regResKickstart.data[0]
+        ? regResKickstart.data[0]
+        : regResShowcase.data[0];
+      const eventData = regResKickstart.data[0]
+        ? eventDataKickStart
+        : eventDataShowcase;
 
-      if (!reg) {
+      console.log("reg data", regRes);
+      console.log("event data", eventData);
+
+      if (!regRes) {
         console.log("No registration found for email:", email);
         setPageError("No registration found for email.");
         setError("This email does not match an existing entry in our records.");
@@ -98,9 +116,9 @@ const Companion = () => {
         return;
       }
 
-      setUserRegistration(reg);
+      setUserRegistration(regRes);
       setEvent(eventData);
-      localStorage.setItem(COMPANION_EMAIL_KEY, reg.id);
+      localStorage.setItem(COMPANION_EMAIL_KEY, regRes.id);
     } catch (err) {
       console.error("Error fetching user data:", err);
       setError("An error occurred while fetching your data.");
