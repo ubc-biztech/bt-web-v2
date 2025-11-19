@@ -254,7 +254,7 @@ const Invest = ({
     );
   };
 
-  if (!userRegistration || !team) {
+  if (!userRegistration || (!team && !userRegistration?.isPartner)) {
     return <Loading />;
   }
 

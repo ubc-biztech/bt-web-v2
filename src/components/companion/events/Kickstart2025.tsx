@@ -121,7 +121,11 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     return <Loading />;
   }
 
-  if (!team) {
+  if (
+    !team &&
+    userRegistration?.["eventID;year"] === "kickstart;2025" &&
+    !userRegistration?.isPartner
+  ) {
     router.push("/companion/team");
     return;
   }
@@ -182,6 +186,9 @@ const Kickstart2025 = () => {
   const [pendingSharedTeam, setPendingSharedTeam] = useState<string | null>(
     null,
   );
+  const { userRegistration } = useUserRegistration();
+
+  console.log("user registration", userRegistration);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -208,29 +215,43 @@ const Kickstart2025 = () => {
     <TeamProvider>
       <KickstartNav page={page} setPage={setPage}>
         <AnimatePresence mode="wait">
-          {page === KickstartPages.OVERVIEW && (
-            <PageWrapper key={KickstartPages.OVERVIEW}>
-              <Overview setPage={setPage} />
-            </PageWrapper>
-          )}
-          {page === KickstartPages.INVEST && (
-            <PageWrapper key={KickstartPages.INVEST}>
-              <Invest
-                setPage={setPage}
-                sharedTeamId={pendingSharedTeam}
-                setPendingSharedTeam={setPendingSharedTeam}
-              />
-            </PageWrapper>
-          )}
-          {page === KickstartPages.SETTINGS && (
-            <PageWrapper key={KickstartPages.SETTINGS}>
-              <Settings />
-            </PageWrapper>
-          )}
-          {page === KickstartPages.PROFILE && (
-            <PageWrapper key={KickstartPages.PROFILE}>
-              {"Kickstart Profile!"}
-            </PageWrapper>
+          {userRegistration?.registrationStatus.toLowerCase() !==
+          "checkedin" ? (
+            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <h1 className="text-2xl font-bold text-center">
+                You Have Not Checked In!
+              </h1>
+              <h2 className="text-[20px] opacity-50 text-center font-light">
+                Please check in with a BizTech exec to continue.
+              </h2>
+            </div>
+          ) : (
+            <>
+              {page === KickstartPages.OVERVIEW && (
+                <PageWrapper key={KickstartPages.OVERVIEW}>
+                  <Overview setPage={setPage} />
+                </PageWrapper>
+              )}
+              {page === KickstartPages.INVEST && (
+                <PageWrapper key={KickstartPages.INVEST}>
+                  <Invest
+                    setPage={setPage}
+                    sharedTeamId={pendingSharedTeam}
+                    setPendingSharedTeam={setPendingSharedTeam}
+                  />
+                </PageWrapper>
+              )}
+              {page === KickstartPages.SETTINGS && (
+                <PageWrapper key={KickstartPages.SETTINGS}>
+                  <Settings />
+                </PageWrapper>
+              )}
+              {page === KickstartPages.PROFILE && (
+                <PageWrapper key={KickstartPages.PROFILE}>
+                  {"Kickstart Profile!"}
+                </PageWrapper>
+              )}
+            </>
           )}
         </AnimatePresence>
       </KickstartNav>
