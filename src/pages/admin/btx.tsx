@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { API_URL } from "@/lib/dbconfig";
 
 type BtxProject = {
   projectId: string;
@@ -22,8 +23,6 @@ type BtxProject = {
   createdAt?: number;
   updatedAt?: number;
 };
-
-const API_BASE = "http://localhost:4017/dev";
 
 type ApiResponse<T> = {
   message: string;
@@ -68,7 +67,7 @@ const BtxAdminPage: React.FC = () => {
 
   useEffect(() => {
     // eslint-disable-next-line no-console
-    console.log("[BTX admin] API_BASE =", API_BASE);
+    console.log("[BTX admin] API_URL =", API_URL);
   }, []);
 
   const selectedProject = useMemo(
@@ -109,7 +108,7 @@ const BtxAdminPage: React.FC = () => {
   // API calls
 
   const loadProjects = async () => {
-    const url = `${API_BASE}/btx/projects`;
+    const url = `${API_URL}/btx/projects`;
     try {
       setLoadingProjects(true);
       setError(null);
@@ -251,7 +250,7 @@ const BtxAdminPage: React.FC = () => {
       }
     });
 
-    const url = `${API_BASE}/btx/admin/project?${params.toString()}`;
+    const url = `${API_URL}/btx/admin/project?${params.toString()}`;
 
     setSubmitting(true);
     try {
@@ -391,7 +390,7 @@ const BtxAdminPage: React.FC = () => {
               <p className="mt-1 text-[11px] text-slate-500">
                 Using API base:
                 <span className="ml-1 font-mono text-[11px] text-slate-300">
-                  {API_BASE}
+                  {API_URL}
                 </span>
               </p>
             </div>
