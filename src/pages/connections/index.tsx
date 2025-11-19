@@ -5,6 +5,13 @@ import { Search } from "lucide-react";
 import { fetchBackendFromServer } from "@/lib/db";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Connection {
   compositeID: string;
@@ -16,6 +23,7 @@ interface Connection {
   major: string;
   lname: string;
   type: string;
+  connectionType?: "PARTNER" | "EXEC" | "ATTENDEE";
 }
 
 interface ConnectionsPageProps {
@@ -24,12 +32,21 @@ interface ConnectionsPageProps {
 
 const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [connectionType, setConnectionType] = useState<string>("ALL");
 
-  const filteredConnections = connections.filter((connection) =>
-    `${connection.fname} ${connection.lname}`
+  const filteredConnections = connections.filter((connection) => {
+    const matchesSearch = `${connection.fname} ${connection.lname}`
       .toLowerCase()
-      .includes(searchQuery.toLowerCase()),
-  );
+      .includes(searchQuery.toLowerCase());
+
+    // note that attendee type connections have no connectionType or can be undefined
+    const currType = connection.connectionType || "ATTENDEE";
+
+    // if it's ALL, let everything pass through
+    const matchesType = connectionType === "ALL" || connectionType === currType;
+
+    return matchesSearch && matchesType;
+  });
 
   return (
     <>
@@ -53,8 +70,8 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
           </span>
           <div className="bg-bt-blue-300 h-[1px] my-4" />
 
-          <div className="mb-6">
-            <div className="relative">
+          <div className="mb-6 flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-neutral-500" />
               </div>
@@ -65,6 +82,22 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-white border-2 bt-blue-400-500 border-solid rounded-lg text-bt-blue-300 placeholder-neutral-500 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:bt-blue-400-600"
               />
+            </div>
+            <div className="w-full sm:w-48">
+              <Select
+                value={connectionType}
+                onValueChange={(e) => setConnectionType(e)}
+              >
+                <SelectTrigger className="h-[52px]">
+                  <SelectValue placeholder="Select Connection Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Connections</SelectItem>
+                  <SelectItem value="PARTNER">Partners</SelectItem>
+                  <SelectItem value="EXEC">Execs</SelectItem>
+                  <SelectItem value="ATTENDEE">Attendees</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

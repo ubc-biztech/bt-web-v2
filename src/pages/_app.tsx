@@ -8,6 +8,19 @@ import { Urbanist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
+import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  variable: "--font-instrument",
+  weight: "400",
+});
+
 const urbanist = Urbanist({
   subsets: ["latin"],
   variable: "--font-urbanist",
@@ -26,6 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
     "/verify",
     "/forgot-password",
     "/admin/live-wall",
+    "/investments",
+    "/btx",
   ];
   const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 
@@ -93,7 +108,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main
-        className={`${isCompanionPath ? "dark" : ""} ${urbanist.className}`}
+        className={`${isCompanionPath ? `dark ${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />

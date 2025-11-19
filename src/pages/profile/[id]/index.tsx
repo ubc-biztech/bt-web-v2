@@ -8,6 +8,8 @@ import {
   Home,
   CheckCircle,
   Loader2,
+  Building,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ShareProfileDrawer from "@/components/ProfilePage/ShareProfileDrawer";
@@ -93,8 +95,7 @@ const ProfilePage = ({
       }
 
       if (
-        eventRegistration.registrationStatus ===
-        REGISTRATION_STATUS.CHECKED_IN
+        eventRegistration.registrationStatus === REGISTRATION_STATUS.CHECKED_IN
       ) {
         toast({
           title: "Check-in Failed",
@@ -118,8 +119,7 @@ const ProfilePage = ({
       }
 
       if (
-        eventRegistration.registrationStatus ===
-        REGISTRATION_STATUS.WAITLISTED
+        eventRegistration.registrationStatus === REGISTRATION_STATUS.WAITLISTED
       ) {
         toast({
           title: "Check-in Failed",
@@ -234,7 +234,6 @@ const ProfilePage = ({
   };
 
   useEffect(() => {
-
     const initializeCheckInAvailability = async () => {
       try {
         const currentUser = await fetchBackend({
@@ -267,7 +266,7 @@ const ProfilePage = ({
                 id: eventId,
                 year: parseInt(year),
                 endDate: eventEndTimeStr,
-                ename
+                ename,
               };
             }
           } catch (parseError) {
@@ -296,7 +295,6 @@ const ProfilePage = ({
             ename: activeEventData.ename,
           };
           setCheckInEvent(eventData);
-
         } else {
           setCheckInEvent(null);
         }
@@ -361,6 +359,8 @@ const ProfilePage = ({
     profilePictureURL,
     additionalLink,
     description,
+    company,
+    position,
   } = profileData;
 
   const questions = [funQuestion1, funQuestion2].filter((q) => {
@@ -429,13 +429,15 @@ const ProfilePage = ({
               />
             </div>
 
-            {(checkInEvent && currentUser?.admin) && (
+            {checkInEvent && currentUser?.admin && (
               <div className="flex gap-4 justify-center mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
                 <IconButton
                   icon={CheckCircle}
                   label={`Check In to ${checkInEvent.ename}`}
                   onClick={checkInUserToEvent}
-                  disabled={hasCheckedIn/* Avoid prompting to check-in right after checking in */}
+                  disabled={
+                    hasCheckedIn /* Avoid prompting to check-in right after checking in */
+                  }
                 />
               </div>
             )}
@@ -467,21 +469,41 @@ const ProfilePage = ({
               )}
 
               <div className="space-y-3">
-                <DisplayUserField
-                  icon={IdCardLanyard}
-                  fieldName="Pronouns"
-                  fieldValue={pronouns}
-                />
-                <DisplayUserField
-                  icon={GraduationCap}
-                  fieldName="Major"
-                  fieldValue={major}
-                />
-                <DisplayUserField
-                  icon={Calendar}
-                  fieldName="Year"
-                  fieldValue={year}
-                />
+                {pronouns && (
+                  <DisplayUserField
+                    icon={IdCardLanyard}
+                    fieldName="Pronouns"
+                    fieldValue={pronouns}
+                  />
+                )}
+                {major && (
+                  <DisplayUserField
+                    icon={GraduationCap}
+                    fieldName="Major"
+                    fieldValue={major}
+                  />
+                )}
+                {year && (
+                  <DisplayUserField
+                    icon={Calendar}
+                    fieldName="Year"
+                    fieldValue={year}
+                  />
+                )}
+                {company && (
+                  <DisplayUserField
+                    icon={Building}
+                    fieldName="Company"
+                    fieldValue={company}
+                  />
+                )}
+                {position && (
+                  <DisplayUserField
+                    icon={BriefcaseBusiness}
+                    fieldName="Position"
+                    fieldValue={position}
+                  />
+                )}
               </div>
             </div>
           </GenericCardNFC>
@@ -595,10 +617,10 @@ export const getServerSideProps: GetServerSideProps = async ({
       redirect:
         isConnected && query && query.scan === "true"
           ? {
-            destination: `/profile/${humanId}`,
-            permanent: false,
-            query: undefined,
-          }
+              destination: `/profile/${humanId}`,
+              permanent: false,
+              query: undefined,
+            }
           : undefined,
     };
   } catch (error) {
