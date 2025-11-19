@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { TrendingUp, TrendingDown, ArrowUpRight, MessageSquare } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  MessageSquare,
+} from "lucide-react";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -136,7 +141,7 @@ export default function InvestmentsPage() {
 
   const selectedTeam = useMemo(
     () => mockTeams.find((team) => team.id === selectedTeamId) || mockTeams[0],
-    [selectedTeamId]
+    [selectedTeamId],
   );
 
   const formatCurrency = (value: number) => {
@@ -212,13 +217,15 @@ export default function InvestmentsPage() {
                   <div
                     className="pointer-events-none absolute inset-y-0 right-0 w-3"
                     style={{
-                      background: "linear-gradient(to right, rgba(17,17,17,0), #111111)",
+                      background:
+                        "linear-gradient(to right, rgba(17,17,17,0), #111111)",
                     }}
                   />
                   <div
                     className="pointer-events-none absolute inset-x-0 top-0 h-3"
                     style={{
-                      background: "linear-gradient(to bottom, rgba(17,17,17,0), #111111)",
+                      background:
+                        "linear-gradient(to bottom, rgba(17,17,17,0), #111111)",
                     }}
                   />
                   <LineChart
@@ -236,7 +243,10 @@ export default function InvestmentsPage() {
                       tickMargin={8}
                       tickFormatter={formatTime}
                       tick={{ fill: "#FFFFFF", fontSize: 12 }}
-                      axisLine={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1 }}
+                      axisLine={{
+                        stroke: "rgba(255,255,255,0.25)",
+                        strokeWidth: 1,
+                      }}
                       tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
                     />
                     <YAxis
@@ -249,7 +259,10 @@ export default function InvestmentsPage() {
                         return value.toString();
                       }}
                       tick={{ fill: "#FFFFFF", fontSize: 12 }}
-                      axisLine={{ stroke: "rgba(255,255,255,0.25)", strokeWidth: 1 }}
+                      axisLine={{
+                        stroke: "rgba(255,255,255,0.25)",
+                        strokeWidth: 1,
+                      }}
                       tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
                     />
                     <ChartTooltip
@@ -272,7 +285,9 @@ export default function InvestmentsPage() {
           <div className="col-span-12 lg:col-span-4 flex flex-col gap-6 h-full overflow-hidden">
             <Card className="bg-[#201F1E] rounded-none border border-[#2A2A2A] flex-shrink-0">
               <CardHeader className="pb-6">
-                <CardTitle className="text-lg font-light">Other Activity</CardTitle>
+                <CardTitle className="text-lg font-light">
+                  Other Activity
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
@@ -284,10 +299,10 @@ export default function InvestmentsPage() {
                       <button
                         key={team.id}
                         onClick={() => setSelectedTeamId(team.id)}
-                      className={`w-full p-3 transition-all text-left border ${
+                        className={`w-full p-3 transition-all text-left border ${
                           isSelected
-                          ? "bg-[#363533] border-[#5A5A58]"
-                          : "bg-[#363533] hover:bg-[#111111] border-transparent"
+                            ? "bg-[#363533] border-[#5A5A58]"
+                            : "bg-[#363533] hover:bg-[#111111] border-transparent"
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -376,4 +391,3 @@ export default function InvestmentsPage() {
     </div>
   );
 }
-
