@@ -103,7 +103,8 @@ const CompanionHome: React.FC<CompanionHomeProps> = ({ ChildComponent }) => {
   return (
     <NavBarContainer
       isPartner={userRegistration?.isPartner}
-      userName={`${userRegistration?.basicInformation?.fname} ${userRegistration?.basicInformation?.lname}`}
+      userName={`${userRegistration?.fname} ${userRegistration?.lname}`}
+      hide={true}
     >
       <ChildComponent />
     </NavBarContainer>
