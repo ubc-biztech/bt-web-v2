@@ -320,7 +320,7 @@ const BtxPage: React.FC = () => {
 
     loadLeaderboard();
 
-    const intervalId = setInterval(loadLeaderboard, 30000);
+    const intervalId = setInterval(loadLeaderboard, 5000);
 
     return () => {
       cancelled = true;
