@@ -559,7 +559,6 @@ const BtxPage: React.FC = () => {
               },
             ];
 
-    // Always sort first so we can safely use the last timestamp
     points = points.slice().sort((a, b) => a.ts - b.ts);
 
     if (timeframe !== "ALL" && points.length > 1) {
@@ -567,11 +566,28 @@ const BtxPage: React.FC = () => {
       const cutoff = lastTs - TIMEFRAME_MS[timeframe];
       const filtered = points.filter((pt) => pt.ts >= cutoff);
 
-      // only narrow to the window if we actually have a reasonable series
       if (filtered.length >= 2) {
         points = filtered;
       }
-      // else: keep all points so the chart doesn't collapse to a dot
+    }
+
+    let maxPoints = 0;
+    if (timeframe === "4H") maxPoints = 200;
+    else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 250;
+
+    if (maxPoints > 0 && points.length > maxPoints) {
+      const bucketSize = Math.ceil(points.length / maxPoints);
+      const bucketed: { ts: number; value: number }[] = [];
+
+      for (let i = 0; i < points.length; i += bucketSize) {
+        const bucket = points.slice(i, i + bucketSize);
+        const avgTs = bucket.reduce((sum, p) => sum + p.ts, 0) / bucket.length;
+        const avgPrice =
+          bucket.reduce((sum, p) => sum + p.price, 0) / bucket.length;
+        bucketed.push({ ts: avgTs, value: avgPrice });
+      }
+
+      return bucketed;
     }
 
     const shouldCoalesce =
@@ -854,7 +870,7 @@ const BtxPage: React.FC = () => {
       <div
         className={`${bricolageGrotesque.className} min-h-screen bg-[#111111] text-white w-full overflow-x-hidden`}
       >
-        <div className="max-w-7xl mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="max-w-[92rem] mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-2">
           {/* HEADER: title + live price + portfolio snapshot + market stats */}
           <section className="mb-4 flex-shrink-0 rounded-xl border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#111111] to-[#161616] px-4 py-3 sm:px-5 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.9)]">
             {/* Top row: project + portfolio */}

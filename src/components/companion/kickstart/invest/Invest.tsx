@@ -238,6 +238,7 @@ const Invest = ({
     setIsSubmitting(true);
     setFlowError(null);
     try {
+      // 1. first investment in investments service
       await fetchBackend({
         endpoint: `/investments/invest`,
         method: "POST",
@@ -249,6 +250,21 @@ const Invest = ({
         },
         authenticatedCall: true,
       });
+
+      // 2. nudge the BTX price for the corresponding project
+      try {
+        await fetchBackend({
+          endpoint: "/btx/admin/investment-impact",
+          method: "POST",
+          data: {
+            teamId: selectedTeam.id,
+            amountDelta: confirmedAmount,
+          },
+          authenticatedCall: true,
+        });
+      } catch (e) {
+        console.error("Failed to apply BTX investment impact:", e);
+      }
 
       const newBalance = (userRegistration?.balance ?? 0) - confirmedAmount;
       setSuccessInfo({
