@@ -35,8 +35,8 @@ const InvestmentCard = ({ investment }: { investment: RawInvestment }) => {
           <span className="text-white text-[28px] font-semibold tracking-tight lowercase">
             {investment.teamName}
           </span>
-          <div className="border border-[#95FF77] bg-[#95FF771A] rounded-full px-4 py-1 flex items-center justify-center">
-            <span className="text-[#95FF77] text-[16px] font-medium tracking-tight">
+          <div className="border border-[#FFA601] bg-[#FFA601]/10 rounded-full px-4 py-1 flex items-center justify-center">
+            <span className="text-[#FFA601] text-[16px] font-medium tracking-tight">
               {formatAmount(investment.amount)}
             </span>
           </div>
