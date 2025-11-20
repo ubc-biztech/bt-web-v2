@@ -12,7 +12,7 @@ import {
   Line,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
-import type { RawInvestment } from "../invest/investmentsGrid/InvestmentCard";
+import { RawInvestment } from "../../invest/investmentsGrid/InvestmentCard";
 
 interface ChartData {
   time: string;
