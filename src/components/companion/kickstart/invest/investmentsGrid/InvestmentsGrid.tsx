@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { GlowButton } from "../../ui/GlowButton";
 import InvestmentCard, { RawInvestment } from "./InvestmentCard";
@@ -15,15 +15,17 @@ const InvestmentsGrid = ({
   onClickInvest,
 }: InvestmentsGridProps) => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [columns, setColumns] = useState<number>(3);
 
   // Sort investments by recency (most recent first)
   const sortedInvestments = useMemo(() => {
     return [...investments].sort((a, b) => b.createdAt - a.createdAt);
   }, [investments]);
 
+  // Use fixed column count (3) for pagination calculations
+  // The grid itself uses Tailwind responsive classes: grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
   const ROWS_PER_PAGE = 3;
-  const itemsPerPage = ROWS_PER_PAGE * columns;
+  const COLUMNS = 3; // Matches lg:grid-cols-3 breakpoint
+  const itemsPerPage = ROWS_PER_PAGE * COLUMNS;
   const totalPages = Math.ceil(sortedInvestments.length / itemsPerPage);
   const clampedPage =
     currentPage >= totalPages ? Math.max(totalPages - 1, 0) : currentPage;
@@ -39,27 +41,6 @@ const InvestmentsGrid = ({
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
   };
-
-  // Detect screen size to calculate columns
-  useEffect(() => {
-    const updateColumns = () => {
-      const width = window.innerWidth;
-      if (width >= 1024) {
-        // lg breakpoint - 3 columns
-        setColumns(3);
-      } else if (width >= 640) {
-        // sm breakpoint - 2 columns
-        setColumns(2);
-      } else {
-        // mobile - 1 column
-        setColumns(1);
-      }
-    };
-
-    updateColumns();
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, []);
 
   return (
     <div className="w-[90%] flex flex-col pb-20">
