@@ -24,7 +24,7 @@ const CommentsModal = ({ investments, setModal }: CommentsModalProps) => {
       <div className="w-full p-6 relative bg-[#201F1E] rounded-md">
         <div className="flex flex-row justify-between">
           <h2 className="text-white text-lg mb-4 font-normal">
-            Recent Investments
+            Recent Funding
           </h2>
           <div
             onClick={() => {
