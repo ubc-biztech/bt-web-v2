@@ -92,7 +92,9 @@ export default function Recent({
             <TrendingUp className="w-8 h-8 text-[#8C8C8C]" />
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
-            <span className="text-[16px] text-[#B4B4B4]">No investments received yet</span>
+            <span className="text-[16px] text-[#B4B4B4]">
+              No investments received yet
+            </span>
             <span className="text-[14px] text-[#8C8C8C] text-center">
               Your first investment will appear here
             </span>
