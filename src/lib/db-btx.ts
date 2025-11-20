@@ -88,11 +88,11 @@ function shouldUseLocalBtx(): boolean {
   const useLocal = isLocalHost;
 
   // eslint-disable-next-line no-console
-  console.log("[BTX] shouldUseLocalBtx =", {
-    host,
-    isLocalHost,
-    useLocal,
-  });
+  //   console.log("[BTX] shouldUseLocalBtx =", {
+  //     host,
+  //     isLocalHost,
+  //     useLocal,
+  //   });
 
   return useLocal;
 }
@@ -101,7 +101,7 @@ async function btxLocalFetch(path: string, options: RequestInit): Promise<any> {
   const url = `${LOCAL_BTX_BASE}${path}`;
 
   // eslint-disable-next-line no-console
-  console.log("[BTX] local fetch →", url, options);
+  //console.log("[BTX] local fetch →", url, options);
 
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -247,7 +247,7 @@ export async function btxBuyShares(
   const payload = { projectId, shares };
 
   const useLocal = shouldUseLocalBtx();
-  console.log("[BTX] btxBuyShares useLocal =", useLocal);
+  //console.log("[BTX] btxBuyShares useLocal =", useLocal);
 
   if (useLocal) {
     const json = await btxLocalFetch("/btx/market/buy", {
@@ -255,11 +255,11 @@ export async function btxBuyShares(
       body: JSON.stringify(payload),
     });
 
-    console.log("[BTX] btxLocalFetch BUY response", json);
+    //console.log("[BTX] btxLocalFetch BUY response", json);
     return json.data as BtxTradeResult;
   }
 
-  console.log("[BTX] btxBuyShares using fetchBackend to", "/btx/market/buy");
+  //console.log("[BTX] btxBuyShares using fetchBackend to", "/btx/market/buy");
 
   const res = await fetchBackend({
     endpoint: "/btx/market/buy",
@@ -268,7 +268,7 @@ export async function btxBuyShares(
     authenticatedCall: true,
   });
 
-  console.log("[BTX] fetchBackend BUY response", res);
+  //console.log("[BTX] fetchBackend BUY response", res);
 
   return res.data as BtxTradeResult;
 }
