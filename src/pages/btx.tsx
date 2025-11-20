@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import {
   TrendingUp,
@@ -35,6 +35,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/btx-chart";
+import { fetchBackend } from "@/lib/db";
 
 const EVENT_ID = "kickstart";
 
@@ -143,6 +144,21 @@ const PRICE_SENSITIVITY_PER_SHARE = 0.02;
 const TRANSACTION_FEE_BPS = 200; // 2%
 const MIN_PRICE = 0.5;
 
+type TeamInvestment = {
+  id: string;
+  investorId: string;
+  investorName: string;
+  amount: number;
+  comment: string;
+  isPartner?: boolean;
+  createdAt: number;
+};
+
+type TeamStatus = {
+  funding: number;
+  investments: TeamInvestment[];
+};
+
 // Timeframe handling
 
 type TimeframeKey = "1M" | "5M" | "15M" | "1H" | "4H" | "1D" | "ALL";
@@ -237,6 +253,10 @@ const BtxPage: React.FC = () => {
   const [tradeError, setTradeError] = useState<string | null>(null);
   const [tradeSuccess, setTradeSuccess] = useState<string | null>(null);
 
+  const [teamStatus, setTeamStatus] = useState<TeamStatus | null>(null);
+  const [loadingTeamStatus, setLoadingTeamStatus] = useState(false);
+  const [teamStatusError, setTeamStatusError] = useState<string | null>(null);
+
   const [timeframe, setTimeframe] = useState<TimeframeKey>("15M");
 
   // market board controls
@@ -245,6 +265,50 @@ const BtxPage: React.FC = () => {
   const [sortKey, setSortKey] = useState<MarketSortKey>("CHANGE");
 
   const headerProject = selectedProject || projects[0] || null;
+
+  useEffect(() => {
+    if (!headerProject?.projectId) {
+      setTeamStatus(null);
+      setTeamStatusError(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadTeamStatus = async () => {
+      setLoadingTeamStatus(true);
+      setTeamStatusError(null);
+
+      try {
+        const res = await fetchBackend({
+          endpoint: `/investments/teamStatus/${headerProject.projectId}`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+
+        if (!cancelled) {
+          setTeamStatus(res as TeamStatus);
+        }
+      } catch (err: any) {
+        console.error("[BTX] teamStatus fetch error", err);
+        if (!cancelled) {
+          setTeamStatusError(
+            "Couldn’t load Kickstart investments for this team.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingTeamStatus(false);
+        }
+      }
+    };
+
+    loadTeamStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [headerProject?.projectId]);
 
   const projectMap = useMemo(() => {
     const map = new Map<string, (typeof projects)[0]>();
@@ -572,8 +636,9 @@ const BtxPage: React.FC = () => {
     }
 
     let maxPoints = 0;
-    if (timeframe === "4H") maxPoints = 200;
-    else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 250;
+    if (timeframe === "1H") maxPoints = 60;
+    if (timeframe === "4H") maxPoints = 120;
+    else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 240;
 
     if (maxPoints > 0 && points.length > maxPoints) {
       const bucketSize = Math.ceil(points.length / maxPoints);
@@ -1426,6 +1491,7 @@ const BtxPage: React.FC = () => {
                         </div>
 
                         {/* Project fundamentals */}
+                        {/* Project fundamentals */}
                         <div className="w-full lg:w-[280px] rounded-xl border border-[#343331] bg-[#151515] px-3 py-3 sm:px-4 sm:py-4 text-[11px] text-slate-300 space-y-3">
                           <div className="flex items-start justify-between gap-2">
                             <div>
@@ -1492,6 +1558,92 @@ const BtxPage: React.FC = () => {
                                 {headerTimeframeChange.pct.toFixed(2)}%
                               </div>
                             </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-[#2b2a28] space-y-2">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                                Kickstart investments
+                              </span>
+                              {loadingTeamStatus ? (
+                                <span className="text-[10px] text-slate-500">
+                                  Loading…
+                                </span>
+                              ) : teamStatus ? (
+                                <span className="font-mono text-[11px] text-slate-100">
+                                  {formatCurrency(teamStatus.funding)} total
+                                </span>
+                              ) : null}
+                            </div>
+
+                            {teamStatusError && (
+                              <p className="text-[10px] text-red-300">
+                                {teamStatusError}
+                              </p>
+                            )}
+
+                            {teamStatus &&
+                              teamStatus.investments.length > 0 && (
+                                <div className="space-y-1.5 max-h-28 overflow-y-auto pr-1">
+                                  {teamStatus.investments
+                                    .slice(0, 3)
+                                    .map((inv) => (
+                                      <div
+                                        key={inv.id}
+                                        className="rounded-md border border-[#2b2a28] bg-[#191817] px-2.5 py-1.5"
+                                      >
+                                        <div className="flex items-center justify-between gap-2">
+                                          <div className="flex items-center gap-2 min-w-0">
+                                            <span className="font-mono text-[11px] text-slate-100 truncate">
+                                              {inv.investorName ||
+                                                inv.investorId}
+                                            </span>
+                                            {inv.isPartner && (
+                                              <span className="text-[9px] uppercase tracking-[0.16em] rounded-full bg-amber-900/60 text-amber-200 px-1.5 py-0.5">
+                                                Partner
+                                              </span>
+                                            )}
+                                          </div>
+                                          <span className="font-mono text-[11px] text-bt-green-300">
+                                            +{formatCurrencyShort(inv.amount)}
+                                          </span>
+                                        </div>
+                                        {inv.comment && (
+                                          <p className="mt-0.5 text-[10px] text-slate-400 line-clamp-2">
+                                            “{inv.comment}”
+                                          </p>
+                                        )}
+                                        <p className="mt-0.5 text-[9px] text-slate-500">
+                                          {new Date(
+                                            inv.createdAt,
+                                          ).toLocaleTimeString([], {
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                          })}
+                                        </p>
+                                      </div>
+                                    ))}
+
+                                  {teamStatus.investments.length > 3 && (
+                                    <p className="text-[9px] text-slate-500">
+                                      + {teamStatus.investments.length - 3} more
+                                      investment
+                                      {teamStatus.investments.length - 3 === 1
+                                        ? ""
+                                        : "s"}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                            {!loadingTeamStatus &&
+                              teamStatus &&
+                              teamStatus.investments.length === 0 && (
+                                <p className="text-[10px] text-slate-500">
+                                  No Kickstart investments yet — this team is
+                                  still waiting for its first backers.
+                                </p>
+                              )}
                           </div>
 
                           {headerProject.description && (
