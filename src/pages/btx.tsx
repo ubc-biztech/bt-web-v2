@@ -159,6 +159,29 @@ type TeamStatus = {
   investments: TeamInvestment[];
 };
 
+type TraderStat = {
+  userId: string;
+  equityValue: number;
+  totalPnl: number;
+  totalValue: number;
+  returnPct: number;
+  cashBalance: number;
+  initialBalance: number;
+  positionsCount: number;
+};
+
+type TraderLeaderboard = {
+  traders: number;
+  top: TraderStat[];
+  bottom: TraderStat[];
+};
+
+const formatUserLabel = (userId: string) => {
+  if (!userId) return "Unknown";
+  const [name] = userId.split("@");
+  return name || userId;
+};
+
 // Timeframe handling
 
 type TimeframeKey = "1M" | "5M" | "15M" | "1H" | "4H" | "1D" | "ALL";
@@ -256,6 +279,49 @@ const BtxPage: React.FC = () => {
   const [teamStatus, setTeamStatus] = useState<TeamStatus | null>(null);
   const [loadingTeamStatus, setLoadingTeamStatus] = useState(false);
   const [teamStatusError, setTeamStatusError] = useState<string | null>(null);
+
+  const [leaderboard, setLeaderboard] = useState<TraderLeaderboard | null>(
+    null,
+  );
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadLeaderboard = async () => {
+      setLoadingLeaderboard(true);
+      setLeaderboardError(null);
+
+      try {
+        const res = await fetchBackend({
+          endpoint: `/btx/leaderboard?eventId=${EVENT_ID}`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+
+        if (cancelled) return;
+
+        const payload = res as { data: TraderLeaderboard };
+        setLeaderboard(payload.data);
+      } catch (err) {
+        console.error("[BTX] leaderboard fetch error", err);
+        if (!cancelled) {
+          setLeaderboardError("Couldn’t load trader leaderboard.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingLeaderboard(false);
+        }
+      }
+    };
+
+    loadLeaderboard();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const [timeframe, setTimeframe] = useState<TimeframeKey>("15M");
 
@@ -2516,6 +2582,186 @@ const BtxPage: React.FC = () => {
                       </div>
                     </>
                   ) : null}
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#201F1E] rounded-none border border-[#2A2A2A]">
+                <CardHeader className="pb-4 space-y-2 border-b border-[#2A2A2A] bg-[#181716]">
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-lg font-light tracking-[0.18em] uppercase text-slate-100">
+                      Trader leaderboard
+                    </CardTitle>
+
+                    {leaderboard && (
+                      <div className="text-right text-[10px] text-slate-500">
+                        <div className="uppercase tracking-[0.16em]">
+                          {leaderboard.traders} active trader
+                          {leaderboard.traders === 1 ? "" : "s"}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-slate-500">
+                    Ranked by total BTX P&amp;L (cash + equity vs starting
+                    balance).
+                  </p>
+                </CardHeader>
+
+                <CardContent className="pt-3">
+                  {loadingLeaderboard && !leaderboard ? (
+                    <div className="text-[11px] text-slate-400">
+                      Loading leaderboard…
+                    </div>
+                  ) : leaderboardError ? (
+                    <div className="text-[11px] text-red-300">
+                      {leaderboardError}
+                    </div>
+                  ) : !leaderboard ||
+                    (leaderboard.top.length === 0 &&
+                      leaderboard.bottom.length === 0) ? (
+                    <div className="text-[11px] text-slate-400">
+                      No trading activity yet. Once people start trading, the
+                      leaderboard will light up.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Top traders */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] uppercase tracking-[0.16em] text-emerald-200">
+                            Top traders
+                          </span>
+                          <span className="text-[10px] text-slate-500">
+                            Best total P&amp;L
+                          </span>
+                        </div>
+
+                        {leaderboard.top.map((t, idx) => {
+                          const positive = t.totalPnl >= 0;
+
+                          return (
+                            <div
+                              key={`top-${t.userId}`}
+                              className="flex items-center gap-2 rounded-lg border border-emerald-600/40 bg-gradient-to-r from-emerald-900/40 via-[#141414] to-transparent px-2.5 py-2 shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
+                            >
+                              <div className="flex flex-col items-center justify-center w-6 text-[10px] text-emerald-200 font-mono">
+                                #{idx + 1}
+                              </div>
+                              <Avatar className="h-8 w-8 flex-shrink-0">
+                                <AvatarFallback className="bg-emerald-300/90 text-emerald-900">
+                                  {getInitials(t.userId)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="truncate text-[12px] text-slate-100">
+                                    {formatUserLabel(t.userId)}
+                                  </p>
+                                  <span
+                                    className={`font-mono text-xs ${
+                                      positive
+                                        ? "text-bt-green-300"
+                                        : "text-bt-red-300"
+                                    }`}
+                                  >
+                                    {positive ? "+" : ""}
+                                    {formatCurrencyShort(t.totalPnl)}
+                                  </span>
+                                </div>
+                                <div className="mt-0.5 flex items-center justify-between gap-2 text-[10px] text-slate-400">
+                                  <span>
+                                    Return{" "}
+                                    <span
+                                      className={
+                                        positive
+                                          ? "text-bt-green-300"
+                                          : "text-bt-red-300"
+                                      }
+                                    >
+                                      {positive ? "+" : ""}
+                                      {t.returnPct.toFixed(1)}%
+                                    </span>
+                                  </span>
+                                  <span className="font-mono text-[10px] text-slate-400">
+                                    {t.positionsCount} pos ·{" "}
+                                    {formatCurrencyShort(t.totalValue)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Lowest traders */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] uppercase tracking-[0.16em] text-red-200">
+                            Most underwater
+                          </span>
+                          <span className="text-[10px] text-slate-500">
+                            Lowest total P&amp;L
+                          </span>
+                        </div>
+
+                        {leaderboard.bottom.map((t, idx) => {
+                          const positive = t.totalPnl >= 0;
+
+                          return (
+                            <div
+                              key={`bottom-${t.userId}`}
+                              className="flex items-center gap-2 rounded-lg border border-red-600/40 bg-gradient-to-r from-red-900/40 via-[#141414] to-transparent px-2.5 py-2 shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
+                            >
+                              <div className="flex flex-col items-center justify-center w-6 text-[10px] text-red-200 font-mono">
+                                #{idx + 1}
+                              </div>
+                              <Avatar className="h-8 w-8 flex-shrink-0">
+                                <AvatarFallback className="bg-red-300/90 text-red-900">
+                                  {getInitials(t.userId)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <p className="truncate text-[12px] text-slate-100">
+                                    {formatUserLabel(t.userId)}
+                                  </p>
+                                  <span
+                                    className={`font-mono text-xs ${
+                                      positive
+                                        ? "text-bt-green-300"
+                                        : "text-bt-red-300"
+                                    }`}
+                                  >
+                                    {positive ? "+" : ""}
+                                    {formatCurrencyShort(t.totalPnl)}
+                                  </span>
+                                </div>
+                                <div className="mt-0.5 flex items-center justify-between gap-2 text-[10px] text-slate-400">
+                                  <span>
+                                    Return{" "}
+                                    <span
+                                      className={
+                                        positive
+                                          ? "text-bt-green-300"
+                                          : "text-bt-red-300"
+                                      }
+                                    >
+                                      {positive ? "+" : ""}
+                                      {t.returnPct.toFixed(1)}%
+                                    </span>
+                                  </span>
+                                  <span className="font-mono text-[10px] text-slate-400">
+                                    {t.positionsCount} pos ·{" "}
+                                    {formatCurrencyShort(t.totalValue)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
