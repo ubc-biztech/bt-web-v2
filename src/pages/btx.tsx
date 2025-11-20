@@ -702,6 +702,7 @@ const BtxPage: React.FC = () => {
     }
 
     let maxPoints = 0;
+    if (timeframe === "15M") maxPoints = 60;
     if (timeframe === "1H") maxPoints = 60;
     if (timeframe === "4H") maxPoints = 120;
     else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 240;
