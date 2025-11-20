@@ -1357,7 +1357,7 @@ const BtxPage: React.FC = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="font-light flex flex-col gap-5 sm:gap-6">
+                <CardContent className="font-light flex flex-col gap-5 sm:gap-4">
                   {headerProject ? (
                     <>
                       {/* POSITION + PROJECT SNAPSHOT */}
@@ -1662,7 +1662,7 @@ const BtxPage: React.FC = () => {
                       </div>
 
                       {/* TRADE TICKET */}
-                      <div className="mt-3 border-t border-[#3A3938] pt-3 sm:pt-4">
+                      <div className="border-t border-[#3A3938] pt-3 sm:pt-4">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex flex-col">
