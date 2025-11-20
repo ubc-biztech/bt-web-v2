@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Maximize2, MessageSquareText } from "lucide-react";
+import { Maximize2, MessageSquareText, TrendingUp } from "lucide-react";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -43,38 +43,64 @@ export default function Recent({
   investments: Investment[] | null;
   setModal: (arg0: boolean) => void;
 }) {
+  const hasInvestments = investments && investments.length > 0;
+
   return (
-    <div className="w-full h-2/3 bg-[#201F1E] rounded-sm text-white p-6 flex flex-col overflow-y-clip">
+    <div className="w-full sm:h-2/3 h-84 bg-[#201F1E] rounded-sm text-white p-6 flex flex-col overflow-y-clip">
       <div className="flex flex-row items-center justify-between">
         <span className="text-[24px]">Recent Investments</span>
-        <div
-          onClick={() => {
-            setModal(true);
-          }}
-          className="group w-8 h-8 bg-[#333333] flex flex-row items-center justify-center rounded-sm hover:cursor-pointer"
-        >
-          <Maximize2 className="text-[#B4B4B4] hover:text-white size-5 group-hover:scale-105 transition ease-in-out duration-200" />
-        </div>
-      </div>
-      <motion.div
-        className="h-full flex flex-col items-center justify-start gap-2 mt-2 pt-4"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        key={investments?.length || 0} // Force re-animation when investments change
-      >
-        {investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv, idx) => (
+        {hasInvestments && (
           <div
-            key={`${inv.investorName}-${idx}`}
-            className="w-full"
             onClick={() => {
               setModal(true);
             }}
+            className="group w-8 h-8 bg-[#333333] flex flex-row items-center justify-center rounded-sm hover:cursor-pointer"
           >
-            <Investment variants={itemVariants} investment={inv} />
+            <Maximize2 className="text-[#B4B4B4] hover:text-white size-5 group-hover:scale-105 transition ease-in-out duration-200" />
           </div>
-        ))}
-      </motion.div>
+        )}
+      </div>
+
+      {hasInvestments ? (
+        <motion.div
+          className="h-full flex flex-col items-center justify-start gap-2 mt-2 pt-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          key={investments?.length || 0}
+        >
+          {investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv, idx) => (
+            <div
+              key={`${inv.investorName}-${idx}`}
+              className="w-full"
+              onClick={() => {
+                setModal(true);
+              }}
+            >
+              <Investment variants={itemVariants} investment={inv} />
+            </div>
+          ))}
+        </motion.div>
+      ) : (
+        <motion.div
+          className="h-full flex flex-col items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <div className="w-16 h-16 rounded-full bg-[#363533] flex items-center justify-center">
+            <TrendingUp className="w-8 h-8 text-[#8C8C8C]" />
+          </div>
+          <div className="flex flex-col items-center justify-center gap-1">
+            <span className="text-[16px] text-[#B4B4B4]">
+              No investments received yet
+            </span>
+            <span className="text-[14px] text-[#8C8C8C] text-center">
+              Your first investment will appear here
+            </span>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

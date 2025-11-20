@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import InvestmentPopup from "./investmentPopup";
+import InvestmentPopup from "./InvestmentPopup";
 import { formatTimestamp } from "@/lib/utils";
 
 // Types
@@ -17,14 +17,10 @@ export interface RawInvestment {
 }
 
 export const formatAmount = (amount: number): string => {
-  return `-$${Math.abs(amount)}`;
+  return `$${Math.abs(amount)}`;
 };
 
-const PartnerInvestmentCard = ({
-  investment,
-}: {
-  investment: RawInvestment;
-}) => {
+const InvestmentCard = ({ investment }: { investment: RawInvestment }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -67,4 +63,4 @@ const PartnerInvestmentCard = ({
   );
 };
 
-export default PartnerInvestmentCard;
+export default InvestmentCard;

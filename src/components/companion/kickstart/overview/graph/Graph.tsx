@@ -12,7 +12,7 @@ import {
   Line,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
-import type { RawInvestment } from "@/components/companion/kickstart/overview/Overview";
+import { RawInvestment } from "../../invest/investmentsGrid/InvestmentCard";
 
 interface ChartData {
   time: string;
@@ -44,8 +44,7 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     if (investments && investments.length > 0) {
       processInvestmentData(investments);
     } else {
-      setChartData([]);
-      setDisplayedData([]);
+      createEmptyChartData();
     }
     setLoading(false);
   }, [investments]);
@@ -53,6 +52,41 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
   useEffect(() => {
     filterDataByRange();
   }, [timeRange, chartData]);
+
+  const createEmptyChartData = () => {
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+    const currentHourTimestamp = now.getTime();
+
+    const oneHourMs = 60 * 60 * 1000;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const startTimestamp = currentHourTimestamp - oneDayMs;
+    const emptyData: ChartData[] = [];
+
+    for (let ts = startTimestamp; ts <= currentHourTimestamp; ts += oneHourMs) {
+      const date = new Date(ts);
+      const hours = date.getHours();
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      const displayTime = `${hours}:${minutes}`;
+
+      emptyData.push({
+        time: `${date.toLocaleString("en-US", { month: "short", day: "numeric" })} ${displayTime}`,
+        displayTime,
+        weekLabel: date.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
+        totalAmount: 0,
+        investmentCount: 0,
+        timestamp: ts,
+      });
+    }
+
+    setMaxValue(100);
+    setChartData(emptyData);
+    setDisplayedData(emptyData);
+  };
 
   const processInvestmentData = (rawInvestments: RawInvestment[]) => {
     const investmentsByHour: Record<number, { amount: number; count: number }> =
@@ -82,10 +116,38 @@ const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
     }
 
     const oneHourMs = 60 * 60 * 1000;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+
+    const oneDayBeforeTimestamp = minTimestamp - oneDayMs;
+    const oneHourBeforeTimestamp = minTimestamp - oneHourMs;
+
+    investmentsByHour[oneDayBeforeTimestamp] = { amount: 0, count: 0 };
+    investmentsByHour[oneHourBeforeTimestamp] = { amount: 0, count: 0 };
+    minTimestamp = oneDayBeforeTimestamp;
+
     for (let ts = minTimestamp; ts <= maxTimestamp; ts += oneHourMs) {
       if (!investmentsByHour[ts]) {
         investmentsByHour[ts] = { amount: 0, count: 0 };
       }
+    }
+
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+    const currentHourTimestamp = now.getTime();
+
+    if (currentHourTimestamp > maxTimestamp) {
+      for (
+        let ts = maxTimestamp + oneHourMs;
+        ts <= currentHourTimestamp;
+        ts += oneHourMs
+      ) {
+        investmentsByHour[ts] = {
+          amount: 0,
+          count: 0,
+        };
+      }
+
+      maxTimestamp = currentHourTimestamp;
     }
 
     const sorted = Object.entries(investmentsByHour)

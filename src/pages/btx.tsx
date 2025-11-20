@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import {
   TrendingUp,
@@ -35,6 +35,7 @@ import {
   ChartTooltipContent,
   ChartConfig,
 } from "@/components/ui/btx-chart";
+import { fetchBackend } from "@/lib/db";
 
 const EVENT_ID = "kickstart";
 
@@ -143,6 +144,21 @@ const PRICE_SENSITIVITY_PER_SHARE = 0.02;
 const TRANSACTION_FEE_BPS = 200; // 2%
 const MIN_PRICE = 0.5;
 
+type TeamInvestment = {
+  id: string;
+  investorId: string;
+  investorName: string;
+  amount: number;
+  comment: string;
+  isPartner?: boolean;
+  createdAt: number;
+};
+
+type TeamStatus = {
+  funding: number;
+  investments: TeamInvestment[];
+};
+
 // Timeframe handling
 
 type TimeframeKey = "1M" | "5M" | "15M" | "1H" | "4H" | "1D" | "ALL";
@@ -237,6 +253,10 @@ const BtxPage: React.FC = () => {
   const [tradeError, setTradeError] = useState<string | null>(null);
   const [tradeSuccess, setTradeSuccess] = useState<string | null>(null);
 
+  const [teamStatus, setTeamStatus] = useState<TeamStatus | null>(null);
+  const [loadingTeamStatus, setLoadingTeamStatus] = useState(false);
+  const [teamStatusError, setTeamStatusError] = useState<string | null>(null);
+
   const [timeframe, setTimeframe] = useState<TimeframeKey>("15M");
 
   // market board controls
@@ -245,6 +265,50 @@ const BtxPage: React.FC = () => {
   const [sortKey, setSortKey] = useState<MarketSortKey>("CHANGE");
 
   const headerProject = selectedProject || projects[0] || null;
+
+  useEffect(() => {
+    if (!headerProject?.projectId) {
+      setTeamStatus(null);
+      setTeamStatusError(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadTeamStatus = async () => {
+      setLoadingTeamStatus(true);
+      setTeamStatusError(null);
+
+      try {
+        const res = await fetchBackend({
+          endpoint: `/investments/teamStatus/${headerProject.projectId}`,
+          method: "GET",
+          authenticatedCall: true,
+        });
+
+        if (!cancelled) {
+          setTeamStatus(res as TeamStatus);
+        }
+      } catch (err: any) {
+        console.error("[BTX] teamStatus fetch error", err);
+        if (!cancelled) {
+          setTeamStatusError(
+            "Couldn’t load Kickstart investments for this team.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingTeamStatus(false);
+        }
+      }
+    };
+
+    loadTeamStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [headerProject?.projectId]);
 
   const projectMap = useMemo(() => {
     const map = new Map<string, (typeof projects)[0]>();
@@ -559,7 +623,6 @@ const BtxPage: React.FC = () => {
               },
             ];
 
-    // Always sort first so we can safely use the last timestamp
     points = points.slice().sort((a, b) => a.ts - b.ts);
 
     if (timeframe !== "ALL" && points.length > 1) {
@@ -567,11 +630,29 @@ const BtxPage: React.FC = () => {
       const cutoff = lastTs - TIMEFRAME_MS[timeframe];
       const filtered = points.filter((pt) => pt.ts >= cutoff);
 
-      // only narrow to the window if we actually have a reasonable series
       if (filtered.length >= 2) {
         points = filtered;
       }
-      // else: keep all points so the chart doesn't collapse to a dot
+    }
+
+    let maxPoints = 0;
+    if (timeframe === "1H") maxPoints = 60;
+    if (timeframe === "4H") maxPoints = 120;
+    else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 240;
+
+    if (maxPoints > 0 && points.length > maxPoints) {
+      const bucketSize = Math.ceil(points.length / maxPoints);
+      const bucketed: { ts: number; value: number }[] = [];
+
+      for (let i = 0; i < points.length; i += bucketSize) {
+        const bucket = points.slice(i, i + bucketSize);
+        const avgTs = bucket.reduce((sum, p) => sum + p.ts, 0) / bucket.length;
+        const avgPrice =
+          bucket.reduce((sum, p) => sum + p.price, 0) / bucket.length;
+        bucketed.push({ ts: avgTs, value: avgPrice });
+      }
+
+      return bucketed;
     }
 
     const shouldCoalesce =
@@ -854,7 +935,7 @@ const BtxPage: React.FC = () => {
       <div
         className={`${bricolageGrotesque.className} min-h-screen bg-[#111111] text-white w-full overflow-x-hidden`}
       >
-        <div className="max-w-7xl mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <div className="max-w-[92rem] mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-2">
           {/* HEADER: title + live price + portfolio snapshot + market stats */}
           <section className="mb-4 flex-shrink-0 rounded-xl border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#111111] to-[#161616] px-4 py-3 sm:px-5 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.9)]">
             {/* Top row: project + portfolio */}
@@ -1276,12 +1357,13 @@ const BtxPage: React.FC = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="font-light flex flex-col gap-5 sm:gap-6">
+                <CardContent className="font-light flex flex-col gap-5 sm:gap-4">
                   {headerProject ? (
                     <>
                       {/* POSITION + PROJECT SNAPSHOT */}
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
-                        <div className="flex-1 rounded-xl border border-[#343331] bg-gradient-to-br from-[#161514] via-[#181716] to-[#131211] px-3 py-3 sm:px-4 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.8)]">
+                        {/* LEFT: Your position */}
+                        <div className="flex-1 flex flex-col h-full rounded-xl border border-[#343331] bg-gradient-to-br from-[#161514] via-[#181716] to-[#131211] px-3 py-3 sm:px-4 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.8)]">
                           <div className="flex items-center justify-between gap-2 mb-3">
                             <div className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
                               Your position
@@ -1409,8 +1491,8 @@ const BtxPage: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Project fundamentals */}
-                        <div className="w-full lg:w-[280px] rounded-xl border border-[#343331] bg-[#151515] px-3 py-3 sm:px-4 sm:py-4 text-[11px] text-slate-300 space-y-3">
+                        {/* RIGHT: Project stats */}
+                        <div className="w-full lg:w-[280px] flex flex-col h-full rounded-xl border border-[#343331] bg-[#151515] px-3 py-3 sm:px-4 sm:py-4 text-[11px] text-slate-300 space-y-3">
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <div className="uppercase tracking-[0.16em] text-[10px] text-slate-400">
@@ -1479,15 +1561,108 @@ const BtxPage: React.FC = () => {
                           </div>
 
                           {headerProject.description && (
-                            <div className="pt-2 border-t border-[#2b2a28] text-[11px] text-slate-300 leading-snug line-clamp-4">
+                            <div className="pt-2 mt-1 border-t border-[#2b2a28] text-[11px] text-slate-300 leading-snug line-clamp-4">
                               {headerProject.description}
                             </div>
                           )}
                         </div>
                       </div>
 
+                      {/* KICKSTART INVESTMENTS PANEL */}
+                      <div className="rounded-xl border border-[#343331] bg-[#151515] px-3 py-3 sm:px-4 sm:py-4 text-[11px] text-slate-300 space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[10px] uppercase tracking-[0.16em] text-slate-400">
+                            Kickstart investments
+                          </span>
+                          {loadingTeamStatus ? (
+                            <span className="text-[10px] text-slate-500">
+                              Loading…
+                            </span>
+                          ) : teamStatus ? (
+                            <span className="font-mono text-[11px] text-slate-100">
+                              {formatCurrency(teamStatus.funding)} total
+                            </span>
+                          ) : null}
+                        </div>
+
+                        {teamStatusError && (
+                          <p className="text-[10px] text-red-300">
+                            {teamStatusError}
+                          </p>
+                        )}
+
+                        {loadingTeamStatus &&
+                          !teamStatus &&
+                          !teamStatusError && (
+                            <p className="text-[10px] text-slate-500">
+                              Fetching latest Kickstart investments for this
+                              team…
+                            </p>
+                          )}
+
+                        {teamStatus && teamStatus.investments.length > 0 && (
+                          <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                            {teamStatus.investments.slice(0, 3).map((inv) => (
+                              <div
+                                key={inv.id}
+                                className="rounded-md border border-[#2b2a28] bg-[#191817] px-2.5 py-1.5"
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <span className="font-mono text-[11px] text-slate-100 truncate">
+                                      {inv.investorName || inv.investorId}
+                                    </span>
+                                    {inv.isPartner && (
+                                      <span className="text-[9px] uppercase tracking-[0.16em] rounded-full bg-amber-900/60 text-amber-200 px-1.5 py-0.5">
+                                        Partner
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-mono text-[11px] text-bt-green-300">
+                                    +{formatCurrencyShort(inv.amount)}
+                                  </span>
+                                </div>
+                                {inv.comment && (
+                                  <p className="mt-0.5 text-[10px] text-slate-400 line-clamp-2">
+                                    “{inv.comment}”
+                                  </p>
+                                )}
+                                <p className="mt-0.5 text-[9px] text-slate-500">
+                                  {new Date(inv.createdAt).toLocaleTimeString(
+                                    [],
+                                    {
+                                      hour: "numeric",
+                                      minute: "2-digit",
+                                    },
+                                  )}
+                                </p>
+                              </div>
+                            ))}
+
+                            {teamStatus.investments.length > 3 && (
+                              <p className="text-[9px] text-slate-500">
+                                + {teamStatus.investments.length - 3} more
+                                investment
+                                {teamStatus.investments.length - 3 === 1
+                                  ? ""
+                                  : "s"}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {!loadingTeamStatus &&
+                          teamStatus &&
+                          teamStatus.investments.length === 0 && (
+                            <p className="text-[10px] text-slate-500">
+                              No Kickstart investments yet — this team is still
+                              waiting for its first backers.
+                            </p>
+                          )}
+                      </div>
+
                       {/* TRADE TICKET */}
-                      <div className="mt-3 border-t border-[#3A3938] pt-3 sm:pt-4">
+                      <div className="border-t border-[#3A3938] pt-3 sm:pt-4">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex flex-col">
