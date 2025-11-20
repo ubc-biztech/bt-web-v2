@@ -286,14 +286,16 @@ const BtxPage: React.FC = () => {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
 
+  const [leaderboardReloadKey, setLeaderboardReloadKey] = useState(0);
+
   useEffect(() => {
     let cancelled = false;
 
     const loadLeaderboard = async () => {
-      setLoadingLeaderboard(true);
-      setLeaderboardError(null);
-
       try {
+        setLoadingLeaderboard(true);
+        setLeaderboardError(null);
+
         const res = await fetchBackend({
           endpoint: `/btx/leaderboard?eventId=${EVENT_ID}`,
           method: "GET",
@@ -318,10 +320,13 @@ const BtxPage: React.FC = () => {
 
     loadLeaderboard();
 
+    const intervalId = setInterval(loadLeaderboard, 30000);
+
     return () => {
       cancelled = true;
+      clearInterval(intervalId);
     };
-  }, []);
+  }, [leaderboardReloadKey]);
 
   const [timeframe, setTimeframe] = useState<TimeframeKey>("15M");
 
@@ -879,9 +884,11 @@ const BtxPage: React.FC = () => {
         setTradeSuccess(
           `Bought ${parsed} share(s) of ${headerProject.ticker}.`,
         );
+        setLeaderboardReloadKey((k) => k + 1);
       } else {
         await sellShares(headerProject.projectId, parsed);
         setTradeSuccess(`Sold ${parsed} share(s) of ${headerProject.ticker}.`);
+        setLeaderboardReloadKey((k) => k + 1);
       }
     } catch (err: any) {
       console.error("[BTX] trade error", err);
