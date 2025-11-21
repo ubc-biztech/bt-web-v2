@@ -1,23 +1,19 @@
-import { fetchBackendFromServer, fetchBackend } from "@/lib/db";
-import { fetchUserAttributes } from "@aws-amplify/auth/server";
+import { fetchBackendFromServer } from "@/lib/db";
 import { GetServerSideProps } from "next";
-import { runWithAmplifyServerContext } from "@/util/amplify-utils";
-import { Registration } from "@/types/types";
 import { BiztechEvent, User } from "@/types";
 import HeaderCard from "@/components/ProfilePage/HeaderCard";
 import AttributesCard from "@/components/ProfilePage/AttributesCard";
+import SuggestedConnectionsCard from "@/components/ProfilePage/SuggestedConnectionsCard";
+import SuggestedConnectionsSection from "@/components/ProfilePage/SuggestedConnectionsSection";
 
 interface ProfilePageProps {
   profileData: User;
-  events: BiztechEvent[];
+  events?: BiztechEvent[];
   error?: string;
+  suggestions: any[];
 }
 
-export default function ProfilePage({
-  profileData,
-  events,
-  error,
-}: ProfilePageProps) {
+export default function ProfilePage({ profileData, error }: ProfilePageProps) {
   if (error) {
     return (
       <div className="text-bt-red-200 text-center">
@@ -43,6 +39,8 @@ export default function ProfilePage({
       />
       <div className="grid grid-cols-1 gap-4 w-full">
         <AttributesCard profileData={profileData} userRole={userRole} />
+        {/* Load suggestions after page paint */}
+        <SuggestedConnectionsSection />
       </div>
     </div>
   );
@@ -59,11 +57,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       nextServerContext,
     });
 
-    return {
-      props: {
-        profileData,
-      },
-    };
+    return { props: { profileData } };
   } catch (error) {
     console.error("Error in getServerSideProps:", error);
     return {
