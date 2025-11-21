@@ -27,6 +27,8 @@ const DIETARY_RESTRICTION_MAPPING: Record<string, string> = {
 
 const ACCEPTED_STATUSES = [
   DBRegistrationStatus.ACCEPTED,
+  DBRegistrationStatus.ACCEPTED_COMPLETE,
+  DBRegistrationStatus.ACCEPTED_PENDING,
   DBRegistrationStatus.REGISTERED,
   DBRegistrationStatus.CHECKED_IN,
 ];
