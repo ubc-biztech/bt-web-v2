@@ -330,10 +330,6 @@ const BtxPage: React.FC = () => {
 
   const [timeframe, setTimeframe] = useState<TimeframeKey>("15M");
 
-  const [chartWindowAnchors, setChartWindowAnchors] = useState<
-    Record<string, Partial<Record<TimeframeKey, number>>>
-  >({});
-
   // market board controls
   const [searchQuery, setSearchQuery] = useState("");
   const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL");
@@ -701,12 +697,8 @@ const BtxPage: React.FC = () => {
     points = points.slice().sort((a, b) => a.ts - b.ts);
 
     if (timeframe !== "ALL" && points.length > 1) {
-      const anchor = chartWindowAnchors[headerProject.projectId]?.[timeframe];
-
       const lastTs = points[points.length - 1].ts;
-      const defaultCutoff = lastTs - TIMEFRAME_MS[timeframe];
-      const cutoff = anchor ?? defaultCutoff;
-
+      const cutoff = lastTs - TIMEFRAME_MS[timeframe];
       const filtered = points.filter((pt) => pt.ts >= cutoff);
 
       if (filtered.length >= 2) {
@@ -754,34 +746,7 @@ const BtxPage: React.FC = () => {
     }
 
     return coalesced;
-  }, [headerProject, priceHistory, trades, timeframe, chartWindowAnchors]);
-
-  useEffect(() => {
-    if (!headerProject || timeframe === "ALL") return;
-
-    const history = priceHistory[headerProject.projectId] || [];
-    if (history.length < 2) return;
-
-    setChartWindowAnchors((prev) => {
-      const projectAnchors = prev[headerProject.projectId] || {};
-
-      if (projectAnchors[timeframe] != null) {
-        return prev;
-      }
-
-      const sorted = [...history].sort((a, b) => a.ts - b.ts);
-      const lastTs = sorted[sorted.length - 1].ts;
-      const cutoff = lastTs - TIMEFRAME_MS[timeframe];
-
-      return {
-        ...prev,
-        [headerProject.projectId]: {
-          ...projectAnchors,
-          [timeframe]: cutoff,
-        },
-      };
-    });
-  }, [headerProject?.projectId, timeframe, priceHistory]);
+  }, [headerProject, priceHistory, trades, timeframe]);
 
   const recentActivityData = useMemo(() => {
     if (!headerProject) {
