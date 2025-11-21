@@ -44,7 +44,9 @@ const getFieldCounts = (
     const value = getNestedValue(userData, field);
 
     if (value !== undefined && value !== null) {
-      const label = mapping ? mapping[String(value)] || String(value) : String(value);
+      const label = mapping
+        ? mapping[String(value)] || String(value)
+        : String(value);
       counts[label] = counts[label] + 1 || 1;
     }
   }
@@ -115,7 +117,7 @@ export default function Statistics({ initialData }: Props) {
               </Label>
             </div>
           </div>
-          
+
           <ChartBox height="250px" title="Registration Status">
             {filteredData && (
               <PercentageBars
@@ -146,7 +148,10 @@ export default function Statistics({ initialData }: Props) {
             <ChartBox width="66%" height="300px" title="Faculty">
               {filteredData && (
                 <PieChart
-                  data={getFieldCounts(filteredData, "basicInformation.faculty")}
+                  data={getFieldCounts(
+                    filteredData,
+                    "basicInformation.faculty",
+                  )}
                 />
               )}
             </ChartBox>
