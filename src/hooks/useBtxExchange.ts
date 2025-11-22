@@ -124,7 +124,7 @@ export function useBtxExchange({
         setSelectedProjectId(enriched[0].projectId);
       }
 
-      // update price history from snapshot so charts keep moving even if WS is fucked
+      // update price history from snapshot so charts keep moving even if WS is down
       const now = Date.now();
       setPriceHistory((prev) => {
         const next: Record<string, PricePoint[]> = { ...prev };
@@ -135,10 +135,19 @@ export function useBtxExchange({
           if (!Number.isFinite(price)) return;
 
           const existing = next[projectId] || [];
-          const last = existing[existing.length - 1];
 
-          if (last && last.price === price) {
-            return;
+          if (existing.length > 0) {
+            const last = existing[existing.length - 1];
+
+            // //skip if same price as last point
+            // if (last && Math.abs(last.price - price) < 0.01) {
+            //   return;
+            // }
+
+            // skip if this snapshot timestamp is older than our newest data point
+            if (last && now <= last.ts) {
+              return;
+            }
           }
 
           const updated = [
@@ -212,9 +221,8 @@ export function useBtxExchange({
         limit: 10000,
       });
 
-      setPriceHistory((prev) => ({
-        ...prev,
-        [projectId]: rows
+      setPriceHistory((prev) => {
+        const normalized = rows
           .map((r) => {
             const rawTs = r.ts;
             // if ts looks like seconds, convert to ms
@@ -225,8 +233,34 @@ export function useBtxExchange({
               source: r.source,
             };
           })
-          .sort((a, b) => a.ts - b.ts),
-      }));
+          .sort((a, b) => a.ts - b.ts);
+
+        const existing = prev[projectId] || [];
+
+        if (existing.length === 0) {
+          return {
+            ...prev,
+            [projectId]: normalized,
+          };
+        }
+
+        const maxFetchedTs =
+          normalized.length > 0 ? normalized[normalized.length - 1].ts : 0;
+
+        const newerLiveUpdates = existing.filter((pt) => pt.ts > maxFetchedTs);
+
+        const merged = [...normalized, ...newerLiveUpdates];
+
+        const deduped = new Map<number, PricePoint>();
+        for (const pt of merged) {
+          deduped.set(pt.ts, pt);
+        }
+
+        return {
+          ...prev,
+          [projectId]: Array.from(deduped.values()).sort((a, b) => a.ts - b.ts),
+        };
+      });
     } catch (err) {
       console.error("[BTX] price history error", err);
     }
@@ -376,7 +410,15 @@ export function useBtxExchange({
           const current = prev[projectId] || [];
           const last = current[current.length - 1];
 
-          if (last && last.ts === ts && last.price === newPrice) {
+          if (
+            last &&
+            last.ts === ts &&
+            Math.abs(last.price - newPrice) < 0.01
+          ) {
+            return prev;
+          }
+
+          if (last && ts <= last.ts) {
             return prev;
           }
 
