@@ -75,8 +75,8 @@ export interface BtxPriceHistoryRow {
   source?: string;
 }
 
-//  ENV / LOCAL DEV HELPERS
-
+// ENV / LOCAL DEV HELPERS
+// API_URL already checks if local or stage
 const LOCAL_BTX_BASE = API_URL;
 
 function shouldUseLocalBtx(): boolean {
