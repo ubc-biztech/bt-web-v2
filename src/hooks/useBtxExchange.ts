@@ -1,5 +1,3 @@
-// src/hooks/useBtxExchange.ts
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -62,6 +60,12 @@ interface UseBtxExchangeOptions {
   pollIntervalMs?: number;
   useWebSocket?: boolean;
 }
+
+const normalizeTs = (ts: number | undefined | null): number => {
+  const val = ts ?? Date.now();
+
+  return val < 1e12 ? val * 1000 : val;
+};
 
 export function useBtxExchange({
   eventId = EVENT_ID,
@@ -133,28 +137,28 @@ export function useBtxExchange({
           const price = Number(p.currentPrice || p.basePrice || 0);
           if (!Number.isFinite(price)) return;
 
-          let pointTs = p.updatedAt || Date.now();
-          if (pointTs < 1e12) {
-            pointTs *= 1000;
-          }
+          const ts = normalizeTs(p.updatedAt);
 
           const existing = next[projectId] || [];
 
+          if (existing.length > 2000) {
+            next[projectId] = existing.slice(-2000);
+            return;
+          }
+
           if (existing.length > 0) {
             const last = existing[existing.length - 1];
-
-            if (pointTs <= last.ts) {
+            if (ts <= last.ts) {
               return;
             }
           }
 
           const updated = [
             ...existing,
-            { ts: pointTs, price, source: "snapshot" as const },
+            { ts, price, source: "snapshot" as const },
           ];
 
-          // Sort ensures time linearity if packets arrive out of order, though append is usually fine
-          next[projectId] = updated.sort((a, b) => a.ts - b.ts);
+          next[projectId] = updated;
         });
 
         return next;
@@ -219,16 +223,11 @@ export function useBtxExchange({
 
       setPriceHistory((prev) => {
         const normalized = rows
-          .map((r) => {
-            const rawTs = r.ts;
-            // if ts looks like seconds, convert to ms
-            const ts = rawTs < 1e12 ? rawTs * 1000 : rawTs;
-            return {
-              ts,
-              price: r.price,
-              source: r.source,
-            };
-          })
+          .map((r) => ({
+            ts: normalizeTs(r.ts),
+            price: r.price,
+            source: r.source,
+          }))
           .sort((a, b) => a.ts - b.ts);
 
         const existing = prev[projectId] || [];
@@ -368,8 +367,7 @@ export function useBtxExchange({
         const newPrice = Number(msg.currentPrice ?? msg.basePrice ?? 0);
         if (!projectId || !Number.isFinite(newPrice)) return;
 
-        const rawTs = msg.updatedAt ?? Date.now();
-        const ts = rawTs < 1e12 ? rawTs * 1000 : rawTs;
+        const ts = normalizeTs(msg.updatedAt);
 
         // update projects list
         setProjects((prev) => {
@@ -426,7 +424,6 @@ export function useBtxExchange({
             },
           ];
 
-          // limit growth in memory
           const trimmed =
             next.length > 10000 ? next.slice(next.length - 10000) : next;
 
