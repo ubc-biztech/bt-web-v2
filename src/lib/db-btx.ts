@@ -75,6 +75,10 @@ export interface BtxPriceHistoryRow {
   source?: string;
 }
 
+//  ENV / LOCAL DEV HELPERS
+
+const LOCAL_BTX_BASE = API_URL;
+
 function shouldUseLocalBtx(): boolean {
   if (typeof window === "undefined") return false;
 
@@ -94,7 +98,7 @@ function shouldUseLocalBtx(): boolean {
 }
 
 async function btxLocalFetch(path: string, options: RequestInit): Promise<any> {
-  const url = `${API_URL}${path}`;
+  const url = `${LOCAL_BTX_BASE}${path}`;
 
   // eslint-disable-next-line no-console
   //console.log("[BTX] local fetch →", url, options);
