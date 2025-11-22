@@ -678,12 +678,18 @@ const BtxPage: React.FC = () => {
 
     let points =
       history.length > 0
-        ? history
+        ? history.map((pt) => {
+            const ts = pt.ts < 1e12 ? pt.ts * 1000 : pt.ts;
+            return {
+              ts,
+              price: pt.price,
+            };
+          })
         : trades.length > 0
           ? trades
               .filter((t) => t.projectId === headerProject.projectId)
               .map((t) => ({
-                ts: t.createdAt,
+                ts: t.createdAt < 1e12 ? t.createdAt * 1000 : t.createdAt,
                 price: t.price,
               }))
           : [
@@ -696,21 +702,33 @@ const BtxPage: React.FC = () => {
 
     points = points.slice().sort((a, b) => a.ts - b.ts);
 
-    if (timeframe !== "ALL" && points.length > 1) {
+    if (timeframe !== "ALL" && points.length > 0) {
       const lastTs = points[points.length - 1].ts;
       const cutoff = lastTs - TIMEFRAME_MS[timeframe];
       const filtered = points.filter((pt) => pt.ts >= cutoff);
 
-      if (filtered.length >= 2) {
+      if (filtered.length >= 1) {
         points = filtered;
       }
     }
 
+    if (points.length === 0) {
+      points = [
+        {
+          ts: now,
+          price: headerProject.currentPrice ?? headerProject.basePrice ?? 0,
+        },
+      ];
+    }
+
     let maxPoints = 0;
-    if (timeframe === "15M") maxPoints = 60;
-    if (timeframe === "1H") maxPoints = 60;
-    if (timeframe === "4H") maxPoints = 120;
-    else if (timeframe === "1D" || timeframe === "ALL") maxPoints = 240;
+    if (timeframe === "1M") maxPoints = 60;
+    else if (timeframe === "5M") maxPoints = 100;
+    else if (timeframe === "15M") maxPoints = 120;
+    else if (timeframe === "1H") maxPoints = 120;
+    else if (timeframe === "4H") maxPoints = 200;
+    else if (timeframe === "1D") maxPoints = 288;
+    else if (timeframe === "ALL") maxPoints = 500;
 
     if (maxPoints > 0 && points.length > maxPoints) {
       const bucketSize = Math.ceil(points.length / maxPoints);
@@ -727,25 +745,10 @@ const BtxPage: React.FC = () => {
       return bucketed;
     }
 
-    const shouldCoalesce =
-      timeframe === "1M" || timeframe === "5M" || timeframe === "15M";
-
-    const EPS = 1e-6;
-    const coalesced: { ts: number; value: number }[] = [];
-
-    for (const pt of points) {
-      const value = pt.price;
-      const last = coalesced[coalesced.length - 1];
-
-      if (shouldCoalesce && last && Math.abs(last.value - value) < EPS) {
-        last.ts = pt.ts;
-        continue;
-      }
-
-      coalesced.push({ ts: pt.ts, value });
-    }
-
-    return coalesced;
+    return points.map((pt) => ({
+      ts: pt.ts,
+      value: pt.price,
+    }));
   }, [headerProject, priceHistory, trades, timeframe]);
 
   const recentActivityData = useMemo(() => {
