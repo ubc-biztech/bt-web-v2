@@ -125,7 +125,6 @@ export function useBtxExchange({
       }
 
       // update price history from snapshot
-      const now = Date.now();
       setPriceHistory((prev) => {
         const next: Record<string, PricePoint[]> = { ...prev };
 
@@ -134,28 +133,28 @@ export function useBtxExchange({
           const price = Number(p.currentPrice || p.basePrice || 0);
           if (!Number.isFinite(price)) return;
 
-          const existing = next[projectId] || [];
-
-          if (existing.length > 10) {
-            return;
+          let pointTs = p.updatedAt || Date.now();
+          if (pointTs < 1e12) {
+            pointTs *= 1000;
           }
 
-          // Only add snapshot points if we have very little or no data
+          const existing = next[projectId] || [];
+
           if (existing.length > 0) {
             const last = existing[existing.length - 1];
 
-            // skip if this snapshot timestamp is older than our newest data point
-            if (last && now <= last.ts) {
+            if (pointTs <= last.ts) {
               return;
             }
           }
 
           const updated = [
             ...existing,
-            { ts: now, price, source: "snapshot" as const },
+            { ts: pointTs, price, source: "snapshot" as const },
           ];
 
-          next[projectId] = updated;
+          // Sort ensures time linearity if packets arrive out of order, though append is usually fine
+          next[projectId] = updated.sort((a, b) => a.ts - b.ts);
         });
 
         return next;
@@ -171,6 +170,7 @@ export function useBtxExchange({
       setLoadingSnapshot(false);
     }
   }, [eventId, selectedProjectId]);
+
   const fetchPortfolioFn = useCallback(async () => {
     try {
       setLoadingPortfolio(true);
@@ -368,7 +368,6 @@ export function useBtxExchange({
         const newPrice = Number(msg.currentPrice ?? msg.basePrice ?? 0);
         if (!projectId || !Number.isFinite(newPrice)) return;
 
-        // normalize ts
         const rawTs = msg.updatedAt ?? Date.now();
         const ts = rawTs < 1e12 ? rawTs * 1000 : rawTs;
 
@@ -427,6 +426,7 @@ export function useBtxExchange({
             },
           ];
 
+          // limit growth in memory
           const trimmed =
             next.length > 10000 ? next.slice(next.length - 10000) : next;
 
