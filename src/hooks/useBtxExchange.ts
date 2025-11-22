@@ -15,9 +15,7 @@ import {
 
 const EVENT_ID = "kickstart";
 
-export interface BtxProject extends BtxProjectDto {
-  // from backend dto
-}
+export interface BtxProject extends BtxProjectDto {}
 
 export interface BtxProjectView extends BtxProject {
   priceChange: number;
@@ -63,7 +61,6 @@ interface UseBtxExchangeOptions {
 
 const normalizeTs = (ts: number | undefined | null): number => {
   const val = ts ?? Date.now();
-
   return val < 1e12 ? val * 1000 : val;
 };
 
@@ -92,16 +89,19 @@ export function useBtxExchange({
     Record<string, PricePoint[]>
   >({});
 
-  // for computing price deltas between snapshots
+  const isMountedRef = useRef(true);
   const lastPricesRef = useRef<Map<string, number>>(new Map());
-
   const wsRef = useRef<WebSocket | null>(null);
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchSnapshot = useCallback(async () => {
+    if (!isMountedRef.current) return;
+
     try {
       setLoadingSnapshot(true);
       const { projects: rawProjects } = await btxFetchMarketSnapshot(eventId);
+
+      if (!isMountedRef.current) return;
 
       const lastPrices = new Map(lastPricesRef.current);
 
@@ -122,13 +122,18 @@ export function useBtxExchange({
 
       lastPricesRef.current = lastPrices;
       enriched.sort((a, b) => (b.marketCap || 0) - (a.marketCap || 0));
+
+      if (!isMountedRef.current) return;
+
       setProjects(enriched);
 
-      if (!selectedProjectId && enriched.length) {
-        setSelectedProjectId(enriched[0].projectId);
-      }
+      setSelectedProjectId((prev) => {
+        if (!prev && enriched.length) {
+          return enriched[0].projectId;
+        }
+        return prev;
+      });
 
-      // update price history from snapshot
       setPriceHistory((prev) => {
         const next: Record<string, PricePoint[]> = { ...prev };
 
@@ -138,7 +143,6 @@ export function useBtxExchange({
           if (!Number.isFinite(price)) return;
 
           const ts = normalizeTs(p.updatedAt);
-
           const existing = next[projectId] || [];
 
           if (existing.length > 2000) {
@@ -165,28 +169,38 @@ export function useBtxExchange({
       });
     } catch (err: any) {
       console.error("[BTX] snapshot error", err);
-      setError(
-        typeof err?.message === "string"
-          ? err.message
-          : "Failed to load BTX snapshot",
-      );
+      if (isMountedRef.current) {
+        setError(
+          typeof err?.message === "string"
+            ? err.message
+            : "Failed to load BTX snapshot",
+        );
+      }
     } finally {
-      setLoadingSnapshot(false);
+      if (isMountedRef.current) {
+        setLoadingSnapshot(false);
+      }
     }
-  }, [eventId, selectedProjectId]);
+  }, [eventId]);
 
   const fetchPortfolioFn = useCallback(async () => {
+    if (!isMountedRef.current) return;
+
     try {
       setLoadingPortfolio(true);
       setPortfolioError(null);
 
       const p = await btxFetchPortfolio(eventId);
+
+      if (!isMountedRef.current) return;
+
       setPortfolio(p);
     } catch (err: any) {
       console.error("[BTX] portfolio error", err);
 
+      if (!isMountedRef.current) return;
+
       if (err?.status === 401) {
-        // unauthenticated → just no portfolio
         setPortfolio(null);
         return;
       }
@@ -197,29 +211,40 @@ export function useBtxExchange({
           : "Failed to load BTX portfolio",
       );
     } finally {
-      setLoadingPortfolio(false);
+      if (isMountedRef.current) {
+        setLoadingPortfolio(false);
+      }
     }
   }, [eventId]);
 
   const fetchTrades = useCallback(async (projectId: string) => {
-    if (!projectId) return;
+    if (!projectId || !isMountedRef.current) return;
+
     try {
       setLoadingTrades(true);
       const rows = await btxFetchRecentTrades(projectId, 50);
+
+      if (!isMountedRef.current) return;
+
       setTrades(rows);
     } catch (err) {
       console.error("[BTX] trades error", err);
     } finally {
-      setLoadingTrades(false);
+      if (isMountedRef.current) {
+        setLoadingTrades(false);
+      }
     }
   }, []);
 
   const fetchPriceHistoryFn = useCallback(async (projectId: string) => {
-    if (!projectId) return;
+    if (!projectId || !isMountedRef.current) return;
+
     try {
       const rows: BtxPriceHistoryRow[] = await btxFetchPriceHistory(projectId, {
         limit: 10000,
       });
+
+      if (!isMountedRef.current) return;
 
       setPriceHistory((prev) => {
         const normalized = rows
@@ -243,7 +268,6 @@ export function useBtxExchange({
           normalized.length > 0 ? normalized[normalized.length - 1].ts : 0;
 
         const newerLiveUpdates = existing.filter((pt) => pt.ts > maxFetchedTs);
-
         const merged = [...normalized, ...newerLiveUpdates];
 
         const deduped = new Map<number, PricePoint>();
@@ -301,7 +325,14 @@ export function useBtxExchange({
     [fetchSnapshot, fetchPortfolioFn, fetchTrades, fetchPriceHistoryFn],
   );
 
-  // initial load + polling
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   useEffect(() => {
     fetchSnapshot();
     fetchPortfolioFn();
@@ -312,11 +343,13 @@ export function useBtxExchange({
     pollTimerRef.current = setInterval(fetchSnapshot, pollIntervalMs);
 
     return () => {
-      if (pollTimerRef.current) clearInterval(pollTimerRef.current);
+      if (pollTimerRef.current) {
+        clearInterval(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
     };
   }, [fetchSnapshot, fetchPortfolioFn, pollIntervalMs]);
 
-  // load trades + full history when selection changes
   useEffect(() => {
     if (!selectedProjectId) return;
 
@@ -324,7 +357,6 @@ export function useBtxExchange({
     fetchPriceHistoryFn(selectedProjectId);
   }, [selectedProjectId, fetchTrades, fetchPriceHistoryFn]);
 
-  // ws connection for live price updates
   useEffect(() => {
     if (!useWebSocket) return;
     if (typeof window === "undefined") return;
@@ -339,6 +371,7 @@ export function useBtxExchange({
     wsRef.current = ws;
 
     ws.onopen = () => {
+      if (!isMountedRef.current) return;
       setWsStatus("CONNECTED");
       const payload = JSON.stringify({
         action: "subscribe",
@@ -349,16 +382,21 @@ export function useBtxExchange({
     };
 
     ws.onclose = () => {
+      if (!isMountedRef.current) return;
       setWsStatus("DISCONNECTED");
       wsRef.current = null;
     };
 
     ws.onerror = (err) => {
       console.error("[BTX] WebSocket error", err);
-      setWsStatus("ERROR");
+      if (isMountedRef.current) {
+        setWsStatus("ERROR");
+      }
     };
 
     ws.onmessage = (evt) => {
+      if (!isMountedRef.current) return;
+
       try {
         const msg = JSON.parse(evt.data);
         if (msg.type !== "priceUpdate") return;
@@ -439,6 +477,7 @@ export function useBtxExchange({
 
     return () => {
       ws.close();
+      wsRef.current = null;
     };
   }, [eventId, useWebSocket]);
 
