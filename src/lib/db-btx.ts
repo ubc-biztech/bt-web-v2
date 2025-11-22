@@ -1,6 +1,7 @@
 // src/lib/db-btx.ts
 
 import { fetchBackend } from "./db";
+import { API_URL } from "./dbconfig";
 
 export interface BtxProject {
   projectId: string;
@@ -76,8 +77,7 @@ export interface BtxPriceHistoryRow {
 
 //  ENV / LOCAL DEV HELPERS
 
-const LOCAL_BTX_BASE =
-  process.env.NEXT_PUBLIC_BTX_LOCAL_BASE || "http://localhost:4017/dev";
+const LOCAL_BTX_BASE = API_URL;
 
 function shouldUseLocalBtx(): boolean {
   if (typeof window === "undefined") return false;
