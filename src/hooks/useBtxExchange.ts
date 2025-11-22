@@ -237,7 +237,7 @@ export function useBtxExchange({
 
         const existing = prev[projectId] || [];
 
-        if (existing.length === 0) {
+        if (existing.length < 5) {
           return {
             ...prev,
             [projectId]: normalized,
