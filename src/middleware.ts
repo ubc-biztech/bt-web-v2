@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
   // Always allow these paths
   const allowedPrefixes = [
     "/companion",
+    "/btx",
     "/events",
     "/event",
     "/become-a-member",
