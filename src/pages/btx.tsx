@@ -408,8 +408,8 @@ const BtxPage: React.FC = () => {
       let windowPoints = history;
 
       if (timeframe !== "ALL") {
-        const lastTs = history[history.length - 1].ts;
-        const cutoff = lastTs - TIMEFRAME_MS[timeframe];
+        const now = Date.now();
+        const cutoff = now - TIMEFRAME_MS[timeframe];
 
         const filtered = history.filter((pt) => pt.ts >= cutoff);
 
