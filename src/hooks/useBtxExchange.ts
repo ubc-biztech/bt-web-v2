@@ -93,6 +93,7 @@ export function useBtxExchange({
   const lastPricesRef = useRef<Map<string, number>>(new Map());
   const wsRef = useRef<WebSocket | null>(null);
   const pollTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const historyFetchedRef = useRef<Set<string>>(new Set()); // Track which projects have full history loaded
 
   const fetchSnapshot = useCallback(async () => {
     if (!isMountedRef.current) return;
@@ -145,8 +146,16 @@ export function useBtxExchange({
           const ts = normalizeTs(p.updatedAt);
           const existing = next[projectId] || [];
 
+          const hasTimestamp = existing.some((pt) => pt.ts === ts);
+          if (hasTimestamp) {
+            return;
+          }
+
           if (existing.length > 2000) {
-            next[projectId] = existing.slice(-2000);
+            next[projectId] = [
+              ...existing.slice(-1999),
+              { ts, price, source: "snapshot" as const },
+            ];
             return;
           }
 
@@ -157,12 +166,10 @@ export function useBtxExchange({
             }
           }
 
-          const updated = [
+          next[projectId] = [
             ...existing,
             { ts, price, source: "snapshot" as const },
           ];
-
-          next[projectId] = updated;
         });
 
         return next;
@@ -239,12 +246,18 @@ export function useBtxExchange({
   const fetchPriceHistoryFn = useCallback(async (projectId: string) => {
     if (!projectId || !isMountedRef.current) return;
 
+    if (historyFetchedRef.current.has(projectId)) {
+      return;
+    }
+
     try {
       const rows: BtxPriceHistoryRow[] = await btxFetchPriceHistory(projectId, {
         limit: 10000,
       });
 
       if (!isMountedRef.current) return;
+
+      historyFetchedRef.current.add(projectId);
 
       setPriceHistory((prev) => {
         const normalized = rows
@@ -257,27 +270,32 @@ export function useBtxExchange({
 
         const existing = prev[projectId] || [];
 
-        if (existing.length < 5) {
+        if (existing.length === 0) {
           return {
             ...prev,
             [projectId]: normalized,
           };
         }
 
-        const maxFetchedTs =
-          normalized.length > 0 ? normalized[normalized.length - 1].ts : 0;
-
-        const newerLiveUpdates = existing.filter((pt) => pt.ts > maxFetchedTs);
-        const merged = [...normalized, ...newerLiveUpdates];
-
         const deduped = new Map<number, PricePoint>();
-        for (const pt of merged) {
+
+        for (const pt of normalized) {
           deduped.set(pt.ts, pt);
         }
 
+        for (const pt of existing) {
+          if (!deduped.has(pt.ts) || pt.source !== "snapshot") {
+            deduped.set(pt.ts, pt);
+          }
+        }
+
+        const merged = Array.from(deduped.values()).sort((a, b) => a.ts - b.ts);
+
+        const trimmed = merged.length > 10000 ? merged.slice(-10000) : merged;
+
         return {
           ...prev,
-          [projectId]: Array.from(deduped.values()).sort((a, b) => a.ts - b.ts),
+          [projectId]: trimmed,
         };
       });
     } catch (err) {
@@ -350,6 +368,7 @@ export function useBtxExchange({
     };
   }, [fetchSnapshot, fetchPortfolioFn, pollIntervalMs]);
 
+  // Load trades + history when selection changes
   useEffect(() => {
     if (!selectedProjectId) return;
 
@@ -357,6 +376,7 @@ export function useBtxExchange({
     fetchPriceHistoryFn(selectedProjectId);
   }, [selectedProjectId, fetchTrades, fetchPriceHistoryFn]);
 
+  // WebSocket connection
   useEffect(() => {
     if (!useWebSocket) return;
     if (typeof window === "undefined") return;
