@@ -124,7 +124,7 @@ export function useBtxExchange({
         setSelectedProjectId(enriched[0].projectId);
       }
 
-      // update price history from snapshot so charts keep moving even if WS is down
+      // update price history from snapshot
       const now = Date.now();
       setPriceHistory((prev) => {
         const next: Record<string, PricePoint[]> = { ...prev };
@@ -136,13 +136,13 @@ export function useBtxExchange({
 
           const existing = next[projectId] || [];
 
+          if (existing.length > 10) {
+            return;
+          }
+
+          // Only add snapshot points if we have very little or no data
           if (existing.length > 0) {
             const last = existing[existing.length - 1];
-
-            // //skip if same price as last point
-            // if (last && Math.abs(last.price - price) < 0.01) {
-            //   return;
-            // }
 
             // skip if this snapshot timestamp is older than our newest data point
             if (last && now <= last.ts) {
@@ -155,10 +155,7 @@ export function useBtxExchange({
             { ts: now, price, source: "snapshot" as const },
           ];
 
-          next[projectId] =
-            updated.length > 10000
-              ? updated.slice(updated.length - 10000)
-              : updated;
+          next[projectId] = updated;
         });
 
         return next;
@@ -174,7 +171,6 @@ export function useBtxExchange({
       setLoadingSnapshot(false);
     }
   }, [eventId, selectedProjectId]);
-
   const fetchPortfolioFn = useCallback(async () => {
     try {
       setLoadingPortfolio(true);
