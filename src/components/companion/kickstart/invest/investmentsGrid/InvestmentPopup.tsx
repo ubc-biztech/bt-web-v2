@@ -32,7 +32,9 @@ const InvestmentPopup: React.FC<InvestmentPopupProps> = ({
         {/* Top summary text */}
         <p className="text-sm text-[#8C8C8C] font-light mb-3">
           You invested{" "}
-          <span className="text-[#95FF77] font-light">{investment.amount}</span>{" "}
+          <span className="text-[#FFA601] font-light">
+            ${investment.amount}
+          </span>{" "}
           in{" "}
           <span className="text-white font-light">{investment.teamName}</span>{" "}
           on{" "}
@@ -50,8 +52,8 @@ const InvestmentPopup: React.FC<InvestmentPopupProps> = ({
           <span className="text-white text-[28px] font-semibold tracking-tight lowercase">
             {investment.teamName}
           </span>
-          <div className="border border-[#95FF77] bg-[#95FF771A] rounded-full px-4 py-1 flex items-center justify-center">
-            <span className="text-[#95FF77] text-[18px] font-medium tracking-tight">
+          <div className="border border-[#FFA601] bg-[#FFA601]/10 rounded-full px-4 py-1 flex items-center justify-center">
+            <span className="text-[#FFA601] text-[18px] font-medium tracking-tight">
               {formattedAmount}
             </span>
           </div>
