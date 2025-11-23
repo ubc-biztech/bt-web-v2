@@ -28,13 +28,8 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
 
   const { userRegistration, event } = useUserRegistration();
 
-  const isPartner = userRegistration?.isPartner || false;
-  const isShowcase = event?.id === "kickstart-showcase";
-
-  // showcase attendees see partner view
-  const isPartnerView = isPartner || isShowcase;
-
-  console.log("overview > isPartner", isPartner);
+  // partners and showcase see investments instead of team view
+  const isPartnerView = userRegistration?.isPartner || event?.id === "kickstart-showcase";
 
   useEffect(() => {
     if ((team && team.id) || isPartnerView) {
@@ -60,8 +55,6 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
       fetchFundingStatus();
     }
   }, [team, isPartnerView]);
-
-  console.log("overview > rawInvestments", rawInvestments);
 
   return (
     <>
