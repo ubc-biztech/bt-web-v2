@@ -11,11 +11,7 @@ import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Loader2 } from "lucide-react";
-import {
-  fetchAuthSession,
-  signIn,
-  fetchUserAttributes,
-} from "@aws-amplify/auth";
+import { fetchUserAttributes, AuthError } from "@aws-amplify/auth";
 import {
   Dialog,
   DialogContent,
@@ -106,18 +102,20 @@ export default function AttendeeFormRegister() {
         });
         setUserLoggedIn(true);
 
+        // Fetch user data, but don't fail if backend call fails
         const userData = await fetchBackend({
           endpoint: `/users/${email}`,
           method: "GET",
+        }).catch((backendErr) => {
+          console.log("Backend error:", backendErr);
+          return null;
         });
 
         if (userData) setUser(userData);
         setUserLoading(false);
       } catch (err: any) {
-        if (err?.name === "NotAuthorizedException") {
-          const callbackPath = `/event/${eventId}/${year}/register`;
-          router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
-        }
+        const callbackPath = `/event/${eventId}/${year}/register`;
+        router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
         setUserLoading(false);
       }
     };
@@ -483,8 +481,6 @@ export default function AttendeeFormRegister() {
 
   const renderConditionalViews = () => {
     if (userLoading) return null;
-
-    if (userRegistered === undefined) return null;
 
     // wait for fields to load, otherwise the views will display a flash change
     if (!event || !user || !event.pricing) return null;
