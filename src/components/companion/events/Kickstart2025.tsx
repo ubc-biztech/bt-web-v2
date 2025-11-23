@@ -230,7 +230,7 @@ const Kickstart2025 = () => {
       <KickstartNav page={page} setPage={setPage}>
         <AnimatePresence mode="wait">
           {userRegistration?.registrationStatus.toLowerCase() !==
-            "checkedin" ? (
+          "checkedin" ? (
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
               <h1 className="text-2xl font-bold text-center">
                 You Have Not Checked In!
