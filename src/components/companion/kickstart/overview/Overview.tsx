@@ -29,7 +29,6 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   const { userRegistration, event } = useUserRegistration();
 
   const isPartner = userRegistration?.isPartner || false;
-  console.log("userRegistration", userRegistration);
   const isShowcase = event?.id === "kickstart-showcase";
 
   // showcase attendees see partner view
