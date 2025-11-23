@@ -115,7 +115,9 @@ export default function AttendeeFormRegister() {
         setUserLoading(false);
       } catch (err: any) {
         const callbackPath = `/event/${eventId}/${year}/register`;
-        router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
+        await router.push(
+          `/login?redirect=${encodeURIComponent(callbackPath)}`,
+        );
         setUserLoading(false);
       }
     };
