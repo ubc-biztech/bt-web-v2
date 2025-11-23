@@ -47,6 +47,9 @@ const Invest = ({
   setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
   const { userRegistration } = useUserRegistration();
+  const isPartnerOrShowcase =
+    userRegistration?.isPartner ||
+    userRegistration?.["eventID;year"] === "kickstart-showcase;2025";
   const { team } = useTeam();
   const router = useRouter();
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
@@ -132,7 +135,7 @@ const Invest = ({
   }, [team?.id]);
 
   useEffect(() => {
-    if (!userRegistration?.id || userRegistration?.isPartner) return;
+    if (!userRegistration?.id || isPartnerOrShowcase) return;
 
     const fetchInvestments = async () => {
       try {
@@ -151,7 +154,7 @@ const Invest = ({
     };
 
     fetchInvestments();
-  }, [userRegistration?.id, userRegistration?.isPartner]);
+  }, [userRegistration?.id, isPartnerOrShowcase]);
 
   const filteredTeams = useMemo(() => {
     const availableTeams = team
@@ -327,11 +330,11 @@ const Invest = ({
     );
   };
 
-  if (!userRegistration || (!team && !userRegistration.isPartner)) {
+  if (!userRegistration) {
     return <Loading />;
   }
 
-  const showGrid = !isInvesting && !userRegistration.isPartner;
+  const showGrid = !isInvesting && !isPartnerOrShowcase;
 
   return (
     <InvestWrapper isFullWidth={showGrid}>
@@ -347,7 +350,7 @@ const Invest = ({
           onClickInvest={() => setIsInvesting(true)}
         />
       )}
-      {!userRegistration.isPartner && isInvesting && (
+      {!isPartnerOrShowcase && isInvesting && (
         <div className="w-full mb-4">
           <button
             type="button"
@@ -360,76 +363,74 @@ const Invest = ({
           </button>
         </div>
       )}
-      {!selectedTeam &&
-        !openQR &&
-        (userRegistration.isPartner || isInvesting) && (
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="border border-[#5F3F1A] rounded-lg w-full"
-          >
-            <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
-              <div>
-                <p className="text-[#FFCC8A]">INVEST IN A PROJECT</p>
-                <header className="text-[32px] leading-tight tracking-tight">
-                  What project would you like to invest in?
-                </header>
-              </div>
-
-              <div className="flex gap-2 items-center w-full overflow-hidden">
-                <input
-                  className="flex-grow min-w-0 rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 text-base focus:outline-none"
-                  placeholder="Search teams..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-2 h-full"
-                  onClick={() => setOpenQR(true)}
-                >
-                  <ScanIcon className="w-max h-max flex items-center justify-center p-0.5 shrink-0" />
-                </button>
-              </div>
-
-              <div className="space-y-3 max-h-[18rem] overflow-y-auto pr-1">
-                {filteredTeams.map((team) => (
-                  <button
-                    key={team.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTeam(team);
-                      setInvestmentStage(InvestmentStage.AMOUNT);
-                      setAmountInput("");
-                      setConfirmedAmount(null);
-                      setComment("");
-                      setFlowError(null);
-                      setSuccessInfo(null);
-                    }}
-                    className="w-full text-left rounded-xl bg-[#2A2A2A] px-4 py-3 transition-all hover:bg-[#3A3A3A] border border-transparent hover:border-[#5F3F1A]/70"
-                  >
-                    <p className="text-white font-semibold text-[18px]">
-                      {team.teamName}
-                    </p>
-                    <p className="text-[#B8B8B8] md:text-sm text-xs mt-1">
-                      {team.members?.join(", ")}
-                    </p>
-                  </button>
-                ))}
-                {filteredTeams.length === 0 && searchQuery === "" && (
-                  <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
-                    Loading ...
-                  </div>
-                )}
-              </div>
+      {!selectedTeam && !openQR && (isPartnerOrShowcase || isInvesting) && (
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="border border-[#5F3F1A] rounded-lg w-full"
+        >
+          <div className="w-full h-full flex flex-col items-left justify-center font-bricolage space-y-4 bg-[#201F1E] p-6 rounded-lg">
+            <div>
+              <p className="text-[#FFCC8A]">INVEST IN A PROJECT</p>
+              <header className="text-[32px] leading-tight tracking-tight">
+                What project would you like to invest in?
+              </header>
             </div>
-          </motion.div>
-        )}
 
-      {selectedTeam && (userRegistration.isPartner || isInvesting) && (
+            <div className="flex gap-2 items-center w-full overflow-hidden">
+              <input
+                className="flex-grow min-w-0 rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 text-base focus:outline-none"
+                placeholder="Search teams..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button
+                type="button"
+                className="flex-shrink-0 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-2 h-full"
+                onClick={() => setOpenQR(true)}
+              >
+                <ScanIcon className="w-max h-max flex items-center justify-center p-0.5 shrink-0" />
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[18rem] overflow-y-auto pr-1">
+              {filteredTeams.map((team) => (
+                <button
+                  key={team.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTeam(team);
+                    setInvestmentStage(InvestmentStage.AMOUNT);
+                    setAmountInput("");
+                    setConfirmedAmount(null);
+                    setComment("");
+                    setFlowError(null);
+                    setSuccessInfo(null);
+                  }}
+                  className="w-full text-left rounded-xl bg-[#2A2A2A] px-4 py-3 transition-all hover:bg-[#3A3A3A] border border-transparent hover:border-[#5F3F1A]/70"
+                >
+                  <p className="text-white font-semibold text-[18px]">
+                    {team.teamName}
+                  </p>
+                  <p className="text-[#B8B8B8] md:text-sm text-xs mt-1">
+                    {team.members?.join(", ")}
+                  </p>
+                </button>
+              ))}
+              {filteredTeams.length === 0 && searchQuery === "" && (
+                <div className="rounded-xl bg-[#2A2A2A] px-4 py-6 text-center text-[#B8B8B8]">
+                  Loading ...
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {selectedTeam && (isPartnerOrShowcase || isInvesting) && (
         <>{renderInvestmentFlow()}</>
       )}
-      {openQR && (userRegistration.isPartner || isInvesting) && (
+      {openQR && (isPartnerOrShowcase || isInvesting) && (
         <QR
           resetFlow={resetFlow}
           setOpenQR={setOpenQR}
