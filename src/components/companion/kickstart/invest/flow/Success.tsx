@@ -67,10 +67,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
           <button
             type="button"
             className="w-30 rounded-lg bg-[#DE7D02] hover:bg-[#f29224] px-4 py-3 font-semibold text-white transition-colors"
-            onClick={() => {
-              setPage(KickstartPages.OVERVIEW);
-              refreshWithoutSharedTeam();
-            }}
+            onClick={() => window.location.reload()}
           >
             Return to Dashboard
           </button>

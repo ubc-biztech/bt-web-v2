@@ -47,6 +47,7 @@ const Invest = ({
   setPendingSharedTeam: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
   const { userRegistration } = useUserRegistration();
+  const isPartnerOrShowcase = userRegistration?.isPartner || userRegistration?.["eventID;year"] === "kickstart-showcase;2025";
   const { team } = useTeam();
   const router = useRouter();
   const [allTeams, setAllTeams] = useState<TeamListing[]>([]);
@@ -80,8 +81,8 @@ const Invest = ({
         });
         const teamsData = Array.isArray(teamsRes)
           ? (teamsRes as TeamListing[]).filter(
-              (t: TeamListing) => !team || t.id != team.id,
-            )
+            (t: TeamListing) => !team || t.id != team.id,
+          )
           : [];
         setAllTeams(teamsData);
       } catch (err) {
@@ -132,7 +133,7 @@ const Invest = ({
   }, [team?.id]);
 
   useEffect(() => {
-    if (!userRegistration?.id || userRegistration?.isPartner) return;
+    if (!userRegistration?.id || isPartnerOrShowcase) return;
 
     const fetchInvestments = async () => {
       try {
@@ -151,7 +152,7 @@ const Invest = ({
     };
 
     fetchInvestments();
-  }, [userRegistration?.id, userRegistration?.isPartner]);
+  }, [userRegistration?.id, isPartnerOrShowcase]);
 
   const filteredTeams = useMemo(() => {
     const availableTeams = team
@@ -327,11 +328,11 @@ const Invest = ({
     );
   };
 
-  if (!userRegistration || (!team && !userRegistration.isPartner)) {
+  if (!userRegistration) {
     return <Loading />;
   }
 
-  const showGrid = !isInvesting && !userRegistration.isPartner;
+  const showGrid = !isInvesting && !isPartnerOrShowcase;
 
   return (
     <InvestWrapper isFullWidth={showGrid}>
@@ -347,7 +348,7 @@ const Invest = ({
           onClickInvest={() => setIsInvesting(true)}
         />
       )}
-      {!userRegistration.isPartner && isInvesting && (
+      {!isPartnerOrShowcase && isInvesting && (
         <div className="w-full mb-4">
           <button
             type="button"
@@ -362,7 +363,7 @@ const Invest = ({
       )}
       {!selectedTeam &&
         !openQR &&
-        (userRegistration.isPartner || isInvesting) && (
+        (isPartnerOrShowcase || isInvesting) && (
           <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
@@ -426,10 +427,10 @@ const Invest = ({
           </motion.div>
         )}
 
-      {selectedTeam && (userRegistration.isPartner || isInvesting) && (
+      {selectedTeam && (isPartnerOrShowcase || isInvesting) && (
         <>{renderInvestmentFlow()}</>
       )}
-      {openQR && (userRegistration.isPartner || isInvesting) && (
+      {openQR && (isPartnerOrShowcase || isInvesting) && (
         <QR
           resetFlow={resetFlow}
           setOpenQR={setOpenQR}
@@ -449,14 +450,12 @@ const InvestWrapper = ({
 }) => {
   return (
     <div
-      className={`w-screen h-screen flex flex-col items-center ${
-        isFullWidth ? "justify-start pt-10" : "justify-center"
-      } relative`}
+      className={`w-screen h-screen flex flex-col items-center ${isFullWidth ? "justify-start pt-10" : "justify-center"
+        } relative`}
     >
       <div
-        className={`${
-          isFullWidth ? "w-full flex flex-col items-center" : "md:w-3/5"
-        } px-4 text-[18px]`}
+        className={`${isFullWidth ? "w-full flex flex-col items-center" : "md:w-3/5"
+          } px-4 text-[18px]`}
       >
         {children}
       </div>
