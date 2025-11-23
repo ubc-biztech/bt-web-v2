@@ -66,7 +66,7 @@ export default function AttendeeFormRegister() {
 
   const isDeadlinePassed = () => {
     const deadline = Date.parse(event.deadline);
-    // get the timestamp down to millisconds
+
     return deadline < Date.now();
   };
 
@@ -94,39 +94,36 @@ export default function AttendeeFormRegister() {
 
     const fetchUser = async () => {
       try {
-        const { tokens } = await fetchAuthSession();
-        if (tokens) {
-          const attributes = await fetchUserAttributes();
-          const email = attributes?.email;
+        const attributes = await fetchUserAttributes();
+        const email = attributes?.email;
 
-          if (!email) throw new Error("Email not found for user");
+        if (!email) throw new Error("Email not found for user");
 
-          setUser({
-            id: email,
-            isMember: false,
-            fname: attributes?.name || undefined,
-          });
-          setUserLoggedIn(true);
+        setUser({
+          id: email,
+          isMember: false,
+          fname: attributes?.name || undefined,
+        });
+        setUserLoggedIn(true);
 
-          const userData = await fetchBackend({
-            endpoint: `/users/${email}`,
-            method: "GET",
-          });
+        const userData = await fetchBackend({
+          endpoint: `/users/${email}`,
+          method: "GET",
+        });
 
-          if (userData) setUser(userData);
-        } else {
-          setUserLoggedIn(false);
-        }
+        if (userData) setUser(userData);
+        setUserLoading(false);
       } catch (err: any) {
-        // If user is not authenticated, redirect to login with redirect back to this page using router.push
-        const callbackPath = `/event/${eventId}/${year}/register`;
-        router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
+        if (err?.name === "NotAuthorizedException") {
+          const callbackPath = `/event/${eventId}/${year}/register`;
+          router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
+        }
+        setUserLoading(false);
       }
-      setUserLoading(false);
     };
 
     fetchUser();
-  }, [router.isReady]);
+  }, [router.isReady, eventId, year]);
 
   useEffect(() => {
     const fetchEvent = async () => {

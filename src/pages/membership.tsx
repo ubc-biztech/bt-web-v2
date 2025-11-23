@@ -309,7 +309,11 @@ const Membership: React.FC = () => {
                 </Link>
 
                 <Link
-                  href="/events"
+                  href={
+                    router.query.redirect
+                      ? (router.query.redirect as string)
+                      : "/events"
+                  }
                   className="text-sm leading-6 text-bt-green-300 underline"
                 >
                   Continue as Guest
