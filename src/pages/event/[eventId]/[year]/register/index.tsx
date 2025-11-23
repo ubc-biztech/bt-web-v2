@@ -90,6 +90,8 @@ export default function AttendeeFormRegister() {
   };
 
   useEffect(() => {
+    if (!router.isReady) return;
+
     const fetchUser = async () => {
       try {
         const { tokens } = await fetchAuthSession();
@@ -116,13 +118,15 @@ export default function AttendeeFormRegister() {
           setUserLoggedIn(false);
         }
       } catch (err: any) {
-        console.error("Failed to fetch user:", err);
+        // If user is not authenticated, redirect to login with redirect back to this page using router.push
+        const callbackPath = `/event/${eventId}/${year}/register`;
+        router.push(`/login?redirect=${encodeURIComponent(callbackPath)}`);
       }
       setUserLoading(false);
     };
 
     fetchUser();
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     const fetchEvent = async () => {
