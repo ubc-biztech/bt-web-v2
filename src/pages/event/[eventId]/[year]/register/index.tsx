@@ -108,7 +108,6 @@ export default function AttendeeFormRegister() {
           method: "GET",
         }).catch((backendErr) => {
           console.log("Backend error:", backendErr);
-          return null;
         });
 
         if (userData) setUser(userData);
@@ -118,12 +117,11 @@ export default function AttendeeFormRegister() {
         await router.push(
           `/login?redirect=${encodeURIComponent(callbackPath)}`,
         );
-        setUserLoading(false);
       }
     };
 
     fetchUser();
-  }, [router.isReady, eventId, year]);
+  }, [router, eventId, year]);
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -487,6 +485,8 @@ export default function AttendeeFormRegister() {
     // wait for fields to load, otherwise the views will display a flash change
     if (!event || !user || !event.pricing) return null;
     // deadline passed
+
+    if (userRegistered === undefined) return null;
 
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
