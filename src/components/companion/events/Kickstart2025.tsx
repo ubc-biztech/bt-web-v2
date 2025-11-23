@@ -195,6 +195,7 @@ const Kickstart2025 = () => {
     // If registered for kickoff-showcase event, redirect to /investments
     console.log(userRegistration, "HERE");
 
+    /*
     if (
       userRegistration &&
       typeof userRegistration["eventID;year"] === "string" &&
@@ -203,6 +204,7 @@ const Kickstart2025 = () => {
       router.push("/btx");
       return;
     }
+    */
 
     const { sharedTeam } = router.query;
     if (sharedTeam && typeof sharedTeam === "string") {
