@@ -42,6 +42,7 @@ interface EventData {
 
 interface UserRegistrationContextType {
   userRegistration: Registration | null;
+  event: EventData | null;
 }
 
 export const UserRegistrationContext =
@@ -221,7 +222,7 @@ const Companion = () => {
 
   return (
     <div className={`${bricolage.className} ${instrument.className}`}>
-      <UserRegistrationContext.Provider value={{ userRegistration }}>
+      <UserRegistrationContext.Provider value={{ userRegistration, event }}>
         <CompanionHome ChildComponent={currentEvent.ChildComponent} />
       </UserRegistrationContext.Provider>
     </div>

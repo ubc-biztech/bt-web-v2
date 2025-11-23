@@ -26,17 +26,23 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   >(null);
   const [modal, setModal] = useState(false);
 
-  const { userRegistration } = useUserRegistration();
+  const { userRegistration, event } = useUserRegistration();
+
   const isPartner = userRegistration?.isPartner || false;
+  console.log("userRegistration", userRegistration);
+  const isShowcase = event?.id === "kickstart-showcase";
+
+  // showcase attendees see partner view
+  const isPartnerView = isPartner || isShowcase;
 
   console.log("overview > isPartner", isPartner);
 
   useEffect(() => {
-    if ((team && team.id) || userRegistration?.isPartner) {
+    if ((team && team.id) || isPartnerView) {
       const fetchFundingStatus = async () => {
         try {
           const data = await fetchBackend({
-            endpoint: isPartner
+            endpoint: isPartnerView
               ? `/investments/investorStatus/${userRegistration?.id}`
               : `/investments/teamStatus/${team?.id}`,
             method: "GET",
@@ -54,13 +60,13 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
       };
       fetchFundingStatus();
     }
-  }, [team, isPartner]);
+  }, [team, isPartnerView]);
 
   console.log("overview > rawInvestments", rawInvestments);
 
   return (
     <>
-      {isPartner ? (
+      {isPartnerView ? (
         <PartnerView
           userRegistration={userRegistration}
           investments={rawInvestments || []}
