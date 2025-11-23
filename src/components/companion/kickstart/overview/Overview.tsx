@@ -26,10 +26,10 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
   >(null);
   const [modal, setModal] = useState(false);
 
-  const { userRegistration, event } = useUserRegistration();
+  const { userRegistration } = useUserRegistration();
 
   // partners and showcase see investments instead of team view
-  const isPartnerView = userRegistration?.isPartner || event?.id === "kickstart-showcase";
+  const isPartnerView = userRegistration?.isPartner || userRegistration?.["eventID;year"] === "kickstart-showcase;2025";
 
   useEffect(() => {
     if ((team && team.id) || isPartnerView) {
