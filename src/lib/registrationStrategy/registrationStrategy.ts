@@ -40,11 +40,14 @@ export abstract class RegistrationStrategy {
     return !!this.record;
   }
 
-  abstract status(): DBRegistrationStatus | null;
+  abstract registrationStatus(): DBRegistrationStatus | null;
   abstract applicationStatus(): string | null;
-  abstract isAcceptedPending(): boolean;
+  abstract needsConformation(): boolean;
   abstract needsPayment(): boolean;
   abstract isWaitlisted(): boolean;
   abstract isCheckedIn(): boolean;
+  abstract regForFree(data: any): Promise<void>;
+  abstract regForFreeApp(data: any): Promise<void>;
+  abstract regForPaid(data: any): Promise<{ paymentUrl?: string }>;
+  abstract regForPaidApp(data: any): Promise<{ paymentUrl?: string }>;
 }
-
