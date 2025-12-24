@@ -2,7 +2,7 @@ import { DBRegistrationStatus, ApplicationStatus, BiztechEvent, User } from "@/t
 import { fetchBackend } from "@/lib/db";
 
 export type RegistrationRecord = {
-  registrationStatus: DBRegistrationStatus;
+  registrationStatus: any;
   applicationStatus?: ApplicationStatus;
   isPartner?: boolean;
   points?: number;
@@ -40,7 +40,7 @@ export abstract class RegistrationStrategy {
     return !!this.record;
   }
 
-  abstract registrationStatus(): DBRegistrationStatus | null;
+  abstract registrationStatus(): any | null;
   abstract applicationStatus(): string | null;
   abstract needsConformation(): boolean;
   abstract needsPayment(): boolean;
@@ -51,4 +51,8 @@ export abstract class RegistrationStrategy {
   abstract regForFreeApp(data: any): Promise<void>;
   abstract regForPaid(data: any): Promise<{ paymentUrl?: string }>;
   abstract regForPaidApp(data: any): Promise<{ paymentUrl?: string }>;
+  abstract confirmAttendance(): Promise<void>;
+  abstract confirmAndPay(
+    status: any,
+  ): Promise<{ paymentUrl?: string }>;
 }

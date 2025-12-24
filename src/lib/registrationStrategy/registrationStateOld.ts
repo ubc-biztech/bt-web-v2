@@ -45,7 +45,6 @@ export class RegistrationStateOld extends RegistrationStrategy {
   isConfirmed() {
     return this.registrationStatus() === DBRegistrationStatus.ACCEPTED_COMPLETE;
   }
-
   
 
   async regForFree(data: any): Promise<void> {
@@ -190,5 +189,56 @@ export class RegistrationStateOld extends RegistrationStrategy {
     });
 
     return { paymentUrl: paymentRes?.url ?? paymentRes };
+  }
+
+  async confirmAttendance(): Promise<void> {
+    const body = {
+      eventID: this.event.id,
+      year: this.event.year,
+      registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE,
+    };
+
+    await fetchBackend({
+      endpoint: `/registrations/${this.userEmail}/${this.user?.fname}`,
+      method: "PUT",
+      data: body,
+    });
+  }
+
+  async confirmAndPay(
+    status: DBRegistrationStatus,
+  ): Promise<{ paymentUrl?: string }> {
+    try {
+      const paymentData = {
+        paymentName: `${this.event.ename} ${this.user?.isMember || this.event.pricing?.members === this.event.pricing?.nonMembers ? "" : "(Non-member)"}`,
+        paymentImages: [this.event.imageUrl],
+        paymentPrice:
+          (this.user?.isMember
+            ? this.event.pricing?.members
+            : this.event.pricing?.nonMembers) * 100,
+        paymentType: "Event",
+        success_url: `${
+          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+            ? "http://localhost:3000/"
+            : CLIENT_URL
+        }event/${this.event.id}/${this.event.year}/register/${status === DBRegistrationStatus.ACCEPTED || status === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
+        email: this.userEmail,
+        fname: this.user?.fname,
+        eventID: this.event.id,
+        year: this.event.year,
+      };
+
+      const res = await fetchBackend({
+        endpoint: "/payments",
+        method: "POST",
+        data: paymentData,
+        authenticatedCall: false,
+      });
+
+      return { paymentUrl: res?.url ?? res };
+    } catch (error) {
+      console.error("Error generating payment link:", error);
+      return {};
+    }
   }
 }

@@ -353,7 +353,7 @@ export default function AttendeeFormRegister() {
       return false;
     } catch (error) {
       alert(
-        `An error has occured: ${error} Please contact an exec for support.`,
+        "An error has occured. Please contact an exec for support.",
       );
       return false;
     }
