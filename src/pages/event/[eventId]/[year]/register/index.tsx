@@ -29,6 +29,8 @@ import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
 import { Registration } from "@/types/types";
 import Link from "next/link";
+import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
+
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -48,6 +50,8 @@ export default function AttendeeFormRegister() {
     useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
+  const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
+
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
@@ -84,6 +88,24 @@ export default function AttendeeFormRegister() {
     setUserRegistered(exists);
     return exists;
   };
+
+  useEffect(() => {
+  if (!userLoggedIn || !user?.id || !event?.id || !event?.year) return;
+
+  const loadRegistrationState = async () => {
+    try {
+      const state = await RegistrationStateOld.load(event, user.id, user);
+      setRegState(state);
+      setUserRegistered(state.exists());
+      setRegistrationStatus(state.registrationStatus() ?? DBRegistrationStatus.INCOMPLETE);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  loadRegistrationState();
+}, [userLoggedIn, user, event]);
+
+
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -235,34 +257,37 @@ export default function AttendeeFormRegister() {
       }),
     };
 
-    const registrationData = {
+    const payload = {
       email: data["emailAddress"],
       fname: data["firstName"],
       studentId: data["studentId"],
-      eventID: eventId,
-      year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.REGISTERED,
-      isPartner: false,
-      points: 0,
       basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
     };
 
     try {
-      await fetchBackend({
-        endpoint: "/registrations",
-        method: "POST",
-        data: registrationData,
-        authenticatedCall: false,
-      });
+      const state =
+        regState ??
+        (await RegistrationStateOld.load(event, user.id, user).then((s) => {
+          setRegState(s);
+          return s;
+        }));
+
+      if (!state) {
+        throw new Error("Unable to initialize registration state");
+      }
+
+      if (event.isApplicationBased) {
+        await state.regForFreeApp(payload);
+      } else {
+        await state.regForFree(payload);
+      }
+
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
       alert(
-        `An error has occured: ${error} Please contact an exec for support. 4`,
+        "An error has occured. Please contact an exec for support.",
       );
       return false;
     }
@@ -275,81 +300,57 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
-    const registrationData = {
+    const basicInformation = {
+      fname: data["firstName"],
+      lname: data["lastName"],
+      year: data["yearLevel"],
+      faculty: data["faculty"],
+      major: data["majorSpecialization"],
+      gender: data["preferredPronouns"],
+      diet: data["dietaryRestrictions"],
+      heardFrom: data["howDidYouHear"],
+    };
+
+    const payload = {
       email: data["emailAddress"],
       fname: data["firstName"],
       studentId: data["studentId"],
-      eventID: eventId,
-      year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.INCOMPLETE,
-      isPartner: false,
-      points: 0,
-      basicInformation: {
-        fname: data["firstName"],
-        lname: data["lastName"],
-        year: data["yearLevel"],
-        faculty: data["faculty"],
-        major: data["majorSpecialization"],
-        gender: data["preferredPronouns"],
-        diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"],
-      },
+      basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
     };
 
     try {
-      const res = await fetchBackend({
-        endpoint: "/registrations",
-        method: "POST",
-        data: registrationData,
-        authenticatedCall: false,
-      });
-      if (res.url) {
-        window.open(res.url, "_self");
-        return true;
-      } else {
-        const paymentData = {
-          paymentType: "Event",
-          success_url: `${
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-              ? "http://localhost:3000/"
-              : CLIENT_URL
-          }event/${event.id}/${event.year}/register/success`,
-          // cancel_url: `${process.env.REACT_APP_STAGE === "local"
-          //   ? "http://localhost:3000/"
-          //   : CLIENT_URL
-          // }event/${event.id}/${event.year}/register`,
-          email: data["emailAddress"],
-          fname: data["firstName"],
-          eventID: eventId,
-          year: year,
-        };
+      const state =
+        regState ??
+        (await RegistrationStateOld.load(event, user.id, user).then((s) => {
+          setRegState(s);
+          return s;
+        }));
 
-        try {
-          const res = await fetchBackend({
-            endpoint: "/payments",
-            method: "POST",
-            data: paymentData,
-            authenticatedCall: false,
-          });
-          if (event.isApplicationBased) {
-            router.push(
-              `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
-            );
-          } else {
-            window.open(res, "_self");
-          }
-          return true;
-        } catch (error) {
-          alert(
-            `An error has occured: ${error} Please contact an exec for support.`,
-          );
-          return false;
-        }
+      if (!state) {
+        throw new Error("Unable to initialize registration state");
       }
+
+      const result = event.isApplicationBased
+        ? await state.regForPaidApp(payload)
+        : await state.regForPaid(payload);
+
+      if (event.isApplicationBased) {
+        await router.push(
+          `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
+        );
+        return true;
+      }
+
+      if (result?.paymentUrl) {
+        window.open(result.paymentUrl, "_self");
+        return true;
+      }
+
+      alert(
+        "An error has occured: No payment URL returned. Please contact an exec for support.",
+      );
+      return false;
     } catch (error) {
       alert(
         `An error has occured: ${error} Please contact an exec for support.`,
@@ -491,7 +492,7 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
-      if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+      if (regState?.isConfirmed) {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
@@ -508,8 +509,7 @@ export default function AttendeeFormRegister() {
           </div>,
         );
       } else if (
-        registrationStatus === DBRegistrationStatus.ACCEPTED ||
-        registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
+        regState?.needsConformation() || regState?.needsPayment()
       ) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
@@ -580,8 +580,7 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {registrationStatus ===
-                    DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    {regState.needsConformation() ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
@@ -594,8 +593,7 @@ export default function AttendeeFormRegister() {
                   </p>
 
                   {/* #292: don't show at all if already member or no price difference */}
-                  {registrationStatus !==
-                    DBRegistrationStatus.ACCEPTED_PENDING &&
+                  {!regState.needsConformation() &&
                     !user?.isMember &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
@@ -620,8 +618,7 @@ export default function AttendeeFormRegister() {
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={
-                      registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING
+                      regState.needsConformation()
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -633,15 +630,14 @@ export default function AttendeeFormRegister() {
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </span>
-                    ) : registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    ) : regState.needsConformation() ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
                     )}
                   </Button>
 
-                  {registrationStatus === DBRegistrationStatus.ACCEPTED &&
+                  {regState.needsPayment() &&
                     !user.isMember && (
                       <Button
                         variant="outline"

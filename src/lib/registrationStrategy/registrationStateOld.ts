@@ -42,6 +42,9 @@ export class RegistrationStateOld extends RegistrationStrategy {
   isCheckedIn() {
     return this.registrationStatus() === DBRegistrationStatus.CHECKED_IN;
   }
+  isConfirmed() {
+    return this.registrationStatus() === DBRegistrationStatus.ACCEPTED_COMPLETE;
+  }
 
   
 
@@ -68,7 +71,7 @@ export class RegistrationStateOld extends RegistrationStrategy {
       authenticatedCall: false,
     });
   }
-  
+
   async regForFreeApp(data: any): Promise<void> {
     const registrationData = {
       ...data,

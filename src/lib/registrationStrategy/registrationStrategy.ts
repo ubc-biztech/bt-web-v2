@@ -46,6 +46,7 @@ export abstract class RegistrationStrategy {
   abstract needsPayment(): boolean;
   abstract isWaitlisted(): boolean;
   abstract isCheckedIn(): boolean;
+  abstract isConfirmed(): boolean;
   abstract regForFree(data: any): Promise<void>;
   abstract regForFreeApp(data: any): Promise<void>;
   abstract regForPaid(data: any): Promise<{ paymentUrl?: string }>;
