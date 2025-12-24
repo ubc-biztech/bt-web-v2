@@ -1,4 +1,9 @@
-import { DBRegistrationStatus, ApplicationStatus, BiztechEvent, User } from "@/types";
+import {
+  DBRegistrationStatus,
+  ApplicationStatus,
+  BiztechEvent,
+  User,
+} from "@/types";
 import { fetchBackend } from "@/lib/db";
 
 export type RegistrationRecord = {
@@ -21,7 +26,7 @@ export abstract class RegistrationStrategy {
     this: new (...args: any[]) => T,
     event: BiztechEvent,
     userEmail: string,
-    user: User
+    user: User,
   ): Promise<T> {
     const res = await fetchBackend({
       endpoint: `/registrations?email=${userEmail}`,
@@ -29,9 +34,10 @@ export abstract class RegistrationStrategy {
       authenticatedCall: false,
     });
 
-    const record = res.data.find(
-      (reg: any) => reg["eventID;year"] === `${event.id};${event.year}`
-    ) || null;
+    const record =
+      res.data.find(
+        (reg: any) => reg["eventID;year"] === `${event.id};${event.year}`,
+      ) || null;
 
     return new this(event, userEmail, user, record);
   }
@@ -52,7 +58,5 @@ export abstract class RegistrationStrategy {
   abstract regForPaid(data: any): Promise<{ paymentUrl?: string }>;
   abstract regForPaidApp(data: any): Promise<{ paymentUrl?: string }>;
   abstract confirmAttendance(): Promise<void>;
-  abstract confirmAndPay(
-    status: any,
-  ): Promise<{ paymentUrl?: string }>;
+  abstract confirmAndPay(status: any): Promise<{ paymentUrl?: string }>;
 }

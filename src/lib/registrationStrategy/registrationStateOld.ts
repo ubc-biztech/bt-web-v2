@@ -1,4 +1,9 @@
-import { DBRegistrationStatus, ApplicationStatus, BiztechEvent, User } from "@/types";
+import {
+  DBRegistrationStatus,
+  ApplicationStatus,
+  BiztechEvent,
+  User,
+} from "@/types";
 import { fetchBackend } from "@/lib/db";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { RegistrationStrategy } from "./registrationStrategy";
@@ -12,7 +17,6 @@ export type RegistrationRecord = {
 };
 
 export class RegistrationStateOld extends RegistrationStrategy {
-
   exists() {
     return !!this.record;
   }
@@ -20,11 +24,11 @@ export class RegistrationStateOld extends RegistrationStrategy {
   registrationStatus() {
     return this.record?.registrationStatus ?? null;
   }
-  
+
   applicationStatus() {
     return this.record?.applicationStatus ?? null;
   }
-  
+
   needsPayment() {
     return (
       this.registrationStatus() === DBRegistrationStatus.ACCEPTED ||
@@ -45,7 +49,6 @@ export class RegistrationStateOld extends RegistrationStrategy {
   isConfirmed() {
     return this.registrationStatus() === DBRegistrationStatus.ACCEPTED_COMPLETE;
   }
-  
 
   async regForFree(data: any): Promise<void> {
     const registrationData = {
@@ -142,7 +145,7 @@ export class RegistrationStateOld extends RegistrationStrategy {
 
     return { paymentUrl: paymentRes?.url ?? paymentRes };
   }
-  
+
   async regForPaidApp(data: any): Promise<{ paymentUrl?: string }> {
     const registrationData = {
       ...data,

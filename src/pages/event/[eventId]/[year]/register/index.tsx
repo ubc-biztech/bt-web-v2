@@ -30,7 +30,6 @@ import { Registration } from "@/types/types";
 import Link from "next/link";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 
-
 export default function AttendeeFormRegister() {
   const router = useRouter();
   const { eventId, year } = router.query;
@@ -97,22 +96,22 @@ export default function AttendeeFormRegister() {
   };
 
   useEffect(() => {
-  if (!userLoggedIn || !user?.id || !event?.id || !event?.year) return;
+    if (!userLoggedIn || !user?.id || !event?.id || !event?.year) return;
 
-  const loadRegistrationState = async () => {
-    try {
-      const state = await RegistrationStateOld.load(event, user.id, user);
-      setRegState(state);
-      setUserRegistered(state.exists());
-      setRegistrationStatus(state.registrationStatus() ?? DBRegistrationStatus.INCOMPLETE);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  loadRegistrationState();
-}, [userLoggedIn, user, event]);
-
-
+    const loadRegistrationState = async () => {
+      try {
+        const state = await RegistrationStateOld.load(event, user.id, user);
+        setRegState(state);
+        setUserRegistered(state.exists());
+        setRegistrationStatus(
+          state.registrationStatus() ?? DBRegistrationStatus.INCOMPLETE,
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadRegistrationState();
+  }, [userLoggedIn, user, event]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -288,9 +287,7 @@ export default function AttendeeFormRegister() {
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
-      alert(
-        "An error has occured. Please contact an exec for support.",
-      );
+      alert("An error has occured. Please contact an exec for support.");
       return false;
     }
   };
@@ -349,9 +346,7 @@ export default function AttendeeFormRegister() {
       );
       return false;
     } catch (error) {
-      alert(
-        "An error has occured. Please contact an exec for support.",
-      );
+      alert("An error has occured. Please contact an exec for support.");
       return false;
     }
   };
@@ -465,9 +460,7 @@ export default function AttendeeFormRegister() {
             </button>
           </div>,
         );
-      } else if (
-        regState?.needsConformation() || regState?.needsPayment()
-      ) {
+      } else if (regState?.needsConformation() || regState?.needsPayment()) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -500,7 +493,8 @@ export default function AttendeeFormRegister() {
               const state = await getRegistrationState();
               if (!state) throw new Error("Unable to generate payment link");
               const result = await state.confirmAndPay(registrationStatus);
-              if (!result?.paymentUrl) throw new Error("Failed to generate payment link");
+              if (!result?.paymentUrl)
+                throw new Error("Failed to generate payment link");
               window.open(result.paymentUrl, "_blank");
             } catch (err) {
               console.error("Payment error:", err);
@@ -583,16 +577,15 @@ export default function AttendeeFormRegister() {
                     )}
                   </Button>
 
-                  {regState.needsPayment() &&
-                    !user.isMember && (
-                      <Button
-                        variant="outline"
-                        className="border-white/20 text-white hover:bg-white/10"
-                        onClick={() => (window.location.href = "/membership")}
-                      >
-                        Become a Member
-                      </Button>
-                    )}
+                  {regState.needsPayment() && !user.isMember && (
+                    <Button
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                      onClick={() => (window.location.href = "/membership")}
+                    >
+                      Become a Member
+                    </Button>
+                  )}
                 </div>
 
                 {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
