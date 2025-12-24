@@ -23,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
-import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
@@ -58,6 +57,14 @@ export default function AttendeeFormRegister() {
 
   const samePricing = () => {
     return event.pricing?.members === event.pricing?.nonMembers;
+  };
+
+  const getRegistrationState = async () => {
+    if (regState) return regState;
+    if (!event?.id || !user?.id) return null;
+    const state = await RegistrationStateOld.load(event, user.id, user);
+    setRegState(state);
+    return state;
   };
 
   const priceDiff = () => {
@@ -266,12 +273,7 @@ export default function AttendeeFormRegister() {
     };
 
     try {
-      const state =
-        regState ??
-        (await RegistrationStateOld.load(event, user.id, user).then((s) => {
-          setRegState(s);
-          return s;
-        }));
+      const state = await getRegistrationState();
 
       if (!state) {
         throw new Error("Unable to initialize registration state");
@@ -320,12 +322,7 @@ export default function AttendeeFormRegister() {
     };
 
     try {
-      const state =
-        regState ??
-        (await RegistrationStateOld.load(event, user.id, user).then((s) => {
-          setRegState(s);
-          return s;
-        }));
+      const state = await getRegistrationState();
 
       if (!state) {
         throw new Error("Unable to initialize registration state");
@@ -440,46 +437,6 @@ export default function AttendeeFormRegister() {
     );
   };
 
-  const generatePaymentLink = async (
-    event: BiztechEvent,
-    registrationStatus: DBRegistrationStatus,
-  ) => {
-    if (!user) return null;
-
-    try {
-      const paymentData = {
-        paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"}`,
-        paymentImages: [event.imageUrl],
-        paymentPrice:
-          (user?.isMember
-            ? event.pricing?.members
-            : event.pricing?.nonMembers) * 100,
-        paymentType: "Event",
-        success_url: `${
-          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-            ? "http://localhost:3000/"
-            : CLIENT_URL
-        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED || registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
-        email: user.id,
-        fname: user.fname,
-        eventID: event.id,
-        year: event.year,
-      };
-
-      const res = await fetchBackend({
-        endpoint: "/payments",
-        method: "POST",
-        data: paymentData,
-        authenticatedCall: false,
-      });
-
-      return res;
-    } catch (error) {
-      console.error("Error generating payment link:", error);
-      return null;
-    }
-  };
-
   const renderConditionalViews = () => {
     if (userLoading) return null;
 
@@ -492,7 +449,7 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
-      if (regState?.isConfirmed) {
+      if (regState?.isConfirmed && regState.isConfirmed()) {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
@@ -522,16 +479,9 @@ export default function AttendeeFormRegister() {
             setError(null);
 
             try {
-              const body = {
-                eventID: event.id,
-                year: event.year,
-                registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE,
-              };
-              await fetchBackend({
-                endpoint: `/registrations/${user.id}/${user.fname}`,
-                method: "PUT",
-                data: body,
-              });
+              const state = await getRegistrationState();
+              if (!state) throw new Error("Unable to confirm attendance");
+              await state.confirmAttendance();
               window.location.reload(); // show updated state
             } catch (error) {
               setError("An error occurred. Please try again.");
@@ -547,15 +497,11 @@ export default function AttendeeFormRegister() {
             setError(null);
 
             try {
-              const paymentUrl = await generatePaymentLink(
-                event,
-                registrationStatus,
-              );
-              if (paymentUrl) {
-                window.open(paymentUrl, "_blank");
-              } else {
-                setError("Failed to generate payment link");
-              }
+              const state = await getRegistrationState();
+              if (!state) throw new Error("Unable to generate payment link");
+              const result = await state.confirmAndPay(registrationStatus);
+              if (!result?.paymentUrl) throw new Error("Failed to generate payment link");
+              window.open(result.paymentUrl, "_blank");
             } catch (err) {
               console.error("Payment error:", err);
               setError("An error occurred. Please try again.");
