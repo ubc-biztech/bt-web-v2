@@ -48,7 +48,7 @@ export abstract class RegistrationStrategy {
 
   abstract registrationStatus(): any | null;
   abstract applicationStatus(): string | null;
-  abstract needsConformation(): boolean;
+  abstract needsConfirmation(): boolean;
   abstract needsPayment(): boolean;
   abstract isWaitlisted(): boolean;
   abstract isCheckedIn(): boolean;

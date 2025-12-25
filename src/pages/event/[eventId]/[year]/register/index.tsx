@@ -287,7 +287,9 @@ export default function AttendeeFormRegister() {
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
-      alert("An error has occured. Please contact an exec for support.");
+      alert(
+        "An error has occurred. Please contact an exec for support.",
+      );
       return false;
     }
   };
@@ -342,11 +344,11 @@ export default function AttendeeFormRegister() {
       }
 
       alert(
-        "An error has occured: No payment URL returned. Please contact an exec for support.",
+        "An error has occurred: No payment URL returned. Please contact an exec for support.",
       );
       return false;
     } catch (error) {
-      alert("An error has occured. Please contact an exec for support.");
+      alert("An error has occurred. Please contact an exec for support.");
       return false;
     }
   };
@@ -460,7 +462,7 @@ export default function AttendeeFormRegister() {
             </button>
           </div>,
         );
-      } else if (regState?.needsConformation() || regState?.needsPayment()) {
+      } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
         const PaymentButton = () => {
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
@@ -492,7 +494,9 @@ export default function AttendeeFormRegister() {
             try {
               const state = await getRegistrationState();
               if (!state) throw new Error("Unable to generate payment link");
-              const result = await state.confirmAndPay(registrationStatus);
+              const result = await state.confirmAndPay(
+                state.registrationStatus() ?? registrationStatus,
+              );
               if (!result?.paymentUrl)
                 throw new Error("Failed to generate payment link");
               window.open(result.paymentUrl, "_blank");
@@ -520,7 +524,7 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {regState.needsConformation() ? (
+                    {regState.needsConfirmation() ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
@@ -533,7 +537,7 @@ export default function AttendeeFormRegister() {
                   </p>
 
                   {/* #292: don't show at all if already member or no price difference */}
-                  {!regState.needsConformation() &&
+                  {!regState.needsConfirmation() &&
                     !user?.isMember &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
@@ -558,7 +562,7 @@ export default function AttendeeFormRegister() {
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={
-                      regState.needsConformation()
+                      regState.needsConfirmation()
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -570,7 +574,7 @@ export default function AttendeeFormRegister() {
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </span>
-                    ) : regState.needsConformation() ? (
+                    ) : regState.needsConfirmation() ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
