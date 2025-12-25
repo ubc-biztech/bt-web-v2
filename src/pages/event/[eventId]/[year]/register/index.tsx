@@ -287,9 +287,7 @@ export default function AttendeeFormRegister() {
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
-      alert(
-        "An error has occurred. Please contact an exec for support.",
-      );
+      alert("An error has occurred. Please contact an exec for support.");
       return false;
     }
   };

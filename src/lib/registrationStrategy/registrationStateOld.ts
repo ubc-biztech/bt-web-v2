@@ -6,7 +6,7 @@ import {
 } from "@/types";
 import { fetchBackend } from "@/lib/db";
 import { CLIENT_URL } from "@/lib/dbconfig";
-import { RegistrationStrategy} from "./registrationStrategy";
+import { RegistrationStrategy } from "./registrationStrategy";
 
 export type RegistrationRecord = {
   registrationStatus: DBRegistrationStatus;
