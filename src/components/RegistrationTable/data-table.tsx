@@ -18,6 +18,7 @@ import { createColumns } from "./columns";
 import { Registration } from "@/types/types";
 import { QrCheckIn } from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
+import { isWaitlisted } from "@/lib/registrationStatus";
 
 export function DataTable({
   initialData,
@@ -70,11 +71,11 @@ export function DataTable({
         case "partners":
           return attendee.isPartner === true;
         case "waitlisted":
-          return attendee.registrationStatus === "waitlisted";
+          return isWaitlisted(attendee.registrationStatus);
         case "attendees":
         default:
           return (
-            !attendee.isPartner && attendee.registrationStatus !== "waitlisted"
+            !attendee.isPartner && !isWaitlisted(attendee.registrationStatus)
           );
       }
     });

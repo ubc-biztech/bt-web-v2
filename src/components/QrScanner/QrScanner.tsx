@@ -19,6 +19,7 @@ import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+import { isCheckedIn, isCancelled, isWaitlisted } from "@/lib/registrationStatus";
 
 /**
  * MAIN EVENT CHECK-IN COMPONENT
@@ -146,15 +147,15 @@ export const QrCheckIn: React.FC<QrProps> = ({
     setCheckInName(`${user.fname} ${user.basicInformation.lname} (${userID})`);
 
     // Check various registration statuses that prevent check-in
-    if (user.registrationStatus === REGISTRATION_STATUS.CHECKED_IN) {
+    if (isCheckedIn(user.registrationStatus)) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is already checked in.");
       return false;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.CANCELLED) {
+    } else if (isCancelled(user.registrationStatus)) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person had their registration cancelled. Cannot check-in.");
       return false;
-    } else if (user.registrationStatus === REGISTRATION_STATUS.WAITLISTED) {
+    } else if (isWaitlisted(user.registrationStatus)) {
       cycleQrScanStage(QR_SCAN_STAGE.FAILED, SCAN_CYCLE_DELAY);
       setError("Person is on the waitlist. Cannot check-in.");
       return false;

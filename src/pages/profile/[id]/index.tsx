@@ -31,6 +31,7 @@ import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import { IconButton } from "@/components/Common/IconButton";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
+import { isCheckedIn, isCancelled, isWaitlisted, isConfirmed } from "@/lib/registrationStatus";
 import { User } from "@/types";
 
 interface NFCProfilePageProps {
@@ -94,9 +95,7 @@ const ProfilePage = ({
         return false;
       }
 
-      if (
-        eventRegistration.registrationStatus === REGISTRATION_STATUS.CHECKED_IN
-      ) {
+      if (isCheckedIn(eventRegistration.registrationStatus)) {
         toast({
           title: "Check-in Failed",
           description:
@@ -106,9 +105,7 @@ const ProfilePage = ({
         return false;
       }
 
-      if (
-        eventRegistration.registrationStatus === REGISTRATION_STATUS.CANCELLED
-      ) {
+      if (isCancelled(eventRegistration.registrationStatus)) {
         toast({
           title: "Check-in Failed",
           description:
@@ -118,9 +115,7 @@ const ProfilePage = ({
         return false;
       }
 
-      if (
-        eventRegistration.registrationStatus === REGISTRATION_STATUS.WAITLISTED
-      ) {
+      if (isWaitlisted(eventRegistration.registrationStatus)) {
         toast({
           title: "Check-in Failed",
           description: "The user is on the waitlist. Cannot check-in.",
@@ -130,10 +125,7 @@ const ProfilePage = ({
       }
 
       // ACCEPTEDCOMPLETE -> User has to confirm spot by paying (?)
-      if (
-        eventRegistration.registrationStatus !==
-        REGISTRATION_STATUS.ACCEPTEDCOMPLETE
-      ) {
+      if (!isConfirmed(eventRegistration.registrationStatus)) {
         toast({
           title: "Check-in Failed",
           description:
