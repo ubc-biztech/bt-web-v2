@@ -77,3 +77,5 @@ export const isWaitlisted = (value?: string | null): boolean =>
 
 export const isCancelled = (value?: string | null): boolean =>
   value === DBRegistrationStatus.CANCELLED;
+
+export const REGISTERED_STATUS = DBRegistrationStatus.REGISTERED;
