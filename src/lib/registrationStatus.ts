@@ -50,6 +50,9 @@ export const RegistrationStatusOptions = Object.entries(
   label: cfg.label,
 }));
 
+export const getSortOrder = (value?: string | null) =>
+  RegistrationStatusConfig[value as DBRegistrationStatus]?.sortOrder ?? 999;
+
 export const getStatusLabel = (value: string) =>
   RegistrationStatusConfig[value as DBRegistrationStatus]?.label ?? value;
 

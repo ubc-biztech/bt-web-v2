@@ -6,9 +6,13 @@ import { TableCell } from "./TableCell";
 import { EditCell } from "./EditCell";
 import { NFCCardCell } from "./NFCCardCell";
 import { SortableHeader } from "./SortableHeader";
-import { BiztechEvent, DBRegistrationStatus } from "@/types/types";
+import { BiztechEvent } from "@/types/types";
 import { Registration } from "@/types/types";
 import { cn } from "@/lib/utils";
+import {
+  RegistrationStatusOptions,
+  getSortOrder
+} from "@/lib/registrationStatus";
 
 export type ColumnMeta = {
   type?: "select" | "number";
@@ -93,32 +97,13 @@ export const createColumns = (
     ),
     meta: {
       type: "select",
-      options: [
-        { value: DBRegistrationStatus.REGISTERED, label: "Registered" },
-        { value: DBRegistrationStatus.CHECKED_IN, label: "Checked-In" },
-        { value: DBRegistrationStatus.CANCELLED, label: "Cancelled" },
-        { value: DBRegistrationStatus.INCOMPLETE, label: "Incomplete" },
-        { value: DBRegistrationStatus.WAITLISTED, label: "Waitlisted" },
-        { value: DBRegistrationStatus.ACCEPTED, label: "Accepted" },
-      ],
+      options: RegistrationStatusOptions,
     } as ColumnMeta,
     size: 200,
     enableSorting: true,
-    sortingFn: (rowA, rowB) => {
-      const order = [
-        DBRegistrationStatus.CHECKED_IN,
-        DBRegistrationStatus.REGISTERED,
-        DBRegistrationStatus.INCOMPLETE,
-        DBRegistrationStatus.CANCELLED,
-        DBRegistrationStatus.ACCEPTED,
-        DBRegistrationStatus.ACCEPTED_PENDING,
-        DBRegistrationStatus.ACCEPTED_COMPLETE,
-      ];
-      return (
-        order.indexOf(rowA.getValue("registrationStatus")) -
-        order.indexOf(rowB.getValue("registrationStatus"))
-      );
-    },
+    sortingFn: (rowA, rowB) =>
+      getSortOrder(rowA.getValue("registrationStatus") as string) -
+      getSortOrder(rowB.getValue("registrationStatus") as string),
   },
   {
     accessorKey: "applicationStatus",
