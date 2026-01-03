@@ -11,7 +11,6 @@ import { CellContext } from "@tanstack/react-table";
 import { ColumnMeta } from "./columns";
 import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
-import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 import { getStatusLabel, getStatusColor } from "@/lib/registrationStatus";

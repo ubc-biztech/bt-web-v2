@@ -68,3 +68,12 @@ export const isNeedsConfirmation = (value?: string | null): boolean =>
 
 export const isConfirmed = (value?: string | null): boolean =>
   value === DBRegistrationStatus.ACCEPTED_COMPLETE;
+
+export const isCheckedIn = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.CHECKED_IN;
+
+export const isWaitlisted = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.WAITLISTED;
+
+export const isCancelled = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.CANCELLED;
