@@ -14,6 +14,7 @@ import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { DBRegistrationStatus, RegistrationStatusField } from "@/types";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+import { getStatusLabel, getStatusColor } from "@/lib/registrationStatus";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
   refreshTable: () => Promise<void>;
@@ -29,7 +30,7 @@ export const TableCell = memo(
     const [showNfcPopup, setShowNfcPopup] = useState(false);
 
     useEffect(() => {
-      setValue(getLabel(initialValue as string));
+      setValue(getStatusLabel(initialValue as string));
     }, [initialValue, column.id, row.original.id]);
 
     const onBlur = async () => {
@@ -72,48 +73,6 @@ export const TableCell = memo(
       }
     };
 
-    const getColor = (value: string) => {
-      switch (value) {
-        case "Registered":
-          return "#AAE7FF";
-        case RegistrationStatusField.CHECKED_IN:
-          return "#70E442";
-        case "Waitlist":
-          return "#D79EF1";
-        case "Incomplete":
-          return "#FFAD8F";
-        case RegistrationStatusField.CANCELLED:
-          return "#FB6F8E";
-        case RegistrationStatusField.WAITLISTED:
-          return "#D79EF1";
-        default:
-          return "#ffffff";
-      }
-    };
-    // this can probably be defined and imported
-    const getLabel = (value: string) => {
-      switch (value) {
-        case "registered":
-          return "Registered";
-        case "checkedin":
-          return "Checked-In";
-        case "incomplete":
-          return "Incomplete";
-        case "cancelled":
-          return "Cancelled";
-        case "accepted":
-          return "Accepted";
-        case "waitlist":
-          return "Waitlist";
-        case "reviewing":
-          return "Reviewing";
-        case "rejected":
-          return "Rejected";
-        default:
-          return value;
-      }
-    };
-
     if (column.id === "registrationStatus" || column.id === "points") {
       if (columnMeta?.type === "select") {
         const handleSelectChange = (newValue: string) => {
@@ -128,7 +87,7 @@ export const TableCell = memo(
             >
               <SelectTrigger
                 className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
-                style={{ backgroundColor: getColor(value as string) }}
+                style={{ backgroundColor: getStatusColor(initialValue as string) }}
               >
                 <SelectValue>{value as string}</SelectValue>
               </SelectTrigger>

@@ -7,17 +7,17 @@ export const RegistrationStatusConfig = {
     color: "#AAE7FF",
   },
   [DBRegistrationStatus.ACCEPTED_PENDING]: {
-    label: "Accepted (Confirm)",
+    label: "Accepted Pending",
     sortOrder: 5,
     color: "#AAE7FF",
   },
   [DBRegistrationStatus.ACCEPTED]: {
-    label: "Accepted (Pay)",
+    label: "Accepted",
     sortOrder: 6,
     color: "#AAE7FF",
   },
   [DBRegistrationStatus.ACCEPTED_COMPLETE]: {
-    label: "Accepted (Confirmed)",
+    label: "Accepted Complete",
     sortOrder: 7,
     color: "#AAE7FF",
   },
@@ -55,6 +55,9 @@ export const getSortOrder = (value?: string | null) =>
 
 export const getStatusLabel = (value: string) =>
   RegistrationStatusConfig[value as DBRegistrationStatus]?.label ?? value;
+
+export const getStatusColor = (value?: string | null): string =>
+  RegistrationStatusConfig[value as DBRegistrationStatus]?.color ?? "#ffffff";
 
 export const isNeedsPayment = (value?: string | null): boolean =>
   value === DBRegistrationStatus.ACCEPTED ||
