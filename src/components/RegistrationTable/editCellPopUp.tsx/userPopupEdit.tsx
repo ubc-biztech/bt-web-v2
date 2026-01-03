@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { Registration } from "@/types/types";
 import { Table } from "@tanstack/react-table";
+import { getStatusLabel } from "@/lib/registrationStatus"
 
 interface SelectCellProps {
   row: Registration;
@@ -70,28 +71,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
     setValue(e.target.value);
   };
 
-  const getLabel = (value: string) => {
-    switch (value) {
-      case "registered":
-        return "Registered";
-      case "checkedIn":
-        return "Checked-In";
-      case "incomplete":
-        return "Incomplete";
-      case "cancelled":
-        return "Cancelled";
-      case "accepted":
-        return "Accepted";
-      case "waitlist":
-        return "Waitlist";
-      case "reviewing":
-        return "Reviewing";
-      case "rejected":
-        return "Rejected";
-      default:
-        return value;
-    }
-  };
+  const getLabel = (value: string) => getStatusLabel(value);
 
   return (
     <div>
