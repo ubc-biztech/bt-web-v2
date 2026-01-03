@@ -43,12 +43,17 @@ export const RegistrationStatusConfig = {
   },
 } as const;
 
-export const RegistrationStatusOptions = Object.entries(
-  RegistrationStatusConfig,
-).map(([value, cfg]) => ({
-  value,
-  label: cfg.label,
-}));
+const EXCLUDED_STATUSES = new Set([
+  DBRegistrationStatus.ACCEPTED_COMPLETE,
+  DBRegistrationStatus.ACCEPTED_PENDING,
+]);
+
+export const RegistrationStatusOptions = Object.entries(RegistrationStatusConfig)
+  .filter(([value]) => !EXCLUDED_STATUSES.has(value as DBRegistrationStatus))
+  .map(([value, cfg]) => ({
+    value,
+    label: cfg.label,
+  }));
 
 export const getSortOrder = (value?: string | null) =>
   RegistrationStatusConfig[value as DBRegistrationStatus]?.sortOrder ?? 999;
