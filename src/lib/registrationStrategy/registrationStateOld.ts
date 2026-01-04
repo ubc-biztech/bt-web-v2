@@ -1,10 +1,10 @@
-import {
-  DBRegistrationStatus,
-  ApplicationStatus
-} from "@/types";
+import { DBRegistrationStatus, ApplicationStatus } from "@/types";
 import { fetchBackend } from "@/lib/db";
 import { CLIENT_URL } from "@/lib/dbconfig";
-import { RegistrationPayload, RegistrationStrategy } from "./registrationStrategy";
+import {
+  RegistrationPayload,
+  RegistrationStrategy,
+} from "./registrationStrategy";
 
 export type RegistrationRecord = {
   registrationStatus: DBRegistrationStatus;
