@@ -1,12 +1,10 @@
 import {
   DBRegistrationStatus,
-  ApplicationStatus,
-  BiztechEvent,
-  User,
+  ApplicationStatus
 } from "@/types";
 import { fetchBackend } from "@/lib/db";
 import { CLIENT_URL } from "@/lib/dbconfig";
-import { RegistrationStrategy } from "./registrationStrategy";
+import { RegistrationPayload, RegistrationStrategy } from "./registrationStrategy";
 
 export type RegistrationRecord = {
   registrationStatus: DBRegistrationStatus;
@@ -50,7 +48,7 @@ export class RegistrationStateOld extends RegistrationStrategy {
     return this.registrationStatus() === DBRegistrationStatus.ACCEPTED_COMPLETE;
   }
 
-  async regForFree(data: any): Promise<void> {
+  async regForFree(data: RegistrationPayload): Promise<void> {
     const registrationData = {
       ...data,
       email: data?.email ?? this.userEmail,
@@ -74,7 +72,7 @@ export class RegistrationStateOld extends RegistrationStrategy {
     });
   }
 
-  async regForFreeApp(data: any): Promise<void> {
+  async regForFreeApp(data: RegistrationPayload): Promise<void> {
     const registrationData = {
       ...data,
       email: data?.email ?? this.userEmail,
@@ -98,7 +96,9 @@ export class RegistrationStateOld extends RegistrationStrategy {
     });
   }
 
-  async regForPaid(data: any): Promise<{ paymentUrl?: string }> {
+  async regForPaid(
+    data: RegistrationPayload,
+  ): Promise<{ paymentUrl?: string }> {
     const registrationData = {
       ...data,
       email: data?.email ?? this.userEmail,
@@ -146,7 +146,9 @@ export class RegistrationStateOld extends RegistrationStrategy {
     return { paymentUrl: paymentRes?.url ?? paymentRes };
   }
 
-  async regForPaidApp(data: any): Promise<{ paymentUrl?: string }> {
+  async regForPaidApp(
+    data: RegistrationPayload,
+  ): Promise<{ paymentUrl?: string }> {
     const registrationData = {
       ...data,
       email: data?.email ?? this.userEmail,

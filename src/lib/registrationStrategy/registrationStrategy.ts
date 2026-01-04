@@ -7,10 +7,19 @@ import {
 import { fetchBackend } from "@/lib/db";
 
 export type RegistrationRecord = {
-  registrationStatus: any;
+  registrationStatus: DBRegistrationStatus;
   applicationStatus?: ApplicationStatus;
   isPartner?: boolean;
   points?: number;
+  [key: string]: any;
+};
+
+export type RegistrationPayload = {
+  email: string;
+  fname: string;
+  studentId?: string | number;
+  basicInformation: Record<string, unknown>;
+  dynamicResponses?: Record<string, unknown>;
   [key: string]: any;
 };
 
@@ -53,10 +62,14 @@ export abstract class RegistrationStrategy {
   abstract isWaitlisted(): boolean;
   abstract isCheckedIn(): boolean;
   abstract isConfirmed(): boolean;
-  abstract regForFree(data: any): Promise<void>;
-  abstract regForFreeApp(data: any): Promise<void>;
-  abstract regForPaid(data: any): Promise<{ paymentUrl?: string }>;
-  abstract regForPaidApp(data: any): Promise<{ paymentUrl?: string }>;
+  abstract regForFree(data: RegistrationPayload): Promise<void>;
+  abstract regForFreeApp(data: RegistrationPayload): Promise<void>;
+  abstract regForPaid(
+    data: RegistrationPayload,
+  ): Promise<{ paymentUrl?: string }>;
+  abstract regForPaidApp(
+    data: RegistrationPayload,
+  ): Promise<{ paymentUrl?: string }>;
   abstract confirmAttendance(): Promise<void>;
   abstract confirmAndPay(status: any): Promise<{ paymentUrl?: string }>;
 }

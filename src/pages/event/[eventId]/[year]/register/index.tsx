@@ -462,8 +462,10 @@ export default function AttendeeFormRegister() {
         );
       } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
         const PaymentButton = () => {
+          const currentState = regState;
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
+          if (!currentState) return null;
 
           const handleConfirmClick = async () => {
             if (!event || isLoading) return;
@@ -522,7 +524,7 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {regState.needsConfirmation() ? (
+                    {currentState.needsConfirmation() ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
@@ -535,7 +537,7 @@ export default function AttendeeFormRegister() {
                   </p>
 
                   {/* #292: don't show at all if already member or no price difference */}
-                  {!regState.needsConfirmation() &&
+                  {!currentState.needsConfirmation() &&
                     !user?.isMember &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
@@ -560,7 +562,7 @@ export default function AttendeeFormRegister() {
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={
-                      regState.needsConfirmation()
+                      currentState.needsConfirmation()
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -572,14 +574,14 @@ export default function AttendeeFormRegister() {
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </span>
-                    ) : regState.needsConfirmation() ? (
+                    ) : currentState.needsConfirmation() ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
                     )}
                   </Button>
 
-                  {regState.needsPayment() && !user.isMember && (
+                  {currentState.needsPayment() && !user.isMember && (
                     <Button
                       variant="outline"
                       className="border-white/20 text-white hover:bg-white/10"
