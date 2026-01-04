@@ -11,7 +11,7 @@ import { Registration } from "@/types/types";
 import { cn } from "@/lib/utils";
 import {
   RegistrationStatusOptions,
-  getSortOrder
+  getSortOrder,
 } from "@/lib/registrationStatus";
 
 export type ColumnMeta = {

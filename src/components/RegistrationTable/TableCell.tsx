@@ -86,7 +86,9 @@ export const TableCell = memo(
             >
               <SelectTrigger
                 className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
-                style={{ backgroundColor: getStatusColor(initialValue as string) }}
+                style={{
+                  backgroundColor: getStatusColor(initialValue as string),
+                }}
               >
                 <SelectValue>{value as string}</SelectValue>
               </SelectTrigger>

@@ -11,7 +11,7 @@ import React, { useState } from "react";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { Registration } from "@/types/types";
 import { Table } from "@tanstack/react-table";
-import { getStatusLabel } from "@/lib/registrationStatus"
+import { getStatusLabel } from "@/lib/registrationStatus";
 
 interface SelectCellProps {
   row: Registration;

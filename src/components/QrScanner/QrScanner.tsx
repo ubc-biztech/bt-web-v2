@@ -19,7 +19,11 @@ import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
-import { isCheckedIn, isCancelled, isWaitlisted } from "@/lib/registrationStatus";
+import {
+  isCheckedIn,
+  isCancelled,
+  isWaitlisted,
+} from "@/lib/registrationStatus";
 
 /**
  * MAIN EVENT CHECK-IN COMPONENT

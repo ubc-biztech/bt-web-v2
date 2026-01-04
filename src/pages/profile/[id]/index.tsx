@@ -31,7 +31,12 @@ import { ConnectedButton } from "@/components/ui/connected-button";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import { IconButton } from "@/components/Common/IconButton";
 import { REGISTRATION_STATUS } from "@/constants/registrations";
-import { isCheckedIn, isCancelled, isWaitlisted, isConfirmed } from "@/lib/registrationStatus";
+import {
+  isCheckedIn,
+  isCancelled,
+  isWaitlisted,
+  isConfirmed,
+} from "@/lib/registrationStatus";
 import { User } from "@/types";
 
 interface NFCProfilePageProps {
