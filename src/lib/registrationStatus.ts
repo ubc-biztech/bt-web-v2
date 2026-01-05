@@ -43,8 +43,7 @@ export const RegistrationStatusConfig = {
   },
 } as const;
 
-const EXCLUDED_STATUSES = new Set([
-  DBRegistrationStatus.ACCEPTED_PENDING]);
+const EXCLUDED_STATUSES = new Set([DBRegistrationStatus.ACCEPTED_PENDING]);
 
 export const RegistrationStatusOptions = Object.freeze(
   Object.entries(RegistrationStatusConfig)
