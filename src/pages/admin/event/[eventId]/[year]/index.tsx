@@ -61,7 +61,6 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         });
         console.log(data);
         console.log("temp");
-        
       }
     }
   }, [router.isReady, router.query.eventId, router.query.year]);
