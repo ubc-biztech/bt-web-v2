@@ -49,77 +49,35 @@ export class RegistrationStateOld extends RegistrationStrategy {
   }
 
   async regForFree(data: RegistrationPayload): Promise<void> {
-    const registrationData = {
-      ...data,
-      email: data?.email ?? this.userEmail,
-      fname: data?.fname ?? this.user?.fname,
-      studentId: data?.studentId ?? this.user?.studentId,
-      eventID: this.event.id,
-      year: this.event.year,
-      registrationStatus: DBRegistrationStatus.REGISTERED,
-      isPartner: false,
-      points: 0,
-      basicInformation: data?.basicInformation ?? {},
-      dynamicResponses: data?.dynamicResponses ?? {},
-      applicationStatus: "",
-    };
+    const registrationData = this.buildRegistrationPayload(
+      data,
+      DBRegistrationStatus.REGISTERED,
+      "",
+    );
 
-    await fetchBackend({
-      endpoint: "/registrations",
-      method: "POST",
-      data: registrationData,
-      authenticatedCall: false,
-    });
+    await this.createRegistration(registrationData);
   }
 
   async regForFreeApp(data: RegistrationPayload): Promise<void> {
-    const registrationData = {
-      ...data,
-      email: data?.email ?? this.userEmail,
-      fname: data?.fname ?? this.user?.fname,
-      studentId: data?.studentId ?? this.user?.studentId,
-      eventID: this.event.id,
-      year: this.event.year,
-      registrationStatus: DBRegistrationStatus.REGISTERED,
-      isPartner: false,
-      points: 0,
-      basicInformation: data?.basicInformation ?? {},
-      dynamicResponses: data?.dynamicResponses ?? {},
-      applicationStatus: ApplicationStatus.REVIEWING,
-    };
+    const registrationData = this.buildRegistrationPayload(
+      data,
+      DBRegistrationStatus.REGISTERED,
+      ApplicationStatus.REVIEWING,
+    );
 
-    await fetchBackend({
-      endpoint: "/registrations",
-      method: "POST",
-      data: registrationData,
-      authenticatedCall: false,
-    });
+    await this.createRegistration(registrationData);
   }
 
   async regForPaid(
     data: RegistrationPayload,
   ): Promise<{ paymentUrl?: string }> {
-    const registrationData = {
-      ...data,
-      email: data?.email ?? this.userEmail,
-      fname: data?.fname ?? this.user?.fname,
-      studentId: data?.studentId ?? this.user?.studentId,
-      eventID: this.event.id,
-      year: this.event.year,
-      registrationStatus: DBRegistrationStatus.INCOMPLETE,
-      isPartner: false,
-      points: 0,
-      basicInformation: data?.basicInformation ?? {},
-      dynamicResponses: data?.dynamicResponses ?? {},
-      applicationStatus: "",
-    };
+    const registrationData = this.buildRegistrationPayload(
+      data,
+      DBRegistrationStatus.INCOMPLETE,
+      "",
+    );
 
-    const res = await fetchBackend({
-      endpoint: "/registrations",
-      method: "POST",
-      data: registrationData,
-      authenticatedCall: false,
-    });
+    const res = await this.createRegistration(registrationData);
 
     if (res?.url) {
       return { paymentUrl: res.url };
@@ -149,27 +107,13 @@ export class RegistrationStateOld extends RegistrationStrategy {
   async regForPaidApp(
     data: RegistrationPayload,
   ): Promise<{ paymentUrl?: string }> {
-    const registrationData = {
-      ...data,
-      email: data?.email ?? this.userEmail,
-      fname: data?.fname ?? this.user?.fname,
-      studentId: data?.studentId ?? this.user?.studentId,
-      eventID: this.event.id,
-      year: this.event.year,
-      registrationStatus: DBRegistrationStatus.INCOMPLETE,
-      isPartner: false,
-      points: 0,
-      basicInformation: data?.basicInformation ?? {},
-      dynamicResponses: data?.dynamicResponses ?? {},
-      applicationStatus: ApplicationStatus.REVIEWING,
-    };
+    const registrationData = this.buildRegistrationPayload(
+      data,
+      DBRegistrationStatus.INCOMPLETE,
+      ApplicationStatus.REVIEWING,
+    );
 
-    const res = await fetchBackend({
-      endpoint: "/registrations",
-      method: "POST",
-      data: registrationData,
-      authenticatedCall: false,
-    });
+    const res = await this.createRegistration(registrationData);
 
     if (res?.url) {
       return { paymentUrl: res.url };
@@ -210,40 +154,30 @@ export class RegistrationStateOld extends RegistrationStrategy {
     });
   }
 
+  // Caller will need to resolve thrown errors (when fetchBackend fails)
   async confirmAndPay(
     status: DBRegistrationStatus,
   ): Promise<{ paymentUrl?: string }> {
-    try {
-      const paymentData = {
-        paymentName: `${this.event.ename} ${this.user?.isMember || this.event.pricing?.members === this.event.pricing?.nonMembers ? "" : "(Non-member)"}`,
-        paymentImages: [this.event.imageUrl],
-        paymentPrice:
-          (this.user?.isMember
-            ? this.event.pricing?.members
-            : this.event.pricing?.nonMembers) * 100,
-        paymentType: "Event",
-        success_url: `${
-          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-            ? "http://localhost:3000/"
-            : CLIENT_URL
-        }event/${this.event.id}/${this.event.year}/register/${status === DBRegistrationStatus.ACCEPTED || status === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
-        email: this.userEmail,
-        fname: this.user?.fname,
-        eventID: this.event.id,
-        year: this.event.year,
-      };
+    const paymentData = {
+      paymentType: "Event",
+      success_url: `${
+        process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+          ? "http://localhost:3000/"
+          : CLIENT_URL
+      }event/${this.event.id}/${this.event.year}/register/${status === DBRegistrationStatus.ACCEPTED || status === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
+      email: this.userEmail,
+      fname: this.user?.fname,
+      eventID: this.event.id,
+      year: this.event.year,
+    };
 
-      const res = await fetchBackend({
-        endpoint: "/payments",
-        method: "POST",
-        data: paymentData,
-        authenticatedCall: false,
-      });
+    const res = await fetchBackend({
+      endpoint: "/payments",
+      method: "POST",
+      data: paymentData,
+      authenticatedCall: false,
+    });
 
-      return { paymentUrl: res?.url ?? res };
-    } catch (error) {
-      console.error("Error generating payment link:", error);
-      return {};
-    }
+    return { paymentUrl: res?.url ?? res };
   }
 }

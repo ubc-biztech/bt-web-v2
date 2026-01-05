@@ -100,19 +100,6 @@ export const TableCell = memo(
                 ))}
               </SelectContent>
             </Select>
-
-            {/* NFC popup for membership card writing */}
-            {showNfcPopup && (
-              <NfcPopup
-                firstName={row.original.fname}
-                email={row.original.id}
-                uuid={""}
-                exit={() => {
-                  setShowNfcPopup(false);
-                }}
-                numCards={0}
-              />
-            )}
           </>
         );
       } else if (columnMeta?.type === "number") {

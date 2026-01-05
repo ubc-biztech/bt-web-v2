@@ -51,6 +51,38 @@ export abstract class RegistrationStrategy {
     return new this(event, userEmail, user, record);
   }
 
+  protected buildRegistrationPayload(
+    data: RegistrationPayload,
+    registrationStatus: DBRegistrationStatus,
+    applicationStatus: ApplicationStatus | "",
+  ): Record<string, unknown> {
+    return {
+      ...data,
+      email: data?.email ?? this.userEmail,
+      fname: data?.fname ?? this.user?.fname,
+      studentId: data?.studentId ?? this.user?.studentId,
+      eventID: this.event.id,
+      year: this.event.year,
+      registrationStatus,
+      isPartner: false,
+      points: 0,
+      basicInformation: data?.basicInformation ?? {},
+      dynamicResponses: data?.dynamicResponses ?? {},
+      applicationStatus,
+    };
+  }
+
+  protected async createRegistration(
+    registrationData: Record<string, unknown>,
+  ): Promise<any> {
+    return fetchBackend({
+      endpoint: "/registrations",
+      method: "POST",
+      data: registrationData,
+      authenticatedCall: false,
+    });
+  }
+
   exists(): boolean {
     return !!this.record;
   }
