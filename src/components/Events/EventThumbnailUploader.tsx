@@ -12,7 +12,8 @@ type Props = {
   onChange: (url: string) => void;
   label?: string;
   maxSizeMB?: number;
-  profileId?: string;
+  eventId?: string
+  // profileId?: string;
 };
 
 const MAX_ORIGINAL_MB = 100;
@@ -22,7 +23,8 @@ export default function EventThumbnailUploader({
   onChange,
   label = "Thumbnail",
   maxSizeMB = 50,
-  profileId,
+  eventId = "event"
+  // profileId,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -63,16 +65,15 @@ export default function EventThumbnailUploader({
   const presign = async (
     fileType: string,
     fileName: string,
-    profileId?: string,
+    eventId?: string
+    // profileId?: string,
   ) => {
-    const endpoint = profileId
-      ? `/events/event-image-upload-url?eventId=${encodeURIComponent(profileId)}`
-      : `/events/event-image-upload-url`;
+    const endpoint = "/events/event-image-upload-url";
 
     return fetchBackend({
       endpoint,
       method: "POST",
-      data: { fileType, fileName },
+      data: { fileType, fileName, eventId },
     });
   };
 
@@ -105,14 +106,13 @@ export default function EventThumbnailUploader({
       const base = safeBase(original.name);
 
       const { uploadUrl: up1, publicUrl: optimizedUrl } = await fetchBackend({
-        endpoint: profileId
-          ? `/profiles/profile-pic-upload-url?profileId=${encodeURIComponent(profileId)}`
-          : `/profiles/profile-pic-upload-url`,
+        endpoint: "/events/event-image-upload-url",
         method: "POST",
         data: {
           fileType: compressed.type,
           fileName: `${base}-opt.jpg`,
           prefix: "optimized",
+          eventId: eventId
         },
       });
       if (!up1 || !optimizedUrl)
@@ -128,9 +128,7 @@ export default function EventThumbnailUploader({
       (async () => {
         try {
           const { uploadUrl: up2 } = await fetchBackend({
-            endpoint: profileId
-              ? `/profiles/profile-pic-upload-url?profileId=${encodeURIComponent(profileId)}`
-              : `/profiles/profile-pic-upload-url`,
+            endpoint: "/events/event-image-upload-url",
             method: "POST",
             data: {
               fileType: original.type,
@@ -154,7 +152,7 @@ export default function EventThumbnailUploader({
       clearPreview();
       toast({
         title: "Success",
-        description: "Profile photo uploaded! Click Save to confirm.",
+        description: "Event cover photo uploaded! Click Save to confirm.",
       });
     } catch (e: any) {
       console.error(e);
@@ -220,7 +218,7 @@ export default function EventThumbnailUploader({
                   toast({
                     title: "Removed",
                     description:
-                      "Profile photo removed. Click Save to confirm.",
+                      "Cover photo removed. Click Save to confirm.",
                   });
                 }}
               >
