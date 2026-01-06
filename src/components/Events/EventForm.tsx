@@ -16,7 +16,6 @@ import EventThumbnailUploader from "./EventThumbnailUploader";
 import Link from "next/link";
 import { useEffect } from "react";
 
-
 interface EventFormProps {
   initialData?: Partial<EventFormSchema>;
   onSubmit: (data: EventFormSchema) => void;
@@ -277,8 +276,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 />
 
                 <h4 className="text-bt-blue-100">Event Cover Photo</h4>
-                <EventThumbnailUploader 
-
+                <EventThumbnailUploader
                   value={form.watch("imageUrl")}
                   onChange={(url) =>
                     form.setValue("imageUrl", url, {
@@ -288,7 +286,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                   }
                   label="Cover Photo*"
                   maxSizeMB={5}
-
                 />
 
                 <h4 className="text-bt-blue-100">Event Information</h4>

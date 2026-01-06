@@ -12,7 +12,7 @@ type Props = {
   onChange: (url: string) => void;
   label?: string;
   maxSizeMB?: number;
-  eventId?: string
+  eventId?: string;
   // profileId?: string;
 };
 
@@ -23,7 +23,7 @@ export default function EventThumbnailUploader({
   onChange,
   label = "Thumbnail",
   maxSizeMB = 50,
-  eventId = "event"
+  eventId = "event",
   // profileId,
 }: Props) {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -65,7 +65,7 @@ export default function EventThumbnailUploader({
   const presign = async (
     fileType: string,
     fileName: string,
-    eventId?: string
+    eventId?: string,
     // profileId?: string,
   ) => {
     const endpoint = "/events/event-image-upload-url";
@@ -112,7 +112,7 @@ export default function EventThumbnailUploader({
           fileType: compressed.type,
           fileName: `${base}-opt.jpg`,
           prefix: "optimized",
-          eventId: eventId
+          eventId: eventId,
         },
       });
       if (!up1 || !optimizedUrl)
@@ -217,8 +217,7 @@ export default function EventThumbnailUploader({
                   onChange("");
                   toast({
                     title: "Removed",
-                    description:
-                      "Cover photo removed. Click Save to confirm.",
+                    description: "Cover photo removed. Click Save to confirm.",
                   });
                 }}
               >
