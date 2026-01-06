@@ -286,7 +286,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       shouldValidate: true,
                     })
                   }
-                  label="Thumbnail Photo"
+                  label="Cover Photo*"
                   maxSizeMB={5}
 
                 />
