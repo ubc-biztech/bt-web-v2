@@ -20,6 +20,8 @@ export function convertRegistrationStatusToDB(uiStatus: string): string {
       return DBRegistrationStatus.REGISTERED;
     case "checked-in":
       return DBRegistrationStatus.CHECKED_IN;
+    case "checkedin":
+      return DBRegistrationStatus.CHECKED_IN;
     case "cancelled":
       return DBRegistrationStatus.CANCELLED;
     case "incomplete":

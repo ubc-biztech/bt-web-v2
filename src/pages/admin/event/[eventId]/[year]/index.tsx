@@ -59,6 +59,8 @@ export default function AdminEvent({ initialData, eventData }: Props) {
             ) || [];
           setDynamicColumns(questionColumns);
         });
+        console.log(data);
+        console.log("temp");
       }
     }
   }, [router.isReady, router.query.eventId, router.query.year]);

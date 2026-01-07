@@ -2,7 +2,8 @@
 import { PartnerEventRegistrationForm } from "@/components/Events/PartnerEventRegistrationForm";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { fetchBackend } from "@/lib/db";
-import { ApplicationStatus, BiztechEvent, DBRegistrationStatus } from "@/types";
+import { BiztechEvent } from "@/types";
+import { REGISTERED_STATUS } from "@/lib/registrationStatus";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -65,7 +66,7 @@ export default function PartnerFormRegister() {
       fname: data["firstName"],
       eventID: eventId,
       year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.REGISTERED,
+      registrationStatus: REGISTERED_STATUS,
       isPartner: true,
       basicInformation: {
         fname: data["firstName"],

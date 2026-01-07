@@ -7,6 +7,7 @@ import { fetchAuthSession } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import { Registration } from "@/pages/companion/index";
+import { isCheckedIn } from "@/lib/registrationStatus";
 
 // @Ali
 
@@ -47,7 +48,7 @@ const Index = () => {
       userName={`${reg?.fname} ${reg?.lname || ""}`}
     >
       <div className="w-full h-full flex flex-col items-center justify-center font-bricolage space-y-4 bg-[#111111] mt-24 relative">
-        {reg && reg.registrationStatus.toLowerCase() !== "checkedin" ? (
+        {reg && !isCheckedIn(reg.registrationStatus) ? (
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <h1 className="text-2xl font-bold text-center">
               You Have Not Checked In!

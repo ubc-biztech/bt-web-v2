@@ -23,12 +23,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
-import { CLIENT_URL } from "@/lib/dbconfig";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
 import { Registration } from "@/types/types";
 import Link from "next/link";
+import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -48,12 +48,22 @@ export default function AttendeeFormRegister() {
     useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
+  const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
+
   const { toast } = useToast();
 
   const isAlumniNight = event?.id === "alumni-night";
 
   const samePricing = () => {
     return event.pricing?.members === event.pricing?.nonMembers;
+  };
+
+  const getRegistrationState = async () => {
+    if (regState) return regState;
+    if (!event?.id || !user?.id) return null;
+    const state = await RegistrationStateOld.load(event, user.id, user);
+    setRegState(state);
+    return state;
   };
 
   const priceDiff = () => {
@@ -84,6 +94,24 @@ export default function AttendeeFormRegister() {
     setUserRegistered(exists);
     return exists;
   };
+
+  useEffect(() => {
+    if (!userLoggedIn || !user?.id || !event?.id || !event?.year) return;
+
+    const loadRegistrationState = async () => {
+      try {
+        const state = await RegistrationStateOld.load(event, user.id, user);
+        setRegState(state);
+        setUserRegistered(state.exists());
+        setRegistrationStatus(
+          state.registrationStatus() ?? DBRegistrationStatus.INCOMPLETE,
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadRegistrationState();
+  }, [userLoggedIn, user, event]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -235,35 +263,31 @@ export default function AttendeeFormRegister() {
       }),
     };
 
-    const registrationData = {
+    const payload = {
       email: data["emailAddress"],
       fname: data["firstName"],
       studentId: data["studentId"],
-      eventID: eventId,
-      year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.REGISTERED,
-      isPartner: false,
-      points: 0,
       basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
     };
 
     try {
-      await fetchBackend({
-        endpoint: "/registrations",
-        method: "POST",
-        data: registrationData,
-        authenticatedCall: false,
-      });
+      const state = await getRegistrationState();
+
+      if (!state) {
+        throw new Error("Unable to initialize registration state");
+      }
+
+      if (event.isApplicationBased) {
+        await state.regForFreeApp(payload);
+      } else {
+        await state.regForFree(payload);
+      }
+
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
-      alert(
-        `An error has occured: ${error} Please contact an exec for support. 4`,
-      );
+      alert("An error has occurred. Please contact an exec for support.");
       return false;
     }
   };
@@ -275,85 +299,54 @@ export default function AttendeeFormRegister() {
       return false;
     }
 
-    const registrationData = {
+    const basicInformation = {
+      fname: data["firstName"],
+      lname: data["lastName"],
+      year: data["yearLevel"],
+      faculty: data["faculty"],
+      major: data["majorSpecialization"],
+      gender: data["preferredPronouns"],
+      diet: data["dietaryRestrictions"],
+      heardFrom: data["howDidYouHear"],
+    };
+
+    const payload = {
       email: data["emailAddress"],
       fname: data["firstName"],
       studentId: data["studentId"],
-      eventID: eventId,
-      year: parseInt(year as string),
-      registrationStatus: DBRegistrationStatus.INCOMPLETE,
-      isPartner: false,
-      points: 0,
-      basicInformation: {
-        fname: data["firstName"],
-        lname: data["lastName"],
-        year: data["yearLevel"],
-        faculty: data["faculty"],
-        major: data["majorSpecialization"],
-        gender: data["preferredPronouns"],
-        diet: data["dietaryRestrictions"],
-        heardFrom: data["howDidYouHear"],
-      },
+      basicInformation,
       dynamicResponses: data["customQuestions"],
-      applicationStatus: event.isApplicationBased
-        ? ApplicationStatus.REVIEWING
-        : "",
     };
 
     try {
-      const res = await fetchBackend({
-        endpoint: "/registrations",
-        method: "POST",
-        data: registrationData,
-        authenticatedCall: false,
-      });
-      if (res.url) {
-        window.open(res.url, "_self");
-        return true;
-      } else {
-        const paymentData = {
-          paymentType: "Event",
-          success_url: `${
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-              ? "http://localhost:3000/"
-              : CLIENT_URL
-          }event/${event.id}/${event.year}/register/success`,
-          // cancel_url: `${process.env.REACT_APP_STAGE === "local"
-          //   ? "http://localhost:3000/"
-          //   : CLIENT_URL
-          // }event/${event.id}/${event.year}/register`,
-          email: data["emailAddress"],
-          fname: data["firstName"],
-          eventID: eventId,
-          year: year,
-        };
+      const state = await getRegistrationState();
 
-        try {
-          const res = await fetchBackend({
-            endpoint: "/payments",
-            method: "POST",
-            data: paymentData,
-            authenticatedCall: false,
-          });
-          if (event.isApplicationBased) {
-            router.push(
-              `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
-            );
-          } else {
-            window.open(res, "_self");
-          }
-          return true;
-        } catch (error) {
-          alert(
-            `An error has occured: ${error} Please contact an exec for support.`,
-          );
-          return false;
-        }
+      if (!state) {
+        throw new Error("Unable to initialize registration state");
       }
-    } catch (error) {
+
+      const result = event.isApplicationBased
+        ? await state.regForPaidApp(payload)
+        : await state.regForPaid(payload);
+
+      if (event.isApplicationBased) {
+        await router.push(
+          `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
+        );
+        return true;
+      }
+
+      if (result?.paymentUrl) {
+        window.open(result.paymentUrl, "_self");
+        return true;
+      }
+
       alert(
-        `An error has occured: ${error} Please contact an exec for support.`,
+        "An error has occurred: No payment URL returned. Please contact an exec for support.",
       );
+      return false;
+    } catch (error) {
+      alert("An error has occurred. Please contact an exec for support.");
       return false;
     }
   };
@@ -439,46 +432,6 @@ export default function AttendeeFormRegister() {
     );
   };
 
-  const generatePaymentLink = async (
-    event: BiztechEvent,
-    registrationStatus: DBRegistrationStatus,
-  ) => {
-    if (!user) return null;
-
-    try {
-      const paymentData = {
-        paymentName: `${event.ename} ${user?.isMember || samePricing() ? "" : "(Non-member)"}`,
-        paymentImages: [event.imageUrl],
-        paymentPrice:
-          (user?.isMember
-            ? event.pricing?.members
-            : event.pricing?.nonMembers) * 100,
-        paymentType: "Event",
-        success_url: `${
-          process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-            ? "http://localhost:3000/"
-            : CLIENT_URL
-        }event/${event.id}/${event.year}/register/${registrationStatus === DBRegistrationStatus.ACCEPTED || registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING ? "" : "success"}`,
-        email: user.id,
-        fname: user.fname,
-        eventID: event.id,
-        year: event.year,
-      };
-
-      const res = await fetchBackend({
-        endpoint: "/payments",
-        method: "POST",
-        data: paymentData,
-        authenticatedCall: false,
-      });
-
-      return res;
-    } catch (error) {
-      console.error("Error generating payment link:", error);
-      return null;
-    }
-  };
-
   const renderConditionalViews = () => {
     if (userLoading) return null;
 
@@ -491,7 +444,7 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
-      if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+      if (regState?.isConfirmed && regState.isConfirmed()) {
         return renderErrorText(
           <div className="text-center">
             <p className="text-l mb-4 text-white">
@@ -507,13 +460,12 @@ export default function AttendeeFormRegister() {
             </button>
           </div>,
         );
-      } else if (
-        registrationStatus === DBRegistrationStatus.ACCEPTED ||
-        registrationStatus === DBRegistrationStatus.ACCEPTED_PENDING
-      ) {
+      } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
         const PaymentButton = () => {
+          const currentState = regState;
           const [isLoading, setIsLoading] = useState(false);
           const [error, setError] = useState<string | null>(null);
+          if (!currentState) return null;
 
           const handleConfirmClick = async () => {
             if (!event || isLoading) return;
@@ -522,16 +474,9 @@ export default function AttendeeFormRegister() {
             setError(null);
 
             try {
-              const body = {
-                eventID: event.id,
-                year: event.year,
-                registrationStatus: DBRegistrationStatus.ACCEPTED_COMPLETE,
-              };
-              await fetchBackend({
-                endpoint: `/registrations/${user.id}/${user.fname}`,
-                method: "PUT",
-                data: body,
-              });
+              const state = await getRegistrationState();
+              if (!state) throw new Error("Unable to confirm attendance");
+              await state.confirmAttendance();
               window.location.reload(); // show updated state
             } catch (error) {
               setError("An error occurred. Please try again.");
@@ -547,15 +492,14 @@ export default function AttendeeFormRegister() {
             setError(null);
 
             try {
-              const paymentUrl = await generatePaymentLink(
-                event,
-                registrationStatus,
+              const state = await getRegistrationState();
+              if (!state) throw new Error("Unable to generate payment link");
+              const result = await state.confirmAndPay(
+                state.registrationStatus() ?? registrationStatus,
               );
-              if (paymentUrl) {
-                window.open(paymentUrl, "_blank");
-              } else {
-                setError("Failed to generate payment link");
-              }
+              if (!result?.paymentUrl)
+                throw new Error("Failed to generate payment link");
+              window.open(result.paymentUrl, "_blank");
             } catch (err) {
               console.error("Payment error:", err);
               setError("An error occurred. Please try again.");
@@ -580,8 +524,7 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {registrationStatus ===
-                    DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    {currentState.needsConfirmation() ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
@@ -594,8 +537,7 @@ export default function AttendeeFormRegister() {
                   </p>
 
                   {/* #292: don't show at all if already member or no price difference */}
-                  {registrationStatus !==
-                    DBRegistrationStatus.ACCEPTED_PENDING &&
+                  {!currentState.needsConfirmation() &&
                     !user?.isMember &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
@@ -620,8 +562,7 @@ export default function AttendeeFormRegister() {
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={
-                      registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING
+                      currentState.needsConfirmation()
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -633,24 +574,22 @@ export default function AttendeeFormRegister() {
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </span>
-                    ) : registrationStatus ===
-                      DBRegistrationStatus.ACCEPTED_PENDING ? (
+                    ) : currentState.needsConfirmation() ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
                     )}
                   </Button>
 
-                  {registrationStatus === DBRegistrationStatus.ACCEPTED &&
-                    !user.isMember && (
-                      <Button
-                        variant="outline"
-                        className="border-white/20 text-white hover:bg-white/10"
-                        onClick={() => (window.location.href = "/membership")}
-                      >
-                        Become a Member
-                      </Button>
-                    )}
+                  {currentState.needsPayment() && !user.isMember && (
+                    <Button
+                      variant="outline"
+                      className="border-white/20 text-white hover:bg-white/10"
+                      onClick={() => (window.location.href = "/membership")}
+                    >
+                      Become a Member
+                    </Button>
+                  )}
                 </div>
 
                 {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
