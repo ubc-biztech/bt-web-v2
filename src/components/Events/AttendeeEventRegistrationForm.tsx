@@ -30,6 +30,7 @@ import { toast } from "@/components/ui/use-toast";
 import { BiztechEvent, User } from "@/types";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { MultiSelectCheckbox } from "@/components/Events/FormComponents/MultiSelectCheckbox";
 import Image from "next/image";
 const baseSchema = (hide: boolean) =>
   z.object({
@@ -92,9 +93,6 @@ const createDynamicSchema = (event: BiztechEvent) => {
 export const AttendeeEventRegistrationForm: React.FC<
   AttendeeEventRegistrationFormProps
 > = ({ event, initialData, onSubmit, onSubmitPayment, user }) => {
-  const [otherCheckedStates, setOtherCheckedStates] = useState<{
-    [key: string]: any;
-  }>({});
   const schema = useMemo(() => createDynamicSchema(event), [event]);
   type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
 
@@ -532,124 +530,14 @@ export const AttendeeEventRegistrationForm: React.FC<
                           </FormControl>
                         )}
                         {question.type === QuestionTypes.CHECKBOX && (
-                          <FormControl>
-                            <div className="space-y-2">
-                              {question?.choices?.split(",").map((choice) => (
-                                <FormField
-                                  key={choice}
-                                  name={`customQuestions.${question.questionId}`}
-                                  render={({ field }) => {
-                                    const selectedChoices = field.value
-                                      ? field.value.split(", ")
-                                      : [];
-                                    const isChecked =
-                                      selectedChoices.includes(choice);
-                                    const isOtherChecked =
-                                      otherCheckedStates[question.questionId] ||
-                                      false;
-                                    return (
-                                      <FormItem className="flex items-center space-x-2">
-                                        <FormControl>
-                                          {choice.toLowerCase() === "other" ? (
-                                            <>
-                                              <Checkbox
-                                                checked={isOtherChecked}
-                                                onCheckedChange={(checked) => {
-                                                  setOtherCheckedStates(
-                                                    (prev) => ({
-                                                      ...prev,
-                                                      [question.questionId]:
-                                                        checked as boolean,
-                                                    }),
-                                                  );
-                                                  if (!checked) {
-                                                    // Remove 'Other' and any custom input from the field value
-                                                    const newValue =
-                                                      selectedChoices
-                                                        .filter(
-                                                          (v: string) =>
-                                                            v !== "Other" &&
-                                                            !v.startsWith(
-                                                              "Other:",
-                                                            ),
-                                                        )
-                                                        .join(", ");
-                                                    field.onChange(newValue);
-                                                  } else {
-                                                    // Add 'Other' to the field value
-                                                    const newValue = [
-                                                      ...selectedChoices,
-                                                      "Other",
-                                                    ].join(", ");
-                                                    field.onChange(newValue);
-                                                  }
-                                                }}
-                                              />
-                                              {isOtherChecked && (
-                                                <Input
-                                                  placeholder="Enter other option"
-                                                  value={
-                                                    selectedChoices
-                                                      .find((v: string) =>
-                                                        v.startsWith("Other:"),
-                                                      )
-                                                      ?.substring(6) || ""
-                                                  }
-                                                  onChange={(e) => {
-                                                    const otherValue =
-                                                      e.target.value;
-                                                    let newValue =
-                                                      selectedChoices
-                                                        .filter(
-                                                          (v: string) =>
-                                                            v !== "Other" &&
-                                                            !v.startsWith(
-                                                              "Other:",
-                                                            ),
-                                                        )
-                                                        .concat(
-                                                          `Other:${otherValue}`,
-                                                        )
-                                                        .join(", ");
-                                                    field.onChange(newValue);
-                                                  }}
-                                                  className="mt-2"
-                                                />
-                                              )}
-                                            </>
-                                          ) : (
-                                            <Checkbox
-                                              checked={isChecked}
-                                              onCheckedChange={(checked) => {
-                                                let newValue;
-                                                if (checked) {
-                                                  newValue =
-                                                    selectedChoices.length
-                                                      ? `${field.value}, ${choice}`
-                                                      : choice;
-                                                } else {
-                                                  newValue = selectedChoices
-                                                    .filter(
-                                                      (v: string) =>
-                                                        v !== choice,
-                                                    )
-                                                    .join(", ");
-                                                }
-                                                field.onChange(newValue);
-                                              }}
-                                            />
-                                          )}
-                                        </FormControl>
-                                        <FormLabel className="font-normal">
-                                          {choice}
-                                        </FormLabel>
-                                      </FormItem>
-                                    );
-                                  }}
-                                />
-                              ))}
-                            </div>
-                          </FormControl>
+                          <MultiSelectCheckbox
+                            name={`customQuestions.${question.questionId}`}
+                            label=""
+                            options={question.choices?.split(",") || []}
+                            value={field.value}
+                            onChange={field.onChange}
+                            required={question.required}
+                          />
                         )}
                         {question.type === QuestionTypes.SELECT && (
                           <FormControl>

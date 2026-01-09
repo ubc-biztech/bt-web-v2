@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { EventFormSchema } from "./EventFormSchema";
 import { FormCheckbox } from "@/components/Events/FormComponents/FormCheckbox";
+import { MultiSelectCheckbox } from "@/components/Events/FormComponents/MultiSelectCheckbox";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormSelect } from "./FormComponents/FormSelect";
 
@@ -115,15 +116,12 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
                 </FormControl>
               )}
               {question.type === "CHECKBOX" && (
-                <div className="space-y-2">
-                  {question.options?.map((option, optionIndex) => (
-                    <FormCheckbox
-                      key={optionIndex}
-                      name={`previewCustom${index}.${option}`}
-                      label={option}
-                    />
-                  ))}
-                </div>
+                <MultiSelectCheckbox
+                  name={`previewCustom${index}`}
+                  label=""
+                  options={question.options || []}
+                  preview={true}
+                />
               )}
               {question.type === "UPLOAD" && (
                 <FormControl>
