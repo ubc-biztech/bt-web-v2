@@ -33,7 +33,11 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
                 <motion.div
                   layoutId="activeTabIndicator"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-bt-green-300"
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 20,
+                  }}
                 />
               )}
             </button>

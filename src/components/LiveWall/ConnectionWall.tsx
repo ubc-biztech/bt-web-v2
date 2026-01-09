@@ -651,7 +651,12 @@ export default function ConnectionWall() {
         ws.onopen = () => {
           if (cancelled) return;
           setWsStatus("connected");
-          ws.send(JSON.stringify({ action: "subscribe", eventId: EVENT_ID }));
+          ws.send(
+            JSON.stringify({
+              action: "subscribe",
+              eventId: EVENT_ID,
+            }),
+          );
         };
 
         ws.onmessage = (ev) => {
@@ -673,7 +678,10 @@ export default function ConnectionWall() {
                 const pk = pairKey(l);
                 if (!pairKeySetRef.current.has(pk)) {
                   pairKeySetRef.current.add(pk);
-                  graphDataRef.current.links.push({ ...l, __born: 0 });
+                  graphDataRef.current.links.push({
+                    ...l,
+                    __born: 0,
+                  });
 
                   const s = endId(l.source);
                   const t = endId(l.target);
@@ -724,7 +732,11 @@ export default function ConnectionWall() {
                 if (ts - last >= DEDUPE_GRACE_MS) {
                   pairRecentlySeen.current.set(key, ts);
                   addLinkInPlace(
-                    { source: nf.id, target: nt.id, createdAt: ts },
+                    {
+                      source: nf.id,
+                      target: nt.id,
+                      createdAt: ts,
+                    },
                     ts,
                   );
                   setTrails((prev) => [
@@ -746,7 +758,11 @@ export default function ConnectionWall() {
                 pairRecentlySeen.current.set(key, ts);
 
                 addLinkInPlace(
-                  { source: nf.id, target: nt.id, createdAt: ts },
+                  {
+                    source: nf.id,
+                    target: nt.id,
+                    createdAt: ts,
+                  },
                   ts,
                 );
                 setTrails((prev) => {

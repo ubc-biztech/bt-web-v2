@@ -41,7 +41,10 @@ export async function middleware(request: NextRequest) {
     const userProfile: User = await fetchBackendFromServer({
       endpoint: `/users/self`,
       method: "GET",
-      nextServerContext: { request: request as any, response: response as any },
+      nextServerContext: {
+        request: request as any,
+        response: response as any,
+      },
     });
 
     if (!userProfile.isMember) {

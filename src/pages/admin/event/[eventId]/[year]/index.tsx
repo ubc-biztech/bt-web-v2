@@ -159,7 +159,10 @@ export default function AdminEvent({ initialData, eventData }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { eventId, year } = context.params as { eventId: string; year: string };
+  const { eventId, year } = context.params as {
+    eventId: string;
+    year: string;
+  };
 
   try {
     const [registrationData, eventData] = await Promise.all([
