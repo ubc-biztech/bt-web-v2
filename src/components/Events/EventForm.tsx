@@ -12,6 +12,7 @@ import { FormTextarea } from "./FormComponents/FormTextarea";
 import { FormDatePicker } from "./FormComponents/FormDatePicker";
 import { CustomQuestions } from "./CustomQuestions";
 import { EventPreview } from "./EventPreview";
+import EventThumbnailUploader from "./EventThumbnailUploader";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -275,10 +276,16 @@ export const EventForm: React.FC<EventFormProps> = ({
                 />
 
                 <h4 className="text-bt-blue-100">Event Cover Photo</h4>
-                <FormInput
-                  name="imageUrl"
-                  label="Image URL*"
-                  placeholder="Image URL*"
+                <EventThumbnailUploader
+                  value={form.watch("imageUrl")}
+                  onChange={(url) =>
+                    form.setValue("imageUrl", url, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                  label="Cover Photo*"
+                  maxSizeMB={5}
                 />
 
                 <h4 className="text-bt-blue-100">Event Information</h4>
