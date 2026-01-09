@@ -189,7 +189,8 @@ export default function InvestmentsPage() {
                   {selectedTeam.priceChange >= 0 ? "+" : ""}
                   {formatCurrency(selectedTeam.priceChange)} (
                   {selectedTeam.priceChange >= 0 ? "+" : ""}
-                  {selectedTeam.priceChangePercent.toFixed(1)}%)
+                  {selectedTeam.priceChangePercent.toFixed(1)}
+                  %)
                 </span>
               </div>
             </div>
@@ -242,12 +243,17 @@ export default function InvestmentsPage() {
                       dataKey="time"
                       tickMargin={8}
                       tickFormatter={formatTime}
-                      tick={{ fill: "#FFFFFF", fontSize: 12 }}
+                      tick={{
+                        fill: "#FFFFFF",
+                        fontSize: 12,
+                      }}
                       axisLine={{
                         stroke: "rgba(255,255,255,0.25)",
                         strokeWidth: 1,
                       }}
-                      tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
+                      tickLine={{
+                        stroke: "rgba(255,255,255,0.25)",
+                      }}
                     />
                     <YAxis
                       tickMargin={8}
@@ -258,12 +264,17 @@ export default function InvestmentsPage() {
                         }
                         return value.toString();
                       }}
-                      tick={{ fill: "#FFFFFF", fontSize: 12 }}
+                      tick={{
+                        fill: "#FFFFFF",
+                        fontSize: 12,
+                      }}
                       axisLine={{
                         stroke: "rgba(255,255,255,0.25)",
                         strokeWidth: 1,
                       }}
-                      tickLine={{ stroke: "rgba(255,255,255,0.25)" }}
+                      tickLine={{
+                        stroke: "rgba(255,255,255,0.25)",
+                      }}
                     />
                     <ChartTooltip
                       cursor={false}

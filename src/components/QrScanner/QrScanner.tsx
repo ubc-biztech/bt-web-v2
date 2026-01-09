@@ -312,7 +312,10 @@ export const QrCheckIn: React.FC<QrProps> = ({
                 constraints={{
                   facingMode: cameraFacingMode,
                 }}
-                videoStyle={{ objectFit: "cover", borderRadius: "10px" }}
+                videoStyle={{
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                }}
                 scanDelay={250}
               />
             </div>

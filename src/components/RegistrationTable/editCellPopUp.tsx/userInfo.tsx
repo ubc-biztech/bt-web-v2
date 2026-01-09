@@ -13,9 +13,9 @@ interface EditCellProps {
 
 const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
   const [fieldLabels, setFieldLabels] = useState<{ [key: string]: string }>({});
-  const [dropDownList, setDropDownList] = useState<{ [key: string]: string[] }>(
-    {},
-  );
+  const [dropDownList, setDropDownList] = useState<{
+    [key: string]: string[];
+  }>({});
 
   useEffect(() => {
     const generateFieldLabels = () => {

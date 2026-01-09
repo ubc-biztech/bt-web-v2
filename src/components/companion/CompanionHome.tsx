@@ -72,7 +72,8 @@ const WrappedBanner = () => {
             <div /> {/* Empty div for spacing */}
             <div className="space-y-2">
               <div className="text-lg font-bold text-white">
-                Your <span className="text-[#ADCAF5]">Blue</span>Print Wrapped
+                Your <span className="text-[#ADCAF5]">Blue</span>
+                Print Wrapped
               </div>
               <p className="text-white/80">Check out how you got your start.</p>
             </div>

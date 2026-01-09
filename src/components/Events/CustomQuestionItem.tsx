@@ -39,7 +39,10 @@ export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
               { value: "CHECKBOX", label: "Checkbox" },
               { value: "SELECT", label: "Selection" },
               { value: "UPLOAD", label: "Upload" },
-              { value: "WORKSHOP_SELECTION", label: "Workshop Selection" },
+              {
+                value: "WORKSHOP_SELECTION",
+                label: "Workshop Selection",
+              },
               { value: "SKILLS", label: "Skills" },
             ]}
           />

@@ -486,7 +486,10 @@ const BtxPage: React.FC = () => {
 
     // short time for intraday windows
     if (timeframe === "1M" || timeframe === "5M" || timeframe === "15M") {
-      return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      return d.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     }
 
     if (timeframe === "1H" || timeframe === "4H") {
@@ -1053,7 +1056,8 @@ const BtxPage: React.FC = () => {
                           Math.abs(headerTimeframeChange.change),
                         )}{" "}
                         ({headerTimeframeChange.pct >= 0 ? "+" : "-"}
-                        {Math.abs(headerTimeframeChange.pct).toFixed(2)}%)
+                        {Math.abs(headerTimeframeChange.pct).toFixed(2)}
+                        %)
                       </span>
                     </div>
                   </div>
@@ -2562,7 +2566,8 @@ const BtxPage: React.FC = () => {
                                         {positionPnl >= 0 ? "+" : ""}
                                         {formatCurrencyShort(positionPnl)} (
                                         {positionPnlPct >= 0 ? "+" : ""}
-                                        {positionPnlPct.toFixed(1)}%)
+                                        {positionPnlPct.toFixed(1)}
+                                        %)
                                       </span>
                                     </div>
                                   </div>

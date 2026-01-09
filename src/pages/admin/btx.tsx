@@ -518,7 +518,8 @@ const BtxAdminPage: React.FC = () => {
                           <span className="font-mono">
                             {selectedProject.ticker}
                           </span>{" "}
-                          ({selectedProject.projectId}).
+                          ({selectedProject.projectId}
+                          ).
                         </div>
                       )}
                     </div>

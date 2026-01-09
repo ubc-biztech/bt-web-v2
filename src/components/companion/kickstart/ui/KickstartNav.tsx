@@ -102,12 +102,16 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
                 >
                   <tab.Icon
                     className="w-5 h-5 transition-colors"
-                    style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
+                    style={{
+                      color: isOn ? "#FFFFFF" : "#B4B4B4",
+                    }}
                     strokeWidth={1.5}
                   />
                   <span
                     className="text-sm font-medium font-bricolage transition-colors"
-                    style={{ color: isOn ? "#FFFFFF" : "#B4B4B4" }}
+                    style={{
+                      color: isOn ? "#FFFFFF" : "#B4B4B4",
+                    }}
                   >
                     {tab.label}
                   </span>

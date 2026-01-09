@@ -398,7 +398,12 @@ export default function ConnectionWall3D() {
         ws.onopen = () => {
           if (cancelled) return;
           setWsStatus("connected");
-          ws.send(JSON.stringify({ action: "subscribe", eventId: EVENT_ID }));
+          ws.send(
+            JSON.stringify({
+              action: "subscribe",
+              eventId: EVENT_ID,
+            }),
+          );
         };
         ws.onmessage = (ev) => {
           if (cancelled) return;
@@ -433,7 +438,14 @@ export default function ConnectionWall3D() {
                 const last = pairRecentlySeen.current.get(key) || 0;
                 if (ts - last < DEDUPE_GRACE_MS) return;
                 pairRecentlySeen.current.set(key, ts);
-                addLink({ source: from.id, target: to.id, createdAt: ts }, ts);
+                addLink(
+                  {
+                    source: from.id,
+                    target: to.id,
+                    createdAt: ts,
+                  },
+                  ts,
+                );
                 setTrails((prev) =>
                   [...prev, { s: from.id, t: to.id, createdAt: ts }].slice(
                     Math.max(0, prev.length - (TRAIL_MAX - 1)),

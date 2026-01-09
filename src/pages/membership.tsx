@@ -380,9 +380,18 @@ const Membership: React.FC = () => {
                         title="Education *"
                         field={field}
                         items={[
-                          { label: "I'm a UBC student", value: "UBC" },
-                          { label: "I'm a university student", value: "UNI" },
-                          { label: "Not Applicable", value: "NA" },
+                          {
+                            label: "I'm a UBC student",
+                            value: "UBC",
+                          },
+                          {
+                            label: "I'm a university student",
+                            value: "UNI",
+                          },
+                          {
+                            label: "Not Applicable",
+                            value: "NA",
+                          },
                         ]}
                       />
                     </FormItem>
@@ -421,8 +430,14 @@ const Membership: React.FC = () => {
                         title="Preferred Pronouns *"
                         field={field}
                         items={[
-                          { value: "He/Him/His", label: "He/Him/His" },
-                          { value: "She/Her/Hers", label: "She/Her/Hers" },
+                          {
+                            value: "He/Him/His",
+                            label: "He/Him/His",
+                          },
+                          {
+                            value: "She/Her/Hers",
+                            label: "She/Her/Hers",
+                          },
                           {
                             value: "They/Them/Theirs",
                             label: "They/Them/Theirs",
@@ -443,12 +458,30 @@ const Membership: React.FC = () => {
                           title="Level of Study *"
                           field={field}
                           items={[
-                            { value: "1st Year", label: "1st Year" },
-                            { value: "2nd Year", label: "2nd Year" },
-                            { value: "3rd Year", label: "3rd Year" },
-                            { value: "4th Year", label: "4th Year" },
-                            { value: "5+ Year", label: "5+ Year" },
-                            { value: "Other", label: "Other" },
+                            {
+                              value: "1st Year",
+                              label: "1st Year",
+                            },
+                            {
+                              value: "2nd Year",
+                              label: "2nd Year",
+                            },
+                            {
+                              value: "3rd Year",
+                              label: "3rd Year",
+                            },
+                            {
+                              value: "4th Year",
+                              label: "4th Year",
+                            },
+                            {
+                              value: "5+ Year",
+                              label: "5+ Year",
+                            },
+                            {
+                              value: "Other",
+                              label: "Other",
+                            },
                             {
                               value: "Not Applicable",
                               label: "Not Applicable",
@@ -467,17 +500,38 @@ const Membership: React.FC = () => {
                           title="Faculty *"
                           field={field}
                           items={[
-                            { value: "Arts", label: "Arts" },
-                            { value: "Commerce", label: "Commerce" },
-                            { value: "Science", label: "Science" },
-                            { value: "Engineering", label: "Engineering" },
-                            { value: "Kinesiology", label: "Kinesiology" },
+                            {
+                              value: "Arts",
+                              label: "Arts",
+                            },
+                            {
+                              value: "Commerce",
+                              label: "Commerce",
+                            },
+                            {
+                              value: "Science",
+                              label: "Science",
+                            },
+                            {
+                              value: "Engineering",
+                              label: "Engineering",
+                            },
+                            {
+                              value: "Kinesiology",
+                              label: "Kinesiology",
+                            },
                             {
                               value: "Land and Food Systems",
                               label: "Land and Food Systems",
                             },
-                            { value: "Forestry", label: "Forestry" },
-                            { value: "Other", label: "Other" },
+                            {
+                              value: "Forestry",
+                              label: "Forestry",
+                            },
+                            {
+                              value: "Other",
+                              label: "Other",
+                            },
                             {
                               value: "Not Applicable",
                               label: "Not Applicable",
@@ -509,8 +563,14 @@ const Membership: React.FC = () => {
                           title="Are you an international student? *"
                           field={field}
                           items={[
-                            { value: "Yes", label: "Yes" },
-                            { value: "No", label: "No" },
+                            {
+                              value: "Yes",
+                              label: "Yes",
+                            },
+                            {
+                              value: "No",
+                              label: "No",
+                            },
                           ]}
                         />
                       </FormItem>
@@ -525,10 +585,22 @@ const Membership: React.FC = () => {
                           title="Do you have dietary restrictions?"
                           field={field}
                           items={[
-                            { value: "None", label: "None" },
-                            { value: "Vegetarian", label: "Vegetarian" },
-                            { value: "Vegan", label: "Vegan" },
-                            { value: "Gluten-free", label: "Gluten-free" },
+                            {
+                              value: "None",
+                              label: "None",
+                            },
+                            {
+                              value: "Vegetarian",
+                              label: "Vegetarian",
+                            },
+                            {
+                              value: "Vegan",
+                              label: "Vegan",
+                            },
+                            {
+                              value: "Gluten-free",
+                              label: "Gluten-free",
+                            },
                           ]}
                         />
                       </FormItem>
@@ -545,8 +617,14 @@ const Membership: React.FC = () => {
                         title="Were you a BizTech member last year? *"
                         field={field}
                         items={[
-                          { value: "Yes", label: "Yes" },
-                          { value: "No", label: "No" },
+                          {
+                            value: "Yes",
+                            label: "Yes",
+                          },
+                          {
+                            value: "No",
+                            label: "No",
+                          },
                         ]}
                       />
                     </FormItem>
@@ -570,8 +648,14 @@ const Membership: React.FC = () => {
                             value: "Product Management",
                             label: "Product Management",
                           },
-                          { value: "Cyber Security", label: "Cyber Security" },
-                          { value: "Consulting", label: "Consulting" },
+                          {
+                            value: "Cyber Security",
+                            label: "Cyber Security",
+                          },
+                          {
+                            value: "Consulting",
+                            label: "Consulting",
+                          },
                           {
                             value: "Data Science & Analytics",
                             label: "Data Science & Analytics",
@@ -588,8 +672,14 @@ const Membership: React.FC = () => {
                             value: "Marketing/Business Development",
                             label: "Marketing/Business Development",
                           },
-                          { value: "UX/UI Design", label: "UX/UI Design" },
-                          { value: "Other", label: "Other" },
+                          {
+                            value: "UX/UI Design",
+                            label: "UX/UI Design",
+                          },
+                          {
+                            value: "Other",
+                            label: "Other",
+                          },
                         ]}
                       />
                     </FormItem>
@@ -605,13 +695,34 @@ const Membership: React.FC = () => {
                         title="How did you hear about us? *"
                         field={field}
                         items={[
-                          { value: "Instagram", label: "Instagram" },
-                          { value: "TikTok", label: "TikTok" },
-                          { value: "Newsletter", label: "Newsletter" },
-                          { value: "Website", label: "Website" },
-                          { value: "LinkedIn", label: "LinkedIn" },
-                          { value: "Word of Mouth", label: "Word of Mouth" },
-                          { value: "Other", label: "Other" },
+                          {
+                            value: "Instagram",
+                            label: "Instagram",
+                          },
+                          {
+                            value: "TikTok",
+                            label: "TikTok",
+                          },
+                          {
+                            value: "Newsletter",
+                            label: "Newsletter",
+                          },
+                          {
+                            value: "Website",
+                            label: "Website",
+                          },
+                          {
+                            value: "LinkedIn",
+                            label: "LinkedIn",
+                          },
+                          {
+                            value: "Word of Mouth",
+                            label: "Word of Mouth",
+                          },
+                          {
+                            value: "Other",
+                            label: "Other",
+                          },
                         ]}
                       />
                     </FormItem>

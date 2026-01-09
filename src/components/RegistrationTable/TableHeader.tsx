@@ -267,7 +267,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
                 await fetchBackend({
                   endpoint: "/registrations",
                   method: "DELETE",
-                  data: { ids, eventID: eventId, year: Number(year) },
+                  data: {
+                    ids,
+                    eventID: eventId,
+                    year: Number(year),
+                  },
                   authenticatedCall: true,
                 });
               } catch (e) {

@@ -230,7 +230,10 @@ export default function ManageMembers({ initialData }: Props) {
       toast({ description: "Member list refreshed." });
     } catch (error) {
       console.error("Failed to refresh member data:", error);
-      toast({ description: "Failed to refresh.", variant: "destructive" });
+      toast({
+        description: "Failed to refresh.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -364,7 +367,9 @@ export default function ManageMembers({ initialData }: Props) {
           : scope === "filtered"
             ? "All filtered"
             : "All members";
-    toast({ description: `Exported ${rows.length} rows to CSV (${label}).` });
+    toast({
+      description: `Exported ${rows.length} rows to CSV (${label}).`,
+    });
   };
 
   const doExportJson = (scope: Scope) => {
@@ -382,7 +387,9 @@ export default function ManageMembers({ initialData }: Props) {
           : scope === "filtered"
             ? "All filtered"
             : "All members";
-    toast({ description: `Exported ${rows.length} rows to JSON (${label}).` });
+    toast({
+      description: `Exported ${rows.length} rows to JSON (${label}).`,
+    });
   };
 
   const copyEmails = async (scope: Scope) => {
@@ -402,7 +409,10 @@ export default function ManageMembers({ initialData }: Props) {
         description: `Copied ${rows.length} email${rows.length === 1 ? "" : "s"} (${label}).`,
       });
     } catch {
-      toast({ description: "Failed to copy emails.", variant: "destructive" });
+      toast({
+        description: "Failed to copy emails.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -496,7 +506,10 @@ export default function ManageMembers({ initialData }: Props) {
                       key={key}
                       checked={(visibleCols as any)[key]}
                       onCheckedChange={(v) =>
-                        setVisibleCols((s) => ({ ...s, [key]: Boolean(v) }))
+                        setVisibleCols((s) => ({
+                          ...s,
+                          [key]: Boolean(v),
+                        }))
                       }
                     >
                       {label}
