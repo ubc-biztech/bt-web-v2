@@ -84,7 +84,7 @@ const Companion = () => {
         <div className="text-center max-w-2xl px-4">
           <h1 className="text-3xl font-bold mb-6">No Events Found</h1>
           <p className="text-lg mb-8">
-            You don't have any registered events with companions yet.
+            You don&apos;t have any registered events with companions yet.
           </p>
           <Link
             href="/events"

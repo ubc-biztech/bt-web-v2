@@ -243,7 +243,7 @@ const DynamicCompanion = () => {
           {pageError === "No companion available for this event" && (
             <div className="space-y-4">
               <p className="text-lg mb-4">
-                This event doesn't have a companion app.
+                This event doesn&apos;t have a companion app.
               </p>
               <Link
                 href="/events"
