@@ -45,7 +45,9 @@ export default function App({ Component, pageProps }: AppProps) {
   const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 
   // Companion mode theming
-  const isCompanionPath = router.pathname.startsWith("/companion");
+  const isCompanionPath = router.pathname.startsWith("/companion") || router.pathname.includes("/companion");
+  // Only apply Kickstart fonts for Kickstart companion paths
+  const isKickstartPath = router.pathname.includes("/kickstart/") && router.pathname.includes("/companion");
 
   const content = (
     <>
@@ -108,7 +110,7 @@ export default function App({ Component, pageProps }: AppProps) {
       </Head>
 
       <main
-        className={`${isCompanionPath ? `dark ${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
+        className={`${isCompanionPath ? "dark" : ""} ${isKickstartPath ? `${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />

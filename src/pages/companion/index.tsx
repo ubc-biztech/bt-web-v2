@@ -1,27 +1,9 @@
 import React from "react";
-import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
-
-// COMMENTED OUT - Original companion functionality
+import { fetchUserAttributes } from "@aws-amplify/auth";
 import { useState, useEffect, useContext, createContext } from "react";
-import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import CompanionHome from "@/components/companion/CompanionHome";
-import Events from "@/constants/companion-events";
-import type { Event } from "@/constants/companion-events";
-import { COMPANION_EMAIL_KEY } from "@/constants/companion";
-import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-});
-
-const instrument = Instrument_Serif({
-  subsets: ["latin"],
-  variable: "--font-instrument",
-  weight: "400",
-});
+import { getLatestRegisteredEvent } from "@/lib/companionHelpers";
 
 export interface Registration {
   id: string;
@@ -29,14 +11,6 @@ export interface Registration {
   points?: number;
   isPartner?: boolean;
   teamID?: string;
-  [key: string]: any;
-}
-
-interface EventData {
-  id: string;
-  year: number;
-  isCompleted?: boolean;
-  feedback?: string;
   [key: string]: any;
 }
 
@@ -58,97 +32,9 @@ export const useUserRegistration = () => {
 };
 
 const Companion = () => {
-  // COMMENTED OUT - Original companion logic
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [pageError, setPageError] = useState("");
-  const [error, setError] = useState("");
-  const [event, setEvent] = useState<EventData | null>(null);
-  const [userRegistration, setUserRegistration] = useState<Registration | null>(
-    null,
-  );
   const [isLoading, setIsLoading] = useState(true);
-
-  const [
-    showKickstartRegistrationMessage,
-    setShowKickstartRegistrationMessage,
-  ] = useState(false);
-
-  const events = Events.sort((a, b) => {
-    return b.activeUntil.getTime() - a.activeUntil.getTime();
-  });
-
-  const currentEvent: Event | undefined =
-    events.find((event) => {
-      const today = new Date();
-      return event.activeUntil > today;
-    }) || events[0];
-
-  const { eventID, year } = currentEvent || {};
-
-  const fetchUserData = async () => {
-    setIsLoading(true);
-    setError("");
-
-    try {
-      const [regResKickstart, eventDataKickStart] = await Promise.all([
-        fetchBackend({
-          endpoint: `/registrations?eventID=${eventID}&year=${year}&email=${email}`,
-          method: "GET",
-        }),
-        fetchBackend({
-          endpoint: `/events/${eventID}/${year}`,
-          method: "GET",
-          authenticatedCall: false,
-        }),
-      ]);
-
-      const [regResShowcase, eventDataShowcase] = await Promise.all([
-        fetchBackend({
-          endpoint: `/registrations?eventID=${eventID}-showcase&year=${year}&email=${email}`,
-          method: "GET",
-        }),
-        fetchBackend({
-          endpoint: `/events/${eventID}-showcase/${year}`,
-          method: "GET",
-          authenticatedCall: false,
-        }),
-      ]);
-
-      const regRes = regResKickstart.data[0]
-        ? regResKickstart.data[0]
-        : regResShowcase.data[0];
-      const eventData = regResKickstart.data[0]
-        ? eventDataKickStart
-        : eventDataShowcase;
-
-      console.log("reg data", regRes);
-      console.log("event data", eventData);
-
-      if (!regRes) {
-        if (eventID === "kickstart") {
-          setShowKickstartRegistrationMessage(true);
-          setIsLoading(false);
-          return;
-        }
-        console.log("No registration found for email:", email);
-        setPageError("No registration found for email.");
-        setError("This email does not match an existing entry in our records.");
-        setIsLoading(false);
-        return;
-      }
-
-      setUserRegistration(regRes);
-      setEvent(eventData);
-      localStorage.setItem(COMPANION_EMAIL_KEY, regRes.id);
-    } catch (err) {
-      console.error("Error fetching user data:", err);
-      setError("An error occurred while fetching your data.");
-      setPageError("An unexpected error occurred. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [noEventsMessage, setNoEventsMessage] = useState(false);
 
   useEffect(() => {
     const initializeData = async () => {
@@ -158,7 +44,18 @@ const Companion = () => {
         if (!savedEmail) {
           throw new Error("No email found in session");
         }
-        setEmail(savedEmail);
+
+        // Try to redirect to user's latest registered event with companion
+        const latestEvent = await getLatestRegisteredEvent(savedEmail);
+        if (latestEvent) {
+          router.push(
+            `/events/${latestEvent.eventId}/${latestEvent.year}/companion`,
+          );
+          return;
+        }
+
+        // If no registered events with companions, show message
+        setNoEventsMessage(true);
         setIsLoading(false);
       } catch (err) {
         console.log("Auth check failed:", err);
@@ -168,64 +65,40 @@ const Companion = () => {
     };
 
     initializeData();
-  }, []);
+  }, [router]);
 
-  useEffect(() => {
-    if (email && !userRegistration && !error) {
-      fetchUserData();
-    }
-    if (error) {
-      setIsLoading(false);
-    }
-  }, [email, router, userRegistration]);
+  if (isLoading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center bg-[#111111] text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Redirecting to companion...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // if (isLoading) return <Loading />;
-
-  if (showKickstartRegistrationMessage) {
+  if (noEventsMessage) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-[#111111] text-white">
         <div className="text-center max-w-2xl px-4">
-          <h1 className="text-3xl font-bold mb-6">Registration Not Found</h1>
+          <h1 className="text-3xl font-bold mb-6">No Events Found</h1>
           <p className="text-lg mb-8">
-            If you want to check your status go to{" "}
-            <Link
-              href="/event/kickstart/2025/register"
-              className="text-bt-green-300 hover:underline"
-            >
-              Kickstart Registration
-            </Link>
-            . If you want to register for Showcase go to{" "}
-            <Link
-              href="/event/kickstart-showcase/2025/register"
-              className="text-bt-green-300 hover:underline"
-            >
-              Showcase Registration
-            </Link>
-            .
+            You don't have any registered events with companions yet.
           </p>
+          <Link
+            href="/events"
+            className="inline-block bg-bt-green-300 hover:bg-bt-green-400 text-black font-bold py-3 px-6 rounded"
+          >
+            Browse Events
+          </Link>
         </div>
       </div>
     );
   }
 
-  if (pageError) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <div>
-          A page error occurred, please refresh the page. If the problem
-          persists, contact a BizTech exec for support.
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`${bricolage.className} ${instrument.className}`}>
-      <UserRegistrationContext.Provider value={{ userRegistration }}>
-        <CompanionHome ChildComponent={currentEvent.ChildComponent} />
-      </UserRegistrationContext.Provider>
-    </div>
-  );
+  // Should never reach here as we either redirect or show a message
+  return null;
 
   // WORK IN PROGRESS PAGE - Similar design to registration success page
   // return (
