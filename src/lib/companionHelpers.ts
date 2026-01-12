@@ -49,7 +49,7 @@ export async function checkUserRegistration(
     );
 
     if (!registration) return null;
-// Validate registration status
+    // Validate registration status
     if (!hasValidCompanionAccess(registration)) return null;
 
     return registration;

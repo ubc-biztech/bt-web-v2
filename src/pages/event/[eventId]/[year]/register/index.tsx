@@ -50,8 +50,7 @@ export default function AttendeeFormRegister() {
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
   const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
-  const [companionAvailable, setCompanionAvailable] =
-    useState<boolean>(false);
+  const [companionAvailable, setCompanionAvailable] = useState<boolean>(false);
 
   const { toast } = useToast();
 
