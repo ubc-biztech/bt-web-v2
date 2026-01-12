@@ -8,10 +8,7 @@ import CompanionHome from "@/components/companion/CompanionHome";
 import type { Event } from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
-import {
-  UserRegistrationContext,
-  type Registration,
-} from "@/pages/companion";
+import { UserRegistrationContext, type Registration } from "@/pages/companion";
 
 interface EventData {
   id: string;
@@ -65,7 +62,11 @@ const DynamicCompanion = () => {
   }, [router.isReady, eventId, year]);
 
   const fetchUserData = async () => {
-    console.log("[DynamicCompanion] Fetching user data for:", { eventId, year, email });
+    console.log("[DynamicCompanion] Fetching user data for:", {
+      eventId,
+      year,
+      email,
+    });
     setIsLoading(true);
     setError("");
 
@@ -81,7 +82,10 @@ const DynamicCompanion = () => {
           authenticatedCall: false,
         }),
       ]);
-      console.log("[DynamicCompanion] Main event fetch results:", { regResMain, eventDataMain });
+      console.log("[DynamicCompanion] Main event fetch results:", {
+        regResMain,
+        eventDataMain,
+      });
 
       let regResShowcase = { data: [] };
       let eventDataShowcase = null;
@@ -146,9 +150,7 @@ const DynamicCompanion = () => {
         setEmail(savedEmail);
       } catch (err) {
         console.log("Auth check failed:", err);
-        router.push(
-          `/login?redirect=/events/${eventId}/${year}/companion`,
-        );
+        router.push(`/login?redirect=/events/${eventId}/${year}/companion`);
         return;
       }
     };
