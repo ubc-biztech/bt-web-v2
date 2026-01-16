@@ -5,6 +5,7 @@ import ProductX2025 from "@/components/companion/events/ProductX2025";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2025 from "@/components/companion/events/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
+import BluePrint2026 from "@/components/companion/events/BluePrint2026";
 
 export interface Event {
   activeUntil: Date;
@@ -96,6 +97,27 @@ const Events: Event[] = [
       colors: {
         primary: "#111111",
         background: "#111111",
+      },
+      getScheduleData: (regData) => [],
+      welcomeData: [],
+      headers: [],
+    },
+  },
+  {
+    activeUntil: new Date("2026-01-25"),
+    eventID: "blueprint",
+    year: 2026,
+    ChildComponent: BluePrint2026,
+    options: {
+      disableWelcomeHeader: true,
+      BiztechLogo: KickstartLogo.src,
+      Logo: KickstartLogo.src,
+      title: "BluePrint 2026",
+      date: "January 24, 2026",
+      location: "UBC Robson Square",
+      colors: {
+        primary: "#EBEBEB",
+        background: "#070707",
       },
       getScheduleData: (regData) => [],
       welcomeData: [],
