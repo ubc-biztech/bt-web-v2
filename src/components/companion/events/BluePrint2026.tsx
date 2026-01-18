@@ -1,29 +1,35 @@
+"use client";
+
 import { useRouter } from "next/router";
-import Loading from "@/components/Loading";
-import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion/index";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  useState,
-  useEffect,
-  createContext,
-  useContext,
-  ReactNode,
-} from "react";
+import { AnimatePresence } from "framer-motion";
+import { useEffect } from "react";
 import { isCheckedIn } from "@/lib/registrationStatus";
 import BluePrintLayout from "../blueprint2026/layout/BluePrintLayout";
-import BluePrintCard from "../blueprint2026/components/BluePrintCard";
 import { BluePrintNav } from "../blueprint2026/components/BluePrintNav";
-import { TopNav } from "../navigation/top-nav";
 import SummaryText from "../blueprint2026/components/SummaryText";
 import QuizResultsPreview from "../blueprint2026/components/QuizResultsPreview";
 import ConnectionsPreview from "../blueprint2026/components/ConnectionsPreview";
 import QuestsPreview from "../blueprint2026/components/QuestsPreview";
+import { useConnections } from "@/queries/connections";
+import { Spinner } from "@/components/ui/spinner";
+import { useQuests } from "@/queries/quests";
 
 const BluePrint2026 = () => {
   const router = useRouter();
 
-  const [isSideNavOpen, setIsSideNavOpen] = useState(false);
+  const {
+    data: connections,
+    isLoading: connectionsLoading,
+    isError: connectionsError,
+  } = useConnections();
+
+
+  const {
+    data: quests,
+    isLoading: questsLoading,
+    isError: questsError,
+  } = useQuests();
 
   const { userRegistration } = useUserRegistration();
 
@@ -48,12 +54,21 @@ const BluePrint2026 = () => {
             </h2>
           </div>
         ) : (
-          <div className="flex flex-col gap-8">
-            <BluePrintNav isPartner={false}/>
-            <SummaryText name="Firstname" connectionsMade={20} questsComplete={3}/>
-            <QuizResultsPreview/>
-            <ConnectionsPreview/>
-            <QuestsPreview/>
+          <div className="flex flex-col gap-4">
+            <BluePrintNav isPartner={false} />
+            <div className="mb-4">
+              <SummaryText
+                name="Firstname"
+                connectionsMade={20}
+                questsComplete={3}
+              />
+            </div>
+            <QuizResultsPreview />
+            {!connectionsLoading && (
+              <ConnectionsPreview connections={connections} />
+            )}
+
+            <QuestsPreview quests={quests}/>
           </div>
         )}
       </AnimatePresence>

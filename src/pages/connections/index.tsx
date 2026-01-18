@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface Connection {
+export interface Connection {
   compositeID: string;
   fname: string;
   pronouns: string;

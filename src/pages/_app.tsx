@@ -10,6 +10,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
+import { QueryProvider } from "@/lib/queryProvider";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -55,7 +56,7 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname.includes("/companion");
 
   const content = (
-    <>
+    <QueryProvider>
       <Head>
         <title>UBC BizTech</title>
         <meta
@@ -124,7 +125,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <Analytics />
       <SpeedInsights />
-    </>
+    </QueryProvider>
   );
 
   if (isCompanionPath) {
