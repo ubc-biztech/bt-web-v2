@@ -38,9 +38,6 @@ const BluePrint2026 = () => {
     console.log(userRegistration, "HERE");
   }, [router.isReady, router.query.sharedTeam, userRegistration]);
 
-  const ctx = useContext(CompanionPageContext);
-  if (!ctx) return null;
-
   return (
     <BluePrintLayout>
       <AnimatePresence mode="wait">
