@@ -62,14 +62,11 @@ const BluePrint2026 = () => {
             </div>
             <QuizResultsPreview />
 
-
             {!connectionsLoading && (
               <ConnectionsPreview connections={connections} />
             )}
 
             {!questsLoading && <QuestsPreview quests={quests} />}
-
-
           </div>
         )}
       </AnimatePresence>

@@ -1,4 +1,7 @@
-import { CompanionPage, CompanionPageContext } from "@/lib/context/companionContext";
+import {
+  CompanionPage,
+  CompanionPageContext,
+} from "@/lib/context/companionContext";
 import React, { useState } from "react";
 
 type BluePrintLayoutProps = {

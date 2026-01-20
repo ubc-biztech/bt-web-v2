@@ -2,7 +2,11 @@ import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Quests } from "@/queries/quests";
 
-export default function QuestsPreview({ quests }: { quests: Quests | undefined}) {
+export default function QuestsPreview({
+  quests,
+}: {
+  quests: Quests | undefined;
+}) {
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
@@ -17,14 +21,16 @@ export default function QuestsPreview({ quests }: { quests: Quests | undefined})
         </div>
       ) : (
         <div className="my-2">
-          {Object.entries(quests).slice(0, 3).map(([questKey, quest]) => (
-            <div key={questKey} className="flex flex-row justify-between">
-              <div>{questKey}</div>
-              <div>
-                {quest.progress} / {quest.target}
+          {Object.entries(quests)
+            .slice(0, 3)
+            .map(([questKey, quest]) => (
+              <div key={questKey} className="flex flex-row justify-between">
+                <div>{questKey}</div>
+                <div>
+                  {quest.progress} / {quest.target}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </BluePrintCard>

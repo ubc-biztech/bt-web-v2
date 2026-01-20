@@ -17,4 +17,4 @@ export function useConnections() {
     queryFn: () => getConnections(),
     staleTime: 60 * 1000,
   });
-} 
+}

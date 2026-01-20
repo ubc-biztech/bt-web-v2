@@ -16,9 +16,7 @@ export default function SummaryText({
       <span className="text-lg font-medium">
         {" "}
         Welcome,{" "}
-        <h3
-          className="inline text-lg bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient"
-        >
+        <h3 className="inline text-lg bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient">
           {name}
         </h3>
       </span>

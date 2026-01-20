@@ -7,8 +7,13 @@ export default function QuizResultsPreview() {
     <BluePrintCard className="min-h-36">
       <div className="flex flex-col">
         <p className="text-lg">BluePrint Career Quiz</p>
-        <p className="text-xs opacity-60 -mt-1"> Visit a kiosk to take the quiz</p>
-        <Button className="mt-4 bg-[#4972EF] text-white rounded-full w-fit text-xs">View your assessment</Button>
+        <p className="text-xs opacity-60 -mt-1">
+          {" "}
+          Visit a kiosk to take the quiz
+        </p>
+        <Button className="mt-4 bg-[#4972EF] text-white rounded-full w-fit text-xs">
+          View your assessment
+        </Button>
       </div>
       <Image
         src="/assets/blueprint/quiz-staircase.png"

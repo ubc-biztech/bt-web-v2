@@ -167,8 +167,8 @@ const config: Config = {
         rings: "rings 2s ease-in-out infinite alternate",
       },
       backgroundSize: {
-        "200%": "200% 200%"
-      }
+        "200%": "200% 200%",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

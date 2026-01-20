@@ -16,7 +16,9 @@ export default function ConnectionsPreview({
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
       {!connections || connections?.length <= 0 ? (
-        <div className="mx-16 my-4 text-center opacity-80">{"No connections yet. Tap someone's NFC to get started!"}</div>
+        <div className="mx-16 my-4 text-center opacity-80">
+          {"No connections yet. Tap someone's NFC to get started!"}
+        </div>
       ) : (
         connections.map((c) => <div key={c.connectionID}></div>)
       )}

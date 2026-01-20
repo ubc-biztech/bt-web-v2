@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/animations.css";
-import "@/styles/blueprint.css"
+import "@/styles/blueprint.css";
 import type { AppProps } from "next/app";
 import Layout from "./layout";
 import Head from "next/head";
