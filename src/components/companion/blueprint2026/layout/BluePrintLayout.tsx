@@ -1,17 +1,22 @@
-import React from "react";
+import { CompanionPage, CompanionPageContext } from "@/lib/context/companionContext";
+import React, { useState } from "react";
 
 type BluePrintLayoutProps = {
   children: React.ReactNode;
 };
 
 const BluePrintLayout = ({ children }: BluePrintLayoutProps) => {
+  const [page, setPage] = useState<CompanionPage>("home");
+
   return (
-    <div className="blueprint-root">
-      <div className="blueprint-bg-clip">
-        <div className="blueprint-vector" />
+    <CompanionPageContext.Provider value={{ page, setPage }}>
+      <div className="blueprint-root">
+        <div className="blueprint-bg-clip">
+          <div className="blueprint-vector" />
+        </div>
+        <div className="blueprint-content">{children}</div>
       </div>
-      <div className="blueprint-content">{children}</div>
-    </div>
+    </CompanionPageContext.Provider>
   );
 };
 

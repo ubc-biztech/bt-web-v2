@@ -12,16 +12,16 @@ interface SideNavProps {
 const navLinks = [
   { href: "/events/blueprint/2026/companion", label: "Home" },
   { href: "/events/blueprint/2026/companion/profile", label: "User Profile" },
-  { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
   {
     href: "/events/blueprint/2026/companion/connections",
     label: "Connections",
   },
-  { href: "/events/blueprint/2026/companion/companies", label: "Companies" },
+  { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
   {
-    href: "https://drive.google.com/file/d/1YVWY0SBp_rvIQquEjffxo5XtL1bHv7Li/view",
-    label: "Event Guide",
+    href: "/events/blueprint/2026/companion/partners",
+    label: "Partner Database",
   },
+  { href: "/events/blueprint/2026/companion/companies", label: "Companies" },
 ];
 
 export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
@@ -48,17 +48,19 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
     <>
       <div>
         <div className="flex flex-row justify-between">
-          <Image
-            src={"/assets/blueprint/blueprint-logo.png"}
-            height={72}
-            width={96}
-            alt="BluePrint"
-          />
+          <Link href="/events/blueprint/2026/companion">
+            <Image
+              src={"/assets/blueprint/blueprint-logo.png"}
+              height={72}
+              width={96}
+              alt="BluePrint"
+            />
+          </Link>
           <button onClick={() => setIsOpen((state) => !state)}>
             <Menu />
           </button>
         </div>
-        <div className="h-[0.5px] mt-4 w-full bg-gradient-to-r from-transparent via-white to-transparent"/>
+        <div className="h-[0.5px] mt-4 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
       </div>
       <div
         className={cn(
@@ -93,13 +95,13 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
           </div>
 
           <nav className="flex flex-col space-y-8 h-full">
-                 <Image
-            src={"/assets/blueprint/blueprint-logo.png"}
-            height={108}
-            width={164}
-            alt="BluePrint"
-            className="mb-8"
-          />
+            <Image
+              src={"/assets/blueprint/blueprint-logo.png"}
+              height={108}
+              width={164}
+              alt="BluePrint"
+              className="mb-8"
+            />
             {navLinks.map(({ href, label }) => {
               if (label === "Badges" && isPartner) return null;
               return (
@@ -110,7 +112,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
                   className="flex items-center gap-3 text-md text-white hover:text-gray-300"
                 >
                   {label}
-                  <ArrowUpRight size={24}/>
+                  <ArrowUpRight size={24} />
                 </Link>
               );
             })}

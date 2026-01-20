@@ -3,7 +3,7 @@
 import { useRouter } from "next/router";
 import { useUserRegistration } from "@/pages/companion/index";
 import { AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { isCheckedIn } from "@/lib/registrationStatus";
 import BluePrintLayout from "../blueprint2026/layout/BluePrintLayout";
 import { BluePrintNav } from "../blueprint2026/components/BluePrintNav";
@@ -12,8 +12,8 @@ import QuizResultsPreview from "../blueprint2026/components/QuizResultsPreview";
 import ConnectionsPreview from "../blueprint2026/components/ConnectionsPreview";
 import QuestsPreview from "../blueprint2026/components/QuestsPreview";
 import { useConnections } from "@/queries/connections";
-import { Spinner } from "@/components/ui/spinner";
 import { useQuests } from "@/queries/quests";
+import { CompanionPageContext } from "@/lib/context/companionContext";
 
 const BluePrint2026 = () => {
   const router = useRouter();
@@ -24,7 +24,6 @@ const BluePrint2026 = () => {
     isError: connectionsError,
   } = useConnections();
 
-
   const {
     data: quests,
     isLoading: questsLoading,
@@ -33,13 +32,14 @@ const BluePrint2026 = () => {
 
   const { userRegistration } = useUserRegistration();
 
-  console.log("user registration", userRegistration);
-
   useEffect(() => {
     if (!router.isReady) return;
 
     console.log(userRegistration, "HERE");
   }, [router.isReady, router.query.sharedTeam, userRegistration]);
+
+  const ctx = useContext(CompanionPageContext);
+  if (!ctx) return null;
 
   return (
     <BluePrintLayout>
@@ -64,11 +64,15 @@ const BluePrint2026 = () => {
               />
             </div>
             <QuizResultsPreview />
+
+
             {!connectionsLoading && (
               <ConnectionsPreview connections={connections} />
             )}
 
-            <QuestsPreview quests={quests}/>
+            {!questsLoading && <QuestsPreview quests={quests} />}
+
+
           </div>
         )}
       </AnimatePresence>
