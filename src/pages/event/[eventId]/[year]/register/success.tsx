@@ -1,14 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { LinkIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { CLIENT_URL } from "@/lib/dbconfig";
+import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 
 const SuccessPage = () => {
   const router = useRouter();
   const [linkCopied, setLinkCopied] = useState(false);
+  const [companionAvailable, setCompanionAvailable] = useState(false);
   const { eventId, year } = router.query;
   const { isApplicationBased } = router.query;
   const isApplicationBasedBoolean = isApplicationBased === "true";
+
+  useEffect(() => {
+    if (router.isReady && eventId && year) {
+      const companion = getCompanionByEventIdYear(
+        eventId as string,
+        parseInt(year as string),
+      );
+      setCompanionAvailable(!!companion);
+    }
+  }, [router.isReady, eventId, year]);
 
   const copyLinkToClipboard = async () => {
     try {
@@ -65,6 +77,18 @@ const SuccessPage = () => {
           <h2 className="text-white text-3xl font-bold mb-4 border-green-500">
             What&apos;s next?
           </h2>
+          {companionAvailable && (
+            <div className="mb-4">
+              <button
+                onClick={() =>
+                  router.push(`/events/${eventId}/${year}/companion`)
+                }
+                className="flex items-center bg-bt-green-300 hover:bg-bt-green-400 text-black font-bold py-3 px-6 rounded-lg transition duration-300"
+              >
+                <span className="mr-2">Access Event Companion</span>
+              </button>
+            </div>
+          )}
           <div className="mb-4">
             <button
               onClick={copyLinkToClipboard}

@@ -1,6 +1,6 @@
-import BarChart from "@/components/Stats/BarChart";
-import ChartBox from "@/components/Stats/ChartBox";
-import PieChart from "@/components/Stats/PieChart";
+import BarChart from "@/components/stats/BarChart";
+import ChartBox from "@/components/stats/ChartBox";
+import PieChart from "@/components/stats/PieChart";
 import { fetchBackendFromServer } from "@/lib/db";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { Member, User } from "@/types";
