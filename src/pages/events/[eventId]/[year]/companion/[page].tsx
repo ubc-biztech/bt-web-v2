@@ -9,11 +9,7 @@ export default function CompanionSubpage() {
   const event = useMemo(() => {
     if (!eventId || !year) return null;
 
-    return Events.find(
-      e =>
-        e.eventID === eventId &&
-        e.year === Number(year)
-    );
+    return Events.find((e) => e.eventID === eventId && e.year === Number(year));
   }, [eventId, year]);
 
   if (!event) return null;

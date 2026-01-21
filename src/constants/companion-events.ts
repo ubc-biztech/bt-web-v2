@@ -121,11 +121,11 @@ const Events: Event[] = [
     year: 2026,
     ChildComponent: BluePrint2026,
     pages: {
-      'connections': BluePrintConnections2026,
-      'profile': BluePrintProfile2026,
-      'partner-database': BluePrintPartnerDatabase2026,
-      'quests': BluePrintQuests2026,
-      'companies': BluePrintCompanies2026
+      connections: BluePrintConnections2026,
+      profile: BluePrintProfile2026,
+      "partner-database": BluePrintPartnerDatabase2026,
+      quests: BluePrintQuests2026,
+      companies: BluePrintCompanies2026,
     },
     options: {
       disableWelcomeHeader: true,
