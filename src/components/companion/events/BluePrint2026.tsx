@@ -13,7 +13,6 @@ import ConnectionsPreview from "../blueprint2026/components/ConnectionsPreview";
 import QuestsPreview from "../blueprint2026/components/QuestsPreview";
 import { useConnections } from "@/queries/connections";
 import { useQuests } from "@/queries/quests";
-import { CompanionPageContext } from "@/lib/context/companionContext";
 
 const BluePrint2026 = () => {
   const router = useRouter();
@@ -52,7 +51,6 @@ const BluePrint2026 = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <BluePrintNav isPartner={false} />
             <div className="mb-4">
               <SummaryText
                 name="Firstname"

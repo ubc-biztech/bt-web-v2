@@ -6,12 +6,24 @@ import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2025 from "@/components/companion/events/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 import BluePrint2026 from "@/components/companion/events/BluePrint2026";
+import BluePrintConnections2026 from "@/components/companion/blueprint2026/pages/BluePrintConnections2026";
+import BluePrintProfile2026 from "@/components/companion/blueprint2026/pages/BluePrintProfile2026";
+import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/pages/BluePrintPartnerDatabase2026";
+import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
+import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
+
+type EventPageProps = {
+  event: Event;
+};
+
+type EventPages = Record<string, React.ComponentType<EventPageProps>>;
 
 export interface Event {
   activeUntil: Date;
   eventID: string;
   year: number;
   ChildComponent: ComponentType<any>;
+  pages?: EventPages;
   options: {
     disableWelcomeHeader?: boolean;
     BiztechLogo: string;
@@ -108,10 +120,17 @@ const Events: Event[] = [
     eventID: "blueprint",
     year: 2026,
     ChildComponent: BluePrint2026,
+    pages: {
+      'connections': BluePrintConnections2026,
+      'profile': BluePrintProfile2026,
+      'partner-database': BluePrintPartnerDatabase2026,
+      'quests': BluePrintQuests2026,
+      'companies': BluePrintCompanies2026
+    },
     options: {
       disableWelcomeHeader: true,
-      BiztechLogo: KickstartLogo.src,
-      Logo: KickstartLogo.src,
+      BiztechLogo: BlueprintLogo.src,
+      Logo: BlueprintLogo.src,
       title: "BluePrint 2026",
       date: "January 24, 2026",
       location: "UBC Robson Square",
