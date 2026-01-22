@@ -53,9 +53,14 @@ const BluePrint2026 = () => {
           <div className="flex flex-col gap-4">
             <div className="mb-4">
               <SummaryText
-                name="Firstname"
-                connectionsMade={20}
-                questsComplete={3}
+                name={userRegistration?.fname || "there"}
+                connectionsMade={connections?.length || 0}
+                questsComplete={
+                  quests
+                    ? Object.values(quests).filter((q) => q.progress >= q.target)
+                        .length
+                    : 0
+                }
               />
             </div>
             <QuizResultsPreview />
