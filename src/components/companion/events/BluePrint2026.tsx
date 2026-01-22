@@ -23,11 +23,15 @@ const BluePrint2026 = () => {
     isError: connectionsError,
   } = useConnections();
 
+  const { eventId, year } = router.query;
+  const questEventId = typeof eventId === "string" ? eventId : undefined;
+  const questEventYear = typeof year === "string" ? year : undefined;
+
   const {
     data: quests,
     isLoading: questsLoading,
     isError: questsError,
-  } = useQuests();
+  } = useQuests(questEventId, questEventYear);
 
   const { userRegistration } = useUserRegistration();
 
@@ -58,7 +62,9 @@ const BluePrint2026 = () => {
                 questsComplete={
                   quests
                     ? Object.values(quests).filter(
-                        (q) => q.progress >= q.target,
+                        (q) =>
+                          q.completedAt !== null ||
+                          (q.target !== null && q.progress >= q.target),
                       ).length
                     : 0
                 }

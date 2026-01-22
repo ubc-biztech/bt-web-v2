@@ -23,14 +23,20 @@ export default function QuestsPreview({
         <div className="my-2">
           {Object.entries(quests)
             .slice(0, 3)
-            .map(([questKey, quest]) => (
-              <div key={questKey} className="flex flex-row justify-between">
-                <div>{questKey}</div>
-                <div>
-                  {quest.progress} / {quest.target}
+            .map(([questKey, quest]) => {
+              const questLabel = quest.description ?? questKey;
+              const targetLabel =
+                quest.target === null ? "unlimited" : quest.target;
+
+              return (
+                <div key={questKey} className="flex flex-row justify-between">
+                  <div>{questLabel}</div>
+                  <div>
+                    {quest.progress} / {targetLabel}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       )}
     </BluePrintCard>

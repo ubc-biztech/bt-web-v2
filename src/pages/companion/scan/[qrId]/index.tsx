@@ -12,6 +12,8 @@ import {
   WORKSHOP_EVENT,
 } from "@/constants/companion";
 import Loading from "@/components/Loading";
+import { postQuestEvent } from "@/queries/quests";
+import type { QuestEvent } from "@/queries/quests";
 
 /**
  * COMPANION APP CHECK-IN SYSTEM
@@ -80,22 +82,50 @@ const Index = () => {
       userID,
       eventParam,
     };
+    let questEvent: QuestEvent | null = null;
     switch (type) {
       case "NFC_PARTNER":
         Object.assign(body, { eventType: CONNECTION_EVENT });
         redirect = `/companion/profile/${eventParam}`;
+        questEvent = {
+          type: "connection",
+          argument: {
+            recommended: false,
+            profileId: eventParam,
+          },
+        };
         break;
       case "NFC_ATTENDEE":
         Object.assign(body, { eventType: CONNECTION_EVENT });
         redirect = `/companion/profile/${eventParam}`;
+        questEvent = {
+          type: "connection",
+          argument: {
+            recommended: false,
+            profileId: eventParam,
+          },
+        };
         break;
       case "NFC_EXEC":
         Object.assign(body, { eventType: CONNECTION_EVENT });
         redirect = `/companion/profile/${eventParam}`;
+        questEvent = {
+          type: "connection",
+          argument: {
+            recommended: false,
+            profileId: eventParam,
+          },
+        };
         break;
       case "NFC_COMPANY":
         Object.assign(body, { eventType: BOOTH_EVENT });
         redirect = `/companion/profile/company/${eventParam}`;
+        questEvent = {
+          type: "company",
+          argument: {
+            company: eventParam,
+          },
+        };
         break;
       case "NFC_BOOTH":
         Object.assign(body, { eventType: BOOTH_EVENT });
@@ -116,6 +146,14 @@ const Index = () => {
         data: body,
         authenticatedCall: false,
       });
+
+      if (questEvent) {
+        try {
+          await postQuestEvent(questEvent, eventID, year);
+        } catch (questError) {
+          console.warn("Quest event failed:", questError);
+        }
+      }
     } catch (error) {
       if (Number.parseInt((error as any).status) >= 500) {
         console.error("Backend call failed", (error as any).message);

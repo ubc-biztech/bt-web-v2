@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { Search, ArrowLeft, ArrowUpRight, Users } from "lucide-react";
+import {
+  Search,
+  ArrowLeft,
+  ArrowUpRight,
+  Users,
+  ArrowUpDown,
+} from "lucide-react";
 import BluePrintLayout from "@/components/companion/blueprint2026/layout/BluePrintLayout";
 import BluePrintCard from "@/components/companion/blueprint2026/components/BluePrintCard";
 import BluePrintButton from "@/components/companion/blueprint2026/components/BluePrintButton";
@@ -32,28 +38,54 @@ const itemVariants = {
   },
 };
 
+type SortOption = "recent" | "name-asc" | "name-desc" | "year";
+
 const ConnectionsPage = () => {
   const router = useRouter();
   const { eventId, year } = router.query;
   const [searchQuery, setSearchQuery] = useState("");
   const [connectionType, setConnectionType] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<SortOption>("recent");
 
   const { data: connections, isLoading, isError } = useConnections();
 
-  // Sort by most recent and filter
+  // Filter and sort connections
   const filteredConnections = connections
     ? [...connections]
-        .sort((a, b) => b.createdAt - a.createdAt)
         .filter((connection) => {
-          const matchesSearch = `${connection.fname} ${connection.lname}`
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase());
+
+          const searchLower = searchQuery.toLowerCase();
+          const matchesSearch =
+            !searchQuery ||
+            [
+              connection.fname,
+              connection.lname,
+              `${connection.fname} ${connection.lname}`,
+              connection.major,
+              connection.year,
+            ].some((field) => field?.toLowerCase().includes(searchLower));
 
           const currType = connection.connectionType || "ATTENDEE";
           const matchesType =
             connectionType === "ALL" || connectionType === currType;
 
           return matchesSearch && matchesType;
+        })
+        .sort((a, b) => {
+          switch (sortBy) {
+            case "name-asc":
+              return `${a.fname} ${a.lname}`.localeCompare(
+                `${b.fname} ${b.lname}`,
+              );
+            case "name-desc":
+              return `${b.fname} ${b.lname}`.localeCompare(
+                `${a.fname} ${a.lname}`,
+              );
+            case "year":
+              return (a.year || "").localeCompare(b.year || "");
+            default:
+              return b.createdAt - a.createdAt;
+          }
         })
     : [];
 
@@ -62,6 +94,13 @@ const ConnectionsPage = () => {
     { value: "PARTNER", label: "Partners" },
     { value: "EXEC", label: "Execs" },
     { value: "ATTENDEE", label: "Attendees" },
+  ];
+
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "recent", label: "Most Recent" },
+    { value: "name-asc", label: "Name A-Z" },
+    { value: "name-desc", label: "Name Z-A" },
+    { value: "year", label: "Year" },
   ];
 
   return (
@@ -94,36 +133,56 @@ const ConnectionsPage = () => {
         <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
         {/* Search & Filter */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3">
           {/* Search */}
-          <div className="relative flex-1">
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-[#778191]" />
             </div>
             <input
               type="text"
-              placeholder="Search connections..."
+              placeholder="Search by name, major, or year..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-[#778191] focus:outline-none focus:ring-2 focus:ring-[#6299ff]/50 focus:border-[#6299ff]/50 text-sm"
             />
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {connectionTypes.map((type) => (
+          {/* Filter & Sort Row */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+            {/* Filter Pills */}
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {connectionTypes.map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => setConnectionType(type.value)}
+                  className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-all ${
+                    connectionType === type.value
+                      ? "bg-[#6299ff] text-white"
+                      : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20"
+                  }`}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="relative">
               <button
-                key={type.value}
-                onClick={() => setConnectionType(type.value)}
-                className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-all ${
-                  connectionType === type.value
-                    ? "bg-[#6299ff] text-white"
-                    : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20"
-                }`}
+                className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white text-xs hover:bg-white/10 transition-all"
+                onClick={() => {
+                  const currentIndex = sortOptions.findIndex(
+                    (opt) => opt.value === sortBy,
+                  );
+                  const nextIndex = (currentIndex + 1) % sortOptions.length;
+                  setSortBy(sortOptions[nextIndex].value);
+                }}
               >
-                {type.label}
+                <ArrowUpDown size={14} className="text-[#778191]" />
+                <span>{sortOptions.find((opt) => opt.value === sortBy)?.label}</span>
               </button>
-            ))}
+            </div>
           </div>
         </div>
 
