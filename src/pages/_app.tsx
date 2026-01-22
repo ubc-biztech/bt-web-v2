@@ -54,6 +54,8 @@ export default function App({ Component, pageProps }: AppProps) {
   const isKickstartPath =
     router.pathname.includes("/kickstart/") &&
     router.pathname.includes("/companion");
+  // Check if we're on a wrapped route
+  const isWrappedPath = router.pathname.startsWith("/companion/wrapped");
 
   const content = (
     <QueryProvider>
@@ -118,7 +120,19 @@ export default function App({ Component, pageProps }: AppProps) {
       <main
         className={`${isCompanionPath ? "dark" : ""} ${isKickstartPath ? `${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
-        <div className={isCompanionPath ? "min-h-screen" : ""}>
+        {/* Persistent background for wrapped routes */}
+        {isWrappedPath && (
+          <div
+            className="fixed inset-0 z-0"
+            style={{
+              backgroundImage: "url('/assets/blueprint/wrappedBg.png')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+        )}
+        <div className={`${isCompanionPath ? "min-h-screen" : ""} ${isWrappedPath ? "relative z-10" : ""}`}>
           <Component {...pageProps} />
         </div>
       </main>

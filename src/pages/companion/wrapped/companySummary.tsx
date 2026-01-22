@@ -1,17 +1,13 @@
 "use client";
 
-import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
-  useTransform,
   animate,
-  AnimatePresence,
 } from "framer-motion";
-import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface TopCompaniesProps {
   isPartner: boolean;
@@ -68,16 +64,15 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
     }, 800);
   };
   return (
-    <NavBarContainer isPartner={isPartner}>
-      <motion.div
-        className="min-h-screen flex flex-col items-center p-6"
-        onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-      >
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center p-6 pt-12 overflow-y-auto overflow-x-hidden"
+      onClick={handleTap}
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ opacity, scale, y }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+    >
         <motion.h1
           className="text-white text-sm md:text-lg font-satoshi font-medium px-4 max-w-lg text-center mb-6 
                         drop-shadow-[0_0_10px_rgba(68,136,255,0.6)]"
@@ -129,9 +124,8 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
               </div>
             </motion.div>
           ))}
-        </div>
-      </motion.div>
-    </NavBarContainer>
+      </div>
+    </motion.div>
   );
 };
 

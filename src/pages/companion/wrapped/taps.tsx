@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -18,11 +17,8 @@ import { useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
-  useTransform,
   animate,
-  AnimatePresence,
 } from "framer-motion";
-import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 // Register chart.js components
 Chart.register(
@@ -156,22 +152,15 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   };
 
   return (
-    <NavBarContainer isPartner={isPartner}>
-      <motion.div
-        className="min-h-screen flex flex-col items-center px-4 pb-6 space-y-4 cursor-pointer"
-        onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }} // Stops pushing content down
-        transition={{ duration: 0.5 }}
-        style={{
-          ...WRAPPED_BACKDROP_STYLE,
-          opacity,
-          scale,
-          y,
-          paddingTop: "1rem",
-        }} // Reduces top padding
-        exit={{ opacity: 0, scale: 0.9, y: 10 }}
-      >
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center justify-center px-4 py-6 space-y-4 cursor-pointer overflow-hidden"
+      onClick={handleTap}
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ opacity, scale, y }}
+      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+    >
         {/* Header */}
         <motion.p className="text-white text-lg font-satoshi font-medium text-center">
           You made
@@ -208,9 +197,8 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
             You networked the most around{" "}
             <span className="font-satoshi font-bold">{mostActiveHour}</span>.
           </motion.p>
-        )}
-      </motion.div>
-    </NavBarContainer>
+      )}
+    </motion.div>
   );
 };
 

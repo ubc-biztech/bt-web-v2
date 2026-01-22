@@ -1,16 +1,12 @@
 "use client";
 
-import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   motion,
   useMotionValue,
-  useTransform,
   animate,
-  AnimatePresence,
 } from "framer-motion";
-import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface StartPageProps {
   isPartner: boolean;
@@ -34,16 +30,15 @@ const StartPage = ({ isPartner }: StartPageProps) => {
   };
 
   return (
-    <NavBarContainer isPartner={isPartner}>
-      <motion.div
-        className="fixed inset-0 flex flex-col items-center justify-center p-6"
-        onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-      >
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center justify-center p-6 overflow-hidden"
+      onClick={handleTap}
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ opacity, scale, y }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+    >
         {/* Main Content */}
         <motion.div
           className="flex flex-col items-center text-center space-y-4"
@@ -93,9 +88,8 @@ const StartPage = ({ isPartner }: StartPageProps) => {
               ></path>
             </svg>
           </motion.div>
-        </motion.div>
       </motion.div>
-    </NavBarContainer>
+    </motion.div>
   );
 };
 

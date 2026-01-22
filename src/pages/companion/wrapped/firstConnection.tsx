@@ -1,6 +1,5 @@
 "use client";
 
-import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { CompanionConnectionRow } from "@/components/companion/connections/connection-row";
 import { useEffect, useState } from "react";
 import { fetchBackend } from "@/lib/db";
@@ -9,7 +8,6 @@ import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
 import { motion, useMotionValue, animate } from "framer-motion";
 import Image from "next/image";
-import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface FirstConnectionProps {
   isPartner: boolean;
@@ -102,16 +100,15 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
   }, [firstCompanyName]); // Runs whenever firstCompanyName updates
 
   return (
-    <NavBarContainer isPartner={isPartner}>
-      <motion.div
-        className="fixed inset-0 flex flex-col items-center justify-center p-6 space-y-6"
-        onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-      >
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center justify-center p-6 space-y-6 overflow-hidden"
+      onClick={handleTap}
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ opacity, scale, y }}
+      exit={{ opacity: 0, scale: 0.9, y: 20 }}
+    >
         {firstConnection ? (
           <div onClick={(e) => e.stopPropagation()} className="cursor-default">
             <CompanionConnectionRow connection={firstConnection} />
@@ -171,9 +168,8 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
               was the first company you tapped
             </motion.p>
           </>
-        )}
-      </motion.div>
-    </NavBarContainer>
+      )}
+    </motion.div>
   );
 };
 

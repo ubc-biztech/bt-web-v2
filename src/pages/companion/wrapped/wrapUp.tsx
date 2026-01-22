@@ -1,19 +1,15 @@
 "use client";
 
-import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   motion,
   useMotionValue,
-  useTransform,
   animate,
-  AnimatePresence,
 } from "framer-motion";
 import Image from "next/image";
 import ExecsPhoto from "../../../assets/2025/blueprint/postExecs.jpg";
 import NavbarLogo from "../../../assets/2025/blueprint/navbar_logo.png";
-import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface WrapUpProps {
   isPartner: boolean;
@@ -37,22 +33,15 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
   };
 
   return (
-    <NavBarContainer isPartner={isPartner}>
-      <motion.div
-        className="min-h-screen flex flex-col items-center px-4 pb-6 space-y-6 cursor-pointer"
-        onClick={handleTap}
-        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          ...WRAPPED_BACKDROP_STYLE,
-          opacity,
-          scale,
-          y,
-          paddingTop: "1rem",
-        }} // Removes extra top space
-        exit={{ opacity: 0, scale: 0.9, y: 10 }}
-      >
+    <motion.div
+      className="fixed inset-0 flex flex-col items-center justify-center px-4 py-6 space-y-4 cursor-pointer overflow-hidden"
+      onClick={handleTap}
+      initial={{ opacity: 0, scale: 0.9, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      style={{ opacity, scale, y }}
+      exit={{ opacity: 0, scale: 0.9, y: 10 }}
+    >
         {/* Title */}
         <motion.h1 className="text-white text-4xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           That&apos;s a wrap
@@ -123,9 +112,8 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
           >
             Same time next year?
           </motion.p>
-        </div>
-      </motion.div>
-    </NavBarContainer>
+      </div>
+    </motion.div>
   );
 };
 
