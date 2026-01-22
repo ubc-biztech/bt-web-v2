@@ -57,8 +57,9 @@ const BluePrint2026 = () => {
                 connectionsMade={connections?.length || 0}
                 questsComplete={
                   quests
-                    ? Object.values(quests).filter((q) => q.progress >= q.target)
-                        .length
+                    ? Object.values(quests).filter(
+                        (q) => q.progress >= q.target,
+                      ).length
                     : 0
                 }
               />
