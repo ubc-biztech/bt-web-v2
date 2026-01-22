@@ -52,11 +52,8 @@ const itemVariants = {
   },
 };
 
-export default function BluePrintProfile2026(
-  props: DynamicPageProps & Record<string, string>,
-) {
-  // Extract props - profileId comes from params spread, eventId/year from DynamicPageProps
-  const profileId = props.profileId || props.params.profileId;
+export default function BluePrintProfile2026(props: DynamicPageProps) {
+  const profileId = props.params.profileId;
   const { eventId, year } = props;
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
