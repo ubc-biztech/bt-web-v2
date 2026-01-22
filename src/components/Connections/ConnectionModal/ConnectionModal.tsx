@@ -5,6 +5,7 @@ import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 import { fetchBackend } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/router";
+import { postQuestEvent } from "@/queries/quests";
 
 interface ConnectionModalProps {
   profileData: BiztechProfile;
@@ -45,6 +46,20 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
       });
 
       if (response) {
+        const cachedEvent = localStorage.getItem("activeEvent");
+        const [, , eventIdAndYear] = cachedEvent?.split("#") || [];
+        const [eventId, eventYear] = eventIdAndYear?.split(";") || [];
+
+        postQuestEvent({
+          type: "connection",
+          argument: {
+            recommended: false,
+            profileId: profileID,
+          },
+        }, eventId, eventYear).catch((error) => {
+          console.warn("Quest event failed", error);
+        });
+
         toast({
           title: "Success",
           description: `Connected with ${profileData.fname} ${profileData.lname}!`,
