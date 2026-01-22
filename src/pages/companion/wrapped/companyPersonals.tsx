@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { fetchBackend } from "@/lib/db";
 import Image from "next/image";
+import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 // Component for the company name badges
 const CompanyBadge = ({ name }: { name: string }) => (
@@ -113,12 +114,12 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
-        className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-4 cursor-pointer"
+        className="fixed inset-0 flex flex-col items-center justify-center p-6 space-y-4 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ opacity, scale, y }}
+        style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         {/* Text: You visited */}

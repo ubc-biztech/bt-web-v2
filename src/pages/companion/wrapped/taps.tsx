@@ -22,6 +22,7 @@ import {
   animate,
   AnimatePresence,
 } from "framer-motion";
+import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 // Register chart.js components
 Chart.register(
@@ -157,12 +158,18 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
-        className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-4 cursor-pointer"
+        className="min-h-screen flex flex-col items-center px-4 pb-6 space-y-4 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }} // Stops pushing content down
         transition={{ duration: 0.5 }}
-        style={{ opacity, scale, y, paddingTop: "1rem" }} // Reduces top padding
+        style={{
+          ...WRAPPED_BACKDROP_STYLE,
+          opacity,
+          scale,
+          y,
+          paddingTop: "1rem",
+        }} // Reduces top padding
         exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
         {/* Header */}

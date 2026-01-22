@@ -11,6 +11,7 @@ import {
   animate,
   AnimatePresence,
 } from "framer-motion";
+import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface TopCompaniesProps {
   isPartner: boolean;
@@ -69,12 +70,12 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
-        className="min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] flex flex-col items-center p-6"
+        className="min-h-screen flex flex-col items-center p-6"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ opacity, scale, y }}
+        style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         <motion.h1

@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import NavbarLogo from "../../../assets/2025/blueprint/navbar_logo.png";
+import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface BlueprintSummaryProps {
   isPartner: boolean;
@@ -36,12 +37,12 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
     <NavBarContainer isPartner={isPartner}>
       <AnimatePresence>
         <motion.div
-          className="fixed inset-0 flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 pt-8"
+          className="fixed inset-0 flex flex-col items-center p-6 pt-8"
           onClick={handleTap}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ opacity, scale, y }}
+          style={{ ...WRAPPED_BACKDROP_STYLE, opacity, scale, y }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
         >
           {/* Main Content */}

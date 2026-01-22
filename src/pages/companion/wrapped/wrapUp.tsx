@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import ExecsPhoto from "../../../assets/2025/blueprint/postExecs.jpg";
 import NavbarLogo from "../../../assets/2025/blueprint/navbar_logo.png";
+import { WRAPPED_BACKDROP_STYLE } from "@/constants/wrapped";
 
 interface WrapUpProps {
   isPartner: boolean;
@@ -38,12 +39,18 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <motion.div
-        className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-6 cursor-pointer"
+        className="min-h-screen flex flex-col items-center px-4 pb-6 space-y-6 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        style={{ opacity, scale, y, paddingTop: "1rem" }} // Removes extra top space
+        style={{
+          ...WRAPPED_BACKDROP_STYLE,
+          opacity,
+          scale,
+          y,
+          paddingTop: "1rem",
+        }} // Removes extra top space
         exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
         {/* Title */}
