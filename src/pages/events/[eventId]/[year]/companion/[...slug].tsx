@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 function matchRoute(
   pattern: string,
-  pathSegments: string[]
+  pathSegments: string[],
 ): Record<string, string> | null {
   const patternSegments = pattern.split("/");
 
@@ -17,7 +17,6 @@ function matchRoute(
   for (let i = 0; i < patternSegments.length; i++) {
     const patternPart = patternSegments[i];
     const pathPart = pathSegments[i];
-
 
     const dynamicMatch = patternPart.match(/^\[(.+)\]$/);
 

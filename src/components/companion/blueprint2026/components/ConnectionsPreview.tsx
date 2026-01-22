@@ -10,9 +10,7 @@ export default function ConnectionsPreview({
   connections: Connection[] | undefined;
 }) {
   const recentConnections = connections
-    ? [...connections]
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 3)
+    ? [...connections].sort((a, b) => b.createdAt - a.createdAt).slice(0, 3)
     : [];
 
   return (
@@ -34,7 +32,10 @@ export default function ConnectionsPreview({
       ) : (
         <div className="flex flex-col gap-3 mt-4">
           {recentConnections.map((connection) => (
-            <ConnectionCard key={connection.connectionID} connection={connection} />
+            <ConnectionCard
+              key={connection.connectionID}
+              connection={connection}
+            />
           ))}
         </div>
       )}
@@ -45,7 +46,7 @@ export default function ConnectionsPreview({
 function ConnectionCard({ connection }: { connection: Connection }) {
   const initials = `${connection.fname[0]?.toUpperCase() || ""}${connection.lname[0]?.toUpperCase() || ""}`;
   const connectionType = connection.connectionType || "ATTENDEE";
-  
+
   const timeAgo = getTimeAgo(connection.createdAt);
 
   const profileId = connection.type?.split("#")[1] || connection.connectionID;
@@ -83,7 +84,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
 function getTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
-  
+
   const minutes = Math.floor(diff / (1000 * 60));
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -93,7 +94,7 @@ function getTimeAgo(timestamp: number): string {
   if (hours < 24) return `${hours}h ago`;
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days}d ago`;
-  
+
   return new Date(timestamp).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

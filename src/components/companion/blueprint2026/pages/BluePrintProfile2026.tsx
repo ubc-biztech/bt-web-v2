@@ -53,7 +53,7 @@ const itemVariants = {
 };
 
 export default function BluePrintProfile2026(
-  props: DynamicPageProps & Record<string, string>
+  props: DynamicPageProps & Record<string, string>,
 ) {
   // Extract props - profileId comes from params spread, eventId/year from DynamicPageProps
   const profileId = props.profileId || props.params.profileId;
@@ -152,7 +152,9 @@ export default function BluePrintProfile2026(
             <h1 className="text-2xl font-medium text-white mb-2">
               Profile Not Found
             </h1>
-            <p className="text-[#778191]">{error || "Could not load profile"}</p>
+            <p className="text-[#778191]">
+              {error || "Could not load profile"}
+            </p>
           </div>
           <Link href={`/events/${eventId}/${year}/companion`}>
             <BluePrintButton>
