@@ -18,7 +18,7 @@ const navLinks = [
   },
   { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
   {
-    href: "/events/blueprint/2026/companion/partners",
+    href: "/events/blueprint/2026/companion/partner-database",
     label: "Partner Database",
   },
   { href: "/events/blueprint/2026/companion/companies", label: "Companies" },
@@ -32,7 +32,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
   React.useEffect(() => {
     controls.start({
       x: isOpen ? 0 : "100%",
-      transition: { duration: 0.3, ease: "easeInOut" },
+      transition: { duration: 0.2, ease: "easeOut" },
     });
   }, [isOpen, controls]);
 
@@ -47,7 +47,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
   return (
     <>
       <div>
-        <div className="flex flex-row justify-between">
+        <div className="flex flex-row justify-between mx-4 mt-4">
           <Link href="/events/blueprint/2026/companion">
             <Image
               src={"/assets/blueprint/blueprint-logo.png"}
@@ -95,13 +95,15 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
           </div>
 
           <nav className="flex flex-col space-y-8 h-full">
-            <Image
-              src={"/assets/blueprint/blueprint-logo.png"}
-              height={108}
-              width={164}
-              alt="BluePrint"
-              className="mb-8"
-            />
+            <Link href="/events/blueprint/2026/companion">
+              <Image
+                src={"/assets/blueprint/blueprint-logo.png"}
+                height={108}
+                width={164}
+                alt="BluePrint"
+                className="mb-8"
+              />
+            </Link>
             {navLinks.map(({ href, label }) => {
               if (label === "Badges" && isPartner) return null;
               return (
