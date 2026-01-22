@@ -18,10 +18,7 @@ export type DynamicPageProps = {
   year: string;
 };
 
-type EventPages = Record<
-  string,
-  React.ComponentType<DynamicPageProps & Record<string, string>>
->;
+type EventPages = Record<string, React.ComponentType<DynamicPageProps & any>>;
 
 export interface Event {
   activeUntil: Date;

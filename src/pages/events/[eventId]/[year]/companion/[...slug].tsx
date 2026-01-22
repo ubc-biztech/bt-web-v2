@@ -76,5 +76,5 @@ export default function CompanionSubpage() {
     year: year as string,
   };
 
-  return <PageComponent {...pageProps} {...params} />;
+  return <PageComponent {...pageProps} />;
 }
