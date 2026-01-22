@@ -7,7 +7,7 @@ import {
 } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, MouseEvent } from "react";
+import { useState, useEffect, MouseEvent } from "react";
 
 interface TutorialPageProps {
   isPartner: boolean;
@@ -20,9 +20,16 @@ const TutorialPage = ({ isPartner }: TutorialPageProps) => {
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
+  const overlayOpacity = useMotionValue(0);
+
+  // Fade in the overlay on mount
+  useEffect(() => {
+    animate(overlayOpacity, 1, { duration: 0.5 });
+  }, [overlayOpacity]);
 
   const navigateTo = (path: string) => {
     setIsTapped(true);
+    animate(overlayOpacity, 0, { duration: 0.3 });
     animate(opacity, 0, { duration: 0.5 });
     animate(scale, 0.8, { duration: 0.5 });
     animate(y, 20, { duration: 0.5 });
@@ -108,10 +115,35 @@ const TutorialPage = ({ isPartner }: TutorialPageProps) => {
         >
           tutorial
         </p>
+
+        {/* Blur overlay - on top of everything */}
+        <motion.div
+          className="absolute inset-0 backdrop-blur-[10px] pointer-events-none z-20 flex p-[10px] gap-[10px]"
+          style={{ opacity: overlayOpacity }}
+        >
+          {/* add dashed border to the divs */}
+          <div className="w-[50%] h-full rounded-lg flex flex-col gap-4 items-center justify-center border-dashed border-2 border-white">
+            Tap here to go back
+            <Image
+              src="/assets/blueprint/tap-icon.svg"
+              alt="Tap"
+              width={40}
+              height={40}
+            />
+          </div>
+          <div className="w-[50%] h-full rounded-lg flex flex-col gap-4 items-center justify-center border-dashed border-2 border-white">
+            Tap here to go forward
+            <Image
+              src="/assets/blueprint/tap-icon.svg"
+              alt="Tap"
+              width={40}
+              height={40}
+            />
+          </div>
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 };
 
 export default TutorialPage;
-
