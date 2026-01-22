@@ -11,7 +11,6 @@ import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/p
 import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
 import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
 
-
 export type DynamicPageProps = {
   event: Event;
   params: Record<string, string>;

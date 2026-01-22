@@ -211,7 +211,9 @@ function ConnectionCard({ connection }: { connection: Connection }) {
           <div className="flex items-center gap-3">
             {/* Avatar */}
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] flex items-center justify-center flex-shrink-0">
-              <span className="text-[#0A1428] font-medium text-sm">{initials}</span>
+              <span className="text-[#0A1428] font-medium text-sm">
+                {initials}
+              </span>
             </div>
 
             {/* Info */}
@@ -221,7 +223,9 @@ function ConnectionCard({ connection }: { connection: Connection }) {
               </span>
               <div className="flex items-center gap-2 flex-wrap">
                 {connection.pronouns && (
-                  <span className="text-[#778191] text-xs">{connection.pronouns}</span>
+                  <span className="text-[#778191] text-xs">
+                    {connection.pronouns}
+                  </span>
                 )}
                 {connection.major && (
                   <>
@@ -247,7 +251,9 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             </span>
 
             {/* Time */}
-            <span className="text-[#778191] text-xs hidden sm:block">{timeAgo}</span>
+            <span className="text-[#778191] text-xs hidden sm:block">
+              {timeAgo}
+            </span>
 
             {/* Arrow */}
             <ArrowUpRight size={18} className="text-[#6299ff]" />
