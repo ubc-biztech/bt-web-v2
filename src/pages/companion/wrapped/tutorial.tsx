@@ -1,42 +1,60 @@
 "use client";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  animate,
+  AnimatePresence,
+} from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MouseEvent } from "react";
+import { useState, MouseEvent } from "react";
 
-interface WrappedPageProps {
+interface TutorialPageProps {
   isPartner: boolean;
 }
 
-const WrappedPage = ({ isPartner }: WrappedPageProps) => {
+const TutorialPage = ({ isPartner }: TutorialPageProps) => {
   const router = useRouter();
+  const [isTapped, setIsTapped] = useState(false);
+
+  const opacity = useMotionValue(1);
+  const scale = useMotionValue(1);
+  const y = useMotionValue(0);
+
+  const navigateTo = (path: string) => {
+    setIsTapped(true);
+    animate(opacity, 0, { duration: 0.5 });
+    animate(scale, 0.8, { duration: 0.5 });
+    animate(y, 20, { duration: 0.5 });
+    setTimeout(() => {
+      router.push(path);
+    }, 800);
+  };
 
   const handleTapNavigation = (e: MouseEvent<HTMLDivElement>) => {
     const screenWidth = window.innerWidth;
     const clickX = e.clientX;
     const isRightSide = clickX > screenWidth * 0.3;
 
-    // First page - only forward navigation (right side tap)
     if (isRightSide) {
-      router.push("/companion/wrapped/tutorial");
+      navigateTo("/companion/wrapped/bpSummary");
+    } else {
+      navigateTo("/companion/wrapped");
     }
-    // Left side tap does nothing on first page
   };
 
   return (
-    <div
-      className="fixed inset-0 flex flex-col items-center justify-center p-6 cursor-pointer overflow-hidden"
-      onClick={handleTapNavigation}
-    >
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 flex flex-col items-center justify-center p-6 cursor-pointer overflow-hidden"
+        onClick={handleTapNavigation}
+        style={{ opacity, scale, y }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+      >
         {/* Main Content - Centered */}
-        <motion.div
-          className="flex flex-col items-center justify-center text-center space-y-4 w-full"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div className="flex flex-col items-center justify-center text-center space-y-4 w-full">
           {/* Welcome Text */}
-          <motion.p
+          <p
             className="text-center"
             style={{
               color: "#FFF",
@@ -44,20 +62,12 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
               fontSize: "16px",
               fontWeight: 500,
             }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
           >
             Welcome to your
-          </motion.p>
+          </p>
 
           {/* BluePrint Logo - Metallic */}
-          <motion.div
-            className="relative w-[90vw] max-w-[500px]"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-          >
+          <div className="relative w-[90vw] max-w-[500px]">
             <Image
               src="/assets/blueprint/blueprint-logo.png"
               alt="BluePrint"
@@ -66,10 +76,10 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
               className="object-contain w-full h-auto"
               priority
             />
-          </motion.div>
+          </div>
 
           {/* Wrapped Text - Gradient */}
-          <motion.p
+          <p
             className="text-center"
             style={{
               fontFamily: "Manrope, sans-serif",
@@ -81,16 +91,13 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
           >
             Wrapped
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
-        {/* Tap to start - Bottom */}
-        <motion.p
+        {/* Tutorial - Bottom */}
+        <p
           className="absolute bottom-8 left-0 right-0 text-center"
           style={{
             color: "#FFF",
@@ -98,14 +105,13 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
             fontSize: "16px",
             fontWeight: 500,
           }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
         >
-          Tap to start.
-        </motion.p>
-      </div>
+          tutorial
+        </p>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
-export default WrappedPage;
+export default TutorialPage;
+

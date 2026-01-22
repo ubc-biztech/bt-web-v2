@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, MouseEvent } from "react";
 import { motion, useMotionValue, animate } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
@@ -25,14 +25,26 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
 
   const totalBadges = 13; // Fixed number of attainable badges
 
-  const handleTap = () => {
+  const navigateTo = (path: string) => {
     setIsTapped(true);
     animate(opacity, 0, { duration: 0.5 });
     animate(scale, 0.8, { duration: 0.5 });
     animate(y, 20, { duration: 0.5 });
     setTimeout(() => {
-      router.push("/companion/wrapped/wrapUp");
+      router.push(path);
     }, 800);
+  };
+
+  const handleTapNavigation = (e: MouseEvent<HTMLDivElement>) => {
+    const screenWidth = window.innerWidth;
+    const clickX = e.clientX;
+    const isRightSide = clickX > screenWidth * 0.3;
+
+    if (isRightSide) {
+      navigateTo("/companion/wrapped/wrapUp");
+    } else {
+      navigateTo("/companion/wrapped/companyPersonals");
+    }
   };
 
   useEffect(() => {
@@ -82,7 +94,7 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
   return (
     <motion.div
       className="fixed inset-0 flex flex-col items-center justify-center p-6 space-y-6 cursor-pointer overflow-hidden"
-      onClick={handleTap}
+      onClick={handleTapNavigation}
       initial={{ opacity: 0, scale: 0.9, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.5 }}

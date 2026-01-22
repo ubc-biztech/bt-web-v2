@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
 import {
   motion,
   useMotionValue,
@@ -22,20 +22,32 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
 
-  const handleTap = () => {
+  const navigateTo = (path: string) => {
     setIsTapped(true);
     animate(opacity, 0, { duration: 0.5 });
     animate(scale, 0.8, { duration: 0.5 });
     animate(y, 20, { duration: 0.5 });
     setTimeout(() => {
-      router.push("/companion");
+      router.push(path);
     }, 800);
+  };
+
+  const handleTapNavigation = (e: MouseEvent<HTMLDivElement>) => {
+    const screenWidth = window.innerWidth;
+    const clickX = e.clientX;
+    const isRightSide = clickX > screenWidth * 0.3;
+
+    if (isRightSide) {
+      navigateTo("/companion");
+    } else {
+      navigateTo("/companion/wrapped/badgePersonals");
+    }
   };
 
   return (
     <motion.div
       className="fixed inset-0 flex flex-col items-center justify-center px-4 py-6 space-y-4 cursor-pointer overflow-hidden"
-      onClick={handleTap}
+      onClick={handleTapNavigation}
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.5 }}

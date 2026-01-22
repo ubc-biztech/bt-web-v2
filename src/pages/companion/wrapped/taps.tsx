@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, MouseEvent } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -47,14 +47,26 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
 
-  const handleTap = () => {
+  const navigateTo = (path: string) => {
     setIsTapped(true);
     animate(opacity, 0, { duration: 0.5 });
     animate(scale, 0.8, { duration: 0.5 });
     animate(y, 20, { duration: 0.5 });
     setTimeout(() => {
-      router.push("/companion/wrapped/companyPersonals");
+      router.push(path);
     }, 800);
+  };
+
+  const handleTapNavigation = (e: MouseEvent<HTMLDivElement>) => {
+    const screenWidth = window.innerWidth;
+    const clickX = e.clientX;
+    const isRightSide = clickX > screenWidth * 0.3;
+
+    if (isRightSide) {
+      navigateTo("/companion/wrapped/companyPersonals");
+    } else {
+      navigateTo("/companion/wrapped/firstConnection");
+    }
   };
 
   useEffect(() => {
@@ -154,7 +166,7 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   return (
     <motion.div
       className="fixed inset-0 flex flex-col items-center justify-center px-4 py-6 space-y-4 cursor-pointer overflow-hidden"
-      onClick={handleTap}
+      onClick={handleTapNavigation}
       initial={{ opacity: 0, scale: 0.9, y: 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.5 }}
