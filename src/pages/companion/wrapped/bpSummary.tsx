@@ -8,7 +8,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Image from "next/image";
-import NavbarLogo from "../../../assets/2025/blueprint/navbar_logo.png";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface BlueprintSummaryProps {
   isPartner: boolean;
@@ -17,6 +17,8 @@ interface BlueprintSummaryProps {
 const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
   const [isTapped, setIsTapped] = useState(false);
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData, isLoading } = useWrappedData();
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
@@ -61,14 +63,13 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
           animate={{ opacity: 1, y: 0 }}
         >
           {/* BluePrint Logo */}
-          <div className="relative w-60 h-20 mb-2">
-            {" "}
-            {/* Adjust width & height as needed */}
+          <div className="relative w-[72vw] max-w-[400px] mb-2">
             <Image
-              src={NavbarLogo}
+              src="/assets/blueprint/blueprint-logo.png"
               alt="BluePrint Logo"
-              layout="fill"
-              className="object-contain"
+              width={1200}
+              height={400}
+              className="object-contain w-full h-auto"
               priority
             />
           </div>
@@ -100,10 +101,13 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
           >
             Where you,{" "}
             <span className="font-bold font-satoshi text-white">
-              251 attendees
+              {isLoading ? "..." : wrappedData?.totalAttendees || 0} attendees
             </span>
             <br />
-            and <span className="font-bold text-white">90 delegates</span>
+            and{" "}
+            <span className="font-bold text-white">
+              {wrappedData?.totalDelegates || 0} delegates
+            </span>
           </motion.p>
 
           {/* Final Call-to-Action */}
@@ -113,8 +117,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4 }}
           >
-            <span className="font-bold font-satoshi">Got their</span>{" "}
-            <span className="italic">start.</span>
+            Explored their place in tech.
           </motion.p>
         </motion.div>
       </motion.div>

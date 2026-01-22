@@ -7,6 +7,7 @@ import { COMPANION_EMAIL_KEY } from "@/constants/companion";
  */
 export async function getWrappedData(): Promise<{
   totalAttendees: number;
+  totalDelegates: number;
   firstConnection: {
     fname: string;
     lname: string;
@@ -36,7 +37,15 @@ export async function getWrappedData(): Promise<{
   }>;
 }> {
   try {
-    const profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
+    let profileId: string | null = null;
+    try {
+      profileId = localStorage.getItem(COMPANION_EMAIL_KEY);
+    } catch (storageError) {
+      // Safari mobile in private mode throws errors when accessing localStorage
+      console.warn("localStorage not available (possibly Safari private mode):", storageError);
+      throw new Error("Storage not available. Please disable private browsing mode.");
+    }
+    
     if (!profileId) {
       throw new Error("User not authenticated");
     }
@@ -85,8 +94,10 @@ export async function getWrappedData(): Promise<{
     // etc.
 
     // Placeholder return for now
+    console.log("wrapped data is being fetched");
     return {
-      totalAttendees: 100,
+      totalAttendees: 122,
+      totalDelegates: 93,
       firstConnection: {
         fname: "john",
         lname: "doe",

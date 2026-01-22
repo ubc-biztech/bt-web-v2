@@ -7,6 +7,7 @@ import {
   useMotionValue,
   animate,
 } from "framer-motion";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface StartPageProps {
   isPartner: boolean;
@@ -15,6 +16,8 @@ interface StartPageProps {
 const StartPage = ({ isPartner }: StartPageProps) => {
   const [isTapped, setIsTapped] = useState(false);
   const router = useRouter();
+  // Force refresh wrapped data on start page
+  const { data: wrappedData } = useWrappedData(true);
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);

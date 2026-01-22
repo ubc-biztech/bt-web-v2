@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MouseEvent } from "react";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface WrappedPageProps {
   isPartner: boolean;
@@ -10,6 +11,8 @@ interface WrappedPageProps {
 
 const WrappedPage = ({ isPartner }: WrappedPageProps) => {
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
 
   const handleTapNavigation = (e: MouseEvent<HTMLDivElement>) => {
     const screenWidth = window.innerWidth;

@@ -8,6 +8,7 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, MouseEvent } from "react";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface TutorialPageProps {
   isPartner: boolean;
@@ -15,6 +16,8 @@ interface TutorialPageProps {
 
 const TutorialPage = ({ isPartner }: TutorialPageProps) => {
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const [isTapped, setIsTapped] = useState(false);
 
   const opacity = useMotionValue(1);

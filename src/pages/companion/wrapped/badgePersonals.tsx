@@ -8,6 +8,7 @@ import { fetchBackend } from "@/lib/db";
 import { blueprintBadgeIcons } from "../../../constants/blueprint-badgeIcons";
 import Image from "next/image";
 import { Badge } from "../badges";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface BadgeSummaryProps {
   isPartner: boolean;
@@ -15,6 +16,8 @@ interface BadgeSummaryProps {
 
 const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const [badges, setBadges] = useState<Badge[]>([]);
   const [completedBadges, setCompletedBadges] = useState<Badge[]>([]);
   const [pageError, setPageError] = useState("");

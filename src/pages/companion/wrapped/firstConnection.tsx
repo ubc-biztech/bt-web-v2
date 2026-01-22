@@ -8,6 +8,7 @@ import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
 import { motion, useMotionValue, animate } from "framer-motion";
 import Image from "next/image";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface FirstConnectionProps {
   isPartner: boolean;
@@ -15,6 +16,8 @@ interface FirstConnectionProps {
 
 const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [error, setError] = useState("");
   const [companyProfilePicture, setCompanyProfilePicture] = useState("");

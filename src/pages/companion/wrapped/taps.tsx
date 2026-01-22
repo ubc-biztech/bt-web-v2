@@ -19,6 +19,7 @@ import {
   useMotionValue,
   animate,
 } from "framer-motion";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 // Register chart.js components
 Chart.register(
@@ -37,6 +38,8 @@ interface ConnectionsSummaryProps {
 
 const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const [connectionsByHour, setConnectionsByHour] = useState<
     { hour: string; count: number }[]
   >([]);

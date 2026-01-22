@@ -3,11 +3,8 @@
 import Image from "next/image";
 import { useState, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
-import {
-  motion,
-  useMotionValue,
-  animate,
-} from "framer-motion";
+import { motion, useMotionValue, animate } from "framer-motion";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface TopCompaniesProps {
   isPartner: boolean;
@@ -50,6 +47,8 @@ const topCompanies = [
 const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
   const [isTapped, setIsTapped] = useState(false);
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
@@ -86,33 +85,35 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
       style={{ opacity, scale, y }}
       exit={{ opacity: 0, scale: 0.9, y: 20 }}
     >
-        <motion.h1
-          className="text-white text-sm md:text-lg font-satoshi font-medium px-4 max-w-lg text-center mb-6 
+      <motion.h1
+        className="text-white text-sm md:text-lg font-satoshi font-medium px-4 max-w-lg text-center mb-6 
                         drop-shadow-[0_0_10px_rgba(68,136,255,0.6)]"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          People connected with many different companies, big and small.
-          <br />
-          Here are the{" "}
-          <span className="font-satoshi font-bold">overall top 5.</span>
-        </motion.h1>
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        People connected with many different companies, big and small.
+        <br />
+        Here are the{" "}
+        <span className="font-satoshi font-bold">overall top 5.</span>
+      </motion.h1>
 
-        {/* Company Rankings */}
-        <div className="w-full max-w-lg mt-8 space-y-6">
-          <div className="h-px bg-gradient-to-r from-[#88baff]/0 via-[#ffffff] to-[#88baff]/0"></div>
-          {topCompanies.map((company) => (
+      {/* Company Rankings */}
+      <div className="w-full max-w-lg mt-8 space-y-6">
+        <div className="h-px bg-gradient-to-r from-[#88baff]/0 via-[#ffffff] to-[#88baff]/0"></div>
+        {wrappedData?.topCompaniesVisited.map((company, index) => {
+          const rank = index + 1;
+          return (
             <motion.div
-              key={company.rank}
+              key={company.name}
               className="flex flex-wrap items-center bg-transparent rounded-lg p-4 gap-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 * company.rank }}
+              transition={{ delay: 0.2 * rank }}
             >
               {/* Rank Number */}
               <p className="text-white text-3xl font-bold w-8 text-center">
-                {company.rank}
+                {rank}
               </p>
 
               {/* Logo inside white circular background */}
@@ -136,7 +137,8 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
                 </p>
               </div>
             </motion.div>
-          ))}
+          );
+        })}
       </div>
     </motion.div>
   );

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { fetchBackend } from "@/lib/db";
 import Image from "next/image";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 // Component for the company name badges
 const CompanyBadge = ({ name }: { name: string }) => (
@@ -28,6 +29,8 @@ interface BoothSummaryProps {
 }
 
 const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const [visitedCompanies, setVisitedCompanies] = useState<string[]>([]);
   const [totalBooths, setTotalBooths] = useState(0);
   const [companyProfilePictures, setCompanyProfilePictures] = useState<

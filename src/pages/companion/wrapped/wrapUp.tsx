@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import ExecsPhoto from "../../../assets/2025/blueprint/postExecs.jpg";
 import NavbarLogo from "../../../assets/2025/blueprint/navbar_logo.png";
+import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface WrapUpProps {
   isPartner: boolean;
@@ -18,6 +19,8 @@ interface WrapUpProps {
 const WrapUp = ({ isPartner }: WrapUpProps) => {
   const [isTapped, setIsTapped] = useState(false);
   const router = useRouter();
+  // Wrapped data available but unused for now
+  const { data: wrappedData } = useWrappedData();
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
