@@ -17,8 +17,7 @@ const kode = Kode_Mono({
 });
 
 const satoshiStyle = {
-  fontFamily:
-    '"Satoshi Variable","Satoshi",var(--font-urbanist),sans-serif',
+  fontFamily: '"Satoshi Variable","Satoshi",var(--font-urbanist),sans-serif',
 } as const;
 
 const mockResult = {
