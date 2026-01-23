@@ -23,11 +23,15 @@ const BluePrint2026 = () => {
     isError: connectionsError,
   } = useConnections();
 
+  const { eventId, year } = router.query;
+  const questEventId = typeof eventId === "string" ? eventId : undefined;
+  const questEventYear = typeof year === "string" ? year : undefined;
+
   const {
     data: quests,
     isLoading: questsLoading,
     isError: questsError,
-  } = useQuests();
+  } = useQuests(questEventId, questEventYear);
 
   const { userRegistration } = useUserRegistration();
 
@@ -53,9 +57,17 @@ const BluePrint2026 = () => {
           <div className="flex flex-col gap-4">
             <div className="mb-4">
               <SummaryText
-                name="Firstname"
-                connectionsMade={20}
-                questsComplete={3}
+                name={userRegistration?.fname || "there"}
+                connectionsMade={connections?.length || 0}
+                questsComplete={
+                  quests
+                    ? Object.values(quests).filter(
+                        (q) =>
+                          q.completedAt !== null ||
+                          (q.target !== null && q.progress >= q.target),
+                      ).length
+                    : 0
+                }
               />
             </div>
             <QuizResultsPreview />

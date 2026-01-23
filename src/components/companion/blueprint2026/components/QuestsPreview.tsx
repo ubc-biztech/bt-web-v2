@@ -1,36 +1,75 @@
 import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Quests } from "@/queries/quests";
+import Link from "next/link";
 
 export default function QuestsPreview({
   quests,
 }: {
   quests: Quests | undefined;
 }) {
+  const questsArray = quests
+    ? Object.entries(quests).map(([id, quest]) => ({
+        id,
+        ...quest,
+        isCompleted:
+          quest.completedAt !== null ||
+          (quest.target !== null && quest.progress >= quest.target),
+      }))
+    : [];
+
+  // Sort: in-progress first, then by progress percentage
+  const sortedQuests = questsArray
+    .sort((a, b) => {
+      if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+      const aPercent = a.target ? a.progress / a.target : 0;
+      const bPercent = b.target ? b.progress / b.target : 0;
+      return bPercent - aPercent;
+    })
+    .slice(0, 3);
+
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
         <div className="text-md font-medium">Quests</div>
-        <BluePrintButton className="text-xs p-4">VIEW ALL</BluePrintButton>
+        <Link href="/events/blueprint/2026/companion/quests">
+          <BluePrintButton className="text-xs p-4">VIEW ALL</BluePrintButton>
+        </Link>
       </div>
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
-      {!quests ? (
+      {!quests || sortedQuests.length === 0 ? (
         <div className="mx-16 my-4 text-center opacity-80">
           {"No quests available"}
         </div>
       ) : (
-        <div className="my-2">
-          {Object.entries(quests)
-            .slice(0, 3)
-            .map(([questKey, quest]) => (
-              <div key={questKey} className="flex flex-row justify-between">
-                <div>{questKey}</div>
-                <div>
-                  {quest.progress} / {quest.target}
+        <div className="flex flex-col gap-3 my-3">
+          {sortedQuests.map((quest) => {
+            const progressPercent = quest.target
+              ? Math.min((quest.progress / quest.target) * 100, 100)
+              : 0;
+
+            return (
+              <div key={quest.id} className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white/90">
+                    {quest.description ?? quest.id}
+                  </span>
+                  <span className="text-white/60 text-xs">
+                    {quest.progress}/{quest.target ?? "∞"}
+                  </span>
                 </div>
+                {quest.target !== null && (
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#6299ff] to-[#EAE5D4]"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                )}
               </div>
-            ))}
+            );
+          })}
         </div>
       )}
     </BluePrintCard>

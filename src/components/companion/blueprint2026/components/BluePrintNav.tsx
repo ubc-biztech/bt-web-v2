@@ -1,30 +1,68 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { motion, useAnimation, PanInfo } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useUserProfile, getProfileId } from "@/queries/userProfile";
 
 interface SideNavProps {
   isPartner: boolean | undefined;
 }
 
-const navLinks = [
-  { href: "/events/blueprint/2026/companion", label: "Home" },
-  { href: "/events/blueprint/2026/companion/profile", label: "User Profile" },
-  {
-    href: "/events/blueprint/2026/companion/connections",
-    label: "Connections",
-  },
-  { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
-  {
-    href: "/events/blueprint/2026/companion/partner-database",
-    label: "Partner Database",
-  },
-  { href: "/events/blueprint/2026/companion/companies", label: "Companies" },
-];
-
 export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
+  const {
+    data: userProfile,
+    isLoading: profileLoading,
+    isError: profileError,
+  } = useUserProfile();
+  const profileId = userProfile?.compositeID
+    ? getProfileId(userProfile.compositeID)
+    : undefined;
+
+  React.useEffect(() => {}, [profileLoading, profileError, profileId]);
+
+  const navLinks = useMemo(
+    () => [
+      { href: "/events/blueprint/2026/companion", label: "Home" },
+      // Always show My Profile link - show loading or error state if needed
+      ...(profileId
+        ? [
+            {
+              href: `/events/blueprint/2026/companion/profile/${profileId}`,
+              label: "My Profile",
+            },
+          ]
+        : profileLoading
+          ? [
+              {
+                href: "#",
+                label: "My Profile (Loading...)",
+                disabled: true,
+              },
+            ]
+          : [
+              {
+                href: "/membership",
+                label: "My Profile (Setup Required)",
+              },
+            ]),
+      {
+        href: "/events/blueprint/2026/companion/connections",
+        label: "Connections",
+      },
+      { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
+      {
+        href: "/events/blueprint/2026/companion/partner-database",
+        label: "Partner Database",
+      },
+      {
+        href: "/events/blueprint/2026/companion/companies",
+        label: "Companies",
+      },
+    ],
+    [profileId, profileLoading],
+  );
   const controls = useAnimation();
 
   const [isOpen, setIsOpen] = useState(false);

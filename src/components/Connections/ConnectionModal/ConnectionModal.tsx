@@ -5,6 +5,7 @@ import { BiztechProfile } from "@/components/ProfilePage/BizCardComponents";
 import { fetchBackend } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/router";
+import { postQuestEvent } from "@/queries/quests";
 
 interface ConnectionModalProps {
   profileData: BiztechProfile;
@@ -45,6 +46,23 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
       });
 
       if (response) {
+        const eventId = "blueprint";
+        const eventYear = "2026";
+
+        postQuestEvent(
+          {
+            type: "connection",
+            argument: {
+              recommended: false,
+              profileId: profileID,
+            },
+          },
+          eventId,
+          eventYear,
+        ).catch((error) => {
+          console.warn("Quwaitest event failed:", error);
+        });
+
         toast({
           title: "Success",
           description: `Connected with ${profileData.fname} ${profileData.lname}!`,

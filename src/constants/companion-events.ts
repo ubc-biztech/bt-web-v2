@@ -6,17 +6,20 @@ import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2025 from "@/components/companion/events/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 import BluePrint2026 from "@/components/companion/events/BluePrint2026";
-import BluePrintConnections2026 from "@/components/companion/blueprint2026/pages/BluePrintConnections2026";
 import BluePrintProfile2026 from "@/components/companion/blueprint2026/pages/BluePrintProfile2026";
 import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/pages/BluePrintPartnerDatabase2026";
 import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
 import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
+import BluePrintMBTI2026 from "@/components/companion/blueprint2026/pages/BluePrintMBTI2026";
 
-type EventPageProps = {
+export type DynamicPageProps = {
   event: Event;
+  params: Record<string, string>;
+  eventId: string;
+  year: string;
 };
 
-type EventPages = Record<string, React.ComponentType<EventPageProps>>;
+type EventPages = Record<string, React.ComponentType<DynamicPageProps & any>>;
 
 export interface Event {
   activeUntil: Date;
@@ -121,11 +124,11 @@ const Events: Event[] = [
     year: 2026,
     ChildComponent: BluePrint2026,
     pages: {
-      connections: BluePrintConnections2026,
-      profile: BluePrintProfile2026,
+      "profile/[profileId]": BluePrintProfile2026,
       "partner-database": BluePrintPartnerDatabase2026,
       quests: BluePrintQuests2026,
       companies: BluePrintCompanies2026,
+      MBTI: BluePrintMBTI2026,
     },
     options: {
       disableWelcomeHeader: true,

@@ -51,8 +51,9 @@ export async function fetchBackend({
 
   if (authenticatedCall) {
     const session = await currentSession();
-    if (session?.idToken) {
-      headers["Authorization"] = `Bearer ${session.idToken}`;
+    const idToken = session?.idToken?.toString();
+    if (idToken) {
+      headers["Authorization"] = `Bearer ${idToken}`;
     } else {
       throw new UnauthenticatedUserError("User is not authenticated");
     }
