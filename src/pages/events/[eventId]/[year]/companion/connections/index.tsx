@@ -53,7 +53,6 @@ const ConnectionsPage = () => {
   const filteredConnections = connections
     ? [...connections]
         .filter((connection) => {
-
           const searchLower = searchQuery.toLowerCase();
           const matchesSearch =
             !searchQuery ||
@@ -180,7 +179,9 @@ const ConnectionsPage = () => {
                 }}
               >
                 <ArrowUpDown size={14} className="text-[#778191]" />
-                <span>{sortOptions.find((opt) => opt.value === sortBy)?.label}</span>
+                <span>
+                  {sortOptions.find((opt) => opt.value === sortBy)?.label}
+                </span>
               </button>
             </div>
           </div>

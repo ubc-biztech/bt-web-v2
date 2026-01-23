@@ -16,9 +16,7 @@ export default function ProfileAbout({ profile }: ProfileAboutProps) {
     <BluePrintCard>
       {hasDescription && (
         <>
-          <div className="text-md font-medium mb-2">
-            About {profile.fname}
-          </div>
+          <div className="text-md font-medium mb-2">About {profile.fname}</div>
           <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
           <p className="text-sm text-white/80 leading-relaxed mb-4">
             {profile.description}

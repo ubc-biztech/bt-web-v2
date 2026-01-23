@@ -203,7 +203,9 @@ export default function AdminEventView({ events }: Props) {
                 <Button
                   variant="ghost"
                   className="text-white bg-bt-blue-400 disabled:opacity-50"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   Next
@@ -224,7 +226,9 @@ export default function AdminEventView({ events }: Props) {
                     handleViewRegistrations: handleViewRegistrations,
                     handleEventDelete: handleEventDelete,
                     handleEditEvent: () =>
-                      router.push(`/admin/event/${event.id}/${event.year}/edit`),
+                      router.push(
+                        `/admin/event/${event.id}/${event.year}/edit`,
+                      ),
                     handleViewAsMember: handleViewAsMember,
                   }}
                   viewMode={viewMode}
@@ -247,7 +251,9 @@ export default function AdminEventView({ events }: Props) {
                 <Button
                   variant="ghost"
                   className="text-white bg-bt-blue-400 disabled:opacity-50"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
                   disabled={currentPage === totalPages}
                 >
                   <ChevronRight className="w-4 h-4" />
