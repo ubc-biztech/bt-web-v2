@@ -46,9 +46,8 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
       });
 
       if (response) {
-        const cachedEvent = localStorage.getItem("activeEvent");
-        const [, , eventIdAndYear] = cachedEvent?.split("#") || [];
-        const [eventId, eventYear] = eventIdAndYear?.split(";") || [];
+        const eventId = "blueprint";
+        const eventYear = "2026";
 
         postQuestEvent({
           type: "connection",
@@ -57,7 +56,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
             profileId: profileID,
           },
         }, eventId, eventYear).catch((error) => {
-          console.warn("Quest event failed", error);
+          console.warn("Quwaitest event failed:", error);
         });
 
         toast({
