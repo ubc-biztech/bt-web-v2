@@ -1,14 +1,16 @@
 import EventCard from "@/components/EventCard/eventCard";
 import MobileEventCard from "@/components/EventCard/mobileEventCard";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { isMobile } from "@/util/isMobile";
 import MobilePopup from "@/components/EventCard/popup/mobileEditPopUp";
 import { BiztechEvent } from "@/types/types";
 import { Button } from "@/components/ui/button";
 import { fetchBackend } from "@/lib/db";
 import Divider from "@/components/Common/Divider";
-import { LayoutGrid, Rows3 } from "lucide-react";
+import { LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
+
+const EVENTS_PER_PAGE = 10;
 
 type Props = {
   events: BiztechEvent[] | null;
@@ -30,6 +32,19 @@ export default function AdminEventView({ events }: Props) {
   const [isDelete, setIsDelete] = useState(false);
   const [event, setEvent] = useState<BiztechEvent | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Pagination logic
+  const paginatedData = useMemo(() => {
+    if (!data) return [];
+    const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
+    return data.slice(startIndex, startIndex + EVENTS_PER_PAGE);
+  }, [data, currentPage]);
+
+  const totalPages = useMemo(() => {
+    if (!data) return 0;
+    return Math.ceil(data.length / EVENTS_PER_PAGE);
+  }, [data]);
 
   const handleEventDelete = () => {
     setIsDelete(true);
@@ -141,53 +156,105 @@ export default function AdminEventView({ events }: Props) {
             <p className="text-white">Loading...</p>
           </div>
         ) : !isMobileDevice ? (
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid md:grid-cols-2 gap-6"
-                : "flex flex-col gap-4"
-            }
-          >
-            {data?.map((event) => (
-              <div
-                key={`${event.id}-${event.year}`}
-                className={viewMode === "list" ? "w-full" : ""}
-              >
-                <EventCard
+          <>
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid md:grid-cols-2 gap-6"
+                  : "flex flex-col gap-4"
+              }
+            >
+              {paginatedData.map((event) => (
+                <div
+                  key={`${event.id}-${event.year}`}
+                  className={viewMode === "list" ? "w-full" : ""}
+                >
+                  <EventCard
+                    event={event}
+                    eventClick={eventClick}
+                    modalHandlers={{
+                      handleViewRegistrations: handleViewRegistrations,
+                      handleEventDelete: handleEventDelete,
+                      handleEditEvent: () =>
+                        router.push(
+                          `/admin/event/${event.id}/${event.year}/edit`,
+                        ),
+                      handleViewAsMember: handleViewAsMember,
+                    }}
+                    viewMode={viewMode}
+                  />
+                </div>
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <Button
+                  variant="ghost"
+                  className="text-white bg-bt-blue-400 disabled:opacity-50"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                <span className="text-white">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="ghost"
+                  className="text-white bg-bt-blue-400 disabled:opacity-50"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="block md:grid md:grid-cols-2 md:gap-6">
+              {paginatedData.map((event) => (
+                <MobileEventCard
+                  key={`${event.id}-${event.year}`}
                   event={event}
-                  eventClick={eventClick}
+                  eventClick={mobileEventClick}
                   modalHandlers={{
                     handleViewRegistrations: handleViewRegistrations,
                     handleEventDelete: handleEventDelete,
                     handleEditEvent: () =>
-                      router.push(
-                        `/admin/event/${event.id}/${event.year}/edit`,
-                      ),
+                      router.push(`/admin/event/${event.id}/${event.year}/edit`),
                     handleViewAsMember: handleViewAsMember,
                   }}
                   viewMode={viewMode}
                 />
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <Button
+                  variant="ghost"
+                  className="text-white bg-bt-blue-400 disabled:opacity-50"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-white text-sm">
+                  {currentPage} / {totalPages}
+                </span>
+                <Button
+                  variant="ghost"
+                  className="text-white bg-bt-blue-400 disabled:opacity-50"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="block md:grid md:grid-cols-2 md:gap-6">
-            {data?.map((event) => (
-              <MobileEventCard
-                key={`${event.id}-${event.year}`}
-                event={event}
-                eventClick={mobileEventClick}
-                modalHandlers={{
-                  handleViewRegistrations: handleViewRegistrations,
-                  handleEventDelete: handleEventDelete,
-                  handleEditEvent: () =>
-                    router.push(`/admin/event/${event.id}/${event.year}/edit`),
-                  handleViewAsMember: handleViewAsMember,
-                }}
-                viewMode={viewMode}
-              />
-            ))}
-          </div>
+            )}
+          </>
         )}
         {/* 'edit event' pop up */}
         {/* MobilePopup contains the delete popup which is used for both desktop and mobile * see file for more info * */}

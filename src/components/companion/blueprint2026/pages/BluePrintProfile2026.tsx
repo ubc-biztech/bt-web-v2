@@ -52,8 +52,10 @@ const itemVariants = {
   },
 };
 
-export default function BluePrintProfile2026(props: DynamicPageProps) {
-  const profileId = props.params.profileId;
+export default function BluePrintProfile2026(
+  props: DynamicPageProps & { profileId?: string },
+) {
+  const profileId = props.params?.profileId ?? props.profileId;
   const { eventId, year } = props;
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -70,7 +72,12 @@ export default function BluePrintProfile2026(props: DynamicPageProps) {
     currentUserProfileId?.toLowerCase() === profileId?.toLowerCase();
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId) {
+      // If no profileId after component mounts, show error
+      setIsLoading(false);
+      setError("Invalid profile URL");
+      return;
+    }
 
     const fetchProfile = async () => {
       setIsLoading(true);

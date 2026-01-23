@@ -258,7 +258,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
   const profileId = connection.type?.split("#")[1] || connection.connectionID;
 
   const typeColors: Record<string, string> = {
-    PARTNER: "bg-[#4972EF]/20 text-[#4972EF] border-[#4972EF]/30",
+    PARTNER: "bg-[#A78BFA]/20 text-[#A78BFA] border-[#A78BFA]/30",
     EXEC: "bg-[#EAE5D4]/20 text-[#EAE5D4] border-[#EAE5D4]/30",
     ATTENDEE: "bg-white/10 text-white/70 border-white/20",
   };
@@ -282,16 +282,16 @@ function ConnectionCard({ connection }: { connection: Connection }) {
               </span>
               <div className="flex items-center gap-2 flex-wrap">
                 {connection.pronouns && (
-                  <span className="text-[#778191] text-xs">
+                  <span className="text-white/70 text-xs">
                     {connection.pronouns}
                   </span>
                 )}
                 {connection.major && (
                   <>
                     {connection.pronouns && (
-                      <span className="text-[#778191] text-xs">·</span>
+                      <span className="text-white/60 text-xs">·</span>
                     )}
-                    <span className="text-[#778191] text-xs truncate">
+                    <span className="text-white/70 text-xs truncate">
                       {connection.major}
                     </span>
                   </>

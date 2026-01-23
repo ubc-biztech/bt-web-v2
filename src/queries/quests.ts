@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
 
 interface QuestDefinition {
@@ -115,6 +115,14 @@ export function useQuests(eventId?: string, year?: string | number) {
     queryKey: ["quests", eventId, year],
     queryFn: () => getQuests(eventId, year),
     enabled: !!eventId && !!year,
-    staleTime: 60 * 1000,
+    staleTime: 5 * 1000, // Short stale time so progress updates quickly
+    refetchOnWindowFocus: true,
   });
+}
+
+export function useInvalidateQuests() {
+  const queryClient = useQueryClient();
+  return (eventId?: string, year?: string | number) => {
+    queryClient.invalidateQueries({ queryKey: ["quests", eventId, year] });
+  };
 }
