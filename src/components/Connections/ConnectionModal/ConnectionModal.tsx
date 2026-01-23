@@ -49,13 +49,17 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
         const eventId = "blueprint";
         const eventYear = "2026";
 
-        postQuestEvent({
-          type: "connection",
-          argument: {
-            recommended: false,
-            profileId: profileID,
+        postQuestEvent(
+          {
+            type: "connection",
+            argument: {
+              recommended: false,
+              profileId: profileID,
+            },
           },
-        }, eventId, eventYear).catch((error) => {
+          eventId,
+          eventYear,
+        ).catch((error) => {
           console.warn("Quwaitest event failed:", error);
         });
 

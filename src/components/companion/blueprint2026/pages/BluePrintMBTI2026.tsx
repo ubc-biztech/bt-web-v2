@@ -43,7 +43,7 @@ const MBTI_DATA: Record<
   },
   ENTJ: {
     archetype: "The Commander",
-    quote: '"Here\'s the plan—let\'s execute and iterate."',
+    quote: "\"Here's the plan—let's execute and iterate.\"",
     description:
       "You're a natural leader who combines technical knowledge with strategic vision. Suited for engineering management, product leadership, and technical consulting.",
   },
