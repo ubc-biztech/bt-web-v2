@@ -226,7 +226,9 @@ export default function AdminEventView({ events }: Props) {
                     handleViewRegistrations: handleViewRegistrations,
                     handleEventDelete: handleEventDelete,
                     handleEditEvent: () =>
-                      router.push(`/admin/event/${event.id}/${event.year}/edit`),
+                      router.push(
+                        `/admin/event/${event.id}/${event.year}/edit`,
+                      ),
                     handleViewAsMember: handleViewAsMember,
                   }}
                   viewMode={viewMode}
