@@ -17,6 +17,8 @@ export default function ProfilePage() {
   if (event?.eventID === "blueprint" && event?.year === 2026) {
     return (
       <BluePrintProfile2026
+        event={event}
+        params={{ profileId: profileId as string }}
         profileId={profileId as string}
         eventId={eventId as string}
         year={year as string}
