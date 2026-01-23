@@ -1,5 +1,11 @@
 import { useRouter } from "next/router";
-import { ArrowLeft, Sparkles, Target, CheckCircle2, Circle } from "lucide-react";
+import {
+  ArrowLeft,
+  Sparkles,
+  Target,
+  CheckCircle2,
+  Circle,
+} from "lucide-react";
 import Link from "next/link";
 import BluePrintLayout from "../layout/BluePrintLayout";
 import BluePrintCard from "../components/BluePrintCard";
@@ -7,10 +13,15 @@ import BluePrintButton from "../components/BluePrintButton";
 import { useQuests } from "@/queries/quests";
 import { DynamicPageProps } from "@/constants/companion-events";
 
-export default function BluePrintQuests2026({ eventId, year }: DynamicPageProps) {
+export default function BluePrintQuests2026({
+  eventId,
+  year,
+}: DynamicPageProps) {
   const router = useRouter();
-  const routeEventId = typeof router.query.eventId === "string" ? router.query.eventId : eventId;
-  const routeYear = typeof router.query.year === "string" ? router.query.year : year;
+  const routeEventId =
+    typeof router.query.eventId === "string" ? router.query.eventId : eventId;
+  const routeYear =
+    typeof router.query.year === "string" ? router.query.year : year;
 
   const { data: quests, isLoading } = useQuests(routeEventId, routeYear);
 
@@ -119,7 +130,9 @@ export default function BluePrintQuests2026({ eventId, year }: DynamicPageProps)
                         </span>
                         <span
                           className={`text-sm flex-shrink-0 ${
-                            quest.isCompleted ? "text-[#4ADE80]" : "text-white/70"
+                            quest.isCompleted
+                              ? "text-[#4ADE80]"
+                              : "text-white/70"
                           }`}
                         >
                           {quest.progress}/{quest.target ?? "∞"}
