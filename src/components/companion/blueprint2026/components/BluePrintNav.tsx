@@ -11,14 +11,16 @@ interface SideNavProps {
 }
 
 export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
-  const { data: userProfile, isLoading: profileLoading, isError: profileError } = useUserProfile();
+  const {
+    data: userProfile,
+    isLoading: profileLoading,
+    isError: profileError,
+  } = useUserProfile();
   const profileId = userProfile?.compositeID
     ? getProfileId(userProfile.compositeID)
     : undefined;
 
-
-  React.useEffect(() => {
-  }, [profileLoading, profileError, profileId]);
+  React.useEffect(() => {}, [profileLoading, profileError, profileId]);
 
   const navLinks = useMemo(
     () => [
