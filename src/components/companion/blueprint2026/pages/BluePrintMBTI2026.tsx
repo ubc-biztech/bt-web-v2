@@ -153,11 +153,7 @@ function getMBTIData(mbti: string) {
 }
 
 export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
-  const {
-    data: quizReport,
-    isLoading,
-    error,
-  } = useQuizReport();
+  const { data: quizReport, isLoading, error } = useQuizReport();
 
   const { data: wrappedStats } = useWrappedStats(quizReport?.mbti);
 
