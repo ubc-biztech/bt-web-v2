@@ -176,4 +176,54 @@ export const createColumns = (
     header: ({ column }) => <SortableHeader title="Faculty" column={column} />,
     cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
   },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => (
+      <SortableHeader title="Updated At" column={column} />
+    ),
+    cell: ({ getValue }) => {
+      const timestamp = getValue() as number;
+      if (!timestamp) return "-";
+      const date = new Date(timestamp);
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    },
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.getValue("updatedAt") as number;
+      const b = rowB.getValue("updatedAt") as number;
+      return (a || 0) - (b || 0);
+    },
+    enableSorting: true,
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <SortableHeader title="Created At" column={column} />
+    ),
+    cell: ({ getValue }) => {
+      const timestamp = getValue() as number;
+      if (!timestamp) return "-";
+      const date = new Date(timestamp);
+      return date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    },
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.getValue("createdAt") as number;
+      const b = rowB.getValue("createdAt") as number;
+      return (a || 0) - (b || 0);
+    },
+    enableSorting: true,
+  },
 ];
