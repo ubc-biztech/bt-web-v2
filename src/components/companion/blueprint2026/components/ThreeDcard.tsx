@@ -20,6 +20,10 @@ const ANIMATION_INTERVAL = 4000; // How often to change (ms) - match transition 
 const TRANSITION_DURATION = "4s";
 const TRANSITION_EASING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
 
+// Mount spin settings
+const MOUNT_SPIN_DURATION = "1.9s";
+const MOUNT_SPIN_EASING = "cubic-bezier(0.16, 1, 0.3, 1)";
+
 // ================================================
 
 const ThreeDcard = ({
@@ -46,6 +50,22 @@ const ThreeDcard = ({
   const [logoOffset, setLogoOffset] = useState(0);
   const [nfcOffset, setNfcOffset] = useState(0);
 
+  // Mount spin: starts at -250, transitions to 0
+  const [sceneRotation, setSceneRotation] = useState(-250);
+
+  // Initial 360 spin on mount
+  useEffect(() => {
+    // Use requestAnimationFrame to ensure the initial -360 is painted first
+    // Then trigger the spin to 0 on the next frame
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setSceneRotation(0);
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  // Continuous z-height animation
   useEffect(() => {
     const animate = () => {
       // Profile card: random 0 to ANIMATION_RANGE (only UP)
@@ -78,8 +98,15 @@ const ThreeDcard = ({
           transform: `rotateX(${TILT_X}deg) rotateZ(${ROTATE_Z}deg)`,
         }}
       >
-        {/* 3D Scene content */}
-        <div className="relative" style={{ transformStyle: "preserve-3d" }}>
+        {/* 3D Scene content - 360 spin on mount */}
+        <div
+          className="relative"
+          style={{
+            transformStyle: "preserve-3d",
+            transform: `rotateZ(${sceneRotation}deg)`,
+            transition: `transform ${MOUNT_SPIN_DURATION} ${MOUNT_SPIN_EASING}`,
+          }}
+        >
           {/* Profile card and company logo container */}
           <div
             className="flex items-center justify-between w-[350px] absolute top-0 left-1/2 px-4"
