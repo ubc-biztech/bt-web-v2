@@ -176,6 +176,7 @@ export default function BluePrintProfile2026(props: DynamicPageProps) {
           }}
           eventId={eventId}
           year={year}
+          viewableMap={currentUserProfile?.viewableMap || {}}
         />
       </BluePrintLayout>
     );
@@ -465,6 +466,7 @@ interface BluePrintEditProfileProps {
   onSave: (updatedProfile: UserProfile) => void;
   eventId: string;
   year: string;
+  viewableMap: Record<string, boolean>;
 }
 
 function BluePrintEditProfile({
@@ -473,6 +475,7 @@ function BluePrintEditProfile({
   onSave,
   eventId,
   year,
+  viewableMap,
 }: BluePrintEditProfileProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -498,7 +501,7 @@ function BluePrintEditProfile({
       await fetchBackend({
         endpoint: "/profiles/user/",
         method: "PATCH",
-        data: { ...data },
+        data: { ...data, viewableMap },
         authenticatedCall: true,
       });
 
