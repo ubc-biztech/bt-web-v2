@@ -6,6 +6,20 @@ import { PageOrientation } from "pdfmake/interfaces";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+// Format timestamp to readable date string
+function formatTimestamp(value: number): string {
+  if (!value) return "";
+  const date = new Date(value);
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 export function exportToCSV(data: Registration[], fileName = "data") {
   if (!data.length) {
     console.error("No data to export");
@@ -17,6 +31,13 @@ export function exportToCSV(data: Registration[], fileName = "data") {
     columns
       .map((col) => {
         const value = row[col as keyof Registration];
+        // Format timestamp columns
+        if (
+          (col === "updatedAt" || col === "createdAt") &&
+          typeof value === "number"
+        ) {
+          return `"${formatTimestamp(value)}"`;
+        }
         return value !== null && value !== undefined ? `"${value}"` : '""';
       })
       .join(","),
@@ -36,7 +57,17 @@ export function exportToCSV(data: Registration[], fileName = "data") {
 export function exportToPDF(data: Registration[], fileName = "data") {
   const columns = Object.keys(data[0]);
   const rows = data.map((row) =>
-    Object.values(row).map((value) => (value === undefined ? "" : value)),
+    columns.map((col) => {
+      const value = row[col as keyof Registration];
+      // Format timestamp columns
+      if (
+        (col === "updatedAt" || col === "createdAt") &&
+        typeof value === "number"
+      ) {
+        return formatTimestamp(value);
+      }
+      return value === undefined ? "" : value;
+    }),
   );
   const docDefinition = {
     pageOrientation: "landscape" as PageOrientation,
