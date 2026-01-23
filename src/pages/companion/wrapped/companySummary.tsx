@@ -11,7 +11,7 @@ interface TopCompaniesProps {
 }
 
 // Combined stats between amazon and aws, as well as google and google cloud
-const topCompanies = [
+const topCompaniesPlaceholder = [
   {
     rank: 1,
     name: "Amazon",
@@ -101,7 +101,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
       {/* Company Rankings */}
       <div className="w-full max-w-lg mt-8 space-y-6">
         <div className="h-px bg-gradient-to-r from-[#88baff]/0 via-[#ffffff] to-[#88baff]/0"></div>
-        {wrappedData?.topCompaniesVisited.map((company, index) => {
+        {(wrappedData?.topCompaniesVisited || []).map((company, index) => {
           const rank = index + 1;
           return (
             <motion.div

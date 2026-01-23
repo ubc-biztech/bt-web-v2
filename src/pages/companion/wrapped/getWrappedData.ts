@@ -12,6 +12,8 @@ export async function getWrappedData(): Promise<{
     fname: string;
     lname: string;
     pfp: string;
+    major: string;
+    year: string;
     dateTimestamp: number;
   };
   mbti: {
@@ -30,7 +32,12 @@ export async function getWrappedData(): Promise<{
   numCompletedQuests: number;
   numTotalQuests: number;
   numCompaniesVisited: number;
-  topCompaniesVisited: Array<{
+  firstCompanyVisited: {
+    name: string;
+    logo: string;
+  };
+  topCompanies: Array<{
+    rank: number;
     name: string;
     taps: number;
     logo: string;
@@ -101,7 +108,9 @@ export async function getWrappedData(): Promise<{
       firstConnection: {
         fname: "john",
         lname: "doe",
-        pfp: "https://via.placeholder.com/150",
+        pfp: "https://i.pravatar.cc/300",
+        major: "BUCS",
+        year: "4",
         dateTimestamp: 1716230400,
       },
       mbti: {
@@ -146,26 +155,40 @@ export async function getWrappedData(): Promise<{
       numCompletedQuests: 10,
       numTotalQuests: 13,
       numCompaniesVisited: 5,
-      topCompaniesVisited: [
+      firstCompanyVisited: {
+        name: "Amazon",
+        logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/amazon.png",
+      },
+      topCompanies: [
         {
+          rank: 1,
           name: "Amazon",
           taps: 107,
-          logo: "https://via.placeholder.com/150",
+          logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/amazon.png",
         },
         {
+          rank: 2,
+          name: "Electronic Arts",
+          taps: 64,
+          logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/ea.png",
+        },
+        {
+          rank: 3,
           name: "Google",
           taps: 59,
-          logo: "https://via.placeholder.com/150",
+          logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/google.png",
         },
         {
+          rank: 4,
           name: "Meta",
           taps: 57,
-          logo: "https://via.placeholder.com/150",
+          logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/meta.png",
         },
         {
+          rank: 5,
           name: "SAP",
           taps: 44,
-          logo: "https://via.placeholder.com/150",
+          logo: "https://biztech-pfp.s3.us-west-2.amazonaws.com/companies/sap.png",
         },
       ],
     };

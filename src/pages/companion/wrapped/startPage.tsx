@@ -2,11 +2,7 @@
 
 import { useState, MouseEvent } from "react";
 import { useRouter } from "next/navigation";
-import {
-  motion,
-  useMotionValue,
-  animate,
-} from "framer-motion";
+import { motion, useMotionValue, animate } from "framer-motion";
 import { useWrappedData } from "@/hooks/useWrappedData";
 
 interface StartPageProps {
@@ -54,55 +50,54 @@ const StartPage = ({ isPartner }: StartPageProps) => {
       style={{ opacity, scale, y }}
       exit={{ opacity: 0, scale: 0.9, y: 20 }}
     >
-        {/* Main Content */}
-        <motion.div
-          className="flex flex-col items-center text-center space-y-4"
+      {/* Main Content */}
+      <motion.div
+        className="flex flex-col items-center text-center space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        {/* Question Text */}
+        <motion.p
+          className="text-white text-lg md:text-xl font-satoshi font-medium"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
         >
-          {/* Question Text */}
-          <motion.p
-            className="text-white text-lg md:text-xl font-satoshi font-medium"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            How did <span className="font-satoshi font-bold">you</span> get your
-            start?
-          </motion.p>
+          How did <span className="font-satoshi font-bold">you</span> explore?
+        </motion.p>
 
-          {/* Subtext */}
-          <motion.p
-            className="text-white text-lg md:text-xl font-satoshi font-medium"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
-            Let’s take a look back.
-          </motion.p>
+        {/* Subtext */}
+        <motion.p
+          className="text-white text-lg md:text-xl font-satoshi font-medium"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          Let’s take a look back.
+        </motion.p>
 
-          {/* Arrow Icon */}
-          <motion.div
-            className="mt-4 flex items-center justify-center"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1 }}
+        {/* Arrow Icon */}
+        <motion.div
+          className="mt-4 flex items-center justify-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
+          <svg
+            className="w-12 h-12 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <svg
-              className="w-12 h-12 text-white"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              ></path>
-            </svg>
-          </motion.div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            ></path>
+          </svg>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

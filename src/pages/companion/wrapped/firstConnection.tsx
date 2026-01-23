@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { motion, useMotionValue, animate } from "framer-motion";
 import Image from "next/image";
 import { useWrappedData } from "@/hooks/useWrappedData";
+import ThreeDcard from "@/components/companion/blueprint2026/components/ThreeDcard";
 
 interface FirstConnectionProps {
   isPartner: boolean;
@@ -124,66 +125,15 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
       style={{ opacity, scale, y }}
       exit={{ opacity: 0, scale: 0.9, y: 20 }}
     >
-        {firstConnection ? (
-          <div onClick={(e) => e.stopPropagation()} className="cursor-default">
-            <CompanionConnectionRow connection={firstConnection} />
-          </div>
-        ) : (
-          <motion.div
-            className="bg-[#111827] rounded-lg px-6 py-4 flex items-center space-x-4 w-80 shadow-lg"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <p className="text-white text-center">No connections found</p>
-          </motion.div>
-        )}
-
-        {/* Connection Text */}
-        <motion.p
-          className="text-white text-lg font-satoshi font-medium text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          {firstConnection ? (
-            <>
-              <span className="font-satoshi font-bold">
-                {firstConnection.fname}
-              </span>{" "}
-              was your first connection
-            </>
-          ) : (
-            "You have no recorded connections."
-          )}
-        </motion.p>
-
-        {/* Show company logo only if profile picture exists */}
-        {companyProfilePicture && (
-          <>
-            {/* Company Logo */}
-            <motion.div
-              className="w-20 h-20 flex items-center justify-center bg-white rounded-full shadow-lg overflow-hidden relative"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-            >
-              <Image
-                src={companyProfilePicture}
-                alt="Company Logo"
-                layout="fill"
-                objectFit="contain" // Keeps the image within the bounds without cropping
-                className="scale-90" // Makes the image slightly smaller
-              />
-            </motion.div>
-
-            {/* Company Tap Text */}
-            <motion.p className="text-white text-lg font-satoshi font-medium text-center">
-              <span className="font-satoshi font-bold">{firstCompanyName}</span>{" "}
-              was the first company you tapped
-            </motion.p>
-          </>
-      )}
+      <ThreeDcard
+        fname={wrappedData?.firstConnection?.fname || ""}
+        lname={wrappedData?.firstConnection?.lname || ""}
+        pfp={wrappedData?.firstConnection?.pfp || ""}
+        major={wrappedData?.firstConnection?.major || ""}
+        year={wrappedData?.firstConnection?.year || ""}
+        company={wrappedData?.firstCompanyVisited?.name || ""}
+        logo={wrappedData?.firstCompanyVisited?.logo || ""}
+      />
     </motion.div>
   );
 };
