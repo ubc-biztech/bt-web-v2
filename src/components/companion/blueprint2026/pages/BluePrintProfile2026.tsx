@@ -63,7 +63,6 @@ export default function BluePrintProfile2026(
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Get current user's profile to check if viewing own profile
   const { data: currentUserProfile } = useUserProfile();
   const currentUserProfileId = currentUserProfile?.compositeID
     ? getProfileId(currentUserProfile.compositeID)
@@ -73,7 +72,6 @@ export default function BluePrintProfile2026(
 
   useEffect(() => {
     if (!profileId) {
-      // If no profileId after component mounts, show error
       setIsLoading(false);
       setError("Invalid profile URL");
       return;
