@@ -1,13 +1,11 @@
 import { ArrowUpRight } from "lucide-react";
 import { Kode_Mono, Libre_Baskerville } from "next/font/google";
 import Link from "next/link";
-import { useState, useEffect } from "react";
 import BluePrintLayout from "../layout/BluePrintLayout";
 import BluePrintCard from "../components/BluePrintCard";
 import BluePrintButton from "../components/BluePrintButton";
 import { DynamicPageProps } from "@/constants/companion-events";
 import { useQuizReport, useWrappedStats } from "@/queries/quiz";
-import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 
 const libre = Libre_Baskerville({
   subsets: ["latin"],
@@ -155,26 +153,16 @@ function getMBTIData(mbti: string) {
 }
 
 export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Get user ID from localStorage (set during companion auth flow)
-    const storedId = localStorage.getItem(COMPANION_EMAIL_KEY);
-    if (storedId) {
-      setUserId(storedId);
-    }
-  }, []);
-
   const {
     data: quizReport,
     isLoading,
     error,
-  } = useQuizReport(userId ?? undefined);
+  } = useQuizReport();
 
   const { data: wrappedStats } = useWrappedStats(quizReport?.mbti);
 
-  // Loading state (waiting for userId from localStorage or quiz data)
-  if (!userId || isLoading) {
+  // Loading state
+  if (isLoading) {
     return (
       <BluePrintLayout>
         <div className="flex flex-col items-center justify-center text-center gap-6 px-2 pb-12 pt-6 min-h-[60vh]">

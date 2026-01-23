@@ -52,16 +52,16 @@ export async function uploadQuizResults(
 }
 
 /**
- * Get a user's quiz report
+ * Get a user's quiz report (authenticated - user identified by token)
  */
-export async function getQuizReport(id: string): Promise<QuizReport | null> {
+export async function getQuizReport(): Promise<QuizReport | null> {
   try {
     const response = await fetchBackend({
-      endpoint: `/quizzes/report/${encodeURIComponent(id)}`,
+      endpoint: `/quizzes/report`,
       method: "GET",
-      authenticatedCall: false,
+      authenticatedCall: true,
     });
-    return response?.data ?? null;
+    return response?.data ?? response ?? null;
   } catch (error: any) {
     // Handle "Quiz report not found" - return null instead of throwing
     // The API returns 400 when no quiz exists for the user
@@ -120,13 +120,12 @@ export async function getWrappedStats(mbti: string): Promise<WrappedStats> {
 }
 
 /**
- * React Query hook for fetching a user's quiz report
+ * React Query hook for fetching a user's quiz report (authenticated)
  */
-export function useQuizReport(id?: string) {
+export function useQuizReport() {
   return useQuery({
-    queryKey: ["quizReport", id],
-    queryFn: () => getQuizReport(id!),
-    enabled: !!id,
+    queryKey: ["quizReport"],
+    queryFn: () => getQuizReport(),
     staleTime: 60 * 1000,
   });
 }
