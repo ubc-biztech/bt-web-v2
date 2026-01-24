@@ -11,12 +11,7 @@ const QUIZ_TYPE_LABELS: Record<string, string> = {
   H: "Human",
 };
 
-const QUIZ_TYPE_DIMENSIONS = [
-  "Domain",
-  "Mode",
-  "Environment",
-  "Focus",
-] as const;
+const QUIZ_TYPE_DIMENSIONS = ["Domain", "Mode", "Environment", "Focus"] as const;
 
 export type QuizTypeDisplay = {
   acronym: string;
