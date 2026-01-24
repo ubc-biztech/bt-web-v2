@@ -5,12 +5,29 @@ import ProductX2025 from "@/components/companion/events/ProductX2025";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2025 from "@/components/companion/events/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
+import BluePrint2026 from "@/components/companion/events/BluePrint2026";
+import BluePrintProfile2026 from "@/components/companion/blueprint2026/pages/BluePrintProfile2026";
+import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/pages/BluePrintPartnerDatabase2026";
+import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
+import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
+import BluePrintMBTI2026 from "@/components/companion/blueprint2026/pages/BluePrintMBTI2026";
+import BluePrintDiscover2026 from "@/components/companion/blueprint2026/pages/BluePrintDiscover2026";
+
+export type DynamicPageProps = {
+  event: Event;
+  params: Record<string, string>;
+  eventId: string;
+  year: string;
+};
+
+type EventPages = Record<string, React.ComponentType<DynamicPageProps & any>>;
 
 export interface Event {
   activeUntil: Date;
   eventID: string;
   year: number;
   ChildComponent: ComponentType<any>;
+  pages?: EventPages;
   options: {
     disableWelcomeHeader?: boolean;
     BiztechLogo: string;
@@ -96,6 +113,35 @@ const Events: Event[] = [
       colors: {
         primary: "#111111",
         background: "#111111",
+      },
+      getScheduleData: (regData) => [],
+      welcomeData: [],
+      headers: [],
+    },
+  },
+  {
+    activeUntil: new Date("2026-01-25"),
+    eventID: "blueprint",
+    year: 2026,
+    ChildComponent: BluePrint2026,
+    pages: {
+      "profile/[profileId]": BluePrintProfile2026,
+      "partner-database": BluePrintPartnerDatabase2026,
+      quests: BluePrintQuests2026,
+      companies: BluePrintCompanies2026,
+      MBTI: BluePrintMBTI2026,
+      discover: BluePrintDiscover2026,
+    },
+    options: {
+      disableWelcomeHeader: true,
+      BiztechLogo: BlueprintLogo.src,
+      Logo: BlueprintLogo.src,
+      title: "BluePrint 2026",
+      date: "January 24, 2026",
+      location: "UBC Robson Square",
+      colors: {
+        primary: "#EBEBEB",
+        background: "#070707",
       },
       getScheduleData: (regData) => [],
       welcomeData: [],

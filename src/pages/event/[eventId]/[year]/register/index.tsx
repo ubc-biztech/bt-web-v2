@@ -29,6 +29,7 @@ import Image from "next/image";
 import { Registration } from "@/types/types";
 import Link from "next/link";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
+import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -49,6 +50,7 @@ export default function AttendeeFormRegister() {
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
   const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
+  const [companionAvailable, setCompanionAvailable] = useState<boolean>(false);
 
   const { toast } = useToast();
 
@@ -174,6 +176,13 @@ export default function AttendeeFormRegister() {
       });
       eventData.counts = regData;
       setEvent(eventData);
+
+      // Check if companion exists for this event
+      const companion = getCompanionByEventIdYear(
+        eventId as string,
+        parseInt(year as string),
+      );
+      setCompanionAvailable(!!companion);
     };
     fetchEvent();
   }, [eventId, year]);
@@ -600,19 +609,45 @@ export default function AttendeeFormRegister() {
 
         return renderErrorText(<PaymentButton />);
       }
-      return renderErrorText(
-        <div className="text-center">
-          <p className="text-l mb-4 text-white">
-            You&apos;ve already registered!
-          </p>
-          <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
-            onClick={() => (window.location.href = "/")}
-          >
-            Upcoming Events
-          </button>
-        </div>,
-      );
+      if (companionAvailable) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;re already registered for this event!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow-md"
+                onClick={() =>
+                  router.push(`/events/${eventId}/${year}/companion`)
+                }
+              >
+                Go to Event Companion
+              </button>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+                onClick={() => (window.location.href = "/")}
+              >
+                Upcoming Events
+              </button>
+            </div>
+          </div>,
+        );
+      } else {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-l mb-4 text-white">
+              You&apos;ve already registered!
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
+              onClick={() => (window.location.href = "/")}
+            >
+              Upcoming Events
+            </button>
+          </div>,
+        );
+      }
     } else if (isDeadlinePassed()) {
       return renderErrorText(
         <div className="text-center">

@@ -1,0 +1,53 @@
+.blueprint-root {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  background: linear-gradient(
+    0deg,
+    #ebebeb 0%,
+    #afb7ba 14%,
+    #344667 54%,
+    #070707 100%
+  );
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.blueprint-bg-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blueprint-content {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+}
+
+.blueprint-vector {
+  position: fixed;
+  width: 250%;
+  height: 250%;
+  top: -80%;
+  left: -120%;
+  background-image: url("/assets/blueprint/bp-vector-art-1.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  opacity: 0.4;
+  animation: rotateBlueprint 240s linear infinite;
+  will-change: transform;
+}
+
+@keyframes rotateBlueprint {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
