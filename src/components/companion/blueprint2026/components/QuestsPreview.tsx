@@ -54,7 +54,10 @@ export default function QuestsPreview({
               : 0;
 
             return (
-              <div key={quest.id} className="flex flex-col gap-1.5 p-3 rounded-lg bg-black/40 border border-white/10">
+              <div
+                key={quest.id}
+                className="flex flex-col gap-1.5 p-3 rounded-lg bg-black/40 border border-white/10"
+              >
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white">
                     {quest.description ?? quest.id}

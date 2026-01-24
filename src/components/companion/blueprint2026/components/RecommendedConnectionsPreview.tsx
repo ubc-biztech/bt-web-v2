@@ -10,7 +10,8 @@ export default function RecommendedConnectionsPreview() {
   const userMbti = quizReport?.mbti;
 
   // Get recommendations based on user's MBTI
-  const { data: recommendations, isLoading } = useRecommendationsByMbti(userMbti);
+  const { data: recommendations, isLoading } =
+    useRecommendationsByMbti(userMbti);
 
   const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => {
     const fullName = rec.fname && rec.lname
@@ -80,7 +81,7 @@ export default function RecommendedConnectionsPreview() {
             const displayName = rec.name || rec.id || "Unknown";
             const initials = displayName.slice(0, 2).toUpperCase();
             return (
-              <Link 
+              <Link
                 key={rec.id}
                 href={`/events/blueprint/2026/companion/profile/${rec.id}`}
               >
