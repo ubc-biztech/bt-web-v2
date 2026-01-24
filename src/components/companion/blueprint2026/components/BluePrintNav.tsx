@@ -56,14 +56,6 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
         label: "Discover People",
       },
       { href: "/events/blueprint/2026/companion/quests", label: "Quests" },
-      {
-        href: "/events/blueprint/2026/companion/partner-database",
-        label: "Partner Database",
-      },
-      {
-        href: "/events/blueprint/2026/companion/companies",
-        label: "Companies",
-      },
     ],
     [profileId, profileLoading],
   );
