@@ -99,7 +99,7 @@ function QRCodeModal({
                     <canvas ref={canvasRef} />
                   )}
                 </div>
-                <p className="text-sm text-white/80 text-center">
+                <p className="text-sm text-white/60 text-center">
                   Let others scan this QR code to connect with you
                 </p>
               </div>
@@ -128,17 +128,15 @@ export default function QuizResultsPreview() {
     typeof window !== "undefined"
       ? window.location.origin
       : "https://v2.ubcbiztech.com";
-  const profileUrl = profileId
-    ? `${domain}/profile/${profileId}?scan=true`
-    : "";
+  const profileUrl = profileId ? `${domain}/profile/${profileId}?scan=true` : "";
 
   // Show loading state while checking quiz status
   if (quizLoading) {
     return (
       <BluePrintCard className="min-h-36">
         <div className="flex flex-col">
-          <p className="text-lg font-medium">BluePrint Career Quiz</p>
-          <p className="text-sm text-white/70 -mt-0.5">Loading...</p>
+          <p className="text-lg">BluePrint Career Quiz</p>
+          <p className="text-xs opacity-60 -mt-1">Loading...</p>
         </div>
       </BluePrintCard>
     );
@@ -150,8 +148,8 @@ export default function QuizResultsPreview() {
       <>
         <BluePrintCard className="min-h-36">
           <div className="flex flex-col">
-            <p className="text-lg font-medium">Share Your Profile</p>
-            <p className="text-sm text-white/70 -mt-0.5">
+            <p className="text-lg">Share Your Profile</p>
+            <p className="text-xs opacity-60 -mt-1">
               Let others scan to connect with you
             </p>
             <Button
@@ -187,8 +185,9 @@ export default function QuizResultsPreview() {
   return (
     <BluePrintCard className="min-h-36">
       <div className="flex flex-col">
-        <p className="text-lg font-medium">BluePrint Career Quiz</p>
-        <p className="text-sm text-white/70 -mt-0.5">
+        <p className="text-lg">BluePrint Career Quiz</p>
+        <p className="text-xs opacity-60 -mt-1">
+          {" "}
           View your career assessment results
         </p>
         <Link href={`/events/${eventId}/${year}/companion/MBTI`}>
