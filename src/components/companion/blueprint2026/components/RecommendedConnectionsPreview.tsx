@@ -21,10 +21,14 @@ export default function RecommendedConnectionsPreview() {
     useRecommendationsByMbti(userMbti);
 
   const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => {
-    const fullName =
-      rec.fname && rec.lname
-        ? `${rec.fname} ${rec.lname}`
-        : rec.fname || rec.lname || rec.id || "Unknown";
+    let fullName: string;
+    if (rec.fname && rec.lname) {
+      fullName = `${rec.fname} ${rec.lname}`;
+    } else if (rec.fname || rec.lname) {
+      fullName = rec.fname || rec.lname || "Unknown";
+    } else {
+      fullName = "Unknown";
+    }
     return {
       id: rec.id || "unknown",
       name: fullName,
