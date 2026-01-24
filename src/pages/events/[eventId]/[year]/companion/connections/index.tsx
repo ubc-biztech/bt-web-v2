@@ -104,32 +104,28 @@ const ConnectionsPage = () => {
 
   return (
     <BluePrintLayout>
-      <div className="flex flex-col gap-4 pb-8">
-        {/* Header */}
+      <div className="flex flex-col gap-3 pb-6">
+        {/* Header with Title */}
         <div className="flex items-center justify-between">
           <Link href={`/events/${eventId}/${year}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-3 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
-        </div>
-
-        {/* Title */}
-        <div className="flex items-center gap-3 mt-2">
-          <Users className="text-[#6299ff]" size={28} />
-          <div>
-            <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
+          <div className="flex items-center gap-2">
+            <Users className="text-[#6299ff]" size={18} />
+            <h1 className="text-lg font-medium text-white">
               Your Connections
             </h1>
-            <p className="text-sm text-[#778191]">
-              You&apos;ve connected with {connections?.length || 0}{" "}
-              {connections?.length === 1 ? "person" : "people"}
-            </p>
+            <span className="text-xs text-[#778191]">
+              ({connections?.length || 0})
+            </span>
           </div>
+          <div className="w-16" /> {/* Spacer for centering */}
         </div>
 
-        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
         {/* Search & Filter */}
         <div className="flex flex-col gap-3">

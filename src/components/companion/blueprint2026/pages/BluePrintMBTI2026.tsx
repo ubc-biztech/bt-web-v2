@@ -71,27 +71,27 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
     <BluePrintLayout>
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/40 pointer-events-none -z-10" />
-      <div className="flex flex-col items-center text-center gap-6 px-2 pb-12 pt-6">
-        <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center text-center gap-4 px-2 pb-6 pt-2">
+        <div className="flex flex-col items-center gap-2">
           <p
-            className="text-[11px] uppercase tracking-[0.1em] text-white/70"
+            className="text-[10px] uppercase tracking-[0.1em] text-white/70"
             style={satoshiStyle}
           >
             Your Career Quiz Results
           </p>
           <h1
-            className={`${libre.className} text-[72px] sm:text-[90px] tracking-[0.1em] text-white`}
+            className={`${libre.className} text-[56px] sm:text-[72px] tracking-[0.1em] text-white`}
           >
             {mbti}
           </h1>
           <p className={`${libre.className} text-sm italic text-white/80`}>
             {typeDisplay.title}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5">
             {traits.map((trait) => (
               <span
                 key={trait}
-                className={`${kode.className} rounded-sm border border-white/20 bg-black/40 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90`}
+                className={`${kode.className} rounded-sm border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.2em] text-white/90`}
               >
                 {trait}
               </span>
@@ -99,15 +99,42 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
           </div>
         </div>
 
-        <BluePrintCard className="w-full max-w-sm gap-4 text-center">
-          <p className="text-sm italic text-white/90">{typeDisplay.quote}</p>
+        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
+          <p className="text-sm italic text-white/90">{typeDisplay.vibe}</p>
           <p className="text-xs leading-relaxed text-white/70">
             {typeDisplay.description}
           </p>
         </BluePrintCard>
 
+        <BluePrintCard className="w-full max-w-sm gap-2 text-center">
+          <p className="text-[10px] uppercase tracking-[0.1em] text-white/50">
+            Superpower
+          </p>
+          <p className="text-sm font-medium text-white/90">
+            {typeDisplay.superpower}
+          </p>
+        </BluePrintCard>
+
+        {typeDisplay.roles.length > 0 && (
+          <BluePrintCard className="w-full max-w-sm gap-2 text-center">
+            <p className="text-[10px] uppercase tracking-[0.1em] text-white/50">
+              Careers that fit you
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {typeDisplay.roles.map((role) => (
+                <span
+                  key={role}
+                  className="rounded-full border border-white/25 bg-black/30 px-2.5 py-0.5 text-xs text-white/80"
+                >
+                  {role}
+                </span>
+              ))}
+            </div>
+          </BluePrintCard>
+        )}
+
         {wrappedStats && wrappedStats.totalResponses > 0 && (
-          <div className="w-full max-w-sm p-4 rounded-xl bg-black/40 border border-white/10 flex flex-col gap-2 text-center">
+          <div className="w-full max-w-sm p-3 rounded-xl bg-black/40 border border-white/10 flex flex-col gap-1 text-center">
             <p className="text-xs text-white/70">
               <span className="text-[#6299ff] font-medium">
                 {wrappedStats.totalWithMbtiCount}
@@ -130,7 +157,7 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
         )}
 
         <Link href={`/events/${eventId}/${year}/companion/connections`}>
-          <BluePrintButton className="px-5 py-2 text-xs">
+          <BluePrintButton className="px-4 py-1.5 text-xs">
             View Recommended Connections
             <ArrowUpRight size={14} />
           </BluePrintButton>

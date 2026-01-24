@@ -28,6 +28,7 @@ import { useUserProfile, getProfileId } from "@/queries/userProfile";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { DynamicPageProps } from "@/constants/companion-events";
+import { useQueryClient } from "@tanstack/react-query";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -196,7 +197,7 @@ export default function BluePrintProfile2026(
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
       
       <motion.div
-        className="flex flex-col gap-3 pb-8"
+        className="flex flex-col gap-2 pb-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -207,19 +208,19 @@ export default function BluePrintProfile2026(
           className="flex justify-between items-center"
         >
           <Link href={`/events/${eventId}/${year}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-2.5 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
 
           {isOwnProfile && (
             <BluePrintButton
-              className="text-xs px-3 py-2"
+              className="text-xs px-2.5 py-1.5"
               onClick={() => setIsEditing(true)}
             >
-              <Edit size={16} />
-              Edit Profile
+              <Edit size={14} />
+              Edit
             </BluePrintButton>
           )}
         </motion.div>
@@ -254,20 +255,20 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
   const isPartner = profile.type === "Partner";
 
   return (
-    <div className="flex flex-col items-center gap-4 py-6">
+    <div className="flex flex-col items-center gap-2 py-3">
       {/* Avatar with gradient border */}
-      <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[3px]">
+      <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[2px]">
         <div className="w-full h-full rounded-full overflow-hidden bg-[#0A1428]">
           {profile.profilePictureURL ? (
             <Image
               src={profile.profilePictureURL}
               alt={fullName}
-              width={112}
-              height={112}
+              width={80}
+              height={80}
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-3xl font-medium text-white/60">
+            <div className="w-full h-full flex items-center justify-center text-2xl font-medium text-white/60">
               {profile.fname[0]}
               {profile.lname[0]}
             </div>
@@ -276,17 +277,17 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
       </div>
 
       {/* Name */}
-      <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
+      <h1 className="text-xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
         {fullName}
       </h1>
 
       {/* Pronouns & Type Badge */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {profile.pronouns && (
-          <span className="text-sm text-[#778191]">{profile.pronouns}</span>
+          <span className="text-xs text-[#778191]">{profile.pronouns}</span>
         )}
         <span
-          className={`px-3 py-1 text-xs font-mono rounded-full border ${
+          className={`px-2 py-0.5 text-[10px] font-mono rounded-full border ${
             isPartner
               ? "bg-[#4972EF]/20 border-[#4972EF]/50 text-[#4972EF]"
               : "bg-white/10 border-white/30 text-white/80"
@@ -495,6 +496,7 @@ function BluePrintEditProfile({
   currentUserProfile,
 }: BluePrintEditProfileProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -523,6 +525,9 @@ function BluePrintEditProfile({
         data: data,
         authenticatedCall: true,
       });
+
+      // Invalidate the userProfile cache so fresh data is fetched
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
 
       toast({
         title: "Success",

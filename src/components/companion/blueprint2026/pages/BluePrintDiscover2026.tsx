@@ -103,31 +103,25 @@ export default function BluePrintDiscover2026({
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
       
-      <div className="flex flex-col gap-3 pb-8">
-        {/* Header */}
+      <div className="flex flex-col gap-3 pb-6">
+        {/* Header with Title */}
         <div className="flex items-center justify-between">
           <Link href={`/events/${eventId}/${year}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-2.5 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
-        </div>
-
-        {/* Title */}
-        <div className="flex items-center gap-3">
-          <Search className="text-[#6299ff]" size={28} />
-          <div>
-            <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
+          <div className="flex items-center gap-2">
+            <Search className="text-[#6299ff]" size={18} />
+            <h1 className="text-lg font-medium text-white">
               Discover
             </h1>
-            <p className="text-sm text-white/60">
-              Find people based on your Blueprint type
-            </p>
           </div>
+          <div className="w-16" /> {/* Spacer for centering */}
         </div>
 
-        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
         {/* Semantic Search Box */}
         <BluePrintCard className="p-4">
