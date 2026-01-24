@@ -71,7 +71,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
     if (isRightSide) {
       navigateTo("/companion/wrapped/startPage");
     } else {
-      navigateTo("/companion/wrapped/bpSummary");
+      navigateTo("/companion/wrapped/MBTIsummary");
     }
   };
 

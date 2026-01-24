@@ -39,7 +39,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
     const isRightSide = clickX > screenWidth * 0.3;
 
     if (isRightSide) {
-      navigateTo("/companion/wrapped/companySummary");
+      navigateTo("/companion/wrapped/MBTIsummary");
     } else {
       navigateTo("/companion/wrapped/tutorial");
     }
