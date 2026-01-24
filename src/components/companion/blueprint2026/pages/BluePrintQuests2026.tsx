@@ -50,7 +50,7 @@ export default function BluePrintQuests2026({
 
   return (
     <BluePrintLayout>
-      <div className="flex flex-col gap-4 pb-8">
+      <div className="flex flex-col gap-3 pb-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <Link href={`/events/${routeEventId}/${routeYear}/companion`}>
@@ -62,7 +62,7 @@ export default function BluePrintQuests2026({
         </div>
 
         {/* Title */}
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-3">
           <Sparkles className="text-[#6299ff]" size={28} />
           <div>
             <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
@@ -105,7 +105,7 @@ export default function BluePrintQuests2026({
                 : 0;
 
               return (
-                <BluePrintCard key={quest.id} className="p-4">
+                <div key={quest.id} className="p-4 rounded-xl bg-black/40 border border-white/10">
                   <div className="flex items-start gap-3">
                     {/* Icon */}
                     <div className="flex-shrink-0 mt-0.5">
@@ -132,7 +132,7 @@ export default function BluePrintQuests2026({
                           className={`text-sm flex-shrink-0 ${
                             quest.isCompleted
                               ? "text-[#4ADE80]"
-                              : "text-white/70"
+                              : "text-[#6299ff]"
                           }`}
                         >
                           {quest.progress}/{quest.target ?? "∞"}
@@ -141,7 +141,7 @@ export default function BluePrintQuests2026({
 
                       {/* Progress bar */}
                       {quest.target !== null && (
-                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               quest.isCompleted
@@ -159,7 +159,7 @@ export default function BluePrintQuests2026({
                           {quest.items.map((item, idx) => (
                             <span
                               key={idx}
-                              className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70"
+                              className="text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/15 text-white/70"
                             >
                               {item}
                             </span>
@@ -168,7 +168,7 @@ export default function BluePrintQuests2026({
                       )}
                     </div>
                   </div>
-                </BluePrintCard>
+                </div>
               );
             })}
           </div>

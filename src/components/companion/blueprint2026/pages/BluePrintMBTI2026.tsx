@@ -91,7 +91,7 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
             {traits.map((trait) => (
               <span
                 key={trait}
-                className={`${kode.className} rounded-sm border border-white/35 bg-white/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90`}
+                className={`${kode.className} rounded-sm border border-white/20 bg-black/40 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/90`}
               >
                 {trait}
               </span>
@@ -99,54 +99,21 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
           </div>
         </div>
 
-        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
-          <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
-            Vibe
-          </p>
-          <p className="text-sm italic text-white/90">{typeDisplay.vibe}</p>
-        </BluePrintCard>
-
-        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
+        <BluePrintCard className="w-full max-w-sm gap-4 text-center">
+          <p className="text-sm italic text-white/90">{typeDisplay.quote}</p>
           <p className="text-xs leading-relaxed text-white/70">
             {typeDisplay.description}
           </p>
         </BluePrintCard>
 
-        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
-          <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
-            Superpower
-          </p>
-          <p className="text-sm font-medium text-white/90">
-            {typeDisplay.superpower}
-          </p>
-        </BluePrintCard>
-
-        {typeDisplay.roles.length > 0 && (
-          <BluePrintCard className="w-full max-w-sm gap-3 text-center">
-            <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
-              Careers that fit you
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {typeDisplay.roles.map((role) => (
-                <span
-                  key={role}
-                  className="rounded-full border border-white/25 bg-white/5 px-3 py-1 text-xs text-white/80"
-                >
-                  {role}
-                </span>
-              ))}
-            </div>
-          </BluePrintCard>
-        )}
-
         {wrappedStats && wrappedStats.totalResponses > 0 && (
-          <BluePrintCard className="w-full max-w-sm gap-2 text-center">
+          <div className="w-full max-w-sm p-4 rounded-xl bg-black/40 border border-white/10 flex flex-col gap-2 text-center">
             <p className="text-xs text-white/70">
-              <span className="text-white font-medium">
+              <span className="text-[#6299ff] font-medium">
                 {wrappedStats.totalWithMbtiCount}
               </span>{" "}
               out of{" "}
-              <span className="text-white font-medium">
+              <span className="text-[#6299ff] font-medium">
                 {wrappedStats.totalResponses}
               </span>{" "}
               attendees share your type
@@ -159,7 +126,7 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
               ).toFixed(1)}
               % of participants
             </p>
-          </BluePrintCard>
+          </div>
         )}
 
         <Link href={`/events/${eventId}/${year}/companion/connections`}>

@@ -192,8 +192,11 @@ export default function BluePrintProfile2026(
 
   return (
     <BluePrintLayout>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
+      
       <motion.div
-        className="flex flex-col gap-4 pb-8"
+        className="flex flex-col gap-3 pb-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -304,7 +307,7 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
     if (!profile.company && !profile.role) return null;
 
     return (
-      <BluePrintCard>
+      <BluePrintCard className="bg-black/40 border-white/20">
         <div className="text-md font-medium mb-2">Professional Info</div>
         <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
 
@@ -336,7 +339,7 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
   if (!profile.major && !profile.year) return null;
 
   return (
-    <BluePrintCard>
+    <BluePrintCard className="bg-black/40 border-white/20">
       <div className="text-md font-medium mb-2">Academic Info</div>
       <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
 
@@ -373,7 +376,7 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
   if (!hasDescription && !hasHobbies) return null;
 
   return (
-    <BluePrintCard>
+    <BluePrintCard className="bg-black/40 border-white/20">
       {hasDescription && (
         <>
           <div className="text-md font-medium mb-2">About {profile.fname}</div>
@@ -395,12 +398,12 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
           </div>
           <div className="flex flex-wrap gap-2">
             {profile.hobby1 && (
-              <span className="px-3 py-1.5 text-sm bg-white/10 border border-white/20 rounded-full text-white/80">
+              <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby1}
               </span>
             )}
             {profile.hobby2 && (
-              <span className="px-3 py-1.5 text-sm bg-white/10 border border-white/20 rounded-full text-white/80">
+              <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby2}
               </span>
             )}
@@ -553,22 +556,26 @@ function BluePrintEditProfile({
   };
 
   return (
-    <motion.div
-      className="flex flex-col gap-4 pb-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Header */}
+    <>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
+      
       <motion.div
-        variants={itemVariants}
-        className="flex justify-between items-center"
+        className="flex flex-col gap-4 pb-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
-        <BluePrintButton
-          className="text-xs px-3 py-2"
-          onClick={onCancel}
-          type="button"
+        {/* Header */}
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-between items-center"
         >
+          <BluePrintButton
+            className="text-xs px-3 py-2"
+            onClick={onCancel}
+            type="button"
+          >
           <X size={16} />
           Cancel
         </BluePrintButton>
@@ -584,7 +591,7 @@ function BluePrintEditProfile({
       <motion.div variants={itemVariants}>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {/* Description */}
-          <BluePrintCard>
+          <BluePrintCard className="bg-black/40 border-white/20">
             <label className="text-sm font-medium text-white/80 mb-2 block">
               About You
             </label>
@@ -592,12 +599,12 @@ function BluePrintEditProfile({
               {...register("description")}
               placeholder="Tell people about yourself..."
               rows={4}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
+              className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
             />
           </BluePrintCard>
 
           {/* Hobbies */}
-          <BluePrintCard>
+          <BluePrintCard className="bg-black/40 border-white/20">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={16} className="text-[#6299ff]" />
               <span className="text-sm font-medium text-white/80">
@@ -608,18 +615,18 @@ function BluePrintEditProfile({
               <input
                 {...register("hobby1")}
                 placeholder="Hobby 1"
-                className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
               />
               <input
                 {...register("hobby2")}
                 placeholder="Hobby 2"
-                className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
               />
             </div>
           </BluePrintCard>
 
           {/* Fun Questions */}
-          <BluePrintCard>
+          <BluePrintCard className="bg-black/40 border-white/20">
             <label className="text-sm font-medium text-white/80 mb-2 block">
               Fun Questions
             </label>
@@ -627,18 +634,18 @@ function BluePrintEditProfile({
               <input
                 {...register("funQuestion1")}
                 placeholder="Share something fun about yourself"
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
               />
               <input
                 {...register("funQuestion2")}
                 placeholder="Another fun fact"
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
               />
             </div>
           </BluePrintCard>
 
           {/* Links */}
-          <BluePrintCard>
+          <BluePrintCard className="bg-black/40 border-white/20">
             <label className="text-sm font-medium text-white/80 mb-2 block">
               Social Links
             </label>
@@ -648,7 +655,7 @@ function BluePrintEditProfile({
                 <input
                   {...register("linkedIn")}
                   placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -659,7 +666,7 @@ function BluePrintEditProfile({
                 <input
                   {...register("additionalLink")}
                   placeholder="https://yourportfolio.com"
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
                 />
               </div>
             </div>
@@ -686,5 +693,6 @@ function BluePrintEditProfile({
         </form>
       </motion.div>
     </motion.div>
+    </>
   );
 }

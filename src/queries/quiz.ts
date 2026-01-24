@@ -152,3 +152,29 @@ export function useWrappedStats(mbti?: string) {
     staleTime: 60 * 1000,
   });
 }
+
+/**
+ * Get quiz reports for a specific MBTI type (for recommendations)
+ */
+export async function getQuizzesByMbti(mbti: string): Promise<QuizReport[]> {
+  const response = await fetchBackend({
+    endpoint: `/quizzes/perMbti/${encodeURIComponent(mbti)}`,
+    method: "GET",
+    authenticatedCall: true,
+  });
+  // Response shape: { "mbtiQuizzes-{mbti}": [...] }
+  const key = `mbtiQuizzes-${mbti}`;
+  return response?.[key] ?? [];
+}
+
+/**
+ * React Query hook for fetching recommendations by MBTI type
+ */
+export function useRecommendationsByMbti(mbti?: string) {
+  return useQuery({
+    queryKey: ["recommendationsByMbti", mbti],
+    queryFn: () => getQuizzesByMbti(mbti!),
+    enabled: !!mbti,
+    staleTime: 60 * 1000,
+  });
+}

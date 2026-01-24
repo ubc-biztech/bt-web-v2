@@ -11,6 +11,7 @@ import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/p
 import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
 import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
 import BluePrintMBTI2026 from "@/components/companion/blueprint2026/pages/BluePrintMBTI2026";
+import BluePrintDiscover2026 from "@/components/companion/blueprint2026/pages/BluePrintDiscover2026";
 
 export type DynamicPageProps = {
   event: Event;
@@ -129,6 +130,7 @@ const Events: Event[] = [
       quests: BluePrintQuests2026,
       companies: BluePrintCompanies2026,
       MBTI: BluePrintMBTI2026,
+      discover: BluePrintDiscover2026,
     },
     options: {
       disableWelcomeHeader: true,
