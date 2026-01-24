@@ -20,7 +20,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
     ? getProfileId(userProfile.compositeID)
     : undefined;
 
-  React.useEffect(() => { }, [profileLoading, profileError, profileId]);
+  React.useEffect(() => {}, [profileLoading, profileError, profileId]);
 
   const navLinks = useMemo(
     () => [
@@ -28,25 +28,25 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
       // Always show My Profile link - show loading or error state if needed
       ...(profileId
         ? [
-          {
-            href: `/events/blueprint/2026/companion/profile/${profileId}`,
-            label: "My Profile",
-          },
-        ]
-        : profileLoading
-          ? [
             {
-              href: "#",
-              label: "My Profile (Loading...)",
-              disabled: true,
+              href: `/events/blueprint/2026/companion/profile/${profileId}`,
+              label: "My Profile",
             },
           ]
+        : profileLoading
+          ? [
+              {
+                href: "#",
+                label: "My Profile (Loading...)",
+                disabled: true,
+              },
+            ]
           : [
-            {
-              href: "/membership",
-              label: "My Profile (Setup Required)",
-            },
-          ]),
+              {
+                href: "/membership",
+                label: "My Profile (Setup Required)",
+              },
+            ]),
       {
         href: "/events/blueprint/2026/companion/connections",
         label: "Connections",
