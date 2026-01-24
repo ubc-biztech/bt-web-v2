@@ -317,7 +317,7 @@ function PersonCard({
       .slice(0, 2) || "?";
 
   return (
-    <Link href={`/events/blueprint/2026/companion/profile/${person.id}`}>
+    // <Link href={`/events/blueprint/2026/companion/profile/${person.id}`}>
       <BluePrintCard className="p-4 cursor-pointer hover:bg-white/5 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -362,6 +362,6 @@ function PersonCard({
           </div>
         )}
       </BluePrintCard>
-    </Link>
+    // </Link>
   );
 }
