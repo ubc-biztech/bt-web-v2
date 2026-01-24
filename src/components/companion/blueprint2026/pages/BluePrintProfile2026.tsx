@@ -181,7 +181,10 @@ export default function BluePrintProfile2026(
           }}
           eventId={eventId}
           year={year}
-          viewableMap={currentUserProfile?.viewableMap || {}}
+          currentUserProfile={currentUserProfile ? {
+            viewableMap: currentUserProfile.viewableMap,
+            profilePictureURL: currentUserProfile.profilePictureURL,
+          } : null}
         />
       </BluePrintLayout>
     );
@@ -463,6 +466,9 @@ interface ProfileFormData {
   funQuestion2: string;
   linkedIn: string;
   additionalLink: string;
+  profilePictureURL: string;
+  viewableMap: Record<string, boolean>;
+  [key: string]: unknown;
 }
 
 interface BluePrintEditProfileProps {
@@ -471,7 +477,10 @@ interface BluePrintEditProfileProps {
   onSave: (updatedProfile: UserProfile) => void;
   eventId: string;
   year: string;
-  viewableMap: Record<string, boolean>;
+  currentUserProfile: {
+    viewableMap?: Record<string, boolean>;
+    profilePictureURL?: string;
+  } | null;
 }
 
 function BluePrintEditProfile({
@@ -480,7 +489,7 @@ function BluePrintEditProfile({
   onSave,
   eventId,
   year,
-  viewableMap,
+  currentUserProfile,
 }: BluePrintEditProfileProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -497,6 +506,8 @@ function BluePrintEditProfile({
       funQuestion2: profile.funQuestion2 || "",
       linkedIn: profile.linkedIn || "",
       additionalLink: profile.additionalLink || "",
+      profilePictureURL: currentUserProfile?.profilePictureURL || profile.profilePictureURL || "",
+      viewableMap: currentUserProfile?.viewableMap || {},
     },
   });
 
@@ -506,7 +517,7 @@ function BluePrintEditProfile({
       await fetchBackend({
         endpoint: "/profiles/user/",
         method: "PATCH",
-        data: { ...data, viewableMap },
+        data: data,
         authenticatedCall: true,
       });
 
@@ -518,7 +529,14 @@ function BluePrintEditProfile({
       // Update the profile with new data
       const updatedProfile: UserProfile = {
         ...profile,
-        ...data,
+        description: data.description,
+        hobby1: data.hobby1,
+        hobby2: data.hobby2,
+        funQuestion1: data.funQuestion1,
+        funQuestion2: data.funQuestion2,
+        linkedIn: data.linkedIn,
+        additionalLink: data.additionalLink,
+        profilePictureURL: data.profilePictureURL,
       };
       onSave(updatedProfile);
     } catch (error) {

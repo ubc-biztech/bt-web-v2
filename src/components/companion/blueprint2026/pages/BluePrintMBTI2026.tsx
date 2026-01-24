@@ -69,6 +69,8 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
 
   return (
     <BluePrintLayout>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/40 pointer-events-none -z-10" />
       <div className="flex flex-col items-center text-center gap-6 px-2 pb-12 pt-6">
         <div className="flex flex-col items-center gap-3">
           <p
