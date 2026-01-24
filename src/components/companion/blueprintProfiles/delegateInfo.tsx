@@ -7,7 +7,7 @@ import { FC, useEffect } from "react";
 import { UserProfile } from "@/types";
 
 const CompanyInfo: FC<{ userData: UserProfile }> = ({ userData }) => {
-  const visitPageLink = `/companion/profile/company/${userData.companyProfileID}`;
+  const visitPageLink = `/companion/profile/company/${userData.profilePictureURL}`;
   return (
     <AnimatedBorder className="w-full mb-3 ">
       <div className="rounded-lg p-3 bg-[#030B13] sm:p-4">

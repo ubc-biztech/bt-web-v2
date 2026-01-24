@@ -73,12 +73,10 @@ const Index = () => {
           major: backendProfile.major,
           year: backendProfile.year,
           eventIDYear: backendProfile.eventIDYear,
-          role: backendProfile.role,
+          role: backendProfile.position,
           createdAt: backendProfile.createdAt,
           updatedAt: backendProfile.updatedAt,
           company: backendProfile.company,
-          companyProfileID: backendProfile.companyProfileID,
-          companyProfilePictureURL: backendProfile.companyProfilePictureURL,
         };
 
         setUserData(transformedProfile);
