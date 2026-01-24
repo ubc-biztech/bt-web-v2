@@ -11,6 +11,7 @@ import SummaryText from "../blueprint2026/components/SummaryText";
 import QuizResultsPreview from "../blueprint2026/components/QuizResultsPreview";
 import ConnectionsPreview from "../blueprint2026/components/ConnectionsPreview";
 import QuestsPreview from "../blueprint2026/components/QuestsPreview";
+import RecommendedConnectionsPreview from "../blueprint2026/components/RecommendedConnectionsPreview";
 import { useConnections } from "@/queries/connections";
 import { useQuests } from "@/queries/quests";
 
@@ -43,6 +44,8 @@ const BluePrint2026 = () => {
 
   return (
     <BluePrintLayout>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
       <AnimatePresence mode="wait">
         {!isCheckedIn(userRegistration?.registrationStatus) ? (
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -54,8 +57,8 @@ const BluePrint2026 = () => {
             </h2>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            <div className="mb-4">
+          <div className="flex flex-col gap-3">
+            <div className="mb-2">
               <SummaryText
                 name={userRegistration?.fname || "there"}
                 connectionsMade={connections?.length || 0}
@@ -77,6 +80,8 @@ const BluePrint2026 = () => {
             )}
 
             {!questsLoading && <QuestsPreview quests={quests} />}
+
+            <RecommendedConnectionsPreview />
           </div>
         )}
       </AnimatePresence>

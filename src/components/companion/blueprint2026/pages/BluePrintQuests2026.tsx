@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import {
   ArrowLeft,
-  Sparkles,
+  CircleStar,
   Target,
   CheckCircle2,
   Circle,
@@ -50,31 +50,26 @@ export default function BluePrintQuests2026({
 
   return (
     <BluePrintLayout>
-      <div className="flex flex-col gap-4 pb-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 pb-6">
+        {/* Header with Title */}
+        <div className="flex items-center justify-between mt-4">
           <Link href={`/events/${routeEventId}/${routeYear}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-2.5 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
-        </div>
-
-        {/* Title */}
-        <div className="flex items-center gap-3 mt-2">
-          <Sparkles className="text-[#6299ff]" size={28} />
-          <div>
-            <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
-              Quests
-            </h1>
-            <p className="text-sm text-white/60">
-              {completedCount}/{totalQuests} completed
-            </p>
+          <div className="flex items-center gap-2">
+            <CircleStar className="text-[#6299ff]" size={18} />
+            <h1 className="text-lg font-medium text-white">Quests</h1>
+            <span className="text-xs text-[#778191]">
+              ({completedCount}/{totalQuests})
+            </span>
           </div>
+          <div className="w-16" /> {/* Spacer for centering */}
         </div>
 
-        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
         {/* Loading */}
         {isLoading && (
@@ -87,7 +82,7 @@ export default function BluePrintQuests2026({
         {!isLoading && sortedQuests.length === 0 && (
           <BluePrintCard>
             <div className="text-center py-8">
-              <Sparkles className="mx-auto text-white/40 mb-3" size={48} />
+              <CircleStar className="mx-auto text-white/40 mb-3" size={48} />
               <p className="text-white">No quests available</p>
               <p className="text-white/60 text-sm mt-2">
                 Check back later for new challenges!
@@ -105,7 +100,10 @@ export default function BluePrintQuests2026({
                 : 0;
 
               return (
-                <BluePrintCard key={quest.id} className="p-4">
+                <div
+                  key={quest.id}
+                  className="p-4 rounded-xl bg-black/40 border border-white/10"
+                >
                   <div className="flex items-start gap-3">
                     {/* Icon */}
                     <div className="flex-shrink-0 mt-0.5">
@@ -132,7 +130,7 @@ export default function BluePrintQuests2026({
                           className={`text-sm flex-shrink-0 ${
                             quest.isCompleted
                               ? "text-[#4ADE80]"
-                              : "text-white/70"
+                              : "text-[#6299ff]"
                           }`}
                         >
                           {quest.progress}/{quest.target ?? "∞"}
@@ -141,7 +139,7 @@ export default function BluePrintQuests2026({
 
                       {/* Progress bar */}
                       {quest.target !== null && (
-                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                        <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               quest.isCompleted
@@ -159,7 +157,7 @@ export default function BluePrintQuests2026({
                           {quest.items.map((item, idx) => (
                             <span
                               key={idx}
-                              className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70"
+                              className="text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/15 text-white/70"
                             >
                               {item}
                             </span>
@@ -168,7 +166,7 @@ export default function BluePrintQuests2026({
                       )}
                     </div>
                   </div>
-                </BluePrintCard>
+                </div>
               );
             })}
           </div>

@@ -2,7 +2,7 @@ import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Connection } from "@/pages/connections";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, BookUser } from "lucide-react";
 
 export default function ConnectionsPreview({
   connections,
@@ -16,7 +16,10 @@ export default function ConnectionsPreview({
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
-        <div className="text-md font-medium">Your Connections</div>
+        <div className="flex items-center gap-2">
+          <BookUser size={16} className="text-[#6299ff]" />
+          <div className="text-md font-medium">Your Connections</div>
+        </div>
         <Link href="/events/blueprint/2026/companion/connections">
           <BluePrintButton className="text-xs px-3 py-2">
             VIEW ALL
@@ -26,7 +29,7 @@ export default function ConnectionsPreview({
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
       {recentConnections.length === 0 ? (
-        <div className="mx-16 my-6 text-center text-sm text-white/70">
+        <div className="my-4 text-center text-sm text-white/70 rounded-lg bg-black/30 py-4 px-6">
           No connections yet. Tap someone&apos;s NFC to get started!
         </div>
       ) : (
@@ -53,7 +56,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
 
   return (
     <Link href={`/events/blueprint/2026/companion/profile/${profileId}`}>
-      <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer">
+      <div className="flex items-center justify-between p-3 rounded-lg bg-black/40 border border-white/15 hover:bg-black/50 hover:border-white/25 transition-colors cursor-pointer">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] flex items-center justify-center">
             <span className="text-[#0A1428] font-medium text-sm">
@@ -65,7 +68,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             <span className="text-white font-medium text-sm">
               {connection.fname} {connection.lname}
             </span>
-            <span className="text-white/65 text-xs">
+            <span className="text-white/70 text-xs">
               {connection.pronouns && `${connection.pronouns} · `}
               {connection.major || connectionType}
             </span>

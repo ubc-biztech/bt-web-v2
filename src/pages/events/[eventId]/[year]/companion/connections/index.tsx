@@ -5,7 +5,7 @@ import {
   Search,
   ArrowLeft,
   ArrowUpRight,
-  Users,
+  BookUser,
   ArrowUpDown,
 } from "lucide-react";
 import BluePrintLayout from "@/components/companion/blueprint2026/layout/BluePrintLayout";
@@ -104,46 +104,40 @@ const ConnectionsPage = () => {
 
   return (
     <BluePrintLayout>
-      <div className="flex flex-col gap-4 pb-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 pb-6">
+        {/* Header with Title */}
+        <div className="flex items-center justify-between mt-4">
           <Link href={`/events/${eventId}/${year}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-3 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
-        </div>
-
-        {/* Title */}
-        <div className="flex items-center gap-3 mt-2">
-          <Users className="text-[#6299ff]" size={28} />
-          <div>
-            <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
-              Your Connections
-            </h1>
-            <p className="text-sm text-[#778191]">
-              You&apos;ve connected with {connections?.length || 0}{" "}
-              {connections?.length === 1 ? "person" : "people"}
-            </p>
+          <div className="flex items-center gap-2">
+            <BookUser className="text-[#6299ff]" size={18} />
+            <h1 className="text-lg font-medium text-white">Your Connections</h1>
+            <span className="text-xs text-[#778191]">
+              ({connections?.length || 0})
+            </span>
           </div>
+          <div className="w-16" /> {/* Spacer for centering */}
         </div>
 
-        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent" />
+        <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
         {/* Search & Filter */}
         <div className="flex flex-col gap-3">
           {/* Search */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-[#778191]" />
+              <Search className="h-4 w-4 text-white/50" />
             </div>
             <input
               type="text"
               placeholder="Search by name, major, or year..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/20 rounded-lg text-white placeholder-[#778191] focus:outline-none focus:ring-2 focus:ring-[#6299ff]/50 focus:border-[#6299ff]/50 text-sm"
+              className="w-full pl-10 pr-4 py-3 bg-black/40 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#6299ff]/50 focus:border-[#6299ff]/50 text-sm"
             />
           </div>
 
@@ -158,7 +152,7 @@ const ConnectionsPage = () => {
                   className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-all ${
                     connectionType === type.value
                       ? "bg-[#6299ff] text-white"
-                      : "bg-white/10 text-white/70 border border-white/20 hover:bg-white/20"
+                      : "bg-black/40 text-white/70 border border-white/20 hover:bg-black/50"
                   }`}
                 >
                   {type.label}
@@ -169,7 +163,7 @@ const ConnectionsPage = () => {
             {/* Sort Dropdown */}
             <div className="relative">
               <button
-                className="flex items-center gap-2 px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-white text-xs hover:bg-white/10 transition-all"
+                className="flex items-center gap-2 px-3 py-2 bg-black/40 border border-white/20 rounded-lg text-white text-xs hover:bg-black/50 transition-all"
                 onClick={() => {
                   const currentIndex = sortOptions.findIndex(
                     (opt) => opt.value === sortBy,
@@ -178,7 +172,7 @@ const ConnectionsPage = () => {
                   setSortBy(sortOptions[nextIndex].value);
                 }}
               >
-                <ArrowUpDown size={14} className="text-[#778191]" />
+                <ArrowUpDown size={14} className="text-white/50" />
                 <span>
                   {sortOptions.find((opt) => opt.value === sortBy)?.label}
                 </span>
@@ -210,7 +204,7 @@ const ConnectionsPage = () => {
         {!isLoading && !isError && filteredConnections.length === 0 && (
           <BluePrintCard>
             <div className="text-center py-8">
-              <Users className="mx-auto text-[#778191] mb-3" size={48} />
+              <BookUser className="mx-auto text-[#778191] mb-3" size={48} />
               {searchQuery || connectionType !== "ALL" ? (
                 <>
                   <p className="text-white">No connections found</p>
@@ -266,7 +260,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
 
   return (
     <Link href={`/events/blueprint/2026/companion/profile/${profileId}`}>
-      <BluePrintCard className="p-3 cursor-pointer hover:bg-white/5 transition-colors">
+      <div className="p-3 rounded-xl bg-black/40 border border-white/15 cursor-pointer hover:bg-black/50 hover:border-white/25 transition-colors">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Avatar */}
@@ -311,7 +305,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             </span>
 
             {/* Time */}
-            <span className="text-[#778191] text-xs hidden sm:block">
+            <span className="text-white/50 text-xs hidden sm:block">
               {timeAgo}
             </span>
 
@@ -319,7 +313,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             <ArrowUpRight size={18} className="text-[#6299ff]" />
           </div>
         </div>
-      </BluePrintCard>
+      </div>
     </Link>
   );
 }

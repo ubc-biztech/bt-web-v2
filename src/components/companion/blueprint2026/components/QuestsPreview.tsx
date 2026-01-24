@@ -2,6 +2,7 @@ import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Quests } from "@/queries/quests";
 import Link from "next/link";
+import { CircleStar } from "lucide-react";
 
 export default function QuestsPreview({
   quests,
@@ -31,7 +32,10 @@ export default function QuestsPreview({
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
-        <div className="text-md font-medium">Quests</div>
+        <div className="flex items-center gap-2">
+          <CircleStar size={16} className="text-[#6299ff]" />
+          <div className="text-md font-medium">Quests</div>
+        </div>
         <Link href="/events/blueprint/2026/companion/quests">
           <BluePrintButton className="text-xs p-4">VIEW ALL</BluePrintButton>
         </Link>
@@ -39,7 +43,7 @@ export default function QuestsPreview({
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
       {!quests || sortedQuests.length === 0 ? (
-        <div className="mx-16 my-4 text-center text-white/70">
+        <div className="mx-16 my-4 text-center text-white/70 rounded-lg bg-black/30 py-4">
           {"No quests available"}
         </div>
       ) : (
@@ -50,17 +54,20 @@ export default function QuestsPreview({
               : 0;
 
             return (
-              <div key={quest.id} className="flex flex-col gap-1.5">
+              <div
+                key={quest.id}
+                className="flex flex-col gap-1.5 p-3 rounded-lg bg-black/40 border border-white/10"
+              >
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-white">
                     {quest.description ?? quest.id}
                   </span>
-                  <span className="text-white/75 text-xs font-medium">
+                  <span className="text-[#6299ff] text-xs font-medium">
                     {quest.progress}/{quest.target ?? "∞"}
                   </span>
                 </div>
                 {quest.target !== null && (
-                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-black/30 rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#6299ff] to-[#EAE5D4]"
                       style={{ width: `${progressPercent}%` }}

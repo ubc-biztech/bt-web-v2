@@ -63,6 +63,7 @@ export type UserProfile = {
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
+  viewableMap?: Record<string, boolean>;
 };
 
 export enum DBRegistrationStatus {
@@ -169,6 +170,7 @@ export type BackendProfile = {
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
+  viewableMap?: Record<string, boolean>;
 };
 
 export type Member = {

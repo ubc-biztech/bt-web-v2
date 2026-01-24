@@ -28,6 +28,7 @@ import { useUserProfile, getProfileId } from "@/queries/userProfile";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { DynamicPageProps } from "@/constants/companion-events";
+import { useQueryClient } from "@tanstack/react-query";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -113,6 +114,7 @@ export default function BluePrintProfile2026(
           company: backendProfile.company,
           companyProfileID: backendProfile.companyProfileID,
           companyProfilePictureURL: backendProfile.companyProfilePictureURL,
+          viewableMap: backendProfile.viewableMap,
         };
 
         setProfile(transformedProfile);
@@ -181,7 +183,14 @@ export default function BluePrintProfile2026(
           }}
           eventId={eventId}
           year={year}
-          viewableMap={currentUserProfile?.viewableMap || {}}
+          currentUserProfile={
+            currentUserProfile
+              ? {
+                  viewableMap: currentUserProfile.viewableMap,
+                  profilePictureURL: currentUserProfile.profilePictureURL,
+                }
+              : null
+          }
         />
       </BluePrintLayout>
     );
@@ -189,8 +198,11 @@ export default function BluePrintProfile2026(
 
   return (
     <BluePrintLayout>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
+
       <motion.div
-        className="flex flex-col gap-4 pb-8"
+        className="flex flex-col gap-2 pb-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -201,19 +213,19 @@ export default function BluePrintProfile2026(
           className="flex justify-between items-center"
         >
           <Link href={`/events/${eventId}/${year}/companion`}>
-            <BluePrintButton className="text-xs px-3 py-2">
-              <ArrowLeft size={16} />
+            <BluePrintButton className="text-xs px-2.5 py-1.5">
+              <ArrowLeft size={14} />
               Back
             </BluePrintButton>
           </Link>
 
           {isOwnProfile && (
             <BluePrintButton
-              className="text-xs px-3 py-2"
+              className="text-xs px-2.5 py-1.5"
               onClick={() => setIsEditing(true)}
             >
-              <Edit size={16} />
-              Edit Profile
+              <Edit size={14} />
+              Edit
             </BluePrintButton>
           )}
         </motion.div>
@@ -246,22 +258,25 @@ export default function BluePrintProfile2026(
 function ProfileHeader({ profile }: { profile: UserProfile }) {
   const fullName = `${profile.fname} ${profile.lname}`;
   const isPartner = profile.type === "Partner";
+  const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
+  const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
 
   return (
-    <div className="flex flex-col items-center gap-4 py-6">
+    <div className="flex flex-col items-center gap-2 py-3">
       {/* Avatar with gradient border */}
-      <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[3px]">
+      <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[2px]">
         <div className="w-full h-full rounded-full overflow-hidden bg-[#0A1428]">
-          {profile.profilePictureURL ? (
+          {showProfilePicture ? (
             <Image
-              src={profile.profilePictureURL}
+              src={profile.profilePictureURL!}
               alt={fullName}
-              width={112}
-              height={112}
+              width={80}
+              height={80}
               className="w-full h-full object-cover"
+              unoptimized
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-3xl font-medium text-white/60">
+            <div className="w-full h-full flex items-center justify-center text-2xl font-medium text-white/60">
               {profile.fname[0]}
               {profile.lname[0]}
             </div>
@@ -270,17 +285,17 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
       </div>
 
       {/* Name */}
-      <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
+      <h1 className="text-xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent">
         {fullName}
       </h1>
 
       {/* Pronouns & Type Badge */}
-      <div className="flex items-center gap-3">
-        {profile.pronouns && (
-          <span className="text-sm text-[#778191]">{profile.pronouns}</span>
+      <div className="flex items-center gap-2">
+        {showPronouns && (
+          <span className="text-xs text-[#778191]">{profile.pronouns}</span>
         )}
         <span
-          className={`px-3 py-1 text-xs font-mono rounded-full border ${
+          className={`px-2 py-0.5 text-[10px] font-mono rounded-full border ${
             isPartner
               ? "bg-[#4972EF]/20 border-[#4972EF]/50 text-[#4972EF]"
               : "bg-white/10 border-white/30 text-white/80"
@@ -301,7 +316,7 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
     if (!profile.company && !profile.role) return null;
 
     return (
-      <BluePrintCard>
+      <BluePrintCard className="bg-black/40 border-white/20">
         <div className="text-md font-medium mb-2">Professional Info</div>
         <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
 
@@ -333,7 +348,7 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
   if (!profile.major && !profile.year) return null;
 
   return (
-    <BluePrintCard>
+    <BluePrintCard className="bg-black/40 border-white/20">
       <div className="text-md font-medium mb-2">Academic Info</div>
       <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
 
@@ -364,14 +379,16 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
 
 // Profile About Component
 function ProfileAbout({ profile }: { profile: UserProfile }) {
-  const hasDescription = !!profile.description;
-  const hasHobbies = profile.hobby1 || profile.hobby2;
+  const showDescription = profile.description && profile.viewableMap?.description !== false;
+  const showHobby1 = profile.hobby1 && profile.viewableMap?.hobby1 !== false;
+  const showHobby2 = profile.hobby2 && profile.viewableMap?.hobby2 !== false;
+  const hasHobbies = showHobby1 || showHobby2;
 
-  if (!hasDescription && !hasHobbies) return null;
+  if (!showDescription && !hasHobbies) return null;
 
   return (
-    <BluePrintCard>
-      {hasDescription && (
+    <BluePrintCard className="bg-black/40 border-white/20">
+      {showDescription && (
         <>
           <div className="text-md font-medium mb-2">About {profile.fname}</div>
           <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
@@ -383,7 +400,7 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
 
       {hasHobbies && (
         <>
-          {hasDescription && (
+          {showDescription && (
             <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent my-4" />
           )}
           <div className="flex items-center gap-2 mb-3">
@@ -391,13 +408,13 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
             <span className="text-md font-medium">Hobbies & Interests</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.hobby1 && (
-              <span className="px-3 py-1.5 text-sm bg-white/10 border border-white/20 rounded-full text-white/80">
+            {showHobby1 && (
+              <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby1}
               </span>
             )}
-            {profile.hobby2 && (
-              <span className="px-3 py-1.5 text-sm bg-white/10 border border-white/20 rounded-full text-white/80">
+            {showHobby2 && (
+              <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby2}
               </span>
             )}
@@ -410,16 +427,17 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
 
 // Profile Links Component
 function ProfileLinks({ profile }: { profile: UserProfile }) {
-  const hasLinks = profile.linkedIn || profile.additionalLink;
+  const showLinkedIn = profile.linkedIn && profile.viewableMap?.linkedIn !== false;
+  const showAdditionalLink = profile.additionalLink && profile.viewableMap?.additionalLink !== false;
 
-  if (!hasLinks) return null;
+  if (!showLinkedIn && !showAdditionalLink) return null;
 
   return (
     <div className="flex flex-col gap-3">
-      {profile.linkedIn && (
+      {showLinkedIn && (
         <a
           href={
-            profile.linkedIn.startsWith("http")
+            profile.linkedIn!.startsWith("http")
               ? profile.linkedIn
               : `https://${profile.linkedIn}`
           }
@@ -434,10 +452,10 @@ function ProfileLinks({ profile }: { profile: UserProfile }) {
         </a>
       )}
 
-      {profile.additionalLink && (
+      {showAdditionalLink && (
         <a
           href={
-            profile.additionalLink.startsWith("http")
+            profile.additionalLink!.startsWith("http")
               ? profile.additionalLink
               : `https://${profile.additionalLink}`
           }
@@ -463,6 +481,9 @@ interface ProfileFormData {
   funQuestion2: string;
   linkedIn: string;
   additionalLink: string;
+  profilePictureURL: string;
+  viewableMap: Record<string, boolean>;
+  [key: string]: unknown;
 }
 
 interface BluePrintEditProfileProps {
@@ -471,7 +492,10 @@ interface BluePrintEditProfileProps {
   onSave: (updatedProfile: UserProfile) => void;
   eventId: string;
   year: string;
-  viewableMap: Record<string, boolean>;
+  currentUserProfile: {
+    viewableMap?: Record<string, boolean>;
+    profilePictureURL?: string;
+  } | null;
 }
 
 function BluePrintEditProfile({
@@ -480,9 +504,10 @@ function BluePrintEditProfile({
   onSave,
   eventId,
   year,
-  viewableMap,
+  currentUserProfile,
 }: BluePrintEditProfileProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
 
   const {
     register,
@@ -497,18 +522,42 @@ function BluePrintEditProfile({
       funQuestion2: profile.funQuestion2 || "",
       linkedIn: profile.linkedIn || "",
       additionalLink: profile.additionalLink || "",
+      profilePictureURL:
+        currentUserProfile?.profilePictureURL ||
+        profile.profilePictureURL ||
+        "",
+      viewableMap: currentUserProfile?.viewableMap || {},
     },
   });
 
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
     try {
+      // Auto-set viewableMap to true for fields that have values
+      const updatedViewableMap: Record<string, boolean> = {
+        ...data.viewableMap,
+        description: !!data.description?.trim(),
+        hobby1: !!data.hobby1?.trim(),
+        hobby2: !!data.hobby2?.trim(),
+        funQuestion1: !!data.funQuestion1?.trim(),
+        funQuestion2: !!data.funQuestion2?.trim(),
+        linkedIn: !!data.linkedIn?.trim(),
+        additionalLink: !!data.additionalLink?.trim(),
+        profilePictureURL: !!data.profilePictureURL?.trim(),
+      };
+
       await fetchBackend({
         endpoint: "/profiles/user/",
         method: "PATCH",
-        data: { ...data, viewableMap },
+        data: {
+          ...data,
+          viewableMap: updatedViewableMap,
+        },
         authenticatedCall: true,
       });
+
+      // Invalidate the userProfile cache so fresh data is fetched
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
 
       toast({
         title: "Success",
@@ -518,7 +567,14 @@ function BluePrintEditProfile({
       // Update the profile with new data
       const updatedProfile: UserProfile = {
         ...profile,
-        ...data,
+        description: data.description,
+        hobby1: data.hobby1,
+        hobby2: data.hobby2,
+        funQuestion1: data.funQuestion1,
+        funQuestion2: data.funQuestion2,
+        linkedIn: data.linkedIn,
+        additionalLink: data.additionalLink,
+        profilePictureURL: data.profilePictureURL,
       };
       onSave(updatedProfile);
     } catch (error) {
@@ -535,138 +591,149 @@ function BluePrintEditProfile({
   };
 
   return (
-    <motion.div
-      className="flex flex-col gap-4 pb-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      {/* Header */}
+    <>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
+
       <motion.div
-        variants={itemVariants}
-        className="flex justify-between items-center"
+        className="flex flex-col gap-4 pb-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
       >
-        <BluePrintButton
-          className="text-xs px-3 py-2"
-          onClick={onCancel}
-          type="button"
+        {/* Header */}
+        <motion.div
+          variants={itemVariants}
+          className="flex justify-between items-center"
         >
-          <X size={16} />
-          Cancel
-        </BluePrintButton>
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent text-center">
-          Edit Profile
-        </h1>
-      </motion.div>
-
-      {/* Form */}
-      <motion.div variants={itemVariants}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          {/* Description */}
-          <BluePrintCard>
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              About You
-            </label>
-            <textarea
-              {...register("description")}
-              placeholder="Tell people about yourself..."
-              rows={4}
-              className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
-            />
-          </BluePrintCard>
-
-          {/* Hobbies */}
-          <BluePrintCard>
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-[#6299ff]" />
-              <span className="text-sm font-medium text-white/80">
-                Hobbies & Interests
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                {...register("hobby1")}
-                placeholder="Hobby 1"
-                className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-              <input
-                {...register("hobby2")}
-                placeholder="Hobby 2"
-                className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-            </div>
-          </BluePrintCard>
-
-          {/* Fun Questions */}
-          <BluePrintCard>
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              Fun Questions
-            </label>
-            <div className="flex flex-col gap-3">
-              <input
-                {...register("funQuestion1")}
-                placeholder="Share something fun about yourself"
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-              <input
-                {...register("funQuestion2")}
-                placeholder="Another fun fact"
-                className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-            </div>
-          </BluePrintCard>
-
-          {/* Links */}
-          <BluePrintCard>
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              Social Links
-            </label>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Linkedin size={18} className="text-[#6299ff] flex-shrink-0" />
-                <input
-                  {...register("linkedIn")}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <ExternalLink
-                  size={18}
-                  className="text-[#6299ff] flex-shrink-0"
-                />
-                <input
-                  {...register("additionalLink")}
-                  placeholder="https://yourportfolio.com"
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-                />
-              </div>
-            </div>
-          </BluePrintCard>
-
-          {/* Submit Button */}
           <BluePrintButton
-            type="submit"
-            className="w-full justify-center py-4"
-            disabled={isSubmitting}
+            className="text-xs px-3 py-2"
+            onClick={onCancel}
+            type="button"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save size={18} />
-                Save Changes
-              </>
-            )}
+            <X size={16} />
+            Cancel
           </BluePrintButton>
-        </form>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent text-center">
+            Edit Profile
+          </h1>
+        </motion.div>
+
+        {/* Form */}
+        <motion.div variants={itemVariants}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            {/* Description */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                About You
+              </label>
+              <textarea
+                {...register("description")}
+                placeholder="Tell people about yourself..."
+                rows={4}
+                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
+              />
+            </BluePrintCard>
+
+            {/* Hobbies */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles size={16} className="text-[#6299ff]" />
+                <span className="text-sm font-medium text-white/80">
+                  Hobbies & Interests
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  {...register("hobby1")}
+                  placeholder="Hobby 1"
+                  className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+                <input
+                  {...register("hobby2")}
+                  placeholder="Hobby 2"
+                  className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+              </div>
+            </BluePrintCard>
+
+            {/* Fun Questions */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                Fun Questions
+              </label>
+              <div className="flex flex-col gap-3">
+                <input
+                  {...register("funQuestion1")}
+                  placeholder="Share something fun about yourself"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+                <input
+                  {...register("funQuestion2")}
+                  placeholder="Another fun fact"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+              </div>
+            </BluePrintCard>
+
+            {/* Links */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                Social Links
+              </label>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Linkedin
+                    size={18}
+                    className="text-[#6299ff] flex-shrink-0"
+                  />
+                  <input
+                    {...register("linkedIn")}
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <ExternalLink
+                    size={18}
+                    className="text-[#6299ff] flex-shrink-0"
+                  />
+                  <input
+                    {...register("additionalLink")}
+                    placeholder="https://yourportfolio.com"
+                    className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  />
+                </div>
+              </div>
+            </BluePrintCard>
+
+            {/* Submit Button */}
+            <BluePrintButton
+              type="submit"
+              className="w-full justify-center py-4"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Save Changes
+                </>
+              )}
+            </BluePrintButton>
+          </form>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </>
   );
 }
