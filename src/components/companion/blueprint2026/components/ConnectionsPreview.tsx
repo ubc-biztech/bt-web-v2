@@ -68,7 +68,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             <span className="text-white font-medium text-sm">
               {connection.fname} {connection.lname}
             </span>
-            <span className="text-white/70 text-xs">
+            <span className="text-[#8791a1] text-xs">
               {connection.pronouns && `${connection.pronouns} · `}
               {connection.major || connectionType}
             </span>
