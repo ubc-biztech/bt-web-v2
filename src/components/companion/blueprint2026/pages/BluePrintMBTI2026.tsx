@@ -97,12 +97,45 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
           </div>
         </div>
 
-        <BluePrintCard className="w-full max-w-sm gap-4 text-center">
-          <p className="text-sm italic text-white/90">{typeDisplay.quote}</p>
+        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
+          <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
+            Vibe
+          </p>
+          <p className="text-sm italic text-white/90">{typeDisplay.vibe}</p>
+        </BluePrintCard>
+
+        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
           <p className="text-xs leading-relaxed text-white/70">
             {typeDisplay.description}
           </p>
         </BluePrintCard>
+
+        <BluePrintCard className="w-full max-w-sm gap-3 text-center">
+          <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
+            Superpower
+          </p>
+          <p className="text-sm font-medium text-white/90">
+            {typeDisplay.superpower}
+          </p>
+        </BluePrintCard>
+
+        {typeDisplay.roles.length > 0 && (
+          <BluePrintCard className="w-full max-w-sm gap-3 text-center">
+            <p className="text-[11px] uppercase tracking-[0.1em] text-white/50">
+              Careers that fit you
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {typeDisplay.roles.map((role) => (
+                <span
+                  key={role}
+                  className="rounded-full border border-white/25 bg-white/5 px-3 py-1 text-xs text-white/80"
+                >
+                  {role}
+                </span>
+              ))}
+            </div>
+          </BluePrintCard>
+        )}
 
         {wrappedStats && wrappedStats.totalResponses > 0 && (
           <BluePrintCard className="w-full max-w-sm gap-2 text-center">
