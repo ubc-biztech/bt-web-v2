@@ -96,7 +96,7 @@ export default function BluePrintProfile2026(
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
-          type: backendProfile.type as "Partner" | "Attendee",
+          type: backendProfile.profileType,
           hobby1: backendProfile.hobby1,
           hobby2: backendProfile.hobby2,
           funQuestion1: backendProfile.funQuestion1,
@@ -108,7 +108,7 @@ export default function BluePrintProfile2026(
           major: backendProfile.major,
           year: backendProfile.year,
           eventIDYear: backendProfile.eventIDYear,
-          role: backendProfile.role,
+          role: backendProfile.position,
           createdAt: backendProfile.createdAt,
           updatedAt: backendProfile.updatedAt,
           company: backendProfile.company,
@@ -257,7 +257,7 @@ export default function BluePrintProfile2026(
 // Profile Header Component
 function ProfileHeader({ profile }: { profile: UserProfile }) {
   const fullName = `${profile.fname} ${profile.lname}`;
-  const isPartner = profile.type === "Partner";
+  const isPartner = profile.type.toLowerCase() === "partner";
   const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
   const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
 
@@ -310,8 +310,8 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
 
 // Profile Info Component
 function ProfileInfo({ profile }: { profile: UserProfile }) {
-  const isPartner = profile.type === "Partner";
-
+  const isPartner = profile.type.toLowerCase() === "partner";
+  
   if (isPartner) {
     if (!profile.company && !profile.role) return null;
 

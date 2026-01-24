@@ -151,7 +151,7 @@ export type BackendProfile = {
   fname: string;
   lname: string;
   pronouns: string;
-  type: string;
+  profileType: string;
   hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
@@ -163,7 +163,7 @@ export type BackendProfile = {
   major?: string;
   year?: string;
   eventIDYear: string;
-  role?: string;
+  position?: string;
   name?: string;
   createdAt: number;
   updatedAt: number;
