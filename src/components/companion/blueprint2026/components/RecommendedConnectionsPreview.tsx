@@ -14,9 +14,10 @@ export default function RecommendedConnectionsPreview() {
     useRecommendationsByMbti(userMbti);
 
   const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => {
-    const fullName = rec.fname && rec.lname
-      ? `${rec.fname} ${rec.lname}`
-      : rec.fname || rec.lname || rec.id || "Unknown";
+    const fullName =
+      rec.fname && rec.lname
+        ? `${rec.fname} ${rec.lname}`
+        : rec.fname || rec.lname || rec.id || "Unknown";
     return {
       id: rec.id || "unknown",
       name: fullName,
@@ -92,7 +93,9 @@ export default function RecommendedConnectionsPreview() {
                         {initials}
                       </span>
                     </div>
-                    <span className="text-white font-medium text-sm">{displayName}</span>
+                    <span className="text-white font-medium text-sm">
+                      {displayName}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-[#6299ff] text-xs font-medium px-2 py-1 rounded-full bg-[#6299ff]/20 border border-[#6299ff]/30">

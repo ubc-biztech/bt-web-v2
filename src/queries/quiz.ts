@@ -57,7 +57,9 @@ export async function uploadQuizResults(
 /**
  * Get a user's quiz report (authenticated - user identified by token)
  */
-export async function getQuizReport(profile_id : string): Promise<QuizReport | null> {
+export async function getQuizReport(
+  profile_id: string,
+): Promise<QuizReport | null> {
   try {
     const response = await fetchBackend({
       endpoint: `/quizzes/report/${profile_id}`,

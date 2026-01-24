@@ -84,16 +84,19 @@ export default function BluePrintDiscover2026({
   };
 
   // Transform recommendations to display format
-  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map((rec) => {
-    const fullName = rec.fname && rec.lname
-      ? `${rec.fname} ${rec.lname}`
-      : rec.fname || rec.lname || rec.id || "Unknown";
-    return {
-      id: rec.id || "unknown",
-      name: fullName,
-      mbti: rec.mbti,
-    };
-  });
+  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map(
+    (rec) => {
+      const fullName =
+        rec.fname && rec.lname
+          ? `${rec.fname} ${rec.lname}`
+          : rec.fname || rec.lname || rec.id || "Unknown";
+      return {
+        id: rec.id || "unknown",
+        name: fullName,
+        mbti: rec.mbti,
+      };
+    },
+  );
 
   // Transform search results to display format - using actual API response structure
   const searchedPeople: DisplayPerson[] = (searchResults ?? []).map(
