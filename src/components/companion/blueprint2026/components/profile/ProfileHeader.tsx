@@ -8,8 +8,11 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const fullName = `${profile.fname} ${profile.lname}`;
   const isPartner = profile.type === "Partner";
-  const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
-  const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
+  const showProfilePicture =
+    profile.profilePictureURL &&
+    profile.viewableMap?.profilePictureURL !== false;
+  const showPronouns =
+    profile.pronouns && profile.viewableMap?.pronouns !== false;
 
   return (
     <div className="flex flex-col items-center gap-4 py-6">

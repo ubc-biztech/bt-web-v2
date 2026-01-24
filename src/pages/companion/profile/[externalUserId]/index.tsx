@@ -61,7 +61,7 @@ const Index = () => {
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
-          type: backendProfile.type as "Partner" | "Attendee",
+          type: backendProfile.profileType,
           hobby1: backendProfile.hobby1,
           hobby2: backendProfile.hobby2,
           funQuestion1: backendProfile.funQuestion1,
@@ -73,7 +73,7 @@ const Index = () => {
           major: backendProfile.major,
           year: backendProfile.year,
           eventIDYear: backendProfile.eventIDYear,
-          role: backendProfile.role,
+          role: backendProfile.position,
           createdAt: backendProfile.createdAt,
           updatedAt: backendProfile.updatedAt,
           company: backendProfile.company,
@@ -176,7 +176,7 @@ const Index = () => {
               />
             )}
           </motion.div>
-          {userData.type == "Partner" ? (
+          {userData.type.toLowerCase() == "partner" ? (
             <motion.div variants={itemVariants}>
               <CompanyInfo userData={userData} />
             </motion.div>
