@@ -258,8 +258,11 @@ export default function BluePrintProfile2026(
 function ProfileHeader({ profile }: { profile: UserProfile }) {
   const fullName = `${profile.fname} ${profile.lname}`;
   const isPartner = profile.type === "Partner";
-  const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
-  const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
+  const showProfilePicture =
+    profile.profilePictureURL &&
+    profile.viewableMap?.profilePictureURL !== false;
+  const showPronouns =
+    profile.pronouns && profile.viewableMap?.pronouns !== false;
 
   return (
     <div className="flex flex-col items-center gap-2 py-3">
@@ -379,7 +382,8 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
 
 // Profile About Component
 function ProfileAbout({ profile }: { profile: UserProfile }) {
-  const showDescription = profile.description && profile.viewableMap?.description !== false;
+  const showDescription =
+    profile.description && profile.viewableMap?.description !== false;
   const showHobby1 = profile.hobby1 && profile.viewableMap?.hobby1 !== false;
   const showHobby2 = profile.hobby2 && profile.viewableMap?.hobby2 !== false;
   const hasHobbies = showHobby1 || showHobby2;
@@ -427,8 +431,10 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
 
 // Profile Links Component
 function ProfileLinks({ profile }: { profile: UserProfile }) {
-  const showLinkedIn = profile.linkedIn && profile.viewableMap?.linkedIn !== false;
-  const showAdditionalLink = profile.additionalLink && profile.viewableMap?.additionalLink !== false;
+  const showLinkedIn =
+    profile.linkedIn && profile.viewableMap?.linkedIn !== false;
+  const showAdditionalLink =
+    profile.additionalLink && profile.viewableMap?.additionalLink !== false;
 
   if (!showLinkedIn && !showAdditionalLink) return null;
 
