@@ -115,9 +115,7 @@ const ConnectionsPage = () => {
           </Link>
           <div className="flex items-center gap-2">
             <Users className="text-[#6299ff]" size={18} />
-            <h1 className="text-lg font-medium text-white">
-              Your Connections
-            </h1>
+            <h1 className="text-lg font-medium text-white">Your Connections</h1>
             <span className="text-xs text-[#778191]">
               ({connections?.length || 0})
             </span>

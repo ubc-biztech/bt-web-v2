@@ -61,9 +61,7 @@ export default function BluePrintQuests2026({
           </Link>
           <div className="flex items-center gap-2">
             <Sparkles className="text-[#6299ff]" size={18} />
-            <h1 className="text-lg font-medium text-white">
-              Quests
-            </h1>
+            <h1 className="text-lg font-medium text-white">Quests</h1>
             <span className="text-xs text-[#778191]">
               ({completedCount}/{totalQuests})
             </span>
@@ -102,7 +100,10 @@ export default function BluePrintQuests2026({
                 : 0;
 
               return (
-                <div key={quest.id} className="p-4 rounded-xl bg-black/40 border border-white/10">
+                <div
+                  key={quest.id}
+                  className="p-4 rounded-xl bg-black/40 border border-white/10"
+                >
                   <div className="flex items-start gap-3">
                     {/* Icon */}
                     <div className="flex-shrink-0 mt-0.5">

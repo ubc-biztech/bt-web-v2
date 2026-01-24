@@ -182,10 +182,14 @@ export default function BluePrintProfile2026(
           }}
           eventId={eventId}
           year={year}
-          currentUserProfile={currentUserProfile ? {
-            viewableMap: currentUserProfile.viewableMap,
-            profilePictureURL: currentUserProfile.profilePictureURL,
-          } : null}
+          currentUserProfile={
+            currentUserProfile
+              ? {
+                  viewableMap: currentUserProfile.viewableMap,
+                  profilePictureURL: currentUserProfile.profilePictureURL,
+                }
+              : null
+          }
         />
       </BluePrintLayout>
     );
@@ -195,7 +199,7 @@ export default function BluePrintProfile2026(
     <BluePrintLayout>
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
-      
+
       <motion.div
         className="flex flex-col gap-2 pb-6"
         variants={containerVariants}
@@ -511,7 +515,10 @@ function BluePrintEditProfile({
       funQuestion2: profile.funQuestion2 || "",
       linkedIn: profile.linkedIn || "",
       additionalLink: profile.additionalLink || "",
-      profilePictureURL: currentUserProfile?.profilePictureURL || profile.profilePictureURL || "",
+      profilePictureURL:
+        currentUserProfile?.profilePictureURL ||
+        profile.profilePictureURL ||
+        "",
       viewableMap: currentUserProfile?.viewableMap || {},
     },
   });
@@ -564,7 +571,7 @@ function BluePrintEditProfile({
     <>
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
-      
+
       <motion.div
         className="flex flex-col gap-4 pb-8"
         variants={containerVariants}
@@ -581,123 +588,129 @@ function BluePrintEditProfile({
             onClick={onCancel}
             type="button"
           >
-          <X size={16} />
-          Cancel
-        </BluePrintButton>
-      </motion.div>
-
-      <motion.div variants={itemVariants}>
-        <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent text-center">
-          Edit Profile
-        </h1>
-      </motion.div>
-
-      {/* Form */}
-      <motion.div variants={itemVariants}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          {/* Description */}
-          <BluePrintCard className="bg-black/40 border-white/20">
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              About You
-            </label>
-            <textarea
-              {...register("description")}
-              placeholder="Tell people about yourself..."
-              rows={4}
-              className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
-            />
-          </BluePrintCard>
-
-          {/* Hobbies */}
-          <BluePrintCard className="bg-black/40 border-white/20">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles size={16} className="text-[#6299ff]" />
-              <span className="text-sm font-medium text-white/80">
-                Hobbies & Interests
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <input
-                {...register("hobby1")}
-                placeholder="Hobby 1"
-                className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-              <input
-                {...register("hobby2")}
-                placeholder="Hobby 2"
-                className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-            </div>
-          </BluePrintCard>
-
-          {/* Fun Questions */}
-          <BluePrintCard className="bg-black/40 border-white/20">
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              Fun Questions
-            </label>
-            <div className="flex flex-col gap-3">
-              <input
-                {...register("funQuestion1")}
-                placeholder="Share something fun about yourself"
-                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-              <input
-                {...register("funQuestion2")}
-                placeholder="Another fun fact"
-                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-              />
-            </div>
-          </BluePrintCard>
-
-          {/* Links */}
-          <BluePrintCard className="bg-black/40 border-white/20">
-            <label className="text-sm font-medium text-white/80 mb-2 block">
-              Social Links
-            </label>
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Linkedin size={18} className="text-[#6299ff] flex-shrink-0" />
-                <input
-                  {...register("linkedIn")}
-                  placeholder="https://linkedin.com/in/yourprofile"
-                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <ExternalLink
-                  size={18}
-                  className="text-[#6299ff] flex-shrink-0"
-                />
-                <input
-                  {...register("additionalLink")}
-                  placeholder="https://yourportfolio.com"
-                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
-                />
-              </div>
-            </div>
-          </BluePrintCard>
-
-          {/* Submit Button */}
-          <BluePrintButton
-            type="submit"
-            className="w-full justify-center py-4"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save size={18} />
-                Save Changes
-              </>
-            )}
+            <X size={16} />
+            Cancel
           </BluePrintButton>
-        </form>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent text-center">
+            Edit Profile
+          </h1>
+        </motion.div>
+
+        {/* Form */}
+        <motion.div variants={itemVariants}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            {/* Description */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                About You
+              </label>
+              <textarea
+                {...register("description")}
+                placeholder="Tell people about yourself..."
+                rows={4}
+                className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50 resize-none"
+              />
+            </BluePrintCard>
+
+            {/* Hobbies */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <div className="flex items-center gap-2 mb-4">
+                <Sparkles size={16} className="text-[#6299ff]" />
+                <span className="text-sm font-medium text-white/80">
+                  Hobbies & Interests
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  {...register("hobby1")}
+                  placeholder="Hobby 1"
+                  className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+                <input
+                  {...register("hobby2")}
+                  placeholder="Hobby 2"
+                  className="bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+              </div>
+            </BluePrintCard>
+
+            {/* Fun Questions */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                Fun Questions
+              </label>
+              <div className="flex flex-col gap-3">
+                <input
+                  {...register("funQuestion1")}
+                  placeholder="Share something fun about yourself"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+                <input
+                  {...register("funQuestion2")}
+                  placeholder="Another fun fact"
+                  className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                />
+              </div>
+            </BluePrintCard>
+
+            {/* Links */}
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label className="text-sm font-medium text-white/80 mb-2 block">
+                Social Links
+              </label>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <Linkedin
+                    size={18}
+                    className="text-[#6299ff] flex-shrink-0"
+                  />
+                  <input
+                    {...register("linkedIn")}
+                    placeholder="https://linkedin.com/in/yourprofile"
+                    className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <ExternalLink
+                    size={18}
+                    className="text-[#6299ff] flex-shrink-0"
+                  />
+                  <input
+                    {...register("additionalLink")}
+                    placeholder="https://yourportfolio.com"
+                    className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  />
+                </div>
+              </div>
+            </BluePrintCard>
+
+            {/* Submit Button */}
+            <BluePrintButton
+              type="submit"
+              className="w-full justify-center py-4"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Save Changes
+                </>
+              )}
+            </BluePrintButton>
+          </form>
+        </motion.div>
       </motion.div>
-    </motion.div>
     </>
   );
 }

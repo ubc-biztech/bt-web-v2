@@ -28,9 +28,21 @@ export interface SearchResult {
   objectID: string; // email
   _highlightResult?: {
     name?: { value: string; matchLevel: string; matchedWords: string[] };
-    companiesWorkedAt?: { value: string; matchLevel: string; matchedWords: string[] };
-    rolesInterested?: { value: string; matchLevel: string; matchedWords: string[] };
-    industriesInterested?: { value: string; matchLevel: string; matchedWords: string[] };
+    companiesWorkedAt?: {
+      value: string;
+      matchLevel: string;
+      matchedWords: string[];
+    };
+    rolesInterested?: {
+      value: string;
+      matchLevel: string;
+      matchedWords: string[];
+    };
+    industriesInterested?: {
+      value: string;
+      matchLevel: string;
+      matchedWords: string[];
+    };
     resumeText?: { value: string; matchLevel: string; matchedWords: string[] };
   };
 }
