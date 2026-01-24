@@ -35,7 +35,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Foundation. Elegance. First principles.",
     description:
       "You build the systems that everything else stands on. You thrive in early-stage chaos where you can shape the technical DNA from scratch.",
-    roles: ["Founding Engineer", "Systems Architect", "Quant Developer", "Security Engineer"],
+    roles: [
+      "Founding Engineer",
+      "Systems Architect",
+      "Quant Developer",
+      "Security Engineer",
+    ],
     superpower: "Turning whiteboard ideas into production reality.",
   },
   TMFH: {
@@ -43,7 +48,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Empathy. Craft. Impact.",
     description:
       "You believe great products start with understanding people. You code with the user's experience in mind, not just the spec.",
-    roles: ["Product Engineer", "UX Engineer", "Developer Advocate", "Technical Writer"],
+    roles: [
+      "Product Engineer",
+      "UX Engineer",
+      "Developer Advocate",
+      "Technical Writer",
+    ],
     superpower: "Building what users actually need.",
   },
   TMSL: {
@@ -51,7 +61,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Optimize. Scale. Automate.",
     description:
       "You're the systematic problem-solver who makes systems faster, cheaper, and more reliable. Inefficiency is your nemesis.",
-    roles: ["Backend Engineer", "Data Engineer", "DevOps Engineer", "Machine Learning Engineer"],
+    roles: [
+      "Backend Engineer",
+      "Data Engineer",
+      "DevOps Engineer",
+      "Machine Learning Engineer",
+    ],
     superpower: "Making things work at 10x the scale.",
   },
   TMSH: {
@@ -59,7 +74,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Code. Coach. Elevate.",
     description:
       "You write great code, but your real output is great engineers. You grow teams while shipping features.",
-    roles: ["Staff Engineer", "Engineering Manager", "Technical Trainer", "Solutions Architect"],
+    roles: [
+      "Staff Engineer",
+      "Engineering Manager",
+      "Technical Trainer",
+      "Solutions Architect",
+    ],
     superpower: "Multiplying team effectiveness.",
   },
 
@@ -69,7 +89,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Vision. Roadmap. Execution.",
     description:
       "You see the technical future and know how to get there. You stop teams from building the wrong thing beautifully.",
-    roles: ["CTO", "Technical Product Manager", "Venture Capital (Tech)", "R&D Director"],
+    roles: [
+      "CTO",
+      "Technical Product Manager",
+      "Venture Capital (Tech)",
+      "R&D Director",
+    ],
     superpower: "Aligning technology with business goals.",
   },
   TDFH: {
@@ -77,7 +102,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Culture. Talent. Momentum.",
     description:
       "You build and inspire technical teams. You know that great technology comes from great people working together.",
-    roles: ["Engineering Director", "Head of Developer Relations", "Technical Recruiter", "Startup Advisor"],
+    roles: [
+      "Engineering Director",
+      "Head of Developer Relations",
+      "Technical Recruiter",
+      "Startup Advisor",
+    ],
     superpower: "Turning good engineers into great teams.",
   },
   TDSL: {
@@ -85,7 +115,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Performance. Reliability. Excellence.",
     description:
       "You solve scale challenges with elegance. You make systems faster, more reliable, and more cost-effective as they grow.",
-    roles: ["Principal Engineer", "Cloud Architect", "Technical Program Manager", "Performance Consultant"],
+    roles: [
+      "Principal Engineer",
+      "Cloud Architect",
+      "Technical Program Manager",
+      "Performance Consultant",
+    ],
     superpower: "Finding the bottleneck everyone else missed.",
   },
   TDSH: {
@@ -93,7 +128,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Lead. Scale. Deliver.",
     description:
       "You scale organizations as effectively as systems. You build high-performing teams and create cultures of engineering excellence.",
-    roles: ["VP of Engineering", "CTO", "Chief Information Officer", "Technical Co-founder"],
+    roles: [
+      "VP of Engineering",
+      "CTO",
+      "Chief Information Officer",
+      "Technical Co-founder",
+    ],
     superpower: "Building engineering orgs that ship.",
   },
 
@@ -103,7 +143,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Hustle. Hack. Ship.",
     description:
       "You make things happen with whatever tools you've got. Spreadsheets, no-code, sheer willpower—whatever it takes.",
-    roles: ["Growth Engineer", "Revenue Operations", "Product Analyst", "Technical Consultant"],
+    roles: [
+      "Growth Engineer",
+      "Revenue Operations",
+      "Product Analyst",
+      "Technical Consultant",
+    ],
     superpower: "Getting the first 1,000 users.",
   },
   BMFH: {
@@ -111,7 +156,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Story. Community. Movement.",
     description:
       "You build tribes around ideas. The product matters, but the narrative is what makes people care.",
-    roles: ["Developer Advocate", "Community Manager", "Content Marketing", "Brand Strategist"],
+    roles: [
+      "Developer Advocate",
+      "Community Manager",
+      "Content Marketing",
+      "Brand Strategist",
+    ],
     superpower: "Turning customers into superfans.",
   },
   BMSL: {
@@ -119,7 +169,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Data. Truth. Signal.",
     description:
       "Opinions are nice, spreadsheets are better. You find the insights and opportunities that others miss.",
-    roles: ["Data Analyst", "Business Intelligence", "Product Analytics", "Management Consultant"],
+    roles: [
+      "Data Analyst",
+      "Business Intelligence",
+      "Product Analytics",
+      "Management Consultant",
+    ],
     superpower: "Predicting the future with data.",
   },
   BMSH: {
@@ -127,7 +182,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Connect. Trust. Close.",
     description:
       "You don't just meet people—you connect ecosystems. Business is relationships, everything else is details.",
-    roles: ["Customer Success", "Sales Engineer", "Partnerships Manager", "Account Executive"],
+    roles: [
+      "Customer Success",
+      "Sales Engineer",
+      "Partnerships Manager",
+      "Account Executive",
+    ],
     superpower: "The relationship that closes the deal.",
   },
 
@@ -137,7 +197,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Build. Own. Disrupt.",
     description:
       "You see problems as opportunities. You're driven to create companies that make a dent in the universe.",
-    roles: ["Startup Founder", "Entrepreneur in Residence", "Venture Capital", "Product Lead"],
+    roles: [
+      "Startup Founder",
+      "Entrepreneur in Residence",
+      "Venture Capital",
+      "Product Lead",
+    ],
     superpower: "Creating something from nothing.",
   },
   BDFH: {
@@ -145,7 +210,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Inspire. Rally. Lead.",
     description:
       "You hold the flag. You convince investors, talent, and customers to believe in the impossible.",
-    roles: ["CEO", "Chief Marketing Officer", "Head of People", "Nonprofit Director"],
+    roles: [
+      "CEO",
+      "Chief Marketing Officer",
+      "Head of People",
+      "Nonprofit Director",
+    ],
     superpower: "The reality distortion field.",
   },
   BDSL: {
@@ -153,7 +223,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "Strategy. Structure. Scale.",
     description:
       "You design how organizations work. You look at the market and decide where the ship turns.",
-    roles: ["COO", "Strategy Consultant", "Investment Banking", "Corporate Development"],
+    roles: [
+      "COO",
+      "Strategy Consultant",
+      "Investment Banking",
+      "Corporate Development",
+    ],
     superpower: "Seeing the 30,000ft view.",
   },
   BDSH: {
@@ -161,7 +236,12 @@ const QUIZ_TYPE_DATA: Record<
     vibe: "People. Culture. Results.",
     description:
       "You lead through inspiration, not authority. You build organizations where people thrive and results follow.",
-    roles: ["General Manager", "Chief of Staff", "HR Director", "Executive Coach"],
+    roles: [
+      "General Manager",
+      "Chief of Staff",
+      "HR Director",
+      "Executive Coach",
+    ],
     superpower: "Making teams greater than their parts.",
   },
 };
