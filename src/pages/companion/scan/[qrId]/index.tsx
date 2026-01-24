@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { QrCodeIcon } from "lucide-react";
@@ -43,6 +43,8 @@ const Index = () => {
   const [pageError, setPageError] = useState("");
   const [qrData, setQrData] = useState<Qr | null>(null);
   const [loadingQr, setQrLoading] = useState(true);
+  
+  const processedScanRef = useRef<string | null>(null);
 
   const events = Events.sort((a, b) => {
     return a.activeUntil.getTime() - b.activeUntil.getTime();
@@ -177,6 +179,12 @@ const Index = () => {
     }
 
     const { type, id } = qrData;
+    const scanKey = `${type}-${id}`;
+
+    if (processedScanRef.current === scanKey) {
+      return;
+    }
+
     const userID = localStorage.getItem(COMPANION_EMAIL_KEY);
 
     if (!userID) {
@@ -184,7 +192,8 @@ const Index = () => {
       return;
     }
 
-    postInteraction(userID || "", type, id); // TODO integrate profiles
+    processedScanRef.current = scanKey;
+    postInteraction(userID || "", type, id);
   }, [qrData]);
 
   if (

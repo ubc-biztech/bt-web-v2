@@ -32,6 +32,7 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
 
     if (!signedIn) {
       await router.push(`/login?redirect=/profile/${profileID}?scan=true`);
+      return;
     }
 
     try {
