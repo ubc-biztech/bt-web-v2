@@ -23,7 +23,6 @@ const satoshiStyle = {
   fontFamily: '"Satoshi Variable","Satoshi",var(--font-urbanist),sans-serif',
 } as const;
 
-
 export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
   const { data: quizReport, isLoading, error } = useQuizReport();
 
