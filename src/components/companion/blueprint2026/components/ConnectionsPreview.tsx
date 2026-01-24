@@ -26,7 +26,7 @@ export default function ConnectionsPreview({
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
       {recentConnections.length === 0 ? (
-        <div className="mx-16 my-6 text-center text-sm text-[#778191]">
+        <div className="mx-16 my-6 text-center text-sm text-white/70">
           No connections yet. Tap someone&apos;s NFC to get started!
         </div>
       ) : (
@@ -65,7 +65,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             <span className="text-white font-medium text-sm">
               {connection.fname} {connection.lname}
             </span>
-            <span className="text-[#778191] text-xs">
+            <span className="text-white/65 text-xs">
               {connection.pronouns && `${connection.pronouns} · `}
               {connection.major || connectionType}
             </span>
@@ -73,7 +73,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[#778191] text-xs">{timeAgo}</span>
+          <span className="text-white/60 text-xs">{timeAgo}</span>
           <ArrowUpRight size={16} className="text-[#6299ff]" />
         </div>
       </div>

@@ -39,7 +39,7 @@ export default function QuestsPreview({
       <div className="h-[0.5px] mt-2 w-full bg-gradient-to-r from-transparent via-white to-transparent" />
 
       {!quests || sortedQuests.length === 0 ? (
-        <div className="mx-16 my-4 text-center opacity-80">
+        <div className="mx-16 my-4 text-center text-white/70">
           {"No quests available"}
         </div>
       ) : (
@@ -52,10 +52,10 @@ export default function QuestsPreview({
             return (
               <div key={quest.id} className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/90">
+                  <span className="text-white">
                     {quest.description ?? quest.id}
                   </span>
-                  <span className="text-white/60 text-xs">
+                  <span className="text-white/75 text-xs font-medium">
                     {quest.progress}/{quest.target ?? "∞"}
                   </span>
                 </div>

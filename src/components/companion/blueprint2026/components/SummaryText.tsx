@@ -20,15 +20,15 @@ export default function SummaryText({
           {name}
         </h3>
       </span>
-      <span className="text-md text-[#778191]">
+      <span className="text-md text-white/75">
         You&apos;ve made{" "}
-        <span className="inline-flex items-baseline gap-1 text-white">
+        <span className="inline-flex items-baseline gap-1 text-white font-medium">
           <BookUser size={16} />
           {connectionsMade} connections
         </span>{" "}
         and completed{" "}
-        <span className="inline-flex items-baseline gap-1 text-white">
-          <CircleStar size={16} className="opacity-80" />
+        <span className="inline-flex items-baseline gap-1 text-white font-medium">
+          <CircleStar size={16} />
           {questsComplete} quests
         </span>{" "}
         at BluePrint so far.
