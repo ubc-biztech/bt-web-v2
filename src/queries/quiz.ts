@@ -54,14 +54,16 @@ export async function uploadQuizResults(
 }
 
 /**
- * Get a user's quiz report (authenticated - user identified by token)
+ * Get a user's quiz report by profile ID (unauthenticated)
  */
-export async function getQuizReport(): Promise<QuizReport | null> {
+export async function getQuizReport(
+  profileId: string,
+): Promise<QuizReport | null> {
   try {
     const response = await fetchBackend({
-      endpoint: `/quizzes/report`,
+      endpoint: `/quizzes/report/${profileId}`,
       method: "GET",
-      authenticatedCall: true,
+      authenticatedCall: false,
     });
     return response?.data ?? response ?? null;
   } catch (error: any) {
@@ -122,12 +124,13 @@ export async function getWrappedStats(mbti: string): Promise<WrappedStats> {
 }
 
 /**
- * React Query hook for fetching a user's quiz report (authenticated)
+ * React Query hook for fetching a user's quiz report by profile ID
  */
-export function useQuizReport() {
+export function useQuizReport(profileId?: string) {
   return useQuery({
-    queryKey: ["quizReport"],
-    queryFn: () => getQuizReport(),
+    queryKey: ["quizReport", profileId],
+    queryFn: () => getQuizReport(profileId!),
+    enabled: !!profileId,
     staleTime: 60 * 1000,
   });
 }

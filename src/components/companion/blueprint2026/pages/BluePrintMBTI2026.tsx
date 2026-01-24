@@ -7,6 +7,7 @@ import BluePrintButton from "../components/BluePrintButton";
 import { DynamicPageProps } from "@/constants/companion-events";
 import { useQuizReport, useWrappedStats } from "@/queries/quiz";
 import { getQuizTypeDisplay } from "@/util/quizType";
+import { useUserProfile, getProfileId } from "@/queries/userProfile";
 
 const libre = Libre_Baskerville({
   subsets: ["latin"],
@@ -24,7 +25,17 @@ const satoshiStyle = {
 } as const;
 
 export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
-  const { data: quizReport, isLoading, error } = useQuizReport();
+  // Get user profile to extract profile ID
+  const { data: userProfile } = useUserProfile();
+  const profileId = userProfile?.compositeID
+    ? getProfileId(userProfile.compositeID)
+    : null;
+
+  const {
+    data: quizReport,
+    isLoading,
+    error,
+  } = useQuizReport(profileId ?? undefined);
 
   const { data: wrappedStats } = useWrappedStats(quizReport?.mbti);
 

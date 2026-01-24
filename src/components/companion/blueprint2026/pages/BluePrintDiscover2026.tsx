@@ -7,6 +7,7 @@ import { DynamicPageProps } from "@/constants/companion-events";
 import Link from "next/link";
 import { useQuizReport, useRecommendationsByMbti } from "@/queries/quiz";
 import { useSemanticSearch, SearchResult } from "@/queries/connections";
+import { useUserProfile, getProfileId } from "@/queries/userProfile";
 
 const SEARCH_SUGGESTIONS = [
   "startup founders",
@@ -37,8 +38,14 @@ export default function BluePrintDiscover2026({
     null,
   );
 
+  // Get user profile to extract profile ID
+  const { data: userProfile } = useUserProfile();
+  const profileId = userProfile?.compositeID
+    ? getProfileId(userProfile.compositeID)
+    : null;
+
   // Get user's MBTI for recommendations
-  const { data: quizReport } = useQuizReport();
+  const { data: quizReport } = useQuizReport(profileId ?? undefined);
   const userMbti = quizReport?.mbti;
 
   // Get recommendations based on user's MBTI
@@ -84,16 +91,19 @@ export default function BluePrintDiscover2026({
   };
 
   // Transform recommendations to display format
-  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map((rec) => {
-    const fullName = rec.fname && rec.lname
-      ? `${rec.fname} ${rec.lname}`
-      : rec.fname || rec.lname || rec.id || "Unknown";
-    return {
-      id: rec.id || "unknown",
-      name: fullName,
-      mbti: rec.mbti,
-    };
-  });
+  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map(
+    (rec) => {
+      const fullName =
+        rec.fname && rec.lname
+          ? `${rec.fname} ${rec.lname}`
+          : rec.fname || rec.lname || rec.id || "Unknown";
+      return {
+        id: rec.id || "unknown",
+        name: fullName,
+        mbti: rec.mbti,
+      };
+    },
+  );
 
   // Transform search results to display format - using actual API response structure
   const searchedPeople: DisplayPerson[] = (searchResults ?? []).map(

@@ -116,13 +116,17 @@ export default function QuizResultsPreview() {
   const { eventId, year } = router.query;
   const [showQRModal, setShowQRModal] = useState(false);
 
-  const { data: quizReport, isLoading: quizLoading } = useQuizReport();
   const { data: userProfile, isLoading: profileLoading } = useUserProfile();
 
-  const hasQuizResults = !quizLoading && quizReport !== null;
   const profileId = userProfile?.compositeID
     ? getProfileId(userProfile.compositeID)
     : null;
+
+  const { data: quizReport, isLoading: quizLoading } = useQuizReport(
+    profileId ?? undefined,
+  );
+
+  const hasQuizResults = !quizLoading && quizReport !== null;
 
   const domain =
     typeof window !== "undefined"

@@ -3,10 +3,17 @@ import BluePrintButton from "./BluePrintButton";
 import Link from "next/link";
 import { Search, Loader2 } from "lucide-react";
 import { useQuizReport, useRecommendationsByMbti } from "@/queries/quiz";
+import { useUserProfile, getProfileId } from "@/queries/userProfile";
 
 export default function RecommendedConnectionsPreview() {
+  // Get user profile to extract profile ID
+  const { data: userProfile } = useUserProfile();
+  const profileId = userProfile?.compositeID
+    ? getProfileId(userProfile.compositeID)
+    : null;
+
   // Get user's MBTI for recommendations
-  const { data: quizReport } = useQuizReport();
+  const { data: quizReport } = useQuizReport(profileId ?? undefined);
   const userMbti = quizReport?.mbti;
 
   // Get recommendations based on user's MBTI
@@ -14,9 +21,10 @@ export default function RecommendedConnectionsPreview() {
     useRecommendationsByMbti(userMbti);
 
   const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => {
-    const fullName = rec.fname && rec.lname
-      ? `${rec.fname} ${rec.lname}`
-      : rec.fname || rec.lname || rec.id || "Unknown";
+    const fullName =
+      rec.fname && rec.lname
+        ? `${rec.fname} ${rec.lname}`
+        : rec.fname || rec.lname || rec.id || "Unknown";
     return {
       id: rec.id || "unknown",
       name: fullName,
@@ -92,7 +100,9 @@ export default function RecommendedConnectionsPreview() {
                         {initials}
                       </span>
                     </div>
-                    <span className="text-white font-medium text-sm">{displayName}</span>
+                    <span className="text-white font-medium text-sm">
+                      {displayName}
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-[#6299ff] text-xs font-medium px-2 py-1 rounded-full bg-[#6299ff]/20 border border-[#6299ff]/30">
