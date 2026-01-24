@@ -9,10 +9,10 @@ import { useQuizReport, useRecommendationsByMbti } from "@/queries/quiz";
 import { useSemanticSearch, SearchResult } from "@/queries/connections";
 
 const SEARCH_SUGGESTIONS = [
-  "a Google intern",
   "startup founders",
   "backend engineers",
   "looking for co-founders",
+  "product managers",
 ];
 
 interface DisplayPerson {
@@ -79,11 +79,16 @@ export default function BluePrintDiscover2026({
   };
 
   // Transform recommendations to display format
-  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map((rec) => ({
-    id: rec.id || "unknown",
-    name: rec.id || "Unknown", // Will need to fetch profile data to get actual name
-    mbti: rec.mbti,
-  }));
+  const recommendedPeople: DisplayPerson[] = (recommendations ?? []).map((rec) => {
+    const fullName = rec.fname && rec.lname
+      ? `${rec.fname} ${rec.lname}`
+      : rec.fname || rec.lname || rec.id || "Unknown";
+    return {
+      id: rec.id || "unknown",
+      name: fullName,
+      mbti: rec.mbti,
+    };
+  });
 
   // Transform search results to display format - using actual API response structure
   const searchedPeople: DisplayPerson[] = (searchResults ?? []).map((result) => ({
@@ -105,7 +110,7 @@ export default function BluePrintDiscover2026({
       
       <div className="flex flex-col gap-3 pb-6">
         {/* Header with Title */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <Link href={`/events/${eventId}/${year}/companion`}>
             <BluePrintButton className="text-xs px-2.5 py-1.5">
               <ArrowLeft size={14} />
@@ -139,7 +144,7 @@ export default function BluePrintDiscover2026({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  placeholder='Try "a Google intern" or "startup founders"'
+                  placeholder='Try "startup founders" or "backend engineers"'
                   className="flex-1 bg-transparent text-white placeholder-white/40 text-sm outline-none"
                 />
                 {searchQuery && (
@@ -225,9 +230,9 @@ export default function BluePrintDiscover2026({
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-white/60">
-              {activeTab === "recommended" 
-                ? userMbti 
-                  ? `People with the same type: ${userMbti}` 
+              {activeTab === "recommended"
+                ? userMbti
+                  ? "People you might connect with"
                   : "Take the quiz to get recommendations"
                 : `Found ${searchResults?.length || 0} people`}
             </span>
@@ -281,16 +286,11 @@ function PersonCard({
     .join("")
     .slice(0, 2) || "?";
 
-  const matchReason = person.mbti 
-    ? person.mbti === userMbti 
-      ? `Same type: ${person.mbti}`
-      : `Type: ${person.mbti}`
-    : undefined;
 
   return (
-    <BluePrintCard className="p-4">
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
+    <BluePrintCard className="p-4 cursor-default">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] flex items-center justify-center flex-shrink-0">
             <span className="text-[#0A1428] font-bold text-sm">{initials}</span>
           </div>
@@ -301,11 +301,6 @@ function PersonCard({
             )}
             {person.roles && (
               <span className="text-[#6299ff] text-xs">{person.roles}</span>
-            )}
-            {matchReason && (
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[#6299ff] text-xs font-medium">{matchReason}</span>
-              </div>
             )}
           </div>
         </div>

@@ -2,7 +2,7 @@ import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Connection } from "@/pages/connections";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, BookUser } from "lucide-react";
 
 export default function ConnectionsPreview({
   connections,
@@ -16,7 +16,10 @@ export default function ConnectionsPreview({
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
-        <div className="text-md font-medium">Your Connections</div>
+        <div className="flex items-center gap-2">
+          <BookUser size={16} className="text-[#6299ff]" />
+          <div className="text-md font-medium">Your Connections</div>
+        </div>
         <Link href="/events/blueprint/2026/companion/connections">
           <BluePrintButton className="text-xs px-3 py-2">
             VIEW ALL

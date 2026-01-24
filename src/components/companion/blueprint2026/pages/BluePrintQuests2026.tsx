@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import {
   ArrowLeft,
-  Sparkles,
+  CircleStar,
   Target,
   CheckCircle2,
   Circle,
@@ -52,7 +52,7 @@ export default function BluePrintQuests2026({
     <BluePrintLayout>
       <div className="flex flex-col gap-3 pb-6">
         {/* Header with Title */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <Link href={`/events/${routeEventId}/${routeYear}/companion`}>
             <BluePrintButton className="text-xs px-2.5 py-1.5">
               <ArrowLeft size={14} />
@@ -60,7 +60,7 @@ export default function BluePrintQuests2026({
             </BluePrintButton>
           </Link>
           <div className="flex items-center gap-2">
-            <Sparkles className="text-[#6299ff]" size={18} />
+            <CircleStar className="text-[#6299ff]" size={18} />
             <h1 className="text-lg font-medium text-white">
               Quests
             </h1>
@@ -84,7 +84,7 @@ export default function BluePrintQuests2026({
         {!isLoading && sortedQuests.length === 0 && (
           <BluePrintCard>
             <div className="text-center py-8">
-              <Sparkles className="mx-auto text-white/40 mb-3" size={48} />
+              <CircleStar className="mx-auto text-white/40 mb-3" size={48} />
               <p className="text-white">No quests available</p>
               <p className="text-white/60 text-sm mt-2">
                 Check back later for new challenges!

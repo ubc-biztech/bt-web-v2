@@ -2,6 +2,7 @@ import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import { Quests } from "@/queries/quests";
 import Link from "next/link";
+import { CircleStar } from "lucide-react";
 
 export default function QuestsPreview({
   quests,
@@ -31,7 +32,10 @@ export default function QuestsPreview({
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
-        <div className="text-md font-medium">Quests</div>
+        <div className="flex items-center gap-2">
+          <CircleStar size={16} className="text-[#6299ff]" />
+          <div className="text-md font-medium">Quests</div>
+        </div>
         <Link href="/events/blueprint/2026/companion/quests">
           <BluePrintButton className="text-xs p-4">VIEW ALL</BluePrintButton>
         </Link>

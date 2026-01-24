@@ -157,9 +157,9 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
         )}
 
         <Link href={`/events/${eventId}/${year}/companion/connections`}>
-          <BluePrintButton className="px-4 py-1.5 text-xs">
+          <BluePrintButton className="px-5 py-2.5 text-sm bg-white text-[#0A1428] border-white hover:bg-white/90 font-medium">
             View Recommended Connections
-            <ArrowUpRight size={14} />
+            <ArrowUpRight size={16} />
           </BluePrintButton>
         </Link>
       </div>

@@ -5,7 +5,7 @@ import {
   Search,
   ArrowLeft,
   ArrowUpRight,
-  Users,
+  BookUser,
   ArrowUpDown,
 } from "lucide-react";
 import BluePrintLayout from "@/components/companion/blueprint2026/layout/BluePrintLayout";
@@ -106,7 +106,7 @@ const ConnectionsPage = () => {
     <BluePrintLayout>
       <div className="flex flex-col gap-3 pb-6">
         {/* Header with Title */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-4">
           <Link href={`/events/${eventId}/${year}/companion`}>
             <BluePrintButton className="text-xs px-3 py-1.5">
               <ArrowLeft size={14} />
@@ -114,7 +114,7 @@ const ConnectionsPage = () => {
             </BluePrintButton>
           </Link>
           <div className="flex items-center gap-2">
-            <Users className="text-[#6299ff]" size={18} />
+            <BookUser className="text-[#6299ff]" size={18} />
             <h1 className="text-lg font-medium text-white">
               Your Connections
             </h1>
@@ -206,7 +206,7 @@ const ConnectionsPage = () => {
         {!isLoading && !isError && filteredConnections.length === 0 && (
           <BluePrintCard>
             <div className="text-center py-8">
-              <Users className="mx-auto text-[#778191] mb-3" size={48} />
+              <BookUser className="mx-auto text-[#778191] mb-3" size={48} />
               {searchQuery || connectionType !== "ALL" ? (
                 <>
                   <p className="text-white">No connections found</p>

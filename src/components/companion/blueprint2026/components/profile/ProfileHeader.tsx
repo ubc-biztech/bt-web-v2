@@ -8,6 +8,8 @@ interface ProfileHeaderProps {
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
   const fullName = `${profile.fname} ${profile.lname}`;
   const isPartner = profile.type === "Partner";
+  const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
+  const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
 
   return (
     <div className="flex flex-col items-center gap-4 py-6">
@@ -18,13 +20,14 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
         </div>
         <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[3px]">
           <div className="w-full h-full rounded-full overflow-hidden bg-[#0A1428]">
-            {profile.profilePictureURL ? (
+            {showProfilePicture ? (
               <Image
-                src={profile.profilePictureURL}
+                src={profile.profilePictureURL!}
                 alt={fullName}
                 width={112}
                 height={112}
                 className="w-full h-full object-cover"
+                unoptimized
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xl font-medium text-white/60">
@@ -43,7 +46,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
 
       {/* Pronouns & Type Badge */}
       <div className="flex items-center gap-3">
-        {profile.pronouns && (
+        {showPronouns && (
           <span className="text-sm text-[#778191]">{profile.pronouns}</span>
         )}
         <span

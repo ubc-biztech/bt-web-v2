@@ -9,6 +9,8 @@ export interface QuizReport {
   environmentAvg: number;
   focusAvg: number;
   mbti: string;
+  fname?: string;
+  lname?: string;
 }
 
 export interface QuizScores {

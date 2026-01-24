@@ -44,6 +44,8 @@ const BluePrint2026 = () => {
 
   return (
     <BluePrintLayout>
+      {/* Dark overlay for better readability */}
+      <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
       <AnimatePresence mode="wait">
         {!isCheckedIn(userRegistration?.registrationStatus) ? (
           <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

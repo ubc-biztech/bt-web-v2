@@ -114,6 +114,7 @@ export default function BluePrintProfile2026(
           company: backendProfile.company,
           companyProfileID: backendProfile.companyProfileID,
           companyProfilePictureURL: backendProfile.companyProfilePictureURL,
+          viewableMap: backendProfile.viewableMap,
         };
 
         setProfile(transformedProfile);
@@ -253,19 +254,22 @@ export default function BluePrintProfile2026(
 function ProfileHeader({ profile }: { profile: UserProfile }) {
   const fullName = `${profile.fname} ${profile.lname}`;
   const isPartner = profile.type === "Partner";
+  const showProfilePicture = profile.profilePictureURL && profile.viewableMap?.profilePictureURL !== false;
+  const showPronouns = profile.pronouns && profile.viewableMap?.pronouns !== false;
 
   return (
     <div className="flex flex-col items-center gap-2 py-3">
       {/* Avatar with gradient border */}
       <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] p-[2px]">
         <div className="w-full h-full rounded-full overflow-hidden bg-[#0A1428]">
-          {profile.profilePictureURL ? (
+          {showProfilePicture ? (
             <Image
-              src={profile.profilePictureURL}
+              src={profile.profilePictureURL!}
               alt={fullName}
               width={80}
               height={80}
               className="w-full h-full object-cover"
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-2xl font-medium text-white/60">
@@ -283,7 +287,7 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
 
       {/* Pronouns & Type Badge */}
       <div className="flex items-center gap-2">
-        {profile.pronouns && (
+        {showPronouns && (
           <span className="text-xs text-[#778191]">{profile.pronouns}</span>
         )}
         <span
@@ -371,14 +375,16 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
 
 // Profile About Component
 function ProfileAbout({ profile }: { profile: UserProfile }) {
-  const hasDescription = !!profile.description;
-  const hasHobbies = profile.hobby1 || profile.hobby2;
+  const showDescription = profile.description && profile.viewableMap?.description !== false;
+  const showHobby1 = profile.hobby1 && profile.viewableMap?.hobby1 !== false;
+  const showHobby2 = profile.hobby2 && profile.viewableMap?.hobby2 !== false;
+  const hasHobbies = showHobby1 || showHobby2;
 
-  if (!hasDescription && !hasHobbies) return null;
+  if (!showDescription && !hasHobbies) return null;
 
   return (
     <BluePrintCard className="bg-black/40 border-white/20">
-      {hasDescription && (
+      {showDescription && (
         <>
           <div className="text-md font-medium mb-2">About {profile.fname}</div>
           <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white to-transparent mb-4" />
@@ -390,7 +396,7 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
 
       {hasHobbies && (
         <>
-          {hasDescription && (
+          {showDescription && (
             <div className="h-[0.5px] w-full bg-gradient-to-r from-transparent via-white/30 to-transparent my-4" />
           )}
           <div className="flex items-center gap-2 mb-3">
@@ -398,12 +404,12 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
             <span className="text-md font-medium">Hobbies & Interests</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {profile.hobby1 && (
+            {showHobby1 && (
               <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby1}
               </span>
             )}
-            {profile.hobby2 && (
+            {showHobby2 && (
               <span className="px-3 py-1.5 text-sm bg-black/30 border border-white/20 rounded-full text-white/80">
                 {profile.hobby2}
               </span>
@@ -417,16 +423,17 @@ function ProfileAbout({ profile }: { profile: UserProfile }) {
 
 // Profile Links Component
 function ProfileLinks({ profile }: { profile: UserProfile }) {
-  const hasLinks = profile.linkedIn || profile.additionalLink;
+  const showLinkedIn = profile.linkedIn && profile.viewableMap?.linkedIn !== false;
+  const showAdditionalLink = profile.additionalLink && profile.viewableMap?.additionalLink !== false;
 
-  if (!hasLinks) return null;
+  if (!showLinkedIn && !showAdditionalLink) return null;
 
   return (
     <div className="flex flex-col gap-3">
-      {profile.linkedIn && (
+      {showLinkedIn && (
         <a
           href={
-            profile.linkedIn.startsWith("http")
+            profile.linkedIn!.startsWith("http")
               ? profile.linkedIn
               : `https://${profile.linkedIn}`
           }
@@ -441,10 +448,10 @@ function ProfileLinks({ profile }: { profile: UserProfile }) {
         </a>
       )}
 
-      {profile.additionalLink && (
+      {showAdditionalLink && (
         <a
           href={
-            profile.additionalLink.startsWith("http")
+            profile.additionalLink!.startsWith("http")
               ? profile.additionalLink
               : `https://${profile.additionalLink}`
           }
@@ -519,10 +526,26 @@ function BluePrintEditProfile({
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true);
     try {
+      // Auto-set viewableMap to true for fields that have values
+      const updatedViewableMap: Record<string, boolean> = {
+        ...data.viewableMap,
+        description: !!data.description?.trim(),
+        hobby1: !!data.hobby1?.trim(),
+        hobby2: !!data.hobby2?.trim(),
+        funQuestion1: !!data.funQuestion1?.trim(),
+        funQuestion2: !!data.funQuestion2?.trim(),
+        linkedIn: !!data.linkedIn?.trim(),
+        additionalLink: !!data.additionalLink?.trim(),
+        profilePictureURL: !!data.profilePictureURL?.trim(),
+      };
+
       await fetchBackend({
         endpoint: "/profiles/user/",
         method: "PATCH",
-        data: data,
+        data: {
+          ...data,
+          viewableMap: updatedViewableMap,
+        },
         authenticatedCall: true,
       });
 

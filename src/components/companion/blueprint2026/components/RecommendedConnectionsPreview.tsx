@@ -1,7 +1,7 @@
 import BluePrintCard from "./BluePrintCard";
 import BluePrintButton from "./BluePrintButton";
 import Link from "next/link";
-import { Sparkles, Search, Loader2 } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { useQuizReport, useRecommendationsByMbti } from "@/queries/quiz";
 
 export default function RecommendedConnectionsPreview() {
@@ -12,21 +12,26 @@ export default function RecommendedConnectionsPreview() {
   // Get recommendations based on user's MBTI
   const { data: recommendations, isLoading } = useRecommendationsByMbti(userMbti);
 
-  const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => ({
-    id: rec.id || "unknown",
-    name: rec.id || "Unknown", // ID is used as name placeholder until profile data is fetched
-    mbti: rec.mbti,
-  }));
+  const displayRecs = (recommendations ?? []).slice(0, 2).map((rec) => {
+    const fullName = rec.fname && rec.lname
+      ? `${rec.fname} ${rec.lname}`
+      : rec.fname || rec.lname || rec.id || "Unknown";
+    return {
+      id: rec.id || "unknown",
+      name: fullName,
+      mbti: rec.mbti,
+    };
+  });
 
   return (
     <BluePrintCard>
       <div className="flex flex-row items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles size={16} className="text-[#6299ff]" />
+          <Search size={16} className="text-[#6299ff]" />
           <div className="text-md font-medium">Recommended For You</div>
         </div>
         <Link href="/events/blueprint/2026/companion/discover">
-          <BluePrintButton className="text-xs px-3 py-2">
+          <BluePrintButton className="text-xs px-3 py-1.5 bg-white/20 border-white/50">
             DISCOVER
           </BluePrintButton>
         </Link>
@@ -45,7 +50,7 @@ export default function RecommendedConnectionsPreview() {
                 Find your perfect connection
               </span>
               <span className="text-white/70 text-xs">
-                Search semantically — try &quot;a Google intern&quot;
+                Search semantically for your perfect match
               </span>
             </div>
           </div>
@@ -86,10 +91,7 @@ export default function RecommendedConnectionsPreview() {
                         {initials}
                       </span>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm">{displayName}</span>
-                      <span className="text-[#6299ff] text-xs">Same type: {rec.mbti}</span>
-                    </div>
+                    <span className="text-white font-medium text-sm">{displayName}</span>
                   </div>
                   <div className="flex items-center">
                     <span className="text-[#6299ff] text-xs font-medium px-2 py-1 rounded-full bg-[#6299ff]/20 border border-[#6299ff]/30">
@@ -104,7 +106,7 @@ export default function RecommendedConnectionsPreview() {
       </div>
 
       <Link href="/events/blueprint/2026/companion/discover">
-        <p className="text-center text-[#6299ff] text-xs mt-3 hover:underline cursor-pointer">
+        <p className="text-center text-white text-sm mt-3 hover:underline cursor-pointer font-medium">
           View all recommendations →
         </p>
       </Link>
