@@ -65,11 +65,7 @@ function ConnectionCard({ connection }: { connection: Connection }) {
             <span className="text-white font-medium text-sm">
               {connection.fname} {connection.lname}
             </span>
-<<<<<<< HEAD
-            <span className="text-[#8791a1] text-xs">
-=======
             <span className="text-white/65 text-xs">
->>>>>>> 0a76265 (made the companion app more readable)
               {connection.pronouns && `${connection.pronouns} · `}
               {connection.major || connectionType}
             </span>
