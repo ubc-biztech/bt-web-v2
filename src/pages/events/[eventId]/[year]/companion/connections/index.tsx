@@ -52,40 +52,40 @@ const ConnectionsPage = () => {
   // Filter and sort connections
   const filteredConnections = connections
     ? [...connections]
-        .filter((connection) => {
-          const searchLower = searchQuery.toLowerCase();
-          const matchesSearch =
-            !searchQuery ||
-            [
-              connection.fname,
-              connection.lname,
-              `${connection.fname} ${connection.lname}`,
-              connection.major,
-              connection.year,
-            ].some((field) => field?.toLowerCase().includes(searchLower));
+      .filter((connection) => {
+        const searchLower = searchQuery.toLowerCase();
+        const matchesSearch =
+          !searchQuery ||
+          [
+            connection.fname,
+            connection.lname,
+            `${connection.fname} ${connection.lname}`,
+            connection.major,
+            connection.year,
+          ].some((field) => field?.toLowerCase().includes(searchLower));
 
-          const currType = connection.connectionType || "ATTENDEE";
-          const matchesType =
-            connectionType === "ALL" || connectionType === currType;
+        const currType = connection.connectionType || "ATTENDEE";
+        const matchesType =
+          connectionType === "ALL" || connectionType === currType;
 
-          return matchesSearch && matchesType;
-        })
-        .sort((a, b) => {
-          switch (sortBy) {
-            case "name-asc":
-              return `${a.fname} ${a.lname}`.localeCompare(
-                `${b.fname} ${b.lname}`,
-              );
-            case "name-desc":
-              return `${b.fname} ${b.lname}`.localeCompare(
-                `${a.fname} ${a.lname}`,
-              );
-            case "year":
-              return (a.year || "").localeCompare(b.year || "");
-            default:
-              return b.createdAt - a.createdAt;
-          }
-        })
+        return matchesSearch && matchesType;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case "name-asc":
+            return `${a.fname} ${a.lname}`.localeCompare(
+              `${b.fname} ${b.lname}`,
+            );
+          case "name-desc":
+            return `${b.fname} ${b.lname}`.localeCompare(
+              `${a.fname} ${a.lname}`,
+            );
+          case "year":
+            return (a.year || "").localeCompare(b.year || "");
+          default:
+            return b.createdAt - a.createdAt;
+        }
+      })
     : [];
 
   const connectionTypes = [
@@ -149,11 +149,10 @@ const ConnectionsPage = () => {
                 <button
                   key={type.value}
                   onClick={() => setConnectionType(type.value)}
-                  className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-all ${
-                    connectionType === type.value
-                      ? "bg-[#6299ff] text-white"
-                      : "bg-black/40 text-white/70 border border-white/20 hover:bg-black/50"
-                  }`}
+                  className={`px-4 py-2 rounded-full text-xs font-mono whitespace-nowrap transition-all ${connectionType === type.value
+                    ? "bg-[#6299ff] text-white"
+                    : "bg-black/40 text-white/70 border border-white/20 hover:bg-black/50"
+                    }`}
                 >
                   {type.label}
                 </button>
@@ -287,7 +286,9 @@ function ConnectionCard({ connection }: { connection: Connection }) {
                       <span className="text-white/60 text-xs">·</span>
                     )}
                     <span className="text-white/70 text-xs truncate">
-                      {connection.major}
+                      {connection.major.length > 30
+                        ? `${connection.major.slice(0, 25)}...`
+                        : connection.major}
                     </span>
                   </>
                 )}
