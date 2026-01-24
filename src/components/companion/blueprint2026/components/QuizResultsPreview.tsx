@@ -128,7 +128,9 @@ export default function QuizResultsPreview() {
     typeof window !== "undefined"
       ? window.location.origin
       : "https://v2.ubcbiztech.com";
-  const profileUrl = profileId ? `${domain}/profile/${profileId}?scan=true` : "";
+  const profileUrl = profileId
+    ? `${domain}/profile/${profileId}?scan=true`
+    : "";
 
   // Show loading state while checking quiz status
   if (quizLoading) {
