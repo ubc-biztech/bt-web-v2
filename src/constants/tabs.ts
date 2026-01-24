@@ -12,6 +12,7 @@ import {
   Users,
   ScanFace,
   BadgeCheckIcon,
+  Sparkles,
 } from "lucide-react";
 
 export const admin = [
@@ -77,6 +78,12 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
       icon: ScanFace,
     });
   }
+
+  links.push({
+    title: "Companion",
+    link: "/companion",
+    icon: Sparkles,
+  });
 
   return links;
 };
