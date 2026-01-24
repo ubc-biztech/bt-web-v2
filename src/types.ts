@@ -56,13 +56,10 @@ export type UserProfile = {
   major?: string;
   year?: string;
   eventIDYear: string;
-  name?: string;
   role?: string;
+  company?: string;
   createdAt: number;
   updatedAt: number;
-  company?: string;
-  companyProfileID?: string;
-  companyProfilePictureURL?: string;
 };
 
 export enum DBRegistrationStatus {
@@ -150,7 +147,7 @@ export type BackendProfile = {
   fname: string;
   lname: string;
   pronouns: string;
-  type: string;
+  profileType: string;
   hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
@@ -162,13 +159,10 @@ export type BackendProfile = {
   major?: string;
   year?: string;
   eventIDYear: string;
-  role?: string;
-  name?: string;
+  position?: string;
   createdAt: number;
   updatedAt: number;
   company?: string;
-  companyProfileID?: string;
-  companyProfilePictureURL?: string;
 };
 
 export type Member = {

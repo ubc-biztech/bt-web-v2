@@ -95,7 +95,7 @@ export default function BluePrintProfile2026(
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
-          type: backendProfile.type as "Partner" | "Attendee",
+          type: backendProfile.profileType,
           hobby1: backendProfile.hobby1,
           hobby2: backendProfile.hobby2,
           funQuestion1: backendProfile.funQuestion1,
@@ -107,12 +107,10 @@ export default function BluePrintProfile2026(
           major: backendProfile.major,
           year: backendProfile.year,
           eventIDYear: backendProfile.eventIDYear,
-          role: backendProfile.role,
+          role: backendProfile.position,
           createdAt: backendProfile.createdAt,
           updatedAt: backendProfile.updatedAt,
           company: backendProfile.company,
-          companyProfileID: backendProfile.companyProfileID,
-          companyProfilePictureURL: backendProfile.companyProfilePictureURL,
         };
 
         setProfile(transformedProfile);
@@ -245,7 +243,8 @@ export default function BluePrintProfile2026(
 // Profile Header Component
 function ProfileHeader({ profile }: { profile: UserProfile }) {
   const fullName = `${profile.fname} ${profile.lname}`;
-  const isPartner = profile.type === "Partner";
+  const isPartner = profile.type.toLowerCase() === "partner";
+  const isCompany = profile.type.toLowerCase() === "company";
 
   return (
     <div className="flex flex-col items-center gap-4 py-6">
@@ -276,17 +275,13 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
 
       {/* Pronouns & Type Badge */}
       <div className="flex items-center gap-3">
-        {profile.pronouns && (
+        {(profile.pronouns && !isCompany) && (
           <span className="text-sm text-[#778191]">{profile.pronouns}</span>
         )}
         <span
-          className={`px-3 py-1 text-xs font-mono rounded-full border ${
-            isPartner
-              ? "bg-[#4972EF]/20 border-[#4972EF]/50 text-[#4972EF]"
-              : "bg-white/10 border-white/30 text-white/80"
-          }`}
+          className={`px-3 py-1 text-xs font-mono rounded-full border bg-white/10 border-white/30 text-white/80}`}
         >
-          {isPartner ? "PARTNER" : "ATTENDEE"}
+          {isCompany ? "Attending Company" : (isPartner ? "Delegate" : "Attendee")}
         </span>
       </div>
     </div>
@@ -295,8 +290,13 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
 
 // Profile Info Component
 function ProfileInfo({ profile }: { profile: UserProfile }) {
-  const isPartner = profile.type === "Partner";
+  const isPartner = profile.type.toLowerCase() === "partner";
+  const isCompany = profile.type.toLowerCase() === "company";
 
+  if (isCompany) {
+    return null;
+  }
+  
   if (isPartner) {
     if (!profile.company && !profile.role) return null;
 
