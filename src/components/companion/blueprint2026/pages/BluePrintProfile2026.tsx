@@ -275,13 +275,17 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
 
       {/* Pronouns & Type Badge */}
       <div className="flex items-center gap-3">
-        {(profile.pronouns && !isCompany) && (
+        {profile.pronouns && !isCompany && (
           <span className="text-sm text-[#778191]">{profile.pronouns}</span>
         )}
         <span
           className={`px-3 py-1 text-xs font-mono rounded-full border bg-white/10 border-white/30 text-white/80}`}
         >
-          {isCompany ? "Attending Company" : (isPartner ? "Delegate" : "Attendee")}
+          {isCompany
+            ? "Attending Company"
+            : isPartner
+              ? "Delegate"
+              : "Attendee"}
         </span>
       </div>
     </div>
@@ -296,7 +300,7 @@ function ProfileInfo({ profile }: { profile: UserProfile }) {
   if (isCompany) {
     return null;
   }
-  
+
   if (isPartner) {
     if (!profile.company && !profile.role) return null;
 
