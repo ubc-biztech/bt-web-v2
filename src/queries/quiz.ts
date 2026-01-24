@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
+import { getProfileId, useUserProfile } from "./userProfile";
 
 export interface QuizReport {
   id: string;
@@ -56,10 +57,10 @@ export async function uploadQuizResults(
 /**
  * Get a user's quiz report (authenticated - user identified by token)
  */
-export async function getQuizReport(): Promise<QuizReport | null> {
+export async function getQuizReport(profile_id : string): Promise<QuizReport | null> {
   try {
     const response = await fetchBackend({
-      endpoint: `/quizzes/report`,
+      endpoint: `/quizzes/report/${profile_id}`,
       method: "GET",
       authenticatedCall: true,
     });
@@ -125,9 +126,15 @@ export async function getWrappedStats(mbti: string): Promise<WrappedStats> {
  * React Query hook for fetching a user's quiz report (authenticated)
  */
 export function useQuizReport() {
+  const { data: userProfile } = useUserProfile();
+
+  const profileId = userProfile?.compositeID
+    ? getProfileId(userProfile.compositeID)
+    : "";
   return useQuery({
     queryKey: ["quizReport"],
-    queryFn: () => getQuizReport(),
+    queryFn: () => getQuizReport(profileId),
+    enabled: !!profileId, // only run if profileId exists
     staleTime: 60 * 1000,
   });
 }
