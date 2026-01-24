@@ -16,7 +16,7 @@ export async function getProfile(profileId: string): Promise<UserProfile> {
     fname: backendProfile.fname,
     lname: backendProfile.lname,
     pronouns: backendProfile.pronouns,
-    type: backendProfile.type,
+    type: backendProfile.profileType,
     hobby1: backendProfile.hobby1,
     hobby2: backendProfile.hobby2,
     funQuestion1: backendProfile.funQuestion1,

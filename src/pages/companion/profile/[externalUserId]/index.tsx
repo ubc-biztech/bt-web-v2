@@ -61,7 +61,7 @@ const Index = () => {
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
-          type: backendProfile.type as "Partner" | "Attendee",
+          type: backendProfile.profileType,
           hobby1: backendProfile.hobby1,
           hobby2: backendProfile.hobby2,
           funQuestion1: backendProfile.funQuestion1,
