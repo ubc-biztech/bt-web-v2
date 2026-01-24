@@ -317,51 +317,49 @@ function PersonCard({
       .slice(0, 2) || "?";
 
   return (
-    <Link href={`/events/blueprint/2026/companion/profile/${person.id}`}>
-      <BluePrintCard className="p-4 cursor-pointer hover:bg-white/5 transition-colors">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] flex items-center justify-center flex-shrink-0">
-              <span className="text-[#0A1428] font-bold text-sm">
-                {initials}
-              </span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-white font-semibold">{name}</span>
-              {person.subtitle && (
-                <span className="text-white/60 text-sm">{person.subtitle}</span>
-              )}
-              {person.roles && (
-                <span className="text-[#6299ff] text-xs">{person.roles}</span>
-              )}
-            </div>
+    // <Link href={`/events/blueprint/2026/companion/profile/${person.id}`}>
+    <BluePrintCard className="p-4 cursor-pointer hover:bg-white/5 transition-colors">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] flex items-center justify-center flex-shrink-0">
+            <span className="text-[#0A1428] font-bold text-sm">{initials}</span>
           </div>
-          {person.mbti && (
-            <div className="px-2 py-1 rounded-full bg-[#6299ff]/20 border border-[#6299ff]/30">
-              <span className="text-[#6299ff] text-xs font-bold">
-                {person.mbti}
-              </span>
-            </div>
-          )}
+          <div className="flex flex-col gap-1">
+            <span className="text-white font-semibold">{name}</span>
+            {person.subtitle && (
+              <span className="text-white/60 text-sm">{person.subtitle}</span>
+            )}
+            {person.roles && (
+              <span className="text-[#6299ff] text-xs">{person.roles}</span>
+            )}
+          </div>
         </div>
-
-        {/* Industries tags */}
-        {person.industries && (
-          <div className="flex flex-wrap gap-1.5 mt-3">
-            {person.industries
-              .split(",")
-              .slice(0, 3)
-              .map((industry) => (
-                <span
-                  key={industry}
-                  className="px-2 py-0.5 text-xs rounded-full bg-white/10 border border-white/15 text-white/70"
-                >
-                  {industry.trim()}
-                </span>
-              ))}
+        {person.mbti && (
+          <div className="px-2 py-1 rounded-full bg-[#6299ff]/20 border border-[#6299ff]/30">
+            <span className="text-[#6299ff] text-xs font-bold">
+              {person.mbti}
+            </span>
           </div>
         )}
-      </BluePrintCard>
-    </Link>
+      </div>
+
+      {/* Industries tags */}
+      {person.industries && (
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {person.industries
+            .split(",")
+            .slice(0, 3)
+            .map((industry) => (
+              <span
+                key={industry}
+                className="px-2 py-0.5 text-xs rounded-full bg-white/10 border border-white/15 text-white/70"
+              >
+                {industry.trim()}
+              </span>
+            ))}
+        </div>
+      )}
+    </BluePrintCard>
+    // </Link>
   );
 }
