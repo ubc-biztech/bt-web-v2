@@ -78,6 +78,14 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
     });
   }
 
+  if (isSignedIn) {
+    links.push({
+      title: "Companion",
+      link: "/companion",
+      icon: BadgeCheckIcon,
+    });
+  }
+
   return links;
 };
 
