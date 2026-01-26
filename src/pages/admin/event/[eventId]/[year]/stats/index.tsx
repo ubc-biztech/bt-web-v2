@@ -119,7 +119,10 @@ export default function Statistics({ initialData }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { eventId, year } = context.params as { eventId: string; year: string };
+  const { eventId, year } = context.params as {
+    eventId: string;
+    year: string;
+  };
 
   try {
     const data = await fetchRegistrationData(eventId, year);

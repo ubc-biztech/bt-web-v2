@@ -202,14 +202,32 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                   {(
                     [
-                      { key: "description", label: "Description" },
+                      {
+                        key: "description",
+                        label: "Description",
+                      },
                       { key: "hobby1", label: "Hobby 1" },
                       { key: "hobby2", label: "Hobby 2" },
-                      { key: "funQuestion1", label: "Fun Question 1" },
-                      { key: "funQuestion2", label: "Fun Question 2" },
-                      { key: "linkedIn", label: "LinkedIn" },
-                      { key: "additionalLink", label: "Additional Link" },
-                      { key: "profilePictureURL", label: "Profile Picture" },
+                      {
+                        key: "funQuestion1",
+                        label: "Fun Question 1",
+                      },
+                      {
+                        key: "funQuestion2",
+                        label: "Fun Question 2",
+                      },
+                      {
+                        key: "linkedIn",
+                        label: "LinkedIn",
+                      },
+                      {
+                        key: "additionalLink",
+                        label: "Additional Link",
+                      },
+                      {
+                        key: "profilePictureURL",
+                        label: "Profile Picture",
+                      },
                     ] as const
                   ).map(({ key, label }) => (
                     <div

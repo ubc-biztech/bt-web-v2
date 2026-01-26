@@ -540,30 +540,72 @@ export const AttendeeEventRegistrationForm: React.FC<
                           />
                         )}
                         {question.type === QuestionTypes.SELECT && (
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
+                          <div>
+                            <FormControl>
+                              <Select
+                                value={
+                                  field.value?.startsWith("Other: ")
+                                    ? "other"
+                                    : field.value
+                                }
+                                onValueChange={(value) => {
+                                  if (value === "other") {
+                                    field.onChange("Other: ");
+                                  } else {
+                                    field.onChange(value);
+                                  }
+                                }}
+                              >
                                 <SelectTrigger className="text-white">
                                   <SelectValue placeholder="Select an option" />
                                 </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {question.choices
-                                  ?.split(",")
-                                  .map((choice, choiceIndex) => (
-                                    <SelectItem
-                                      key={choiceIndex}
-                                      value={choice}
-                                    >
-                                      {choice}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                                <SelectContent>
+                                  {question.choices
+                                    ?.split(",")
+                                    .map((choice, choiceIndex) => (
+                                      <SelectItem
+                                        key={choiceIndex}
+                                        value={
+                                          choice.toLowerCase().trim() ===
+                                          "other"
+                                            ? "other"
+                                            : choice
+                                        }
+                                      >
+                                        {choice}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+
+                            {/* Show text input when "Other" is selected */}
+                            {field.value?.startsWith("Other: ") && (
+                              <FormItem className="mt-3">
+                                <div className="flex flex-row gap-4 items-center">
+                                  <FormLabel>Please specify:</FormLabel>
+                                  <FormMessage />
+                                </div>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Please specify your selection"
+                                    value={field.value.substring(7)}
+                                    onChange={(e) => {
+                                      field.onChange(
+                                        `Other: ${e.target.value}`,
+                                      );
+                                    }}
+                                    className={
+                                      question.required &&
+                                      !field.value.substring(7).trim()
+                                        ? "border-red-500"
+                                        : ""
+                                    }
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          </div>
                         )}
                         {question.type === QuestionTypes.WORKSHOP_SELECTION && (
                           <FormControl>

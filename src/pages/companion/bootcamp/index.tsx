@@ -162,7 +162,9 @@ const BootCamp = () => {
               <div className="w-full bg-[#0D172C] rounded-full h-2 border border-[#A2B1D5]">
                 <div
                   className="bg-[#22C55E] h-full rounded-full transition-all duration-500"
-                  style={{ width: `${(completedVideos / totalVideos) * 100}%` }}
+                  style={{
+                    width: `${(completedVideos / totalVideos) * 100}%`,
+                  }}
                 />
               </div>
               <p className="text-[12px] text-[#A2B1D5] font-urbanist font-medium">

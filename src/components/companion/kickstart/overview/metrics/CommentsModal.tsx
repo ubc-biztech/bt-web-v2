@@ -44,7 +44,10 @@ const CommentsModal = ({ investments, setModal }: CommentsModalProps) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.6, delay: getDiagonalDelay(idx) }}
+                transition={{
+                  duration: 0.6,
+                  delay: getDiagonalDelay(idx),
+                }}
                 className="bg-[#363533] rounded-md px-4 pb-4 flex flex-col justify-between h-full"
               >
                 <div className="h-full flex flex-row items-center">

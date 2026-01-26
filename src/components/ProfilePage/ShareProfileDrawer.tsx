@@ -22,7 +22,9 @@ const ShareProfileDrawer = ({
 }) => {
   const handleShare = async () => {
     if (!navigator.share) {
-      toast({ title: "Sharing is not supported on this device/browser." });
+      toast({
+        title: "Sharing is not supported on this device/browser.",
+      });
       return;
     } else {
       try {
