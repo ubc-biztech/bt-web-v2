@@ -102,6 +102,9 @@ export default function ManageMembers({ initialData }: Props) {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [membershipUpdating, setMembershipUpdating] = useState<
+    "grant" | "revoke" | null
+  >(null);
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
@@ -233,7 +236,6 @@ export default function ManageMembers({ initialData }: Props) {
         method: "GET",
       });
       setData(response || []);
-      toast({ description: "Member list refreshed." });
     } catch (error) {
       console.error("Failed to refresh member data:", error);
       toast({ description: "Failed to refresh.", variant: "destructive" });
@@ -268,40 +270,60 @@ export default function ManageMembers({ initialData }: Props) {
   };
 
   const grantMembershipButton = async (email: string) => {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      toast({ description: "Please enter a user email.", variant: "destructive" });
+      return;
+    }
+
+    setMembershipUpdating("grant");
     try {
       const response = await fetchBackend({
         endpoint: "/members/membership",
         method: "POST",
         data: {
-          email,
+          email: normalizedEmail,
           membership: true,
         },
       });
       toast({ description: response?.message ?? "Membership granted" });
+      await refreshData();
     } catch (e : any) {
       toast({
         description: e?.message?.message ?? e?.message ?? "Failed to grant membership.",
         variant: "destructive",
       });
+    } finally {
+      setMembershipUpdating(null);
     }
   };
 
   const revokeMembershipButton = async (email: string) => {
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      toast({ description: "Please enter a user email.", variant: "destructive" });
+      return;
+    }
+
+    setMembershipUpdating("revoke");
     try {
       const response = await fetchBackend({
         endpoint: "/members/membership",
         method: "POST",
         data: {
-          email,
+          email: normalizedEmail,
           membership: false,
         },
       });
       toast({ description: response?.message ?? "Membership revoked" });
+      await refreshData();
     } catch (e : any) {
       toast({
-        description: e?.message?.message ?? e?.message ?? "Failed to grant membership.",
+        description: e?.message?.message ?? e?.message ?? "Failed to revoke membership.",
         variant: "destructive",
       });
+    } finally {
+      setMembershipUpdating(null);
     }
   };
 
@@ -456,7 +478,7 @@ export default function ManageMembers({ initialData }: Props) {
       : "ascending" && (sortDir === "asc" ? "ascending" : "descending");
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-primary-color min-h-screen space-y-12">
       <div className="mx-auto w-full max-w-7xl flex flex-col">
         {/* Header & Toolbar */}
         <div className="mb-4 md:mb-6 flex flex-col gap-4">
@@ -1020,9 +1042,6 @@ export default function ManageMembers({ initialData }: Props) {
               onChange={(e) => setUserEmail(e.target.value)}
               className="pl-10 bg-white/10 border-white/15 text-white placeholder:text-white/60 focus-visible:ring-white/30 pr-9"
             />
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/10 text-white px-2 py-0.5 text-xs">
-              Future signal if they have membership
-            </span>
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -1030,18 +1049,20 @@ export default function ManageMembers({ initialData }: Props) {
               variant="outline"
               className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
               onClick={() => grantMembershipButton(userEmail)}
+              disabled={membershipUpdating !== null}
             >
               <Check className="w-4 h-4 mr-1.5" />
-              Grant Membership
+              {membershipUpdating === "grant" ? "Granting..." : "Grant Membership"}
             </Button>
             <Button
               variant="outline"
               className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
               onClick={() => revokeMembershipButton(userEmail)}
+              disabled={membershipUpdating !== null}
             >
               <>
                 <X className="w-4 h-4 mr-1.5" /> 
-                Revoke Membership
+                {membershipUpdating === "revoke" ? "Revoking..." : "Revoke Membership"}
               </>
             </Button>
           </div>
