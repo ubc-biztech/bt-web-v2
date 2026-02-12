@@ -153,13 +153,13 @@ export default function QuizResultsPreview() {
     return (
       <>
         <BluePrintCard className="min-h-36">
-          <div className="flex flex-col">
+          <div className="flex flex-col relative z-10">
             <p className="text-lg font-medium">Share Your Profile</p>
             <p className="text-sm text-white/70 -mt-0.5">
               Let others scan to connect with you
             </p>
             <Button
-              className="mt-4 bg-[#4972EF] text-white rounded-full w-fit text-xs flex items-center gap-2"
+              className="mt-4 bg-[#4972EF] text-white rounded-full w-fit text-xs flex items-center gap-2 [&>*]:pointer-events-none"
               onClick={() => setShowQRModal(true)}
               disabled={!profileId || profileLoading}
             >
@@ -172,7 +172,7 @@ export default function QuizResultsPreview() {
             height={256}
             width={256}
             alt="Staircase"
-            className="absolute bottom-0 right-0 rounded-sm"
+            className="absolute bottom-0 right-0 rounded-sm z-0"
           />
         </BluePrintCard>
 
@@ -190,7 +190,7 @@ export default function QuizResultsPreview() {
   // User HAS taken the quiz - show quiz results button
   return (
     <BluePrintCard className="min-h-36">
-      <div className="flex flex-col">
+      <div className="flex flex-col relative z-10">
         <p className="text-lg font-medium">BluePrint Career Quiz</p>
         <p className="text-sm text-white/70 -mt-0.5">
           View your career assessment results
@@ -206,7 +206,7 @@ export default function QuizResultsPreview() {
         height={256}
         width={256}
         alt="Staircase"
-        className="absolute bottom-0 right-0 rounded-sm"
+        className="absolute bottom-0 right-0 rounded-sm z-0"
       />
     </BluePrintCard>
   );
