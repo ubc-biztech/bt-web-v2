@@ -1,6 +1,6 @@
 import React from "react";
 import PopupButton from "./popupButton";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import DeletePopup from "./deletePopUp";
 import { BiztechEvent } from "@/types/types";
 import { ModalHandlers } from "@/pages/admin/home";
@@ -55,7 +55,7 @@ export default function MobilePopup({
       {!isDelete ? (
         // (represents the mobile edit popup)
         isMobile ? (
-          <motion.div
+          <m.div
             className="bg-bt-blue-400 fixed bottom-0 left-0 w-full flex flex-col py-5 rounded-t-lg"
             initial={isClicked ? { y: "100%" } : undefined}
             animate={isClicked ? { y: 0 } : { y: "100%" }}
@@ -66,14 +66,14 @@ export default function MobilePopup({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {editEventPopupItems?.map((item, idx) => (
+            {editEventPopupItems?.map((item) => (
               <PopupButton
-                key={idx}
+                key={String(item)}
                 popUpItem={item}
                 clickEffect={handleButtonClick}
               />
             ))}
-          </motion.div>
+          </m.div>
         ) : (
           <div></div>
         )
@@ -82,8 +82,16 @@ export default function MobilePopup({
         <div
           className="fixed inset-0 flex items-center justify-center w-full z-50 bg-bt-blue-700 bg-opacity-50"
           onClick={() => setIsDelete(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsDelete(false);
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
-          <motion.div
+          <m.div
             className="bg-bt-blue-400 w-[55%] md:w-[90%] max-w-[470px] h-auto md:h-[274px] flex flex-col py-7 rounded-lg text-white shadow-lg relative"
             transition={{
               type: "tween",
@@ -93,7 +101,7 @@ export default function MobilePopup({
             onClick={(e) => e.stopPropagation()}
           >
             <DeletePopup setIsDelete={setIsDelete} event={event} />
-          </motion.div>
+          </m.div>
         </div>
       )}
     </div>

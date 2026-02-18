@@ -86,9 +86,9 @@ export default function AttributesCard({
   return (
     <GenericCard title="Personal Information" className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-        {userAttributeFields.map(({ icon, fieldName, value }, index) => (
+        {userAttributeFields.map(({ icon, fieldName, value }) => (
           <UserAttributeField
-            key={index}
+            key={fieldName}
             icon={icon}
             fieldName={fieldName}
             value={value}

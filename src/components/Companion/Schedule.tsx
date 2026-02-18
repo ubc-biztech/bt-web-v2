@@ -19,9 +19,9 @@ const Schedule = ({ data, date, location }: ScheduleProps) => {
         <p className="text-gray-600">{location}</p>
       </div>
       <div className="space-y-4">
-        {data.map((item, index) => (
+        {data.map((item) => (
           <div
-            key={index}
+            key={`${item.time}-${item.title}`}
             className="bg-white rounded-lg shadow-md p-4 transition-all hover:shadow-lg"
           >
             <div className="flex justify-between items-start">

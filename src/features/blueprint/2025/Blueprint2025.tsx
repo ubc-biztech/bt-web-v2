@@ -167,9 +167,9 @@ const Blueprint2025 = ({
 
               <ScrollArea className="h-[300px] w-full">
                 <div className="space-y-2">
-                  {activities.map((activity, index) => (
+                  {activities.map((activity) => (
                     <div
-                      key={index}
+                      key={`${activity.name}-${activity.points}`}
                       className="flex justify-between p-2 border rounded"
                     >
                       <span>{activity.name}</span>

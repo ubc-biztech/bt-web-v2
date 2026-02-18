@@ -7,7 +7,7 @@ import {
   BookUser,
   ArrowUpDown,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { DynamicPageProps } from "@/constants/companion-events";
 import type { Connection } from "@/types/companion";
 import BluePrintLayout from "../layout/BluePrintLayout";
@@ -217,22 +217,22 @@ const BluePrintConnections2026 = ({ eventId, year }: DynamicPageProps) => {
         )}
 
         {!isLoading && !isError && filteredConnections.length > 0 && (
-          <motion.div
+          <m.div
             className="flex flex-col gap-3"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             {filteredConnections.map((connection) => (
-              <motion.div key={connection.connectionID} variants={itemVariants}>
+              <m.div key={connection.connectionID} variants={itemVariants}>
                 <ConnectionCard
                   connection={connection}
                   eventId={eventId}
                   year={year}
                 />
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         )}
       </div>
     </BluePrintLayout>

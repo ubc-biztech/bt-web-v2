@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Maximize2, MessageSquareText, TrendingUp } from "lucide-react";
 
 const containerVariants = {
@@ -50,39 +50,41 @@ export default function Recent({
       <div className="flex flex-row items-center justify-between">
         <span className="text-[24px]">Recent Investments</span>
         {hasInvestments && (
-          <div
+          <button
+            type="button"
             onClick={() => {
               setModal(true);
             }}
             className="group w-8 h-8 bg-[#333333] flex flex-row items-center justify-center rounded-sm hover:cursor-pointer"
           >
             <Maximize2 className="text-[#B4B4B4] hover:text-white size-5 group-hover:scale-105 transition ease-in-out duration-200" />
-          </div>
+          </button>
         )}
       </div>
 
       {hasInvestments ? (
-        <motion.div
+        <m.div
           className="h-full flex flex-col items-center justify-start gap-2 mt-2 pt-4"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           key={investments?.length || 0}
         >
-          {investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv, idx) => (
-            <div
-              key={`${inv.investorName}-${idx}`}
+          {investments?.slice(0, MAX_INVESTMENTS_DISPLAY)?.map((inv) => (
+            <button
+              type="button"
+              key={`${inv.investorName}-${inv.timestamp}-${inv.amount}`}
               className="w-full"
               onClick={() => {
                 setModal(true);
               }}
             >
               <Investment variants={itemVariants} investment={inv} />
-            </div>
+            </button>
           ))}
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.div
+        <m.div
           className="h-full flex flex-col items-center justify-center gap-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -99,7 +101,7 @@ export default function Recent({
               Your first investment will appear here
             </span>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );
@@ -113,7 +115,7 @@ const Investment = ({
   investment: Investment;
 }) => {
   return (
-    <motion.div
+    <m.div
       className="w-full h-16 flex flex-row items-center justify-between rounded-md bg-[#363533] p-2 hover:cursor-pointer"
       variants={variants}
       whileHover={{ scale: 1.02 }}
@@ -137,6 +139,6 @@ const Investment = ({
       <div className="text-[12px] text-[#95FF77] h-full">
         +${investment.amount}
       </div>
-    </motion.div>
+    </m.div>
   );
 };

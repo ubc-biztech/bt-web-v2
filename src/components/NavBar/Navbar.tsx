@@ -2,11 +2,11 @@ import Image from "next/image";
 import NavbarTab from "./NavbarTab";
 import { admin, defaultUser, logout, signin } from "../../constants/tabs";
 import { useState, useEffect, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { ScreenBreakpoints } from "@/constants/values";
-import { throttle } from "lodash";
+import throttle from "lodash/throttle";
 import { useUserAttributes } from "@/queries/user";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -36,9 +36,9 @@ const NavbarTabs = ({
 
         {isAdmin && (
           <>
-            {admin.map((navbarItem, index) => (
+            {admin.map((navbarItem) => (
               <NavbarTab
-                key={index}
+                key={navbarItem.link}
                 navbarItem={navbarItem}
                 onTabClick={onTabClick}
               />
@@ -46,9 +46,9 @@ const NavbarTabs = ({
             <div className="w-full h-px bg-bt-blue-300 my-8" />
           </>
         )}
-        {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
+        {defaultUser(isAdmin, isSignedIn).map((navbarItem) => (
           <NavbarTab
-            key={index}
+            key={navbarItem.link}
             navbarItem={navbarItem}
             onTabClick={onTabClick}
           />
@@ -96,8 +96,11 @@ export default function Navbar() {
     }, 200);
 
     if (isMobileDevice) {
-      window.addEventListener("scroll", throttledHandleScroll);
-      return () => window.removeEventListener("scroll", throttledHandleScroll);
+      window.addEventListener("scroll", throttledHandleScroll, {
+        passive: true,
+      });
+      return () =>
+        window.removeEventListener("scroll", throttledHandleScroll);
     }
   }, [isMobileDevice, isNavVisible]);
 
@@ -124,7 +127,7 @@ export default function Navbar() {
     <>
       {/* Mobile Header - shows/hides on scroll */}
       {isMobileDevice && (
-        <motion.div
+        <m.div
           className="p-4 h-16 bg-bt-blue-700 border-b border-bt-blue-300/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
           initial={{ y: 0 }}
           animate={{ y: isNavVisible ? 0 : -64 }}
@@ -143,7 +146,7 @@ export default function Navbar() {
             size={32}
             onClick={() => setIsOpen(!isOpen)}
           />
-        </motion.div>
+        </m.div>
       )}
 
       {/* Desktop Sidebar - fixed position, doesn't scroll */}
@@ -162,7 +165,7 @@ export default function Navbar() {
 
       <AnimatePresence>
         {isMobileDevice && isOpen && (
-          <motion.div
+          <m.div
             className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-40 backdrop-filter shadow-lg backdrop-blur-lg z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -170,7 +173,7 @@ export default function Navbar() {
             transition={{ duration: 0.3 }}
             onClick={() => setIsOpen(false)}
           >
-            <motion.div
+            <m.div
               className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6"
               initial={{ x: "100vw" }}
               animate={{ x: "calc(100vw - 250px)" }}
@@ -188,8 +191,8 @@ export default function Navbar() {
                 onLogout={handleLogout}
                 onTabClick={() => setIsOpen(false)}
               />
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

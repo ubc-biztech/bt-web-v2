@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Area,
-} from "recharts";
+} from "@/lib/recharts";
 import { BtxTrade } from "@/lib/db-btx";
 
 interface Props {

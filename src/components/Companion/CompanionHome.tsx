@@ -1,5 +1,5 @@
 import React from "react";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { m, useMotionValue, useTransform, animate } from "framer-motion";
 import NavBarContainer from "./navigation/NavBarContainer";
 import { AnimatedBorder } from "@/components/ui/animated-border";
 import Link from "next/link";
@@ -36,7 +36,7 @@ const Counter = ({ value }: { value: number }) => {
 
   return (
     <div style={{ display: "inline-block" }}>
-      <motion.span>{rounded}</motion.span>
+      <m.span>{rounded}</m.span>
     </div>
   );
 };

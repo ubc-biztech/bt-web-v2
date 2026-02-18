@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState, useRef, useEffect } from "react";
 import { X, QrCode } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import QRCode from "qrcode";
 import BluePrintCard from "./BluePrintCard";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ function QRCodeModal({
       {isOpen && (
         <>
           {/* Overlay */}
-          <motion.div
+          <m.div
             className="fixed inset-0 bg-black/60 z-[99] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -62,7 +62,7 @@ function QRCodeModal({
           />
 
           {/* Modal */}
-          <motion.div
+          <m.div
             className="fixed inset-0 z-[100] flex items-center justify-center p-4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -72,6 +72,8 @@ function QRCodeModal({
             <div
               className="bg-[#0A1428] border border-white/20 rounded-2xl p-6 max-w-sm w-full shadow-xl"
               onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              role="presentation"
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
@@ -104,7 +106,7 @@ function QRCodeModal({
                 </p>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </>
       )}
     </AnimatePresence>

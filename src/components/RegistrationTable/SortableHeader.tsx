@@ -13,7 +13,8 @@ export const SortableHeader = <T,>({
 }: SortableHeaderProps<T>) => {
   const [hover, setHover] = useState(false);
   return (
-    <div
+    <button
+      type="button"
       className={`group cursor-pointer select-none ${
         column.getIsSorted() === "asc" || column.getIsSorted() === "desc"
           ? "text-black"
@@ -37,6 +38,6 @@ export const SortableHeader = <T,>({
           (hover && column.getIsSorted() != "desc")) && <CircleChevronUp />}
         {column.getIsSorted() === "desc" && <CircleChevronDown />}
       </div>
-    </div>
+    </button>
   );
 };

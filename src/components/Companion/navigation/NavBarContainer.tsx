@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { TopNav } from "@/components/Companion/navigation/top-nav";
 
 interface NavBarContainerProps {
@@ -50,14 +50,14 @@ const NavBarContainer: React.FC<NavBarContainerProps> = ({
         </div>
       )}
 
-      <motion.div
+      <m.div
         className="flex-1 space-y-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         <div className="flex flex-col gap-y-3">{children}</div>
-      </motion.div>
+      </m.div>
     </div>
   );
 };

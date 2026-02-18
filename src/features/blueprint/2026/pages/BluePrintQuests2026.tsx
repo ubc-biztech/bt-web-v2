@@ -154,9 +154,9 @@ export default function BluePrintQuests2026({
                       {/* Items list for unique set quests */}
                       {quest.items && quest.items.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
-                          {quest.items.map((item, idx) => (
+                          {quest.items.map((item) => (
                             <span
-                              key={idx}
+                              key={item}
                               className="text-xs px-2 py-0.5 rounded-full bg-black/30 border border-white/15 text-white/70"
                             >
                               {item}

@@ -133,6 +133,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                             src={form.watch("imageUrl") || ""}
                             alt="Event Cover"
                             fill
+                            sizes="100vw"
                             className="w-full h-full object-cover"
                           />
                         ) : (
@@ -387,7 +388,10 @@ export const EventForm: React.FC<EventFormProps> = ({
                       />
                       {/* Custom Questions */}
                       {form.watch("customQuestions")?.map((question, index) => (
-                        <div key={index} className="space-y-2">
+                        <div
+                          key={`${question.question}-${question.type}`}
+                          className="space-y-2"
+                        >
                           <FormField
                             name={`previewCustom${index}`}
                             render={({ field }) => (
@@ -729,7 +733,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   </h4>
                   {customQuestions?.map((field, index) => (
                     <div
-                      key={index}
+                      key={(field as { id?: string }).id ?? field.question}
                       className="my-4 p-4 border rounded-lg bg-[#3A4A70]"
                     >
                       <FormField

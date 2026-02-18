@@ -1,7 +1,7 @@
 // MODIFIED FROM STATS
 
 import { StatsChartData } from "@/types/types";
-import { debounce } from "lodash";
+import debounce from "lodash/debounce";
 import React, { useEffect, useState } from "react";
 import { Chart } from "react-google-charts";
 

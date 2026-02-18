@@ -24,8 +24,21 @@ const Modal: React.FC<ModalProps> = ({ show, children, onClose }) => {
           : " backdrop-blur-0 opacity-0 pointer-events-none"
       } flex flex-col items-center justify-center transition duration-500 ease-in-out`}
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
-      <div className="w-[40em] h-64" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="w-[40em] h-64"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="presentation"
+      >
         <Box
           innerShadow={20}
           className="flex flex-col items-center justify-start p-8"

@@ -13,7 +13,7 @@ import Profile from "@/features/blueprint/profiles/profileHeader";
 import ExtraInfo from "@/features/blueprint/profiles/extraInfo";
 import AttendeeInfo from "@/features/blueprint/profiles/attendeeInfo";
 import NavBarContainer from "@/components/Companion/navigation/NavBarContainer";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import ResponseSection from "@/features/blueprint/profiles/responseSection";
 import { ConnectedButton } from "@/components/ui/connected-button";
 import CompanyInfo from "@/features/blueprint/profiles/delegateInfo";
@@ -151,44 +151,44 @@ const Index = () => {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 mx-auto pb-[100px]">
       <NavBarContainer>
-        <motion.div
+        <m.div
           className="flex-1"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants}>
+          <m.div variants={itemVariants}>
             <Profile userData={userData} />
-          </motion.div>
+          </m.div>
           {userData.profileID !== currUser && (
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <ConnectedButton className="mx-auto mb-4 flex items-center">
                 <CheckCircle />
                 <span className="text-[12px] translate-y-[1px]">CONNECTED</span>
               </ConnectedButton>
-            </motion.div>
+            </m.div>
           )}
-          <motion.div variants={itemVariants}>
+          <m.div variants={itemVariants}>
             {userData.description && (
               <ResponseSection
                 title={`ABOUT ${userData.fname?.toUpperCase() ?? "MEMBER"}`}
                 text={userData.description}
               />
             )}
-          </motion.div>
+          </m.div>
           {userData.type.toLowerCase() == "partner" ? (
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <CompanyInfo userData={userData} />
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <AttendeeInfo userData={userData} />
-            </motion.div>
+            </m.div>
           )}
-          <motion.div variants={itemVariants}>
+          <m.div variants={itemVariants}>
             <ExtraInfo userData={userData} />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </NavBarContainer>
     </div>
   );

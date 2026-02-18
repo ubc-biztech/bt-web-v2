@@ -16,9 +16,9 @@ const ResponseSection: FC<ResponseSectionProps> = ({ title, text, list }) => {
         </p>
         {list ? (
           <ul className="list-disc list-inside">
-            {list.map((item, index) => (
+            {list.map((item) => (
               <li
-                key={index}
+                key={item}
                 className="text-xs sm:text-sm font-satoshi mb-1 sm:mb-2"
               >
                 {item}

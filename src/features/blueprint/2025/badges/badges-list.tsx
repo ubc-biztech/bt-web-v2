@@ -17,8 +17,8 @@ export const BadgesList: React.FC<BadgesListProps> = ({ badges }) => {
           badges
             .filter((badge) => badge.isComplete)
             .slice(0, 3)
-            .map((badge, index) => (
-              <div key={index} className="flex items-start space-x-3">
+            .map((badge) => (
+              <div key={badge.questID} className="flex items-start space-x-3">
                 <span className="text-base mt-1 text-white">✦</span>
                 <div className="flex flex-col sm:flex-row sm:items-center w-full sm:justify-between gap-1">
                   <p className="text-sm font-medium text-white">

@@ -3,7 +3,7 @@ import React from "react";
 import Progress0_2 from "@/assets/2025/kickstart/progress0_2.svg";
 import Progress1_2 from "@/assets/2025/kickstart/progress1_2.svg";
 import MessageLogo from "@/assets/2025/kickstart/message.svg";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface RenderProps {
   selectedTeam: { teamName: string };
@@ -27,7 +27,7 @@ const Render = ({
   isAmountValid,
 }: RenderProps) => {
   return (
-    <motion.div
+    <m.div
       className="space-y-1 relative"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
@@ -87,7 +87,7 @@ const Render = ({
 
       <div className="flex flex-col gap-3 bg-[#1A1918]  p-5 rounded-lg ">
         <div className="flex items-center gap-3 text-sm text-[#B8B8B8]">
-          <motion.div
+          <m.div
             key={isAmountValid() ? "valid" : "invalid"}
             initial={{ opacity: 0.85, rotate: -10 }}
             animate={{ opacity: 1, rotate: 0 }}
@@ -99,7 +99,7 @@ const Render = ({
             ) : (
               <Progress0_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
             )}
-          </motion.div>
+          </m.div>
           We&apos;ll deduct from your spending account. This will not decrease
           your own funding.
           <div className="rounded-lg bg-[#DE7D02] hover:bg-[#f29224] text-white px-4 py-3 opacity-30 flex items-center">
@@ -107,7 +107,7 @@ const Render = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 

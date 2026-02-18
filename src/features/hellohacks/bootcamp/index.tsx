@@ -87,6 +87,7 @@ const BootCamp = () => {
                       src={`https://img.youtube.com/vi/${nextVideo.youtubeId}/maxresdefault.jpg`}
                       alt={nextVideo.title}
                       fill
+                      sizes="100vw"
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -136,7 +137,8 @@ const BootCamp = () => {
 
             <div className="space-y-3 mb-8">
               {videos.map((video, index) => (
-                <div
+                <button
+                  type="button"
                   key={video.id}
                   onClick={() =>
                     router.push(
@@ -154,7 +156,7 @@ const BootCamp = () => {
                   <span className="text-[14px] font-urbanist font-medium text-[#BDC8E3] ">
                     {index + 1}. {video.title}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
 

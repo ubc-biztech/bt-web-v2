@@ -405,7 +405,8 @@ const ProfilePage = ({
                 <Image
                   src={profilePictureURL}
                   alt="Profile Picture"
-                  fill={true}
+                  fill
+                  sizes="100vw"
                   className="object-cover"
                 />
               ) : (
@@ -524,7 +525,7 @@ const ProfilePage = ({
           {questions.length > 0 && (
             <GenericCardNFC isCollapsible={false}>
               {questions.map((question, idx) => (
-                <div key={idx} className="">
+                <div key={question} className="">
                   <p className="text-sm text-bt-blue-0 mb-2">{question}</p>
 
                   {idx < questions.length - 1 && (

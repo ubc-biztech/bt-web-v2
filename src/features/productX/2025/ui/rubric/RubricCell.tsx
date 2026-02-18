@@ -13,9 +13,10 @@ const RubricCell: React.FC<BoxProps> = ({
   className,
   children,
   selected = false,
-  handleClick = () => {},
+  handleClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isClickable = Boolean(handleClick);
   const isSelected = selected;
   const shadowSize = 2 * innerShadow;
 
@@ -41,6 +42,41 @@ const RubricCell: React.FC<BoxProps> = ({
     },
   };
 
+  if (isClickable) {
+    return (
+      <div
+        className={`
+          w-full
+          h-full
+          ${className}
+  border-2 ${
+    isSelected ? "border-[#23655F] text-[#4CC8BD]" : "border-[#1B1C39]"
+  } bg-[#020319]
+              `}
+        style={
+          isSelected
+            ? styles.selected
+            : isHovered
+              ? styles.hover
+              : styles.default
+        }
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick?.();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`
@@ -56,9 +92,6 @@ border-2 ${
       }
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => {
-        handleClick();
-      }}
     >
       {children}
     </div>

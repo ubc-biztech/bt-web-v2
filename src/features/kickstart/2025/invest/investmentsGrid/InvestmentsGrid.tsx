@@ -76,7 +76,17 @@ const InvestmentsGrid = ({
             </div>
           </div>
 
-          <div onClick={onClickInvest}>
+          <div
+            onClick={onClickInvest}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClickInvest();
+              }
+            }}
+            role="button"
+            tabIndex={0}
+          >
             <GlowButton height="h-10" width="sm:w-48 w-20 pl-2" icon={Plus}>
               <span className="text-[14px] hidden sm:flex">New Investment</span>
             </GlowButton>

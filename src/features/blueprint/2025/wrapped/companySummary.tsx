@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -68,7 +68,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
   };
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] flex flex-col items-center p-6"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -77,7 +77,7 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
         style={{ opacity, scale, y }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
-        <motion.h1
+        <m.h1
           className="text-white text-sm md:text-lg font-satoshi font-medium px-4 max-w-lg text-center mb-6 
                         drop-shadow-[0_0_10px_rgba(68,136,255,0.6)]"
           initial={{ opacity: 0, y: 20 }}
@@ -88,13 +88,13 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
           <br />
           Here are the{" "}
           <span className="font-satoshi font-bold">overall top 5.</span>
-        </motion.h1>
+        </m.h1>
 
         {/* Company Rankings */}
         <div className="w-full max-w-lg mt-8 space-y-6">
           <div className="h-px bg-gradient-to-r from-[#88baff]/0 via-[#ffffff] to-[#88baff]/0"></div>
           {topCompanies.map((company) => (
-            <motion.div
+            <m.div
               key={company.rank}
               className="flex flex-wrap items-center bg-transparent rounded-lg p-4 gap-x-4"
               initial={{ opacity: 0, y: 20 }}
@@ -126,10 +126,10 @@ const TopCompanies = ({ isPartner }: TopCompaniesProps) => {
                   {company.taps} NFC taps
                 </p>
               </div>
-            </motion.div>
+            </m.div>
           ))}
         </div>
-      </motion.div>
+      </m.div>
     </NavBarContainer>
   );
 };

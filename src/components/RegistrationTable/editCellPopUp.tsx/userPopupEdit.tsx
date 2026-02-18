@@ -30,7 +30,8 @@ const SelectCell: React.FC<SelectCellProps> = ({
   table,
   refreshTable,
 }) => {
-  const [value, setValue] = useState(originalValue);
+  const [value, setValue] = useState<string | number | null>(null);
+  const currentValue = value ?? originalValue;
 
   const onBlur = async () => {
     let eventId = row["eventID;year"].slice(
@@ -39,7 +40,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
     );
     let year = row["eventID;year"].slice(row["eventID;year"].indexOf(";") + 1);
 
-    const body = prepareUpdatePayload(column, value, eventId, year);
+    const body = prepareUpdatePayload(column, currentValue, eventId, year);
 
     try {
       await updateRegistrationData(row.id, row.fname, body);
@@ -78,7 +79,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
       {dropDownList ? (
         <Select onValueChange={onSelectChange} defaultValue="Not Found">
           <SelectTrigger className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100">
-            <SelectValue>{getLabel(value as string)}</SelectValue>
+            <SelectValue>{getLabel(currentValue as string)}</SelectValue>
           </SelectTrigger>
           <SelectContent className="focus:border-0 bg-white">
             <SelectGroup>
@@ -95,7 +96,7 @@ const SelectCell: React.FC<SelectCellProps> = ({
         <Input
           className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100"
           type="number"
-          value={value}
+          value={currentValue}
           onChange={handleInputChange}
           onBlur={onBlur}
         />

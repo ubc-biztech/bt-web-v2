@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface GuestBannerProps {
@@ -14,7 +14,7 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
     <>
       <AnimatePresence mode="popLayout">
         {visible && (
-          <motion.div
+          <m.div
             layout
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -49,7 +49,7 @@ const GuestBanner: React.FC<GuestBannerProps> = ({ message }) => {
                 setVisible(false);
               }}
             />
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

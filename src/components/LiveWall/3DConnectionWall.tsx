@@ -1046,6 +1046,7 @@ export default function ConnectionWall3D() {
       )}
 
       {/* Styles */}
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx>{`
         .ticker {
           position: relative;

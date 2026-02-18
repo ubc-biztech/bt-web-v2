@@ -82,9 +82,9 @@ export default function SuggestedConnectionsSection() {
 function SkeletonGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[0, 1, 2].map((i) => (
+      {["skeleton-1", "skeleton-2", "skeleton-3"].map((key) => (
         <div
-          key={i}
+          key={key}
           className="rounded-xl border border-white/10 bg-white/5 p-4 animate-pulse"
         >
           <div className="flex items-center gap-3 mb-3">

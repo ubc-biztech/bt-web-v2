@@ -1,0 +1,15 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "rules": {
+    "exports": "off",
+    "types": "off",
+    "files": "off"
+  },
+  "entry": [
+    "src/pages/**/*.{js,jsx,ts,tsx}",
+    "src/pages/_app.tsx",
+    "src/pages/_document.tsx",
+    "amplify/**/*.ts"
+  ],
+  "project": ["src/**/*.{js,jsx,ts,tsx}", "amplify/**/*.ts"]
+}

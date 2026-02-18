@@ -236,6 +236,7 @@ const NfcPopupContent = ({
           src={image || "/assets/icons/profile_icon.svg"}
           alt="profile"
           fill
+          sizes="100vw"
           className="object-cover"
         />
       </div>

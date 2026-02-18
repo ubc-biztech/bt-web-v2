@@ -14,7 +14,7 @@ import {
 } from "@/constants/registrations";
 import NoCamera from "../../../public/assets/icons/nocamera_icon.svg";
 import { Result } from "@zxing/library";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import Image from "next/image";
 import { fetchBackend } from "@/lib/db";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
@@ -278,7 +278,7 @@ export const QrCheckIn: React.FC<QrProps> = ({
     <>
       <AnimatePresence mode="wait">
         {isQrReaderToggled && (
-          <motion.div
+          <m.div
             className={`flex flex-col space-y-2 items-center p-3 md:flex-row md:space-x-3`}
             initial={{ y: -100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -304,6 +304,7 @@ export const QrCheckIn: React.FC<QrProps> = ({
                 className="rounded-[10px]"
                 src={NoCamera}
                 fill
+                sizes="100vw"
                 alt="no-camera"
               />
               <QrReader
@@ -331,7 +332,8 @@ export const QrCheckIn: React.FC<QrProps> = ({
                   QR Code Check-in
                 </h2>
                 <p className="pb-3">Last Scanned: {checkInName}</p>
-                <p
+                <button
+                  type="button"
                   className="text-bt-green-300 underline pb-3"
                   onClick={() => {
                     setQrCode(defaultQrCode);
@@ -339,26 +341,28 @@ export const QrCheckIn: React.FC<QrProps> = ({
                   }}
                 >
                   Reset Scanner
-                </p>
-                <p
+                </button>
+                <button
+                  type="button"
                   className="text-bt-green-300 underline pb-3"
                   onClick={() => flipCamera()}
                 >
                   Flip Camera Horizontally
-                </p>
+                </button>
               </div>
 
               {/* Collapse button */}
               <div className="grow md:pt-10 flex flex-row content-end justify-center pb-3 space-x-2 mt-3 items-end">
                 <ChevronsUp width={20} height={20} />
-                <div
+                <button
+                  type="button"
                   className="text-center underline"
                   onClick={() => {
                     setQrReaderToggled(false);
                   }}
                 >
                   Collapse Qr Scanner
-                </div>
+                </button>
                 <ChevronsUp width={20} height={20} />
               </div>
             </div>
@@ -377,7 +381,7 @@ export const QrCheckIn: React.FC<QrProps> = ({
                 numCards={0}
               />
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </>

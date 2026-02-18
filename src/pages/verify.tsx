@@ -103,6 +103,7 @@ export default function Verify() {
             alt=""
             src="https://i.postimg.cc/XVbbxK56/DSC03682-1.jpg"
             fill
+            sizes="100vw"
             className="absolute inset-0 h-full w-full object-cover"
           />
         </div>

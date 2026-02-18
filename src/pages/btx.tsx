@@ -21,7 +21,7 @@ import {
   CartesianGrid,
   Area,
   ReferenceLine,
-} from "recharts";
+} from "@/lib/recharts";
 import { Instrument_Serif, Bricolage_Grotesque } from "next/font/google";
 
 import { useBtxExchange } from "@/hooks/useBtxExchange";
@@ -1831,12 +1831,16 @@ const BtxPage: React.FC = () => {
                           <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                             {/* LEFT: size + presets + buttons */}
                             <div className="flex-1 lg:max-w-sm">
-                              <label className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                              <label
+                                htmlFor="trade-shares-input"
+                                className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-slate-400"
+                              >
                                 Order size
                               </label>
 
                               <div className="flex items-center gap-2">
                                 <Input
+                                  id="trade-shares-input"
                                   className="h-10 flex-1 rounded-md bg-[#0B0B0B] text-sm border border-slate-700/70 hover:border-slate-400 focus-visible:border-sky-400 focus-visible:ring-0 font-mono"
                                   type="text"
                                   inputMode="numeric"

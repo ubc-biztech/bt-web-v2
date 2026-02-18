@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import { LogOut } from "lucide-react";
@@ -50,7 +50,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
   return (
     <AnimatePresence mode="wait">
       {isOpen && (
-        <motion.nav
+        <m.nav
           className="relative"
           variants={menuVariants}
           initial="hidden"
@@ -75,7 +75,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
               </Link>
             ))}
           </div>
-        </motion.nav>
+        </m.nav>
       )}
     </AnimatePresence>
   );

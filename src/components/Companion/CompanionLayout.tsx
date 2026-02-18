@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, useAnimation } from "framer-motion";
+import { m } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -21,22 +21,16 @@ interface FadeInWhenVisibleProps {
 }
 
 function FadeInWhenVisible({ children, style, id }: FadeInWhenVisibleProps) {
-  const controls = useAnimation();
-  const [ref, inView] = useInView();
-
-  useEffect(() => {
-    if (inView) {
-      controls.start("visible");
-    }
-  }, [controls, inView]);
+  const [ref] = useInView();
 
   return (
-    <motion.div
+    <m.div
       style={style}
       id={id}
       ref={ref}
-      animate={controls}
       initial="hidden"
+      whileInView="visible"
+      viewport={{ amount: 0.1 }}
       transition={{ duration: 0.3 }}
       variants={{
         visible: { opacity: 1, scale: 1 },
@@ -44,7 +38,7 @@ function FadeInWhenVisible({ children, style, id }: FadeInWhenVisibleProps) {
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -250,7 +244,7 @@ const CompanionLayout = ({
       {!email || !userRegistration ? (
         <Card className="flex justify-center overflow-hidden border-none">
           {!transition && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1 }}
@@ -285,7 +279,7 @@ const CompanionLayout = ({
                   <p className="text-red-500 text-center w-4/5">{error}</p>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </Card>
       ) : (
@@ -331,11 +325,11 @@ const CompanionLayout = ({
                   Schedule
                 </Link>
               )}
-              {options.headers.map((header, i) =>
+              {options.headers.map((header) =>
                 header.id ? (
                   <Link
                     href={`#${header.id}`}
-                    key={i}
+                    key={header.id ?? header.text}
                     className="text-base flex-grow text-center"
                   >
                     {header.text}
@@ -343,7 +337,7 @@ const CompanionLayout = ({
                 ) : (
                   <Link
                     href={header.route || ""}
-                    key={i}
+                    key={header.route ?? header.text}
                     className="text-base flex-grow text-center"
                   >
                     {header.text}
@@ -389,9 +383,9 @@ const CompanionLayout = ({
                 hope you enjoyed your time 😊!
               </p>
             ) : (
-              options.welcomeData?.map((paragraph, i) => (
+              options.welcomeData?.map((paragraph) => (
                 <p
-                  key={i}
+                  key={paragraph}
                   className="text-center text-base sm:text-lg mb-4 w-4/5"
                 >
                   {paragraph}
