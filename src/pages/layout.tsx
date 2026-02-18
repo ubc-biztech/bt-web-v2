@@ -1,15 +1,10 @@
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 import Navbar from "@/components/NavBar/Navbar";
 import { Toaster } from "@/components/ui/toaster";
-import { Urbanist } from "next/font/google";
 import { useRouter } from "next/router";
 import MembershipPrompt from "@/components/MembershipPrompt";
 import OnboardingChecker from "@/components/OnboardingChecker";
 
-const urbanist = Urbanist({
-  subsets: ["latin"],
-  variable: "--font-urbanist",
-});
 
 const membershipPromptRoutes = new Set([
   "/",
@@ -23,7 +18,7 @@ export default function Layout({ children }: any) {
   const showMembershipPrompt = membershipPromptRoutes.has(router.pathname);
 
   return (
-    <div lang="en" className={`${urbanist.className}`}>
+    <div lang="en">
       <div className={`md:pl-[250px]`}>
         <ConfigureAmplifyClientSide />
         <OnboardingChecker />
