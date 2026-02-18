@@ -36,10 +36,7 @@ export const CompanionItemRow: React.FC<CompanionItemRowProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={cn(
-        rowClassName,
-        "w-full text-left",
-      )}
+      className={cn(rowClassName, "w-full text-left")}
     >
       {children}
     </button>

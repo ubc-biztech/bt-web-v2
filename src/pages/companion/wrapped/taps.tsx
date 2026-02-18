@@ -13,10 +13,9 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
-const Line = dynamic(
-  () => import("react-chartjs-2").then((mod) => mod.Line),
-  { ssr: false },
-);
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+  ssr: false,
+});
 
 interface ConnectionsSummaryProps {
   isPartner: boolean;

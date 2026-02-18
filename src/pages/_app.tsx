@@ -65,7 +65,10 @@ export default function App({ Component, pageProps }: AppProps) {
             name="description"
             content="UBC BizTech - Bridging the gap between business, technology and you. UBC's largest business technology club."
           />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
 
           {/* Open Graph / Facebook */}
           <meta property="og:type" content="website" />

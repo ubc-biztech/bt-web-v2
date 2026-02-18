@@ -106,7 +106,13 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
     return (
       <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
         <div className=" relative w-[70%] h-[70%]">
-          <Image src={BizBot} alt="BizBot" className="object-contain" fill sizes="100vw" />
+          <Image
+            src={BizBot}
+            alt="BizBot"
+            className="object-contain"
+            fill
+            sizes="100vw"
+          />
         </div>
         <header className="text-lg font-ibm">NO ENTRIES FOUND</header>
         <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
