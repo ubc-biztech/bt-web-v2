@@ -57,7 +57,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {pages.map((page) => {
           return (
             currentlyDisplayedPage === page.name && (
-              <page.component records={teams} />
+              <page.component key={page.name} records={teams} />
             )
           );
         })}

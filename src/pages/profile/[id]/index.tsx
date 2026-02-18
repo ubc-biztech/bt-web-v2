@@ -377,7 +377,7 @@ const ProfilePage = ({
     return !!q;
   });
 
-  const UserExternalLinks = () => (
+  const userExternalLinks = (
     <div className="grid grid-cols-1 gap-4">
       {linkedIn && (
         <LinkButton linkIcon={ExternalLink} label="LinkedIn" url={linkedIn} />
@@ -457,7 +457,7 @@ const ProfilePage = ({
           </div>
 
           <div className="hidden md:block">
-            <UserExternalLinks />
+            {userExternalLinks}
           </div>
         </div>
 
@@ -522,7 +522,7 @@ const ProfilePage = ({
           </GenericCardNFC>
 
           <div className="block md:hidden">
-            <UserExternalLinks />
+            {userExternalLinks}
           </div>
 
           {questions.length > 0 && (
