@@ -456,9 +456,7 @@ const ProfilePage = ({
             )}
           </div>
 
-          <div className="hidden md:block">
-            {userExternalLinks}
-          </div>
+          <div className="hidden md:block">{userExternalLinks}</div>
         </div>
 
         <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
@@ -521,9 +519,7 @@ const ProfilePage = ({
             </div>
           </GenericCardNFC>
 
-          <div className="block md:hidden">
-            {userExternalLinks}
-          </div>
+          <div className="block md:hidden">{userExternalLinks}</div>
 
           {questions.length > 0 && (
             <GenericCardNFC isCollapsible={false}>
