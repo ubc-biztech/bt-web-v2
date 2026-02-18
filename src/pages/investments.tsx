@@ -149,15 +149,11 @@ export default function InvestmentsPage() {
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col pb-6">
         <div className="mb-4 flex-shrink-0">
           <div className="flex flex-wrap items-baseline gap-4">
-            <h1
-              className="font-serif text-3xl font-light leading-none"
-            >
+            <h1 className="font-serif text-3xl font-light leading-none">
               {selectedTeam.teamName}
             </h1>
             <div className="flex items-baseline gap-3">
-              <p
-                className="font-serif text-2xl font-light leading-none"
-              >
+              <p className="font-serif text-2xl font-light leading-none">
                 {formatCurrency(selectedTeam.currentPrice)}
               </p>
               <div

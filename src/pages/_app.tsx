@@ -15,7 +15,6 @@ const instrument = { variable: "" };
 const urbanist = { className: "" };
 
 export default function App({ Component, pageProps, router }: AppProps) {
-
   // Pages that should NOT use the Layout
   const noLayoutPaths = [
     "/login",
