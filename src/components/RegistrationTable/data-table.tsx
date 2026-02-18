@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import {
-  DataTableProps,
-  SortingState,
-  ColumnFiltersState,
-} from "./types";
+import { DataTableProps, SortingState, ColumnFiltersState } from "./types";
 import {
   ColumnDef,
   useReactTable,

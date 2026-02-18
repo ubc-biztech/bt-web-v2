@@ -1,10 +1,5 @@
 "use client";
-import {
-  m,
-  useMotionValue,
-  animate,
-  AnimatePresence,
-} from "framer-motion";
+import { m, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { Users2 } from "lucide-react";
 import { GradientText } from "@/components/ui/gradient-text";
 import Image from "next/image";

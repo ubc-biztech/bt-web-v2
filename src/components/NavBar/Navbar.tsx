@@ -99,8 +99,7 @@ export default function Navbar() {
       window.addEventListener("scroll", throttledHandleScroll, {
         passive: true,
       });
-      return () =>
-        window.removeEventListener("scroll", throttledHandleScroll);
+      return () => window.removeEventListener("scroll", throttledHandleScroll);
     }
   }, [isMobileDevice, isNavVisible]);
 
