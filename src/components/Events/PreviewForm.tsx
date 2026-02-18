@@ -77,69 +77,64 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
     ? form.watch("partnerDescription")
     : form.watch("description");
 
-  const renderCustomQuestions = () => {
-    return questions?.map((question, index) => {
-      // For SELECT and WORKSHOP_SELECTION, we'll use FormSelect which already includes the label
-      if (
-        question.type === "SELECT" ||
-        question.type === "WORKSHOP_SELECTION"
-      ) {
-        return (
-          <FormSelect
-            key={index}
-            name={`previewCustom${index}`}
-            label={`${question.question}${question.required ? "*" : ""}`}
-            options={
-              question.options?.map((option) => ({
-                value: option,
-                label: option,
-              })) || []
-            }
-          />
-        );
-      }
+  const customQuestions = questions?.map((question, index) => {
+    const key = `${question.type}-${question.question}`;
 
-      // For other types, we'll use FormField with explicit label control
+    if (question.type === "SELECT" || question.type === "WORKSHOP_SELECTION") {
       return (
-        <FormField
-          key={index}
+        <FormSelect
+          key={key}
           name={`previewCustom${index}`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {question.question}
-                {question.required && "*"}
-              </FormLabel>
-              {question.type === "TEXT" && (
-                <FormControl>
-                  <Input placeholder={`Enter your answer`} {...field} />
-                </FormControl>
-              )}
-              {question.type === "CHECKBOX" && (
-                <MultiSelectCheckbox
-                  name={`previewCustom${index}`}
-                  label=""
-                  options={question.options || []}
-                  preview={true}
-                />
-              )}
-              {question.type === "UPLOAD" && (
-                <FormControl>
-                  <Input
-                    type="file"
-                    className="block w-full h-full text-sm text-gray-500
-                                        file:mr-4 file:py-2 file:px-4 file:rounded-md
-                                        file:border-0 file:text-sm file:font-semibold
-                                        cursor-pointer"
-                  />
-                </FormControl>
-              )}
-            </FormItem>
-          )}
+          label={`${question.question}${question.required ? "*" : ""}`}
+          options={
+            question.options?.map((option) => ({
+              value: option,
+              label: option,
+            })) || []
+          }
         />
       );
-    });
-  };
+    }
+
+    return (
+      <FormField
+        key={key}
+        name={`previewCustom${index}`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              {question.question}
+              {question.required && "*"}
+            </FormLabel>
+            {question.type === "TEXT" && (
+              <FormControl>
+                <Input placeholder={`Enter your answer`} {...field} />
+              </FormControl>
+            )}
+            {question.type === "CHECKBOX" && (
+              <MultiSelectCheckbox
+                name={`previewCustom${index}`}
+                label=""
+                options={question.options || []}
+                preview={true}
+              />
+            )}
+            {question.type === "UPLOAD" && (
+              <FormControl>
+                <Input
+                  type="file"
+                  className="block w-full h-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4 file:rounded-md
+                                      file:border-0 file:text-sm file:font-semibold
+                                      cursor-pointer"
+                />
+              </FormControl>
+            )}
+          </FormItem>
+        )}
+      />
+    );
+  });
 
   return (
     <div className="space-y-4">
@@ -206,7 +201,7 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
         options={HEAR_ABOUT_OPTIONS}
       />
 
-      {renderCustomQuestions()}
+      {customQuestions}
     </div>
   );
 };

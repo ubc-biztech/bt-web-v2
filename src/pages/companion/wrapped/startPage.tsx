@@ -4,7 +4,7 @@ import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -34,7 +34,7 @@ const StartPage = ({ isPartner }: StartPageProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -44,13 +44,13 @@ const StartPage = ({ isPartner }: StartPageProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         {/* Main Content */}
-        <motion.div
+        <m.div
           className="flex flex-col items-center text-center space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           {/* Question Text */}
-          <motion.p
+          <m.p
             className="text-white text-lg md:text-xl font-satoshi font-medium"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -58,20 +58,20 @@ const StartPage = ({ isPartner }: StartPageProps) => {
           >
             How did <span className="font-satoshi font-bold">you</span> get your
             start?
-          </motion.p>
+          </m.p>
 
           {/* Subtext */}
-          <motion.p
+          <m.p
             className="text-white text-lg md:text-xl font-satoshi font-medium"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
           >
             Let’s take a look back.
-          </motion.p>
+          </m.p>
 
           {/* Arrow Icon */}
-          <motion.div
+          <m.div
             className="mt-4 flex items-center justify-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,9 +91,9 @@ const StartPage = ({ isPartner }: StartPageProps) => {
                 d="M17 8l4 4m0 0l-4 4m4-4H3"
               ></path>
             </svg>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </m.div>
+        </m.div>
+      </m.div>
     </NavBarContainer>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoaderCircle from "@/assets/2025/productx/loadercircle.svg";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useUserRegistration } from "@/pages/companion";
 import { fetchBackend } from "@/lib/db";
 import User from "../User";
@@ -126,7 +126,7 @@ const TeamCreation: React.FC = () => {
       ) : (
         <AnimatePresence mode="wait">
           {isLoading && (
-            <motion.div
+            <m.div
               key="loading"
               initial="initial"
               animate="animate"
@@ -145,11 +145,11 @@ const TeamCreation: React.FC = () => {
                 height={60}
                 className="[animation:spin_3s_linear_infinite] brightness-0 invert"
               />
-            </motion.div>
+            </m.div>
           )}
 
           {!isLoading && (
-            <motion.div
+            <m.div
               key="team"
               initial="initial"
               animate="animate"
@@ -255,7 +255,7 @@ const TeamCreation: React.FC = () => {
                   CONTINUE
                 </button>
               </form>
-            </motion.div>
+            </m.div>
           )}
           <SubmissionErrorModal
             modal={submissionError}

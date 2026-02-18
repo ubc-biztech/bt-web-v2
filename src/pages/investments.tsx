@@ -7,7 +7,7 @@ import {
   ArrowUpRight,
   MessageSquare,
 } from "lucide-react";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "@/lib/recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,18 +17,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Instrument_Serif, Bricolage_Grotesque } from "next/font/google";
 import type { TeamStock } from "@/types/investment";
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 const mockTeams: TeamStock[] = [
   {
@@ -156,21 +145,15 @@ export default function InvestmentsPage() {
   };
 
   return (
-    <div
-      className={`${bricolageGrotesque.className} h-screen overflow-hidden bg-[#111111] text-white p-8 w-full`}
-    >
+    <div className="h-screen overflow-hidden bg-[#111111] text-white p-8 w-full">
       <div className="max-w-7xl mx-auto w-full h-full flex flex-col pb-6">
         <div className="mb-4 flex-shrink-0">
           <div className="flex flex-wrap items-baseline gap-4">
-            <h1
-              className={`${instrumentSerif.className} text-3xl font-light leading-none`}
-            >
+            <h1 className="font-serif text-3xl font-light leading-none">
               {selectedTeam.teamName}
             </h1>
             <div className="flex items-baseline gap-3">
-              <p
-                className={`${instrumentSerif.className} text-2xl font-light leading-none`}
-              >
+              <p className="font-serif text-2xl font-light leading-none">
                 {formatCurrency(selectedTeam.currentPrice)}
               </p>
               <div

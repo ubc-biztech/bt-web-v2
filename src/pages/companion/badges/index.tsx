@@ -136,9 +136,9 @@ const Badges = () => {
           ) : (
             <>
               {sortedBadges &&
-                sortedBadges.map((badge: Badge, index: number) => (
+                sortedBadges.map((badge: Badge) => (
                   <BadgeRow
-                    key={index}
+                    key={badge.questID}
                     badge={badge}
                     isHidden={hiddenBadges.includes(badge.questID)}
                     badgeIcon={blueprintBadgeIcons[badge.questID]}

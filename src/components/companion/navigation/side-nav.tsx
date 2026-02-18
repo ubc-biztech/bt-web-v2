@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
-import { motion, useAnimation, PanInfo } from "framer-motion";
+import { m, useAnimation, PanInfo } from "framer-motion";
 import { cn } from "@/lib/utils";
 import NavbarLogo from "@/assets/2025/blueprint/navbar_logo.png";
 
@@ -62,8 +62,16 @@ export const SideNav: React.FC<SideNavProps> = ({
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
         onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
       />
-      <motion.div
+      <m.div
         className={cn(
           "fixed top-0 right-0 w-80 h-full bg-black/60 backdrop-blur-xl border-l border-white/10 z-50 touch-pan-y",
           !isOpen && "pointer-events-none",
@@ -91,6 +99,7 @@ export const SideNav: React.FC<SideNavProps> = ({
                 src={NavbarLogo}
                 alt="BluePrint Logo"
                 fill
+                sizes="100vw"
                 className="object-contain"
                 priority
               />
@@ -116,7 +125,7 @@ export const SideNav: React.FC<SideNavProps> = ({
             })}
           </nav>
         </div>
-      </motion.div>
+      </m.div>
     </>
   );
 };

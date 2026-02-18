@@ -3,7 +3,7 @@
 import React from "react";
 import { Investment } from "./Recent";
 import { MessageSquareText, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface CommentsModalProps {
   investments?: Investment[];
@@ -26,21 +26,22 @@ const CommentsModal = ({ investments, setModal }: CommentsModalProps) => {
           <h2 className="text-white text-lg mb-4 font-normal">
             Recent Funding
           </h2>
-          <div
+          <button
+            type="button"
             onClick={() => {
               setModal(false);
             }}
             className="group w-8 h-8 bg-[#333333] hover:bg-white flex flex-row items-center justify-center rounded-sm hover:cursor-pointer transition duration-500 ease-in-out"
           >
             <X className="text-white size-5 group-hover:scale-105 group-hover:text-black " />
-          </div>
+          </button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence>
             {investments?.map((inv, idx) => (
-              <motion.div
-                key={idx}
+              <m.div
+                key={`${inv.investorName}-${inv.timestamp}-${inv.amount}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -75,7 +76,7 @@ const CommentsModal = ({ investments, setModal }: CommentsModalProps) => {
                     {inv.comment || "No comment"}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         </div>

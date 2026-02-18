@@ -2,37 +2,20 @@
 
 import { useEffect, useState } from "react";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
-import { Line } from "react-chartjs-2";
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import dynamic from "next/dynamic";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
   AnimatePresence,
 } from "framer-motion";
 
-// Register chart.js components
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-);
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+  ssr: false,
+});
 
 interface ConnectionsSummaryProps {
   isPartner: boolean;
@@ -46,6 +29,7 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
   const [totalConnections, setTotalConnections] = useState(0);
   const [mostActiveHour, setMostActiveHour] = useState<string>("");
   const [isTapped, setIsTapped] = useState(false);
+  const [isChartReady, setIsChartReady] = useState(false);
   const opacity = useMotionValue(1);
   const scale = useMotionValue(1);
   const y = useMotionValue(0);
@@ -59,6 +43,34 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
       router.push("/companion/wrapped/companyPersonals");
     }, 800);
   };
+
+  useEffect(() => {
+    const registerChart = async () => {
+      const {
+        Chart,
+        CategoryScale,
+        LinearScale,
+        PointElement,
+        LineElement,
+        Title,
+        Tooltip,
+        Legend,
+      } = await import("chart.js");
+
+      Chart.register(
+        CategoryScale,
+        LinearScale,
+        PointElement,
+        LineElement,
+        Title,
+        Tooltip,
+        Legend,
+      );
+      setIsChartReady(true);
+    };
+
+    registerChart();
+  }, []);
 
   useEffect(() => {
     const fetchConnections = async () => {
@@ -156,7 +168,7 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-4 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
@@ -166,22 +178,22 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
         {/* Header */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           You made
-        </motion.p>
+        </m.p>
 
         {/* Connection Count */}
-        <motion.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
+        <m.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           {totalConnections}
-        </motion.h1>
+        </m.h1>
 
         {/* Subtext */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           <span className="underline">connections</span> at BluePrint.
-        </motion.p>
+        </m.p>
 
         {/* Chart Container */}
-        <motion.div
+        <m.div
           className="bg-[#111827] rounded-lg p-6 shadow-lg w-[85%] max-w-md h-160"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,18 +203,24 @@ const ConnectionsSummary = ({ isPartner }: ConnectionsSummaryProps) => {
             Connections by Hour
           </p>
           <div className="h-48">
-            <Line data={chartData} options={chartOptions} />
+            {isChartReady ? (
+              <Line data={chartData} options={chartOptions} />
+            ) : (
+              <div className="h-full flex items-center justify-center text-sm text-white/60">
+                Loading chart...
+              </div>
+            )}
           </div>
-        </motion.div>
+        </m.div>
 
         {/* Most Active Hour */}
         {totalConnections > 0 && (
-          <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+          <m.p className="text-white text-lg font-satoshi font-medium text-center">
             You networked the most around{" "}
             <span className="font-satoshi font-bold">{mostActiveHour}</span>.
-          </motion.p>
+          </m.p>
         )}
-      </motion.div>
+      </m.div>
     </NavBarContainer>
   );
 };

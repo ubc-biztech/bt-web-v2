@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { DataTableProps, SortingState, ColumnFiltersState } from "./types";
 import {
+  ColumnDef,
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
@@ -20,25 +21,26 @@ import { QrCheckIn } from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
 import { isWaitlisted } from "@/lib/registrationStatus";
 
+const EMPTY_DYNAMIC_COLUMNS: ColumnDef<Registration>[] = [];
+
 export function DataTable({
   initialData,
   eventData,
-  dynamicColumns = [],
+  dynamicColumns = EMPTY_DYNAMIC_COLUMNS,
   eventId,
   year,
 }: DataTableProps<Registration>) {
-  const [data, setData] = useState(initialData);
+  const [data, setData] = useState<Registration[] | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [pageSize, setPageSize] = useState(10);
-  const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
-  const [filteredData, setFilteredData] = useState(initialData);
   const [filterValue, setFilterValue] = useState<
     "attendees" | "partners" | "waitlisted"
   >("attendees");
   const [globalFilter, setGlobalFilter] = useState("");
+  const tableData = data ?? initialData;
 
   const refreshTable = useCallback(async () => {
     try {
@@ -65,8 +67,8 @@ export function DataTable({
 
   const filterButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const filtered = data.filter((attendee) => {
+  const filteredData = useMemo(() => {
+    return tableData.filter((attendee) => {
       switch (filterValue) {
         case "partners":
           return attendee.isPartner === true;
@@ -79,12 +81,7 @@ export function DataTable({
           );
       }
     });
-    setFilteredData(filtered);
-  }, [data, filterValue]);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  }, [tableData, filterValue]);
 
   const table = useReactTable<Registration>({
     data: filteredData,
@@ -117,10 +114,10 @@ export function DataTable({
     meta: {
       updateData: (rowIndex: number, columnId: string, value: any) => {
         setData((old) =>
-          old.map((row, index) => {
+          (old ?? initialData).map((row, index) => {
             if (index === rowIndex) {
               return {
-                ...old[rowIndex],
+                ...(old ?? initialData)[rowIndex],
                 [columnId]: value,
               };
             }
@@ -131,7 +128,7 @@ export function DataTable({
     },
   });
 
-  if (!isClient) {
+  if (typeof window === "undefined") {
     return null;
   }
 
@@ -139,7 +136,7 @@ export function DataTable({
     <div className="space-y-4">
       <QrCheckIn
         event={{ id: eventId, year: year }}
-        rows={data}
+        rows={tableData}
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
       />

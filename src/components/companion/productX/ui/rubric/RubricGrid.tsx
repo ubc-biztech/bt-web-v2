@@ -52,9 +52,9 @@ const RubricGrid: React.FC<RubricGridProps> = ({
     <figure className="w-full grid grid-cols-6 grid-rows-5 gap-0 -mt-12">
       {/* All possible ratings */}
       <div />
-      {ratings.map((rating, index) => (
+      {ratings.map((rating) => (
         <div
-          key={`${rating}-${index}-${idx}`}
+          key={`${rating}`}
           className="flex flex-row items-end justify-center p-8"
         >
           <span className="text-lg">{rating}</span>
@@ -62,12 +62,12 @@ const RubricGrid: React.FC<RubricGridProps> = ({
       ))}
 
       {/* For every category.... */}
-      {metrics.map((category, index) => {
+      {metrics.map((category) => {
         const questions = rubricContentsMapping[category];
         return (
-          <>
+          <React.Fragment key={category}>
             <div
-              key={`category-${category}-${index}`}
+              key={`category-${category}`}
               className="text-lg w-full h-56 flex items-center justify-end p-8"
             >
               {mapMetricsToCategories[category]}
@@ -84,7 +84,6 @@ const RubricGrid: React.FC<RubricGridProps> = ({
                   <RubricCell
                     innerShadow={32}
                     selected={getRating(category) === rating}
-                    key={index}
                     handleClick={() => {
                       setRating(category, rating);
                     }}
@@ -95,7 +94,7 @@ const RubricGrid: React.FC<RubricGridProps> = ({
                 </div>
               );
             })}
-          </>
+          </React.Fragment>
         );
       })}
     </figure>

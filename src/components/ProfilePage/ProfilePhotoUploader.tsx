@@ -186,6 +186,7 @@ export default function ProfilePhotoUploader({
               src={preview || value!}
               alt="Profile picture"
               fill
+              sizes="100vw"
               className={`object-cover ${isUploading ? "opacity-70" : ""}`}
             />
           ) : (

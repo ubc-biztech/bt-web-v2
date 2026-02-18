@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import React from "react";
 
 const fadeInUpVariant = {
@@ -20,9 +20,9 @@ const FadeAnimationWrapper: React.FC<FadeAnimationWrapperProps> = ({
   className,
 }) => {
   return (
-    <motion.div {...fadeInUpVariant} className={className}>
+    <m.div {...fadeInUpVariant} className={className}>
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 

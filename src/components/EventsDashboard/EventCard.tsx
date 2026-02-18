@@ -1,5 +1,5 @@
 import { BiztechEvent } from "@/types/types";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import Image from "next/image";
 import { Bookmark } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
@@ -132,7 +132,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     <>
       <AnimatePresence mode="popLayout">
         <Link href={`/event/${event.id}/${event.year}/register`}>
-          <motion.div
+          <m.div
             key={`${event.id + event.year + event.createdAt} `}
             layout
             initial={{ y: -10, opacity: 0 }}
@@ -151,6 +151,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                   <Image
                     className="object-cover"
                     fill
+                    sizes="100vw"
                     src={event.imageUrl}
                     alt={event.ename}
                   />
@@ -190,7 +191,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </Link>
       </AnimatePresence>
     </>

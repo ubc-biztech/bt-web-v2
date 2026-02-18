@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapIcon, ListIcon, ArrowUpRight, ChevronDown } from "lucide-react";
 import Image from "next/image";
@@ -90,12 +90,13 @@ const SwapView: React.FC<{
 }> = ({ selectedView, setSelectedView }) => {
   return (
     <div className="relative flex items-center justify-between rounded-full w-16 h-8 p-0.5 bg-[#1E2939]">
-      <motion.div
+      <m.div
         className="absolute bg-white rounded-full w-8 h-7"
         animate={{ x: selectedView === "list" ? "-5%" : "85%" }}
         transition={{ type: "spring", stiffness: 600, damping: 50 }}
       />
-      <div
+      <button
+        type="button"
         className={`h-7 w-8 flex items-center justify-center p-0 text-white rounded-full z-10 cursor-pointer`}
         onClick={() => setSelectedView("list")}
         aria-pressed={selectedView === "list"}
@@ -105,8 +106,9 @@ const SwapView: React.FC<{
             selectedView === "list" ? "text-black" : "text-white"
           }`}
         />
-      </div>
-      <div
+      </button>
+      <button
+        type="button"
         className={`h-7 w-8 flex items-center justify-center p-0 text-white rounded-full z-10 cursor-pointer`}
         onClick={() => setSelectedView("map")}
         aria-pressed={selectedView === "map"}
@@ -116,7 +118,7 @@ const SwapView: React.FC<{
             selectedView === "map" ? "text-black" : "text-white"
           }`}
         />
-      </div>
+      </button>
     </div>
   );
 };
@@ -140,9 +142,9 @@ const CompanyCard = ({ company }: { company: Company }) => {
           </span>
           <p className="text-[14px] text-[#A0AEC0]">{company.description}</p>
           <div className="flex flex-wrap gap-2 mt-2">
-            {company.tags.map((tag, index) => (
+            {company.tags.map((tag) => (
               <div
-                key={`${tag}-${index}`}
+                key={tag}
                 className="px-2 py-0.5 text-white rounded-full text-[8px] outline outline-1 outline-[#A0AEC0]"
               >
                 {tag}

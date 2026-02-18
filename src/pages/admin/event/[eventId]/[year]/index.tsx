@@ -21,7 +21,7 @@ type Props = {
 export default function AdminEvent({ initialData, eventData }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Registration[] | null>(initialData);
+  const data = initialData;
   const [dynamicColumns, setDynamicColumns] = useState<
     ColumnDef<Registration>[]
   >([]);
