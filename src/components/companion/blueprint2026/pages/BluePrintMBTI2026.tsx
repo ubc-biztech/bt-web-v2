@@ -1,5 +1,4 @@
 import { ArrowUpRight } from "lucide-react";
-import { Kode_Mono, Libre_Baskerville } from "next/font/google";
 import Link from "next/link";
 import BluePrintLayout from "../layout/BluePrintLayout";
 import BluePrintCard from "../components/BluePrintCard";
@@ -8,17 +7,6 @@ import { DynamicPageProps } from "@/constants/companion-events";
 import { useQuizReport, useWrappedStats } from "@/queries/quiz";
 import { getQuizTypeDisplay } from "@/util/quizType";
 import { useUserProfile, getProfileId } from "@/queries/userProfile";
-
-const libre = Libre_Baskerville({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-});
-
-const kode = Kode_Mono({
-  subsets: ["latin"],
-  weight: ["400"],
-});
 
 const satoshiStyle = {
   fontFamily: '"Satoshi Variable","Satoshi",var(--font-urbanist),sans-serif',
@@ -56,7 +44,7 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
     return (
       <BluePrintLayout>
         <div className="flex flex-col items-center justify-center text-center gap-6 px-2 pb-12 pt-6 min-h-[60vh]">
-          <h2 className={`${libre.className} text-2xl text-white`}>
+          <h2 className="font-serif text-2xl text-white">
             No Quiz Results Found
           </h2>
           <p className="text-white/70 max-w-sm">
@@ -90,19 +78,17 @@ export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
           >
             Your Career Quiz Results
           </p>
-          <h1
-            className={`${libre.className} text-[56px] sm:text-[72px] tracking-[0.1em] text-white`}
-          >
+          <h1 className="font-serif text-[56px] sm:text-[72px] tracking-[0.1em] text-white">
             {mbti}
           </h1>
-          <p className={`${libre.className} text-sm italic text-white/80`}>
+          <p className="font-serif text-sm italic text-white/80">
             {typeDisplay.title}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-1.5">
             {traits.map((trait) => (
               <span
                 key={trait}
-                className={`${kode.className} rounded-sm border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.2em] text-white/90`}
+                className="font-mono rounded-sm border border-white/20 bg-black/40 px-2 py-0.5 text-[9px] uppercase tracking-[0.2em] text-white/90"
               >
                 {trait}
               </span>

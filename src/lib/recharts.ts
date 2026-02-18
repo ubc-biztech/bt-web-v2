@@ -1,1 +1,1 @@
-export * from "@/lib/recharts";
+export * from "recharts";
