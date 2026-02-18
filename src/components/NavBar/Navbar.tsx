@@ -10,6 +10,63 @@ import { Menu } from "lucide-react";
 import { ScreenBreakpoints } from "@/constants/values";
 import { throttle } from "lodash";
 
+const NavbarTabs = ({
+  isAdmin,
+  isSignedIn,
+  setIsSignedIn,
+  onTabClick,
+}: {
+  isAdmin: boolean;
+  isSignedIn: boolean;
+  setIsSignedIn: (value: boolean) => void;
+  onTabClick: () => void;
+}) => {
+  return (
+    <>
+      <div>
+        <Link href="/" className="mb-8 items-center flex gap-4">
+          <Image
+            src="/assets/biztech_logo.svg"
+            alt="BizTech Logo"
+            width={32}
+            height={32}
+          />
+          <h5 className="font-600 text-white text-lg">UBC BizTech</h5>
+        </Link>
+
+        {isAdmin && (
+          <>
+            {admin.map((navbarItem, index) => (
+              <NavbarTab
+                key={index}
+                navbarItem={navbarItem}
+                onTabClick={onTabClick}
+              />
+            ))}
+            <div className="w-full h-px bg-bt-blue-300 my-8" />
+          </>
+        )}
+        {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
+          <NavbarTab
+            key={index}
+            navbarItem={navbarItem}
+            onTabClick={onTabClick}
+          />
+        ))}
+      </div>
+      {isSignedIn ? (
+        <NavbarTab
+          navbarItem={logout}
+          onLogout={() => setIsSignedIn(false)}
+          onTabClick={onTabClick}
+        />
+      ) : (
+        <NavbarTab navbarItem={signin} />
+      )}
+    </>
+  );
+};
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -76,53 +133,6 @@ export default function Navbar() {
     fetchUserDetails();
   }, []);
 
-  const RenderNavbarTabs = () => {
-    return (
-      <>
-        <div>
-          <Link href="/" className="mb-8 items-center flex gap-4">
-            <Image
-              src="/assets/biztech_logo.svg"
-              alt="BizTech Logo"
-              width={32}
-              height={32}
-            />
-            <h5 className="font-600 text-white text-lg">UBC BizTech</h5>
-          </Link>
-
-          {isAdmin && (
-            <>
-              {admin.map((navbarItem, index) => (
-                <NavbarTab
-                  key={index}
-                  navbarItem={navbarItem}
-                  onTabClick={() => setIsOpen(false)}
-                />
-              ))}
-              <div className="w-full h-px bg-bt-blue-300 my-8" />
-            </>
-          )}
-          {defaultUser(isAdmin, isSignedIn).map((navbarItem, index) => (
-            <NavbarTab
-              key={index}
-              navbarItem={navbarItem}
-              onTabClick={() => setIsOpen(false)}
-            />
-          ))}
-        </div>
-        {isSignedIn ? (
-          <NavbarTab
-            navbarItem={logout}
-            onLogout={() => setIsSignedIn(false)}
-            onTabClick={() => setIsOpen(false)}
-          />
-        ) : (
-          <NavbarTab navbarItem={signin} />
-        )}
-      </>
-    );
-  };
-
   return (
     <>
       {/* Mobile Header - shows/hides on scroll */}
@@ -153,7 +163,12 @@ export default function Navbar() {
       {!isMobileDevice && (
         <div className="fixed top-0 left-0 bottom-0 z-30">
           <div className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6">
-            <RenderNavbarTabs />
+            <NavbarTabs
+              isAdmin={isAdmin}
+              isSignedIn={isSignedIn}
+              setIsSignedIn={setIsSignedIn}
+              onTabClick={() => setIsOpen(false)}
+            />
           </div>
         </div>
       )}
@@ -180,7 +195,12 @@ export default function Navbar() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <RenderNavbarTabs />
+              <NavbarTabs
+                isAdmin={isAdmin}
+                isSignedIn={isSignedIn}
+                setIsSignedIn={setIsSignedIn}
+                onTabClick={() => setIsOpen(false)}
+              />
             </motion.div>
           </motion.div>
         )}

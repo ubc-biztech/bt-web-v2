@@ -2,7 +2,6 @@ import BarChart from "../ui/BarChart";
 import Box from "../ui/rubric/RubricCell";
 import FadeWrapper from "../ui/FadeAnimationWrapper";
 import { User } from "lucide-react";
-import { useEffect, useState } from "react";
 import { mapMetricsToCategories } from "../constants/rubricContents";
 import { ScoringMetric, ScoringRecord, TeamFeedback } from "../types";
 import { capitalizeTeamName } from "../../CompanionHome";
@@ -64,21 +63,17 @@ interface DashboardProps {
   comments: { judgeName: string; category: string; message: string }[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({
+const Dashboard = ({
   team_name,
   members,
   flat_records,
   comments,
-}) => {
-  const [entries, setEntries] = useState(flat_records);
+}: DashboardProps) => {
+  const entries = flat_records;
   const bestMetric = findBestMetric(flat_records);
   const bestArea = bestMetric
     ? mapMetricsToCategories[bestMetric as ScoringMetric]
     : "N/A";
-
-  useEffect(() => {
-    setEntries(flat_records);
-  }, [flat_records]);
 
   return (
     <FadeWrapper className="flex flex-col">

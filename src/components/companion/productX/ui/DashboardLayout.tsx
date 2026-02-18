@@ -4,7 +4,6 @@
 import React, { ComponentType, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { TeamFeedback } from "../types";
-import { json } from "stream/consumers";
 
 interface DashboardLayoutProps {
   title: string; // * Title of the dashboard page
@@ -58,7 +57,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {pages.map((page) => {
           return (
             currentlyDisplayedPage === page.name && (
-              <page.component records={teams} />
+              <page.component key={page.name} records={teams} />
             )
           );
         })}

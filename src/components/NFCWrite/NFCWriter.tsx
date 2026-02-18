@@ -56,6 +56,53 @@ type NDEFReaderLike = {
   ) => void;
 };
 
+type StatusContentProps = {
+  children: React.ReactNode;
+  hasImage?: boolean;
+  imageSrc?: string;
+  imageAlt?: string;
+};
+
+const StatusContent = ({
+  children,
+  hasImage = false,
+  imageSrc = "/assets/icons/nfc_write_icon.png",
+  imageAlt = "Card",
+}: StatusContentProps) => (
+  <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+    {hasImage && (
+      <div className="mb-4">
+        <Image
+          className="w-[70px] h-[70px] object-cover mx-auto"
+          src={imageSrc}
+          alt={imageAlt}
+          width={70}
+          height={70}
+        />
+      </div>
+    )}
+    <div className="text-sm font-medium max-w-xs mx-auto leading-relaxed">
+      {children}
+    </div>
+  </div>
+);
+
+type StatusMessageProps = {
+  title: string;
+  subtitle?: string;
+};
+
+const StatusMessage = ({ title, subtitle }: StatusMessageProps) => (
+  <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
+    <div className="text-xl font-extrabold tracking-wide">{title}</div>
+    {subtitle && (
+      <div className="opacity-95 text-sm max-w-sm mx-auto leading-relaxed mt-2 text-wrap">
+        {subtitle}
+      </div>
+    )}
+  </div>
+);
+
 export const NFCWriter = ({
   token: profileID,
   email,
@@ -88,54 +135,6 @@ export const NFCWriter = ({
   const isError = status === "error" || status === "non_member";
 
   const nfcUrl = generateNfcProfileUrl(token);
-
-  // Helper component for consistent status rendering
-  const StatusContent = ({
-    children,
-    hasImage = false,
-    imageSrc = "/assets/icons/nfc_write_icon.png",
-    imageAlt = "Card",
-  }: {
-    children: React.ReactNode;
-    hasImage?: boolean;
-    imageSrc?: string;
-    imageAlt?: string;
-  }) => (
-    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
-      {hasImage && (
-        <div className="mb-4">
-          <Image
-            className="w-[70px] h-[70px] object-cover mx-auto"
-            src={imageSrc}
-            alt={imageAlt}
-            width={70}
-            height={70}
-          />
-        </div>
-      )}
-      <div className="text-sm font-medium max-w-xs mx-auto leading-relaxed">
-        {children}
-      </div>
-    </div>
-  );
-
-  // Helper component for success/error states with larger text
-  const StatusMessage = ({
-    title,
-    subtitle,
-  }: {
-    title: string;
-    subtitle?: string;
-  }) => (
-    <div className="absolute w-full left-1/2 top-[65%] transform -translate-x-1/2 gap-2 pointer-events-none z-[1000] text-center px-8">
-      <div className="text-xl font-extrabold tracking-wide">{title}</div>
-      {subtitle && (
-        <div className="opacity-95 text-sm max-w-sm mx-auto leading-relaxed mt-2 text-wrap">
-          {subtitle}
-        </div>
-      )}
-    </div>
-  );
 
   const ringClass = useMemo(() => {
     const baseClasses =

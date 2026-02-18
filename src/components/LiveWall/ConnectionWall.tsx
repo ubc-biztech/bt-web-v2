@@ -53,6 +53,23 @@ const QR_URL = process.env.NEXT_PUBLIC_WALL_QR_URL || "";
 const CROWN_COUNT = 3; // top-N nodes to crown
 const CROWN_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
 const CROWN_GLOW = 108 * VIS;
+const MEDALS = [
+  {
+    name: "Gold",
+    ring: "#FFD700",
+    fill: "linear-gradient(180deg,#FFE680,#FFD700)",
+  },
+  {
+    name: "Silver",
+    ring: "#C0C0C0",
+    fill: "linear-gradient(180deg,#F0F0F0,#C0C0C0)",
+  },
+  {
+    name: "Bronze",
+    ring: "#CD7F32",
+    fill: "linear-gradient(180deg,#E8B27A,#CD7F32)",
+  },
+];
 
 // Heatmap
 const HEATMAP_WINDOW_MS = 5 * 60_000; // recent activity window
@@ -153,6 +170,42 @@ const drawLabel = (
 
 const easeOutBack = (t: number, s = 1.10158) =>
   1 + s * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2);
+
+function MedalBadge({ rank }: { rank: number }) {
+  const medal = MEDALS[rank] ?? {
+    ring: "rgba(255,255,255,.25)",
+    fill: "linear-gradient(180deg,#FFF,#DDD)",
+  };
+  return (
+    <span
+      className="relative inline-flex items-center justify-center mr-2 shrink-0"
+      title={MEDALS[rank]?.name ?? "Top connector"}
+      style={{ width: 18, height: 18 }}
+    >
+      <span
+        className="relative rounded-full border"
+        style={{
+          width: 18,
+          height: 18,
+          background: medal.fill,
+          borderColor: `${medal.ring}90`,
+        }}
+      />
+      <span
+        className="absolute rounded-full"
+        style={{
+          top: 2,
+          left: 4,
+          width: 6,
+          height: 3,
+          background: "rgba(255,255,255,.7)",
+          filter: "blur(0.5px)",
+          borderRadius: 999,
+        }}
+      />
+    </span>
+  );
+}
 
 export default function ConnectionWall() {
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined);
@@ -982,60 +1035,6 @@ export default function ConnectionWall() {
     }),
     [dataTick],
   );
-
-  const MEDALS = [
-    {
-      name: "Gold",
-      ring: "#FFD700",
-      fill: "linear-gradient(180deg,#FFE680,#FFD700)",
-    },
-    {
-      name: "Silver",
-      ring: "#C0C0C0",
-      fill: "linear-gradient(180deg,#F0F0F0,#C0C0C0)",
-    },
-    {
-      name: "Bronze",
-      ring: "#CD7F32",
-      fill: "linear-gradient(180deg,#E8B27A,#CD7F32)",
-    },
-  ];
-
-  function MedalBadge({ rank }: { rank: number }) {
-    const m = MEDALS[rank] ?? {
-      ring: "rgba(255,255,255,.25)",
-      fill: "linear-gradient(180deg,#FFF,#DDD)",
-    };
-    return (
-      <span
-        className="relative inline-flex items-center justify-center mr-2 shrink-0"
-        title={MEDALS[rank]?.name ?? "Top connector"}
-        style={{ width: 18, height: 18 }}
-      >
-        <span
-          className="relative rounded-full border"
-          style={{
-            width: 18,
-            height: 18,
-            background: m.fill,
-            borderColor: `${m.ring}90`,
-          }}
-        />
-        <span
-          className="absolute rounded-full"
-          style={{
-            top: 2,
-            left: 4,
-            width: 6,
-            height: 3,
-            background: "rgba(255,255,255,.7)",
-            filter: "blur(0.5px)",
-            borderRadius: 999,
-          }}
-        />
-      </span>
-    );
-  }
 
   // UI
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 interface BoxProps {
   innerShadow: number;
@@ -16,7 +16,7 @@ const RubricCell: React.FC<BoxProps> = ({
   handleClick = () => {},
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [isSelected, setIsSelected] = useState(false);
+  const isSelected = selected;
   const shadowSize = 2 * innerShadow;
 
   const styles = {
@@ -40,10 +40,6 @@ const RubricCell: React.FC<BoxProps> = ({
         "filter 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease-in-out",
     },
   };
-
-  useEffect(() => {
-    setIsSelected(selected);
-  }, [selected]);
 
   return (
     <div

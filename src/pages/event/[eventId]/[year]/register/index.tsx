@@ -31,6 +31,151 @@ import Link from "next/link";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 
+type PaymentButtonProps = {
+  regState: RegistrationStateOld;
+  event: BiztechEvent;
+  user: User;
+  registrationStatus: DBRegistrationStatus;
+  getRegistrationState: () => Promise<RegistrationStateOld | null>;
+  samePricing: () => boolean;
+  priceDiff: () => number;
+};
+
+const PaymentButton = ({
+  regState,
+  event,
+  user,
+  registrationStatus,
+  getRegistrationState,
+  samePricing,
+  priceDiff,
+}: PaymentButtonProps) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleConfirmClick = async () => {
+    if (!event || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const state = await getRegistrationState();
+      if (!state) throw new Error("Unable to confirm attendance");
+      await state.confirmAttendance();
+      window.location.reload(); // show updated state
+    } catch (error) {
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePaymentClick = async () => {
+    if (!event || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const state = await getRegistrationState();
+      if (!state) throw new Error("Unable to generate payment link");
+      const result = await state.confirmAndPay(
+        state.registrationStatus() ?? registrationStatus,
+      );
+      if (!result?.paymentUrl)
+        throw new Error("Failed to generate payment link");
+      window.open(result.paymentUrl, "_blank");
+    } catch (err) {
+      console.error("Payment error:", err);
+      setError("An error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <div className="w-full max-w-xl mx-auto rounded-xl border border-white/10 bg-bt-blue-500/40 backdrop-blur p-5 sm:p-6 shadow-lg">
+        <h3 className="text-xl font-semibold text-white mb-1">
+          You&apos;re accepted!
+        </h3>
+
+        <div className="text-white/90 space-y-3">
+          <p className="text-base">
+            You have been accepted to{" "}
+            <span className="font-semibold text-white">{event.ename}</span>.
+          </p>
+          <p className="text-sm sm:text-base">
+            {regState.needsConfirmation() ? (
+              `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
+            ) : (
+              <>
+                To confirm your attendance on {extractMonthDay(event.startDate)},
+                please complete your payment or purchase a membership and return
+                to this page.
+              </>
+            )}
+          </p>
+
+          {/* #292: don't show at all if already member or no price difference */}
+          {!regState.needsConfirmation() && !user?.isMember && !samePricing() && (
+            <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
+              <div className="text-sm sm:text-base text-white">
+                Become a member and save
+              </div>
+              <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
+                ${priceDiff().toFixed(2)}
+                <span className="ml-2 text-white/80 text-sm font-normal">
+                  (
+                  {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                  )
+                </span>
+              </div>
+              <p className="mt-1 text-xs sm:text-sm text-white/80">
+                Plus, enjoy discounted pricing for future events.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5 flex flex-col sm:flex-row gap-3">
+          <Button
+            onClick={
+              regState.needsConfirmation() ? handleConfirmClick : handlePaymentClick
+            }
+            disabled={isLoading}
+            className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+          >
+            {isLoading ? (
+              <span className="flex items-center">
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Processing...
+              </span>
+            ) : regState.needsConfirmation() ? (
+              "Confirm Attendance"
+            ) : (
+              "Pay and Confirm Attendance"
+            )}
+          </Button>
+
+          {regState.needsPayment() && !user?.isMember && (
+            <Button
+              variant="outline"
+              className="border-white/20 text-white hover:bg-white/10"
+              onClick={() => (window.location.href = "/membership")}
+            >
+              Become a Member
+            </Button>
+          )}
+        </div>
+
+        {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
+      </div>
+    </div>
+  );
+};
+
 export default function AttendeeFormRegister() {
   const router = useRouter();
   const { eventId, year } = router.query;
@@ -470,144 +615,17 @@ export default function AttendeeFormRegister() {
           </div>,
         );
       } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
-        const PaymentButton = () => {
-          const currentState = regState;
-          const [isLoading, setIsLoading] = useState(false);
-          const [error, setError] = useState<string | null>(null);
-          if (!currentState) return null;
-
-          const handleConfirmClick = async () => {
-            if (!event || isLoading) return;
-
-            setIsLoading(true);
-            setError(null);
-
-            try {
-              const state = await getRegistrationState();
-              if (!state) throw new Error("Unable to confirm attendance");
-              await state.confirmAttendance();
-              window.location.reload(); // show updated state
-            } catch (error) {
-              setError("An error occurred. Please try again.");
-            } finally {
-              setIsLoading(false);
-            }
-          };
-
-          const handlePaymentClick = async () => {
-            if (!event || isLoading) return;
-
-            setIsLoading(true);
-            setError(null);
-
-            try {
-              const state = await getRegistrationState();
-              if (!state) throw new Error("Unable to generate payment link");
-              const result = await state.confirmAndPay(
-                state.registrationStatus() ?? registrationStatus,
-              );
-              if (!result?.paymentUrl)
-                throw new Error("Failed to generate payment link");
-              window.open(result.paymentUrl, "_blank");
-            } catch (err) {
-              console.error("Payment error:", err);
-              setError("An error occurred. Please try again.");
-            } finally {
-              setIsLoading(false);
-            }
-          };
-
-          return (
-            <div className="w-full">
-              <div className="w-full max-w-xl mx-auto rounded-xl border border-white/10 bg-bt-blue-500/40 backdrop-blur p-5 sm:p-6 shadow-lg">
-                <h3 className="text-xl font-semibold text-white mb-1">
-                  You&apos;re accepted!
-                </h3>
-
-                <div className="text-white/90 space-y-3">
-                  <p className="text-base">
-                    You have been accepted to{" "}
-                    <span className="font-semibold text-white">
-                      {event.ename}
-                    </span>
-                    .
-                  </p>
-                  <p className="text-sm sm:text-base">
-                    {currentState.needsConfirmation() ? (
-                      `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
-                    ) : (
-                      <>
-                        To confirm your attendance on{" "}
-                        {extractMonthDay(event.startDate)}, please complete your
-                        payment or purchase a membership and return to this
-                        page.
-                      </>
-                    )}
-                  </p>
-
-                  {/* #292: don't show at all if already member or no price difference */}
-                  {!currentState.needsConfirmation() &&
-                    !user?.isMember &&
-                    !samePricing() && (
-                      <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
-                        <div className="text-sm sm:text-base text-white">
-                          Become a member and save
-                        </div>
-                        <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
-                          ${priceDiff().toFixed(2)}
-                          <span className="ml-2 text-white/80 text-sm font-normal">
-                            (
-                            {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
-                            )
-                          </span>
-                        </div>
-                        <p className="mt-1 text-xs sm:text-sm text-white/80">
-                          Plus, enjoy discounted pricing for future events.
-                        </p>
-                      </div>
-                    )}
-                </div>
-
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                  <Button
-                    onClick={
-                      currentState.needsConfirmation()
-                        ? handleConfirmClick
-                        : handlePaymentClick
-                    }
-                    disabled={isLoading}
-                    className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center">
-                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                        Processing...
-                      </span>
-                    ) : currentState.needsConfirmation() ? (
-                      "Confirm Attendance"
-                    ) : (
-                      "Pay and Confirm Attendance"
-                    )}
-                  </Button>
-
-                  {currentState.needsPayment() && !user.isMember && (
-                    <Button
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10"
-                      onClick={() => (window.location.href = "/membership")}
-                    >
-                      Become a Member
-                    </Button>
-                  )}
-                </div>
-
-                {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
-              </div>
-            </div>
-          );
-        };
-
-        return renderErrorText(<PaymentButton />);
+        return renderErrorText(
+          <PaymentButton
+            regState={regState}
+            event={event}
+            user={user}
+            registrationStatus={registrationStatus}
+            getRegistrationState={getRegistrationState}
+            samePricing={samePricing}
+            priceDiff={priceDiff}
+          />,
+        );
       }
       if (companionAvailable) {
         return renderErrorText(
