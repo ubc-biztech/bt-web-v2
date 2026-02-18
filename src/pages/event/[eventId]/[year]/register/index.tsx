@@ -111,38 +111,42 @@ const PaymentButton = ({
               `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
             ) : (
               <>
-                To confirm your attendance on {extractMonthDay(event.startDate)},
-                please complete your payment or purchase a membership and return
-                to this page.
+                To confirm your attendance on {extractMonthDay(event.startDate)}
+                , please complete your payment or purchase a membership and
+                return to this page.
               </>
             )}
           </p>
 
           {/* #292: don't show at all if already member or no price difference */}
-          {!regState.needsConfirmation() && !user?.isMember && !samePricing() && (
-            <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
-              <div className="text-sm sm:text-base text-white">
-                Become a member and save
+          {!regState.needsConfirmation() &&
+            !user?.isMember &&
+            !samePricing() && (
+              <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
+                <div className="text-sm sm:text-base text-white">
+                  Become a member and save
+                </div>
+                <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
+                  ${priceDiff().toFixed(2)}
+                  <span className="ml-2 text-white/80 text-sm font-normal">
+                    (
+                    {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
+                    )
+                  </span>
+                </div>
+                <p className="mt-1 text-xs sm:text-sm text-white/80">
+                  Plus, enjoy discounted pricing for future events.
+                </p>
               </div>
-              <div className="mt-1 text-lg sm:text-xl font-semibold text-bt-green-300">
-                ${priceDiff().toFixed(2)}
-                <span className="ml-2 text-white/80 text-sm font-normal">
-                  (
-                  {`$${event.pricing?.nonMembers.toFixed(2)} vs $${event.pricing?.members.toFixed(2)}`}
-                  )
-                </span>
-              </div>
-              <p className="mt-1 text-xs sm:text-sm text-white/80">
-                Plus, enjoy discounted pricing for future events.
-              </p>
-            </div>
-          )}
+            )}
         </div>
 
         <div className="mt-5 flex flex-col sm:flex-row gap-3">
           <Button
             onClick={
-              regState.needsConfirmation() ? handleConfirmClick : handlePaymentClick
+              regState.needsConfirmation()
+                ? handleConfirmClick
+                : handlePaymentClick
             }
             disabled={isLoading}
             className={`${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
