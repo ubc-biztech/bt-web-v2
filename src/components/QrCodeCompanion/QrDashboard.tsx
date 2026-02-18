@@ -20,8 +20,8 @@ interface QrDashboardProps {
 }
 
 export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
-  const [renderedQRs, setRenderedQRs] = useState<QR[]>(qrs.slice(0, 5));
-  const [viewMore, setViewMore] = useState(qrs.length > 4);
+  const [renderedQRs, setRenderedQRs] = useState<QR[]>(() => qrs.slice(0, 5));
+  const [viewMore, setViewMore] = useState(() => qrs.length > 4);
   const [searchField, setSearchField] = useState("");
   const [qrTypeFilter, setQrTypeFilter] = useState(QrType.any);
   const [yearFilter, setYearFilter] = useState(QrType.any);
@@ -127,14 +127,15 @@ export const QrDashboard: FC<QrDashboardProps> = ({ qrs, setQRs }) => {
         ))}
       </div>
       {!viewMore && (
-        <div
+        <button
+          type="button"
           className="text-lg flex flex-row items-center justify-center text-bt-blue-100 my-12 cursor-pointer"
-          onClick={(e) => {
+          onClick={() => {
             setRenderedQRs(filteredQRs);
           }}
         >
           Load More
-        </div>
+        </button>
       )}
     </div>
   );

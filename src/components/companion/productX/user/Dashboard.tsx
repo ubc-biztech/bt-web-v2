@@ -82,8 +82,8 @@ const Dashboard = ({
           <header className="text-xl text-white">
             {capitalizeTeamName(team_name)}
           </header>
-          {members.map((member, index) => (
-            <span key={index} className="mt-1">
+          {members.map((member) => (
+            <span key={member} className="mt-1">
               {member}
             </span>
           ))}
@@ -142,8 +142,11 @@ const Dashboard = ({
                 {comments
                   .filter((comment) => comment.message.trim() !== "") // Remove empty messages
                   .slice(0, 3) // Take the first 3 non-empty comments
-                  .map((comment, index) => (
-                    <div key={index} className="flex flex-col text-[12px]">
+                  .map((comment) => (
+                    <div
+                      key={`${comment.judgeName}-${comment.category}-${comment.message}`}
+                      className="flex flex-col text-[12px]"
+                    >
                       <div className="flex flex-row gap-1">
                         <User size={20} />
                         <header className="text-mb">{comment.judgeName}</header>

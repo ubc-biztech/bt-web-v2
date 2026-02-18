@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 interface BoxProps {
   innerShadow: number;
@@ -13,9 +13,10 @@ const Box: React.FC<BoxProps> = ({
   className,
   children,
   hoverEffects = false,
-  handleClick = () => {},
+  handleClick,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const isClickable = Boolean(handleClick);
   const shadowSize = 2 * innerShadow;
   const baseStyles = `
         w-full
@@ -36,6 +37,31 @@ const Box: React.FC<BoxProps> = ({
     },
   };
 
+  if (isClickable) {
+    return (
+      <div
+        className={`
+                  ${baseStyles}
+  border-2 border-[#1B1C39] bg-[#020319] cursor-pointer
+              `}
+        style={isHovered ? styles.hover : styles.default}
+        onMouseEnter={() => hoverEffects && setIsHovered(true)}
+        onMouseLeave={() => hoverEffects && setIsHovered(false)}
+        onClick={handleClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleClick?.();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div
       className={`
@@ -45,9 +71,6 @@ border-2 border-[#1B1C39] bg-[#020319]
       style={isHovered ? styles.hover : styles.default}
       onMouseEnter={() => hoverEffects && setIsHovered(true)}
       onMouseLeave={() => hoverEffects && setIsHovered(false)}
-      onClick={() => {
-        handleClick();
-      }}
     >
       {children}
     </div>

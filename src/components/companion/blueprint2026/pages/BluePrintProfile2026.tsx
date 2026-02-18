@@ -21,7 +21,7 @@ import BluePrintCard from "../components/BluePrintCard";
 import BluePrintButton from "../components/BluePrintButton";
 import { fetchBackend } from "@/lib/db";
 import { UserProfile, BackendProfile } from "@/types";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useUserProfile, getProfileId } from "@/queries/userProfile";
@@ -201,14 +201,14 @@ export default function BluePrintProfile2026(
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
 
-      <motion.div
+      <m.div
         className="flex flex-col gap-2 pb-6"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Back button and Edit button */}
-        <motion.div
+        <m.div
           variants={itemVariants}
           className="flex justify-between items-center"
         >
@@ -228,28 +228,28 @@ export default function BluePrintProfile2026(
               Edit
             </BluePrintButton>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Profile Header */}
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <ProfileHeader profile={profile} />
-        </motion.div>
+        </m.div>
 
         {/* Profile Info (Academic or Professional) */}
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <ProfileInfo profile={profile} />
-        </motion.div>
+        </m.div>
 
         {/* About & Hobbies */}
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <ProfileAbout profile={profile} />
-        </motion.div>
+        </m.div>
 
         {/* Links */}
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <ProfileLinks profile={profile} />
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </BluePrintLayout>
   );
 }
@@ -601,14 +601,14 @@ function BluePrintEditProfile({
       {/* Dark overlay for better readability */}
       <div className="fixed inset-0 bg-black/50 pointer-events-none -z-10" />
 
-      <motion.div
+      <m.div
         className="flex flex-col gap-4 pb-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Header */}
-        <motion.div
+        <m.div
           variants={itemVariants}
           className="flex justify-between items-center"
         >
@@ -620,25 +620,25 @@ function BluePrintEditProfile({
             <X size={16} />
             Cancel
           </BluePrintButton>
-        </motion.div>
+        </m.div>
 
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <h1 className="text-2xl font-medium bg-gradient-to-br from-[#6299ff] to-[#EAE5D4] bg-clip-text text-transparent text-center">
             Edit Profile
           </h1>
-        </motion.div>
+        </m.div>
 
         {/* Form */}
-        <motion.div variants={itemVariants}>
+        <m.div variants={itemVariants}>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4"
           >
             {/* Description */}
             <BluePrintCard className="bg-black/40 border-white/20">
-              <label className="text-sm font-medium text-white/80 mb-2 block">
+              <div className="text-sm font-medium text-white/80 mb-2 block">
                 About You
-              </label>
+              </div>
               <textarea
                 {...register("description")}
                 placeholder="Tell people about yourself..."
@@ -671,9 +671,9 @@ function BluePrintEditProfile({
 
             {/* Fun Questions */}
             <BluePrintCard className="bg-black/40 border-white/20">
-              <label className="text-sm font-medium text-white/80 mb-2 block">
+              <div className="text-sm font-medium text-white/80 mb-2 block">
                 Fun Questions
-              </label>
+              </div>
               <div className="flex flex-col gap-3">
                 <input
                   {...register("funQuestion1")}
@@ -690,9 +690,9 @@ function BluePrintEditProfile({
 
             {/* Links */}
             <BluePrintCard className="bg-black/40 border-white/20">
-              <label className="text-sm font-medium text-white/80 mb-2 block">
+              <div className="text-sm font-medium text-white/80 mb-2 block">
                 Social Links
-              </label>
+              </div>
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2">
                   <Linkedin
@@ -738,8 +738,8 @@ function BluePrintEditProfile({
               )}
             </BluePrintButton>
           </form>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </>
   );
 }

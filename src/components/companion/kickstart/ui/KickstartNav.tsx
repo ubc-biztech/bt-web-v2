@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { PenTool, Coins, Settings } from "lucide-react";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
 
@@ -12,11 +12,6 @@ interface KickstartNavProps {
 
 export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
   const [lastNavIdx, setLastNavIdx] = useState(0);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const tabs = [
     { id: KickstartPages.OVERVIEW, label: "Overview", Icon: PenTool },
@@ -60,7 +55,7 @@ export function KickstartNav({ children, page, setPage }: KickstartNavProps) {
           overflow-y-hidden
           w-full
           text-[#B4B4B4] 
-          ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"} 
+          opacity-100 translate-y-0
           transition-opacity 
           duration-500 
           flex 

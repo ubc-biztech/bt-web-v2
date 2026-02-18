@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface TabProps {
   tabs: { label: React.ReactNode; value: string }[];
@@ -30,7 +30,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
               {tab.label}
 
               {activeTab === tab.value && (
-                <motion.div
+                <m.div
                   layoutId="activeTabIndicator"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-bt-green-300"
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -48,7 +48,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
           {panels.map(
             (panel) =>
               panel.value === activeTab && (
-                <motion.div
+                <m.div
                   key={panel.value}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
                   transition={{ duration: 0.2 }}
                 >
                   {panel.content}
-                </motion.div>
+                </m.div>
               ),
           )}
         </AnimatePresence>

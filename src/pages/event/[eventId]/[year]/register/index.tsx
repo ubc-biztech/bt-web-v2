@@ -521,6 +521,7 @@ export default function AttendeeFormRegister() {
                 src={event.imageUrl}
                 alt="Event Cover"
                 fill
+                sizes="100vw"
                 className="w-full h-full object-cover"
               />
             ) : (

@@ -1549,11 +1549,12 @@ export default function ConnectionWall() {
             {!!QR_URL && (
               <div className="hidden sm:flex items-center gap-2">
                 <div className="flex items-center gap-2 bg-white/8 border border-white/15 rounded-lg px-2 py-1">
-                  <img
+                  <Image
                     src={QR_URL}
                     alt="Join"
                     width={52}
                     height={52}
+                    unoptimized
                     style={{ width: 52, height: 52 }}
                   />
                   <div className="text-white/90 text-xs leading-tight pr-1">
@@ -1570,6 +1571,7 @@ export default function ConnectionWall() {
       )}
 
       {/* Animations / Styles */}
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx>{`
         /* Ticker */
         .ticker {

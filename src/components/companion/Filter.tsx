@@ -19,15 +19,16 @@ const Filter: React.FC<FilterProps> = ({
                     rounded-full items-center text-[12px] h-full"
       >
         {filterOptions.map((option, index) => (
-          <div
-            key={index}
+          <button
+            type="button"
+            key={option}
             className={`px-[10px] rounded-full py-1 flex items-center justify-center ${
               index === selectedFilterOption ? selectedStyle : unselectedStyle
             }`}
             onClick={() => setSelectedFilterOption(index)}
           >
             {option}
-          </div>
+          </button>
         ))}
       </div>
     </div>

@@ -13,7 +13,7 @@ import BluePrintCard from "@/components/companion/blueprint2026/components/BlueP
 import BluePrintButton from "@/components/companion/blueprint2026/components/BluePrintButton";
 import { useConnections } from "@/queries/connections";
 import { Connection } from "@/pages/connections";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -226,18 +226,18 @@ const ConnectionsPage = () => {
 
         {/* Connections List */}
         {!isLoading && !isError && filteredConnections.length > 0 && (
-          <motion.div
+          <m.div
             className="flex flex-col gap-3"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
             {filteredConnections.map((connection) => (
-              <motion.div key={connection.connectionID} variants={itemVariants}>
+              <m.div key={connection.connectionID} variants={itemVariants}>
                 <ConnectionCard connection={connection} />
-              </motion.div>
+              </m.div>
             ))}
-          </motion.div>
+          </m.div>
         )}
       </div>
     </BluePrintLayout>

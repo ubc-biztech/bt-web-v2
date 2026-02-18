@@ -1,6 +1,6 @@
 import QRCode from "qrcode";
 import { X } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -62,7 +62,7 @@ const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
   };
 
   return (
-    <motion.div
+    <m.div
       className="space-y-1 relative"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
@@ -119,7 +119,7 @@ const QR = ({ resetFlow, setOpenQR, currentTeam }: SuccessProps) => {
           </div>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 

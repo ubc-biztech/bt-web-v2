@@ -26,25 +26,26 @@ export type ModalHandlers = {
 export default function AdminEventView({ events }: Props) {
   const router = useRouter();
   const [isLoading, setLoading] = useState(!events);
-  const [data, setData] = useState<BiztechEvent[] | null>(events);
+  const [data, setData] = useState<BiztechEvent[] | null>(null);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [event, setEvent] = useState<BiztechEvent | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
+  const eventsData = data ?? events;
 
   // Pagination logic
   const paginatedData = useMemo(() => {
-    if (!data) return [];
+    if (!eventsData) return [];
     const startIndex = (currentPage - 1) * EVENTS_PER_PAGE;
-    return data.slice(startIndex, startIndex + EVENTS_PER_PAGE);
-  }, [data, currentPage]);
+    return eventsData.slice(startIndex, startIndex + EVENTS_PER_PAGE);
+  }, [eventsData, currentPage]);
 
   const totalPages = useMemo(() => {
-    if (!data) return 0;
-    return Math.ceil(data.length / EVENTS_PER_PAGE);
-  }, [data]);
+    if (!eventsData) return 0;
+    return Math.ceil(eventsData.length / EVENTS_PER_PAGE);
+  }, [eventsData]);
 
   const handleEventDelete = () => {
     setIsDelete(true);
@@ -116,6 +117,9 @@ export default function AdminEventView({ events }: Props) {
           setIsClicked(false);
         }
       }}
+      onKeyDown={() => {}}
+      role="presentation"
+      tabIndex={-1}
     >
       <div className="mx-auto pt-8 flex flex-col">
         {/* Header Code and displaying view icons depending on device */}

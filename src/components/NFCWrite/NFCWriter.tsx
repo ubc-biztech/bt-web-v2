@@ -361,6 +361,7 @@ export const NFCWriter = ({
               src={"/assets/biztech_logo.svg"}
               alt="Profile"
               fill
+              sizes="100vw"
               className="object-cover"
             />
           </div>

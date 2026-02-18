@@ -107,8 +107,11 @@ const Scores: React.FC<ScoresProps> = ({ teamName, records }) => {
                         </SelectTrigger>
 
                         <SelectContent>
-                          {reports.map((report, i) => (
-                            <SelectItem key={i} value={report.judgeName}>
+                          {reports.map((report) => (
+                            <SelectItem
+                              key={report.judgeName}
+                              value={report.judgeName}
+                            >
                               {report.judgeName}
                             </SelectItem>
                           ))}

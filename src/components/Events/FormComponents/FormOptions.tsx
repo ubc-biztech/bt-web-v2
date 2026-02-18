@@ -45,34 +45,32 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
     setValue(`customQuestions.${index}.options`, currentOptions);
   };
 
-  const renderOptions = () => {
+  const optionsContent = (() => {
     switch (questionType) {
       case "CHECKBOX":
         return (
           <div className="space-y-4">
             <FormLabel>Options</FormLabel>
             <div className="space-y-3">
-              {(options as string[]).map(
-                (option: string, optionIndex: number) => (
-                  <div
-                    key={optionIndex}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
-                      {option}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveOption(optionIndex)}
-                      className="h-8 w-8 p-0 ml-2"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+              {(options as string[]).map((option: string, optionIndex: number) => (
+                <div
+                  key={option}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex-1 p-2 border rounded-md bg-muted text-black">
+                    {option}
                   </div>
-                ),
-              )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveOption(optionIndex)}
+                    className="h-8 w-8 p-0 ml-2"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -86,27 +84,25 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                 : "Options"}
             </FormLabel>
             <div className="space-y-3">
-              {(options as string[]).map(
-                (option: string, optionIndex: number) => (
-                  <div
-                    key={optionIndex}
-                    className="flex items-center space-x-3"
-                  >
-                    <div className="flex-1 p-2 border rounded-md bg-muted text-black">
-                      {option}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveOption(optionIndex)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+              {(options as string[]).map((option: string, optionIndex: number) => (
+                <div
+                  key={option}
+                  className="flex items-center space-x-3"
+                >
+                  <div className="flex-1 p-2 border rounded-md bg-muted text-black">
+                    {option}
                   </div>
-                ),
-              )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveOption(optionIndex)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -143,7 +139,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
       default:
         return null;
     }
-  };
+  })();
 
   const handleAddOption = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -163,7 +159,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
 
   return (
     <FormItem className="space-y-6">
-      {renderOptions()}
+      {optionsContent}
       {["CHECKBOX", "SELECT", "WORKSHOP_SELECTION"].includes(questionType) && (
         <div className="space-y-2">
           <FormControl>

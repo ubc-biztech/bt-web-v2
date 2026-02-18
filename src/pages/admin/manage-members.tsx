@@ -91,7 +91,7 @@ const COLS_STORAGE_KEY = "membersTable:colVisibility";
 const PAGE_SIZE_STORAGE_KEY = "membersTable:pageSize";
 
 export default function ManageMembers({ initialData }: Props) {
-  const [data, setData] = useState<Member[] | null>(initialData);
+  const [data, setData] = useState<Member[] | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debounced, setDebounced] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -103,6 +103,7 @@ export default function ManageMembers({ initialData }: Props) {
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
+  const membersData = data ?? initialData;
 
   useEffect(() => {
     try {
@@ -168,17 +169,17 @@ export default function ManageMembers({ initialData }: Props) {
   }, [searchTerm]);
 
   const filteredData = useMemo(() => {
-    if (!data) return [];
+    if (!membersData) return [];
     const q = debounced.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter((m) => {
+    if (!q) return membersData;
+    return membersData.filter((m) => {
       const hay = [m.firstName, m.lastName, m.id, m.major, m.faculty, m.year]
         .filter(Boolean)
         .join(" ")
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [data, debounced]);
+  }, [membersData, debounced]);
 
   const sortRows = (rows: Member[]) => {
     const copy = [...rows];
@@ -203,8 +204,8 @@ export default function ManageMembers({ initialData }: Props) {
     [filteredData, sortKey, sortDir],
   );
   const allMembersSorted = useMemo(
-    () => sortRows(data ?? []),
-    [data, sortKey, sortDir],
+    () => sortRows(membersData ?? []),
+    [membersData, sortKey, sortDir],
   );
 
   const pageCount = Math.max(1, Math.ceil(sortedData.length / pageSize));
@@ -579,7 +580,7 @@ export default function ManageMembers({ initialData }: Props) {
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white px-3 py-1 text-xs md:text-sm">
-                Total: <strong>{data?.length ?? 0}</strong>
+                Total: <strong>{membersData?.length ?? 0}</strong>
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 text-white px-3 py-1 text-xs md:text-sm">
                 Showing: <strong>{sortedData.length}</strong>

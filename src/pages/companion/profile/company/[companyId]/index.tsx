@@ -4,7 +4,7 @@ import AdditionalLinks from "../../../../../components/companion/blueprintProfil
 import { AnimatedBorder } from "../../../../../components/ui/animated-border";
 import { useRouter } from "next/router";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import ResponseSection from "@/components/companion/blueprintProfiles/responseSection";
 import { fetchBackend } from "@/lib/db";
 import { Loader2 } from "lucide-react";
@@ -114,27 +114,27 @@ export default function CompanyPage() {
   return (
     <div className="relative min-h-screen w-full bg-gradient-to-b from-[#040C12] to-[#030608] text-white p-4 sm:p-4 mx-auto pb-[100px]">
       <NavBarContainer>
-        <motion.div
+        <m.div
           className="flex-1"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants}>
+          <m.div variants={itemVariants}>
             <Profile userData={userData} />
-          </motion.div>
+          </m.div>
           <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-3 sm:mb-4">
-            <motion.div variants={itemVariants}>
+            <m.div variants={itemVariants}>
               <ResponseSection
                 title={`ABOUT ${userData.name.toUpperCase()}`}
                 text={userData.description}
               />
-            </motion.div>
+            </m.div>
           </div>
-          <motion.div variants={itemVariants}>
+          <m.div variants={itemVariants}>
             <AdditionalLinks userData={userData} />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </NavBarContainer>
     </div>
   );

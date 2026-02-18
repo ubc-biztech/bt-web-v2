@@ -31,6 +31,7 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
                 alt="Event Cover"
                 className="w-full h-full object-cover"
                 fill
+                sizes="100vw"
               />
             ) : (
               <span className="text-gray-400">Event Cover Photo</span>

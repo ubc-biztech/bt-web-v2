@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { X, Share, Copy } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import QRCode from "qrcode";
 import { toast } from "../ui/use-toast";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,11 @@ const QRCodeSection = ({
       <div
         className="place-items-center pb-4 h-fit w-fit bg-white relative rounded-lg"
         onClick={onClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") e.preventDefault();
+        }}
+        role="button"
+        tabIndex={0}
       >
         <div className="relative">
           {error ? (
@@ -172,7 +177,7 @@ const ShareProfileDrawer = ({
         {isOpen && (
           <>
             {/* Overlay */}
-            <motion.div
+            <m.div
               className="fixed inset-0 bg-black bg-opacity-50 z-[99] backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -181,7 +186,7 @@ const ShareProfileDrawer = ({
               onClick={closeDrawer}
             />
 
-            <motion.div
+            <m.div
               className="fixed inset-x-0 w-fit h-fit bottom-[60%] mx-auto z-[100] md:hidden"
               initial={{ y: "55%", opacity: 0, scale: 0.95 }}
               animate={{ y: "50%", opacity: 1, scale: 1 }}
@@ -189,10 +194,10 @@ const ShareProfileDrawer = ({
               transition={{ duration: 0.2, ease: "easeInOut" }}
             >
               <QRCodeSection onClick={(e) => e.stopPropagation()} data={url} />
-            </motion.div>
+            </m.div>
 
             {/* Mobile Layout */}
-            <motion.div
+            <m.div
               className="fixed inset-x-0 bottom-0 z-[100] md:hidden"
               {...getAnimationProps(true)}
               onClick={closeDrawer}
@@ -200,14 +205,16 @@ const ShareProfileDrawer = ({
               <div
                 className="bg-bt-blue-500 shadow-[inset_0_0_24px_rgba(255,255,255,0.1)] rounded-t-3xl w-screen mx-auto p-6 space-y-4"
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                role="presentation"
               >
                 <DrawerHeader onClose={closeDrawer} />
                 <ShareActions onShare={handleShare} onCopyLink={copyLink} />
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Desktop Layout */}
-            <motion.div
+            <m.div
               className="hidden md:flex fixed inset-0 z-[999] items-center justify-center p-4"
               {...getAnimationProps(false)}
               onClick={closeDrawer}
@@ -215,12 +222,14 @@ const ShareProfileDrawer = ({
               <div
                 className="bg-bt-blue-500 shadow-[inset_0_0_12px_rgba(255,255,255,0.1)] rounded-2xl w-fit p-8 space-y-4"
                 onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                role="presentation"
               >
                 <DrawerHeader onClose={closeDrawer} />
                 <QRCodeSection data={url} />
                 <ShareActions onShare={handleShare} onCopyLink={copyLink} />
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
