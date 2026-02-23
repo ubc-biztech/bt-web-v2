@@ -45,6 +45,17 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useForm, FormProvider } from "react-hook-form";
+import MembershipFormSection, {
+  MembershipFormValues,
+} from "@/components/SignUpForm/MembershipFormSection";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Member = {
   profileID: string;
@@ -90,6 +101,22 @@ const ALL_COLS: Array<{ key: keyof typeof COLS_DEFAULT; label: string }> = [
 
 const COLS_STORAGE_KEY = "membersTable:colVisibility";
 const PAGE_SIZE_STORAGE_KEY = "membersTable:pageSize";
+const CREATE_MEMBER_DEFAULT_VALUES: MembershipFormValues = {
+  email: "",
+  firstName: "",
+  lastName: "",
+  education: "",
+  studentNumber: "",
+  pronouns: "",
+  levelOfStudy: "",
+  faculty: "",
+  major: "",
+  internationalStudent: "",
+  previousMember: "",
+  dietaryRestrictions: "None",
+  referral: "",
+  topics: [],
+};
 
 export default function ManageMembers({ initialData }: Props) {
   const [data, setData] = useState<Member[] | null>(initialData);
@@ -99,15 +126,36 @@ export default function ManageMembers({ initialData }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [membershipUpdating, setMembershipUpdating] = useState<
-    "grant" | "revoke" | null
-  >(null);
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
+
+  const methods = useForm<MembershipFormValues>({
+    defaultValues: CREATE_MEMBER_DEFAULT_VALUES,
+  });
+
+  const openCreateMemberModal = () => {
+    methods.reset(CREATE_MEMBER_DEFAULT_VALUES);
+    setIsModalOpen(true);
+  };
+
+  const closeCreateMemberModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCreateMemberSubmit = (values: MembershipFormValues) => {
+    console.log("Create member payload:", values);
+    toast({
+      title: "Form captured",
+      description:
+        "Membership form submitted in modal. Wire this handler to your create-member backend endpoint.",
+    });
+    closeCreateMemberModal();
+  };
 
   useEffect(() => {
     try {
@@ -279,7 +327,6 @@ export default function ManageMembers({ initialData }: Props) {
       return;
     }
 
-    setMembershipUpdating("grant");
     try {
       const response = await fetchBackend({
         endpoint: "/members/membership",
@@ -297,8 +344,6 @@ export default function ManageMembers({ initialData }: Props) {
           e?.message?.message ?? e?.message ?? "Failed to grant membership.",
         variant: "destructive",
       });
-    } finally {
-      setMembershipUpdating(null);
     }
   };
 
@@ -312,7 +357,6 @@ export default function ManageMembers({ initialData }: Props) {
       return;
     }
 
-    setMembershipUpdating("revoke");
     try {
       const response = await fetchBackend({
         endpoint: "/members/membership",
@@ -330,8 +374,6 @@ export default function ManageMembers({ initialData }: Props) {
           e?.message?.message ?? e?.message ?? "Failed to revoke membership.",
         variant: "destructive",
       });
-    } finally {
-      setMembershipUpdating(null);
     }
   };
 
@@ -1040,44 +1082,52 @@ export default function ManageMembers({ initialData }: Props) {
         <h2 className="text-white text-2xl md:text-3xl font-semibold">
           Manage Membership
         </h2>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-baby-blue">
-          <div className="flex items-start justify-between gap-3">
-            <Input
-              placeholder="Enter user email"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              className="pl-10 bg-white/10 border-white/15 text-white placeholder:text-white/60 focus-visible:ring-white/30 pr-9"
-            />
-          </div>
-
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
-              onClick={() => grantMembershipButton(userEmail)}
-              disabled={membershipUpdating !== null}
-            >
-              <Check className="w-4 h-4 mr-1.5" />
-              {membershipUpdating === "grant"
-                ? "Granting..."
-                : "Grant Membership"}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full bg-transparent border-white/20 text-white hover:bg-white/10"
-              onClick={() => revokeMembershipButton(userEmail)}
-              disabled={membershipUpdating !== null}
-            >
-              <>
-                <X className="w-4 h-4 mr-1.5" />
-                {membershipUpdating === "revoke"
-                  ? "Revoking..."
-                  : "Revoke Membership"}
-              </>
-            </Button>
-          </div>
-        </div>
+        <Button
+          onClick={openCreateMemberModal}
+          variant="outline"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 max-w-sm"
+          disabled={isLoading}
+        >
+          Create Member
+        </Button>
       </div>
+
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      >
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-bt-blue-500 border-white/20">
+          <FormProvider {...methods}>
+            <form
+              className="space-y-6"
+              onSubmit={methods.handleSubmit(handleCreateMemberSubmit)}
+            >
+              <MembershipFormSection
+                control={methods.control}
+                watch={methods.watch}
+              />
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                  onClick={closeCreateMemberModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500"
+                >
+                  Submit Member
+                </Button>
+              </div>
+            </form>
+          </FormProvider>
+        </DialogContent>
+      </Dialog>
+
     </main>
   );
 }
