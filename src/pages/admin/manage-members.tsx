@@ -272,7 +272,10 @@ export default function ManageMembers({ initialData }: Props) {
   const grantMembershipButton = async (email: string) => {
     const normalizedEmail = email.trim();
     if (!normalizedEmail) {
-      toast({ description: "Please enter a user email.", variant: "destructive" });
+      toast({
+        description: "Please enter a user email.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -288,9 +291,10 @@ export default function ManageMembers({ initialData }: Props) {
       });
       toast({ description: response?.message ?? "Membership granted" });
       await refreshData();
-    } catch (e : any) {
+    } catch (e: any) {
       toast({
-        description: e?.message?.message ?? e?.message ?? "Failed to grant membership.",
+        description:
+          e?.message?.message ?? e?.message ?? "Failed to grant membership.",
         variant: "destructive",
       });
     } finally {
@@ -301,7 +305,10 @@ export default function ManageMembers({ initialData }: Props) {
   const revokeMembershipButton = async (email: string) => {
     const normalizedEmail = email.trim();
     if (!normalizedEmail) {
-      toast({ description: "Please enter a user email.", variant: "destructive" });
+      toast({
+        description: "Please enter a user email.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -317,9 +324,10 @@ export default function ManageMembers({ initialData }: Props) {
       });
       toast({ description: response?.message ?? "Membership revoked" });
       await refreshData();
-    } catch (e : any) {
+    } catch (e: any) {
       toast({
-        description: e?.message?.message ?? e?.message ?? "Failed to revoke membership.",
+        description:
+          e?.message?.message ?? e?.message ?? "Failed to revoke membership.",
         variant: "destructive",
       });
     } finally {
@@ -1032,9 +1040,7 @@ export default function ManageMembers({ initialData }: Props) {
         <h2 className="text-white text-2xl md:text-3xl font-semibold">
           Manage Membership
         </h2>
-        <div
-          className="rounded-xl border border-white/10 bg-white/5 p-4 text-baby-blue"
-        >
+        <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-baby-blue">
           <div className="flex items-start justify-between gap-3">
             <Input
               placeholder="Enter user email"
@@ -1052,7 +1058,9 @@ export default function ManageMembers({ initialData }: Props) {
               disabled={membershipUpdating !== null}
             >
               <Check className="w-4 h-4 mr-1.5" />
-              {membershipUpdating === "grant" ? "Granting..." : "Grant Membership"}
+              {membershipUpdating === "grant"
+                ? "Granting..."
+                : "Grant Membership"}
             </Button>
             <Button
               variant="outline"
@@ -1061,8 +1069,10 @@ export default function ManageMembers({ initialData }: Props) {
               disabled={membershipUpdating !== null}
             >
               <>
-                <X className="w-4 h-4 mr-1.5" /> 
-                {membershipUpdating === "revoke" ? "Revoking..." : "Revoke Membership"}
+                <X className="w-4 h-4 mr-1.5" />
+                {membershipUpdating === "revoke"
+                  ? "Revoking..."
+                  : "Revoke Membership"}
               </>
             </Button>
           </div>
