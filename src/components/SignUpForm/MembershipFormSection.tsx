@@ -23,6 +23,7 @@ export interface MembershipFormValues {
 interface MembershipFormSectionProps {
   control: Control<MembershipFormValues>;
   watch: UseFormWatch<MembershipFormValues>;
+  disableEmail: boolean 
 }
 
 const educationOptions = [
@@ -103,6 +104,7 @@ const referralOptions = [
 export default function MembershipFormSection({
   control,
   watch,
+  disableEmail
 }: MembershipFormSectionProps) {
   const isStudentNumberRequired = watch("education") === "UBC";
 
@@ -118,12 +120,19 @@ export default function MembershipFormSection({
           name="email"
           render={({ field }) => (
             <FormItem>
+              {disableEmail ? 
               <FormInput
                 title="Email Address *"
                 field={field}
                 type="email"
                 disabled
-              />
+              /> :
+              <FormInput
+                title="Email Address *"
+                field={field}
+                type="email"
+              />}
+              
             </FormItem>
           )}
         />

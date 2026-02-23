@@ -301,6 +301,7 @@ const Membership: React.FC = () => {
             <MembershipFormSection
               control={methods.control}
               watch={methods.watch}
+              disableEmail={true}
             />
           </div>
 
