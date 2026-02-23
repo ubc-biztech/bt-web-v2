@@ -1,12 +1,7 @@
 import React from "react";
 import { Control, UseFormWatch } from "react-hook-form";
 import { FormField, FormItem } from "@/components/ui/form";
-import {
-  FormInput,
-  FormMultiSelect,
-  FormRadio,
-  FormSelect,
-} from "./FormInput";
+import { FormInput, FormMultiSelect, FormRadio, FormSelect } from "./FormInput";
 
 export interface MembershipFormValues {
   email: string;
@@ -133,161 +128,169 @@ export default function MembershipFormSection({
           )}
         />
 
-          <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-            <FormField
-              control={control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormInput title="First Name *" field={field} type="text" />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormInput title="Last Name *" field={field} type="text" />
-                </FormItem>
-              )}
-            />
-          </div>
-
+        <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
           <FormField
             control={control}
-            name="education"
+            name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormSelect title="Education *" field={field} items={educationOptions} />
+                <FormInput title="First Name *" field={field} type="text" />
               </FormItem>
             )}
           />
-
           <FormField
             control={control}
-            name="studentNumber"
+            name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormInput
-                  title={`Student Number${isStudentNumberRequired ? " *" : ""}`}
-                  field={field}
-                  type="text"
-                  placeholder={
-                    isStudentNumberRequired
-                      ? "Enter 8-digit student number"
-                      : "Optional"
-                  }
-                />
+                <FormInput title="Last Name *" field={field} type="text" />
               </FormItem>
             )}
           />
+        </div>
 
+        <FormField
+          control={control}
+          name="education"
+          render={({ field }) => (
+            <FormItem>
+              <FormSelect
+                title="Education *"
+                field={field}
+                items={educationOptions}
+              />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="studentNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormInput
+                title={`Student Number${isStudentNumberRequired ? " *" : ""}`}
+                field={field}
+                type="text"
+                placeholder={
+                  isStudentNumberRequired
+                    ? "Enter 8-digit student number"
+                    : "Optional"
+                }
+              />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="pronouns"
+          render={({ field }) => (
+            <FormItem>
+              <FormRadio
+                title="Preferred Pronouns *"
+                field={field}
+                items={pronounOptions}
+              />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
           <FormField
             control={control}
-            name="pronouns"
-            render={({ field }) => (
-              <FormItem>
-                <FormRadio
-                  title="Preferred Pronouns *"
-                  field={field}
-                  items={pronounOptions}
-                />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-            <FormField
-              control={control}
-              name="levelOfStudy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormSelect
-                    title="Level of Study *"
-                    field={field}
-                    items={levelOfStudyOptions}
-                  />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="faculty"
-              render={({ field }) => (
-                <FormItem>
-                  <FormSelect title="Faculty *" field={field} items={facultyOptions} />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name="major"
-            render={({ field }) => (
-              <FormItem>
-                <FormInput title="Major *" field={field} type="text" />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
-            <FormField
-              control={control}
-              name="internationalStudent"
-              render={({ field }) => (
-                <FormItem>
-                  <FormSelect
-                    title="Are you an international student? *"
-                    field={field}
-                    items={yesNoOptions}
-                  />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="dietaryRestrictions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormSelect
-                    title="Do you have dietary restrictions?"
-                    field={field}
-                    items={dietOptions}
-                  />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name="previousMember"
+            name="levelOfStudy"
             render={({ field }) => (
               <FormItem>
                 <FormSelect
-                  title="Were you a BizTech member last year? *"
+                  title="Level of Study *"
+                  field={field}
+                  items={levelOfStudyOptions}
+                />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="faculty"
+            render={({ field }) => (
+              <FormItem>
+                <FormSelect
+                  title="Faculty *"
+                  field={field}
+                  items={facultyOptions}
+                />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={control}
+          name="major"
+          render={({ field }) => (
+            <FormItem>
+              <FormInput title="Major *" field={field} type="text" />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 gap-y-4">
+          <FormField
+            control={control}
+            name="internationalStudent"
+            render={({ field }) => (
+              <FormItem>
+                <FormSelect
+                  title="Are you an international student? *"
                   field={field}
                   items={yesNoOptions}
                 />
               </FormItem>
             )}
           />
-
           <FormField
             control={control}
-            name="topics"
+            name="dietaryRestrictions"
             render={({ field }) => (
               <FormItem>
-                <FormMultiSelect
-                  title="Which business or tech career paths are you interested in?"
+                <FormSelect
+                  title="Do you have dietary restrictions?"
                   field={field}
-                  items={topicOptions}
+                  items={dietOptions}
                 />
               </FormItem>
             )}
           />
+        </div>
+
+        <FormField
+          control={control}
+          name="previousMember"
+          render={({ field }) => (
+            <FormItem>
+              <FormSelect
+                title="Were you a BizTech member last year? *"
+                field={field}
+                items={yesNoOptions}
+              />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="topics"
+          render={({ field }) => (
+            <FormItem>
+              <FormMultiSelect
+                title="Which business or tech career paths are you interested in?"
+                field={field}
+                items={topicOptions}
+              />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={control}
