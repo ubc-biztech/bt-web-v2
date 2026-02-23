@@ -81,6 +81,24 @@ type Props = {
 
 type SortKey = "id" | "firstName" | "lastName" | "cardCount";
 type SortDir = "asc" | "desc";
+type CreateMemberRequest = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  studentNumber?: string;
+  education: string;
+  pronouns: string;
+  levelOfStudy: string;
+  faculty: string;
+  major: string;
+  internationalStudent: boolean;
+  previousMember: boolean;
+  dietaryRestrictions: string;
+  referral: string;
+  topics: string[];
+  isMember: true;
+  adminCreated: true;
+};
 
 const COLS_DEFAULT = {
   email: true,
@@ -182,15 +200,50 @@ export default function ManageMembers({ initialData }: Props) {
   const closeCreateMemberModal = () => {
     setIsModalOpen(false);
   };
+  
+  const handleCreateMemberSubmit = async (values: MembershipFormValues) => {
+    try {
+      const payload: CreateMemberRequest = {
+        email: values.email.trim(),
+        firstName: values.firstName,
+        lastName: values.lastName,
+        studentNumber: values.studentNumber || undefined,
+        education: values.education,
+        pronouns: values.pronouns,
+        levelOfStudy: values.levelOfStudy,
+        faculty: values.faculty,
+        major: values.major,
+        internationalStudent: values.internationalStudent === "Yes",
+        previousMember: values.previousMember === "Yes",
+        dietaryRestrictions: values.dietaryRestrictions || "None",
+        referral: values.referral,
+        topics: values.topics,
+        isMember: true,
+        adminCreated: true,
+      };
 
-  const handleCreateMemberSubmit = (values: MembershipFormValues) => {
-    console.log("Create member payload:", values);
-    toast({
-      title: "Form captured",
-      description:
-        "Membership form submitted in modal. Wire this handler to your create-member backend endpoint.",
-    });
-    closeCreateMemberModal();
+      const response = await fetchBackend({
+        endpoint: "/members/grant",
+        method: "POST",
+        data: payload,
+      });
+
+      toast({
+        title: "Member created",
+        description: response?.message ?? "Membership has been granted.",
+      });
+
+      closeCreateMemberModal();
+      methods.reset(CREATE_MEMBER_DEFAULT_VALUES);
+      await refreshData();
+    } catch (err: any) {
+      toast({
+        title: "Failed to create member",
+        description:
+          err?.message?.message ?? err?.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -1152,9 +1205,12 @@ export default function ManageMembers({ initialData }: Props) {
                 </Button>
                 <Button
                   type="submit"
+                  disabled={methods.formState.isSubmitting}
                   className="bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500"
                 >
-                  Submit Member
+                  {methods.formState.isSubmitting
+                    ? "Submitting..."
+                    : "Submit Member"}
                 </Button>
               </div>
             </form>
