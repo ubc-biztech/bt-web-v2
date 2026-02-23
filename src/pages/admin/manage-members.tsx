@@ -59,7 +59,6 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-
 type Member = {
   profileID: string;
   id: string;
