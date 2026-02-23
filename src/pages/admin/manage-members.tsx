@@ -199,7 +199,7 @@ export default function ManageMembers({ initialData }: Props) {
   const closeCreateMemberModal = () => {
     setIsModalOpen(false);
   };
-  
+
   const handleCreateMemberSubmit = async (values: MembershipFormValues) => {
     try {
       const payload: CreateMemberRequest = {
