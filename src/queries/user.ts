@@ -30,8 +30,7 @@ export function useUserAttributes() {
   return useQuery({
     queryKey: ["userAttributes"],
     queryFn: getUserAttributes,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 20 * 60 * 1000, // stale time can be as this is rarely modified
     retry: 1,
   });
 }
