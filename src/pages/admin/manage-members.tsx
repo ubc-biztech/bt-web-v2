@@ -1092,10 +1092,7 @@ export default function ManageMembers({ initialData }: Props) {
         </Button>
       </div>
 
-      <Dialog
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-      >
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-bt-blue-500 border-white/20">
           <FormProvider {...methods}>
             <form
@@ -1127,7 +1124,6 @@ export default function ManageMembers({ initialData }: Props) {
           </FormProvider>
         </DialogContent>
       </Dialog>
-
     </main>
   );
 }
