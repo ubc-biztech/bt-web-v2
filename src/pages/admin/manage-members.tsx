@@ -15,7 +15,6 @@ import {
   FilterIcon,
   Copy,
   Check,
-  X,
   Download,
   FileJson,
   Mail,
@@ -52,9 +51,6 @@ import MembershipFormSection, {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -173,7 +169,6 @@ const validationSchema = z
 export default function ManageMembers({ initialData }: Props) {
   const [data, setData] = useState<Member[] | null>(initialData);
   const [searchTerm, setSearchTerm] = useState("");
-  const [userEmail, setUserEmail] = useState("");
   const [debounced, setDebounced] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { isNFCSupported } = useNFCSupport();
@@ -402,66 +397,6 @@ export default function ManageMembers({ initialData }: Props) {
       toast({ description: "NFC URL copied." });
     } catch {
       toast({ description: "Copy failed.", variant: "destructive" });
-    }
-  };
-
-  const grantMembershipButton = async (email: string) => {
-    const normalizedEmail = email.trim();
-    if (!normalizedEmail) {
-      toast({
-        description: "Please enter a user email.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const response = await fetchBackend({
-        endpoint: "/members/membership",
-        method: "POST",
-        data: {
-          email: normalizedEmail,
-          membership: true,
-        },
-      });
-      toast({ description: response?.message ?? "Membership granted" });
-      await refreshData();
-    } catch (e: any) {
-      toast({
-        description:
-          e?.message?.message ?? e?.message ?? "Failed to grant membership.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const revokeMembershipButton = async (email: string) => {
-    const normalizedEmail = email.trim();
-    if (!normalizedEmail) {
-      toast({
-        description: "Please enter a user email.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const response = await fetchBackend({
-        endpoint: "/members/membership",
-        method: "POST",
-        data: {
-          email: normalizedEmail,
-          membership: false,
-        },
-      });
-      toast({ description: response?.message ?? "Membership revoked" });
-      await refreshData();
-    } catch (e: any) {
-      toast({
-        description:
-          e?.message?.message ?? e?.message ?? "Failed to revoke membership.",
-        variant: "destructive",
-      });
     }
   };
 
