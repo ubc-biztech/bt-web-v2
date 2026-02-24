@@ -48,10 +48,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
   MembershipFormValues,
 } from "@/components/SignUpForm/MembershipFormSection";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
