@@ -287,7 +287,9 @@ function ConnectionCard({ connection }: { connection: Connection }) {
                       <span className="text-white/60 text-xs">·</span>
                     )}
                     <span className="text-white/70 text-xs truncate">
-                      {connection.major}
+                      {connection.major.length > 30
+                        ? `${connection.major.slice(0, 25)}...`
+                        : connection.major}
                     </span>
                   </>
                 )}

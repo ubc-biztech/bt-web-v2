@@ -44,6 +44,16 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useForm, FormProvider } from "react-hook-form";
+import MembershipFormSection, {
+  MembershipFormValues,
+} from "@/components/SignUpForm/MembershipFormSection";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  membershipValidationSchema,
+  MEMBERSHIP_FORM_DEFAULTS,
+} from "@/components/SignUpForm/membershipFormSchema";
 
 type Member = {
   profileID: string;
@@ -66,6 +76,24 @@ type Props = {
 
 type SortKey = "id" | "firstName" | "lastName" | "cardCount";
 type SortDir = "asc" | "desc";
+type CreateMemberRequest = {
+  email: string;
+  firstName: string;
+  lastName: string;
+  studentNumber?: string;
+  education: string;
+  pronouns: string;
+  levelOfStudy: string;
+  faculty: string;
+  major: string;
+  internationalStudent: boolean;
+  previousMember: boolean;
+  dietaryRestrictions: string;
+  referral: string;
+  topics: string;
+  isMember: true;
+  adminCreated: true;
+};
 
 const COLS_DEFAULT = {
   email: true,
@@ -97,12 +125,72 @@ export default function ManageMembers({ initialData }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
+
+  const methods = useForm<MembershipFormValues>({
+    resolver: zodResolver(membershipValidationSchema),
+    defaultValues: MEMBERSHIP_FORM_DEFAULTS,
+  });
+
+  const openCreateMemberModal = () => {
+    methods.reset(MEMBERSHIP_FORM_DEFAULTS);
+    setIsModalOpen(true);
+  };
+
+  const closeCreateMemberModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCreateMemberSubmit = async (values: MembershipFormValues) => {
+    try {
+      const payload: CreateMemberRequest = {
+        email: values.email.trim(),
+        firstName: values.firstName,
+        lastName: values.lastName,
+        studentNumber: values.studentNumber || undefined,
+        education: values.education,
+        pronouns: values.pronouns,
+        levelOfStudy: values.levelOfStudy,
+        faculty: values.faculty,
+        major: values.major,
+        internationalStudent: values.internationalStudent === "Yes",
+        previousMember: values.previousMember === "Yes",
+        dietaryRestrictions: values.dietaryRestrictions || "None",
+        referral: values.referral,
+        topics: values.topics.join(","),
+        isMember: true,
+        adminCreated: true,
+      };
+
+      const response = await fetchBackend({
+        endpoint: "/members/grant",
+        method: "POST",
+        data: payload,
+      });
+
+      toast({
+        title: "Member created",
+        description: response?.message ?? "Membership has been granted.",
+      });
+
+      closeCreateMemberModal();
+      methods.reset(MEMBERSHIP_FORM_DEFAULTS);
+      await refreshData();
+    } catch (err: any) {
+      toast({
+        title: "Failed to create member",
+        description:
+          err?.message?.message ?? err?.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     try {
@@ -148,14 +236,18 @@ export default function ManageMembers({ initialData }: Props) {
     );
 
   // Page size + pagination
-  const [pageSize, setPageSize] = useState<number>(() => {
-    const saved =
-      typeof window !== "undefined"
-        ? localStorage.getItem(PAGE_SIZE_STORAGE_KEY)
-        : null;
-    return saved ? Number(saved) : 20;
-  });
+  const [pageSize, setPageSize] = useState<number>(20);
   const [page, setPage] = useState(1);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PAGE_SIZE_STORAGE_KEY);
+      if (!saved) return;
+      const parsed = Number(saved);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        setPageSize(parsed);
+      }
+    } catch {}
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize));
@@ -227,7 +319,6 @@ export default function ManageMembers({ initialData }: Props) {
         method: "GET",
       });
       setData(response || []);
-      toast({ description: "Member list refreshed." });
     } catch (error) {
       console.error("Failed to refresh member data:", error);
       toast({ description: "Failed to refresh.", variant: "destructive" });
@@ -412,7 +503,7 @@ export default function ManageMembers({ initialData }: Props) {
       : "ascending" && (sortDir === "asc" ? "ascending" : "descending");
 
   return (
-    <main className="bg-primary-color min-h-screen">
+    <main className="bg-primary-color min-h-screen space-y-12">
       <div className="mx-auto w-full max-w-7xl flex flex-col">
         {/* Header & Toolbar */}
         <div className="mb-4 md:mb-6 flex flex-col gap-4">
@@ -961,6 +1052,57 @@ export default function ManageMembers({ initialData }: Props) {
           numCards={selectedMember.cardCount ?? 0}
         />
       )}
+
+      <div className="mx-auto w-full max-w-7xl flex flex-col">
+        <h2 className="text-white text-2xl md:text-3xl font-semibold">
+          Manage Membership
+        </h2>
+        <Button
+          onClick={openCreateMemberModal}
+          variant="outline"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 max-w-sm"
+          disabled={isLoading}
+        >
+          Create Member
+        </Button>
+      </div>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-bt-blue-500 border-white/20">
+          <FormProvider {...methods}>
+            <form
+              className="space-y-6"
+              onSubmit={methods.handleSubmit(handleCreateMemberSubmit)}
+            >
+              <MembershipFormSection
+                control={methods.control}
+                watch={methods.watch}
+                disableEmail={false}
+              />
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="bg-transparent border-white/20 text-white hover:bg-white/10"
+                  onClick={closeCreateMemberModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={methods.formState.isSubmitting}
+                  className="bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500"
+                >
+                  {methods.formState.isSubmitting
+                    ? "Submitting..."
+                    : "Submit Member"}
+                </Button>
+              </div>
+            </form>
+          </FormProvider>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
