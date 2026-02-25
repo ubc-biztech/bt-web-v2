@@ -49,8 +49,11 @@ import MembershipFormSection, {
   MembershipFormValues,
 } from "@/components/SignUpForm/MembershipFormSection";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  membershipValidationSchema,
+  membershipFormDefaultValues,
+} from "@/components/SignUpForm/membershipFormSchema";
 
 type Member = {
   profileID: string;

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
@@ -10,38 +9,10 @@ import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
   MembershipFormValues,
 } from "@/components/SignUpForm/MembershipFormSection";
-
-const validationSchema = z
-  .object({
-    email: z.string().email("Invalid email address"),
-    firstName: z.string().min(1, "First name is required"),
-    lastName: z.string().min(1, "Last name is required"),
-    education: z.string().min(1, "Education selection is required"),
-    studentNumber: z.string().optional(),
-    pronouns: z.string().min(1, "Please select your pronouns"),
-    levelOfStudy: z.string().min(1, "Level of study is required"),
-    faculty: z.string().min(1, "Faculty is required"),
-    major: z.string().min(1, "Major is required"),
-    internationalStudent: z
-      .string()
-      .min(1, "Please specify if you are an international student"),
-    previousMember: z
-      .string()
-      .min(1, "Please specify if you were a previous member"),
-    dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
-    referral: z.string().min(1, "Referral source is required"),
-    topics: z.array(z.string()),
-  })
-  .refine(
-    (data) =>
-      data.education === "UBC"
-        ? !!data.studentNumber && /^\d{8}$/.test(data.studentNumber)
-        : true,
-    {
-      message: "Student number must be an 8 digit number for UBC students",
-      path: ["studentNumber"],
-    },
-  );
+import {
+  membershipValidationSchema,
+  membershipFormDefaultValues,
+} from "@/components/SignUpForm/membershipFormSchema";
 
 const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -53,23 +24,8 @@ const Membership: React.FC = () => {
   const hasRedirectedRef = useRef(false); // prevent double-redirect
 
   const methods = useForm<MembershipFormValues>({
-    resolver: zodResolver(validationSchema),
-    defaultValues: {
-      email: "",
-      firstName: "",
-      lastName: "",
-      education: "",
-      studentNumber: "",
-      pronouns: "",
-      levelOfStudy: "",
-      faculty: "",
-      major: "",
-      internationalStudent: "",
-      previousMember: "",
-      dietaryRestrictions: "None",
-      referral: "",
-      topics: [],
-    },
+    resolver: zodResolver(membershipValidationSchema),
+    defaultValues: membershipFormDefaultValues,
   });
 
   useEffect(() => {
