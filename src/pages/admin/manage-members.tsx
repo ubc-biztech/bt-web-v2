@@ -54,21 +54,8 @@ import {
   membershipValidationSchema,
   MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
-
-type Member = {
-  profileID: string;
-  id: string;
-  firstName: string;
-  lastName: string;
-  faculty?: string;
-  year?: string;
-  major?: string;
-  cardCount?: number;
-  international?: boolean;
-  topics?: string[];
-  createdAt?: number;
-  updatedAt?: number;
-};
+import { useMembers, useInvalidateMembers, Member } from "@/queries/members";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   initialData: Member[] | null;
@@ -119,10 +106,9 @@ const COLS_STORAGE_KEY = "membersTable:colVisibility";
 const PAGE_SIZE_STORAGE_KEY = "membersTable:pageSize";
 
 export default function ManageMembers({ initialData }: Props) {
-  const [data, setData] = useState<Member[] | null>(initialData);
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [debounced, setDebounced] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -132,6 +118,10 @@ export default function ManageMembers({ initialData }: Props) {
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
+
+  const { data: membersData, isLoading, refetch } = useMembers();
+  const data = membersData ?? initialData ?? null;
+  const invalidateMembers = useInvalidateMembers();
 
   const methods = useForm<MembershipFormValues>({
     resolver: zodResolver(membershipValidationSchema),
@@ -313,17 +303,11 @@ export default function ManageMembers({ initialData }: Props) {
 
   const refreshData = async () => {
     try {
-      setIsLoading(true);
-      const response = await fetchBackend({
-        endpoint: "/members",
-        method: "GET",
-      });
-      setData(response || []);
+      await refetch();
+      toast({ description: "Member list refreshed." });
     } catch (error) {
       console.error("Failed to refresh member data:", error);
       toast({ description: "Failed to refresh.", variant: "destructive" });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -361,11 +345,7 @@ export default function ManageMembers({ initialData }: Props) {
         method: "PATCH",
         data: { cardCount: currentCount + 1 },
       });
-      setData((prev) =>
-        (prev || []).map((m) =>
-          m.id === member.id ? { ...m, cardCount: (m.cardCount ?? 0) + 1 } : m,
-        ),
-      );
+      await invalidateMembers();
       toast({ description: "Card count updated." });
     } catch {
       toast({ description: "Update failed.", variant: "destructive" });

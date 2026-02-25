@@ -2,20 +2,16 @@ import { EventDashboard } from "@/components/EventsDashboard/EventDashboard";
 import { FilterTab } from "@/components/EventsDashboard/FilterTab";
 import GuestBanner from "@/components/EventsDashboard/GuestBanner";
 import { SearchBar } from "@/components/EventsDashboard/SearchBar";
-import { fetchUserAttributes } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types/types";
-import { AuthError } from "@aws-amplify/auth";
 import { ListIcon } from "lucide-react";
-import React, {
-  ChangeEvent,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { ChangeEvent, useMemo, useRef, useState } from "react";
 import PageHeader from "@/components/Common/PageHeader";
 import Divider from "@/components/Common/Divider";
+import { useUserAttributes } from "@/queries/user";
+import { useEvents } from "@/queries/events";
+import { useUserProfileByEmail } from "@/queries/userProfile";
+import { useUserRegistrations } from "@/queries/registrations";
 
 interface registeredEvent {
   "eventID;year": string;
@@ -32,47 +28,21 @@ const filterStates = {
 };
 
 export default function Page({ events }: EventProps) {
-  const [signedIn, setSignedIn] = useState<boolean>(true);
   const [searchField, setSearchField] = useState("");
   const [filterState, setFilterState] = useState(filterStates.all);
   const isCooldownRef = useRef(false);
 
-  const [allEvents, setAllEvents] = useState<BiztechEvent[]>(events);
-  const [loadingEvents, setLoadingEvents] = useState<boolean>(!events?.length);
+  const { data: userAttributes, isLoading: loadingUser } = useUserAttributes();
+  const { data: eventsData, isLoading: loadingEvents } = useEvents();
+  const email = userAttributes?.email ?? "";
+  const { data: userProfile } = useUserProfileByEmail(email);
+  const { data: registrations } = useUserRegistrations(email);
 
-  const [saved, setSaved] = useState<string[]>([]);
-  const [registered, setRegistered] = useState<string[]>([]);
-  const [email, setEmail] = useState<string>("");
+  const saved = userProfile?.["favedEventsID;year"] ?? [];
+  const registered = registrations?.map((r) => r["eventID;year"]) ?? [];
+  const signedIn = !loadingUser && userAttributes !== null;
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        let fresh = await fetchBackend({
-          endpoint: "/events",
-          method: "GET",
-          authenticatedCall: false,
-        });
-
-        fresh.sort(
-          (a: BiztechEvent, b: BiztechEvent) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
-        );
-        fresh = fresh.filter(
-          (e: BiztechEvent) => e.isPublished && e.id !== "alumni-night",
-        );
-
-        setAllEvents(fresh);
-      } catch (e) {
-        console.error("Failed to refresh events on client", e);
-      } finally {
-        setLoadingEvents(false);
-      }
-    })();
-  }, []);
+  const allEvents = eventsData ?? events ?? [];
 
   const displayedEvents = useMemo(() => {
     let filtered: BiztechEvent[] = allEvents;
@@ -90,40 +60,6 @@ export default function Page({ events }: EventProps) {
 
     return filtered;
   }, [allEvents, filterState, searchField, saved]);
-
-  const fetchData = async () => {
-    try {
-      const attributes = await fetchUserAttributes();
-      const email = attributes.email;
-
-      if (!email) {
-        throw new Error("Email not found in user attributes.");
-      }
-
-      const userData = await fetchBackend({
-        endpoint: `/users/${email}`,
-        method: "GET",
-      });
-      const registeredEvents = await fetchBackend({
-        endpoint: `/registrations?email=${email}`,
-        method: "GET",
-      });
-
-      setEmail(email);
-      setSaved(userData["favedEventsID;year"] ?? []);
-      setRegistered(
-        registeredEvents?.data?.map(
-          (event: registeredEvent) => event["eventID;year"],
-        ) ?? [],
-      );
-    } catch (e) {
-      if (e instanceof AuthError && e.name === "UserUnAuthenticatedException") {
-        setSignedIn(false);
-      } else {
-        console.error("Error in fetchData:", e);
-      }
-    }
-  };
 
   const handleUiClick = (s: string) => {
     if (isCooldownRef.current) {
@@ -164,8 +100,6 @@ export default function Page({ events }: EventProps) {
                 handleUiClick={handleUiClick}
                 Icon={ListIcon}
               />
-              {/* TODO: awaiting backend API fix */}
-              {/* {signedIn && <FilterTab title="Saved" filter={filterStates.saved} filterState={filterState} handleUiClick={handleUiClick} Icon={Bookmark} />} */}
             </div>
           </div>
 
@@ -184,7 +118,7 @@ export default function Page({ events }: EventProps) {
             user={email}
             saved={saved}
             registered={registered}
-            setSaved={setSaved}
+            setSaved={() => {}}
           />
         </div>
       </div>

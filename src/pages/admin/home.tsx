@@ -1,7 +1,7 @@
 import EventCard from "@/components/EventCard/eventCard";
 import MobileEventCard from "@/components/EventCard/mobileEventCard";
 import { useRouter } from "next/router";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { isMobile } from "@/util/isMobile";
 import MobilePopup from "@/components/EventCard/popup/mobileEditPopUp";
 import { BiztechEvent } from "@/types/types";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { fetchBackend } from "@/lib/db";
 import Divider from "@/components/Common/Divider";
 import { LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEvents } from "@/queries/events";
 
 const EVENTS_PER_PAGE = 10;
 
@@ -25,14 +26,15 @@ export type ModalHandlers = {
 
 export default function AdminEventView({ events }: Props) {
   const router = useRouter();
-  const [isLoading, setLoading] = useState(!events);
-  const [data, setData] = useState<BiztechEvent[] | null>(events);
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [event, setEvent] = useState<BiztechEvent | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { data: eventsData, isLoading } = useEvents();
+  const data = eventsData ?? events ?? null;
 
   // Pagination logic
   const paginatedData = useMemo(() => {
@@ -83,29 +85,6 @@ export default function AdminEventView({ events }: Props) {
   useEffect(() => {
     const userAgent = navigator.userAgent;
     setIsMobileDevice(isMobile(userAgent));
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const fresh = await fetchBackend({
-          endpoint: "/events",
-          method: "GET",
-          authenticatedCall: false,
-        });
-
-        fresh.sort(
-          (a: BiztechEvent, b: BiztechEvent) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
-        );
-
-        setData(fresh);
-      } catch (e) {
-        console.error("Failed to refresh admin events", e);
-      } finally {
-        setLoading(false);
-      }
-    })();
   }, []);
 
   return (

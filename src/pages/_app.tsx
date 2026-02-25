@@ -137,5 +137,9 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   // Otherwise, wrap it in the Layout
-  return <Layout>{content}</Layout>;
+  return (
+    <QueryProvider>
+      <Layout>{content}</Layout>
+    </QueryProvider>
+  );
 }
