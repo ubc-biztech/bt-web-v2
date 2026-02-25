@@ -9,6 +9,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
   MembershipFormValues,
 } from "@/components/SignUpForm/MembershipFormSection";
+import { useToast } from "@/components/ui/use-toast";
 import {
   membershipValidationSchema,
   MEMBERSHIP_FORM_DEFAULTS,
@@ -21,6 +22,7 @@ const Membership: React.FC = () => {
   const [isUser, setIsUser] = useState(false);
 
   const router = useRouter();
+  const { toast } = useToast();
   const hasRedirectedRef = useRef(false); // prevent double-redirect
 
   const methods = useForm<MembershipFormValues>({
@@ -204,7 +206,10 @@ const Membership: React.FC = () => {
       }
     } catch (error) {
       console.error("Error during submission:", error);
-      alert("An error occurred. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "An error occurred. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }

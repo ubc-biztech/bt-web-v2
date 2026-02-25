@@ -52,7 +52,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   membershipValidationSchema,
-  membershipFormDefaultValues,
+  MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
 
 type Member = {
@@ -90,7 +90,7 @@ type CreateMemberRequest = {
   previousMember: boolean;
   dietaryRestrictions: string;
   referral: string;
-  topics: string[];
+  topics: string;
   isMember: true;
   adminCreated: true;
 };
@@ -135,11 +135,11 @@ export default function ManageMembers({ initialData }: Props) {
 
   const methods = useForm<MembershipFormValues>({
     resolver: zodResolver(membershipValidationSchema),
-    defaultValues: membershipFormDefaultValues,
+    defaultValues: MEMBERSHIP_FORM_DEFAULTS,
   });
 
   const openCreateMemberModal = () => {
-    methods.reset(membershipFormDefaultValues);
+    methods.reset(MEMBERSHIP_FORM_DEFAULTS);
     setIsModalOpen(true);
   };
 
@@ -163,7 +163,7 @@ export default function ManageMembers({ initialData }: Props) {
         previousMember: values.previousMember === "Yes",
         dietaryRestrictions: values.dietaryRestrictions || "None",
         referral: values.referral,
-        topics: values.topics,
+        topics: values.topics.join(","),
         isMember: true,
         adminCreated: true,
       };
@@ -180,7 +180,7 @@ export default function ManageMembers({ initialData }: Props) {
       });
 
       closeCreateMemberModal();
-      methods.reset(membershipFormDefaultValues);
+      methods.reset(MEMBERSHIP_FORM_DEFAULTS);
       await refreshData();
     } catch (err: any) {
       toast({
