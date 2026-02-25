@@ -22,6 +22,11 @@ export interface UserProfile {
   viewableMap: Record<string, boolean>;
 }
 
+export interface UserProfileByEmail {
+  "favedEventsID;year"?: string[];
+  [key: string]: unknown;
+}
+
 async function fetchUserProfile(): Promise<UserProfile> {
   const response = await fetchBackend({
     endpoint: "/profiles/user",
@@ -35,6 +40,26 @@ export function useUserProfile() {
   return useQuery({
     queryKey: ["userProfile"],
     queryFn: fetchUserProfile,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+}
+
+async function fetchUserProfileByEmail(
+  email: string,
+): Promise<UserProfileByEmail> {
+  const response = await fetchBackend({
+    endpoint: `/users/${email}`,
+    method: "GET",
+  });
+  return response || {};
+}
+
+export function useUserProfileByEmail(email: string | undefined) {
+  return useQuery({
+    queryKey: ["userProfileByEmail", email],
+    queryFn: () => fetchUserProfileByEmail(email!),
+    enabled: !!email,
     staleTime: 1000 * 60 * 5,
     retry: 1,
   });
