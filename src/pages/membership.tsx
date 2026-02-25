@@ -11,7 +11,7 @@ import MembershipFormSection, {
 } from "@/components/SignUpForm/MembershipFormSection";
 import {
   membershipValidationSchema,
-  membershipFormDefaultValues,
+  MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
 
 const Membership: React.FC = () => {
@@ -25,7 +25,7 @@ const Membership: React.FC = () => {
 
   const methods = useForm<MembershipFormValues>({
     resolver: zodResolver(membershipValidationSchema),
-    defaultValues: membershipFormDefaultValues,
+    defaultValues: MEMBERSHIP_FORM_DEFAULTS,
   });
 
   useEffect(() => {

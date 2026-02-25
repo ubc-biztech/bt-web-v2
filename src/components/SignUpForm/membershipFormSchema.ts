@@ -33,7 +33,7 @@ export const membershipValidationSchema = z
     },
   );
 
-export const membershipFormDefaultValues: MembershipFormValues = {
+export const MEMBERSHIP_FORM_DEFAULTS: MembershipFormValues = {
   email: "",
   firstName: "",
   lastName: "",
