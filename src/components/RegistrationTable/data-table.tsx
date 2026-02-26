@@ -18,7 +18,16 @@ import { createColumns } from "./columns";
 import { Registration } from "@/types/types";
 import { QrCheckIn } from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
-import { isWaitlisted } from "@/lib/registrationStatus";
+import {
+  isCheckedIn,
+  isCancelled,
+  isRegistered,
+  isAccepted,
+  isAcceptedPending,
+  isConfirmed,
+  isIncomplete,
+  isWaitlisted
+} from "@/lib/registrationStatus";
 
 export function DataTable({
   initialData,
@@ -36,7 +45,17 @@ export function DataTable({
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
   const [filteredData, setFilteredData] = useState(initialData);
   const [filterValue, setFilterValue] = useState<
-    "attendees" | "partners" | "waitlisted"
+    | "all"
+    | "attendees"
+    | "partners"
+    | "waitlisted"
+    | "acceptedPending"
+    | "acceptedComplete"
+    | "accepted"
+    | "incomplete"
+    | "cancelled"
+    | "checkedIn"
+    | "registered"
   >("attendees");
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -72,6 +91,22 @@ export function DataTable({
           return attendee.isPartner === true;
         case "waitlisted":
           return isWaitlisted(attendee.registrationStatus);
+        case "acceptedPending":
+          return isAcceptedPending(attendee.registrationStatus);
+        case "acceptedComplete":
+          return isConfirmed(attendee.registrationStatus);
+        case "accepted":
+          return isAccepted(attendee.registrationStatus);
+        case "incomplete":
+          return isIncomplete(attendee.registrationStatus);
+        case "cancelled":
+          return isCancelled(attendee.registrationStatus);
+        case "checkedIn":
+          return isCheckedIn(attendee.registrationStatus);
+        case "registered":
+          return isRegistered(attendee.registrationStatus);
+        case "all":
+          return true;
         case "attendees":
         default:
           return (
