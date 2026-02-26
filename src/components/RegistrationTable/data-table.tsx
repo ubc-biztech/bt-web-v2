@@ -26,7 +26,7 @@ import {
   isAcceptedPending,
   isConfirmed,
   isIncomplete,
-  isWaitlisted
+  isWaitlisted,
 } from "@/lib/registrationStatus";
 
 export function DataTable({
