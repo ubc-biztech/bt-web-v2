@@ -82,4 +82,16 @@ export const isWaitlisted = (value?: string | null): boolean =>
 export const isCancelled = (value?: string | null): boolean =>
   value === DBRegistrationStatus.CANCELLED;
 
+export const isRegistered = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.REGISTERED;
+
+export const isAccepted = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.ACCEPTED;
+
+export const isAcceptedPending = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.ACCEPTED_PENDING;
+
+export const isIncomplete = (value?: string | null): boolean =>
+  value === DBRegistrationStatus.INCOMPLETE;
+
 export const REGISTERED_STATUS = DBRegistrationStatus.REGISTERED;
