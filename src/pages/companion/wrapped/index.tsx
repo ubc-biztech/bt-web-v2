@@ -1,10 +1,5 @@
 "use client";
-import {
-  motion,
-  useMotionValue,
-  animate,
-  AnimatePresence,
-} from "framer-motion";
+import { m, useMotionValue, animate, AnimatePresence } from "framer-motion";
 import { Users2 } from "lucide-react";
 import { GradientText } from "@/components/ui/gradient-text";
 import Image from "next/image";
@@ -39,7 +34,7 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <AnimatePresence>
-        <motion.div
+        <m.div
           className=" min-h-screen bg-gradient-to-b from-[#040C12] to-[#030608] flex flex-col items-center justify-between p-6 cursor-pointer"
           onClick={handleTap}
           style={{ opacity, scale, y }}
@@ -49,14 +44,14 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
           transition={{ duration: 0.5 }}
         >
           {/* Main Content */}
-          <motion.div
+          <m.div
             className="flex-1 flex flex-col items-center justify-center -mt-20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="relative w-[200px] h-[200px] flex items-center justify-center mb-4">
               {/* Glow effect behind the logo */}
-              <motion.div
+              <m.div
                 className="absolute inset-0 rounded-full bg-[#4488FF] blur-[60px] opacity-20"
                 animate={{
                   scale: [1, 1.2, 1],
@@ -70,7 +65,7 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
               />
 
               {/* Logo container with rotation */}
-              <motion.div
+              <m.div
                 className="relative -top-16 w-full h-full flex items-center justify-center"
                 animate={{ rotate: 360 }}
                 transition={{
@@ -92,10 +87,10 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
                   className="w-3/5 relative drop-shadow-[0_0_15px_#4488FF]"
                   priority
                 />
-              </motion.div>
+              </m.div>
             </div>
 
-            <motion.div className="text-center space-y-0 flex flex-col items-center -mt-6">
+            <m.div className="text-center space-y-0 flex flex-col items-center -mt-6">
               {/* BluePrint Logo */}
               <div className="relative w-80 min-h-20 flex items-center justify-center mb-2">
                 <Image
@@ -107,18 +102,18 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
               </div>
 
               {/* Wrapped Text */}
-              <motion.p
+              <m.p
                 className="text-white text-xl italic font-satoshi drop-shadow-[0_0_20px_#4488FF] mt-[-12px] whitespace-nowrap px-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8 }}
               >
                 Wrapped
-              </motion.p>
-            </motion.div>
+              </m.p>
+            </m.div>
 
             {/* Footer */}
-            <motion.div className="flex flex-col items-center gap-0 mt-[-2px] min-h-[50px]">
+            <m.div className="flex flex-col items-center gap-0 mt-[-2px] min-h-[50px]">
               <svg
                 width="64"
                 height="80"
@@ -144,15 +139,15 @@ const WrappedPage = ({ isPartner }: WrappedPageProps) => {
                   />
                 </g>
               </svg>
-            </motion.div>
+            </m.div>
 
             <p className="text-white text-mt font-light font-satoshi mt-0">
               {" "}
               {/* Reduced margin here */}
               Tap to start.
             </p>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </AnimatePresence>
     </NavBarContainer>
   );

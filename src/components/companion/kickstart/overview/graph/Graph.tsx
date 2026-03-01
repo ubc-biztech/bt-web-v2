@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   LineChart,
   Line,
-} from "recharts";
+} from "@/lib/recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { RawInvestment } from "../../invest/investmentsGrid/InvestmentCard";
 
@@ -28,12 +28,17 @@ interface GraphProps {
   teamId?: string;
 }
 
+const EMPTY_INVESTMENTS: RawInvestment[] = [];
+
 const formatNumberToK = (value: number) => {
   if (value >= 1000) return `${(value / 1000).toFixed(0)}k`;
   return `${value}`;
 };
 
-const Graph: React.FC<GraphProps> = ({ investments = [], teamId }) => {
+const Graph: React.FC<GraphProps> = ({
+  investments = EMPTY_INVESTMENTS,
+  teamId,
+}) => {
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [displayedData, setDisplayedData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);

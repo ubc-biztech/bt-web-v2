@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { m, useMotionValue, animate } from "framer-motion";
 import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useRouter } from "next/navigation";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
@@ -82,7 +82,7 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-6 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -92,26 +92,26 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         {/* Title */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           You collected
-        </motion.p>
+        </m.p>
 
         {/* Badge Count */}
-        <motion.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
+        <m.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           {completedBadges.length}
-        </motion.h1>
+        </m.h1>
 
         {/* Subtext */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           <span className="underline">
             {completedBadges.length === 1 ? "badge" : "badges"}
           </span>{" "}
           out of {totalBadges}.
-        </motion.p>
+        </m.p>
 
         {/* Badge Collection Box */}
         {completedBadges.length > 0 ? (
-          <motion.div
+          <m.div
             className="bg-[#111827] rounded-lg p-6 shadow-lg w-[85%] max-w-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,7 +122,7 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
             </p>
             <div className="grid grid-cols-5 gap-3 justify-center">
               {completedBadges.map((badge) => (
-                <motion.div
+                <m.div
                   key={badge.questID}
                   className="w-14 h-14 flex items-center justify-center rounded-full shadow-lg transition-all hover:scale-110"
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -146,27 +146,27 @@ const BadgeSummary = ({ isPartner }: BadgeSummaryProps) => {
                       {badge.questID.charAt(0)}
                     </span> // Fallback text
                   )}
-                </motion.div>
+                </m.div>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.p className="text-white text-md italic text-center">
+          <m.p className="text-white text-md italic text-center">
             You haven&apos;t collected any badges yet.
-          </motion.p>
+          </m.p>
         )}
 
         {/* Completion Percentage */}
         {(completedBadges.length / totalBadges) * 100 > 20 && (
-          <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+          <m.p className="text-white text-lg font-satoshi font-medium text-center">
             That&apos;s{" "}
             <span className="font-satoshi font-bold">
               {((completedBadges.length / totalBadges) * 100).toFixed(0)}%
             </span>{" "}
             of all attainable badges!
-          </motion.p>
+          </m.p>
         )}
-      </motion.div>
+      </m.div>
     </NavBarContainer>
   );
 };

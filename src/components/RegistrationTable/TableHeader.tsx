@@ -204,7 +204,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
           <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
             {getSelectedRows().map((row, index) => (
-              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
+              <div key={row.id} className="bg-[#485A85] px-5 py-4 rounded-lg">
                 <span className="text-md font-600">
                   {row.original.firstName} {row.original.lastName}
                 </span>
@@ -248,7 +248,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
           <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
             {getSelectedRows().map((row, index) => (
-              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
+              <div key={row.id} className="bg-[#485A85] px-5 py-4 rounded-lg">
                 <span className="text-md font-600">
                   {row.original.id || row.original.email}
                 </span>
@@ -296,7 +296,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
           <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
             {getSelectedRows().map((row, index) => (
-              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
+              <div key={row.id} className="bg-[#485A85] px-5 py-4 rounded-lg">
                 <span className="text-md font-600">
                   Team Member #{index + 1}
                 </span>

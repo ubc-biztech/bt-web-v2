@@ -1,5 +1,5 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import NavbarLogo from "@/assets/2025/kickstart/logo.png";
@@ -22,7 +22,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   status,
 }) => {
   return (
-    <motion.div
+    <m.div
       className="flex justify-between items-start font-bricolage pt-0"
       initial={{ opacity: 1, y: 0 }}
       transition={{
@@ -37,6 +37,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             src={NavbarLogo}
             alt="Kickstart Logo"
             fill
+            sizes="100vw"
             className="object-contain"
             priority
           />
@@ -44,7 +45,8 @@ export const TopNav: React.FC<TopNavProps> = ({
       </div>
       <div className="flex flex-col">
         {" "}
-        <div
+        <button
+          type="button"
           className="flex flex-row cursor-pointer select-none items-center gap-4 mb-2"
           onClick={() => {
             onMenuClick(!isOpen);
@@ -75,7 +77,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 
             <span className="-mt-1 text-[12px] text-white/80">{status}</span>
           </div>
-          <motion.div
+          <m.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
             style={{
@@ -86,8 +88,8 @@ export const TopNav: React.FC<TopNavProps> = ({
             }}
           >
             <ChevronDown className="w-6 h-6 text-white" />
-          </motion.div>
-        </div>
+          </m.div>
+        </button>
         <PopupMenu isOpen={isOpen} />
       </div>
 
@@ -97,6 +99,6 @@ export const TopNav: React.FC<TopNavProps> = ({
       >
         <Menu className="w-6 h-6 text-white" />
       </button> */}
-    </motion.div>
+    </m.div>
   );
 };

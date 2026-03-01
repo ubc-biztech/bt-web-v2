@@ -60,17 +60,17 @@ export const Ticker = () => {
             animation: "scroll 60s linear infinite",
           }}
         >
-          {teams.map((entry, idx) => (
+          {teams.map((entry) => (
             <Entry
-              key={`first-${idx}`}
+              key={`first-${entry.investorName}-${entry.teamName}-${entry.amount}`}
               from={entry.investorName}
               amount={entry.amount}
               to={entry.teamName}
             />
           ))}
-          {teams.map((entry, idx) => (
+          {teams.map((entry) => (
             <Entry
-              key={`second-${idx}`}
+              key={`second-${entry.investorName}-${entry.teamName}-${entry.amount}`}
               from={entry.investorName}
               amount={entry.amount}
               to={entry.teamName}

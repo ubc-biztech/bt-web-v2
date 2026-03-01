@@ -1,7 +1,7 @@
 import FadeWrapper from "../ui/FadeAnimationWrapper";
 import ProjectGrid from "../ui/ProjectGrid";
 import Rubric from "./Rubric";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { TeamFeedback } from "../types";
 import { formatDate } from "../constants/formatDate";
 
@@ -40,13 +40,13 @@ const History: React.FC<HistoryProps> = ({ records }) => {
   return (
     <>
       <FadeWrapper className="flex flex-col">
-        {Object.keys(records).map((round: string, index: number) => (
-          <>
+        {Object.keys(records).map((round: string) => (
+          <Fragment key={round}>
             <header className="mt-16 text-lg font-ibm">ROUND {round}</header>
             <div className="grid grid-cols-4 gap-5 mt-10">
-              {records[round].map((team: TeamFeedback, index: number) => {
+              {records[round].map((team: TeamFeedback) => {
                 return (
-                  <div key={index}>
+                  <div key={team.teamID}>
                     <ProjectGrid
                       team_name={team.teamName}
                       team_status={`COMPLETED ${formatDate(team.createdAt)}`}
@@ -59,7 +59,7 @@ const History: React.FC<HistoryProps> = ({ records }) => {
                 );
               })}
             </div>
-          </>
+          </Fragment>
         ))}
       </FadeWrapper>
       {showRubric && (

@@ -122,7 +122,8 @@ const ProductX: NextPage = () => {
         </header>
 
         <div className="border-b-2 border-[#41437D] mt-6 flex flex-row">
-          <div
+          <button
+            type="button"
             className={`w-24 h-10 border-b-2 ${
               activeTab === "scores"
                 ? "border-[#4CC8BD] text-[#4CC8BD]"
@@ -135,8 +136,9 @@ const ProductX: NextPage = () => {
               color={activeTab === "scores" ? "#4CC8BD" : "#41437D"}
             />
             Scores
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
             className={`w-24 h-10 border-b-2 ${
               activeTab === "winners"
                 ? "border-[#4CC8BD] text-[#4CC8BD]"
@@ -149,20 +151,21 @@ const ProductX: NextPage = () => {
               color={activeTab === "winners" ? "#4CC8BD" : "#41437D"}
             />
             Winners
-          </div>
+          </button>
         </div>
 
         {activeTab === "scores" && (
           <div className="mt-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {results.map((team, index) => (
-                <div
+                <button
+                  type="button"
                   key={team.teamID}
                   onClick={() => handleTeamClick(team)}
                   className="cursor-pointer"
                 >
                   <TeamScoreCard teamData={team} rank={index + 1} />
-                </div>
+                </button>
               ))}
             </div>
 

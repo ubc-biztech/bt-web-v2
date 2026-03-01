@@ -91,7 +91,7 @@ const Connections = () => {
                     .includes(searchQuery.toLowerCase())
                 );
               })
-              .map((connection: Connection, index: number) => {
+              .map((connection: Connection) => {
                 const capitalizedConnection = {
                   ...connection,
                   major: connection?.major?.toUpperCase(),
@@ -100,7 +100,7 @@ const Connections = () => {
 
                 return (
                   <CompanionConnectionRow
-                    key={index}
+                    key={connection.obfuscatedID}
                     connection={capitalizedConnection}
                   />
                 );

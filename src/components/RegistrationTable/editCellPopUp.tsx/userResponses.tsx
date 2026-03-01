@@ -12,13 +12,16 @@ const UserResponses: React.FC<UserResponsesProps> = ({
 }) => {
   return (
     <div className="text-white p-2">
-      {questions.map((question, index) => {
+      {questions.map((question) => {
         const label = question.label;
         const questionId = question.questionId;
         const answer = responses ? responses[questionId] : "No response";
 
         return (
-          <div key={index} className="mb-3 w-full max-w-full overflow-hidden">
+          <div
+            key={questionId}
+            className="mb-3 w-full max-w-full overflow-hidden"
+          >
             <p className="text-bt-blue-100 break-words whitespace-normal">
               {label}
             </p>

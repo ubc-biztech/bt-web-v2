@@ -9,7 +9,7 @@ import {
   KickstartPages,
   useTeam,
 } from "@/components/companion/events/Kickstart2025";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import CommentsModal from "./metrics/CommentsModal";
 import { useUserRegistration } from "@/pages/companion";
 import InvestmentsGrid from "../invest/investmentsGrid/InvestmentsGrid";
@@ -76,7 +76,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
             />
             <AnimatePresence mode="wait">
               {!modal ? (
-                <motion.div
+                <m.div
                   key="overview"
                   className="w-full md:h-[6em] flex md:flex-row flex-col mt-4"
                   initial={{ opacity: 0 }}
@@ -92,9 +92,9 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
                       setModal={setModal}
                     />
                   </div>
-                </motion.div>
+                </m.div>
               ) : (
-                <motion.div
+                <m.div
                   key="modal"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -105,7 +105,7 @@ const Overview = ({ setPage }: { setPage: (arg0: KickstartPages) => void }) => {
                     investments={processInvestments(rawInvestments || [])}
                     setModal={setModal}
                   />
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </div>

@@ -2,7 +2,7 @@ import { FC } from "react";
 import { QR, QrType } from "./types";
 import Image from "next/image";
 import { DownloadIcon } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 
 const QrCard: FC<{
   qr: QR;
@@ -39,7 +39,7 @@ const QrCard: FC<{
   };
   return (
     <AnimatePresence mode="popLayout" key={qr.id.toLowerCase()}>
-      <motion.div
+      <m.div
         className="w-full rounded-[10px] bg-bt-blue-300 p-5"
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -119,7 +119,7 @@ const QrCard: FC<{
             </div>
           </button>
         </div>
-      </motion.div>
+      </m.div>
     </AnimatePresence>
   );
 };

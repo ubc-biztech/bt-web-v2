@@ -15,7 +15,8 @@ export const FilterTab: React.FC<{
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
 }> = ({ title, filter, filterState, handleUiClick, Icon }) => (
-  <div
+  <button
+    type="button"
     className={`bg-bt-blue-0 p-2 h-[46px] rounded-lg flex flex-row grow shrink justify-center space-x-2 items-center lg:px-20 cursor-pointer ${
       filterState === filter ? "!bg-bt-blue-0" : ""
     }`}
@@ -31,5 +32,5 @@ export const FilterTab: React.FC<{
     >
       {title}
     </p>
-  </div>
+  </button>
 );

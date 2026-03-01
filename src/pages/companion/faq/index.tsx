@@ -57,7 +57,7 @@ const FAQItem: React.FC<{
 };
 
 const Index: React.FC = () => {
-  const [openIndices, setOpenIndices] = useState<number[]>(
+  const [openIndices, setOpenIndices] = useState<number[]>(() =>
     faqData.map((_, index) => index),
   );
 
@@ -78,7 +78,7 @@ const Index: React.FC = () => {
           <div className="mt-2 border-t-[1px] pt-2 border-[#1D262F]">
             {faqData.map((item, index) => (
               <FAQItem
-                key={index}
+                key={item.question}
                 item={item}
                 isOpen={openIndices.includes(index)}
                 toggleOpen={() => toggleOpen(index)}

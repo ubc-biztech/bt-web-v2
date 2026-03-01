@@ -4,7 +4,6 @@
 import React, { ComponentType, useState } from "react";
 import { LucideIcon } from "lucide-react";
 import { TeamFeedback } from "../types";
-import { json } from "stream/consumers";
 
 interface DashboardLayoutProps {
   title: string; // * Title of the dashboard page
@@ -30,12 +29,13 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <div className="flex flex-col">
         <header className="mt-16 text-lg font-ibm">{title}</header>
         <div className="border-b-2 border-[#41437D] mt-6 flex flex-row">
-          {pages.map((page, idx) => {
+          {pages.map((page) => {
             const isActivePage = currentlyDisplayedPage === page.name;
 
             return (
-              <div
-                key={`${idx}+${page.name}`}
+              <button
+                type="button"
+                key={page.name}
                 className={`w-24 h-10 border-b-2 ${
                   isActivePage
                     ? "border-[#4CC8BD] text-[#4CC8BD]"
@@ -50,7 +50,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   color={isActivePage ? "#4CC8BD" : "#41437D"}
                 />
                 {page.name}
-              </div>
+              </button>
             );
           })}
         </div>
@@ -58,7 +58,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         {pages.map((page) => {
           return (
             currentlyDisplayedPage === page.name && (
-              <page.component records={teams} />
+              <page.component key={page.name} records={teams} />
             )
           );
         })}

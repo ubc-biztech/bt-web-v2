@@ -7,7 +7,7 @@ import { fetchBackend } from "@/lib/db";
 import { Connection } from "@/components/companion/connections/connections-list";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { useRouter } from "next/navigation";
-import { motion, useMotionValue, animate } from "framer-motion";
+import { m, useMotionValue, animate } from "framer-motion";
 import Image from "next/image";
 
 interface FirstConnectionProps {
@@ -102,7 +102,7 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-6"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -112,22 +112,27 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         {firstConnection ? (
-          <div onClick={(e) => e.stopPropagation()} className="cursor-default">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            className="cursor-default"
+            role="presentation"
+          >
             <CompanionConnectionRow connection={firstConnection} />
           </div>
         ) : (
-          <motion.div
+          <m.div
             className="bg-[#111827] rounded-lg px-6 py-4 flex items-center space-x-4 w-80 shadow-lg"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
             <p className="text-white text-center">No connections found</p>
-          </motion.div>
+          </m.div>
         )}
 
         {/* Connection Text */}
-        <motion.p
+        <m.p
           className="text-white text-lg font-satoshi font-medium text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -143,13 +148,13 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
           ) : (
             "You have no recorded connections."
           )}
-        </motion.p>
+        </m.p>
 
         {/* Show company logo only if profile picture exists */}
         {companyProfilePicture && (
           <>
             {/* Company Logo */}
-            <motion.div
+            <m.div
               className="w-20 h-20 flex items-center justify-center bg-white rounded-full shadow-lg overflow-hidden relative"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -162,16 +167,16 @@ const FirstConnection = ({ isPartner }: FirstConnectionProps) => {
                 objectFit="contain" // Keeps the image within the bounds without cropping
                 className="scale-90" // Makes the image slightly smaller
               />
-            </motion.div>
+            </m.div>
 
             {/* Company Tap Text */}
-            <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+            <m.p className="text-white text-lg font-satoshi font-medium text-center">
               <span className="font-satoshi font-bold">{firstCompanyName}</span>{" "}
               was the first company you tapped
-            </motion.p>
+            </m.p>
           </>
         )}
-      </motion.div>
+      </m.div>
     </NavBarContainer>
   );
 };

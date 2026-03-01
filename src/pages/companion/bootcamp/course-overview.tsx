@@ -70,7 +70,8 @@ const CourseOverview = () => {
           <div className="bg-[#1B253D] border border-[#A2B1D5] rounded-2xl p-6">
             <div className="space-y-6">
               {videos.map((video, index) => (
-                <div
+                <button
+                  type="button"
                   key={video.id}
                   onClick={() =>
                     router.push(
@@ -85,6 +86,7 @@ const CourseOverview = () => {
                       src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`}
                       alt={video.title}
                       fill
+                      sizes="100vw"
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -108,7 +110,7 @@ const CourseOverview = () => {
                       {video.description}
                     </p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

@@ -21,8 +21,7 @@ import {
   CartesianGrid,
   Area,
   ReferenceLine,
-} from "recharts";
-import { Instrument_Serif, Bricolage_Grotesque } from "next/font/google";
+} from "@/lib/recharts";
 
 import { useBtxExchange } from "@/hooks/useBtxExchange";
 import { Button } from "@/components/ui/button";
@@ -38,16 +37,6 @@ import {
 import { fetchBackend } from "@/lib/db";
 
 const EVENT_ID = "kickstart";
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-});
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 const chartConfig = {
   value: {
@@ -1006,9 +995,7 @@ const BtxPage: React.FC = () => {
         <title>BizTech Exchange (BTX)</title>
       </Head>
 
-      <div
-        className={`${bricolageGrotesque.className} min-h-screen bg-[#111111] text-white w-full overflow-x-hidden`}
-      >
+      <div className="min-h-screen bg-[#111111] text-white w-full overflow-x-hidden">
         <div className="max-w-[92rem] mx-auto w-full min-h-screen flex flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-2">
           {/* HEADER: title + live price + portfolio snapshot + market stats */}
           <section className="mb-4 flex-shrink-0 rounded-xl border border-[#2A2A2A] bg-gradient-to-r from-[#181818] via-[#111111] to-[#161616] px-4 py-3 sm:px-5 sm:py-4 shadow-[0_0_0_1px_rgba(0,0,0,0.9)]">
@@ -1017,17 +1004,13 @@ const BtxPage: React.FC = () => {
               {/* Left: selected project headline */}
               <div className="flex flex-col gap-2 min-w-0">
                 <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
-                  <h1
-                    className={`${instrumentSerif.className} text-2xl sm:text-3xl md:text-4xl font-light leading-tight truncate`}
-                  >
+                  <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-light leading-tight truncate">
                     {headerProject ? headerProject.name : "BizTech Exchange"}
                   </h1>
 
                   {/* Price + change */}
                   <div className="flex flex-wrap items-baseline gap-4">
-                    <p
-                      className={`${instrumentSerif.className} text-2xl sm:text-3xl font-light leading-none`}
-                    >
+                    <p className="font-serif text-2xl sm:text-3xl font-light leading-none">
                       {formatCurrency(
                         headerProject?.currentPrice ??
                           headerProject?.basePrice ??
@@ -1831,12 +1814,16 @@ const BtxPage: React.FC = () => {
                           <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                             {/* LEFT: size + presets + buttons */}
                             <div className="flex-1 lg:max-w-sm">
-                              <label className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                              <label
+                                htmlFor="trade-shares-input"
+                                className="mb-1 block text-[11px] uppercase tracking-[0.18em] text-slate-400"
+                              >
                                 Order size
                               </label>
 
                               <div className="flex items-center gap-2">
                                 <Input
+                                  id="trade-shares-input"
                                   className="h-10 flex-1 rounded-md bg-[#0B0B0B] text-sm border border-slate-700/70 hover:border-slate-400 focus-visible:border-sky-400 focus-visible:ring-0 font-mono"
                                   type="text"
                                   inputMode="numeric"

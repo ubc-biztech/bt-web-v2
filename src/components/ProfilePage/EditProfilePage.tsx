@@ -256,7 +256,8 @@ export const EditProfilePage = ({
               <Image
                 src={profileData.profilePictureURL}
                 alt="Profile Picture"
-                fill={true}
+                fill
+                sizes="100vw"
                 className="object-cover"
               />
             ) : (
@@ -356,7 +357,7 @@ export const EditProfilePage = ({
             {(funQuestion1 || funQuestion2) && (
               <GenericCardNFC isCollapsible={false}>
                 {questions.map((question, idx) => (
-                  <div key={idx} className="">
+                  <div key={question} className="">
                     <span className="rounded-lg">
                       <p className="text-sm text-bt-blue-0 mb-2">{question}</p>
                     </span>
