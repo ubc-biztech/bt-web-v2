@@ -50,7 +50,18 @@ interface TableHeaderProps {
   year: string;
 }
 
-type SelectValue = "attendees" | "partners" | "waitlisted";
+type SelectValue =
+  | "all"
+  | "attendees"
+  | "partners"
+  | "waitlisted"
+  | "acceptedPending"
+  | "acceptedComplete"
+  | "accepted"
+  | "incomplete"
+  | "cancelled"
+  | "checkedIn"
+  | "registered";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
@@ -183,9 +194,17 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="attendees">Attendees</SelectItem>
             <SelectItem value="partners">Partners</SelectItem>
             <SelectItem value="waitlisted">Waitlisted</SelectItem>
+            <SelectItem value="acceptedPending">Accepted Pending</SelectItem>
+            <SelectItem value="acceptedComplete">Confirmed</SelectItem>
+            <SelectItem value="accepted">Accepted</SelectItem>
+            <SelectItem value="incomplete">Incomplete</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="checkedIn">Checked-In</SelectItem>
+            <SelectItem value="registered">Registered</SelectItem>
           </SelectContent>
         </Select>
       </div>
