@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
+import { getQueryString } from "@/util/url";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import PageLoadingState from "@/components/Common/PageLoadingState";
@@ -246,11 +247,7 @@ const Membership: React.FC = () => {
                 </Button>
                 <Button variant="green" size="sm">
                   <Link
-                    href={
-                      router.query.redirect
-                        ? (router.query.redirect as string)
-                        : "/events"
-                    }
+                    href={getQueryString(router.query.redirect) ?? "/events"}
                   >
                     Continue as Guest
                   </Link>
