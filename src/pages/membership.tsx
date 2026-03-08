@@ -82,7 +82,7 @@ const Membership: React.FC = () => {
         });
 
         if (userProfile?.isMember) {
-          const redirectUrl = (router.query.redirect as string) || "/";
+          const redirectUrl = getQueryString(router.query.redirect) ?? "/";
           if (!hasRedirectedRef.current) {
             hasRedirectedRef.current = true;
             await router.replace(redirectUrl);
