@@ -4,6 +4,7 @@ import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
@@ -230,8 +231,8 @@ const Membership: React.FC = () => {
           className="max-w-xl mx-auto mt-12 px-4"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <div className="space-y-12">
-            <div className="border-b border-white/10 pb-12 text-center">
+          <div className="space-y-6">
+            <div className="border-b border-white/10 pb-6 text-center">
               <h2 className="text-base font-semibold leading-7 text-white">
                 Create your user!
               </h2>
