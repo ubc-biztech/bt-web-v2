@@ -1,6 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: "/events/:eventId/:year/companion",
+        destination: "/companion/:eventId/:year",
+        permanent: false,
+      },
+      {
+        source: "/events/:eventId/:year/companion/:path*",
+        destination: "/companion/:eventId/:year/:path*",
+        permanent: false,
+      },
+      {
+        source: "/companions/:eventId/:year/companion",
+        destination: "/companion/:eventId/:year",
+        permanent: false,
+      },
+      {
+        source: "/companions/:eventId/:year/companion/:path*",
+        destination: "/companion/:eventId/:year/:path*",
+        permanent: false,
+      },
+    ];
+  },
   images: {
     unoptimized: false,
     remotePatterns: [

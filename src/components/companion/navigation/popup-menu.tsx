@@ -1,11 +1,9 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
-import SimpleBox from "../productX/ui/Box";
 import { LogOut } from "lucide-react";
 
 interface PopupMenuProps {

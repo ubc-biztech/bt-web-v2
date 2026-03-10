@@ -1,21 +1,14 @@
 import React from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
-import { Connection } from "./connections/connections-list";
-import { Badge } from "@/pages/companion/badges";
 import NavBarContainer from "./navigation/NavBarContainer";
 import { AnimatedBorder } from "@/components/ui/animated-border";
 import Link from "next/link";
 import { ComponentType } from "react";
-import { Registration } from "@/pages/companion";
-import { useUserRegistration } from "@/pages/companion";
+import { useUserRegistration } from "@/contexts/companion/UserRegistrationContext";
 
 interface CompanionHomeProps {
   ChildComponent: ComponentType<any>;
 }
-
-export const capitalizeTeamName = (name: string) => {
-  return name.toUpperCase();
-};
 
 const Counter = ({ value }: { value: number }) => {
   const count = useMotionValue(value <= 10 ? value : 0);

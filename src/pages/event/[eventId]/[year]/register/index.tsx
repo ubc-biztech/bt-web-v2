@@ -619,7 +619,7 @@ export default function AttendeeFormRegister() {
               <button
                 className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow-md"
                 onClick={() =>
-                  router.push(`/events/${eventId}/${year}/companion`)
+                  router.push(`/companion/${eventId}/${year}`)
                 }
               >
                 Go to Event Companion

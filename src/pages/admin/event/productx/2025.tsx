@@ -1,5 +1,5 @@
-import { TeamScoreCard } from "@/components/companion/productX/TeamScoreCard";
-import { TeamResponse, Round } from "@/components/companion/productX/types";
+import { TeamScoreCard } from "@/features/productX/TeamScoreCard";
+import { TeamResponse, Round } from "@/features/productX/types";
 import { fetchBackend } from "@/lib/db";
 import { Award, BarChart3, RotateCcw, Flag } from "lucide-react";
 import { NextPage } from "next";
@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { JudgeResponse } from "@/components/companion/productX/types";
+import { JudgeResponse } from "@/features/productX/types";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,

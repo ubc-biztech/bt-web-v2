@@ -1,17 +1,22 @@
 import { ComponentType } from "react";
-import Blueprint2025 from "@/components/companion/events/Blueprint2025";
+import Blueprint2025 from "@/features/blueprint/2025/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
-import ProductX2025 from "@/components/companion/events/ProductX2025";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
-import Kickstart2025 from "@/components/companion/events/Kickstart2025";
+import Kickstart2025 from "@/features/kickstart/2025/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
-import BluePrint2026 from "@/components/companion/events/BluePrint2026";
-import BluePrintProfile2026 from "@/components/companion/blueprint2026/pages/BluePrintProfile2026";
-import BluePrintPartnerDatabase2026 from "@/components/companion/blueprint2026/pages/BluePrintPartnerDatabase2026";
-import BluePrintQuests2026 from "@/components/companion/blueprint2026/pages/BluePrintQuests2026";
-import BluePrintCompanies2026 from "@/components/companion/blueprint2026/pages/BluePrintCompanies2026";
-import BluePrintMBTI2026 from "@/components/companion/blueprint2026/pages/BluePrintMBTI2026";
-import BluePrintDiscover2026 from "@/components/companion/blueprint2026/pages/BluePrintDiscover2026";
+import BluePrint2026 from "@/features/blueprint/2026/BluePrint2026";
+import BluePrintProfile2026 from "@/features/blueprint/2026/pages/BluePrintProfile2026";
+import BluePrintPartnerDatabase2026 from "@/features/blueprint/2026/pages/BluePrintPartnerDatabase2026";
+import BluePrintQuests2026 from "@/features/blueprint/2026/pages/BluePrintQuests2026";
+import BluePrintCompanies2026 from "@/features/blueprint/2026/pages/BluePrintCompanies2026";
+import BluePrintMBTI2026 from "@/features/blueprint/2026/pages/BluePrintMBTI2026";
+import BluePrintDiscover2026 from "@/features/blueprint/2026/pages/BluePrintDiscover2026";
+import BluePrintConnections2026 from "@/features/blueprint/2026/pages/BluePrintConnections2026";
+import ProductX2025 from "@/features/productX/2025/ProductX2025";
+import CreateTeam from "@/features/kickstart/2025/team/create";
+import JoinTeam from "@/features/kickstart/2025/team/join";
+import Index from "@/features/kickstart/2025/team";
+import Invest from "@/features/kickstart/2025/invest/Invest";
 
 export type DynamicPageProps = {
   event: Event;
@@ -47,6 +52,10 @@ export interface Event {
   };
 }
 
+// Companion convention:
+// - Event-specific UI lives in `src/components/companion/<event>/<year>/...`
+// - Canonical runtime routes live in `src/pages/companion/[event]/[year]`
+// - Keep shared cross-event UI in neutral folders (e.g. navigation, badges, connections).
 const Events: Event[] = [
   {
     activeUntil: new Date("2025-01-31"),
@@ -103,6 +112,12 @@ const Events: Event[] = [
     eventID: "kickstart",
     year: 2025,
     ChildComponent: Kickstart2025,
+    pages: {
+      "team/create": CreateTeam,
+      "team/join": JoinTeam,
+      "team": Index,
+      "invest": Invest,
+    },
     options: {
       disableWelcomeHeader: true,
       BiztechLogo: KickstartLogo.src,
@@ -131,6 +146,7 @@ const Events: Event[] = [
       companies: BluePrintCompanies2026,
       MBTI: BluePrintMBTI2026,
       discover: BluePrintDiscover2026,
+      connections: BluePrintConnections2026,
     },
     options: {
       disableWelcomeHeader: true,
