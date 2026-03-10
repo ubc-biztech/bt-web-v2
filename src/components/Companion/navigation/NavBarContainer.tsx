@@ -1,8 +1,6 @@
 import React, { useState, useEffect, ReactNode } from "react";
 import { motion } from "framer-motion";
 import { TopNav } from "@/components/Companion/navigation/top-nav";
-import { SideNav } from "@/components/Companion/navigation/side-nav";
-import { PopupMenu } from "@/components/Companion/navigation/popup-menu";
 
 interface NavBarContainerProps {
   isPartner?: boolean | undefined;
