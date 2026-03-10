@@ -1,4 +1,3 @@
-
 export function capitalizeTeamName(name: string) {
-    return name.toUpperCase();
+  return name.toUpperCase();
 }

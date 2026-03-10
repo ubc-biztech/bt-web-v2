@@ -80,9 +80,7 @@ const SuccessPage = () => {
           {companionAvailable && (
             <div className="mb-4">
               <button
-                onClick={() =>
-                  router.push(`/companion/${eventId}/${year}`)
-                }
+                onClick={() => router.push(`/companion/${eventId}/${year}`)}
                 className="flex items-center bg-bt-green-300 hover:bg-bt-green-400 text-black font-bold py-3 px-6 rounded-lg transition duration-300"
               >
                 <span className="mr-2">Access Event Companion</span>

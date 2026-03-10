@@ -1,9 +1,6 @@
 import React from "react";
 import RubricCell from "./RubricCell";
-import {
-  ScoringMetric,
-  ScoringRecord,
-} from "@/features/productX/types";
+import { ScoringMetric, ScoringRecord } from "@/features/productX/types";
 import {
   ratings,
   rubricContentsMapping,

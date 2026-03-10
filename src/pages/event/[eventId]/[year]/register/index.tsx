@@ -618,9 +618,7 @@ export default function AttendeeFormRegister() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded shadow-md"
-                onClick={() =>
-                  router.push(`/companion/${eventId}/${year}`)
-                }
+                onClick={() => router.push(`/companion/${eventId}/${year}`)}
               >
                 Go to Event Companion
               </button>

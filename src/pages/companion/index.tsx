@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { getLatestRegisteredEvent } from "@/lib/companionHelpers";
 
-
 /* 
   This page is the entry point for the companion. It checks if the user is logged in and redirects to the latest registered event with a companion.
   If the user is not logged in, it redirects to the login page.
@@ -30,9 +29,7 @@ const Companion = () => {
         // Try to redirect to user's latest registered event with companion
         const latestEvent = await getLatestRegisteredEvent(savedEmail);
         if (latestEvent) {
-          router.push(
-            `/companion/${latestEvent.eventId}/${latestEvent.year}`,
-          );
+          router.push(`/companion/${latestEvent.eventId}/${latestEvent.year}`);
           return;
         }
 
