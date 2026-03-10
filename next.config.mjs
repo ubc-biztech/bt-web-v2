@@ -13,16 +13,6 @@ const nextConfig = {
         destination: "/companion/:eventId/:year/:path*",
         permanent: false,
       },
-      {
-        source: "/companions/:eventId/:year/companion",
-        destination: "/companion/:eventId/:year",
-        permanent: false,
-      },
-      {
-        source: "/companions/:eventId/:year/companion/:path*",
-        destination: "/companion/:eventId/:year/:path*",
-        permanent: false,
-      },
     ];
   },
   images: {
