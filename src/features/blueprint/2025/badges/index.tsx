@@ -1,7 +1,7 @@
 import NavBarContainer from "@/components/Companion/navigation/NavBarContainer";
 import { useEffect, useState } from "react";
 import Filter from "@/components/Companion/Filter";
-import { BadgeRow } from "@/components/Companion/badges/badge-row";
+import { BadgeRow } from "@/features/blueprint/2025/badges/badge-row";
 import { fetchBackend } from "@/lib/db";
 import { CompanionItemRow } from "@/components/ui/companion-item-row";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";

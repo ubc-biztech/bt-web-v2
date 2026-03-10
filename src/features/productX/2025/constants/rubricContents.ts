@@ -1,6 +1,6 @@
 // utilities for handling productx scoring data
 
-import { ScoringRecord } from "../types";
+import { ScoringRecord } from "../../types";
 
 const rubricContentsMapping = {
   metric1: [

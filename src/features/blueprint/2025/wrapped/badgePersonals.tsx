@@ -8,7 +8,7 @@ import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { fetchBackend } from "@/lib/db";
 import { blueprintBadgeIcons } from "../../../../constants/blueprint-badgeIcons";
 import Image from "next/image";
-import { Badge } from "../badges";
+import { Badge } from "@/types/companion";
 
 interface BadgeSummaryProps {
   isPartner: boolean;

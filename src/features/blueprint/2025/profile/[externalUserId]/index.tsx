@@ -9,14 +9,14 @@ import {
   COMPANION_PROFILE_ID_KEY,
 } from "@/constants/companion";
 import { BackendProfile, UserProfile } from "@/types";
-import Profile from "@/features/profiles/profileHeader";
-import ExtraInfo from "@/features/profiles/extraInfo";
-import AttendeeInfo from "@/features/profiles/attendeeInfo";
+import Profile from "@/features/blueprint/profiles/profileHeader";
+import ExtraInfo from "@/features/blueprint/profiles/extraInfo";
+import AttendeeInfo from "@/features/blueprint/profiles/attendeeInfo";
 import NavBarContainer from "@/components/Companion/navigation/NavBarContainer";
 import { motion } from "framer-motion";
-import ResponseSection from "@/features/profiles/responseSection";
-import CompanyInfo from "@/features/profiles/delegateInfo";
+import ResponseSection from "@/features/blueprint/profiles/responseSection";
 import { ConnectedButton } from "@/components/ui/connected-button";
+import CompanyInfo from "@/features/blueprint/profiles/delegateInfo";
 
 const Index = () => {
   const [userData, setUserData] = useState<UserProfile | null>(null);

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import Profile from "../../../../../features/profiles/profileHeader";
-import AdditionalLinks from "../../../../../features/profiles/additionalLinks";
+import Profile from "@/features/blueprint/profiles/profileHeader";
+import AdditionalLinks from "@/features/blueprint/profiles/additionalLinks";
 import { AnimatedBorder } from "../../../../../../components/ui/animated-border";
 import { useRouter } from "next/router";
 import NavBarContainer from "@/components/Companion/navigation/NavBarContainer";
 import { motion } from "framer-motion";
-import ResponseSection from "@/features/profiles/responseSection";
+import ResponseSection from "@/features/blueprint/profiles/responseSection";
 import { fetchBackend } from "@/lib/db";
 import { Loader2 } from "lucide-react";
 
