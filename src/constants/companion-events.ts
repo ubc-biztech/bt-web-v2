@@ -115,8 +115,8 @@ const Events: Event[] = [
     pages: {
       "team/create": CreateTeam,
       "team/join": JoinTeam,
-      "team": Index,
-      "invest": Invest,
+      team: Index,
+      invest: Invest,
     },
     options: {
       disableWelcomeHeader: true,

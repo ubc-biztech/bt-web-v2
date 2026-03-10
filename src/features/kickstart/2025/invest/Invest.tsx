@@ -6,10 +6,7 @@ import Success from "./flow/Success";
 import Comment from "./flow/Comment";
 import Render from "./flow/Render";
 import ScanIcon from "@/assets/2025/kickstart/scan.svg";
-import {
-  KickstartPages,
-  useTeam,
-} from "../Kickstart2025";
+import { KickstartPages, useTeam } from "../Kickstart2025";
 import { useUserRegistration } from "@/contexts/companion/UserRegistrationContext";
 import { motion } from "framer-motion";
 import QR from "./flow/QR";

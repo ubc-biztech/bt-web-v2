@@ -5,10 +5,7 @@ import Graph from "./graph/Graph";
 import { fetchBackend } from "@/lib/db";
 import { Investment } from "./metrics/Recent";
 import React, { useEffect, useState } from "react";
-import {
-  KickstartPages,
-  useTeam,
-} from "../Kickstart2025";
+import { KickstartPages, useTeam } from "../Kickstart2025";
 import { AnimatePresence, motion } from "framer-motion";
 import CommentsModal from "./metrics/CommentsModal";
 import { useUserRegistration } from "@/contexts/companion/UserRegistrationContext";
