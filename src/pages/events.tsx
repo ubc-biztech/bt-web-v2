@@ -37,8 +37,9 @@ export default function Page({ events }: EventProps) {
   const [filterState, setFilterState] = useState(filterStates.all);
   const isCooldownRef = useRef(false);
 
-  const [allEvents, setAllEvents] = useState<BiztechEvent[]>(events);
+  const [allEvents, setAllEvents] = useState<BiztechEvent[] | null>(null);
   const [loadingEvents, setLoadingEvents] = useState<boolean>(!events?.length);
+  const eventsData = allEvents ?? events;
 
   const [saved, setSaved] = useState<string[]>([]);
   const [registered, setRegistered] = useState<string[]>([]);
@@ -75,7 +76,7 @@ export default function Page({ events }: EventProps) {
   }, []);
 
   const displayedEvents = useMemo(() => {
-    let filtered: BiztechEvent[] = allEvents;
+    let filtered: BiztechEvent[] = eventsData;
 
     if (filterState === filterStates.saved) {
       filtered = filtered.filter((ev) => saved.includes(`${ev.id};${ev.year}`));
@@ -89,7 +90,7 @@ export default function Page({ events }: EventProps) {
     }
 
     return filtered;
-  }, [allEvents, filterState, searchField, saved]);
+  }, [eventsData, filterState, searchField, saved]);
 
   const fetchData = async () => {
     try {

@@ -84,6 +84,14 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
     <div
       className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6"
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClose();
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div
         className="bg-[#131F3B] rounded-2xl p-4 sm:p-6 w-full max-w-sm mx-4 relative border border-[#374566]"
@@ -91,6 +99,8 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
           boxShadow: "inset 0 0 48px rgba(255, 255, 255, 0.1)",
         }}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="presentation"
       >
         <button
           onClick={onClose}

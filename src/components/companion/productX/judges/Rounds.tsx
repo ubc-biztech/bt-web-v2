@@ -106,7 +106,13 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
     return (
       <div className="flex flex-col items-center justify-center w-full min-h-[600px] border-2 border-dashed border-[#41437D] p-8">
         <div className=" relative w-[70%] h-[70%]">
-          <Image src={BizBot} alt="BizBot" className="object-contain" fill />
+          <Image
+            src={BizBot}
+            alt="BizBot"
+            className="object-contain"
+            fill
+            sizes="100vw"
+          />
         </div>
         <header className="text-lg font-ibm">NO ENTRIES FOUND</header>
         <span className="pt-2 text-[#656795] text-center max-w-[600px] text-sm">
@@ -149,14 +155,14 @@ const Rounds: React.FC<RoundsProps> = ({ records }) => {
             <figure className="ml-2 w-56 h-[1px] bg-[#3D3E63]" />
           </div>
 
-          {teamsJudged.map((teamFeedback: TeamFeedback, index: number) => {
+          {teamsJudged.map((teamFeedback: TeamFeedback) => {
             const scored = Object.values(teamFeedback.scores).every(
               (score: number) => score != 0,
             );
             return (
               scored && (
                 <ProjectRow
-                  key={index}
+                  key={`${teamFeedback.teamName}-${teamFeedback.round}-${teamFeedback.createdAt}`}
                   round={teamFeedback.round}
                   team_name={teamFeedback.teamName}
                   team_status={`COMPLETED ${formatDate(teamFeedback.createdAt as string)}`}

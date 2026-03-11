@@ -3,10 +3,12 @@ import Loading from "@/components/Loading";
 import { fetchBackend } from "@/lib/db";
 import { useUserRegistration } from "@/pages/companion/index";
 import { KickstartNav } from "@/components/companion/kickstart/ui/KickstartNav";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import {
   useState,
   useEffect,
+  useMemo,
+  useCallback,
   createContext,
   useContext,
   ReactNode,
@@ -69,7 +71,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
   const { userRegistration } = useUserRegistration();
   const router = useRouter();
 
-  const fetchUserTeam = async () => {
+  const fetchUserTeam = useCallback(async () => {
     setLoading(true);
 
     const email = userRegistration?.id;
@@ -107,13 +109,11 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userRegistration?.id, userRegistration?.["eventID;year"]]);
 
   useEffect(() => {
-    if (userRegistration) {
-      fetchUserTeam();
-    }
-  }, [userRegistration]);
+    void fetchUserTeam();
+  }, [fetchUserTeam]);
 
   const contextValue: TeamContextType = { team: team, isLoading: loading };
 
@@ -164,7 +164,7 @@ const PageWrapper = ({
   key: KickstartPages;
 }) => {
   return (
-    <motion.div
+    <m.div
       key={key}
       variants={pageVariants}
       initial="initial"
@@ -176,13 +176,12 @@ const PageWrapper = ({
       }
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 
 const Kickstart2025 = () => {
   const router = useRouter();
-  const [sharedTeamId, setSharedTeamId] = useState<string | null>(null);
   const [pendingSharedTeam, setPendingSharedTeam] = useState<string | null>(
     null,
   );
@@ -190,30 +189,11 @@ const Kickstart2025 = () => {
 
   console.log("user registration", userRegistration);
 
-  useEffect(() => {
-    if (!router.isReady) return;
-
-    // If registered for kickoff-showcase event, redirect to /investments
-    console.log(userRegistration, "HERE");
-
-    /*
-    if (
-      userRegistration &&
-      typeof userRegistration["eventID;year"] === "string" &&
-      userRegistration["eventID;year"].split(";")[0] === "kickstart-showcase"
-    ) {
-      router.push("/btx");
-      return;
-    }
-    */
-
+  const sharedTeamId = useMemo(() => {
+    if (!router.isReady) return null;
     const { sharedTeam } = router.query;
-    if (sharedTeam && typeof sharedTeam === "string") {
-      setSharedTeamId(sharedTeam);
-    } else {
-      setSharedTeamId(null);
-    }
-  }, [router.isReady, router.query.sharedTeam, userRegistration]);
+    return typeof sharedTeam === "string" ? sharedTeam : null;
+  }, [router.isReady, router.query.sharedTeam]);
 
   // If there's a sharedTeamId in the URL, navigate to INVEST page
   useEffect(() => {

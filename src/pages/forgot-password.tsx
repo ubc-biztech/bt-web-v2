@@ -171,6 +171,7 @@ export default function ForgotPassword() {
             src="https://i.postimg.cc/zq7TT43B/DSC01353-1.jpg"
             className="absolute inset-0 h-full w-full object-cover"
             fill
+            sizes="100vw"
           />
         </div>
       </div>

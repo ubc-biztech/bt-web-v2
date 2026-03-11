@@ -8,7 +8,7 @@ import Render from "./flow/Render";
 import ScanIcon from "@/assets/2025/kickstart/scan.svg";
 import { KickstartPages, useTeam } from "../../events/Kickstart2025";
 import { useUserRegistration } from "@/pages/companion";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import QR from "./flow/QR";
 import { RawInvestment } from "./investmentsGrid/InvestmentCard";
 import InvestmentsGrid from "./investmentsGrid/InvestmentsGrid";
@@ -288,35 +288,26 @@ const Invest = ({
     }
   };
 
-  const renderInvestmentFlow = () => {
-    if (!selectedTeam) return null;
-
-    if (investmentStage === InvestmentStage.SUCCESS && successInfo) {
-      return (
-        <Success
-          successInfo={successInfo}
-          resetFlow={resetFlow}
-          setPage={setPage}
-        />
-      );
-    }
-
-    if (investmentStage === InvestmentStage.COMMENT) {
-      return (
-        <Comment
-          selectedTeam={selectedTeam}
-          confirmedAmount={confirmedAmount}
-          comment={comment}
-          setComment={setComment}
-          flowError={flowError}
-          isSubmitting={isSubmitting}
-          handleSubmitInvestment={handleSubmitInvestment}
-          resetFlow={resetFlow}
-        />
-      );
-    }
-
-    return (
+  const investmentFlow =
+    selectedTeam &&
+    (investmentStage === InvestmentStage.SUCCESS && successInfo ? (
+      <Success
+        successInfo={successInfo}
+        resetFlow={resetFlow}
+        setPage={setPage}
+      />
+    ) : investmentStage === InvestmentStage.COMMENT ? (
+      <Comment
+        selectedTeam={selectedTeam}
+        confirmedAmount={confirmedAmount}
+        comment={comment}
+        setComment={setComment}
+        flowError={flowError}
+        isSubmitting={isSubmitting}
+        handleSubmitInvestment={handleSubmitInvestment}
+        resetFlow={resetFlow}
+      />
+    ) : (
       <Render
         selectedTeam={selectedTeam}
         amountInput={amountInput}
@@ -327,8 +318,7 @@ const Invest = ({
         isAmountValid={isAmountValid}
         resetFlow={resetFlow}
       />
-    );
-  };
+    ));
 
   if (!userRegistration) {
     return <Loading />;
@@ -364,7 +354,7 @@ const Invest = ({
         </div>
       )}
       {!selectedTeam && !openQR && (isPartnerOrShowcase || isInvesting) && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           className="border border-[#5F3F1A] rounded-lg w-full"
@@ -424,12 +414,10 @@ const Invest = ({
               )}
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
 
-      {selectedTeam && (isPartnerOrShowcase || isInvesting) && (
-        <>{renderInvestmentFlow()}</>
-      )}
+      {selectedTeam && (isPartnerOrShowcase || isInvesting) && investmentFlow}
       {openQR && (isPartnerOrShowcase || isInvesting) && (
         <QR
           resetFlow={resetFlow}

@@ -2,7 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 import { COMPANION_EMAIL_KEY, TEAM_NAME } from "@/constants/companion";
 import SimpleBox from "../productX/ui/Box";
@@ -52,7 +52,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
   return (
     <AnimatePresence mode="wait">
       {isOpen && (
-        <motion.nav
+        <m.nav
           className="relative"
           variants={menuVariants}
           initial="hidden"
@@ -77,7 +77,7 @@ export const PopupMenu: React.FC<PopupMenuProps> = ({ isOpen }) => {
               </Link>
             ))}
           </div>
-        </motion.nav>
+        </m.nav>
       )}
     </AnimatePresence>
   );

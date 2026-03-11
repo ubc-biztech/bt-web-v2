@@ -361,6 +361,14 @@ const BtxAdminPage: React.FC = () => {
                             isSelected ? "bg-slate-800/80" : ""
                           }`}
                           onClick={() => setSelectedProjectId(p.projectId)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedProjectId(p.projectId);
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
                         >
                           <div className="flex items-center justify-between gap-2">
                             <div>
@@ -415,11 +423,15 @@ const BtxAdminPage: React.FC = () => {
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-200">
+                      <label
+                        htmlFor="project-id"
+                        className="text-xs font-medium text-slate-200"
+                      >
                         Project ID
                         <span className="ml-1 text-red-400">*</span>
                       </label>
                       <Input
+                        id="project-id"
                         className="h-9 bg-slate-950 text-xs"
                         placeholder="e.g. project11"
                         value={projectId}
@@ -433,11 +445,15 @@ const BtxAdminPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-200">
+                      <label
+                        htmlFor="project-ticker"
+                        className="text-xs font-medium text-slate-200"
+                      >
                         Ticker
                         <span className="ml-1 text-red-400">*</span>
                       </label>
                       <Input
+                        id="project-ticker"
                         className="h-9 bg-slate-950 text-xs"
                         placeholder="e.g. TEMA"
                         value={ticker}
@@ -452,10 +468,14 @@ const BtxAdminPage: React.FC = () => {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-200">
+                      <label
+                        htmlFor="project-name"
+                        className="text-xs font-medium text-slate-200"
+                      >
                         Name
                       </label>
                       <Input
+                        id="project-name"
                         className="h-9 bg-slate-950 text-xs"
                         placeholder="Team A"
                         value={name}
@@ -467,10 +487,14 @@ const BtxAdminPage: React.FC = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-200">
+                      <label
+                        htmlFor="seed-amount"
+                        className="text-xs font-medium text-slate-200"
+                      >
                         Seed amount
                       </label>
                       <Input
+                        id="seed-amount"
                         className="h-9 bg-slate-950 text-xs"
                         type="number"
                         min={0}
@@ -486,10 +510,14 @@ const BtxAdminPage: React.FC = () => {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-200">
+                    <label
+                      htmlFor="project-description"
+                      className="text-xs font-medium text-slate-200"
+                    >
                       Description
                     </label>
                     <Textarea
+                      id="project-description"
                       className="min-h-[80px] bg-slate-950 text-xs"
                       placeholder="Short description of this project / startup…"
                       value={description}

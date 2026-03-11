@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import React from "react";
 import { metrics } from "../../constants/rubricContents";
 import { useUserRegistration } from "@/pages/companion";
@@ -16,19 +16,6 @@ const RubricComments: React.FC<RubricCommentsProps> = ({
   const [openIndex, setOpenIndex] = useState<null | number>(null);
   const { userRegistration } = useUserRegistration();
 
-  // Ensure feedback state is prefilled with existing comments when component mounts
-  useEffect(() => {
-    setFeedback((prev) => {
-      const updatedFeedback = { ...prev };
-      ["General Feedback", ...metrics].forEach((topic) => {
-        if (!(topic in updatedFeedback)) {
-          updatedFeedback[topic] = feedback[topic] || ""; // Pre-fill if exists
-        }
-      });
-      return updatedFeedback;
-    });
-  }, []);
-
   return (
     <div className="w-full flex flex-row items-start gap-8 mt-5">
       <div className="text-white font-semibold text-lg w-[200px] text-left">
@@ -43,7 +30,7 @@ const RubricComments: React.FC<RubricCommentsProps> = ({
           const isJudge = userRegistration?.isPartner;
 
           return (
-            <Box innerShadow={32} className="w-full relative" key={index}>
+            <Box innerShadow={32} className="w-full relative" key={topic}>
               <button
                 className={`w-full px-5 py-3 rounded-lg shadow-md text-left flex justify-between items-center ${
                   !hasComment && !isJudge ? "cursor-not-allowed opacity-50" : ""

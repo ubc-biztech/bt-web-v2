@@ -364,7 +364,7 @@ const ProfilePage = ({
     return !!q;
   });
 
-  const UserExternalLinks = () => (
+  const userExternalLinks = (
     <div className="grid grid-cols-1 gap-4">
       {linkedIn && (
         <LinkButton linkIcon={ExternalLink} label="LinkedIn" url={linkedIn} />
@@ -389,7 +389,8 @@ const ProfilePage = ({
                 <Image
                   src={profilePictureURL}
                   alt="Profile Picture"
-                  fill={true}
+                  fill
+                  sizes="100vw"
                   className="object-cover"
                 />
               ) : (
@@ -440,9 +441,7 @@ const ProfilePage = ({
             )}
           </div>
 
-          <div className="hidden md:block">
-            <UserExternalLinks />
-          </div>
+          <div className="hidden md:block">{userExternalLinks}</div>
         </div>
 
         <div className="flex flex-col justify-center col-span-2 space-y-6 w-full">
@@ -505,14 +504,12 @@ const ProfilePage = ({
             </div>
           </GenericCardNFC>
 
-          <div className="block md:hidden">
-            <UserExternalLinks />
-          </div>
+          <div className="block md:hidden">{userExternalLinks}</div>
 
           {questions.length > 0 && (
             <GenericCardNFC isCollapsible={false}>
               {questions.map((question, idx) => (
-                <div key={idx} className="">
+                <div key={question} className="">
                   <p className="text-sm text-bt-blue-0 mb-2">{question}</p>
 
                   {idx < questions.length - 1 && (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -16,14 +16,14 @@ import Image from "next/image";
 
 // Component for the company name badges
 const CompanyBadge = ({ name }: { name: string }) => (
-  <motion.div
+  <m.div
     className="bg-gray-800 text-white px-4 py-2 rounded-full text-sm"
     initial={{ opacity: 0, scale: 0.8 }}
     animate={{ opacity: 1, scale: 1 }}
     transition={{ duration: 0.3 }}
   >
     {name}
-  </motion.div>
+  </m.div>
 );
 
 interface BoothSummaryProps {
@@ -112,7 +112,7 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 space-y-4 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -122,22 +122,22 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
       >
         {/* Text: You visited */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           You connected with
-        </motion.p>
+        </m.p>
 
         {/* Booth Count */}
-        <motion.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
+        <m.h1 className="text-white text-6xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           {companyProfilePictures.length}
-        </motion.h1>
+        </m.h1>
 
         {/* Subtext */}
-        <motion.p className="text-white text-lg font-satoshi font-medium text-center">
+        <m.p className="text-white text-lg font-satoshi font-medium text-center">
           {totalBooths === 1 ? "company" : "companies"}
-        </motion.p>
+        </m.p>
 
         {/* Company Grid Container */}
-        <motion.div
+        <m.div
           className="bg-[#111827] rounded-lg p-6 shadow-lg w-[85%] max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -147,9 +147,9 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
             Companies
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            {companyProfilePictures.map((url, index) => (
+            {companyProfilePictures.map((url) => (
               <div
-                key={index}
+                key={url}
                 className="bg-white p-2 rounded-full border border-gray-700"
               >
                 <Image
@@ -162,8 +162,8 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
               </div>
             ))}
           </div>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
     </NavBarContainer>
   );
 };

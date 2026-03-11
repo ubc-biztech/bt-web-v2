@@ -59,7 +59,8 @@ export default function EventStack({
           const scale = 1 - idx * 0.02;
 
           return (
-            <div
+            <button
+              type="button"
               key={event.id || idx}
               className="absolute top-0 left-0 transition-all duration-300 hover:scale-110 hover:z-[60] hover:rotate-0 cursor-pointer group"
               style={{
@@ -105,7 +106,7 @@ export default function EventStack({
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

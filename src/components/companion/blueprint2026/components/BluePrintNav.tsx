@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
-import { motion, useAnimation, PanInfo } from "framer-motion";
+import { m, useAnimation, PanInfo } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useUserProfile, getProfileId } from "@/queries/userProfile";
@@ -102,9 +102,17 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none",
         )}
         onClick={() => setIsOpen((state) => !state)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsOpen((state) => !state);
+          }
+        }}
+        role="button"
+        tabIndex={0}
       />
 
-      <motion.div
+      <m.div
         className={cn(
           "fixed top-0 right-0 w-80 h-full bg-[#050C19]/30 backdrop-blur-xl border-l border-white/10 z-50 touch-pan-y",
           !isOpen && "pointer-events-none",
@@ -154,7 +162,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
             })}
           </nav>
         </div>
-      </motion.div>
+      </m.div>
     </>
   );
 };

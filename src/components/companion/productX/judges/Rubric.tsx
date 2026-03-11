@@ -104,14 +104,15 @@ const Rubric: React.FC<RubricProps> = ({
           <div className="flex flex-row gap-3 items-center text-[#898BC3]">
             <span>{team_status}</span>
             <span>|</span>
-            <span
+            <button
+              type="button"
               className="underline cursor-pointer z-50"
               onClick={() => {
                 confirmExit();
               }}
             >
               Return to Home
-            </span>
+            </button>
           </div>
         </div>
 

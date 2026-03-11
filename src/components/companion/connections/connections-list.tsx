@@ -30,8 +30,11 @@ export const ConnectionsList: React.FC<ConnectionsListProps> = ({
       <div className="space-y-4">
         {totalCount && totalCount > 0 ? (
           <>
-            {connections.map((connection, index) => (
-              <CompanionConnectionRow key={index} connection={connection} />
+            {connections.map((connection) => (
+              <CompanionConnectionRow
+                key={connection.obfuscatedID}
+                connection={connection}
+              />
             ))}
             {totalCount && totalCount > connections.length && (
               <p className="text-center text-[#808080] text-xs mt-2 font-redhat">

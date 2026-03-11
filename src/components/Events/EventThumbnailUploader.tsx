@@ -184,6 +184,7 @@ export default function EventThumbnailUploader({
               src={preview || value!}
               alt="Event Thumbnail"
               fill
+              sizes="100vw"
               className={`object-cover ${isUploading ? "opacity-70" : ""}`}
             />
           ) : (

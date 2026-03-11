@@ -40,6 +40,14 @@ const Header = ({
           onClick={() => {
             setPage(KickstartPages.INVEST);
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setPage(KickstartPages.INVEST);
+            }
+          }}
+          role="button"
+          tabIndex={0}
         >
           <GlowButton
             height="h-10"

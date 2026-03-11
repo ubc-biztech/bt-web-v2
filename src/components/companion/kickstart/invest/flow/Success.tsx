@@ -2,7 +2,7 @@ import React from "react";
 import Progress2_2 from "@/assets/2025/kickstart/progress2_2.svg";
 import { X } from "lucide-react";
 import { KickstartPages } from "@/components/companion/events/Kickstart2025";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useRouter } from "next/router";
 
 interface SuccessProps {
@@ -24,7 +24,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
   };
 
   return (
-    <motion.div
+    <m.div
       className="space-y-1"
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
@@ -73,7 +73,7 @@ const Success = ({ successInfo, resetFlow, setPage }: SuccessProps) => {
           </button>
         </div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 

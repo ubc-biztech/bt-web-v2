@@ -4,7 +4,7 @@ import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -37,7 +37,7 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
 
   return (
     <NavBarContainer isPartner={isPartner}>
-      <motion.div
+      <m.div
         className="min-h-screen flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] px-4 pb-6 space-y-6 cursor-pointer"
         onClick={handleTap}
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
@@ -47,19 +47,19 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
         exit={{ opacity: 0, scale: 0.9, y: 10 }}
       >
         {/* Title */}
-        <motion.h1 className="text-white text-4xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
+        <m.h1 className="text-white text-4xl font-satoshi font-bold drop-shadow-[0_0_20px_#4488FF]">
           That&apos;s a wrap
-        </motion.h1>
+        </m.h1>
 
         {/* Click Prompt Text */}
-        <motion.p
+        <m.p
           className="text-white text-sm font-satoshi font-medium text-center"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
           Click the photo to see more!
-        </motion.p>
+        </m.p>
 
         {/* Exec Team Photo (Clickable) */}
         <a
@@ -68,7 +68,7 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
           rel="noopener noreferrer"
           className="w-[80%] max-w-md"
         >
-          <motion.div
+          <m.div
             className="w-full rounded-lg overflow-hidden shadow-lg border-2 border-[#4488FF] cursor-pointer"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -82,18 +82,18 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
               height={400}
               className="rounded-lg"
             />
-          </motion.div>
+          </m.div>
         </a>
 
         {/* Thanks Message */}
-        <motion.p
+        <m.p
           className="text-white text-lg font-satoshi font-medium text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
           Thanks for coming to
-        </motion.p>
+        </m.p>
 
         {/* BluePrint Logo */}
         <div className="relative w-60 h-20">
@@ -108,16 +108,16 @@ const WrapUp = ({ isPartner }: WrapUpProps) => {
 
         {/* Final Goodbye Message */}
         <div className="w-full overflow-visible px-4">
-          <motion.p
+          <m.p
             className="font-satoshi text-white text-lg italic text-center whitespace-nowrap"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2 }}
           >
             Same time next year?
-          </motion.p>
+          </m.p>
         </div>
-      </motion.div>
+      </m.div>
     </NavBarContainer>
   );
 };

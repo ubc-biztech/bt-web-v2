@@ -2,7 +2,6 @@ import BarChart from "../ui/BarChart";
 import Box from "../ui/rubric/RubricCell";
 import FadeWrapper from "../ui/FadeAnimationWrapper";
 import { User } from "lucide-react";
-import { useEffect, useState } from "react";
 import { mapMetricsToCategories } from "../constants/rubricContents";
 import { ScoringMetric, ScoringRecord, TeamFeedback } from "../types";
 import { capitalizeTeamName } from "../../CompanionHome";
@@ -64,21 +63,17 @@ interface DashboardProps {
   comments: { judgeName: string; category: string; message: string }[];
 }
 
-const Dashboard: React.FC<DashboardProps> = ({
+const Dashboard = ({
   team_name,
   members,
   flat_records,
   comments,
-}) => {
-  const [entries, setEntries] = useState(flat_records);
+}: DashboardProps) => {
+  const entries = flat_records;
   const bestMetric = findBestMetric(flat_records);
   const bestArea = bestMetric
     ? mapMetricsToCategories[bestMetric as ScoringMetric]
     : "N/A";
-
-  useEffect(() => {
-    setEntries(flat_records);
-  }, [flat_records]);
 
   return (
     <FadeWrapper className="flex flex-col">
@@ -87,8 +82,8 @@ const Dashboard: React.FC<DashboardProps> = ({
           <header className="text-xl text-white">
             {capitalizeTeamName(team_name)}
           </header>
-          {members.map((member, index) => (
-            <span key={index} className="mt-1">
+          {members.map((member) => (
+            <span key={member} className="mt-1">
               {member}
             </span>
           ))}
@@ -147,8 +142,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                 {comments
                   .filter((comment) => comment.message.trim() !== "") // Remove empty messages
                   .slice(0, 3) // Take the first 3 non-empty comments
-                  .map((comment, index) => (
-                    <div key={index} className="flex flex-col text-[12px]">
+                  .map((comment) => (
+                    <div
+                      key={`${comment.judgeName}-${comment.category}-${comment.message}`}
+                      className="flex flex-col text-[12px]"
+                    >
                       <div className="flex flex-row gap-1">
                         <User size={20} />
                         <header className="text-mb">{comment.judgeName}</header>

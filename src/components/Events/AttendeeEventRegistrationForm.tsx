@@ -237,6 +237,7 @@ export const AttendeeEventRegistrationForm: React.FC<
                       src={event.imageUrl}
                       alt="Event Cover"
                       fill
+                      sizes="100vw"
                       className="object-cover"
                     />
                   ) : (

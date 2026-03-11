@@ -3,7 +3,7 @@ import NavBarContainer from "@/components/companion/navigation/NavBarContainer";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  motion,
+  m,
   useMotionValue,
   useTransform,
   animate,
@@ -35,7 +35,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
   return (
     <NavBarContainer isPartner={isPartner}>
       <AnimatePresence>
-        <motion.div
+        <m.div
           className="fixed inset-0 flex flex-col items-center bg-gradient-to-b from-[#040C12] to-[#030608] p-6 pt-8"
           onClick={handleTap}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -45,7 +45,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
         >
           {/* Main Content */}
-          <motion.div
+          <m.div
             className="flex flex-col items-center text-center space-y-4 flex-grow justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -64,17 +64,17 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
             </div>
 
             {/* Subtitle */}
-            <motion.p
+            <m.p
               className="text-white text-lg md:text-xl font-satoshi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
             >
               was <span className="font-bold font-satoshi">big</span> this year.
-            </motion.p>
+            </m.p>
 
             {/* Gradient Divider Line */}
-            <motion.div
+            <m.div
               className="h-px w-3/4 bg-gradient-to-r from-[#88baff]/0 via-[#ffffff] to-[#88baff]/0"
               initial={{ opacity: 0, scaleX: 0 }}
               animate={{ opacity: 1, scaleX: 1 }}
@@ -82,7 +82,7 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
             />
 
             {/* Stats Section */}
-            <motion.p
+            <m.p
               className="text-white text-lg md:text-xl font-satoshi"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -94,10 +94,10 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
               </span>
               <br />
               and <span className="font-bold text-white">90 delegates</span>
-            </motion.p>
+            </m.p>
 
             {/* Final Call-to-Action */}
-            <motion.p
+            <m.p
               className="text-white text-xl md:text-2xl italic font-satoshi drop-shadow-[0_0_20px_#4488FF]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -105,9 +105,9 @@ const BlueprintSummary = ({ isPartner }: BlueprintSummaryProps) => {
             >
               <span className="font-bold font-satoshi">Got their</span>{" "}
               <span className="italic">start.</span>
-            </motion.p>
-          </motion.div>
-        </motion.div>
+            </m.p>
+          </m.div>
+        </m.div>
       </AnimatePresence>
     </NavBarContainer>
   );

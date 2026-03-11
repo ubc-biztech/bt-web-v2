@@ -298,8 +298,8 @@ const Register: React.FC = () => {
             </div>
 
             <div className="mt-7 grid grid-cols-1 gap-4">
-              <a
-                href="#"
+              <button
+                type="button"
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-neutral-200 focus-visible:ring-transparent"
                 onClick={handleGoogleSignIn}
               >
@@ -324,7 +324,7 @@ const Register: React.FC = () => {
                 <span className="text-sm leading-6 text-bt-blue-400 font-500">
                   Sign up with Google
                 </span>
-              </a>
+              </button>
             </div>
           </div>
         </div>

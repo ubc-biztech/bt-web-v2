@@ -3,7 +3,7 @@ import Progress2_2 from "@/assets/2025/kickstart/progress2_2.svg";
 import Progress1_2 from "@/assets/2025/kickstart/progress1_2.svg";
 import MessageLogo from "@/assets/2025/kickstart/message.svg";
 import { CreditCard, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface CommentProps {
   selectedTeam: { teamName: string };
@@ -55,7 +55,7 @@ const Comment = ({
           </div>
         </div>
 
-        <motion.div
+        <m.div
           className="rounded-2xl bg-[#2C2B2A] p-4 space-y-3"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -70,14 +70,14 @@ const Comment = ({
             placeholder="Leave a message or feedback"
             className="w-full rounded-lg bg-white/95 text-[#1F1F1F] px-3 py-2 min-h-[110px] resize-none focus:outline-none"
           />
-        </motion.div>
+        </m.div>
 
         {flowError && <p className="text-sm text-red-400">{flowError}</p>}
       </div>
 
       <div className="flex flex-col gap-3 bg-[#1A1918]  p-5 rounded-lg ">
         <div className="flex items-center gap-3 text-sm text-[#B8B8B8]">
-          <motion.div
+          <m.div
             key={comment.trim() ? "with-comment" : "no-comment"}
             initial={{ opacity: 0.85, rotate: -10 }}
             animate={{ opacity: 1, rotate: 0 }}
@@ -89,7 +89,7 @@ const Comment = ({
             ) : (
               <Progress1_2 className="w-10 h-10 text-[#FFB35C] shrink-0 justify-center" />
             )}
-          </motion.div>
+          </m.div>
           We&apos;ll deduct from your spending account. This will not decrease
           your own funding.
           <button
