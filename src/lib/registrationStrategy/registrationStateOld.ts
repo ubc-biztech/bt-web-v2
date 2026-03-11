@@ -28,10 +28,10 @@ export class RegistrationStateOld extends RegistrationStrategy {
   }
 
   needsPayment() {
-    return (
-      this.registrationStatus() === DBRegistrationStatus.ACCEPTED ||
-      this.registrationStatus() === DBRegistrationStatus.INCOMPLETE
-    );
+    if (this.event.isApplicationBased) {
+      return this.registrationStatus() === DBRegistrationStatus.ACCEPTED;
+    }
+    return this.registrationStatus() === DBRegistrationStatus.INCOMPLETE;
   }
 
   needsConfirmation(): boolean {
