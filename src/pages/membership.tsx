@@ -3,7 +3,9 @@ import { useRouter } from "next/router";
 import { fetchAuthSession, fetchUserAttributes } from "@aws-amplify/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
+import { getQueryString } from "@/util/url";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
@@ -80,7 +82,7 @@ const Membership: React.FC = () => {
         });
 
         if (userProfile?.isMember) {
-          const redirectUrl = (router.query.redirect as string) || "/";
+          const redirectUrl = getQueryString(router.query.redirect) ?? "/";
           if (!hasRedirectedRef.current) {
             hasRedirectedRef.current = true;
             await router.replace(redirectUrl);
@@ -230,8 +232,8 @@ const Membership: React.FC = () => {
           className="max-w-xl mx-auto mt-12 px-4"
           onSubmit={methods.handleSubmit(onSubmit)}
         >
-          <div className="space-y-12">
-            <div className="border-b border-white/10 pb-12 text-center">
+          <div className="space-y-6">
+            <div className="border-b border-white/10 pb-6 text-center">
               <h2 className="text-base font-semibold leading-7 text-white">
                 Create your user!
               </h2>
@@ -239,23 +241,17 @@ const Membership: React.FC = () => {
                 Create an account to sign up for our events and become a BizTech
                 member.
               </p>
-              <div className="mt-6 flex flex-row gap-4">
-                <Link
-                  href="/login?clearAuth=1"
-                  className="text-sm leading-6 text-bt-green-300 underline"
-                >
-                  Back to Login Page
-                </Link>
-                <Link
-                  href={
-                    typeof router.query.redirect === "string"
-                      ? router.query.redirect
-                      : "/events"
-                  }
-                  className="text-sm leading-6 text-bt-green-300 underline"
-                >
-                  Continue as Guest
-                </Link>
+              <div className="mt-6 flex flex-row justify-center gap-x-8 gap-y-4">
+                <Button variant="green" size="sm">
+                  <Link href="/login?clearAuth=1">Back to Login Page</Link>
+                </Button>
+                <Button variant="green" size="sm">
+                  <Link
+                    href={getQueryString(router.query.redirect) ?? "/events"}
+                  >
+                    Continue as Guest
+                  </Link>
+                </Button>
               </div>
             </div>
 
