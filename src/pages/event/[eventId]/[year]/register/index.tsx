@@ -1,7 +1,6 @@
 "use client";
 import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm";
 import {
-  ApplicationStatus,
   BiztechEvent,
   DBRegistrationStatus,
   User,
@@ -11,7 +10,7 @@ import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Loader2 } from "lucide-react";
-import { fetchUserAttributes, AuthError } from "@aws-amplify/auth";
+import { fetchUserAttributes } from "@aws-amplify/auth";
 import {
   Dialog,
   DialogContent,
@@ -26,8 +25,6 @@ import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
-import { Registration } from "@/types/types";
-import Link from "next/link";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 
