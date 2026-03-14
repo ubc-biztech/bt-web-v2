@@ -1,5 +1,5 @@
 import { fetchBackend } from "@/lib/db";
-import { Connection } from "@/pages/connections";
+import { Connection } from "@/types/companion";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 export async function getConnections(): Promise<Connection[]> {
