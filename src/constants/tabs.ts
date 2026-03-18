@@ -12,6 +12,7 @@ import {
   Users,
   ScanFace,
   BadgeCheckIcon,
+  Sparkles,
 } from "lucide-react";
 
 export const admin = [
