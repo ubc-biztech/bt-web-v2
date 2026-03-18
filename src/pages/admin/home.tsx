@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { fetchBackend } from "@/lib/db";
 import Divider from "@/components/Common/Divider";
 import { LayoutGrid, Rows3, ChevronLeft, ChevronRight } from "lucide-react";
-import { useEvents } from "@/queries/events";
+import { useAllEvents } from "@/queries/events";
 
 const EVENTS_PER_PAGE = 10;
 
@@ -33,7 +33,7 @@ export default function AdminEventView({ events }: Props) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: eventsData, isLoading } = useEvents();
+  const { data: eventsData, isLoading } = useAllEvents();
   const data = eventsData ?? events ?? null;
 
   // Pagination logic

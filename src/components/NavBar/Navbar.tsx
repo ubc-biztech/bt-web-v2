@@ -54,9 +54,12 @@ export default function Navbar() {
   const queryClient = useQueryClient();
 
   const isAdmin = userAttributes?.isAdmin ?? false;
-  const isSignedIn = userAttributes !== null && !isLoading;
+  // Only show signed-out state when we've finished loading and confirmed no user
+  const isSignedIn = isLoading || userAttributes !== null;
 
   const handleLogout = () => {
+    // Clear the cached user data immediately for responsive UI
+    queryClient.setQueryData(["userAttributes"], null);
     queryClient.invalidateQueries({ queryKey: ["userAttributes"] });
   };
 

@@ -38,14 +38,3 @@ export function useInvalidateMembers() {
     queryClient.invalidateQueries({ queryKey: ["members"] });
   };
 }
-
-export async function updateMemberCardCount(
-  memberId: string,
-  increment: number,
-): Promise<void> {
-  await fetchBackend({
-    endpoint: `/members/${memberId}`,
-    method: "PATCH",
-    data: { cardCount: increment },
-  });
-}
