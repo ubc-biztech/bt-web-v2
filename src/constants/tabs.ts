@@ -6,6 +6,7 @@ import {
   LineChartIcon,
   LogIn,
   LogOut,
+  Mail,
   PlusSquareIcon,
   ScanBarcode,
   UserCircle2,
@@ -39,6 +40,11 @@ export const admin = [
     title: "Edit Companion",
     link: "/admin/edit-companion",
     icon: ScanBarcode,
+  },
+  {
+    title: "Emails",
+    link: "/admin/emails",
+    icon: Mail,
   },
 ];
 
