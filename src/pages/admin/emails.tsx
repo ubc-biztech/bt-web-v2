@@ -83,7 +83,7 @@ export default function EmailsPage() {
         method: "GET",
       });
       setSelectedTemplate(template);
-      setTemplateContent(data.Template);
+      setTemplateContent(data.TemplateContent);
       setIsViewModalOpen(true);
     } catch (err: any) {
       console.error("Failed to load template:", err);
@@ -131,7 +131,7 @@ export default function EmailsPage() {
         endpoint: `/emails/templates/${template.TemplateName}`,
         method: "GET",
       });
-      const content = data.Template;
+      const content = data.TemplateContent;
       setFormData({
         templateName: template.TemplateName,
         subject: content.Subject || "",
