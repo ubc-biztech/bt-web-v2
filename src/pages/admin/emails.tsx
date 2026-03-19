@@ -59,7 +59,7 @@ export default function EmailsPage() {
     try {
       setLoading(true);
       const data = await fetchBackend({
-        endpoint: "/email-templates",
+        endpoint: "/emails/templates",
         method: "GET",
       });
       setTemplates(data.emailTemplates || []);
@@ -79,7 +79,7 @@ export default function EmailsPage() {
   const handleViewTemplate = async (template: EmailTemplate) => {
     try {
       const data = await fetchBackend({
-        endpoint: `/email-templates/${template.TemplateName}`,
+        endpoint: `/emails/templates/${template.TemplateName}`,
         method: "GET",
       });
       setSelectedTemplate(template);
@@ -102,7 +102,7 @@ export default function EmailsPage() {
     try {
       setIsSubmitting(true);
       await fetchBackend({
-        endpoint: `/email-templates/${selectedTemplate.TemplateName}`,
+        endpoint: `/emails/templates/${selectedTemplate.TemplateName}`,
         method: "DELETE",
       });
       setIsDeleteModalOpen(false);
@@ -128,7 +128,7 @@ export default function EmailsPage() {
     setSelectedTemplate(template);
     try {
       const data = await fetchBackend({
-        endpoint: `/email-templates/${template.TemplateName}`,
+        endpoint: `/emails/templates/${template.TemplateName}`,
         method: "GET",
       });
       const content = data.Template;
@@ -150,13 +150,13 @@ export default function EmailsPage() {
       setIsSubmitting(true);
       if (isEditing) {
         await fetchBackend({
-          endpoint: "/email-templates/",
+          endpoint: "/emails/templates/",
           method: "PATCH",
           data: formData,
         });
       } else {
         await fetchBackend({
-          endpoint: "/email-templates/",
+          endpoint: "/emails/templates/",
           method: "POST",
           data: formData,
         });
@@ -224,15 +224,15 @@ export default function EmailsPage() {
                       <TableCell>
                         {template.CreatedTimestamp
                           ? new Date(
-                              template.CreatedTimestamp,
-                            ).toLocaleDateString()
+                            template.CreatedTimestamp,
+                          ).toLocaleDateString()
                           : "-"}
                       </TableCell>
                       <TableCell>
                         {template.LastModifiedTimestamp
                           ? new Date(
-                              template.LastModifiedTimestamp,
-                            ).toLocaleDateString()
+                            template.LastModifiedTimestamp,
+                          ).toLocaleDateString()
                           : "-"}
                       </TableCell>
                       <TableCell className="text-right">
