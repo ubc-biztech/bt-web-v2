@@ -361,25 +361,23 @@ export default function EmailsPage() {
                 <label className="block text-sm font-medium mb-1">
                   Subject
                 </label>
-                <p className="p-2 bg-gray-100 rounded">
-                  {templateContent.Subject}
-                </p>
+                <Input value={templateContent.Subject} readOnly />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
                   HTML Content
                 </label>
-                <pre className="p-2 bg-gray-100 rounded overflow-x-auto text-sm whitespace-pre-wrap">
-                  {templateContent.Html}
-                </pre>
+                <Textarea value={templateContent.Html} readOnly rows={8} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Text Content
                 </label>
-                <pre className="p-2 bg-gray-100 rounded overflow-x-auto text-sm whitespace-pre-wrap">
-                  {templateContent.Text || templateContent.TextPart || "N/A"}
-                </pre>
+                <Textarea
+                  value={templateContent.Text || templateContent.TextPart || ""}
+                  readOnly
+                  rows={4}
+                />
               </div>
             </div>
           )}
