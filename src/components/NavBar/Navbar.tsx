@@ -3,17 +3,15 @@ import NavbarTab from "./NavbarTab";
 import { admin, defaultUser, logout, signin } from "../../constants/tabs";
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { AuthError } from "@aws-amplify/auth";
-import { fetchUserAttributes } from "@aws-amplify/auth";
 import Link from "next/link";
 import { Menu } from "lucide-react";
 import { ScreenBreakpoints } from "@/constants/values";
 import { throttle } from "lodash";
+import { useUserAttributes } from "@/queries/user";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isSignedIn, setIsSignedIn] = useState(false);
   const [isMobileDevice, setIsMobile] = useState(false);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollYRef = useRef(0);
@@ -52,29 +50,18 @@ export default function Navbar() {
     }
   }, [isMobileDevice]);
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const attributes = await fetchUserAttributes();
-        const email = attributes?.email || "";
-        const isAdmin = email.split("@")[1] === "ubcbiztech.com";
-        setIsAdmin(isAdmin);
-        setIsSignedIn(true);
-      } catch (e) {
-        if (
-          e instanceof AuthError &&
-          e.name === "UserUnAuthenticatedException"
-        ) {
-          setIsSignedIn(false);
-        } else {
-          console.error(e);
-          setIsSignedIn(false);
-        }
-      }
-    };
+  const { data: userAttributes, isLoading } = useUserAttributes();
+  const queryClient = useQueryClient();
 
-    fetchUserDetails();
-  }, []);
+  const isAdmin = userAttributes?.isAdmin ?? false;
+  // Only show signed-out state when we've finished loading and confirmed no user
+  const isSignedIn = isLoading || userAttributes !== null;
+
+  const handleLogout = () => {
+    // Clear the cached user data immediately for responsive UI
+    queryClient.setQueryData(["userAttributes"], null);
+    queryClient.invalidateQueries({ queryKey: ["userAttributes"] });
+  };
 
   const RenderNavbarTabs = () => {
     return (
@@ -113,7 +100,7 @@ export default function Navbar() {
         {isSignedIn ? (
           <NavbarTab
             navbarItem={logout}
-            onLogout={() => setIsSignedIn(false)}
+            onLogout={handleLogout}
             onTabClick={() => setIsOpen(false)}
           />
         ) : (
