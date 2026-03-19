@@ -224,15 +224,15 @@ export default function EmailsPage() {
                       <TableCell>
                         {template.CreatedTimestamp
                           ? new Date(
-                            template.CreatedTimestamp,
-                          ).toLocaleDateString()
+                              template.CreatedTimestamp,
+                            ).toLocaleDateString()
                           : "-"}
                       </TableCell>
                       <TableCell>
                         {template.LastModifiedTimestamp
                           ? new Date(
-                            template.LastModifiedTimestamp,
-                          ).toLocaleDateString()
+                              template.LastModifiedTimestamp,
+                            ).toLocaleDateString()
                           : "-"}
                       </TableCell>
                       <TableCell className="text-right">
