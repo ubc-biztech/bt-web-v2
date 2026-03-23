@@ -565,7 +565,7 @@ export default function ManageMembers({ initialData }: Props) {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -586,7 +586,11 @@ export default function ManageMembers({ initialData }: Props) {
               {/* Column visibility */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 shrink-0"
+                  >
                     <Columns3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Columns</span>
                     {hiddenCount > 0 && (
@@ -623,7 +627,11 @@ export default function ManageMembers({ initialData }: Props) {
               {/* Export */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 shrink-0"
+                  >
                     <Download className="h-4 w-4" />
                     <span className="hidden sm:inline">Export</span>
                   </Button>
@@ -687,7 +695,7 @@ export default function ManageMembers({ initialData }: Props) {
                 value={String(pageSize)}
                 onValueChange={(v) => setPageSize(Number(v))}
               >
-                <SelectTrigger className="w-[100px] h-9 text-xs">
+                <SelectTrigger className="w-[100px] h-9 text-xs shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -703,7 +711,7 @@ export default function ManageMembers({ initialData }: Props) {
                 variant="green"
                 size="sm"
                 onClick={openCreateMemberModal}
-                className="gap-1.5"
+                className="gap-1.5 shrink-0"
               >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Add Member</span>
