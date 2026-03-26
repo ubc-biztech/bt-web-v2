@@ -251,11 +251,11 @@ function SectionCard({
 }) {
   return (
     <div
-      className={`rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-5 ${span ? "xl:col-span-2" : ""} ${className}`}
+      className={`rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-3 sm:p-5 ${span ? "xl:col-span-2" : ""} ${className}`}
     >
-      <div className="flex items-center gap-2.5 mb-4">
-        <span className="text-bt-green-300">{icon}</span>
-        <h3 className="text-sm font-semibold text-white tracking-wide uppercase">
+      <div className="flex items-center gap-2 sm:gap-2.5 mb-3 sm:mb-4">
+        <span className="text-bt-green-300 shrink-0">{icon}</span>
+        <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wide uppercase">
           {title}
         </h3>
       </div>
@@ -276,13 +276,19 @@ function StatCard({
   accent?: string;
 }) {
   return (
-    <div className="rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-4 flex items-center gap-4">
-      <div className={`p-2.5 rounded-lg bg-bt-blue-600/60 ${accent}`}>
+    <div className="rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-2.5 sm:p-4 flex items-center gap-2.5 sm:gap-4">
+      <div
+        className={`p-1.5 sm:p-2.5 rounded-lg bg-bt-blue-600/60 ${accent} shrink-0 [&>svg]:w-4 [&>svg]:h-4 sm:[&>svg]:w-5 sm:[&>svg]:h-5`}
+      >
         {icon}
       </div>
-      <div>
-        <p className="text-2xl font-bold text-white">{value}</p>
-        <p className="text-xs text-bt-blue-100">{label}</p>
+      <div className="min-w-0">
+        <p className="text-lg sm:text-2xl font-bold text-white truncate">
+          {value}
+        </p>
+        <p className="text-[10px] sm:text-xs text-bt-blue-100 leading-tight">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -356,7 +362,7 @@ function ThemedBarChart({
         <BarChart
           data={sliced}
           layout="vertical"
-          margin={{ left: 8, right: 16, top: 4, bottom: 4 }}
+          margin={{ left: 0, right: 8, top: 4, bottom: 4 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -365,15 +371,15 @@ function ThemedBarChart({
           />
           <XAxis
             type="number"
-            tick={{ fill: "#A2B1D5", fontSize: 12 }}
+            tick={{ fill: "#A2B1D5", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             type="category"
             dataKey="name"
-            tick={{ fill: "#BDC8E3", fontSize: 12 }}
-            width={140}
+            tick={{ fill: "#BDC8E3", fontSize: 10 }}
+            width={80}
             axisLine={false}
             tickLine={false}
           />
@@ -394,10 +400,7 @@ function ThemedBarChart({
   // horizontal layout
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart
-        data={sliced}
-        margin={{ left: 0, right: 16, top: 4, bottom: 4 }}
-      >
+      <BarChart data={sliced} margin={{ left: 0, right: 8, top: 4, bottom: 4 }}>
         <CartesianGrid
           strokeDasharray="3 3"
           stroke="#3B486622"
@@ -405,13 +408,13 @@ function ThemedBarChart({
         />
         <XAxis
           dataKey="name"
-          tick={{ fill: "#BDC8E3", fontSize: 11 }}
+          tick={{ fill: "#BDC8E3", fontSize: 9 }}
           axisLine={false}
           tickLine={false}
           interval={0}
           angle={-35}
           textAnchor="end"
-          height={70}
+          height={55}
         />
         <YAxis
           tick={{ fill: "#A2B1D5", fontSize: 12 }}
@@ -475,7 +478,7 @@ function PercentageBar({ data }: { data: ChartDatum[] }) {
 
   return (
     <div>
-      <div className="flex h-8 w-full rounded-md overflow-hidden">
+      <div className="flex h-6 sm:h-8 w-full rounded-md overflow-hidden">
         {data.map((d, i) => {
           const pct = (d.value / total) * 100;
           if (pct < 0.5) return null;
@@ -496,11 +499,11 @@ function PercentageBar({ data }: { data: ChartDatum[] }) {
           );
         })}
       </div>
-      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2.5">
+      <div className="flex flex-wrap gap-x-3 sm:gap-x-4 gap-y-1 mt-2">
         {data.map((d, i) => (
           <span
             key={d.name}
-            className="inline-flex items-center gap-1.5 text-xs text-bt-blue-100"
+            className="inline-flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-bt-blue-100"
           >
             <span
               className="inline-block w-2.5 h-2.5 rounded-sm shrink-0"
@@ -1099,7 +1102,7 @@ export default function StatisticsPage({
 
   return (
     <main className="bg-bt-blue-600 min-h-screen w-full text-white">
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="max-w-[1600px] mx-auto sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* page header  */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -1110,10 +1113,10 @@ export default function StatisticsPage({
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-white">
+              <h1 className="text-lg sm:text-2xl font-bold text-white">
                 Statistics Dashboard
               </h1>
-              <p className="text-sm text-bt-blue-100 mt-0.5">
+              <p className="text-xs sm:text-sm text-bt-blue-100 mt-0.5">
                 {members.length.toLocaleString()} members ·{" "}
                 {events.length.toLocaleString()} events ·{" "}
                 {registrations
@@ -1126,31 +1129,32 @@ export default function StatisticsPage({
         </div>
 
         {/* tab switcher */}
-        <div className="flex gap-1 bg-bt-blue-500/40 rounded-lg p-1 w-fit border border-bt-blue-300/30">
+        <div className="flex gap-1 bg-bt-blue-500/40 rounded-lg p-1 w-full sm:w-fit border border-bt-blue-300/30">
           <button
             onClick={() => setActiveTab("members")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all ${
               activeTab === "members"
                 ? "bg-bt-green-400 text-bt-blue-700 shadow-sm"
                 : "text-bt-blue-100 hover:text-white hover:bg-bt-blue-400/30"
             }`}
           >
-            <span className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
+            <span className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               Members
             </span>
           </button>
           <button
             onClick={() => setActiveTab("events")}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+            className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all ${
               activeTab === "events"
                 ? "bg-bt-green-400 text-bt-blue-700 shadow-sm"
                 : "text-bt-blue-100 hover:text-white hover:bg-bt-blue-400/30"
             }`}
           >
-            <span className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" />
-              Events & Registrations
+            <span className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline">Events & Registrations</span>
+              <span className="xs:hidden">Events</span>
             </span>
           </button>
         </div>
@@ -1158,7 +1162,7 @@ export default function StatisticsPage({
         {/* events tab                                       */}
         {activeTab === "events" && (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
               <StatCard
                 label="Total Events"
                 value={events.length.toLocaleString()}
@@ -1184,7 +1188,7 @@ export default function StatisticsPage({
               />
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-5">
               {/* event timeline */}
               {eventTimeline.length > 0 && (
                 <SectionCard
@@ -1333,7 +1337,7 @@ export default function StatisticsPage({
                   title="Top Events by Registration"
                   span
                 >
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <p className="text-xs text-bt-blue-100 mb-2">
                         Registered vs. Checked-In (top{" "}
@@ -1342,14 +1346,14 @@ export default function StatisticsPage({
                       <ResponsiveContainer
                         width="100%"
                         height={Math.max(
-                          300,
-                          Math.min(12, eventsWithCounts.length) * 36,
+                          260,
+                          Math.min(12, eventsWithCounts.length) * 32,
                         )}
                       >
                         <BarChart
                           data={eventsWithCounts.slice(0, 12)}
                           layout="vertical"
-                          margin={{ left: 8, right: 16, top: 4, bottom: 4 }}
+                          margin={{ left: 0, right: 8, top: 4, bottom: 4 }}
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
@@ -1365,8 +1369,8 @@ export default function StatisticsPage({
                           <YAxis
                             type="category"
                             dataKey="name"
-                            tick={{ fill: "#BDC8E3", fontSize: 11 }}
-                            width={160}
+                            tick={{ fill: "#BDC8E3", fontSize: 9 }}
+                            width={80}
                             axisLine={false}
                             tickLine={false}
                           />
@@ -1419,11 +1423,11 @@ export default function StatisticsPage({
                       <p className="text-xs text-bt-blue-100 mb-2">
                         Fill Rate (% of capacity filled)
                       </p>
-                      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                      <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 sm:pr-2">
                         {eventsWithCounts.slice(0, 15).map((e) => (
                           <div key={`${e.fullName}-${e.year}`}>
-                            <div className="flex justify-between text-xs mb-1">
-                              <span className="text-white truncate max-w-[200px]">
+                            <div className="flex justify-between text-[11px] sm:text-xs mb-1">
+                              <span className="text-white truncate max-w-[55vw] sm:max-w-[200px]">
                                 {e.fullName}
                               </span>
                               <span className="text-bt-blue-100 shrink-0 ml-2">
@@ -1465,16 +1469,16 @@ export default function StatisticsPage({
             {/* registration analytics */}
             <div className="pt-2">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-                <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                  <ClipboardCheck className="w-5 h-5 text-bt-green-300" />
+                <h2 className="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
+                  <ClipboardCheck className="w-4 h-4 sm:w-5 sm:h-5 text-bt-green-300" />
                   Registration Analytics
                 </h2>
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-bt-blue-100" />
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Filter className="w-4 h-4 text-bt-blue-100 shrink-0" />
                   <select
                     value={selectedEventKey}
                     onChange={(e) => setSelectedEventKey(e.target.value)}
-                    className="rounded-lg border border-bt-blue-300/30 bg-bt-blue-500/60 text-white text-sm px-3 py-2 min-w-[280px] focus:outline-none focus:ring-1 focus:ring-bt-green-400/50"
+                    className="rounded-lg border border-bt-blue-300/30 bg-bt-blue-500/60 text-white text-xs sm:text-sm px-2 sm:px-3 py-2 w-full sm:w-auto sm:min-w-[280px] focus:outline-none focus:ring-1 focus:ring-bt-green-400/50"
                   >
                     <option value="all">
                       All Events ({eventsWithRegistrations.length} events ·{" "}
@@ -1503,7 +1507,7 @@ export default function StatisticsPage({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-5">
                 <StatCard
                   label="Total Registrations"
                   value={attendeeRegistrations.length.toLocaleString()}
@@ -1560,7 +1564,7 @@ export default function StatisticsPage({
               </div>
 
               {/* registration charts grid */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-5">
                 {/* registration status breakdown */}
                 {registrationStatusData.length > 0 && (
                   <SectionCard
@@ -1582,12 +1586,12 @@ export default function StatisticsPage({
                     <p className="text-xs text-bt-blue-100 mb-2">
                       Percentage of registered attendees who checked in
                     </p>
-                    <div className="space-y-2 max-h-[420px] overflow-y-auto pr-2">
+                    <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1 sm:pr-2">
                       {perEventCheckIn.map((e) => (
                         <div key={e.fullName}>
-                          <div className="flex justify-between text-xs mb-1">
+                          <div className="flex justify-between text-[11px] sm:text-xs mb-1">
                             <span
-                              className="text-white truncate max-w-[200px]"
+                              className="text-white truncate max-w-[45vw] sm:max-w-[200px]"
                               title={e.fullName}
                             >
                               {e.name}
@@ -1679,15 +1683,17 @@ export default function StatisticsPage({
         {activeTab === "members" && (
           <>
             {/* year filter */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
               <div className="flex items-center gap-2 text-bt-blue-100">
-                <Filter className="w-4 h-4" />
-                <span className="text-sm font-medium">Membership year:</span>
+                <Filter className="w-4 h-4 shrink-0" />
+                <span className="text-xs sm:text-sm font-medium whitespace-nowrap">
+                  Membership year:
+                </span>
               </div>
               <select
                 value={selectedMemberYear}
                 onChange={(e) => setSelectedMemberYear(e.target.value)}
-                className="rounded-lg border border-bt-blue-300/30 bg-bt-blue-500/60 text-white text-sm px-3 py-2 min-w-[200px] focus:outline-none focus:ring-1 focus:ring-bt-green-400/50"
+                className="rounded-lg border border-bt-blue-300/30 bg-bt-blue-500/60 text-white text-xs sm:text-sm px-2 sm:px-3 py-2 w-full sm:w-auto sm:min-w-[200px] focus:outline-none focus:ring-1 focus:ring-bt-green-400/50"
               >
                 <option value="all">
                   All years ({members.length} members)
@@ -1720,14 +1726,14 @@ export default function StatisticsPage({
                   );
                 })}
               </select>
-              <p className="text-xs text-bt-blue-100/60">
+              <p className="hidden sm:block text-xs text-bt-blue-100/60">
                 Data from{" "}
                 <code className="text-bt-green-300/70">biztechMembers2026</code>{" "}
                 table
               </p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
               <StatCard
                 label="Total Members"
                 value={totalMembers.toLocaleString()}
@@ -1771,12 +1777,12 @@ export default function StatisticsPage({
                   </code>{" "}
                   table.
                 </p>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="min-h-0">
                     <p className="text-xs text-bt-blue-100 mb-2">
                       Cumulative signups
                     </p>
-                    <ResponsiveContainer width="100%" height={280}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <AreaChart
                         data={memberGrowthData}
                         margin={{ left: 0, right: 16, top: 4, bottom: 4 }}
@@ -1849,11 +1855,11 @@ export default function StatisticsPage({
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
-                  <div>
+                  <div className="min-h-0">
                     <p className="text-xs text-bt-blue-100 mb-2">
                       New signups per month
                     </p>
-                    <ResponsiveContainer width="100%" height={280}>
+                    <ResponsiveContainer width="100%" height={200}>
                       <BarChart
                         data={memberGrowthData}
                         margin={{ left: 0, right: 16, top: 4, bottom: 4 }}
@@ -1909,7 +1915,7 @@ export default function StatisticsPage({
               </SectionCard>
             )}
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-5">
               {/* education / type of member */}
               <SectionCard
                 icon={<GraduationCap className="w-4 h-4" />}
@@ -1945,13 +1951,13 @@ export default function StatisticsPage({
                 title="Major Distribution"
                 span
               >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <div>
                     <p className="text-xs text-bt-blue-100 mb-2">
                       Top {Math.min(20, majorData.length)} majors (size = member
                       count)
                     </p>
-                    <ResponsiveContainer width="100%" height={340}>
+                    <ResponsiveContainer width="100%" height={260}>
                       <Treemap
                         data={majorData.slice(0, 20)}
                         dataKey="value"
@@ -1960,7 +1966,9 @@ export default function StatisticsPage({
                       />
                     </ResponsiveContainer>
                   </div>
-                  <DataTable data={majorData} maxRows={12} />
+                  <div className="-mx-1 sm:mx-0">
+                    <DataTable data={majorData} maxRows={12} />
+                  </div>
                 </div>
               </SectionCard>
 
@@ -1985,17 +1993,17 @@ export default function StatisticsPage({
                 icon={<Globe className="w-4 h-4" />}
                 title="International vs. Domestic"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                  <ThemedDonutChart data={internationalData} height={240} />
-                  <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-center">
+                  <ThemedDonutChart data={internationalData} height={220} />
+                  <div className="space-y-2 sm:space-y-3">
                     {internationalData.map((d, i) => (
                       <div
                         key={d.name}
-                        className="flex items-center justify-between rounded-lg bg-bt-blue-600/60 px-4 py-3"
+                        className="flex items-center justify-between rounded-lg bg-bt-blue-600/60 px-3 sm:px-4 py-2.5 sm:py-3"
                       >
                         <div className="flex items-center gap-2">
                           <span
-                            className="w-3 h-3 rounded-sm"
+                            className="w-3 h-3 rounded-sm shrink-0"
                             style={{
                               backgroundColor:
                                 CHART_COLORS[i % CHART_COLORS.length],
@@ -2017,17 +2025,17 @@ export default function StatisticsPage({
                 icon={<Users className="w-4 h-4" />}
                 title="New vs. Returning Members"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                  <ThemedDonutChart data={prevMemberData} height={240} />
-                  <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-center">
+                  <ThemedDonutChart data={prevMemberData} height={220} />
+                  <div className="space-y-2 sm:space-y-3">
                     {prevMemberData.map((d, i) => (
                       <div
                         key={d.name}
-                        className="flex items-center justify-between rounded-lg bg-bt-blue-600/60 px-4 py-3"
+                        className="flex items-center justify-between rounded-lg bg-bt-blue-600/60 px-3 sm:px-4 py-2.5 sm:py-3"
                       >
                         <div className="flex items-center gap-2">
                           <span
-                            className="w-3 h-3 rounded-sm"
+                            className="w-3 h-3 rounded-sm shrink-0"
                             style={{
                               backgroundColor:
                                 CHART_COLORS[i % CHART_COLORS.length],
@@ -2063,11 +2071,11 @@ export default function StatisticsPage({
                 title="How Did You Hear About Us?"
                 span
               >
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                   <ThemedBarChart
                     data={heardFromData}
                     layout="horizontal"
-                    height={300}
+                    height={280}
                   />
                   <PercentageBar data={heardFromData} />
                 </div>
@@ -2161,7 +2169,7 @@ function EventsDataTable({ events }: { events: BiztechEvent[] }) {
                   key={`${e.id}-${e.year}`}
                   className={i % 2 === 0 ? "bg-bt-blue-600/30" : ""}
                 >
-                  <td className="px-3 py-1.5 text-white max-w-[250px] truncate">
+                  <td className="px-3 py-1.5 text-white max-w-[180px] sm:max-w-[250px] truncate">
                     {e.ename}
                   </td>
                   <td className="px-3 py-1.5 text-bt-blue-100 whitespace-nowrap">
