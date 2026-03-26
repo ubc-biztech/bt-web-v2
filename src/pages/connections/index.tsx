@@ -12,19 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-export interface Connection {
-  compositeID: string;
-  fname: string;
-  pronouns: string;
-  year: string;
-  createdAt: number;
-  connectionID: string;
-  major: string;
-  lname: string;
-  type: string;
-  connectionType?: "PARTNER" | "EXEC" | "ATTENDEE";
-}
+import type { Connection } from "@/types/companion";
 
 interface ConnectionsPageProps {
   connections: Connection[];

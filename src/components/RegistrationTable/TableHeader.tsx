@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { Filter, Search } from "lucide-react";
+import { Filter, Search, Download, Copy, Check } from "lucide-react";
 import { TableFilterButtons } from "./TableFilterButtons";
 import { TableIconButtons } from "./TableIconButtons";
 import { Table } from "@tanstack/react-table";
@@ -50,7 +50,18 @@ interface TableHeaderProps {
   year: string;
 }
 
-type SelectValue = "attendees" | "partners" | "waitlisted";
+type SelectValue =
+  | "all"
+  | "attendees"
+  | "partners"
+  | "waitlisted"
+  | "acceptedPending"
+  | "acceptedComplete"
+  | "accepted"
+  | "incomplete"
+  | "cancelled"
+  | "checkedIn"
+  | "registered";
 
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
@@ -72,6 +83,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [newStatus, setNewStatus] = useState("");
   const [teamName, setTeamName] = useState("");
   const [selectedValue, setSelectedValue] = useState<SelectValue>("attendees");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [massUpdateError, setMassUpdateError] = useState<string | null>(null);
+  const [teamError, setTeamError] = useState<string | null>(null);
+  const [copiedEmails, setCopiedEmails] = useState(false);
 
   const handleSelectChange = (value: SelectValue) => {
     setSelectedValue(value);
@@ -82,25 +97,145 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
     return table.getFilteredSelectedRowModel().rows;
   };
 
-  const handleMassUpdate = () => {
+  const handleMassUpdate = async () => {
+    if (!newStatus) return;
     const selectedRows = getSelectedRows();
-    // Implement mass update logic here
-    console.log(`Updating ${selectedRows.length} rows to status: ${newStatus}`);
-    setShowMassUpdateStatus(false);
+    setIsSubmitting(true);
+    setMassUpdateError(null);
+    try {
+      const updates = selectedRows.map((row: any) => ({
+        email: row.original.id || row.original.email,
+        fname: row.original.firstName || row.original.fname || "",
+        applicationStatus: newStatus,
+      }));
+      await fetchBackend({
+        endpoint: "/registrations/",
+        method: "PUT",
+        data: {
+          eventID: eventId,
+          eventYear: Number(year),
+          updates,
+        },
+        authenticatedCall: false,
+      });
+      setShowMassUpdateStatus(false);
+      setNewStatus("");
+      table.resetRowSelection();
+      await refreshTable();
+    } catch (err: any) {
+      console.error("Failed to mass update:", err);
+      setMassUpdateError(err.message || "Failed to update registrations");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleCreateTeam = () => {
+  const handleCreateTeam = async () => {
+    if (!teamName.trim()) return;
     const selectedRows = getSelectedRows();
-    // Implement team creation logic here
-    console.log(
-      `Creating team "${teamName}" with ${selectedRows.length} members`,
-    );
-    setShowCreateTeam(false);
+    setIsSubmitting(true);
+    setTeamError(null);
+    try {
+      const memberIDs = selectedRows.map(
+        (row: any) => row.original.id || row.original.email,
+      );
+      await fetchBackend({
+        endpoint: "/team/make",
+        method: "POST",
+        data: {
+          team_name: teamName.trim(),
+          eventID: eventId,
+          year: Number(year),
+          memberIDs,
+        },
+      });
+      setShowCreateTeam(false);
+      setTeamName("");
+      table.resetRowSelection();
+      await refreshTable();
+    } catch (err: any) {
+      console.error("Failed to create team:", err);
+      setTeamError(
+        err.message ||
+          "Failed to create team. Members must be checked in and not already on a team.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getExportRows = () => {
+    const selectedRows = getSelectedRows();
+    if (selectedRows.length > 0) {
+      return selectedRows.map((r: any) => r.original);
+    }
+    return table.getFilteredRowModel().rows.map((r: any) => r.original);
+  };
+
+  const handleExportCSV = () => {
+    const rows = getExportRows();
+    if (rows.length === 0) return;
+
+    const headers = [
+      "Email",
+      "First Name",
+      "Last Name",
+      "Registration Status",
+      "Application Status",
+      "Points",
+      "Is Partner",
+      "Faculty",
+      "Year",
+      "Diet",
+      "Student ID",
+      "Created At",
+    ];
+
+    const csvRows = rows.map((r: any) => [
+      r.id || "",
+      r.basicInformation?.fname || r.fname || "",
+      r.basicInformation?.lname || r.lname || "",
+      r.registrationStatus || "",
+      r.applicationStatus || "",
+      r.points ?? "",
+      r.isPartner ? "Yes" : "No",
+      r.basicInformation?.faculty || "",
+      r.basicInformation?.year || "",
+      r.basicInformation?.diet || "",
+      r.studentId || "",
+      r.createdAt ? new Date(r.createdAt).toISOString() : "",
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...csvRows.map((row: string[]) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `registrations_${eventId}_${year}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopyEmails = () => {
+    const rows = getExportRows();
+    const emails = rows
+      .map((r: any) => r.id || r.email || "")
+      .filter(Boolean)
+      .join(", ");
+    navigator.clipboard.writeText(emails);
+    setCopiedEmails(true);
+    setTimeout(() => setCopiedEmails(false), 2000);
   };
 
   return (
-    <div className="flex flex-col xl:flex-row items-center justify-between">
-      <div className="flex items-center relative gap-2">
+    <div className="flex flex-col gap-3 md:gap-0 xl:flex-row items-stretch xl:items-center justify-between">
+      <div className="flex items-center relative gap-1.5 md:gap-2 flex-wrap md:flex-nowrap">
         {selectedRowsCount > 0 && (
           <TableFilterButtons
             selectedRowsCount={selectedRowsCount}
@@ -116,6 +251,50 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           setQrReaderToggled={setQrReaderToggled}
           refreshTable={refreshTable}
         />
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="bg-[#6578A8] rounded-md px-2"
+                onClick={handleExportCSV}
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {selectedRowsCount > 0
+                ? `Export ${selectedRowsCount} selected as CSV`
+                : "Export filtered as CSV"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="bg-[#6578A8] rounded-md px-2"
+                onClick={handleCopyEmails}
+              >
+                {copiedEmails ? (
+                  <Check className="w-4 h-4 text-green-400" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {copiedEmails
+                ? "Copied!"
+                : selectedRowsCount > 0
+                  ? `Copy ${selectedRowsCount} selected emails`
+                  : "Copy all filtered emails"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <SearchBar
           startIcon={Search}
@@ -183,9 +362,17 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="attendees">Attendees</SelectItem>
             <SelectItem value="partners">Partners</SelectItem>
             <SelectItem value="waitlisted">Waitlisted</SelectItem>
+            <SelectItem value="acceptedPending">Accepted Pending</SelectItem>
+            <SelectItem value="acceptedComplete">Confirmed</SelectItem>
+            <SelectItem value="accepted">Accepted</SelectItem>
+            <SelectItem value="incomplete">Incomplete</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="checkedIn">Checked-In</SelectItem>
+            <SelectItem value="registered">Registered</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -216,22 +403,32 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
-          <Select onValueChange={setNewStatus}>
+          {massUpdateError && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-3 py-2 rounded text-sm">
+              {massUpdateError}
+            </div>
+          )}
+          <Select onValueChange={setNewStatus} value={newStatus}>
             <SelectTrigger className="bg-bt-blue-400 text-white">
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="registered">Registered</SelectItem>
-              <SelectItem value="checked-in">Checked-In</SelectItem>
+              <SelectItem value="checkedIn">Checked-In</SelectItem>
               <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
               <SelectItem value="waitlisted">Waitlisted</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
           <Button
             onClick={handleMassUpdate}
             className="text-bt-blue-400 bg-bt-green-300"
+            disabled={isSubmitting || !newStatus}
           >
-            Update Selection
+            {isSubmitting
+              ? "Updating..."
+              : `Update ${getSelectedRows().length} Registration${getSelectedRows().length === 1 ? "" : "s"}`}
           </Button>
         </DialogContent>
       </Dialog>
@@ -311,6 +508,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
+          {teamError && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-3 py-2 rounded text-sm">
+              {teamError}
+            </div>
+          )}
           <div>
             <Label htmlFor="teamName" className="text-white">
               Team Name
@@ -326,8 +528,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <Button
             onClick={handleCreateTeam}
             className="text-bt-blue-400 bg-bt-green-300"
+            disabled={isSubmitting || !teamName.trim()}
           >
-            Make Team
+            {isSubmitting
+              ? "Creating..."
+              : `Create Team (${getSelectedRows().length} members)`}
           </Button>
         </DialogContent>
       </Dialog>

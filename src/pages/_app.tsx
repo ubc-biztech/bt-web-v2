@@ -56,7 +56,7 @@ export default function App({ Component, pageProps }: AppProps) {
     router.pathname.includes("/companion");
 
   const content = (
-    <QueryProvider>
+    <>
       <Head>
         <title>UBC BizTech</title>
         <meta
@@ -125,7 +125,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <Analytics />
       <SpeedInsights />
-    </QueryProvider>
+    </>
   );
 
   if (isCompanionPath) {
@@ -137,5 +137,9 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   // Otherwise, wrap it in the Layout
-  return <Layout>{content}</Layout>;
+  return (
+    <QueryProvider>
+      <Layout>{content}</Layout>
+    </QueryProvider>
+  );
 }

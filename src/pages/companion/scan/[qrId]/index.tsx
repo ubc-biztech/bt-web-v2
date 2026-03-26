@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { QrCodeIcon } from "lucide-react";
-import PageError from "@/components/companion/PageError";
+import PageError from "@/components/Companion/PageError";
 import Events from "@/constants/companion-events";
 import {
   BOOTH_EVENT,

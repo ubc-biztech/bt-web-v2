@@ -6,6 +6,7 @@ import {
   LineChartIcon,
   LogIn,
   LogOut,
+  Mail,
   PlusSquareIcon,
   ScanBarcode,
   UserCircle2,
@@ -40,6 +41,11 @@ export const admin = [
     title: "Edit Companion",
     link: "/admin/edit-companion",
     icon: ScanBarcode,
+  },
+  {
+    title: "Emails",
+    link: "/admin/emails",
+    icon: Mail,
   },
 ];
 
@@ -79,11 +85,13 @@ export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
     });
   }
 
-  links.push({
-    title: "Companion",
-    link: "/companion",
-    icon: Sparkles,
-  });
+  if (isSignedIn) {
+    links.push({
+      title: "Companion",
+      link: "/companion",
+      icon: BadgeCheckIcon,
+    });
+  }
 
   return links;
 };

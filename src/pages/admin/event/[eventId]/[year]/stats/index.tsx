@@ -1,4 +1,4 @@
-import { AttendeeBasicInformation } from "@/types";
+import { AttendeeBasicInformation, DBRegistrationStatus } from "@/types";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { fetchRegistrationData } from "@/lib/dbUtils";
@@ -9,19 +9,45 @@ import PieChart from "@/components/stats/PieChart";
 import PercentageBars from "@/components/stats/PercentageBars";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useMemo, useState } from "react";
 
 type Props = {
   initialData: AttendeeBasicInformation[] | null;
 };
 
-const getFieldCounts = (data: AttendeeBasicInformation[], field: string) => {
+const DIETARY_RESTRICTION_MAPPING: Record<string, string> = {
+  none: "None",
+  vegetarian: "Vegetarian",
+  vegan: "Vegan",
+  glutenFree: "Gluten-free",
+  other: "Other",
+};
+
+const ACCEPTED_STATUSES = [
+  DBRegistrationStatus.ACCEPTED,
+  DBRegistrationStatus.ACCEPTED_COMPLETE,
+  DBRegistrationStatus.ACCEPTED_PENDING,
+  DBRegistrationStatus.REGISTERED,
+  DBRegistrationStatus.CHECKED_IN,
+];
+
+const getFieldCounts = (
+  data: AttendeeBasicInformation[],
+  field: string,
+  mapping?: Record<string, string>,
+) => {
   const counts: Record<string, number> = {};
 
   for (const userData of data) {
     const value = getNestedValue(userData, field);
 
     if (value !== undefined && value !== null) {
-      counts[String(value)] = counts[String(value)] + 1 || 1;
+      const label = mapping
+        ? mapping[String(value)] || String(value)
+        : String(value);
+      counts[label] = counts[label] + 1 || 1;
     }
   }
   return Object.entries(counts)
@@ -39,6 +65,15 @@ const getNestedValue = (userData: Record<string, any>, field: string) => {
 
 export default function Statistics({ initialData }: Props) {
   const router = useRouter();
+  const [showAcceptedOnly, setShowAcceptedOnly] = useState(false);
+
+  const filteredData = useMemo(() => {
+    if (!initialData) return [];
+    if (!showAcceptedOnly) return initialData;
+    return initialData.filter((user: any) =>
+      ACCEPTED_STATUSES.includes(user.registrationStatus),
+    );
+  }, [initialData, showAcceptedOnly]);
 
   const handleBack = () => {
     const currentPath = window.location.pathname;
@@ -58,31 +93,51 @@ export default function Statistics({ initialData }: Props) {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
-          <h2 className="text-white">Event Statistics</h2>
-          <p className="text-bt-blue-100">
-            Statistics {">"} {router.query.eventId} {router.query.year}
-          </p>
-          <br />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+            <div>
+              <h2 className="text-white">Event Statistics</h2>
+              <p className="text-bt-blue-100">
+                Statistics {">"} {router.query.eventId} {router.query.year}
+              </p>
+            </div>
+            <div className="flex items-center space-x-2 mt-4 md:mt-0 bg-white/10 p-2 rounded-lg">
+              <Checkbox
+                id="accepted-only"
+                checked={showAcceptedOnly}
+                onCheckedChange={(checked) =>
+                  setShowAcceptedOnly(checked as boolean)
+                }
+                className="border-white data-[state=checked]:bg-white data-[state=checked]:text-bt-blue-600"
+              />
+              <Label
+                htmlFor="accepted-only"
+                className="text-white cursor-pointer font-medium"
+              >
+                Show Accepted Only
+              </Label>
+            </div>
+          </div>
+
           <ChartBox height="250px" title="Registration Status">
-            {initialData && (
+            {filteredData && (
               <PercentageBars
-                data={getFieldCounts(initialData, "registrationStatus")}
+                data={getFieldCounts(filteredData, "registrationStatus")}
               />
             )}
           </ChartBox>
           <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
             <ChartBox width="33%" height="300px" title="Attendee Year Level">
-              {initialData && (
+              {filteredData && (
                 <BarChart
-                  data={getFieldCounts(initialData, "basicInformation.year")}
+                  data={getFieldCounts(filteredData, "basicInformation.year")}
                 />
               )}
             </ChartBox>
             <ChartBox width="66%" height="300px" title="Heard Event From">
-              {initialData && (
+              {filteredData && (
                 <PieChart
                   data={getFieldCounts(
-                    initialData,
+                    filteredData,
                     "basicInformation.heardFrom",
                   )}
                 />
@@ -91,24 +146,31 @@ export default function Statistics({ initialData }: Props) {
           </div>
           <div className="flex gap-0 flex-col lg:flex-row lg:gap-4">
             <ChartBox width="66%" height="300px" title="Faculty">
-              {initialData && (
+              {filteredData && (
                 <PieChart
-                  data={getFieldCounts(initialData, "basicInformation.faculty")}
+                  data={getFieldCounts(
+                    filteredData,
+                    "basicInformation.faculty",
+                  )}
                 />
               )}
             </ChartBox>
             <ChartBox width="33%" height="300px" title="Dietary Restrictions">
-              {initialData && (
+              {filteredData && (
                 <StatsTable
-                  data={getFieldCounts(initialData, "basicInformation.diet")}
+                  data={getFieldCounts(
+                    filteredData,
+                    "basicInformation.diet",
+                    DIETARY_RESTRICTION_MAPPING,
+                  )}
                 />
               )}
             </ChartBox>
           </div>
           <ChartBox width="66%" height="300px" title="Pronouns">
-            {initialData && (
+            {filteredData && (
               <PieChart
-                data={getFieldCounts(initialData, "basicInformation.gender")}
+                data={getFieldCounts(filteredData, "basicInformation.gender")}
               />
             )}
           </ChartBox>

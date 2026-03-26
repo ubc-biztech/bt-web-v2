@@ -10,6 +10,7 @@ import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
+import { getQueryString } from "@/util/url";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -131,16 +132,16 @@ const LoginForm: React.FC = () => {
         return;
       }
 
-      const redirectUrl = (router.query.redirect as string) || null;
-      const stateParam = !Array.isArray(router.query.state)
-        ? router.query.state
-        : null;
-      let finalRedirect = redirectUrl;
+      const redirectUrl = getQueryString(router.query.redirect);
+      const stateParam = getQueryString(router.query.state);
 
-      if (stateParam && stateParam.split("-").length === 2) {
-        finalRedirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
-      }
+      // oauth redirect takes precedence over url param
+      const oauthRedirect =
+        stateParam?.split("-").length === 2
+          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
+          : null;
 
+      const finalRedirect = oauthRedirect ?? redirectUrl;
       const membershipUrl = finalRedirect
         ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
         : "/membership";
@@ -192,19 +193,18 @@ const LoginForm: React.FC = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      const redirectUrl = (router.query.redirect as string) || null;
-      const stateParam = !Array.isArray(router.query.state)
-        ? router.query.state
-        : null;
-      let finalRedirect = redirectUrl;
+      const redirectUrl = getQueryString(router.query.redirect);
+      const stateParam = getQueryString(router.query.state);
 
-      if (stateParam && stateParam.split("-").length === 2) {
-        finalRedirect = Buffer.from(stateParam.split("-")[1], "hex").toString();
-      }
+      // oauth redirect takes precedence over url param
+      const oauthRedirect =
+        stateParam?.split("-").length === 2
+          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
+          : null;
 
       await signInWithRedirect({
         provider: "Google",
-        customState: finalRedirect || undefined,
+        customState: oauthRedirect ?? redirectUrl ?? undefined,
       });
     } catch (error) {
       console.error("Error initiating Google sign-in:", error);

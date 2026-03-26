@@ -12,6 +12,8 @@ import Link from "next/link";
 import { ChartLine, Edit, Eye, Pencil, Table2, UsersRound } from "lucide-react";
 import Tabs from "@/components/EventsDashboard/Tabs";
 import DynamicTabs from "@/components/EventsDashboard/Tabs";
+import TeamsTab from "@/components/EventsDashboard/TeamsTab";
+import AnalyticsTab from "@/components/EventsDashboard/AnalyticsTab";
 
 type Props = {
   initialData: Registration[] | null;
@@ -70,24 +72,26 @@ export default function AdminEvent({ initialData, eventData }: Props) {
   const tabs = [
     {
       label: (
-        <div className="flex flex-row items-center gap-2 ">
-          <Table2 className="w-4 h-4" /> View Data Table
+        <div className="flex flex-row items-center gap-1.5 md:gap-2">
+          <Table2 className="w-4 h-4" />
+          <span className="hidden xs:inline">Data Table</span>
+          <span className="xs:hidden">Data</span>
         </div>
       ),
       value: "dataTable",
     },
     {
       label: (
-        <div className="flex flex-row items-center gap-2 ">
-          <UsersRound className="w-4 h-4" /> View Teams
+        <div className="flex flex-row items-center gap-1.5 md:gap-2">
+          <UsersRound className="w-4 h-4" /> Teams
         </div>
       ),
       value: "teams",
     },
     {
       label: (
-        <div className="flex flex-row items-center gap-2 ">
-          <ChartLine className="w-4 h-4" /> View Analytics
+        <div className="flex flex-row items-center gap-1.5 md:gap-2">
+          <ChartLine className="w-4 h-4" /> Analytics
         </div>
       ),
       value: "analytics",
@@ -115,42 +119,54 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         />
       ),
     },
-    { value: "teams", content: <div>Teams Content</div> },
-    { value: "analytics", content: <div>Analytics Content</div> },
+    {
+      value: "teams",
+      content: (
+        <TeamsTab
+          eventId={router.query.eventId as string}
+          year={router.query.year as string}
+          registrations={data || undefined}
+        />
+      ),
+    },
+    {
+      value: "analytics",
+      content: <AnalyticsTab registrations={data} eventData={eventData} />,
+    },
   ];
 
   return (
-    <main className="min-h-screen">
-      <div className="flex mt-8 flex-col">
+    <main className="min-h-screen -mx-8 -mt-8 md:-mx-0 md:-mt-0">
+      <div className="flex flex-col px-4 pt-4 md:px-0 md:pt-0 md:mt-8">
         <div className="flex flex-col justify-start">
-          <h2 className="text-white capitalize mb-2">
+          <h2 className="text-white capitalize mb-1 text-lg md:text-2xl">
             Event Data - {router.query.eventId} {router.query.year}
           </h2>
-          <div className="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-4">
-            <p className="text-bt-blue-0">
+          <div className="flex flex-col md:flex-row w-full items-start md:items-center md:justify-between gap-3 md:gap-4">
+            <p className="text-bt-blue-0 text-sm md:text-base">
               View and edit attendee registration data.
             </p>
-            <div className="flex flex-row gap-6 text-bt-green-300">
+            <div className="flex flex-row gap-4 md:gap-6 text-bt-green-300 text-sm md:text-base">
               <Link
                 href={`/admin/event/${router.query.eventId}/${router.query.year}/edit`}
-                className="flex flex-row gap-2 items-center hover:underline"
+                className="flex flex-row gap-1.5 md:gap-2 items-center hover:underline"
               >
-                <Pencil className="w-4 h-4" />
-                Edit Event Details
+                <Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                Edit Event
               </Link>
-              <div className="md:block hidden">|</div>
+              <div className="text-bt-blue-300">|</div>
               <Link
                 href={`/event/${router.query.eventId}/${router.query.year}/edit`}
-                className="flex flex-row gap-2 items-center hover:underline"
+                className="flex flex-row gap-1.5 md:gap-2 items-center hover:underline"
               >
-                <Eye className="w-4 h-4" />
+                <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 View Public Page
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 w-full">
+        <div className="mt-4 md:mt-6 w-full">
           <DynamicTabs tabs={tabs} panels={panels} />
         </div>
       </div>

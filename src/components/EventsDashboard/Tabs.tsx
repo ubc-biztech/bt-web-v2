@@ -16,11 +16,11 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
   return (
     <div className="w-full">
       <div className="w-full flex flex-row items-end">
-        <div className="relative flex border-b border-bt-blue-300 text-nowrap flex-wrap xxl:w-fit">
+        <div className="relative flex border-b border-bt-blue-300 md:flex-nowrap flex-wrap w-full md:w-fit">
           {tabs.map((tab) => (
             <button
               key={tab.value}
-              className={`relative transition-colors duration-200 ease-in-out flex-1 p-3 text-center ${
+              className={`relative transition-colors duration-200 ease-in-out flex-1 md:flex-none px-2 py-2.5 md:px-4 md:py-3 text-center text-sm md:text-base whitespace-nowrap ${
                 activeTab === tab.value
                   ? "text-bt-green-300"
                   : "text-bt-blue-300 hover:text-bt-blue-200"
@@ -39,11 +39,10 @@ const DynamicTabs: React.FC<TabProps> = ({ tabs, panels }) => {
             </button>
           ))}
         </div>
-        <div className="w-full relative flex border-b border-bt-blue-300" />
+        <div className="hidden md:flex w-full relative border-b border-bt-blue-300" />
       </div>
 
-      {/* Tab Content */}
-      <div className="mt-8">
+      <div className="mt-4 md:mt-8">
         <AnimatePresence mode="wait">
           {panels.map(
             (panel) =>
