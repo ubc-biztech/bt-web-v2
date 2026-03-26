@@ -74,7 +74,7 @@ const CreateEventPage: NextPage = () => {
       pricing: {
         members: Number(data.price) || 0,
         ...(data.nonBizTechAllowed && {
-          nonMembers: data.nonMemberPrice
+          nonMembers: data.nonMemberPrice != null
             ? Number(data.nonMemberPrice)
             : Number(data.price) || 0,
         }),
