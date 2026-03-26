@@ -21,6 +21,7 @@ export type BiztechEvent = {
   feedback: string;
   partnerDescription: string;
   isApplicationBased: boolean;
+  nonBizTechAllowed: boolean;
   isCompleted: boolean;
   hasDomainSpecificQuestions?: boolean;
   counts?: any;

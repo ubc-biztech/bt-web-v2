@@ -57,10 +57,10 @@ const EditEventPage: NextPage = () => {
           endDate: data.endDate ? new Date(data.endDate) : new Date(),
           deadline: data.deadline ? new Date(data.deadline) : new Date(),
           price: data.pricing?.members ?? 0,
-          nonBizTechAllowed: !!data.pricing?.nonMembers,
           nonMemberPrice: data.pricing?.nonMembers ?? 0,
           feedbackFormUrl: data.feedback ?? "",
           isApplicationBased: !!data.isApplicationBased,
+          nonBizTechAllowed: !!data.nonBizTechAllowed,
           isPublished: !!data.isPublished,
           isCompleted: !!data.isCompleted,
           customQuestions: Array.isArray(data.registrationQuestions)
@@ -152,6 +152,7 @@ const EditEventPage: NextPage = () => {
       ),
       feedback: data.feedbackFormUrl,
       isApplicationBased: data.isApplicationBased,
+      nonBizTechAllowed: data.nonBizTechAllowed,
       isPublished: data.isPublished,
       isCompleted: data.isCompleted,
     };
