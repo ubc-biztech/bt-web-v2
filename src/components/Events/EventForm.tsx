@@ -280,7 +280,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   Partner Registration Page
                 </Link>
                 <Link
-                  href="/admin/statistics"
+                  href={`/admin/event/${eventId}/${eventYear}/stats`}
                   className="inline-flex items-center gap-1.5 text-bt-green-300 hover:underline"
                   target="_blank"
                 >
