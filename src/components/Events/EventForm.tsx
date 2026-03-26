@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -71,6 +71,16 @@ export const EventForm: React.FC<EventFormProps> = ({
     },
     mode: "onChange", // Changed from 'onBlur'
   });
+
+  const imageUrl = useWatch({ control: form.control, name: "imageUrl" });
+  const eventName = useWatch({ control: form.control, name: "eventName" });
+  const isPublished = useWatch({ control: form.control, name: "isPublished" });
+  const isCompleted = useWatch({ control: form.control, name: "isCompleted" });
+  const nonBizTechAllowed = useWatch({
+    control: form.control,
+    name: "nonBizTechAllowed",
+  });
+  const eventSlug = useWatch({ control: form.control, name: "eventSlug" });
 
   // Track if form is dirty (has unsaved changes)
   const formIsDirty =
@@ -147,7 +157,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       };
     } else {
       // For new events, use the form's slug and current year
-      const slug = form.watch("eventSlug") || "[slug]";
+      const slug = eventSlug || "[slug]";
       const year = new Date().getFullYear().toString();
       return {
         main: `https://ubcbiztech.com/event/${slug}/${year}/register`,
@@ -190,7 +200,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold text-white">
                   {initialData
-                    ? `Edit Event — ${form.watch("eventName") || "Untitled"}`
+                    ? `Edit Event — ${eventName || "Untitled"}`
                     : "Create New Event"}
                 </h1>
                 <p className="text-sm text-bt-blue-100 mt-0.5">
@@ -215,7 +225,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     onClick={handlePublish}
                   >
                     <Send className="w-4 h-4" />
-                    {form.watch("isPublished") ? "Unpublish" : "Publish"}
+                    {isPublished ? "Unpublish" : "Publish"}
                   </Button>
                   <Button
                     type="button"
@@ -224,16 +234,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                     onClick={handleComplete}
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    {form.watch("isCompleted")
-                      ? "Mark Incomplete"
-                      : "Mark Complete"}
+                    {isCompleted ? "Mark Incomplete" : "Mark Complete"}
                   </Button>
                 </>
               )}
             </div>
           </div>
 
-          {initialData && !form.watch("isPublished") && formIsDirty && (
+          {initialData && !isPublished && formIsDirty && (
             <div className="rounded-lg border border-bt-red-200/40 bg-bt-red-200/10 px-4 py-3 text-sm text-bt-red-200 flex items-center gap-2">
               <span className="shrink-0">⚠️</span>
               There are unsaved changes that have not been published yet.
@@ -270,6 +278,14 @@ export const EventForm: React.FC<EventFormProps> = ({
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   Partner Registration Page
+                </Link>
+                <Link
+                  href="/admin/statistics"
+                  className="inline-flex items-center gap-1.5 text-bt-green-300 hover:underline"
+                  target="_blank"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Statistics
                 </Link>
               </div>
             </div>
@@ -311,7 +327,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                 title="Cover Photo"
               >
                 <EventThumbnailUploader
-                  value={form.watch("imageUrl")}
+                  value={imageUrl}
                   onChange={(url) =>
                     form.setValue("imageUrl", url, {
                       shouldDirty: true,
@@ -386,13 +402,13 @@ export const EventForm: React.FC<EventFormProps> = ({
               >
                 <div className="space-y-4">
                   <FormInput name="price" label="Member Price" type="number" />
-                  {!form.watch("nonBizTechAllowed") && (
+                  {!nonBizTechAllowed && (
                     <p className="text-sm text-bt-blue-100">
                       Enable &quot;Non-BizTech members allowed?&quot; above to
                       set different pricing for non-members
                     </p>
                   )}
-                  {form.watch("nonBizTechAllowed") && (
+                  {nonBizTechAllowed && (
                     <FormInput
                       name="nonMemberPrice"
                       label="Non-Member Price"
