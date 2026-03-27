@@ -663,7 +663,7 @@ export default function StatisticsPage({
   );
 
   // tab state
-  const [activeTab, setActiveTab] = useState<"members" | "events">("events");
+  const [activeTab, setActiveTab] = useState<"members" | "events">("members");
 
   // event selector for registration filtering
   const [selectedEventKey, setSelectedEventKey] = useState<string>("all");
@@ -1106,12 +1106,6 @@ export default function StatisticsPage({
         {/* page header  */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="text-bt-blue-100 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
             <div>
               <h1 className="text-lg sm:text-2xl font-bold text-white">
                 Statistics Dashboard
