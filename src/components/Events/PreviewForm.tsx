@@ -1,5 +1,5 @@
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { UseFormReturn, useWatch } from "react-hook-form";
 import {
   FormField,
   FormItem,
@@ -70,12 +70,22 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
   form,
   isPartnerForm = false,
 }) => {
-  const questions = isPartnerForm
-    ? form.watch("partnerCustomQuestions")
-    : form.watch("customQuestions");
-  const description = isPartnerForm
-    ? form.watch("partnerDescription")
-    : form.watch("description");
+  const partnerQuestions = useWatch({
+    control: form.control,
+    name: "partnerCustomQuestions",
+  });
+  const customQuestions = useWatch({
+    control: form.control,
+    name: "customQuestions",
+  });
+  const partnerDescription = useWatch({
+    control: form.control,
+    name: "partnerDescription",
+  });
+  const description = useWatch({ control: form.control, name: "description" });
+
+  const questions = isPartnerForm ? partnerQuestions : customQuestions;
+  const formDescription = isPartnerForm ? partnerDescription : description;
 
   const renderCustomQuestions = () => {
     return questions?.map((question, index) => {
