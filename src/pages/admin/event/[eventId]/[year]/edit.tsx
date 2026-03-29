@@ -57,7 +57,6 @@ const EditEventPage: NextPage = () => {
           endDate: data.endDate ? new Date(data.endDate) : new Date(),
           deadline: data.deadline ? new Date(data.deadline) : new Date(),
           price: data.pricing?.members ?? 0,
-          nonBizTechAllowed: "nonMembers" in (data.pricing ?? {}),
           nonMemberPrice: data.pricing?.nonMembers ?? 0,
           feedbackFormUrl: data.feedback ?? "",
           isApplicationBased: !!data.isApplicationBased,
