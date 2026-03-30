@@ -88,6 +88,7 @@ const CreateEventPage: NextPage = () => {
       ),
       feedback: data.feedbackFormUrl,
       isApplicationBased: data.isApplicationBased,
+      nonBizTechAllowed: data.nonBizTechAllowed,
     };
 
     try {
