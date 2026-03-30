@@ -23,6 +23,7 @@ import {
   Repeat,
   QrCode,
   Filter,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -1078,7 +1079,7 @@ export default function StatisticsPage({
     [attendeeRegistrations],
   );
 
-  // eepeat attendees (emails that appear in 2+ events)
+  // repeat attendees (emails that appear in 2+ events)
   const repeatAttendeeCount = useMemo(() => {
     const emailCounts: Record<string, number> = {};
     for (const r of attendeeRegistrations) {
@@ -1086,6 +1087,155 @@ export default function StatisticsPage({
     }
     return Object.values(emailCounts).filter((c) => c >= 2).length;
   }, [attendeeRegistrations]);
+
+  // how many events each person attends (1, 2, 3, 4+)
+  const attendanceFrequency = useMemo(() => {
+    if (selectedEventKey !== "all") return [];
+    const emailCounts: Record<string, number> = {};
+    for (const r of attendeeRegistrations) {
+      emailCounts[r.id] = (emailCounts[r.id] || 0) + 1;
+    }
+    const buckets: Record<string, number> = {};
+    for (const count of Object.values(emailCounts)) {
+      const key = count >= 4 ? "4+" : String(count);
+      buckets[key] = (buckets[key] || 0) + 1;
+    }
+    const order = ["1", "2", "3", "4+"];
+    return order
+      .filter((k) => buckets[k])
+      .map((name) => ({
+        name: `${name} event${name === "1" ? "" : "s"}`,
+        value: buckets[name],
+      }));
+  }, [attendeeRegistrations, selectedEventKey]);
+
+  // avg regs per event
+  const avgRegsPerEvent = useMemo(() => {
+    if (!eventsWithCounts.length) return 0;
+    return Math.round(totalRegistered / eventsWithCounts.length);
+  }, [totalRegistered, eventsWithCounts]);
+
+  // days before event that people register
+  const registrationLeadTime = useMemo(() => {
+    if (selectedEventKey === "all") {
+      // across all events
+      const eventStartDates: Record<string, number> = {};
+      for (const e of events) {
+        if (!e.startDate) continue;
+        const key = `${e.id};${e.year}`;
+        const ts = new Date(e.startDate).getTime();
+        if (!isNaN(ts)) eventStartDates[key] = ts;
+      }
+
+      const buckets: Record<string, number> = {
+        "same day": 0,
+        "1 day": 0,
+        "2-3 days": 0,
+        "4-7 days": 0,
+        "1-2 weeks": 0,
+        "2-4 weeks": 0,
+        "1+ month": 0,
+      };
+      let counted = 0;
+
+      for (const r of attendeeRegistrations) {
+        if (!r.createdAt) continue;
+        const eventStart = eventStartDates[r["eventID;year"]];
+        if (!eventStart) continue;
+        const regTs = r.createdAt > 1e12 ? r.createdAt : r.createdAt * 1000;
+        const daysBefore = Math.max(
+          0,
+          Math.floor((eventStart - regTs) / 86400000),
+        );
+        counted++;
+        if (daysBefore === 0) buckets["same day"]++;
+        else if (daysBefore === 1) buckets["1 day"]++;
+        else if (daysBefore <= 3) buckets["2-3 days"]++;
+        else if (daysBefore <= 7) buckets["4-7 days"]++;
+        else if (daysBefore <= 14) buckets["1-2 weeks"]++;
+        else if (daysBefore <= 28) buckets["2-4 weeks"]++;
+        else buckets["1+ month"]++;
+      }
+
+      if (counted === 0) return [];
+      const order = [
+        "same day",
+        "1 day",
+        "2-3 days",
+        "4-7 days",
+        "1-2 weeks",
+        "2-4 weeks",
+        "1+ month",
+      ];
+      return order
+        .filter((k) => buckets[k] > 0)
+        .map((name) => ({ name, value: buckets[name] }));
+    }
+
+    // single event
+    const [eid, yr] = selectedEventKey.split(";");
+    const ev = events.find((e) => e.id === eid && String(e.year) === yr);
+    if (!ev?.startDate) return [];
+    const eventStart = new Date(ev.startDate).getTime();
+    if (isNaN(eventStart)) return [];
+
+    const buckets: Record<string, number> = {
+      "same day": 0,
+      "1 day": 0,
+      "2-3 days": 0,
+      "4-7 days": 0,
+      "1-2 weeks": 0,
+      "2-4 weeks": 0,
+      "1+ month": 0,
+    };
+    let counted = 0;
+
+    for (const r of attendeeRegistrations) {
+      if (!r.createdAt) continue;
+      const regTs = r.createdAt > 1e12 ? r.createdAt : r.createdAt * 1000;
+      const daysBefore = Math.max(
+        0,
+        Math.floor((eventStart - regTs) / 86400000),
+      );
+      counted++;
+      if (daysBefore === 0) buckets["same day"]++;
+      else if (daysBefore === 1) buckets["1 day"]++;
+      else if (daysBefore <= 3) buckets["2-3 days"]++;
+      else if (daysBefore <= 7) buckets["4-7 days"]++;
+      else if (daysBefore <= 14) buckets["1-2 weeks"]++;
+      else if (daysBefore <= 28) buckets["2-4 weeks"]++;
+      else buckets["1+ month"]++;
+    }
+
+    if (counted === 0) return [];
+    const order = [
+      "same day",
+      "1 day",
+      "2-3 days",
+      "4-7 days",
+      "1-2 weeks",
+      "2-4 weeks",
+      "1+ month",
+    ];
+    return order
+      .filter((k) => buckets[k] > 0)
+      .map((name) => ({ name, value: buckets[name] }));
+  }, [attendeeRegistrations, events, selectedEventKey]);
+
+  // % of registered attendees who are also in the members table
+  const memberOverlapPct = useMemo(() => {
+    if (selectedEventKey !== "all") return null;
+    const memberEmails = new Set(members.map((m) => m.id.toLowerCase()));
+    const regEmails = new Set(
+      attendeeRegistrations.map((r) => r.id.toLowerCase()),
+    );
+    if (regEmails.size === 0) return null;
+    let overlap = 0;
+    Array.from(regEmails).forEach((email) => {
+      if (memberEmails.has(email)) overlap++;
+    });
+    return Math.round((overlap / regEmails.size) * 100);
+  }, [attendeeRegistrations, members, selectedEventKey]);
 
   // member stuff
   const totalMembers = filteredMembers.length;
@@ -1103,7 +1253,7 @@ export default function StatisticsPage({
   return (
     <main className="bg-bt-blue-600 min-h-screen w-full text-white">
       <div className="max-w-[1600px] mx-auto sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* page header  */}
+        {/* header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div>
@@ -1153,7 +1303,7 @@ export default function StatisticsPage({
           </button>
         </div>
 
-        {/* events tab                                       */}
+        {/* events tab */}
         {activeTab === "events" && (
           <>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
@@ -1501,7 +1651,7 @@ export default function StatisticsPage({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-5">
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4 mb-5">
                 <StatCard
                   label="Total Registrations"
                   value={attendeeRegistrations.length.toLocaleString()}
@@ -1549,17 +1699,33 @@ export default function StatisticsPage({
                   icon={<Repeat className="w-5 h-5" />}
                   accent="text-[#FFC960]"
                 />
-                <StatCard
+                {/* <StatCard
                   label="QR Scans"
                   value={qrEngagement.totalScans.toLocaleString()}
                   icon={<QrCode className="w-5 h-5" />}
                   accent="text-[#9F8AD1]"
-                />
+                /> */}
+                {selectedEventKey === "all" && (
+                  <StatCard
+                    label="Avg Regs / Event"
+                    value={avgRegsPerEvent.toLocaleString()}
+                    icon={<Activity className="w-5 h-5" />}
+                    accent="text-[#FF8A9E]"
+                  />
+                )}
+                {memberOverlapPct !== null && (
+                  <StatCard
+                    label="Members Who Attend"
+                    value={`${memberOverlapPct}%`}
+                    icon={<Users className="w-5 h-5" />}
+                    accent="text-[#8AD1C2]"
+                  />
+                )}
               </div>
 
               {/* registration charts grid */}
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-5">
-                {/* registration status breakdown */}
+                {/* status breakdown */}
                 {registrationStatusData.length > 0 && (
                   <SectionCard
                     icon={<ClipboardCheck className="w-4 h-4" />}
@@ -1632,7 +1798,7 @@ export default function StatisticsPage({
                   </SectionCard>
                 )}
 
-                {/* partner vs attendee registration split */}
+                {/* attendee/partner split */}
                 {selectedEventKey !== "all" &&
                   (() => {
                     const allForEvent = filteredRegistrations;
@@ -1659,6 +1825,42 @@ export default function StatisticsPage({
                       </SectionCard>
                     );
                   })()}
+
+                {/* registration lead time */}
+                {registrationLeadTime.length > 0 && (
+                  <SectionCard
+                    icon={<Clock className="w-4 h-4" />}
+                    title="Registration Lead Time"
+                  >
+                    <p className="text-xs text-bt-blue-100 mb-4">
+                      How far before the event people sign up
+                    </p>
+                    <ThemedBarChart
+                      data={registrationLeadTime}
+                      layout="horizontal"
+                      height={240}
+                      unit="registrations"
+                    />
+                  </SectionCard>
+                )}
+
+                {/* attendance frequency */}
+                {attendanceFrequency.length > 0 && (
+                  <SectionCard
+                    icon={<Repeat className="w-4 h-4" />}
+                    title="Attendance Frequency"
+                  >
+                    <p className="text-xs text-bt-blue-100 mb-4">
+                      How many events each person registers for
+                    </p>
+                    <ThemedBarChart
+                      data={attendanceFrequency}
+                      layout="horizontal"
+                      height={200}
+                      unit="people"
+                    />
+                  </SectionCard>
+                )}
               </div>
 
               {attendeeRegistrations.length === 0 && (
@@ -1673,7 +1875,7 @@ export default function StatisticsPage({
           </>
         )}
 
-        {/* members                                                      */}
+        {/* members */}
         {activeTab === "members" && (
           <>
             {/* year filter */}
@@ -1910,7 +2112,7 @@ export default function StatisticsPage({
             )}
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 sm:gap-5">
-              {/* education / type of member */}
+              {/* education */}
               <SectionCard
                 icon={<GraduationCap className="w-4 h-4" />}
                 title="Member Type (Education)"
@@ -2082,7 +2284,7 @@ export default function StatisticsPage({
   );
 }
 
-// event data
+// events table
 function EventsDataTable({ events }: { events: BiztechEvent[] }) {
   const [expanded, setExpanded] = useState(false);
   const [sortKey, setSortKey] = useState<"date" | "name" | "capacity">("date");
