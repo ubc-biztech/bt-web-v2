@@ -2115,20 +2115,7 @@ export default function YearInReview({
                               {event.ename}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
-                            {event.isApplicationBased && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-[#9F8AD1]/15 border border-[#9F8AD1]/30 px-2 py-0.5 text-[10px] font-semibold text-[#9F8AD1]">
-                                <Star className="w-3 h-3" />
-                                application
-                              </span>
-                            )}
-                            {event.fillRate >= 100 && (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-bt-green-400/15 border border-bt-green-400/30 px-2 py-0.5 text-[10px] font-semibold text-bt-green-300">
-                                <Sparkles className="w-3 h-3" />
-                                sold out
-                              </span>
-                            )}
-                          </div>
+
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-bt-blue-200 mt-2">
                           {event.elocation && (
@@ -2459,59 +2446,6 @@ export default function YearInReview({
                     </div>
                   </ScaleIn>
                 ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {eventTimeline.filter((e) => e.fillRate >= 90).length > 0 && (
-          <section className="py-24 md:py-32 px-6">
-            <div className="max-w-6xl mx-auto">
-              <FadeIn>
-                <div className="flex items-center gap-2 mb-3">
-                  <Flame className="w-4 h-4 text-bt-green-300" />
-                  <span className="text-xs font-semibold tracking-[0.2em] uppercase text-bt-green-300">
-                    high demand
-                  </span>
-                </div>
-                <h2 className="text-3xl md:text-[48px] font-bold mb-12 md:mb-16 leading-tight">
-                  Sold out &amp; nearly full
-                </h2>
-              </FadeIn>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                {eventTimeline
-                  .filter((e) => e.fillRate >= 90)
-                  .sort((a, b) => b.fillRate - a.fillRate)
-                  .map((event, i) => (
-                    <ScaleIn key={`hot-${event.id}`} delay={i * 80}>
-                      <div className="rounded-xl border border-bt-green-400/20 bg-bt-green-400/5 p-4 md:p-5 hover:bg-bt-green-400/10 transition-all duration-300 hover:shadow-[0_0_30px_rgba(117,212,80,0.1)]">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="text-sm font-bold leading-tight">
-                            {event.ename}
-                          </h3>
-                          <span className="shrink-0 text-xs font-bold text-bt-green-300 tabular-nums font-redhat">
-                            {event.fillRate >= 100
-                              ? "SOLD OUT"
-                              : `${event.fillRate}%`}
-                          </span>
-                        </div>
-                        <p className="text-[10px] md:text-xs text-bt-blue-200 font-redhat">
-                          {event.regCount} / {event.capac} spots &middot;{" "}
-                          {formatDate(event.startDate)}
-                        </p>
-                        <div className="mt-2 h-1.5 rounded-full bg-bt-blue-500/40 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-bt-green-400"
-                            style={{
-                              width: `${Math.min(event.fillRate, 100)}%`,
-                              boxShadow: "0 0 8px rgba(117,212,80,0.4)",
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </ScaleIn>
-                  ))}
               </div>
             </div>
           </section>
