@@ -179,43 +179,43 @@ const EXEC_TEAMS: ExecTeam[] = [
     members: [
       {
         name: "Allison Tao",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQHrmdnM1q-Mjw/profile-displayphoto-crop_800_800/B56ZvtBjXkJcAI-/0/1769208167170?e=1776297600&v=beta&t=ug-kosIbLeM3AB4JcGM012360h835FG9g9_bXoi7xos",
       },
       {
         name: "Angela Huang",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQG7xHHH6Ur7CQ/profile-displayphoto-crop_800_800/B56Zvt0QhZHcAI-/0/1769221458426?e=1776297600&v=beta&t=E4VaNXxNkbYxbjcvqOg0ACSiMSM0pAwvyAl2odsTM38",
       },
       {
         name: "Chris Lee",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQGIhRr6FY0QSg/profile-displayphoto-crop_800_800/B56Zva6kWpIsAI-/0/1768904345430?e=1776297600&v=beta&t=5527fZvvSUA78WasEfucxLs-6KAua1mVX4wrCxfVpvw",
       },
       {
         name: "Daniel Tong",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D4D03AQEjzdxB-okS1Q/profile-displayphoto-crop_800_800/B4DZwuYCO1KwAI-/0/1770304584000?e=1776297600&v=beta&t=s1ZM9qmhQqWBlEg3QmfStNKdZCeyrVCgIDSOF1bpS9Y",
       },
       {
         name: "Daniel Zhang",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQF4hIlr3iTQCA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1711342035864?e=1776297600&v=beta&t=rm-9wip2logmIq5PWYvHViCEVO1ZIZsV2P1lSzYP_rc",
       },
       {
         name: "Gautham Venkateshwaran",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQFN9KQkMqromg/profile-displayphoto-crop_800_800/B56ZwNlN8AHQAI-/0/1769754388674?e=1776297600&v=beta&t=3jmgDJpQ-t86ayzhS_O1YgckDV5tHu_mKBkLlilTKHw",
       },
       {
         name: "Jack Shaw",
-        role: "Director",
+        role: "Experiences Director",
         image:
           "https://framerusercontent.com/images/Bub0DlMy8bY6VYTR9byyDL4cvwo.png?width=304&height=304",
       },
@@ -228,37 +228,37 @@ const EXEC_TEAMS: ExecTeam[] = [
     members: [
       {
         name: "Angela Felicia",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQFBymVKdJH3GQ/profile-displayphoto-crop_800_800/B56ZebwJ.1HQAI-/0/1750664782498?e=1776297600&v=beta&t=1GK22R6dpvPjjQNwenyfYVldrALkUEfbZI28Lo4EPec",
       },
       {
         name: "Darius Alexander",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQGq16MaT4Hs0A/profile-displayphoto-crop_800_800/B56Zvetvk5IcAI-/0/1768968092300?e=1776297600&v=beta&t=B9RyAw6HQ3M3JkV5ZwMN3333jNVRbgCKUSRPzahnNcg",
       },
       {
         name: "Jimmy Sam",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQHBaHYATM7tcQ/profile-displayphoto-shrink_800_800/B56ZU7Z8B1GUAc-/0/1740458410376?e=1776297600&v=beta&t=HsYS1gT-4eO5_Y63MpY0kcq13JrxYlLuMf09Utk8rl0",
       },
       {
         name: "Karen Siem",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D4E03AQFrLSYefZCu-Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1728854871272?e=1776297600&v=beta&t=hFtUY1QvfwX8PbnfsfJhungO9iPM7xAqMJ-Iu9BEQdY",
       },
       {
         name: "Keon Lee",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQEKLTB0JD4NIQ/profile-displayphoto-crop_800_800/B56ZoylkQ0JkAI-/0/1761785300570?e=1776297600&v=beta&t=r6qropG5Suq6tNMGqAzeS3FLkRRnep_Gb7Qswr3mcTE",
       },
       {
         name: "Rohan Patel",
-        role: "Director",
+        role: "Partnerships Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQEbe9C6cIQqwQ/profile-displayphoto-crop_800_800/B56Z03WlzCKcAM-/0/1774750164429?e=1776297600&v=beta&t=l5AvgGbIkdnUTNVAM3dtHYb48NKPbh0pIH-8V2CXn7A",
       },
@@ -406,13 +406,13 @@ const EXEC_TEAMS: ExecTeam[] = [
     members: [
       {
         name: "Ashley Low",
-        role: "Director",
+        role: "Internal Director",
         image:
           "https://media.licdn.com/dms/image/v2/D5603AQFBZVeAs8__FQ/profile-displayphoto-shrink_800_800/B56ZUhjPavHoAc-/0/1740024646904?e=1776297600&v=beta&t=IG__yNgUsv_NDN9IPQU9fSYvFEXX20nsDBKFYKb-oPc",
       },
       {
         name: "Erping Sun",
-        role: "Director",
+        role: "Internal Director",
         image:
           "https://media.licdn.com/dms/image/v2/D4D03AQH2ubAm9KdP3g/profile-displayphoto-crop_800_800/B4DZyWTFbqGQAI-/0/1772048117393?e=1776297600&v=beta&t=2UrGMSwh0DuS5FVcJPG9gpJrz0TNzqHp8lEzMcl-FNA",
       },
@@ -979,7 +979,9 @@ export default function YearInReview({
           (e) =>
             inAcademicYear(e.startDate) &&
             e.isPublished &&
-            !e.ename?.toLowerCase().includes("public showcase"),
+            !e.ename?.toLowerCase().includes("public showcase") &&
+            !e.ename?.toLowerCase().includes("alumni night") &&
+            !e.ename?.toLowerCase().includes("open house"),
         )
         .sort(
           (a, b) =>
@@ -1676,6 +1678,29 @@ export default function YearInReview({
         .animate-subtle-float {
           animation: subtle-float 6s ease-in-out infinite;
         }
+        @keyframes count-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .animate-count-shimmer {
+          background: linear-gradient(
+            90deg,
+            currentColor 0%,
+            currentColor 40%,
+            rgba(255,255,255,0.9) 50%,
+            currentColor 60%,
+            currentColor 100%
+          );
+          background-size: 200% 100%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: count-shimmer 3s ease-in-out 2.2s infinite;
+        }
+        @keyframes card-hover-lift {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
         .exec-card {
           transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -2098,13 +2123,13 @@ export default function YearInReview({
                 },
               ].map((stat, i) => (
                 <FadeIn key={stat.label} delay={i * 120}>
-                  <GlowCard glowColor={stat.glow} className="p-5 md:p-8">
+                  <GlowCard glowColor={stat.glow} className="p-5 md:p-8 hover:translate-y-[-2px] transition-transform duration-300">
                     <div
                       className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${stat.color} mb-3 md:mb-4`}
                     >
                       <span className="text-bt-blue-700">{stat.icon}</span>
                     </div>
-                    <p className="text-3xl md:text-[44px] font-bold tabular-nums font-redhat leading-none">
+                    <p className="text-3xl md:text-[44px] font-bold tabular-nums font-redhat leading-none animate-count-shimmer">
                       <Counter end={stat.value} />
                     </p>
                     <p className="text-xs md:text-sm text-bt-blue-100 mt-2">
@@ -2600,7 +2625,7 @@ export default function YearInReview({
                     <ScaleIn key={stat.label} delay={i * 80}>
                       <GlowCard
                         glowColor={`${stat.color}15`}
-                        className="p-4 md:p-5 h-full"
+                        className="p-4 md:p-5 h-full hover:translate-y-[-2px] transition-transform duration-300"
                       >
                         <div
                           className="flex items-center gap-2 mb-3"
@@ -2611,7 +2636,7 @@ export default function YearInReview({
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-2xl md:text-3xl font-bold font-redhat">
+                        <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
                           <Counter end={stat.value} />
                         </p>
                       </GlowCard>
@@ -2747,7 +2772,7 @@ export default function YearInReview({
                       <ScaleIn key={stat.label} delay={i * 80}>
                         <GlowCard
                           glowColor={`${stat.color}15`}
-                          className="p-4 md:p-5 h-full"
+                          className="p-4 md:p-5 h-full hover:translate-y-[-2px] transition-transform duration-300"
                         >
                           <div
                             className="flex items-center gap-2 mb-3"
@@ -2758,7 +2783,7 @@ export default function YearInReview({
                               {stat.label}
                             </span>
                           </div>
-                          <p className="text-2xl md:text-3xl font-bold font-redhat">
+                          <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
                             <Counter
                               end={stat.value}
                               prefix={stat.prefix}
@@ -2903,7 +2928,7 @@ export default function YearInReview({
                       <ScaleIn key={stat.label} delay={i * 80}>
                         <GlowCard
                           glowColor={`${stat.color}15`}
-                          className="p-4 md:p-5 h-full"
+                          className="p-4 md:p-5 h-full hover:translate-y-[-2px] transition-transform duration-300"
                         >
                           <div
                             className="flex items-center gap-2 mb-3"
@@ -2914,7 +2939,7 @@ export default function YearInReview({
                               {stat.label}
                             </span>
                           </div>
-                          <p className="text-2xl md:text-3xl font-bold font-redhat">
+                          <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
                             <Counter
                               end={stat.value}
                               prefix={stat.prefix}
@@ -2945,7 +2970,7 @@ export default function YearInReview({
                   </div>
                 </div>
                 {/* hero numbers */}
-                <div className="grid grid-cols-2 gap-3 md:gap-4 mb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mb-4">
                   {[
                     {
                       label: "Accounts Reached",
@@ -2963,7 +2988,7 @@ export default function YearInReview({
                     <ScaleIn key={stat.label} delay={i * 80}>
                       <GlowCard
                         glowColor={`${stat.color}15`}
-                        className="p-5 md:p-7 h-full"
+                        className="p-5 md:p-7 h-full group/mkt hover:translate-y-[-2px] transition-transform duration-300"
                       >
                         <div
                           className="flex items-center gap-2 mb-3"
@@ -2974,7 +2999,10 @@ export default function YearInReview({
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-3xl sm:text-4xl md:text-[44px] font-bold font-redhat leading-none">
+                        <p
+                          className="text-[28px] sm:text-4xl md:text-[44px] font-bold font-redhat leading-none animate-count-shimmer"
+                          style={{ color: stat.color }}
+                        >
                           <Counter end={stat.value} />
                         </p>
                       </GlowCard>
@@ -2982,54 +3010,57 @@ export default function YearInReview({
                   ))}
                 </div>
                 {/* secondary stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 md:gap-4">
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
                   {[
                     {
                       label: "New Followers",
                       value: 1577,
-                      icon: <UserPlus className="w-4 h-4" />,
+                      icon: <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
                       color: "#75CFF5",
                     },
                     {
                       label: "Likes",
                       value: 10608,
-                      icon: <ThumbsUp className="w-4 h-4" />,
+                      icon: <ThumbsUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
                       color: "#FF8A9E",
                     },
                     {
                       label: "Comments",
                       value: 1088,
-                      icon: <MessageCircle className="w-4 h-4" />,
+                      icon: <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
                       color: "#FFC960",
                     },
                     {
                       label: "Shares",
                       value: 7622,
-                      icon: <Share2 className="w-4 h-4" />,
+                      icon: <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
                       color: "#75D450",
                     },
                     {
                       label: "New Saves",
                       value: 904,
-                      icon: <Bookmark className="w-4 h-4" />,
+                      icon: <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
                       color: "#EB8273",
                     },
                   ].map((stat, i) => (
                     <ScaleIn key={stat.label} delay={150 + i * 60}>
                       <GlowCard
                         glowColor={`${stat.color}15`}
-                        className="p-4 md:p-5 h-full"
+                        className="p-3 sm:p-4 md:p-5 h-full hover:translate-y-[-2px] transition-transform duration-300"
                       >
                         <div
-                          className="flex items-center gap-2 mb-3"
+                          className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3"
                           style={{ color: stat.color }}
                         >
                           {stat.icon}
-                          <span className="text-[10px] font-semibold tracking-[0.12em] uppercase">
+                          <span className="text-[9px] sm:text-[10px] font-semibold tracking-[0.08em] sm:tracking-[0.12em] uppercase">
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-xl sm:text-2xl md:text-3xl font-bold font-redhat">
+                        <p
+                          className="text-lg sm:text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer"
+                          style={{ color: stat.color }}
+                        >
                           <Counter end={stat.value} />
                         </p>
                       </GlowCard>
@@ -3086,7 +3117,7 @@ export default function YearInReview({
                     <ScaleIn key={stat.label} delay={i * 80}>
                       <GlowCard
                         glowColor={`${stat.color}15`}
-                        className="p-4 md:p-5 h-full"
+                        className="p-4 md:p-5 h-full hover:translate-y-[-2px] transition-transform duration-300"
                       >
                         <div
                           className="flex items-center gap-2 mb-3"
@@ -3097,7 +3128,7 @@ export default function YearInReview({
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-2xl md:text-3xl font-bold font-redhat">
+                        <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
                           {typeof stat.value === "string" ? (
                             stat.value
                           ) : (
@@ -3136,7 +3167,7 @@ export default function YearInReview({
                   <ScaleIn delay={0}>
                     <GlowCard
                       glowColor="rgba(117,212,80,0.12)"
-                      className="p-5 md:p-7 h-full"
+                      className="p-5 md:p-7 h-full hover:translate-y-[-2px] transition-transform duration-300"
                     >
                       <div className="flex items-center gap-2 mb-2 text-[#75D450]">
                         <Terminal className="w-4 h-4" />
@@ -3144,7 +3175,7 @@ export default function YearInReview({
                           Frontend
                         </span>
                       </div>
-                      <p className="text-3xl md:text-4xl font-bold font-redhat mb-1">
+                      <p className="text-3xl md:text-4xl font-bold font-redhat mb-1 animate-count-shimmer text-[#75D450]">
                         <Counter end={127944} />
                       </p>
                       <p className="text-xs text-bt-blue-300">
@@ -3161,7 +3192,7 @@ export default function YearInReview({
                   <ScaleIn delay={100}>
                     <GlowCard
                       glowColor="rgba(159,138,209,0.12)"
-                      className="p-5 md:p-7 h-full"
+                      className="p-5 md:p-7 h-full hover:translate-y-[-2px] transition-transform duration-300"
                     >
                       <div className="flex items-center gap-2 mb-2 text-[#9F8AD1]">
                         <Database className="w-4 h-4" />
@@ -3169,7 +3200,7 @@ export default function YearInReview({
                           Backend
                         </span>
                       </div>
-                      <p className="text-3xl md:text-4xl font-bold font-redhat mb-1">
+                      <p className="text-3xl md:text-4xl font-bold font-redhat mb-1 animate-count-shimmer text-[#9F8AD1]">
                         <Counter end={233784} />
                       </p>
                       <p className="text-xs text-bt-blue-300">
@@ -3187,7 +3218,7 @@ export default function YearInReview({
                 <FadeIn delay={200}>
                   <div className="mt-4 rounded-xl border border-bt-blue-300/10 bg-bt-blue-600/20 p-4 text-center">
                     <p className="text-sm text-bt-blue-200">
-                      <span className="text-2xl md:text-3xl font-bold font-redhat text-white">
+                      <span className="text-2xl md:text-3xl font-bold font-redhat text-white animate-count-shimmer">
                         <Counter end={361728} />
                       </span>
                       <span className="ml-2">
@@ -3217,7 +3248,7 @@ export default function YearInReview({
                   <ScaleIn delay={0}>
                     <GlowCard
                       glowColor="rgba(138,209,194,0.12)"
-                      className="p-5 md:p-7"
+                      className="p-5 md:p-7 hover:translate-y-[-2px] transition-transform duration-300"
                     >
                       <div className="flex items-center gap-2 mb-3 text-[#8AD1C2]">
                         <FileText className="w-4 h-4" />
@@ -3225,7 +3256,7 @@ export default function YearInReview({
                           Feedback Collected
                         </span>
                       </div>
-                      <p className="text-3xl md:text-4xl font-bold font-redhat">
+                      <p className="text-3xl md:text-4xl font-bold font-redhat animate-count-shimmer text-[#8AD1C2]">
                         <Counter end={450} suffix="+" />
                       </p>
                       <p className="text-xs text-bt-blue-300 mt-1">
