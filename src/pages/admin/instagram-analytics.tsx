@@ -244,6 +244,16 @@ const formatDateTime = (iso: string | undefined) => {
   return date.toLocaleString();
 };
 
+const formatDateShort = (iso: string | undefined) => {
+  if (!iso) return "—";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+};
+
 const safeCaption = (caption: string | undefined, max = 90) => {
   if (!caption?.trim()) return "No caption";
   const text = caption.trim();
@@ -898,7 +908,7 @@ export default function InstagramAnalyticsPage() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
                     <div className="space-y-2">
                       <p className="text-xs uppercase tracking-wide text-bt-blue-100">
-                        Top Weekdays (ER)
+                        Top Weekdays (Engagement Rate)
                       </p>
                       {bestWeekdays.length === 0 ? (
                         <p className="text-xs text-bt-blue-100">
@@ -1168,7 +1178,7 @@ export default function InstagramAnalyticsPage() {
                         value="byEngagementRate"
                         className="h-9 justify-center whitespace-normal px-2 text-center text-xs text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none"
                       >
-                        ER
+                        Engagement Rate (ER)
                       </TabsTrigger>
                       <TabsTrigger
                         value="bySaved"
@@ -1382,55 +1392,82 @@ export default function InstagramAnalyticsPage() {
                       </Table>
                     </div>
 
-                    <div className="space-y-3 md:hidden">
+                    <div className="space-y-2 md:hidden">
                       {pagedPosts.map((post) => (
                         <div
-                          key={`${post.id}-mobile`}
+                          key={`${post.id}-mobile-row`}
                           className="rounded-lg border border-white/10 bg-white/[0.03] p-3"
                         >
-                          <p className="text-xs text-bt-blue-100">
-                            {formatDateTime(post.timestamp)}
-                          </p>
-                          <p className="mt-1 text-sm text-white">
-                            {safeCaption(post.caption, 120)}
-                          </p>
-                          <div className="mt-2 flex flex-wrap gap-2 text-xs text-bt-blue-100">
-                            <span className="rounded bg-white/10 px-2 py-0.5">
-                              {formatMediaType(post.media_type)}
-                            </span>
-                            <span>
-                              Reach: {formatCompact(post.metrics.reach)}
-                            </span>
-                            <span>
-                              Likes: {formatCompact(post.metrics.likes)}
-                            </span>
-                            <span>
-                              Views: {formatCompact(post.metrics.views)}
-                            </span>
-                            <span>
-                              ER:{" "}
-                              {formatPercent(
-                                post.derived.engagementRateByReach,
-                              )}
-                            </span>
-                            <span>
-                              Comments: {formatNumber(post.metrics.comments)}
-                            </span>
-                            <span>
-                              Saved: {formatNumber(post.metrics.saved)}
-                            </span>
-                            <span>
-                              Shares: {formatNumber(post.metrics.shares)}
-                            </span>
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="line-clamp-2 text-sm leading-relaxed text-white">
+                                {safeCaption(post.caption, 88)}
+                              </p>
+                              <p className="mt-1 text-[11px] text-bt-blue-100">
+                                {formatMediaType(post.media_type)} •{" "}
+                                {formatDateShort(post.timestamp)}
+                              </p>
+                            </div>
+                            <a
+                              href={post.permalink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="shrink-0 rounded-md bg-white/10 px-2 py-1 text-[11px] text-bt-green-300 hover:bg-white/15"
+                            >
+                              View
+                            </a>
                           </div>
-                          <a
-                            href={post.permalink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-2 inline-block text-xs text-bt-green-300 hover:underline"
-                          >
-                            View post
-                          </a>
+
+                          <div className="mt-3 grid grid-cols-3 gap-2">
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                Reach
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatCompact(post.metrics.reach)}
+                              </p>
+                            </div>
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                ER
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatPercent(post.derived.engagementRateByReach)}
+                              </p>
+                            </div>
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                Views
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatCompact(post.metrics.views)}
+                              </p>
+                            </div>
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                Likes
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatCompact(post.metrics.likes)}
+                              </p>
+                            </div>
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                Saved
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatNumber(post.metrics.saved)}
+                              </p>
+                            </div>
+                            <div className="rounded-md bg-white/5 px-2 py-1.5">
+                              <p className="text-[10px] uppercase tracking-wide text-bt-blue-100">
+                                Shares
+                              </p>
+                              <p className="text-xs font-medium text-white">
+                                {formatNumber(post.metrics.shares)}
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
