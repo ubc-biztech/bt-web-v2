@@ -21,13 +21,11 @@ import {
   ExternalLink,
   GraduationCap,
   UserCheck,
-  BarChart3,
   Megaphone,
   ChevronRight,
   Clock,
   Star,
   Heart,
-  Flame,
   Zap,
   Hash,
   PieChart,
@@ -157,7 +155,7 @@ const EXEC_TEAMS: ExecTeam[] = [
         name: "Kevin Xiao",
         role: "Development Lead",
         image:
-          "https://media.licdn.com/dms/image/v2/D5603AQEE683SF9HjqA/profile-displayphoto-crop_800_800/B56ZyC0Iz5KsAI-/0/1771721233303?e=1776297600&v=beta&t=n1AEDBmTRFQMe_lJFuyM-e-ZJ_p5xcJlLtEIfnj6P-c ",
+          "https://media.licdn.com/dms/image/v2/D5603AQEE683SF9HjqA/profile-displayphoto-crop_800_800/B56ZyC0Iz5KsAI-/0/1771721233303?e=1776297600&v=beta&t=n1AEDBmTRFQMe_lJFuyM-e-ZJ_p5xcJlLtEIfnj6P-c",
       },
       {
         name: "Lillian Do",
@@ -213,7 +211,7 @@ const EXEC_TEAMS: ExecTeam[] = [
         name: "Gautham Venkateshwaran",
         role: "Director",
         image:
-          "https://media.licdn.com/dms/image/v2/D5603AQFN9KQkMqromg/profile-displayphoto-crop_800_800/B56ZwNlN8AHQAI-/0/1769754388674?e=1776297600&v=beta&t=3jmgDJpQ-t86ayzhS_O1YgckDV5tHu_mKBkLlilTKHw  ",
+          "https://media.licdn.com/dms/image/v2/D5603AQFN9KQkMqromg/profile-displayphoto-crop_800_800/B56ZwNlN8AHQAI-/0/1769754388674?e=1776297600&v=beta&t=3jmgDJpQ-t86ayzhS_O1YgckDV5tHu_mKBkLlilTKHw",
       },
       {
         name: "Jack Shaw",
@@ -977,7 +975,12 @@ export default function YearInReview({
   const yearEvents = useMemo(
     () =>
       events
-        .filter((e) => inAcademicYear(e.startDate) && e.isPublished)
+        .filter(
+          (e) =>
+            inAcademicYear(e.startDate) &&
+            e.isPublished &&
+            !e.ename?.toLowerCase().includes("public showcase"),
+        )
         .sort(
           (a, b) =>
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
@@ -1018,23 +1021,47 @@ export default function YearInReview({
     [totalCheckedIn, totalRegistrations],
   );
 
+  const normalizeVenue = useCallback((raw: string): string => {
+    const s = raw.trim().toLowerCase();
+    // Sauder / Henry Angus variants
+    if (
+      s.includes("sauder") ||
+      s.includes("henry angus") ||
+      s.includes("big 4 conference")
+    )
+      return "UBC Sauder (Henry Angus)";
+    // AMS Nest variants
+    if (s.includes("nest") || s.includes("ams")) return "AMS Nest";
+    // Robson Square
+    if (s.includes("robson square")) return "UBC Robson Square";
+    // Graduate Student Center
+    if (s.includes("graduate student")) return "Graduate Student Center";
+    return raw.trim();
+  }, []);
+
   const uniqueVenues = useMemo(() => {
     const locs = new Set(
-      yearEvents.map((e) => e.elocation?.trim()).filter(Boolean),
+      yearEvents
+        .map((e) => e.elocation?.trim())
+        .filter(Boolean)
+        .map((loc) => normalizeVenue(loc!)),
     );
     return locs.size;
-  }, [yearEvents]);
+  }, [yearEvents, normalizeVenue]);
 
   const venueList = useMemo(() => {
     const map: Record<string, number> = {};
     for (const e of yearEvents) {
       const loc = e.elocation?.trim();
-      if (loc) map[loc] = (map[loc] || 0) + 1;
+      if (loc) {
+        const normalized = normalizeVenue(loc);
+        map[normalized] = (map[normalized] || 0) + 1;
+      }
     }
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
       .map(([name, count]) => ({ name, count }));
-  }, [yearEvents]);
+  }, [yearEvents, normalizeVenue]);
 
   const eventRegCounts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -1273,6 +1300,25 @@ export default function YearInReview({
       (diffs.reduce((s, d) => s + d, 0) / diffs.length).toFixed(1),
     );
   }, [yearRegistrations, yearEvents]);
+
+  const favouriteDay = useMemo(() => {
+    const dayCounts: Record<string, number> = {};
+    for (const e of yearEvents) {
+      const day = new Date(e.startDate).toLocaleDateString("en-US", {
+        weekday: "long",
+      });
+      dayCounts[day] = (dayCounts[day] || 0) + 1;
+    }
+    let bestDay = "";
+    let bestCount = 0;
+    for (const [day, count] of Object.entries(dayCounts)) {
+      if (count > bestCount) {
+        bestDay = day;
+        bestCount = count;
+      }
+    }
+    return { day: bestDay, count: bestCount };
+  }, [yearEvents]);
 
   const eventNames = useMemo(
     () => yearEvents.map((e) => e.ename),
@@ -2115,7 +2161,6 @@ export default function YearInReview({
                               {event.ename}
                             </h3>
                           </div>
-
                         </div>
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-bt-blue-200 mt-2">
                           {event.elocation && (
@@ -2128,12 +2173,6 @@ export default function YearInReview({
                             <Users className="w-3 h-3" />
                             {event.regCount} registered
                           </span>
-                          {event.checkedIn > 0 && (
-                            <span className="flex items-center gap-1 font-redhat">
-                              <UserCheck className="w-3 h-3" />
-                              {event.checkedIn} attended
-                            </span>
-                          )}
                         </div>
                       </GlowCard>
                     </div>
@@ -2451,7 +2490,7 @@ export default function YearInReview({
           </section>
         )}
 
-        <SectionDivider quote="every department, one mission" />
+        <SectionDivider quote="every team, one mission" />
 
         <section className="py-24 md:py-32 px-6">
           <div className="max-w-6xl mx-auto">
@@ -2580,88 +2619,34 @@ export default function YearInReview({
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mb-4">
-                  {(
-                    [
-                      {
-                        label: "Avg Check-in Rate",
-                        value: `${avgAttendance}%`,
-                        icon: (
-                          <UserCheck className="w-3.5 h-3.5 text-[#75D450]" />
-                        ),
-                      },
-                      {
-                        label: "Avg Fill Rate",
-                        value: `${avgFillRate}%`,
-                        icon: (
-                          <BarChart3 className="w-3.5 h-3.5 text-[#75CFF5]" />
-                        ),
-                      },
-                      {
-                        label: "Avg Regs / Event",
-                        value: avgRegsPerEvent,
-                        icon: <Hash className="w-3.5 h-3.5 text-[#FFC960]" />,
-                      },
-                      {
-                        label: "Super Fans (3+)",
-                        value: superFans,
-                        icon: <Trophy className="w-3.5 h-3.5 text-[#FF8A9E]" />,
-                      },
-                    ] as {
-                      label: string;
-                      value: number | string;
-                      icon: React.ReactNode;
-                    }[]
-                  ).map((stat, i) => (
-                    <FadeIn key={stat.label} delay={300 + i * 60}>
-                      <div className="rounded-xl border border-bt-blue-300/15 bg-bt-blue-600/20 p-3 md:p-4 hover:border-bt-blue-300/25 hover:bg-bt-blue-600/30 transition-all duration-300">
-                        <div className="flex items-center gap-2 mb-1">
-                          {stat.icon}
-                          <span className="text-[10px] md:text-xs text-bt-blue-200">
-                            {stat.label}
-                          </span>
-                        </div>
-                        <p className="text-lg md:text-xl font-bold tabular-nums font-redhat">
-                          {stat.value}
-                        </p>
-                      </div>
-                    </FadeIn>
-                  ))}
-                </div>
-
-                <FadeIn delay={500}>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                <FadeIn delay={300}>
+                  <div className="grid grid-cols-5 gap-3">
                     {(
                       [
                         {
+                          label: "Avg Regs / Event",
+                          value: avgRegsPerEvent,
+                          icon: <Hash className="w-3.5 h-3.5 text-[#FFC960]" />,
+                        },
+                        {
+                          label: "Super Fans (3+)",
+                          value: superFans,
+                          icon: <Trophy className="w-3.5 h-3.5 text-[#FF8A9E]" />,
+                        },
+                        {
                           label: "Unique Venues",
                           value: uniqueVenues,
-                          icon: <MapPin className="w-3.5 h-3.5" />,
+                          icon: <MapPin className="w-3.5 h-3.5 text-[#75CFF5]" />,
                         },
                         {
                           label: "Event Hours",
                           value: Math.round(totalEventHours),
-                          icon: <Clock className="w-3.5 h-3.5" />,
+                          icon: <Clock className="w-3.5 h-3.5 text-[#75D450]" />,
                         },
                         {
                           label: "Avg Duration",
                           value: `${avgEventDuration}h`,
-                          icon: <Clock className="w-3.5 h-3.5" />,
-                        },
-                        {
-                          label: "Waitlisted",
-                          value: waitlistedCount,
-                          icon: <Users className="w-3.5 h-3.5" />,
-                        },
-                        {
-                          label: "Week Streak",
-                          value: longestStreak,
-                          icon: <Flame className="w-3.5 h-3.5" />,
-                        },
-                        {
-                          label: "Avg Lead Time",
-                          value: `${avgLeadTimeDays}d`,
-                          icon: <Zap className="w-3.5 h-3.5" />,
+                          icon: <Clock className="w-3.5 h-3.5 text-[#C084FC]" />,
                         },
                       ] as {
                         label: string;
@@ -2671,12 +2656,12 @@ export default function YearInReview({
                     ).map((stat, i) => (
                       <div
                         key={stat.label}
-                        className="rounded-lg border border-bt-blue-300/10 bg-bt-blue-600/20 p-2.5 text-center hover:bg-bt-blue-600/30 transition-colors"
+                        className="rounded-lg border border-bt-blue-300/10 bg-bt-blue-600/20 p-2.5 text-center hover:bg-bt-blue-600/30 hover:border-bt-blue-300/20 transition-all duration-300"
                       >
-                        <div className="flex items-center justify-center mb-1 text-bt-blue-200">
+                        <div className="flex items-center justify-center mb-1">
                           {stat.icon}
                         </div>
-                        <p className="text-sm md:text-md font-bold tabular-nums font-redhat">
+                        <p className="text-sm md:text-lg font-bold tabular-nums font-redhat">
                           {stat.value}
                         </p>
                         <p className="text-[9px] md:text-[10px] text-bt-blue-300 mt-0.5">
@@ -3275,10 +3260,6 @@ export default function YearInReview({
                     emoji: "\u23f0",
                     text: `we spent ${Math.round(totalEventHours)} total hours hosting events`,
                   },
-                  waitlistedCount > 0 && {
-                    emoji: "\ud83d\ude24",
-                    text: `${waitlistedCount} people were waitlisted \u2014 our events are in demand`,
-                  },
                   attendeeTiers.fivePlus > 0 && {
                     emoji: "\ud83c\udfc6",
                     text: `${attendeeTiers.fivePlus} people attended 5 or more events. legends.`,
@@ -3287,9 +3268,9 @@ export default function YearInReview({
                     emoji: "\ud83d\udd25",
                     text: `our longest streak was ${longestStreak} consecutive weeks with an event`,
                   },
-                  avgLeadTimeDays > 0 && {
-                    emoji: "\u26a1",
-                    text: `people register on average ${avgLeadTimeDays} days before an event`,
+                  avgFillRate > 0 && {
+                    emoji: "\ud83d\udca5",
+                    text: `our events filled up to ${avgFillRate}% capacity on average`,
                   },
                   peakRegHour.count > 0 && {
                     emoji: "\ud83c\udf19",
@@ -3298,6 +3279,10 @@ export default function YearInReview({
                   avgEventDuration > 0 && {
                     emoji: "\ud83d\udcd0",
                     text: `the average event lasted ${avgEventDuration} hours`,
+                  },
+                  favouriteDay.count > 0 && {
+                    emoji: "\ud83d\udcc6",
+                    text: `${favouriteDay.count} out of ${totalEvents} events were on a ${favouriteDay.day}. we love ${favouriteDay.day}s.`,
                   },
                 ].filter(Boolean) as { emoji: string; text: string }[]
               ).map((fact, i) => (
