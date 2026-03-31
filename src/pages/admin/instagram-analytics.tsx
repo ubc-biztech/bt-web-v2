@@ -653,7 +653,7 @@ export default function InstagramAnalyticsPage() {
       </Head>
 
       <main className="min-h-screen bg-bt-blue-600 text-white">
-        <div className="mx-auto w-full max-w-[1600px] space-y-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1600px] space-y-6 ">
           <section className="space-y-1">
             <h1 className="flex items-center gap-2 text-xl font-semibold text-white sm:text-2xl">
               <Instagram className="h-5 w-5 text-bt-green-300" /> Instagram
@@ -667,7 +667,7 @@ export default function InstagramAnalyticsPage() {
 
           <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
             <CardContent className="space-y-3 p-3">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_auto] xl:items-end">
                 <div>
                   <label className="mb-1 block text-xs text-bt-blue-100">
                     Since
@@ -688,7 +688,7 @@ export default function InstagramAnalyticsPage() {
                     onChange={(event) => setUntil(event.target.value)}
                   />
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 sm:col-span-2 xl:col-span-1">
                   <Button
                     variant="outline"
                     size="sm"
@@ -711,7 +711,7 @@ export default function InstagramAnalyticsPage() {
                     YTD
                   </Button>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 sm:justify-end xl:justify-start">
                   <Button
                     variant="outline"
                     size="icon"
@@ -752,7 +752,7 @@ export default function InstagramAnalyticsPage() {
             <LoadingSkeleton />
           ) : analytics ? (
             <>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
                 <StatCard
                   icon={<FileText className="h-4 w-4" />}
                   label="Posts in Range"
@@ -839,7 +839,7 @@ export default function InstagramAnalyticsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                 <SectionShell title="Engagement Mix">
                   <div className="space-y-3">
                     {engagementMixRows.map((row) => (
@@ -904,7 +904,10 @@ export default function InstagramAnalyticsPage() {
                   </div>
                 </SectionShell>
 
-                <SectionShell title="Best Posting Windows">
+                <SectionShell
+                  title="Best Posting Windows"
+                  className="lg:col-span-2 2xl:col-span-1"
+                >
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
                     <div className="space-y-2">
                       <p className="text-xs uppercase tracking-wide text-bt-blue-100">
@@ -959,11 +962,11 @@ export default function InstagramAnalyticsPage() {
                 </SectionShell>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] 2xl:grid-cols-3">
                 <SectionShell
                   title="Monthly Rollups"
                   subtitle="Posts, reach, and engagement trends by month"
-                  className="xl:col-span-2"
+                  className="2xl:col-span-2"
                 >
                   {analytics.monthly.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-bt-blue-100">
@@ -1167,28 +1170,28 @@ export default function InstagramAnalyticsPage() {
                     }
                     className="space-y-3"
                   >
-                    <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg bg-bt-blue-500/50 p-1">
+                    <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-lg bg-bt-blue-500/50 p-1 sm:grid-cols-4">
                       <TabsTrigger
                         value="byReach"
-                        className="h-9 justify-center whitespace-normal px-2 text-center text-xs text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none"
+                        className="h-9 min-w-0 justify-center whitespace-normal px-2 text-center text-[11px] leading-tight text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none sm:text-xs"
                       >
                         Reach
                       </TabsTrigger>
                       <TabsTrigger
                         value="byEngagementRate"
-                        className="h-9 justify-center whitespace-normal px-2 text-center text-xs text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none"
+                        className="h-9 min-w-0 justify-center whitespace-normal px-2 text-center text-[11px] leading-tight text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none sm:text-xs"
                       >
-                        Engagement Rate (ER)
+                        ER by Reach
                       </TabsTrigger>
                       <TabsTrigger
                         value="bySaved"
-                        className="h-9 justify-center whitespace-normal px-2 text-center text-xs text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none"
+                        className="h-9 min-w-0 justify-center whitespace-normal px-2 text-center text-[11px] leading-tight text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none sm:text-xs"
                       >
                         Saves
                       </TabsTrigger>
                       <TabsTrigger
                         value="byShares"
-                        className="h-9 justify-center whitespace-normal px-2 text-center text-xs text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none"
+                        className="h-9 min-w-0 justify-center whitespace-normal px-2 text-center text-[11px] leading-tight text-bt-blue-100 data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-none sm:text-xs"
                       >
                         Shares
                       </TabsTrigger>
@@ -1272,7 +1275,7 @@ export default function InstagramAnalyticsPage() {
                 </SectionShell>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
                 <BreakdownChart
                   data={analytics.mediaTypeBreakdown}
                   title="Media Type Breakdown"
@@ -1285,12 +1288,14 @@ export default function InstagramAnalyticsPage() {
                   subtitle="Average reach per post by day of week"
                   emptyMessage="No weekday breakdown available."
                 />
-                <BreakdownChart
-                  data={analytics.hourBreakdown}
-                  title="Posting Hour Breakdown"
-                  subtitle="Average reach per post by posting hour"
-                  emptyMessage="No hourly breakdown available."
-                />
+                <div className="md:col-span-2 2xl:col-span-1">
+                  <BreakdownChart
+                    data={analytics.hourBreakdown}
+                    title="Posting Hour Breakdown"
+                    subtitle="Average reach per post by posting hour"
+                    emptyMessage="No hourly breakdown available."
+                  />
+                </div>
               </div>
 
               <SectionShell
@@ -1308,7 +1313,7 @@ export default function InstagramAnalyticsPage() {
                   </div>
                 ) : (
                   <>
-                    <div className="hidden overflow-x-auto rounded-lg border border-white/10 md:block">
+                    <div className="hidden overflow-x-auto rounded-lg border border-white/10 xl:block">
                       <Table>
                         <TableHeader>
                           <TableRow className="border-white/10 bg-[#6073a5]/70 hover:bg-[#6073a5]/70">
@@ -1392,6 +1397,66 @@ export default function InstagramAnalyticsPage() {
                       </Table>
                     </div>
 
+                    <div className="hidden overflow-x-auto rounded-lg border border-white/10 md:block xl:hidden">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-white/10 bg-[#6073a5]/70 hover:bg-[#6073a5]/70">
+                            <TableHead className="text-white">Posted</TableHead>
+                            <TableHead className="text-white">Type</TableHead>
+                            <TableHead className="text-white">
+                              Caption
+                            </TableHead>
+                            <TableHead className="text-white">Reach</TableHead>
+                            <TableHead className="text-white">Views</TableHead>
+                            <TableHead className="text-white">ER</TableHead>
+                            <TableHead className="text-white">Link</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pagedPosts.map((post) => (
+                            <TableRow
+                              key={`${post.id}-compact`}
+                              className="border-white/10 hover:bg-white/5"
+                            >
+                              <TableCell className="text-xs text-bt-blue-100">
+                                {formatDateShort(post.timestamp)}
+                              </TableCell>
+                              <TableCell>
+                                {formatMediaType(post.media_type)}
+                              </TableCell>
+                              <TableCell
+                                className="max-w-[280px] truncate"
+                                title={post.caption || ""}
+                              >
+                                {safeCaption(post.caption, 70)}
+                              </TableCell>
+                              <TableCell>
+                                {formatCompact(post.metrics.reach)}
+                              </TableCell>
+                              <TableCell>
+                                {formatCompact(post.metrics.views)}
+                              </TableCell>
+                              <TableCell>
+                                {formatPercent(
+                                  post.derived.engagementRateByReach,
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <a
+                                  href={post.permalink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="text-bt-green-300 hover:underline"
+                                >
+                                  View
+                                </a>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+
                     <div className="space-y-2 md:hidden">
                       {pagedPosts.map((post) => (
                         <div
@@ -1432,7 +1497,9 @@ export default function InstagramAnalyticsPage() {
                                 ER
                               </p>
                               <p className="text-xs font-medium text-white">
-                                {formatPercent(post.derived.engagementRateByReach)}
+                                {formatPercent(
+                                  post.derived.engagementRateByReach,
+                                )}
                               </p>
                             </div>
                             <div className="rounded-md bg-white/5 px-2 py-1.5">
