@@ -2631,22 +2631,30 @@ export default function YearInReview({
                         {
                           label: "Super Fans (3+)",
                           value: superFans,
-                          icon: <Trophy className="w-3.5 h-3.5 text-[#FF8A9E]" />,
+                          icon: (
+                            <Trophy className="w-3.5 h-3.5 text-[#FF8A9E]" />
+                          ),
                         },
                         {
                           label: "Unique Venues",
                           value: uniqueVenues,
-                          icon: <MapPin className="w-3.5 h-3.5 text-[#75CFF5]" />,
+                          icon: (
+                            <MapPin className="w-3.5 h-3.5 text-[#75CFF5]" />
+                          ),
                         },
                         {
                           label: "Event Hours",
                           value: Math.round(totalEventHours),
-                          icon: <Clock className="w-3.5 h-3.5 text-[#75D450]" />,
+                          icon: (
+                            <Clock className="w-3.5 h-3.5 text-[#75D450]" />
+                          ),
                         },
                         {
                           label: "Avg Duration",
                           value: `${avgEventDuration}h`,
-                          icon: <Clock className="w-3.5 h-3.5 text-[#C084FC]" />,
+                          icon: (
+                            <Clock className="w-3.5 h-3.5 text-[#C084FC]" />
+                          ),
                         },
                       ] as {
                         label: string;
