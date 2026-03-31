@@ -643,7 +643,7 @@ export default function InstagramAnalyticsPage() {
       </Head>
 
       <main className="min-h-screen bg-bt-blue-600 text-white">
-        <div className="mx-auto w-full max-w-[1600px] space-y-6 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1600px] space-y-6 lg:px-8">
           <section className="space-y-1">
             <h1 className="flex items-center gap-2 text-xl font-semibold text-white sm:text-2xl">
               <Instagram className="h-5 w-5 text-bt-green-300" /> Instagram
@@ -656,25 +656,7 @@ export default function InstagramAnalyticsPage() {
           </section>
 
           <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
-            <CardContent className="space-y-3 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-bt-blue-100">
-                <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
-                  <Users className="h-3.5 w-3.5" />{" "}
-                  {analytics?.account?.account_type || "Instagram Account"}
-                </span>
-                {analytics?.since && analytics?.until ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
-                    <Calendar className="h-3.5 w-3.5" /> {analytics.since} to{" "}
-                    {analytics.until}
-                  </span>
-                ) : null}
-                {analytics?.fromCache ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-1">
-                    Cached response
-                  </span>
-                ) : null}
-              </div>
-
+            <CardContent className="space-y-3 p-3">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_1fr_auto] md:items-end">
                 <div>
                   <label className="mb-1 block text-xs text-bt-blue-100">
@@ -817,7 +799,7 @@ export default function InstagramAnalyticsPage() {
                   icon={<Camera className="h-4 w-4" />}
                   label="Content Reach"
                   value={formatCompact(analytics.totals.postReach)}
-                  helper="Sum of per-post reach (not deduped across posts)"
+                  helper="Sum of per-post reach"
                 />
                 <StatCard
                   icon={<BarChart3 className="h-4 w-4" />}
@@ -848,10 +830,7 @@ export default function InstagramAnalyticsPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <SectionShell
-                  title="Engagement Mix"
-                  subtitle="How interactions are distributed across actions"
-                >
+                <SectionShell title="Engagement Mix">
                   <div className="space-y-3">
                     {engagementMixRows.map((row) => (
                       <MetricMixRow
@@ -870,10 +849,7 @@ export default function InstagramAnalyticsPage() {
                   </div>
                 </SectionShell>
 
-                <SectionShell
-                  title="Performance Ratios"
-                  subtitle="Quick efficiency checks against reach"
-                >
+                <SectionShell title="Performance Ratios">
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
                     <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
                       <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">
@@ -918,10 +894,7 @@ export default function InstagramAnalyticsPage() {
                   </div>
                 </SectionShell>
 
-                <SectionShell
-                  title="Best Posting Windows"
-                  subtitle="Highest efficiency windows in this date range"
-                >
+                <SectionShell title="Best Posting Windows">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
                     <div className="space-y-2">
                       <p className="text-xs uppercase tracking-wide text-bt-blue-100">
@@ -1083,7 +1056,11 @@ export default function InstagramAnalyticsPage() {
                               `${Math.round((Number(value) || 0) * 100)}%`
                             }
                           />
-                          <YAxis yAxisId="likesAxis" hide domain={[0, "auto"]} />
+                          <YAxis
+                            yAxisId="likesAxis"
+                            hide
+                            domain={[0, "auto"]}
+                          />
                           <ChartTooltip content={<ChartTooltipContent />} />
                           <Line
                             yAxisId="likesAxis"
@@ -1112,9 +1089,6 @@ export default function InstagramAnalyticsPage() {
                           />
                         </LineChart>
                       </ChartContainer>
-                      <p className="text-xs text-bt-blue-100">
-                        Likes uses an independent scale so the monthly trend is visible beside views.
-                      </p>
 
                       <div className="hidden overflow-x-auto rounded-lg border border-white/10 md:block">
                         <Table>
@@ -1175,10 +1149,7 @@ export default function InstagramAnalyticsPage() {
                   )}
                 </SectionShell>
 
-                <SectionShell
-                  title="Top Posts"
-                  subtitle="Best-performing posts with cleaner ranking details"
-                >
+                <SectionShell title="Top Posts">
                   <Tabs
                     value={topPostsTab}
                     onValueChange={(value) =>
@@ -1314,7 +1285,7 @@ export default function InstagramAnalyticsPage() {
 
               <SectionShell
                 title="Post-Level Analytics"
-                subtitle="All posts in date range with engagement metrics"
+                subtitle="All posts in date range"
                 right={
                   <p className="text-xs text-bt-blue-100">
                     Page {postsPage} of {totalPostPages}
