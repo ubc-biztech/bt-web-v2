@@ -13,7 +13,7 @@ import {
   Users,
   ScanFace,
   BadgeCheckIcon,
-  Sparkles,
+  Instagram,
 } from "lucide-react";
 
 export const admin = [
@@ -36,6 +36,11 @@ export const admin = [
     title: "Statistics",
     link: "/admin/statistics",
     icon: LineChartIcon,
+  },
+  {
+    title: "Instagram Analytics",
+    link: "/admin/instagram-analytics",
+    icon: Instagram,
   },
   {
     title: "Edit Companion",
