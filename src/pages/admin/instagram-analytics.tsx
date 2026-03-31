@@ -302,6 +302,22 @@ const getTopPostMetric = (tab: TopPostsTab, post: InstagramPost) => {
   };
 };
 
+const formatMonthLabel = (value: string | undefined) => {
+  if (!value) return "—";
+  const match = /^(\d{4})-(\d{2})$/.exec(value);
+  if (!match) return value;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const date = new Date(Date.UTC(year, month - 1, 1));
+
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    year: "2-digit",
+  });
+};
+
 function StatCard({
   icon,
   label,
@@ -315,20 +331,22 @@ function StatCard({
 }) {
   return (
     <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
-      <CardContent className="p-4 sm:p-5">
+      <CardContent className="p-3 sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-bt-blue-100">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
               {label}
             </p>
-            <p className="mt-2 text-xl font-semibold text-white sm:text-2xl">
+            <p className="mt-1.5 text-lg font-semibold text-white sm:mt-2 sm:text-2xl">
               {value}
             </p>
             {helper ? (
-              <p className="mt-1 text-xs text-bt-blue-100">{helper}</p>
+              <p className="mt-1 hidden text-xs text-bt-blue-100 sm:block">
+                {helper}
+              </p>
             ) : null}
           </div>
-          <span className="rounded-lg bg-white/10 p-2 text-bt-green-300">
+          <span className="rounded-lg bg-white/10 p-1.5 text-bt-green-300 sm:p-2">
             {icon}
           </span>
         </div>
@@ -381,6 +399,8 @@ function BreakdownChart({
   subtitle: string;
   emptyMessage: string;
 }) {
+  const hasDenseXAxis = data.length > 12;
+
   return (
     <SectionShell title={title} subtitle={subtitle}>
       {data.length === 0 ? (
@@ -390,7 +410,7 @@ function BreakdownChart({
       ) : (
         <ChartContainer
           config={breakdownChartConfig}
-          className="h-[250px] w-full"
+          className="h-[260px] w-full sm:h-[280px]"
         >
           <BarChart
             data={data}
@@ -411,8 +431,8 @@ function BreakdownChart({
               tick={{ fill: "#BDC8E3", fontSize: 11 }}
               axisLine={false}
               tickLine={false}
-              interval="preserveStartEnd"
-              minTickGap={18}
+              interval={hasDenseXAxis ? 2 : "preserveStartEnd"}
+              minTickGap={hasDenseXAxis ? 28 : 18}
             />
             <YAxis
               tick={{ fill: "#BDC8E3", fontSize: 11 }}
@@ -645,7 +665,6 @@ export default function InstagramAnalyticsPage() {
         .slice(0, 3),
     [analytics?.hourBreakdown],
   );
-
   return (
     <>
       <Head>
@@ -653,7 +672,7 @@ export default function InstagramAnalyticsPage() {
       </Head>
 
       <main className="min-h-screen bg-bt-blue-600 text-white">
-        <div className="mx-auto w-full max-w-[1600px] space-y-6 ">
+        <div className="mx-auto w-full max-w-[1600px] space-y-6">
           <section className="space-y-1">
             <h1 className="flex items-center gap-2 text-xl font-semibold text-white sm:text-2xl">
               <Instagram className="h-5 w-5 text-bt-green-300" /> Instagram
@@ -666,71 +685,84 @@ export default function InstagramAnalyticsPage() {
           </section>
 
           <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
-            <CardContent className="space-y-3 p-3">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_auto] xl:items-end">
-                <div>
-                  <label className="mb-1 block text-xs text-bt-blue-100">
-                    Since
-                  </label>
-                  <Input
-                    type="date"
-                    value={since}
-                    onChange={(event) => setSince(event.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-bt-blue-100">
-                    Until
-                  </label>
-                  <Input
-                    type="date"
-                    value={until}
-                    onChange={(event) => setUntil(event.target.value)}
-                  />
-                </div>
-                <div className="flex flex-wrap gap-2 sm:col-span-2 xl:col-span-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void applyPreset("30d")}
-                  >
-                    Last 30d
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void applyPreset("90d")}
-                  >
-                    Last 90d
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void applyPreset("ytd")}
-                  >
-                    YTD
-                  </Button>
-                </div>
-                <div className="flex gap-2 sm:justify-end xl:justify-start">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() =>
-                      void loadAnalytics({ since, until, keepInputs: true })
-                    }
-                    disabled={isLoading || isRefreshing}
-                    aria-label="Refresh analytics"
-                  >
-                    <RefreshCw
-                      className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                    />
-                  </Button>
-                  <Button
-                    onClick={() => void applyFilter()}
-                    disabled={isLoading || isRefreshing}
-                  >
-                    <Filter className="mr-2 h-4 w-4" /> Apply
-                  </Button>
+            <CardContent className="space-y-3 p-3 sm:p-4">
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_auto] xl:items-end">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:contents">
+                    <div className="min-w-0">
+                      <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
+                        Since
+                      </label>
+                      <Input
+                        type="date"
+                        className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
+                        value={since}
+                        onChange={(event) => setSince(event.target.value)}
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
+                        Until
+                      </label>
+                      <Input
+                        type="date"
+                        className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
+                        value={until}
+                        onChange={(event) => setUntil(event.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2 sm:col-span-2 xl:col-span-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                      onClick={() => void applyPreset("30d")}
+                    >
+                      Last 30d
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                      onClick={() => void applyPreset("90d")}
+                    >
+                      Last 90d
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                      onClick={() => void applyPreset("ytd")}
+                    >
+                      YTD
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-2 sm:flex sm:justify-end xl:justify-start">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 sm:h-10 sm:w-10"
+                      onClick={() =>
+                        void loadAnalytics({ since, until, keepInputs: true })
+                      }
+                      disabled={isLoading || isRefreshing}
+                      aria-label="Refresh analytics"
+                    >
+                      <RefreshCw
+                        className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                      />
+                    </Button>
+                    <Button
+                      className="h-9 w-full text-xs sm:h-10 sm:w-auto sm:text-sm"
+                      onClick={() => void applyFilter()}
+                      disabled={isLoading || isRefreshing}
+                    >
+                      <Filter className="mr-2 h-4 w-4" /> Apply
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -752,7 +784,7 @@ export default function InstagramAnalyticsPage() {
             <LoadingSkeleton />
           ) : analytics ? (
             <>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
                 <StatCard
                   icon={<FileText className="h-4 w-4" />}
                   label="Posts in Range"
@@ -962,11 +994,10 @@ export default function InstagramAnalyticsPage() {
                 </SectionShell>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] 2xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
                 <SectionShell
                   title="Monthly Rollups"
                   subtitle="Posts, reach, and engagement trends by month"
-                  className="2xl:col-span-2"
                 >
                   {analytics.monthly.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-white/20 p-6 text-center text-sm text-bt-blue-100">
@@ -976,7 +1007,7 @@ export default function InstagramAnalyticsPage() {
                     <>
                       <ChartContainer
                         config={monthlyChartConfig}
-                        className="h-[300px] w-full"
+                        className="h-[280px] w-full sm:h-[300px] lg:h-[320px]"
                       >
                         <BarChart
                           data={analytics.monthly}
@@ -993,7 +1024,8 @@ export default function InstagramAnalyticsPage() {
                             axisLine={false}
                             tickLine={false}
                             interval="preserveStartEnd"
-                            minTickGap={20}
+                            minTickGap={28}
+                            tickFormatter={formatMonthLabel}
                           />
                           <YAxis
                             yAxisId="left"
@@ -1031,7 +1063,7 @@ export default function InstagramAnalyticsPage() {
 
                       <ChartContainer
                         config={monthlyTrendChartConfig}
-                        className="h-[240px] w-full"
+                        className="h-[240px] w-full sm:h-[260px] lg:h-[280px]"
                       >
                         <LineChart
                           data={analytics.monthly}
@@ -1048,7 +1080,8 @@ export default function InstagramAnalyticsPage() {
                             axisLine={false}
                             tickLine={false}
                             interval="preserveStartEnd"
-                            minTickGap={20}
+                            minTickGap={28}
+                            tickFormatter={formatMonthLabel}
                           />
                           <YAxis
                             yAxisId="left"
@@ -1275,7 +1308,7 @@ export default function InstagramAnalyticsPage() {
                 </SectionShell>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
                 <BreakdownChart
                   data={analytics.mediaTypeBreakdown}
                   title="Media Type Breakdown"
@@ -1288,7 +1321,7 @@ export default function InstagramAnalyticsPage() {
                   subtitle="Average reach per post by day of week"
                   emptyMessage="No weekday breakdown available."
                 />
-                <div className="md:col-span-2 2xl:col-span-1">
+                <div className="lg:col-span-2 2xl:col-span-1">
                   <BreakdownChart
                     data={analytics.hourBreakdown}
                     title="Posting Hour Breakdown"
