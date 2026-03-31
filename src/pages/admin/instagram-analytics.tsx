@@ -793,13 +793,11 @@ export default function InstagramAnalyticsPage() {
                 />
                 <StatCard
                   icon={<Users className="h-4 w-4" />}
-                  label="Current Followers"
-                  value={
-                    typeof analytics.account.followers_count === "number"
-                      ? formatNumber(analytics.account.followers_count)
-                      : "—"
-                  }
-                  helper="Live profile follower count"
+                  label="New Followers"
+                  value={`${analytics.totals.netFollowers > 0 ? "+" : ""}${formatNumber(
+                    analytics.totals.netFollowers || 0,
+                  )}`}
+                  helper="Net follower growth in selected range"
                 />
                 <StatCard
                   icon={<Heart className="h-4 w-4" />}
