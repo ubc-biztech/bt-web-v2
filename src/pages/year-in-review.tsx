@@ -1679,15 +1679,19 @@ export default function YearInReview({
           animation: subtle-float 6s ease-in-out infinite;
         }
         @keyframes count-shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
+          0% {
+            background-position: -200% center;
+          }
+          100% {
+            background-position: 200% center;
+          }
         }
         .animate-count-shimmer {
           background: linear-gradient(
             90deg,
             currentColor 0%,
             currentColor 40%,
-            rgba(255,255,255,0.9) 50%,
+            rgba(255, 255, 255, 0.9) 50%,
             currentColor 60%,
             currentColor 100%
           );
@@ -1698,8 +1702,13 @@ export default function YearInReview({
           animation: count-shimmer 3s ease-in-out 2.2s infinite;
         }
         @keyframes card-hover-lift {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-4px);
+          }
         }
         .exec-card {
           transition: box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2123,7 +2132,10 @@ export default function YearInReview({
                 },
               ].map((stat, i) => (
                 <FadeIn key={stat.label} delay={i * 120}>
-                  <GlowCard glowColor={stat.glow} className="p-5 md:p-8 hover:translate-y-[-2px] transition-transform duration-300">
+                  <GlowCard
+                    glowColor={stat.glow}
+                    className="p-5 md:p-8 hover:translate-y-[-2px] transition-transform duration-300"
+                  >
                     <div
                       className={`inline-flex p-2.5 rounded-xl bg-gradient-to-br ${stat.color} mb-3 md:mb-4`}
                     >
@@ -2515,7 +2527,7 @@ export default function YearInReview({
           </section>
         )}
 
-        <SectionDivider quote="every team, one mission" />
+        <SectionDivider quote="all the teams, one mission" />
 
         <section className="py-24 md:py-32 px-6">
           <div className="max-w-6xl mx-auto">
@@ -2636,7 +2648,10 @@ export default function YearInReview({
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
+                        <p
+                          className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer"
+                          style={{ color: stat.color }}
+                        >
                           <Counter end={stat.value} />
                         </p>
                       </GlowCard>
@@ -2783,7 +2798,10 @@ export default function YearInReview({
                               {stat.label}
                             </span>
                           </div>
-                          <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
+                          <p
+                            className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer"
+                            style={{ color: stat.color }}
+                          >
                             <Counter
                               end={stat.value}
                               prefix={stat.prefix}
@@ -2939,7 +2957,10 @@ export default function YearInReview({
                               {stat.label}
                             </span>
                           </div>
-                          <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
+                          <p
+                            className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer"
+                            style={{ color: stat.color }}
+                          >
                             <Counter
                               end={stat.value}
                               prefix={stat.prefix}
@@ -3027,7 +3048,9 @@ export default function YearInReview({
                     {
                       label: "Comments",
                       value: 1088,
-                      icon: <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />,
+                      icon: (
+                        <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      ),
                       color: "#FFC960",
                     },
                     {
@@ -3128,7 +3151,10 @@ export default function YearInReview({
                             {stat.label}
                           </span>
                         </div>
-                        <p className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer" style={{ color: stat.color }}>
+                        <p
+                          className="text-2xl md:text-3xl font-bold font-redhat animate-count-shimmer"
+                          style={{ color: stat.color }}
+                        >
                           {typeof stat.value === "string" ? (
                             stat.value
                           ) : (
@@ -3341,7 +3367,7 @@ export default function YearInReview({
         </section>
 
         <SectionDivider
-          quote="BizTech has always been a place of innovation and creativity, but I believe our next step is strengthening our foundation."
+          quote="Build the foundation first, and let everything follow. BizTech is the bridge between technology, business, and you. Now, we’re taking that bridge to a whole new level"
           author="Chris Lee - Incoming President"
         />
 
