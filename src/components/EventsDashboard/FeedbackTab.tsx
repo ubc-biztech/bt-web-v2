@@ -615,7 +615,11 @@ export default function FeedbackTab({
 }
 
 // qr card
-function FeedbackFormQrCard({ title, description, url }: FeedbackFormQrCardProps) {
+function FeedbackFormQrCard({
+  title,
+  description,
+  url,
+}: FeedbackFormQrCardProps) {
   const { toast } = useToast();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [qrError, setQrError] = useState<string | null>(null);

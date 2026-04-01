@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
 import { BiztechEvent, FeedbackQuestion } from "@/types";
-import { FeedbackFormType, FeedbackQuestionTypes } from "@/constants/feedbackQuestionTypes";
+import {
+  FeedbackFormType,
+  FeedbackQuestionTypes,
+} from "@/constants/feedbackQuestionTypes";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -153,7 +156,10 @@ const createFeedbackSchema = (questions: FeedbackQuestion[]) =>
           const safeMax = Number.isFinite(rawMax) ? rawMax : 5;
           const min = Math.min(safeMin, safeMax);
           const max = Math.max(safeMin, safeMax);
-          if ((answer === undefined || answer === null || answer === "") && question.required) {
+          if (
+            (answer === undefined || answer === null || answer === "") &&
+            question.required
+          ) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
               path: ["responses", question.questionId],
@@ -236,7 +242,8 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
             </h2>
             <div className="mt-2 flex flex-wrap gap-2 text-xs sm:text-sm">
               <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white break-words">
-                <Building className="h-3.5 w-3.5" /> {event.elocation || "Location TBA"}
+                <Building className="h-3.5 w-3.5" />{" "}
+                {event.elocation || "Location TBA"}
               </span>
               <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white break-words">
                 <Calendar className="h-3.5 w-3.5" />
@@ -250,11 +257,15 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
 
         <CardContent className="space-y-5 p-4 sm:p-6">
           <p className="text-sm text-bt-blue-100">
-            Thanks for participating. Your feedback helps the team improve future events.
+            Thanks for participating. Your feedback helps the team improve
+            future events.
           </p>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(submitHandler)} className="space-y-5">
+            <form
+              onSubmit={form.handleSubmit(submitHandler)}
+              className="space-y-5"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -315,13 +326,20 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                         >
                           <div className="mb-3 flex items-start justify-between gap-3">
                             <FormLabel className="break-words text-sm leading-6 text-white sm:text-base">
-                              <span className="text-bt-blue-100 mr-2">{index + 1}.</span>
+                              <span className="text-bt-blue-100 mr-2">
+                                {index + 1}.
+                              </span>
                               {question.label}
-                              {question.required && <span className="ml-1 text-bt-green-300">*</span>}
+                              {question.required && (
+                                <span className="ml-1 text-bt-green-300">
+                                  *
+                                </span>
+                              )}
                             </FormLabel>
                           </div>
 
-                          {question.type === FeedbackQuestionTypes.SHORT_TEXT && (
+                          {question.type ===
+                            FeedbackQuestionTypes.SHORT_TEXT && (
                             <FormControl>
                               <Input
                                 placeholder="Type your answer"
@@ -332,7 +350,8 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                             </FormControl>
                           )}
 
-                          {question.type === FeedbackQuestionTypes.LONG_TEXT && (
+                          {question.type ===
+                            FeedbackQuestionTypes.LONG_TEXT && (
                             <FormControl>
                               <Textarea
                                 rows={4}
@@ -344,7 +363,8 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                             </FormControl>
                           )}
 
-                          {question.type === FeedbackQuestionTypes.MULTIPLE_CHOICE && (
+                          {question.type ===
+                            FeedbackQuestionTypes.MULTIPLE_CHOICE && (
                             <FormControl>
                               <RadioGroup
                                 value={field.value ?? ""}
@@ -368,14 +388,18 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                             </FormControl>
                           )}
 
-                          {question.type === FeedbackQuestionTypes.CHECKBOXES && (
+                          {question.type ===
+                            FeedbackQuestionTypes.CHECKBOXES && (
                             <FormControl>
                               <div className="space-y-2">
                                 {choices.map((choice) => {
-                                  const currentValues = Array.isArray(field.value)
+                                  const currentValues = Array.isArray(
+                                    field.value,
+                                  )
                                     ? field.value
                                     : [];
-                                  const checked = currentValues.includes(choice);
+                                  const checked =
+                                    currentValues.includes(choice);
 
                                   return (
                                     <label
@@ -386,15 +410,22 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                                         checked={checked}
                                         onCheckedChange={(isChecked) => {
                                           if (isChecked) {
-                                            field.onChange([...currentValues, choice]);
+                                            field.onChange([
+                                              ...currentValues,
+                                              choice,
+                                            ]);
                                             return;
                                           }
                                           field.onChange(
-                                            currentValues.filter((item: string) => item !== choice),
+                                            currentValues.filter(
+                                              (item: string) => item !== choice,
+                                            ),
                                           );
                                         }}
                                       />
-                                      <span className="break-words">{choice}</span>
+                                      <span className="break-words">
+                                        {choice}
+                                      </span>
                                     </label>
                                   );
                                 })}
@@ -402,7 +433,8 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                             </FormControl>
                           )}
 
-                          {question.type === FeedbackQuestionTypes.LINEAR_SCALE && (
+                          {question.type ===
+                            FeedbackQuestionTypes.LINEAR_SCALE && (
                             <FormControl>
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between gap-2 text-xs text-bt-blue-100 sm:text-sm">
@@ -434,7 +466,9 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                                     }
                                   }}
                                   onChange={(e) => {
-                                    field.onChange(Math.round(Number(e.target.value)));
+                                    field.onChange(
+                                      Math.round(Number(e.target.value)),
+                                    );
                                   }}
                                   className="h-2 w-full cursor-pointer accent-bt-green-300"
                                 />

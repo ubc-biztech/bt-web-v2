@@ -30,7 +30,9 @@ export default function EventFeedbackHubPage() {
         });
         setEvent(eventData);
       } catch (err: any) {
-        setError(err?.message?.message || err?.message || "Failed to load event.");
+        setError(
+          err?.message?.message || err?.message || "Failed to load event.",
+        );
       } finally {
         setIsLoading(false);
       }
@@ -102,15 +104,24 @@ export default function EventFeedbackHubPage() {
             <CardContent className="space-y-4 p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-bt-green-300" />
-                <h3 className="text-lg font-semibold text-white">Attendee Feedback</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Attendee Feedback
+                </h3>
               </div>
               <p className="text-sm text-bt-blue-100">
-                Share your experience as a participant and help improve future events.
+                Share your experience as a participant and help improve future
+                events.
               </p>
               {attendeeEnabled ? (
-                <Button asChild className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500">
-                  <Link href={`/event/${event.id}/${event.year}/feedback/attendee`}>
-                    <MessageSquareText className="mr-2 h-4 w-4" /> Open attendee form
+                <Button
+                  asChild
+                  className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500"
+                >
+                  <Link
+                    href={`/event/${event.id}/${event.year}/feedback/attendee`}
+                  >
+                    <MessageSquareText className="mr-2 h-4 w-4" /> Open attendee
+                    form
                   </Link>
                 </Button>
               ) : (
@@ -125,15 +136,24 @@ export default function EventFeedbackHubPage() {
             <CardContent className="space-y-4 p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-bt-green-300" />
-                <h3 className="text-lg font-semibold text-white">Partner Feedback</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Partner Feedback
+                </h3>
               </div>
               <p className="text-sm text-bt-blue-100">
-                Tell the team what worked for your organization and what could be better.
+                Tell the team what worked for your organization and what could
+                be better.
               </p>
               {partnerEnabled ? (
-                <Button asChild className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500">
-                  <Link href={`/event/${event.id}/${event.year}/feedback/partner`}>
-                    <MessageSquareText className="mr-2 h-4 w-4" /> Open partner form
+                <Button
+                  asChild
+                  className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500"
+                >
+                  <Link
+                    href={`/event/${event.id}/${event.year}/feedback/partner`}
+                  >
+                    <MessageSquareText className="mr-2 h-4 w-4" /> Open partner
+                    form
                   </Link>
                 </Button>
               ) : (
