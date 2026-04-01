@@ -54,7 +54,6 @@ const eventFormSchema = z.object({
   endDate: z.date(),
   location: z.string().min(2, "Location must be at least 2 characters"),
   price: z.number().min(0, "Price must be non-negative"),
-  feedbackFormUrl: z.string().url().optional(),
   isApplicationBased: z.boolean(),
   nonBizTechAllowed: z.boolean(),
   imageUrl: z.string().url("Invalid image URL"),
@@ -718,20 +717,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                             field.onChange(parseFloat(e.target.value))
                           }
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="feedbackFormUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Feedback Form URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
