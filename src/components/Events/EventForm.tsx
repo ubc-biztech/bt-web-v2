@@ -142,21 +142,13 @@ export const EventForm: React.FC<EventFormProps> = ({
     }
   };
 
-  const getEventYear = () => {
-    if (eventYear) return eventYear;
-    // For new events, use current year
-    return new Date().getFullYear().toString();
-  };
-
   const getSlugPreview = () => {
     if (initialData) {
-      // For existing events, use the eventId and eventYear from props
       return {
         main: `https://ubcbiztech.com/event/${eventId}/${eventYear}/register`,
         partner: `https://ubcbiztech.com/event/${eventId}/${eventYear}/register/partner`,
       };
     } else {
-      // For new events, use the form's slug and current year
       const slug = eventSlug || "[slug]";
       const year = new Date().getFullYear().toString();
       return {
@@ -279,14 +271,6 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <ExternalLink className="w-3.5 h-3.5" />
                   Partner Registration Page
                 </Link>
-                <Link
-                  href={`/admin/event/${eventId}/${eventYear}/stats`}
-                  className="inline-flex items-center gap-1.5 text-bt-green-300 hover:underline"
-                  target="_blank"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  Statistics
-                </Link>
               </div>
             </div>
           )}
@@ -389,10 +373,9 @@ export const EventForm: React.FC<EventFormProps> = ({
               {/* Location & Links */}
               <SectionCard
                 icon={<MapPin className="w-4 h-4" />}
-                title="Location & Links"
+                title="Location"
               >
                 <FormInput name="location" label="Location*" />
-                <FormInput name="feedbackFormUrl" label="Feedback Form URL" />
               </SectionCard>
 
               {/* Pricing */}
@@ -416,6 +399,18 @@ export const EventForm: React.FC<EventFormProps> = ({
                     />
                   )}
                 </div>
+              </SectionCard>
+
+              {/* Partner Information */}
+              <SectionCard
+                icon={<Users className="w-4 h-4" />}
+                title="Attendee Registration Questions"
+              >
+                <CustomQuestions
+                  control={form.control}
+                  name="customQuestions"
+                  label="Attendee Custom Questions"
+                />
               </SectionCard>
 
               {/* Partner Information */}

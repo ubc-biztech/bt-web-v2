@@ -22,7 +22,6 @@ export const eventFormSchema = z.object({
   // Optional fields
   price: z.number().default(0),
   nonMemberPrice: z.number().optional(),
-  feedbackFormUrl: z.string().optional(),
   isApplicationBased: z.boolean().default(false),
   nonBizTechAllowed: z.boolean().default(false),
   isPublished: z.boolean().default(false),

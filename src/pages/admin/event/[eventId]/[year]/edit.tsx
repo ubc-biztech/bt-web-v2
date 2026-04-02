@@ -58,7 +58,6 @@ const EditEventPage: NextPage = () => {
           deadline: data.deadline ? new Date(data.deadline) : new Date(),
           price: data.pricing?.members ?? 0,
           nonMemberPrice: data.pricing?.nonMembers ?? 0,
-          feedbackFormUrl: data.feedback ?? "",
           isApplicationBased: !!data.isApplicationBased,
           nonBizTechAllowed: !!data.nonBizTechAllowed,
           isPublished: !!data.isPublished,
@@ -151,7 +150,6 @@ const EditEventPage: NextPage = () => {
       partnerRegistrationQuestions: data.partnerCustomQuestions.map(
         transformCustomQuestion,
       ),
-      feedback: data.feedbackFormUrl,
       isApplicationBased: data.isApplicationBased,
       nonBizTechAllowed: data.nonBizTechAllowed,
       isPublished: data.isPublished,

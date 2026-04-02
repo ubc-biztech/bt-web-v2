@@ -9,11 +9,21 @@ import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Registration } from "@/types/types";
 import { BiztechEvent, RegistrationQuestion } from "@/types";
 import Link from "next/link";
-import { ChartLine, Edit, Eye, Pencil, Table2, UsersRound } from "lucide-react";
+import {
+  ChartLine,
+  Edit,
+  Eye,
+  MessageSquareText,
+  Pencil,
+  Table2,
+  UsersRound,
+} from "lucide-react";
 import Tabs from "@/components/EventsDashboard/Tabs";
 import DynamicTabs from "@/components/EventsDashboard/Tabs";
 import TeamsTab from "@/components/EventsDashboard/TeamsTab";
 import AnalyticsTab from "@/components/EventsDashboard/AnalyticsTab";
+import FeedbackTab from "@/components/EventsDashboard/FeedbackTab";
+import EventOverviewGraphic from "@/components/EventsDashboard/EventOverviewGraphic";
 
 type Props = {
   initialData: Registration[] | null;
@@ -96,6 +106,16 @@ export default function AdminEvent({ initialData, eventData }: Props) {
       ),
       value: "analytics",
     },
+    {
+      label: (
+        <div className="flex flex-row items-center gap-1.5 md:gap-2">
+          <MessageSquareText className="w-4 h-4" />
+          <span className="hidden xs:inline">Feedback</span>
+          <span className="xs:hidden">FB</span>
+        </div>
+      ),
+      value: "feedback",
+    },
   ];
 
   const panels = [
@@ -133,6 +153,18 @@ export default function AdminEvent({ initialData, eventData }: Props) {
       value: "analytics",
       content: <AnalyticsTab registrations={data} eventData={eventData} />,
     },
+    {
+      value: "feedback",
+      content: eventData ? (
+        <FeedbackTab
+          eventId={router.query.eventId as string}
+          year={router.query.year as string}
+          eventData={eventData}
+        />
+      ) : (
+        <div className="text-bt-blue-100 p-4">Loading event data...</div>
+      ),
+    },
   ];
 
   return (
@@ -146,7 +178,7 @@ export default function AdminEvent({ initialData, eventData }: Props) {
             <p className="text-bt-blue-0 text-sm md:text-base">
               View and edit attendee registration data.
             </p>
-            <div className="flex flex-row gap-4 md:gap-6 text-bt-green-300 text-sm md:text-base">
+            <div className="flex flex-row items-center gap-4 md:gap-6 text-bt-green-300 text-sm md:text-base">
               <Link
                 href={`/admin/event/${router.query.eventId}/${router.query.year}/edit`}
                 className="flex flex-row gap-1.5 md:gap-2 items-center hover:underline"
@@ -162,6 +194,13 @@ export default function AdminEvent({ initialData, eventData }: Props) {
                 <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 View Public Page
               </Link>
+              <div className="text-bt-blue-300">|</div>
+              {eventData && (
+                <EventOverviewGraphic
+                  registrations={data}
+                  eventData={eventData}
+                />
+              )}
             </div>
           </div>
         </div>

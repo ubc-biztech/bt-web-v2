@@ -10,6 +10,7 @@ import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
 
 interface CustomQuestionItemProps {
   index: number;
+  name: "customQuestions" | "partnerCustomQuestions";
   control: Control<EventFormSchema>;
   remove: UseFieldArrayRemove;
   onMoveUp: () => void;
@@ -20,6 +21,7 @@ interface CustomQuestionItemProps {
 
 export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
   index,
+  name,
   control,
   remove,
   onMoveUp,
@@ -32,7 +34,7 @@ export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
       <div className="flex items-center justify-between">
         <div className="w-1/2">
           <FormSelect
-            name={`customQuestions.${index}.type`}
+            name={`${name}.${index}.type`}
             label="Question Type"
             options={[
               { value: "TEXT", label: "Text" },
@@ -45,10 +47,7 @@ export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
           />
         </div>
         <div className="flex items-center gap-4">
-          <FormCheckbox
-            name={`customQuestions.${index}.required`}
-            label="Required?"
-          />
+          <FormCheckbox name={`${name}.${index}.required`} label="Required?" />
           <div className="flex items-center gap-2">
             <div className="flex flex-col">
               <Button
@@ -89,9 +88,9 @@ export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
         </div>
       </div>
 
-      <FormInput name={`customQuestions.${index}.question`} label="Question" />
+      <FormInput name={`${name}.${index}.question`} label="Question" />
 
-      <FormOptions control={control} index={index} />
+      <FormOptions control={control} index={index} name={name} />
     </div>
   );
 };
