@@ -232,25 +232,29 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
               className="object-cover"
             />
           ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-bt-blue-700/90 via-bt-blue-700/35 to-transparent" />
+          <div className="absolute inset-0 bg-black/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bt-blue-700/95 via-bt-blue-700/55 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-[70%] bg-gradient-to-t from-[#040b1f]/95 via-[#040b1f]/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-            <p className="text-xs uppercase tracking-[0.1em] text-bt-blue-100/90">
-              {formType === "attendee" ? "Attendee" : "Partner"} feedback
-            </p>
-            <h2 className="text-xl font-semibold text-white sm:text-3xl">
-              {event.ename}
-            </h2>
-            <div className="mt-2 flex flex-wrap gap-2 text-xs sm:text-sm">
-              <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white break-words">
-                <Building className="h-3.5 w-3.5" />{" "}
-                {event.elocation || "Location TBA"}
-              </span>
-              <span className="inline-flex max-w-full items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-white break-words">
-                <Calendar className="h-3.5 w-3.5" />
-                {event.startDate
-                  ? `${extractMonthDay(event.startDate)} ${extractTime(event.startDate)}`
-                  : "Date TBA"}
-              </span>
+            <div className="max-w-3xl">
+              <p className="text-xs uppercase tracking-[0.1em] text-bt-blue-100/95 drop-shadow-[0_2px_4px_rgba(0,0,0,0.75)]">
+                {formType === "attendee" ? "Attendee" : "Partner"} feedback
+              </p>
+              <h2 className="text-xl font-semibold leading-tight text-white drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)] sm:text-3xl">
+                {event.ename}
+              </h2>
+              <div className="mt-2 flex flex-wrap gap-2 text-xs sm:text-sm">
+                <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-white/25 bg-black/35 px-2.5 py-1 text-white break-words shadow-[0_4px_10px_rgba(0,0,0,0.35)]">
+                  <Building className="h-3.5 w-3.5" />{" "}
+                  {event.elocation || "Location TBA"}
+                </span>
+                <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-white/25 bg-black/35 px-2.5 py-1 text-white break-words shadow-[0_4px_10px_rgba(0,0,0,0.35)]">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {event.startDate
+                    ? `${extractMonthDay(event.startDate)} ${extractTime(event.startDate)}`
+                    : "Date TBA"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
