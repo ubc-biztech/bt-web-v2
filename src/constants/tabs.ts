@@ -14,6 +14,7 @@ import {
   ScanFace,
   BadgeCheckIcon,
   Instagram,
+  Handshake,
 } from "lucide-react";
 
 export const admin = [
@@ -41,6 +42,11 @@ export const admin = [
     title: "Instagram Analytics",
     link: "/admin/instagram-analytics",
     icon: Instagram,
+  },
+  {
+    title: "Partnerships",
+    link: "/admin/partnerships",
+    icon: Handshake,
   },
   {
     title: "Edit Companion",
