@@ -27,9 +27,12 @@ export function GmailSyncSetupDialog({
       <DialogContent className="w-[calc(100vw-1rem)] max-w-4xl overflow-hidden border-bt-blue-300 bg-bt-blue-500 p-0 text-white">
         <div className="flex max-h-[92vh] flex-col">
           <div className="border-b border-bt-blue-300/35 px-4 py-3">
-            <h3 className="text-lg font-semibold text-white">Gmail Sync Setup</h3>
+            <h3 className="text-lg font-semibold text-white">
+              Gmail Sync Setup
+            </h3>
             <p className="text-sm text-bt-blue-100">
-              Sync manual Gmail sends and replies into partner communication logs.
+              Sync manual Gmail sends and replies into partner communication
+              logs.
             </p>
           </div>
 
@@ -46,7 +49,9 @@ export function GmailSyncSetupDialog({
                   size="sm"
                   variant="outline"
                   className="h-8 border-bt-blue-300/40 bg-bt-blue-500/40 px-2 text-xs text-white hover:bg-bt-blue-500/60"
-                  onClick={() => void onCopy(resolvedSyncIngestUrl, "Webhook URL copied")}
+                  onClick={() =>
+                    void onCopy(resolvedSyncIngestUrl, "Webhook URL copied")
+                  }
                 >
                   <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Copy URL
@@ -74,7 +79,9 @@ export function GmailSyncSetupDialog({
                   size="sm"
                   variant="outline"
                   className="h-8 border-bt-blue-300/40 bg-bt-blue-500/40 px-2 text-xs text-white hover:bg-bt-blue-500/60"
-                  onClick={() => void onCopy(syncChecklistText, "Setup steps copied")}
+                  onClick={() =>
+                    void onCopy(syncChecklistText, "Setup steps copied")
+                  }
                 >
                   <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Copy Setup Steps
@@ -105,10 +112,14 @@ export function GmailSyncSetupDialog({
                       </span>{" "}
                       and click Run.
                     </li>
-                    <li>In the permissions popup, click through and allow access.</li>
+                    <li>
+                      In the permissions popup, click through and allow access.
+                    </li>
                     <li>
                       If Google shows an unverified warning:{" "}
-                      <span className="font-mono text-bt-green-100">Advanced</span>{" "}
+                      <span className="font-mono text-bt-green-100">
+                        Advanced
+                      </span>{" "}
                       then{" "}
                       <span className="font-mono text-bt-green-100">
                         Go to ... (unsafe)
@@ -131,7 +142,9 @@ export function GmailSyncSetupDialog({
                     </li>
                     <li>
                       Event source:{" "}
-                      <span className="font-mono text-bt-green-100">Time-driven</span>
+                      <span className="font-mono text-bt-green-100">
+                        Time-driven
+                      </span>
                       .
                     </li>
                     <li>
@@ -155,8 +168,8 @@ export function GmailSyncSetupDialog({
                   <ul className="mt-1 list-disc space-y-1 pl-4">
                     <li>Return to Email Ops and click Refresh.</li>
                     <li>
-                      Confirm Last Sync updates and your address appears in Synced
-                      Accounts.
+                      Confirm Last Sync updates and your address appears in
+                      Synced Accounts.
                     </li>
                   </ul>
                 </li>
@@ -176,7 +189,9 @@ export function GmailSyncSetupDialog({
                   size="sm"
                   variant="outline"
                   className="h-8 border-bt-blue-300/40 bg-bt-blue-500/40 px-2 text-xs text-white hover:bg-bt-blue-500/60"
-                  onClick={() => void onCopy(syncScriptTemplate, "Script template copied")}
+                  onClick={() =>
+                    void onCopy(syncScriptTemplate, "Script template copied")
+                  }
                 >
                   <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Copy Script
@@ -198,15 +213,17 @@ export function GmailSyncSetupDialog({
                   size="sm"
                   variant="outline"
                   className="h-8 border-bt-blue-300/40 bg-bt-blue-500/40 px-2 text-xs text-white hover:bg-bt-blue-500/60"
-                  onClick={() => void onCopy(syncTestPayload, "Test payload copied")}
+                  onClick={() =>
+                    void onCopy(syncTestPayload, "Test payload copied")
+                  }
                 >
                   <Copy className="mr-1.5 h-3.5 w-3.5" />
                   Copy JSON
                 </Button>
               </div>
               <p className="mt-1 text-xs text-bt-blue-100">
-                Optional: use this with Postman/Insomnia against the webhook URL if
-                you want to validate ingest before adding triggers.
+                Optional: use this with Postman/Insomnia against the webhook URL
+                if you want to validate ingest before adding triggers.
               </p>
               <Textarea
                 value={syncTestPayload}

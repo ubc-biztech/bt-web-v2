@@ -69,9 +69,10 @@ export function MergeFieldPicker({
     if (!normalizedSearch) return fields;
 
     return fields.filter((field) => {
-      const index = `${field.key} ${field.label} ${field.description} ${field.token}`
-        .toLowerCase()
-        .replace(/\s+/g, " ");
+      const index =
+        `${field.key} ${field.label} ${field.description} ${field.token}`
+          .toLowerCase()
+          .replace(/\s+/g, " ");
       return index.includes(normalizedSearch);
     });
   }, [fields, normalizedSearch]);

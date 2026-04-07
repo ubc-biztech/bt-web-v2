@@ -51,7 +51,11 @@ type PartnershipsDialogsProps = {
   eventForm: PartnershipEventFormState;
   setEventForm: Dispatch<SetStateAction<PartnershipEventFormState>>;
   addTierRow: () => void;
-  updateTierRow: (rowId: string, field: "label" | "amount", value: string) => void;
+  updateTierRow: (
+    rowId: string,
+    field: "label" | "amount",
+    value: string,
+  ) => void;
   removeTierRow: (rowId: string) => void;
   submitEvent: () => Promise<void> | void;
   isSavingEvent: boolean;
@@ -171,7 +175,9 @@ export function PartnershipsDialogs({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-bt-blue-100">Primary Contact</label>
+              <label className="text-xs text-bt-blue-100">
+                Primary Contact
+              </label>
               <Input
                 value={partnerForm.contactName}
                 onChange={(event) =>
@@ -306,7 +312,10 @@ export function PartnershipsDialogs({
           </div>
 
           <div className="flex justify-end gap-2 border-t border-bt-blue-300/50 pt-4">
-            <Button variant="outline" onClick={() => setIsPartnerModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsPartnerModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -317,7 +326,9 @@ export function PartnershipsDialogs({
               {isSavingPartner ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              {partnerModalMode === "create" ? "Create Partner" : "Save Changes"}
+              {partnerModalMode === "create"
+                ? "Create Partner"
+                : "Save Changes"}
             </Button>
           </div>
         </DialogContent>
@@ -327,10 +338,13 @@ export function PartnershipsDialogs({
         <DialogContent className="max-h-[92vh] overflow-y-auto border-bt-blue-300 bg-bt-blue-500 text-white sm:max-w-3xl">
           <div className="mb-4">
             <h3 className="text-lg font-semibold text-white">
-              {eventModalMode === "create" ? "Create CRM Event" : "Edit CRM Event"}
+              {eventModalMode === "create"
+                ? "Create CRM Event"
+                : "Edit CRM Event"}
             </h3>
             <p className="text-sm text-bt-blue-100">
-              Configure event timeline, goals, and tier presets with default amounts.
+              Configure event timeline, goals, and tier presets with default
+              amounts.
             </p>
           </div>
 
@@ -368,7 +382,9 @@ export function PartnershipsDialogs({
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs text-bt-blue-100">Sponsorship Goal (CAD)</label>
+              <label className="text-xs text-bt-blue-100">
+                Sponsorship Goal (CAD)
+              </label>
               <Input
                 type="number"
                 min={0}
@@ -511,7 +527,10 @@ export function PartnershipsDialogs({
           </div>
 
           <div className="flex justify-end gap-2 border-t border-bt-blue-300/50 pt-4">
-            <Button variant="outline" onClick={() => setIsEventModalOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsEventModalOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -537,8 +556,8 @@ export function PartnershipsDialogs({
                 : "Edit Event Involvement"}
             </h3>
             <p className="text-sm text-bt-blue-100">
-              Assign status, involvement type, tier, and amount with event-specific
-              tier presets.
+              Assign status, involvement type, tier, and amount with
+              event-specific tier presets.
             </p>
           </div>
 
@@ -562,7 +581,8 @@ export function PartnershipsDialogs({
                   <SelectItem value="none">Select partner</SelectItem>
                   {partners.map((partner) => (
                     <SelectItem key={partner.id} value={partner.id}>
-                      {getContactDisplayName(partner.contactName)} • {partner.company}
+                      {getContactDisplayName(partner.contactName)} •{" "}
+                      {partner.company}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -633,7 +653,9 @@ export function PartnershipsDialogs({
 
             {linkStatusSelectValue === customStatusValue ? (
               <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs text-bt-blue-100">Custom Status</label>
+                <label className="text-xs text-bt-blue-100">
+                  Custom Status
+                </label>
                 <Input
                   value={linkForm.customStatus}
                   onChange={(event) =>
@@ -686,7 +708,9 @@ export function PartnershipsDialogs({
                   {selectedLinkEventTierConfigs.map((tier) => (
                     <SelectItem key={tier.id} value={tier.id}>
                       {tier.label || toTierLabel(tier.id)}
-                      {tier.amount !== null ? ` (${formatCurrency(tier.amount)})` : ""}
+                      {tier.amount !== null
+                        ? ` (${formatCurrency(tier.amount)})`
+                        : ""}
                     </SelectItem>
                   ))}
                   <SelectItem value={customTierValue}>Custom tier</SelectItem>
@@ -713,7 +737,9 @@ export function PartnershipsDialogs({
 
             {linkTierSelectValue === customTierValue ? (
               <div className="space-y-1 sm:col-span-2">
-                <label className="text-xs text-bt-blue-100">Custom Tier Name</label>
+                <label className="text-xs text-bt-blue-100">
+                  Custom Tier Name
+                </label>
                 <Input
                   value={linkForm.customTier}
                   onChange={(event) =>
@@ -729,7 +755,9 @@ export function PartnershipsDialogs({
             ) : null}
 
             <div className="space-y-1">
-              <label className="text-xs text-bt-blue-100">Involvement Type</label>
+              <label className="text-xs text-bt-blue-100">
+                Involvement Type
+              </label>
               <div className="mb-2 flex flex-wrap gap-1.5">
                 {roleSuggestions.map((suggestion) => (
                   <button
@@ -818,7 +846,9 @@ export function PartnershipsDialogs({
         <DialogContent className="max-h-[92vh] overflow-y-auto border-bt-blue-300 bg-bt-blue-500 text-white sm:max-w-2xl">
           <div className="mb-4">
             <h3 className="text-lg font-semibold text-white">
-              {documentModalMode === "create" ? "Add Document" : "Edit Document"}
+              {documentModalMode === "create"
+                ? "Add Document"
+                : "Edit Document"}
             </h3>
             <p className="text-sm text-bt-blue-100">
               Link files and references to this partner.

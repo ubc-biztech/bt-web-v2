@@ -43,7 +43,8 @@ export const normalizeStatusOptions = (values: unknown[]) => {
     if (typeof rawValue !== "string") continue;
     const normalized = rawValue.trim().toLowerCase();
     if (!normalized) continue;
-    if (KNOWN_STATUS_VALUES.includes(normalized as KnownPartnerStatus)) continue;
+    if (KNOWN_STATUS_VALUES.includes(normalized as KnownPartnerStatus))
+      continue;
     custom.add(normalized);
   }
 

@@ -1,12 +1,34 @@
 import type { ReactNode } from "react";
-import { AlertCircle, ArrowUpToLine, CalendarDays, CircleDollarSign, Loader2, Mail, RefreshCw, Users } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowUpToLine,
+  CalendarDays,
+  CircleDollarSign,
+  Loader2,
+  Mail,
+  RefreshCw,
+  Users,
+} from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { StatusChip } from "./StatusChip";
 import {
@@ -66,7 +88,9 @@ function MetricCard({
             <p className="mt-1 text-xl font-semibold text-white sm:text-2xl">
               {value}
             </p>
-            {helper ? <p className="mt-1 text-xs text-bt-blue-100">{helper}</p> : null}
+            {helper ? (
+              <p className="mt-1 text-xs text-bt-blue-100">{helper}</p>
+            ) : null}
           </div>
           <span className="rounded-lg bg-bt-blue-600/60 p-2 text-bt-green-300">
             {icon}
@@ -166,8 +190,12 @@ export function PartnershipsOverviewTab({
         <CardContent className="space-y-3 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-semibold text-white sm:text-base">Dashboard Scope</h2>
-              <p className="text-xs text-bt-blue-100">Pick what data to show here.</p>
+              <h2 className="text-sm font-semibold text-white sm:text-base">
+                Dashboard Scope
+              </h2>
+              <p className="text-xs text-bt-blue-100">
+                Pick what data to show here.
+              </p>
             </div>
             <Button
               variant="ghost"
@@ -181,7 +209,10 @@ export function PartnershipsOverviewTab({
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <Select value={dashboardYearFilter} onValueChange={onDashboardYearFilterChange}>
+            <Select
+              value={dashboardYearFilter}
+              onValueChange={onDashboardYearFilterChange}
+            >
               <SelectTrigger className="border-bt-blue-300/40 bg-bt-blue-600/40 text-white">
                 <SelectValue placeholder="Year" />
               </SelectTrigger>
@@ -196,7 +227,10 @@ export function PartnershipsOverviewTab({
               </SelectContent>
             </Select>
 
-            <Select value={dashboardEventFilter} onValueChange={onDashboardEventFilterChange}>
+            <Select
+              value={dashboardEventFilter}
+              onValueChange={onDashboardEventFilterChange}
+            >
               <SelectTrigger className="border-bt-blue-300/40 bg-bt-blue-600/40 text-white">
                 <SelectValue placeholder="Event" />
               </SelectTrigger>
@@ -210,7 +244,10 @@ export function PartnershipsOverviewTab({
               </SelectContent>
             </Select>
 
-            <Select value={dashboardWindowDays} onValueChange={onDashboardWindowDaysChange}>
+            <Select
+              value={dashboardWindowDays}
+              onValueChange={onDashboardWindowDaysChange}
+            >
               <SelectTrigger className="border-bt-blue-300/40 bg-bt-blue-600/40 text-white">
                 <SelectValue placeholder="Follow-up window" />
               </SelectTrigger>
@@ -226,7 +263,9 @@ export function PartnershipsOverviewTab({
             <label className="flex items-center gap-2 rounded-md border border-bt-blue-300/30 bg-bt-blue-600/30 px-3 text-sm text-bt-blue-100">
               <Checkbox
                 checked={dashboardIncludeArchived}
-                onCheckedChange={(checked) => onDashboardIncludeArchivedChange(Boolean(checked))}
+                onCheckedChange={(checked) =>
+                  onDashboardIncludeArchivedChange(Boolean(checked))
+                }
                 className="border-bt-blue-200"
               />
               Include archived
@@ -255,7 +294,8 @@ export function PartnershipsOverviewTab({
                 </p>
                 {emailSyncStatus.recentActorEmails?.length ? (
                   <p className="mt-1 line-clamp-1 text-xs text-bt-blue-100">
-                    Connected inboxes: {emailSyncStatus.recentActorEmails.join(", ")}
+                    Connected inboxes:{" "}
+                    {emailSyncStatus.recentActorEmails.join(", ")}
                   </p>
                 ) : null}
               </div>
@@ -289,7 +329,9 @@ export function PartnershipsOverviewTab({
         <Alert className="border-bt-red-200/40 bg-bt-red-200/10 text-bt-red-100">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Dashboard unavailable</AlertTitle>
-          <AlertDescription>Unable to load reporting data for this scope.</AlertDescription>
+          <AlertDescription>
+            Unable to load reporting data for this scope.
+          </AlertDescription>
         </Alert>
       ) : (
         <>
@@ -297,25 +339,33 @@ export function PartnershipsOverviewTab({
             <CardContent className="p-4">
               <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-md border border-bt-blue-300/25 bg-bt-blue-600/30 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">Year</p>
+                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">
+                    Year
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-white">
                     {dashboard.annual.year || "All years"}
                   </p>
                 </div>
                 <div className="rounded-md border border-bt-blue-300/25 bg-bt-blue-600/30 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">Events In Scope</p>
+                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">
+                    Events In Scope
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-white">
                     {formatNumber(dashboard.scope.scopedEventCount)}
                   </p>
                 </div>
                 <div className="rounded-md border border-bt-blue-300/25 bg-bt-blue-600/30 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">Follow-up Window</p>
+                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">
+                    Follow-up Window
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-white">
                     {dashboard.scope.upcomingWindowDays} days
                   </p>
                 </div>
                 <div className="rounded-md border border-bt-blue-300/25 bg-bt-blue-600/30 p-3">
-                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">Archived Events</p>
+                  <p className="text-[11px] uppercase tracking-wide text-bt-blue-100">
+                    Archived Events
+                  </p>
                   <p className="mt-1 text-sm font-semibold text-white">
                     {dashboard.scope.includeArchived ? "Included" : "Hidden"}
                   </p>
@@ -362,14 +412,18 @@ export function PartnershipsOverviewTab({
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
               <CardContent className="p-4">
-                <h2 className="text-sm font-semibold text-white sm:text-base">Goal Pace</h2>
+                <h2 className="text-sm font-semibold text-white sm:text-base">
+                  Goal Pace
+                </h2>
                 <p className="mt-1 text-xs text-bt-blue-100">
                   Where we are vs the yearly goal.
                 </p>
 
                 <div className="mt-3 rounded-md border border-bt-blue-300/20 bg-bt-blue-600/30 p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs text-bt-blue-100">Secured vs annual goal</p>
+                    <p className="text-xs text-bt-blue-100">
+                      Secured vs annual goal
+                    </p>
                     <p className="text-sm font-semibold text-white">
                       {formatCurrency(dashboard.annual.securedAmount)} /{" "}
                       {formatCurrency(dashboard.annual.goalAmount)}
@@ -381,14 +435,23 @@ export function PartnershipsOverviewTab({
                       style={{
                         width: `${Math.max(
                           0,
-                          Math.min(100, dashboard.annual.progressToGoalPct || 0),
+                          Math.min(
+                            100,
+                            dashboard.annual.progressToGoalPct || 0,
+                          ),
                         )}%`,
                       }}
                     />
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[11px] text-bt-blue-100">
-                    <span>Actual: {formatPercent(dashboard.annual.progressToGoalPct)}</span>
-                    <span>Expected by today: {formatPercent(dashboard.annual.expectedProgressPct)}</span>
+                    <span>
+                      Actual:{" "}
+                      {formatPercent(dashboard.annual.progressToGoalPct)}
+                    </span>
+                    <span>
+                      Expected by today:{" "}
+                      {formatPercent(dashboard.annual.expectedProgressPct)}
+                    </span>
                   </div>
                 </div>
 
@@ -420,11 +483,17 @@ export function PartnershipsOverviewTab({
 
             <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
               <CardContent className="p-4">
-                <h2 className="text-sm font-semibold text-white sm:text-base">Pipeline Breakdown</h2>
-                <p className="mt-1 text-xs text-bt-blue-100">Money split by status.</p>
+                <h2 className="text-sm font-semibold text-white sm:text-base">
+                  Pipeline Breakdown
+                </h2>
+                <p className="mt-1 text-xs text-bt-blue-100">
+                  Money split by status.
+                </p>
 
                 {!dashboardPipelineRows.length ? (
-                  <p className="mt-3 text-sm text-bt-blue-100">No pipeline data in this scope.</p>
+                  <p className="mt-3 text-sm text-bt-blue-100">
+                    No pipeline data in this scope.
+                  </p>
                 ) : (
                   <div className="mt-3 space-y-2">
                     {dashboardPipelineRows.map((row) => (
@@ -440,9 +509,12 @@ export function PartnershipsOverviewTab({
                             </span>
                           </div>
                           <div className="text-right">
-                            <p className="text-sm font-medium text-white">{formatCurrency(row.amount)}</p>
+                            <p className="text-sm font-medium text-white">
+                              {formatCurrency(row.amount)}
+                            </p>
                             <p className="text-[11px] text-bt-blue-100">
-                              {formatPercent(row.shareByAmountPct, 0)} of pipeline
+                              {formatPercent(row.shareByAmountPct, 0)} of
+                              pipeline
                             </p>
                           </div>
                         </div>
@@ -450,7 +522,9 @@ export function PartnershipsOverviewTab({
                           <div
                             className={cn(
                               "h-full rounded-full",
-                              row.isSecured ? "bg-bt-green-300" : "bg-bt-blue-200",
+                              row.isSecured
+                                ? "bg-bt-green-300"
+                                : "bg-bt-blue-200",
                             )}
                             style={{
                               width: `${row.amount > 0 ? Math.max(2, row.shareByAmountPct) : 0}%`,
@@ -469,29 +543,46 @@ export function PartnershipsOverviewTab({
             <CardContent className="p-0">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-bt-blue-300/20 px-4 py-3">
                 <div>
-                  <h2 className="text-sm font-semibold text-white sm:text-base">Event Scoreboard</h2>
-                  <p className="text-xs text-bt-blue-100">Click any row to open event details.</p>
+                  <h2 className="text-sm font-semibold text-white sm:text-base">
+                    Event Scoreboard
+                  </h2>
+                  <p className="text-xs text-bt-blue-100">
+                    Click any row to open event details.
+                  </p>
                 </div>
               </div>
 
               {!dashboardEventRows.length ? (
-                <div className="p-4 text-sm text-bt-blue-100">No events in this scope.</div>
+                <div className="p-4 text-sm text-bt-blue-100">
+                  No events in this scope.
+                </div>
               ) : (
                 <>
                   <div className="hidden lg:block">
                     <Table>
                       <TableHeader>
                         <TableRow className="border-bt-blue-300/20 hover:bg-transparent">
-                          <TableHead className="text-bt-blue-100">Event</TableHead>
-                          <TableHead className="text-bt-blue-100">Pace</TableHead>
-                          <TableHead className="text-right text-bt-blue-100">Secured / Goal</TableHead>
-                          <TableHead className="text-right text-bt-blue-100">Open Pipeline</TableHead>
-                          <TableHead className="text-right text-bt-blue-100">Follow-ups</TableHead>
+                          <TableHead className="text-bt-blue-100">
+                            Event
+                          </TableHead>
+                          <TableHead className="text-bt-blue-100">
+                            Pace
+                          </TableHead>
+                          <TableHead className="text-right text-bt-blue-100">
+                            Secured / Goal
+                          </TableHead>
+                          <TableHead className="text-right text-bt-blue-100">
+                            Open Pipeline
+                          </TableHead>
+                          <TableHead className="text-right text-bt-blue-100">
+                            Follow-ups
+                          </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {dashboardEventRows.map((row) => {
-                          const pace = paceMeta[row.paceStatus] || paceMeta.no_goal;
+                          const pace =
+                            paceMeta[row.paceStatus] || paceMeta.no_goal;
                           return (
                             <TableRow
                               key={row.eventIdYear}
@@ -499,9 +590,13 @@ export function PartnershipsOverviewTab({
                               onClick={() => onOpenEvent(row.eventId)}
                             >
                               <TableCell>
-                                <p className="truncate text-sm font-semibold text-white">{row.eventName}</p>
+                                <p className="truncate text-sm font-semibold text-white">
+                                  {row.eventName}
+                                </p>
                                 <p className="text-xs text-bt-blue-100">
-                                  {row.eventYear || "Unknown year"} • {formatNumber(row.relationshipCount)} relationships
+                                  {row.eventYear || "Unknown year"} •{" "}
+                                  {formatNumber(row.relationshipCount)}{" "}
+                                  relationships
                                 </p>
                               </TableCell>
                               <TableCell>
@@ -517,18 +612,26 @@ export function PartnershipsOverviewTab({
                               <TableCell className="text-right">
                                 <p className="text-sm font-medium text-white">
                                   {formatCurrency(row.securedAmount)} /{" "}
-                                  {row.hasGoal ? formatCurrency(row.goalAmount) : "Not set"}
+                                  {row.hasGoal
+                                    ? formatCurrency(row.goalAmount)
+                                    : "Not set"}
                                 </p>
                                 <p className="text-[11px] text-bt-blue-100">
-                                  {row.hasGoal ? formatPercent(row.progressToGoalPct) : "No goal"}
+                                  {row.hasGoal
+                                    ? formatPercent(row.progressToGoalPct)
+                                    : "No goal"}
                                 </p>
                               </TableCell>
                               <TableCell className="text-right text-white">
                                 {formatCurrency(row.pipelineAmount)}
                               </TableCell>
                               <TableCell className="text-right">
-                                <p className="text-sm font-medium text-white">{formatNumber(row.upcomingFollowUps)}</p>
-                                <p className="text-[11px] text-bt-blue-100">{formatNumber(row.overdueFollowUps)} overdue</p>
+                                <p className="text-sm font-medium text-white">
+                                  {formatNumber(row.upcomingFollowUps)}
+                                </p>
+                                <p className="text-[11px] text-bt-blue-100">
+                                  {formatNumber(row.overdueFollowUps)} overdue
+                                </p>
                               </TableCell>
                             </TableRow>
                           );
@@ -548,7 +651,9 @@ export function PartnershipsOverviewTab({
                           className="rounded-md border border-bt-blue-300/20 bg-bt-blue-600/30 p-3 text-left transition hover:bg-bt-blue-500/40"
                         >
                           <div className="flex items-center justify-between gap-2">
-                            <p className="truncate text-sm font-semibold text-white">{row.eventName}</p>
+                            <p className="truncate text-sm font-semibold text-white">
+                              {row.eventName}
+                            </p>
                             <span
                               className={cn(
                                 "inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium",
@@ -560,13 +665,18 @@ export function PartnershipsOverviewTab({
                           </div>
                           <p className="mt-2 text-xs text-bt-blue-100">
                             Secured {formatCurrency(row.securedAmount)} /{" "}
-                            {row.hasGoal ? formatCurrency(row.goalAmount) : "No goal"}
+                            {row.hasGoal
+                              ? formatCurrency(row.goalAmount)
+                              : "No goal"}
                           </p>
                           <p className="mt-1 text-xs text-bt-blue-100">
-                            {row.hasGoal ? `Progress ${formatPercent(row.progressToGoalPct)} • ` : ""}
-                            Pipeline {formatCurrency(row.pipelineAmount)} • Follow-ups{" "}
-                            {formatNumber(row.upcomingFollowUps)} upcoming /{" "}
-                            {formatNumber(row.overdueFollowUps)} overdue
+                            {row.hasGoal
+                              ? `Progress ${formatPercent(row.progressToGoalPct)} • `
+                              : ""}
+                            Pipeline {formatCurrency(row.pipelineAmount)} •
+                            Follow-ups {formatNumber(row.upcomingFollowUps)}{" "}
+                            upcoming / {formatNumber(row.overdueFollowUps)}{" "}
+                            overdue
                           </p>
                         </button>
                       );
@@ -623,7 +733,9 @@ export function PartnershipsOverviewTab({
                               {dueLabel}
                             </span>
                           </div>
-                          <p className="mt-1 text-xs text-bt-blue-100">{item.description}</p>
+                          <p className="mt-1 text-xs text-bt-blue-100">
+                            {item.description}
+                          </p>
                         </div>
 
                         <div className="flex shrink-0 gap-2">
@@ -662,7 +774,9 @@ export function PartnershipsOverviewTab({
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-sm font-semibold text-white sm:text-base">Google Sheets Sync</h2>
+              <h2 className="text-sm font-semibold text-white sm:text-base">
+                Google Sheets Sync
+              </h2>
               <p className="mt-1 text-xs text-bt-blue-100 sm:text-sm">
                 {sheetsStatus?.configured
                   ? sheetsStatus.accessible
@@ -705,7 +819,9 @@ export function PartnershipsOverviewTab({
           </div>
 
           {sheetsStatus?.message ? (
-            <p className="mt-3 text-xs text-bt-blue-100">{sheetsStatus.message}</p>
+            <p className="mt-3 text-xs text-bt-blue-100">
+              {sheetsStatus.message}
+            </p>
           ) : null}
 
           {sheetsStatus?.lastSyncAt ? (
