@@ -44,7 +44,7 @@ export async function fetchBackend({
 }: FetchBackendOptions): Promise<any> {
   const headers: Record<string, string> = {};
 
-  if (method === "POST" || method === "PUT") {
+  if (method === "POST" || method === "PUT" || method === "PATCH") {
     headers["Accept"] = "application/json";
     headers["Content-Type"] = "application/json";
   }
@@ -92,7 +92,7 @@ export async function fetchBackendFromServer({
 }: FetchBackendServerOptions) {
   const headers: Record<string, string> = {};
 
-  if (method === "POST" || method === "PUT") {
+  if (method === "POST" || method === "PUT" || method === "PATCH") {
     headers["Accept"] = "application/json";
     headers["Content-Type"] = "application/json";
   }
