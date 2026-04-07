@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Registration } from "@/types/types";
+import { fetchBackend } from "@/lib/db";
+import { OVERALL_RATING_QUESTION_ID } from "@/constants/feedbackQuestionTypes";
 import {
   Users,
   UserCheck,
@@ -17,6 +19,8 @@ import {
   Utensils,
   BookOpen,
   UserCircle,
+  MessageSquareText,
+  Star,
 } from "lucide-react";
 import {
   AreaChart,
@@ -107,6 +111,180 @@ export default function AnalyticsTab({
   const [timelineMode, setTimelineMode] = useState<"cumulative" | "daily">(
     "cumulative",
   );
+
+  /* ---------------------------------------------------------------- */
+  /*  Feedback submissions                                            */
+  /* ---------------------------------------------------------------- */
+  type FeedbackSubmission = {
+    id: string;
+    submittedAt: number;
+    respondentName?: string;
+    respondentEmail?: string;
+    responses: Record<string, any>;
+  };
+
+  type FeedbackQuestion = {
+    questionId: string;
+    label: string;
+    type: string;
+    choices?: string;
+    scaleMin?: number;
+    scaleMax?: number;
+    scaleMinLabel?: string;
+    scaleMaxLabel?: string;
+    required?: boolean;
+  };
+
+  type FeedbackSummary = {
+    formType: "attendee" | "partner";
+    questions: FeedbackQuestion[];
+    submissions: FeedbackSubmission[];
+  };
+
+  const [feedbackData, setFeedbackData] = useState<FeedbackSummary[]>([]);
+
+  useEffect(() => {
+    if (!eventData?.id || !eventData?.year) return;
+
+    const loadFeedback = async () => {
+      const summaries: FeedbackSummary[] = [];
+
+      for (const formType of ["attendee", "partner"] as const) {
+        const questionsKey = `${formType}FeedbackQuestions`;
+        const enabledKey = `${formType}FeedbackEnabled`;
+        const questions: FeedbackQuestion[] = eventData[questionsKey] || [];
+        const enabled = Boolean(eventData[enabledKey]);
+        if (!enabled || questions.length === 0) continue;
+
+        try {
+          const res = await fetchBackend({
+            endpoint: `/events/${eventData.id}/${eventData.year}/feedback/${formType}/submissions`,
+            method: "GET",
+          });
+          if (res && Array.isArray(res.submissions)) {
+            summaries.push({
+              formType,
+              questions,
+              submissions: res.submissions,
+            });
+          }
+        } catch {
+          // silently skip — user may not have auth or no submissions yet
+        }
+      }
+
+      setFeedbackData(summaries);
+    };
+
+    loadFeedback();
+  }, [eventData]);
+
+  /** Build per-question aggregate data for feedback */
+  const feedbackAnalytics = useMemo(() => {
+    return feedbackData.flatMap(({ formType, questions, submissions }) => {
+      if (submissions.length === 0) return [];
+
+      return questions.map((q) => {
+        const answers = submissions
+          .map((s) => s.responses?.[q.questionId])
+          .filter((v) => v != null && v !== "");
+
+        if (q.type === "LINEAR_SCALE") {
+          const nums = answers.map(Number).filter(Number.isFinite);
+          const avg = nums.length
+            ? nums.reduce((a, b) => a + b, 0) / nums.length
+            : 0;
+          const distribution: Record<number, number> = {};
+          nums.forEach((n) => {
+            distribution[n] = (distribution[n] || 0) + 1;
+          });
+          return {
+            formType,
+            questionId: q.questionId,
+            label: q.label,
+            type: q.type as string,
+            responseCount: nums.length,
+            totalSubmissions: submissions.length,
+            average: avg,
+            scaleMin: q.scaleMin ?? 1,
+            scaleMax: q.scaleMax ?? 5,
+            scaleMinLabel: q.scaleMinLabel,
+            scaleMaxLabel: q.scaleMaxLabel,
+            distribution,
+          };
+        }
+
+        if (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES") {
+          const counts: Record<string, number> = {};
+          answers.forEach((a) => {
+            const values = Array.isArray(a) ? a : [a];
+            values.forEach((v: string) => {
+              const key = String(v).trim();
+              if (key) counts[key] = (counts[key] || 0) + 1;
+            });
+          });
+          const total = answers.length || 1;
+          const items = Object.entries(counts)
+            .map(([label, count]) => ({
+              label,
+              count,
+              percentage: Math.round((count / total) * 100),
+            }))
+            .sort((a, b) => b.count - a.count);
+          return {
+            formType,
+            questionId: q.questionId,
+            label: q.label,
+            type: q.type as string,
+            responseCount: answers.length,
+            totalSubmissions: submissions.length,
+            items,
+          };
+        }
+
+        // SHORT_ANSWER / LONG_ANSWER — just show response count + recent samples
+        return {
+          formType,
+          questionId: q.questionId,
+          label: q.label,
+          type: q.type as string,
+          responseCount: answers.length,
+          totalSubmissions: submissions.length,
+          recentAnswers: answers.slice(0, 5).map(String),
+        };
+      });
+    });
+  }, [feedbackData]);
+
+  /** Extract the overall-rating score per form type (percentage out of 10) */
+  const overallRatings = useMemo(() => {
+    const result: {
+      formType: "attendee" | "partner";
+      average: number;
+      percentage: number;
+      count: number;
+    }[] = [];
+
+    for (const { formType, submissions } of feedbackData) {
+      const scores = submissions
+        .map((s) => s.responses?.[OVERALL_RATING_QUESTION_ID])
+        .filter((v) => v != null && v !== "")
+        .map(Number)
+        .filter(Number.isFinite);
+
+      if (scores.length === 0) continue;
+
+      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+      result.push({
+        formType,
+        average: avg,
+        percentage: Math.round((avg / 10) * 100),
+        count: scores.length,
+      });
+    }
+
+    return result;
+  }, [feedbackData]);
 
   // registration status
   const statusCounts = useMemo(() => {
@@ -551,6 +729,46 @@ export default function AnalyticsTab({
           </Card>
         )}
       </div>
+
+      {/* overall rating cards */}
+      {overallRatings.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
+          {overallRatings.map(({ formType, average, percentage, count }) => (
+            <Card
+              key={formType}
+              className="border-bt-blue-300/30 bg-bt-blue-500/40"
+            >
+              <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
+                    <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
+                  </div>
+                  <p className="text-[10px] md:text-xs text-bt-blue-100 capitalize">
+                    {formType} Rating
+                  </p>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-2xl md:text-3xl font-bold text-bt-green-300">
+                    {percentage}%
+                  </p>
+                  <span className="text-xs md:text-sm text-bt-blue-200">
+                    ({average.toFixed(1)}/10)
+                  </span>
+                </div>
+                <div className="mt-1.5 h-1.5 rounded-full bg-bt-blue-500/50 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <p className="text-[10px] md:text-xs text-bt-blue-200 mt-1">
+                  {count} response{count !== 1 && "s"}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* status breakdown */}
       <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
@@ -999,6 +1217,219 @@ export default function AnalyticsTab({
           </Card>
         ))}
       </div>
+
+      {/* ─── feedback results ─── */}
+      {feedbackAnalytics.length > 0 && (
+        <>
+          <div className="flex items-center gap-3 mt-2">
+            <MessageSquareText className="w-5 h-5 text-bt-green-300" />
+            <h3 className="text-lg md:text-xl font-semibold">
+              Feedback Results
+            </h3>
+          </div>
+
+          {/* summary KPI row */}
+          {feedbackData.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
+              {feedbackData.map(({ formType, submissions }) => (
+                <Card
+                  key={formType}
+                  className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                >
+                  <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
+                        <MessageSquareText className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
+                      </div>
+                      <p className="text-[10px] md:text-xs text-bt-blue-100 capitalize">
+                        {formType} Responses
+                      </p>
+                    </div>
+                    <p className="text-2xl md:text-3xl font-bold">
+                      {submissions.length}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* average of all LINEAR_SCALE questions */}
+              {(() => {
+                const scaleQuestions = feedbackAnalytics.filter(
+                  (q) => q.type === "LINEAR_SCALE" && "average" in q,
+                );
+                if (scaleQuestions.length === 0) return null;
+                const overallAvg =
+                  scaleQuestions.reduce(
+                    (sum, q) => sum + ((q as any).average ?? 0),
+                    0,
+                  ) / scaleQuestions.length;
+                return (
+                  <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
+                    <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
+                          <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
+                        </div>
+                        <p className="text-[10px] md:text-xs text-bt-blue-100">
+                          Avg Rating
+                        </p>
+                      </div>
+                      <p className="text-2xl md:text-3xl font-bold">
+                        {overallAvg.toFixed(1)}
+                      </p>
+                      <p className="text-[10px] md:text-xs text-bt-blue-200 mt-0.5">
+                        across {scaleQuestions.length} question
+                        {scaleQuestions.length !== 1 && "s"}
+                      </p>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* per-question cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            {feedbackAnalytics.map((q) => {
+              const tag = q.formType === "partner" ? " (Partner)" : "";
+
+              // LINEAR_SCALE → rating bar
+              if (q.type === "LINEAR_SCALE" && "average" in q) {
+                const {
+                  average,
+                  scaleMin,
+                  scaleMax,
+                  distribution,
+                  scaleMinLabel,
+                  scaleMaxLabel,
+                } = q as any;
+                const range = scaleMax - scaleMin || 1;
+                const items = [];
+                for (let v = scaleMin; v <= scaleMax; v++) {
+                  items.push({
+                    label: String(v),
+                    count: distribution[v] || 0,
+                    percentage: Math.round(
+                      ((distribution[v] || 0) / (q.responseCount || 1)) * 100,
+                    ),
+                  });
+                }
+                return (
+                  <Card
+                    key={q.questionId}
+                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                  >
+                    <CardHeader className="pb-3 md:pb-4">
+                      <CardTitle className="text-base md:text-lg">
+                        {q.label}
+                        {tag}
+                      </CardTitle>
+                      <p className="text-xs text-bt-blue-200">
+                        {q.responseCount} response{q.responseCount !== 1 && "s"}{" "}
+                        · avg{" "}
+                        <span className="font-semibold text-bt-green-300">
+                          {(average as number).toFixed(1)}
+                        </span>
+                        {scaleMinLabel || scaleMaxLabel ? (
+                          <span className="ml-1 text-bt-blue-200">
+                            ({scaleMinLabel || scaleMin} →{" "}
+                            {scaleMaxLabel || scaleMax})
+                          </span>
+                        ) : null}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      {/* progress bar for average */}
+                      <div className="mb-4">
+                        <div className="h-3 rounded-full bg-bt-blue-600/40 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                            style={{
+                              width: `${(((average as number) - scaleMin) / range) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-[10px] text-bt-blue-200 mt-1">
+                          <span>{scaleMin}</span>
+                          <span>{scaleMax}</span>
+                        </div>
+                      </div>
+                      <HorizontalBar items={items} />
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              // MC / CHECKBOXES → horizontal bars
+              if (
+                (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES") &&
+                "items" in q
+              ) {
+                return (
+                  <Card
+                    key={q.questionId}
+                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                  >
+                    <CardHeader className="pb-3 md:pb-4">
+                      <CardTitle className="text-base md:text-lg">
+                        {q.label}
+                        {tag}
+                      </CardTitle>
+                      <p className="text-xs text-bt-blue-200">
+                        {q.responseCount} response{q.responseCount !== 1 && "s"}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <HorizontalBar items={(q as any).items} />
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              // text answers → show recent samples
+              if ("recentAnswers" in q) {
+                return (
+                  <Card
+                    key={q.questionId}
+                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                  >
+                    <CardHeader className="pb-3 md:pb-4">
+                      <CardTitle className="text-base md:text-lg">
+                        {q.label}
+                        {tag}
+                      </CardTitle>
+                      <p className="text-xs text-bt-blue-200">
+                        {q.responseCount} response{q.responseCount !== 1 && "s"}
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-2">
+                        {(q as any).recentAnswers.map(
+                          (answer: string, i: number) => (
+                            <li
+                              key={i}
+                              className="text-sm text-bt-blue-0 rounded-lg bg-bt-blue-600/40 p-2.5"
+                            >
+                              &ldquo;{answer}&rdquo;
+                            </li>
+                          ),
+                        )}
+                        {q.responseCount > 5 && (
+                          <p className="text-[10px] text-muted-foreground text-center">
+                            +{q.responseCount - 5} more
+                          </p>
+                        )}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                );
+              }
+
+              return null;
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

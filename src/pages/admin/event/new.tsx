@@ -11,7 +11,6 @@ const CreateEventPage: NextPage = () => {
   const router = useRouter();
 
   const handleSubmit = async (data: EventFormSchema) => {
-    // Add these validations
     if (data.endDate < data.startDate) {
       toast({
         title: "Validation Error",
@@ -30,7 +29,6 @@ const CreateEventPage: NextPage = () => {
       return;
     }
 
-    // Validate workshop participant caps match number of workshops
     data.customQuestions.forEach((q) => {
       if (
         q.type === "WORKSHOP_SELECTION" &&
@@ -46,10 +44,9 @@ const CreateEventPage: NextPage = () => {
       }
     });
 
-    // Transform custom questions to match v1 format
     const transformCustomQuestion = (q: any) => ({
       type: q.type,
-      label: q.question, // Note: v2 uses 'question', v1 uses 'label'
+      label: q.question, // note: v2 uses 'question', v1 uses 'label'
       choices: q.options.join(","), // v1 expects comma-separated string
       required: q.required,
       charLimit: q.charLimit || undefined,
@@ -86,7 +83,6 @@ const CreateEventPage: NextPage = () => {
       partnerRegistrationQuestions: data.partnerCustomQuestions.map(
         transformCustomQuestion,
       ),
-      feedback: data.feedbackFormUrl,
       isApplicationBased: data.isApplicationBased,
       nonBizTechAllowed: data.nonBizTechAllowed,
     };

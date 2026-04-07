@@ -1,7 +1,6 @@
 import React from "react";
 import { useFormContext, useWatch, Control } from "react-hook-form";
 import {
-  FormField,
   FormItem,
   FormLabel,
   FormControl,
@@ -9,40 +8,41 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { EventFormSchema } from "../EventFormSchema";
-import { FormCheckbox } from "./FormCheckbox";
+
+type QuestionGroupName = "customQuestions" | "partnerCustomQuestions";
 
 interface FormOptionsProps {
   control: Control<EventFormSchema>;
   index: number;
+  name?: QuestionGroupName;
 }
 
-export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
-  const { register, setValue } = useFormContext();
+export const FormOptions: React.FC<FormOptionsProps> = ({
+  control,
+  index,
+  name = "customQuestions",
+}) => {
+  const { register, setValue } = useFormContext<EventFormSchema>();
+  const questionTypeField = `${name}.${index}.type` as const;
+  const optionsField = `${name}.${index}.options` as const;
   const questionType = useWatch({
     control,
-    name: `customQuestions.${index}.type`,
+    name: questionTypeField,
   });
 
   const options =
     (useWatch({
       control,
-      name: `customQuestions.${index}.options`,
+      name: optionsField,
     }) as string[]) || [];
 
   const handleRemoveOption = (optionIndex: number) => {
     const currentOptions = [...options];
     currentOptions.splice(optionIndex, 1);
-    setValue(`customQuestions.${index}.options`, currentOptions);
+    setValue(optionsField, currentOptions);
   };
 
   const renderOptions = () => {
@@ -121,7 +121,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
                                 file:mr-4 file:py-2 file:px-4 file:rounded-md
                                 file:border-0 file:text-sm file:font-semibold
                                 cursor-pointer"
-                {...register(`customQuestions.${index}.imageUrl`)}
+                {...register(`${name}.${index}.questionImageUrl` as any)}
               />
             </FormControl>
           </div>
@@ -133,7 +133,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
             <FormControl>
               <Input
                 type="number"
-                {...register(`customQuestions.${index}.characterLimit`, {
+                {...register(`${name}.${index}.charLimit` as any, {
                   valueAsNumber: true,
                 })}
               />
@@ -151,11 +151,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({ control, index }) => {
       const newOption = e.currentTarget.value.trim();
       if (newOption) {
         const currentOptions = [...options];
-        // Just add the string directly, regardless of question type
-        setValue(`customQuestions.${index}.options`, [
-          ...currentOptions,
-          newOption,
-        ]);
+        setValue(optionsField, [...currentOptions, newOption]);
         e.currentTarget.value = "";
       }
     }

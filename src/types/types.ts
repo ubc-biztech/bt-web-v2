@@ -20,6 +20,10 @@ export type BiztechEvent = {
   pricing: any;
   partnerRegistrationQuestions: RegistrationQuestion[];
   feedback: string;
+  attendeeFeedbackEnabled?: boolean;
+  partnerFeedbackEnabled?: boolean;
+  attendeeFeedbackQuestions?: FeedbackQuestion[];
+  partnerFeedbackQuestions?: FeedbackQuestion[];
   partnerDescription: string;
   isApplicationBased: boolean;
   nonBizTechAllowed: boolean;
@@ -36,6 +40,23 @@ export type RegistrationQuestion = {
   choices?: string[];
   charLimit?: number;
   questionImageUrl?: string;
+};
+
+export type FeedbackQuestion = {
+  label: string;
+  questionId: string;
+  type:
+    | "SHORT_TEXT"
+    | "LONG_TEXT"
+    | "MULTIPLE_CHOICE"
+    | "CHECKBOXES"
+    | "LINEAR_SCALE";
+  required: boolean;
+  choices?: string;
+  scaleMin?: number;
+  scaleMax?: number;
+  scaleMinLabel?: string;
+  scaleMaxLabel?: string;
 };
 
 export enum DBRegistrationStatus {

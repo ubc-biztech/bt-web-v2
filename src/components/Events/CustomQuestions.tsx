@@ -2,21 +2,22 @@ import React from "react";
 import { useFieldArray, Control } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { EventFormSchema } from "./EventFormSchema";
 import { CustomQuestionItem } from "@/components/Events/CustomQuestionItem";
 
 interface CustomQuestionsProps {
   control: Control<any>;
-  name: string;
+  name: "customQuestions" | "partnerCustomQuestions";
   label: string;
 }
 
 export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
   control,
+  name,
+  label,
 }) => {
   const { fields, append, remove, swap } = useFieldArray({
     control,
-    name: "customQuestions",
+    name,
   });
 
   const addCustomQuestion = () => {
@@ -39,12 +40,13 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
 
   return (
     <div>
-      <h4 className="text-bt-blue-100">Attendee Form Custom Questions</h4>
+      <h4 className="text-bt-blue-100">{label}</h4>
       <div className="space-y-6">
         {fields.map((field, index) => (
           <CustomQuestionItem
             key={field.id}
             index={index}
+            name={name}
             control={control}
             remove={remove}
             onMoveUp={() => moveQuestion(index, "up")}
@@ -56,7 +58,7 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
       </div>
       <Button type="button" onClick={addCustomQuestion} className="mt-2">
         <Plus className="w-4 h-4 mr-2" />
-        Add Custom Question
+        Add Question
       </Button>
     </div>
   );
