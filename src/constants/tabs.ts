@@ -44,11 +44,6 @@ export const admin = [
     icon: Instagram,
   },
   {
-    title: "Partnerships",
-    link: "/admin/partnerships",
-    icon: Handshake,
-  },
-  {
     title: "Edit Companion",
     link: "/admin/edit-companion",
     icon: ScanBarcode,
