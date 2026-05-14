@@ -695,7 +695,7 @@ export default function ManageMembers({ initialData }: Props) {
                 value={String(pageSize)}
                 onValueChange={(v) => setPageSize(Number(v))}
               >
-                <SelectTrigger className="w-[100px] h-9 text-xs shrink-0">
+                <SelectTrigger className="w-[120px] h-9 text-xs shrink-0">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
