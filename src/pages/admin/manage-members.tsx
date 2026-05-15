@@ -394,12 +394,11 @@ export default function ManageMembers({ initialData }: Props) {
   };
 
   // Export helpers
-  type Scope = "selected" | "page" | "filtered" | "allMembers";
+  type Scope = "selected" | "filtered" | "allMembers";
 
   const rowsForScope = (scope: Scope) => {
     if (scope === "selected")
-      return pageData.filter((m) => selectedIds.has(m.id));
-    if (scope === "page") return pageData;
+      return allMembersSorted.filter((m) => selectedIds.has(m.id));
     if (scope === "filtered") return sortedData;
     return allMembersSorted;
   };
