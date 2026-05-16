@@ -394,12 +394,11 @@ export default function ManageMembers({ initialData }: Props) {
   };
 
   // Export helpers
-  type Scope = "selected" | "page" | "filtered" | "allMembers";
+  type Scope = "selected" | "filtered" | "allMembers";
 
   const rowsForScope = (scope: Scope) => {
     if (scope === "selected")
-      return pageData.filter((m) => selectedIds.has(m.id));
-    if (scope === "page") return pageData;
+      return allMembersSorted.filter((m) => selectedIds.has(m.id));
     if (scope === "filtered") return sortedData;
     return allMembersSorted;
   };
@@ -445,12 +444,10 @@ export default function ManageMembers({ initialData }: Props) {
     download(`members-${scope}.csv`, "text/csv;charset=utf-8;", toCsv(rows));
     const label =
       scope === "selected"
-        ? "Selected rows"
-        : scope === "page"
-          ? "Current page"
-          : scope === "filtered"
-            ? "All filtered"
-            : "All members";
+        ? "All selected rows"
+        : scope === "filtered"
+          ? "All filtered"
+          : "All members";
     toast({ description: `Exported ${rows.length} rows to CSV (${label}).` });
   };
 
@@ -463,12 +460,10 @@ export default function ManageMembers({ initialData }: Props) {
     );
     const label =
       scope === "selected"
-        ? "Selected rows"
-        : scope === "page"
-          ? "Current page"
-          : scope === "filtered"
-            ? "All filtered"
-            : "All members";
+        ? "All selected rows"
+        : scope === "filtered"
+          ? "All filtered"
+          : "All members";
     toast({ description: `Exported ${rows.length} rows to JSON (${label}).` });
   };
 
@@ -479,12 +474,10 @@ export default function ManageMembers({ initialData }: Props) {
       await navigator.clipboard.writeText(text);
       const label =
         scope === "selected"
-          ? "selected"
-          : scope === "page"
-            ? "current page"
-            : scope === "filtered"
-              ? "all filtered"
-              : "all members";
+          ? "All selected"
+          : scope === "filtered"
+            ? "All filtered"
+            : "All members";
       toast({
         description: `Copied ${rows.length} email${rows.length === 1 ? "" : "s"} (${label}).`,
       });
@@ -640,12 +633,9 @@ export default function ManageMembers({ initialData }: Props) {
                   <DropdownMenuLabel>CSV</DropdownMenuLabel>
                   {selectedIds.size > 0 && (
                     <DropdownMenuItem onClick={() => doExportCsv("selected")}>
-                      Selected ({selectedIds.size})
+                      All selected ({selectedIds.size})
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => doExportCsv("page")}>
-                    Current page
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => doExportCsv("filtered")}>
                     All filtered ({sortedData.length})
                   </DropdownMenuItem>
@@ -657,13 +647,9 @@ export default function ManageMembers({ initialData }: Props) {
                   <DropdownMenuLabel>JSON</DropdownMenuLabel>
                   {selectedIds.size > 0 && (
                     <DropdownMenuItem onClick={() => doExportJson("selected")}>
-                      <FileJson className="mr-2 h-3.5 w-3.5" /> Selected (
-                      {selectedIds.size})
+                      <FileJson className="mr-2 h-3.5 w-3.5" /> All selected
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => doExportJson("page")}>
-                    <FileJson className="mr-2 h-3.5 w-3.5" /> Current page
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => doExportJson("filtered")}>
                     <FileJson className="mr-2 h-3.5 w-3.5" /> All filtered
                   </DropdownMenuItem>
@@ -675,12 +661,9 @@ export default function ManageMembers({ initialData }: Props) {
                   <DropdownMenuLabel>Emails</DropdownMenuLabel>
                   {selectedIds.size > 0 && (
                     <DropdownMenuItem onClick={() => copyEmails("selected")}>
-                      <Mail className="mr-2 h-3.5 w-3.5" /> Copy selected
+                      <Mail className="mr-2 h-3.5 w-3.5" /> Copy all selected
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => copyEmails("page")}>
-                    <Mail className="mr-2 h-3.5 w-3.5" /> Copy current page
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => copyEmails("filtered")}>
                     <Mail className="mr-2 h-3.5 w-3.5" /> Copy all filtered
                   </DropdownMenuItem>
