@@ -563,8 +563,8 @@ export default function InstagramAnalyticsPage() {
     } catch (err: any) {
       setError(
         err?.message?.message ||
-        err?.message ||
-        "Failed to load Instagram analytics.",
+          err?.message ||
+          "Failed to load Instagram analytics.",
       );
     } finally {
       setIsLoading(false);
@@ -763,7 +763,6 @@ export default function InstagramAnalyticsPage() {
                   </Button>
                 </div>
               </div>
-
 
               {filterError ? (
                 <p className="text-sm text-bt-red-200">{filterError}</p>

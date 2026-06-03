@@ -1,10 +1,6 @@
 "use client";
 import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm";
-import {
-  BiztechEvent,
-  DBRegistrationStatus,
-  User,
-} from "@/types";
+import { BiztechEvent, DBRegistrationStatus, User } from "@/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
