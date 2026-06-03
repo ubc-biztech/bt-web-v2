@@ -563,8 +563,8 @@ export default function InstagramAnalyticsPage() {
     } catch (err: any) {
       setError(
         err?.message?.message ||
-          err?.message ||
-          "Failed to load Instagram analytics.",
+        err?.message ||
+        "Failed to load Instagram analytics.",
       );
     } finally {
       setIsLoading(false);
@@ -685,86 +685,85 @@ export default function InstagramAnalyticsPage() {
           </section>
 
           <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
-            <CardContent className="space-y-3 p-3 sm:p-4">
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 sm:p-4">
-                <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_auto] xl:items-end">
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:contents">
-                    <div className="min-w-0">
-                      <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
-                        Since
-                      </label>
-                      <Input
-                        type="date"
-                        className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
-                        value={since}
-                        onChange={(event) => setSince(event.target.value)}
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
-                        Until
-                      </label>
-                      <Input
-                        type="date"
-                        className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
-                        value={until}
-                        onChange={(event) => setUntil(event.target.value)}
-                      />
-                    </div>
+            <CardContent className="space-y-4 p-4 sm:p-5">
+              <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_auto] xl:items-end">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:contents">
+                  <div className="min-w-0">
+                    <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
+                      Since
+                    </label>
+                    <Input
+                      type="date"
+                      className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
+                      value={since}
+                      onChange={(event) => setSince(event.target.value)}
+                    />
                   </div>
-
-                  <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2 sm:col-span-2 xl:col-span-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
-                      onClick={() => void applyPreset("30d")}
-                    >
-                      Last 30d
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
-                      onClick={() => void applyPreset("90d")}
-                    >
-                      Last 90d
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
-                      onClick={() => void applyPreset("ytd")}
-                    >
-                      YTD
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-2 sm:flex sm:justify-end xl:justify-start">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-9 w-9 sm:h-10 sm:w-10"
-                      onClick={() =>
-                        void loadAnalytics({ since, until, keepInputs: true })
-                      }
-                      disabled={isLoading || isRefreshing}
-                      aria-label="Refresh analytics"
-                    >
-                      <RefreshCw
-                        className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                      />
-                    </Button>
-                    <Button
-                      className="h-9 w-full text-xs sm:h-10 sm:w-auto sm:text-sm"
-                      onClick={() => void applyFilter()}
-                      disabled={isLoading || isRefreshing}
-                    >
-                      <Filter className="mr-2 h-4 w-4" /> Apply
-                    </Button>
+                  <div className="min-w-0">
+                    <label className="mb-1 block text-[11px] uppercase tracking-wide text-bt-blue-100 sm:text-xs">
+                      Until
+                    </label>
+                    <Input
+                      type="date"
+                      className="h-9 min-w-0 w-full max-w-full text-xs sm:h-10 sm:text-sm"
+                      value={until}
+                      onChange={(event) => setUntil(event.target.value)}
+                    />
                   </div>
                 </div>
+
+                <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2 sm:col-span-2 xl:col-span-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                    onClick={() => void applyPreset("30d")}
+                  >
+                    Last 30d
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                    onClick={() => void applyPreset("90d")}
+                  >
+                    Last 90d
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-2 text-xs sm:h-10 sm:px-3 sm:text-sm"
+                    onClick={() => void applyPreset("ytd")}
+                  >
+                    YTD
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-2 sm:flex sm:justify-end xl:justify-start">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 sm:h-10 sm:w-10"
+                    onClick={() =>
+                      void loadAnalytics({ since, until, keepInputs: true })
+                    }
+                    disabled={isLoading || isRefreshing}
+                    aria-label="Refresh analytics"
+                  >
+                    <RefreshCw
+                      className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
+                    />
+                  </Button>
+                  <Button
+                    className="h-9 w-full text-xs sm:h-10 sm:w-auto sm:text-sm"
+                    onClick={() => void applyFilter()}
+                    disabled={isLoading || isRefreshing}
+                  >
+                    <Filter className="mr-2 h-4 w-4" /> Apply
+                  </Button>
+                </div>
               </div>
+
 
               {filterError ? (
                 <p className="text-sm text-bt-red-200">{filterError}</p>
