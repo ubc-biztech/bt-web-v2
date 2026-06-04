@@ -209,7 +209,7 @@ export default function ManageMembers({ initialData }: Props) {
     } catch { }
   }, [visibleCols]);
   const selected = ALL_COLS.filter((c) => visibleCols[c.key]);
-  const hiddenCount = selected.length;
+  const selectedCount = selected.length;
 
   const showAllColumns = () =>
     setVisibleCols(
@@ -586,9 +586,9 @@ export default function ManageMembers({ initialData }: Props) {
                   >
                     <Columns3 className="h-4 w-4" />
                     <span className="hidden sm:inline">Columns</span>
-                    {hiddenCount > 0 && (
+                    {selectedCount > 0 && (
                       <span className="rounded-full bg-bt-green-300/20 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-bt-green-300">
-                        {hiddenCount}
+                        {selectedCount}
                       </span>
                     )}
                   </Button>
