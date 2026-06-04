@@ -201,12 +201,12 @@ export default function ManageMembers({ initialData }: Props) {
     try {
       const saved = localStorage.getItem(COLS_STORAGE_KEY);
       if (saved) setVisibleCols({ ...COLS_DEFAULT, ...JSON.parse(saved) });
-    } catch { }
+    } catch {}
   }, []);
   useEffect(() => {
     try {
       localStorage.setItem(COLS_STORAGE_KEY, JSON.stringify(visibleCols));
-    } catch { }
+    } catch {}
   }, [visibleCols]);
   const selected = ALL_COLS.filter((c) => visibleCols[c.key]);
   const selectedCount = selected.length;
@@ -250,12 +250,12 @@ export default function ManageMembers({ initialData }: Props) {
       if (Number.isFinite(parsed) && parsed > 0) {
         setPageSize(parsed);
       }
-    } catch { }
+    } catch {}
   }, []);
   useEffect(() => {
     try {
       localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize));
-    } catch { }
+    } catch {}
   }, [pageSize]);
 
   useEffect(() => {
@@ -855,12 +855,13 @@ export default function ManageMembers({ initialData }: Props) {
                         <TableRow
                           key={m.id}
                           data-state={rowSelected ? "selected" : undefined}
-                          className={`border-b border-bt-blue-300/40 ${rowSelected
-                            ? "bg-bt-green-300/5"
-                            : i % 2 === 0
-                              ? "bg-bt-blue-600"
-                              : "bg-bt-blue-500/30"
-                            } hover:bg-bt-blue-400/40 transition-colors`}
+                          className={`border-b border-bt-blue-300/40 ${
+                            rowSelected
+                              ? "bg-bt-green-300/5"
+                              : i % 2 === 0
+                                ? "bg-bt-blue-600"
+                                : "bg-bt-blue-500/30"
+                          } hover:bg-bt-blue-400/40 transition-colors`}
                         >
                           <TableCell className="w-[44px]">
                             <Checkbox
@@ -891,10 +892,11 @@ export default function ManageMembers({ initialData }: Props) {
                           {visibleCols.cardCount && (
                             <TableCell className="text-center">
                               <span
-                                className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium ${(m.cardCount ?? 0) > 0
-                                  ? "bg-bt-green-300/15 text-bt-green-300"
-                                  : "bg-white/5 text-white/50"
-                                  }`}
+                                className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                  (m.cardCount ?? 0) > 0
+                                    ? "bg-bt-green-300/15 text-bt-green-300"
+                                    : "bg-white/5 text-white/50"
+                                }`}
                               >
                                 {m.cardCount ?? 0}
                               </span>
@@ -1018,10 +1020,11 @@ export default function ManageMembers({ initialData }: Props) {
                 return (
                   <div
                     key={m.id}
-                    className={`rounded-xl border p-4 transition-colors ${rowSelected
-                      ? "border-bt-green-300/40 bg-bt-green-300/5"
-                      : "border-bt-blue-300/40 bg-bt-blue-500/20"
-                      }`}
+                    className={`rounded-xl border p-4 transition-colors ${
+                      rowSelected
+                        ? "border-bt-green-300/40 bg-bt-green-300/5"
+                        : "border-bt-blue-300/40 bg-bt-blue-500/20"
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="pt-0.5">
@@ -1037,10 +1040,11 @@ export default function ManageMembers({ initialData }: Props) {
                             {m.firstName || "\u2014"} {m.lastName || "\u2014"}
                           </p>
                           <span
-                            className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${(m.cardCount ?? 0) > 0
-                              ? "bg-bt-green-300/15 text-bt-green-300"
-                              : "bg-white/5 text-white/40"
-                              }`}
+                            className={`shrink-0 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                              (m.cardCount ?? 0) > 0
+                                ? "bg-bt-green-300/15 text-bt-green-300"
+                                : "bg-white/5 text-white/40"
+                            }`}
                           >
                             <CreditCard className="h-3 w-3" />
                             {m.cardCount ?? 0}
@@ -1187,10 +1191,11 @@ export default function ManageMembers({ initialData }: Props) {
                       <button
                         key={p}
                         onClick={() => setPage(p as number)}
-                        className={`h-8 min-w-[2rem] rounded-md px-2 text-xs font-medium transition-colors ${page === p
-                          ? "bg-bt-green-300 text-bt-blue-600"
-                          : "text-white/70 hover:bg-bt-blue-400/50 hover:text-white"
-                          }`}
+                        className={`h-8 min-w-[2rem] rounded-md px-2 text-xs font-medium transition-colors ${
+                          page === p
+                            ? "bg-bt-green-300 text-bt-blue-600"
+                            : "text-white/70 hover:bg-bt-blue-400/50 hover:text-white"
+                        }`}
                       >
                         {p}
                       </button>
