@@ -24,6 +24,7 @@ import {
 import { Filter, Search, Download, Copy, Check } from "lucide-react";
 import { TableFilterButtons } from "./TableFilterButtons";
 import { TableIconButtons } from "./TableIconButtons";
+import { AddAttendeeDialog } from "./AddAttendeeDialog";
 import { Table } from "@tanstack/react-table";
 import {
   Dialog,
@@ -78,6 +79,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
+  const [showAddAttendee, setShowAddAttendee] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newStatus, setNewStatus] = useState("");
@@ -357,6 +359,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between space-x-2 mt-4 lg:mt-0">
+        <Button
+          className="text-bt-blue-400 bg-bt-green-300 mr-2"
+          onClick={() => {
+            setShowAddAttendee(true);
+          }}
+        >
+          + Add Attendee
+        </Button>
         <Select value={selectedValue} onValueChange={handleSelectChange}>
           <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
             <SelectValue placeholder="Attendees" />
@@ -481,6 +491,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           </Button>
         </DialogContent>
       </Dialog>
+
+      <AddAttendeeDialog
+        open={showAddAttendee}
+        onOpenChange={setShowAddAttendee}
+        eventId={eventId}
+        year={year}
+        refreshTable={refreshTable}
+      />
 
       <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
         <DialogContent className="max-w-md w-full bg-bt-blue-400">
