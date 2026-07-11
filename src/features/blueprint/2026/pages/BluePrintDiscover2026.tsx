@@ -40,9 +40,7 @@ export default function BluePrintDiscover2026({
 
   // Get user profile to extract profile ID
   const { data: userProfile } = useUserProfile();
-  const profileId = userProfile?.compositeID
-    ? getProfileId(userProfile.compositeID)
-    : null;
+  const profileId = getProfileId(userProfile) || null;
 
   // Get user's MBTI for recommendations
   const { data: quizReport } = useQuizReport(profileId ?? undefined);

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { NFCWriter } from "./NFCWriter";
 import { useNFCSupport } from "@/hooks/useNFCSupport";
 import { generateNfcProfileUrl } from "@/util/nfcUtils";
+import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
 
 // Generates consistent avatar images based on user ID seed
 // Uses DiceBear API to create unique but repeatable profile pictures
@@ -37,11 +38,36 @@ export const NfcPopup: React.FC<NfcPopupProps> = ({
   numCards,
 }: NfcPopupProps) => {
   const [showWriter, setShowWriter] = useState(false);
+  const [resolvedToken, setResolvedToken] = useState(uuid);
   const { isNFCSupported } = useNFCSupport();
+  const { checkUserNeedsCard } = useUserNeedsCard();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (uuid) {
+      setResolvedToken(uuid);
+      return;
+    }
+
+    checkUserNeedsCard(email)
+      .then((check) => {
+        if (!cancelled) setResolvedToken(check.profileID ?? "");
+      })
+      .catch(() => {
+        if (!cancelled) setResolvedToken("");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // checkUserNeedsCard is intentionally omitted because the hook returns a new function each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email, uuid]);
 
   const profileImage = useMemo(() => {
-    return image || generateSeededImage(uuid);
-  }, [image, uuid]);
+    return image || generateSeededImage(resolvedToken || email);
+  }, [email, image, resolvedToken]);
 
   const openWriter = () => {
     setShowWriter(true);
@@ -61,7 +87,7 @@ export const NfcPopup: React.FC<NfcPopupProps> = ({
     <>
       {showWriter && (
         <NFCWriter
-          token={uuid}
+          token={resolvedToken}
           firstName={firstName}
           email={email}
           exit={closeWriter}
@@ -73,7 +99,11 @@ export const NfcPopup: React.FC<NfcPopupProps> = ({
 
       {/* Show appropriate content based on device support */}
       {!isNFCSupported ? (
-        <DeviceNotSupported name={firstName} exit={exit} token={uuid} />
+        <DeviceNotSupported
+          name={firstName}
+          exit={exit}
+          token={resolvedToken}
+        />
       ) : (
         <div>
           <NfcPopupContent
@@ -101,6 +131,8 @@ const DeviceNotSupported = ({
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async () => {
+    if (!token) return;
+
     try {
       await navigator.clipboard.writeText(nfcUrl);
       setCopied(true);
@@ -120,15 +152,18 @@ const DeviceNotSupported = ({
         </div>
 
         <div className="bg-white/10 p-4 rounded-lg border border-white/20 font-mono text-sm break-all max-w-full text-left text-white/90">
-          {nfcUrl}
+          {token ? nfcUrl : "Profile link unavailable"}
         </div>
 
         <button
           onClick={copyToClipboard}
+          disabled={!token}
           className={`cursor-pointer flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-all duration-200 font-medium min-w-[160px] border ${
             copied
               ? "text-emerald-400 bg-emerald-400/10 border-emerald-400"
-              : "text-blue-500 bg-blue-500/10 border-blue-500"
+              : token
+                ? "text-blue-500 bg-blue-500/10 border-blue-500"
+                : "text-white/40 bg-white/5 border-white/10 cursor-not-allowed"
           }`}
         >
           {copied ? (

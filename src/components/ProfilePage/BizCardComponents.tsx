@@ -1,7 +1,5 @@
-import { Share } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 interface UserQuestionResponse {
   question: string;
@@ -9,14 +7,15 @@ interface UserQuestionResponse {
 }
 
 interface BiztechProfile {
-  compositeID: string;
+  profileID?: string;
+  compositeID?: string;
   profileType: "EXEC" | "ATTENDEE" | "PARTNER";
   fname: string;
   lname: string;
   pronouns: string;
   year: string;
   major: string;
-  viewableMap: Record<string, boolean>;
+  viewableMap?: Record<string, boolean>;
   hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
@@ -24,6 +23,7 @@ interface BiztechProfile {
   linkedIn?: string;
   profilePictureURL?: string;
   additionalLink?: string;
+  resumeURL?: string;
   description?: string;
   company?: string;
   position?: string;

@@ -16,9 +16,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
     isLoading: profileLoading,
     isError: profileError,
   } = useUserProfile();
-  const profileId = userProfile?.compositeID
-    ? getProfileId(userProfile.compositeID)
-    : undefined;
+  const profileId = getProfileId(userProfile) || undefined;
 
   React.useEffect(() => {}, [profileLoading, profileError, profileId]);
 

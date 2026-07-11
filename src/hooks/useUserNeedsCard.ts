@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { fetchBackend } from "@/lib/db";
 
+type MemberCardRecord = {
+  cardCount?: number;
+  profileID?: string | null;
+};
+
+type UserProfileRecord = {
+  profileID?: string | null;
+};
+
 /**
  * Custom hook to check if a user needs an NFC membership card
  * @param userID - The user's email/ID
@@ -23,12 +32,11 @@ export const useUserNeedsCard = () => {
     setIsLoading(true);
     setError(null);
 
-    /* original logic */
     try {
-      const member = await fetchBackend({
+      const member = (await fetchBackend({
         endpoint: `/members/${userID}`,
         method: "GET",
-      });
+      })) as MemberCardRecord | null;
 
       if (!member) {
         // User is not a member, hence no need for card
@@ -37,12 +45,26 @@ export const useUserNeedsCard = () => {
         return { needsCard: false, profileID: null };
       }
 
+      let profileID = member.profileID ?? null;
+      if (!profileID) {
+        const user = (await fetchBackend({
+          endpoint: `/users/${userID}`,
+          method: "GET",
+        })) as UserProfileRecord | null;
+        profileID = user?.profileID ?? null;
+      }
+
+      if (!profileID) {
+        setError("Member does not have a profile ID yet");
+        return { needsCard: false, profileID: null };
+      }
+
       if (member.cardCount && member.cardCount > 0) {
-        return { needsCard: false, profileID: member.profileID };
+        return { needsCard: false, profileID };
       }
 
       // User needs a card
-      return { needsCard: true, profileID: member.profileID };
+      return { needsCard: true, profileID };
     } catch (e: any) {
       // Handle 404 errors specifically (user not found)
       // user is not a member, hence no need for card

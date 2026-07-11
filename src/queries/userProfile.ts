@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
+import { getProfileIdFromSource, normalizeViewableMap } from "@/util/profile";
 
 export interface UserProfile {
-  compositeID: string;
+  profileID?: string;
+  compositeID?: string;
   profileType: string;
   fname: string;
   lname: string;
@@ -16,10 +18,11 @@ export interface UserProfile {
   linkedIn?: string;
   profilePictureURL?: string;
   additionalLink?: string;
+  resumeURL?: string;
   description?: string;
   company?: string;
   position?: string;
-  viewableMap: Record<string, boolean>;
+  viewableMap?: Record<string, boolean>;
 }
 
 export interface UserProfileByEmail {
@@ -33,7 +36,11 @@ async function fetchUserProfile(): Promise<UserProfile> {
     method: "GET",
     authenticatedCall: true,
   });
-  return response;
+  return {
+    ...response,
+    resumeURL: response?.resumeURL ?? "",
+    viewableMap: normalizeViewableMap(response?.viewableMap),
+  };
 }
 
 export function useUserProfile() {
@@ -65,6 +72,8 @@ export function useUserProfileByEmail(email: string | undefined) {
   });
 }
 
-export function getProfileId(compositeID: string): string {
-  return compositeID.split("#")[1] || "";
+export function getProfileId(
+  profile: string | Pick<UserProfile, "profileID" | "compositeID"> | undefined,
+): string {
+  return getProfileIdFromSource(profile);
 }

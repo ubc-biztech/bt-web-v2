@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   Linkedin,
   ExternalLink,
+  FileText,
   Edit,
   X,
   Save,
@@ -29,6 +30,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import { DynamicPageProps } from "@/constants/companion-events";
 import { useQueryClient } from "@tanstack/react-query";
+import { ensureAbsoluteUrl, normalizeViewableMap } from "@/util/profile";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -65,9 +67,7 @@ export default function BluePrintProfile2026(
   const [isEditing, setIsEditing] = useState(false);
 
   const { data: currentUserProfile } = useUserProfile();
-  const currentUserProfileId = currentUserProfile?.compositeID
-    ? getProfileId(currentUserProfile.compositeID)
-    : null;
+  const currentUserProfileId = getProfileId(currentUserProfile) || null;
   const isOwnProfile =
     currentUserProfileId?.toLowerCase() === profileId?.toLowerCase();
 
@@ -104,6 +104,7 @@ export default function BluePrintProfile2026(
           linkedIn: backendProfile.linkedIn,
           profilePictureURL: backendProfile.profilePictureURL,
           additionalLink: backendProfile.additionalLink,
+          resumeURL: backendProfile.resumeURL ?? "",
           description: backendProfile.description,
           major: backendProfile.major,
           year: backendProfile.year,
@@ -114,7 +115,7 @@ export default function BluePrintProfile2026(
           company: backendProfile.company,
           companyProfileID: backendProfile.companyProfileID,
           companyProfilePictureURL: backendProfile.companyProfilePictureURL,
-          viewableMap: backendProfile.viewableMap,
+          viewableMap: normalizeViewableMap(backendProfile.viewableMap),
         };
 
         setProfile(transformedProfile);
@@ -435,18 +436,16 @@ function ProfileLinks({ profile }: { profile: UserProfile }) {
     profile.linkedIn && profile.viewableMap?.linkedIn !== false;
   const showAdditionalLink =
     profile.additionalLink && profile.viewableMap?.additionalLink !== false;
+  const showResume =
+    profile.resumeURL && profile.viewableMap?.resumeURL === true;
 
-  if (!showLinkedIn && !showAdditionalLink) return null;
+  if (!showLinkedIn && !showAdditionalLink && !showResume) return null;
 
   return (
     <div className="flex flex-col gap-3">
       {showLinkedIn && (
         <a
-          href={
-            profile.linkedIn!.startsWith("http")
-              ? profile.linkedIn
-              : `https://${profile.linkedIn}`
-          }
+          href={ensureAbsoluteUrl(profile.linkedIn!)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full"
@@ -460,11 +459,7 @@ function ProfileLinks({ profile }: { profile: UserProfile }) {
 
       {showAdditionalLink && (
         <a
-          href={
-            profile.additionalLink!.startsWith("http")
-              ? profile.additionalLink
-              : `https://${profile.additionalLink}`
-          }
+          href={ensureAbsoluteUrl(profile.additionalLink!)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full"
@@ -472,6 +467,20 @@ function ProfileLinks({ profile }: { profile: UserProfile }) {
           <BluePrintButton className="w-full justify-center py-3 bg-transparent border-white/30">
             <ExternalLink size={18} />
             <span>Additional Link</span>
+          </BluePrintButton>
+        </a>
+      )}
+
+      {showResume && (
+        <a
+          href={ensureAbsoluteUrl(profile.resumeURL!)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full"
+        >
+          <BluePrintButton className="w-full justify-center py-3 bg-transparent border-white/30">
+            <FileText size={18} />
+            <span>Resume</span>
           </BluePrintButton>
         </a>
       )}
@@ -487,6 +496,7 @@ interface ProfileFormData {
   funQuestion2: string;
   linkedIn: string;
   additionalLink: string;
+  resumeURL: string;
   profilePictureURL: string;
   viewableMap: Record<string, boolean>;
   [key: string]: unknown;
@@ -528,11 +538,14 @@ function BluePrintEditProfile({
       funQuestion2: profile.funQuestion2 || "",
       linkedIn: profile.linkedIn || "",
       additionalLink: profile.additionalLink || "",
+      resumeURL: profile.resumeURL || "",
       profilePictureURL:
         currentUserProfile?.profilePictureURL ||
         profile.profilePictureURL ||
         "",
-      viewableMap: currentUserProfile?.viewableMap || {},
+      viewableMap: normalizeViewableMap(
+        currentUserProfile?.viewableMap || profile.viewableMap,
+      ),
     },
   });
 
@@ -549,6 +562,7 @@ function BluePrintEditProfile({
         funQuestion2: !!data.funQuestion2?.trim(),
         linkedIn: !!data.linkedIn?.trim(),
         additionalLink: !!data.additionalLink?.trim(),
+        resumeURL: data.viewableMap?.resumeURL ?? false,
         profilePictureURL: !!data.profilePictureURL?.trim(),
       };
 
@@ -580,7 +594,9 @@ function BluePrintEditProfile({
         funQuestion2: data.funQuestion2,
         linkedIn: data.linkedIn,
         additionalLink: data.additionalLink,
+        resumeURL: data.resumeURL,
         profilePictureURL: data.profilePictureURL,
+        viewableMap: updatedViewableMap,
       };
       onSave(updatedProfile);
     } catch (error) {
@@ -716,7 +732,33 @@ function BluePrintEditProfile({
                     className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
                   />
                 </div>
+                <div className="flex items-center gap-2">
+                  <FileText
+                    size={18}
+                    className="text-[#6299ff] flex-shrink-0"
+                  />
+                  <input
+                    {...register("resumeURL")}
+                    placeholder="https://drive.google.com/file/..."
+                    className="w-full bg-black/30 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-[#6299ff]/50"
+                  />
+                </div>
               </div>
+            </BluePrintCard>
+
+            <BluePrintCard className="bg-black/40 border-white/20">
+              <label
+                htmlFor="viewableMap.resumeURL"
+                className="flex items-center justify-between gap-4 text-sm text-white/80"
+              >
+                <span>Show resume on public profile</span>
+                <input
+                  id="viewableMap.resumeURL"
+                  type="checkbox"
+                  {...register("viewableMap.resumeURL")}
+                  className="h-4 w-4 rounded border-white/30 bg-black/30"
+                />
+              </label>
             </BluePrintCard>
 
             {/* Submit Button */}

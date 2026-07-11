@@ -1,6 +1,7 @@
 import {
   Share,
   ExternalLink,
+  FileText,
   Calendar,
   LinkIcon,
   IdCardLanyard,
@@ -40,7 +41,7 @@ import {
 import { User } from "@/types";
 
 interface NFCProfilePageProps {
-  profileData: BiztechProfile;
+  profileData: BiztechProfile | null;
   profileID: string;
   isConnected: boolean;
   signedIn: boolean;
@@ -165,9 +166,20 @@ const ProfilePage = ({
       ),
     });
 
+    const checkedProfile = profileData;
+    if (!checkedProfile) {
+      loadingToast.update({
+        id: loadingToast.id,
+        title: "Check-in Failed",
+        description: "Profile data is unavailable.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
     try {
       await fetchBackend({
-        endpoint: `/registrations/${userEmail}/${profileData.fname}`,
+        endpoint: `/registrations/${userEmail}/${checkedProfile.fname}`,
         method: "PUT",
         data: checkInData,
       });
@@ -181,7 +193,7 @@ const ProfilePage = ({
               <CheckCircle className="w-3 h-3 text-white" />
             </div>
             <span>
-              {profileData.fname} {profileData.lname} has been checked in.
+              {checkedProfile.fname} {checkedProfile.lname} has been checked in.
             </span>
           </div>
         ),
@@ -355,6 +367,7 @@ const ProfilePage = ({
     linkedIn,
     profilePictureURL,
     additionalLink,
+    resumeURL,
     description,
     company,
     position,
@@ -375,6 +388,9 @@ const ProfilePage = ({
           label="Additional Link"
           url={additionalLink}
         />
+      )}
+      {resumeURL && profileData.viewableMap?.resumeURL === true && (
+        <LinkButton linkIcon={FileText} label="Resume" url={resumeURL} />
       )}
     </div>
   );
