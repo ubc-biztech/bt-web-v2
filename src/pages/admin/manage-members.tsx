@@ -338,11 +338,30 @@ export default function ManageMembers({ initialData }: Props) {
     setSelectedMember(null);
   };
 
+  const resolveMemberProfileId = async (member: Member) => {
+    if (member.profileID) return member.profileID;
+
+    const user = await fetchBackend({
+      endpoint: `/users/${member.id}`,
+      method: "GET",
+    });
+    return typeof user?.profileID === "string" ? user.profileID : "";
+  };
+
   const copyNfcContent = async (member: Member) => {
     try {
-      const nfcUrl = generateNfcProfileUrl(member.profileID);
+      const profileId = await resolveMemberProfileId(member);
+      if (!profileId) {
+        toast({
+          description: "This member does not have a profile ID yet.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const nfcUrl = generateNfcProfileUrl(profileId);
       await navigator.clipboard.writeText(nfcUrl);
-      setCopiedMemberId(member.profileID);
+      setCopiedMemberId(member.id);
       setTimeout(() => setCopiedMemberId(null), 2000);
       toast({ description: "NFC URL copied." });
     } catch {
@@ -929,7 +948,7 @@ export default function ManageMembers({ initialData }: Props) {
                                       className="h-8 text-xs"
                                       onClick={() => copyNfcContent(m)}
                                     >
-                                      {copiedMemberId === m.profileID ? (
+                                      {copiedMemberId === m.id ? (
                                         <>
                                           <Check className="mr-1.5 h-3.5 w-3.5 text-bt-green-300" />
                                           Copied
@@ -1080,7 +1099,7 @@ export default function ManageMembers({ initialData }: Props) {
                           className="h-8 flex-1 text-xs"
                           onClick={() => copyNfcContent(m)}
                         >
-                          {copiedMemberId === m.profileID ? (
+                          {copiedMemberId === m.id ? (
                             <>
                               <Check className="mr-1.5 h-3.5 w-3.5 text-bt-green-300" />
                               Copied
@@ -1215,7 +1234,6 @@ export default function ManageMembers({ initialData }: Props) {
         {/* NFC Writer Modal */}
         {showNfcWriter && selectedMember && (
           <NFCWriter
-            token={selectedMember.profileID}
             email={selectedMember.id}
             firstName={selectedMember.firstName}
             exit={closeNfcWriter}

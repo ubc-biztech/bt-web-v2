@@ -39,7 +39,7 @@ export default function CompanyPage() {
     const fetchUserData = async () => {
       try {
         const response = await fetchBackend({
-          endpoint: `/profiles/${profileId}`,
+          endpoint: `/profiles/profile/${profileId}`,
           method: "GET",
           authenticatedCall: false,
         });

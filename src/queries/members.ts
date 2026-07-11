@@ -2,7 +2,8 @@ import { fetchBackend } from "@/lib/db";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export interface Member {
-  profileID: string;
+  profileID?: string;
+  profileType?: "PARTNER" | "EXEC" | "ATTENDEE";
   id: string;
   firstName: string;
   lastName: string;

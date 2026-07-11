@@ -3,6 +3,7 @@
 import {
   Share,
   ExternalLink,
+  FileText,
   Calendar,
   LinkIcon,
   IdCardLanyard,
@@ -24,15 +25,16 @@ import { fetchBackend } from "@/lib/db";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { redirect, useRouter as useNavRouter } from "next/navigation";
+import { useRouter as useNavRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { FormTextarea } from "../Events/FormComponents/FormTextarea";
 import { EditProfileForm } from "./EditProfileForm";
 import Image from "next/image";
 import { IconButton } from "../Common/IconButton";
+import { getProfileIdFromSource, normalizeViewableMap } from "@/util/profile";
 
 interface NFCProfilePageProps {
-  profileData: BiztechProfile;
+  profileData: BiztechProfile | null;
   error?: string;
 }
 
@@ -44,6 +46,7 @@ type ProfileFormFieldNames =
   | "linkedIn"
   | "profilePictureURL"
   | "additionalLink"
+  | "resumeURL"
   | "description";
 
 interface ProfileUpdateForm {
@@ -57,6 +60,7 @@ interface ProfileUpdateForm {
   linkedIn?: string;
   profilePictureURL?: string;
   additionalLink?: string;
+  resumeURL?: string;
   description?: string;
   [key: string]: unknown;
 }
@@ -65,7 +69,15 @@ export const EditProfilePage = ({
   profileData: initialProfileData,
   error,
 }: NFCProfilePageProps) => {
-  const [profileData, setProfileData] = useState(initialProfileData);
+  const [profileData, setProfileData] = useState<BiztechProfile | null>(
+    initialProfileData
+      ? {
+          ...initialProfileData,
+          resumeURL: initialProfileData.resumeURL ?? "",
+          viewableMap: normalizeViewableMap(initialProfileData.viewableMap),
+        }
+      : null,
+  );
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +102,7 @@ export const EditProfilePage = ({
     formState: { errors, isDirty },
   } = useForm<ProfileUpdateForm>({
     defaultValues: {
-      viewableMap: profileData?.viewableMap || {},
+      viewableMap: normalizeViewableMap(profileData?.viewableMap),
       hobby1: profileData?.hobby1 || "",
       hobby2: profileData?.hobby2 || "",
       funQuestion1: profileData?.funQuestion1 || "",
@@ -98,6 +110,7 @@ export const EditProfilePage = ({
       linkedIn: profileData?.linkedIn || "",
       profilePictureURL: profileData?.profilePictureURL || "",
       additionalLink: profileData?.additionalLink || "",
+      resumeURL: profileData?.resumeURL || "",
       description: profileData?.description || "",
     },
     shouldUnregister: false,
@@ -108,9 +121,6 @@ export const EditProfilePage = ({
     typeof window !== "undefined"
       ? window.location.origin
       : "v2.ubcbiztech.com";
-
-  const profileId = profileData.compositeID.split("#")[1];
-  const fullURL = `${domain}/profile/${profileId}?scan=true`;
 
   if (!profileData) {
     return (
@@ -141,8 +151,12 @@ export const EditProfilePage = ({
     linkedIn,
     profilePictureURL,
     additionalLink,
+    resumeURL,
     description,
   } = profileData;
+  const viewableMap = normalizeViewableMap(profileData.viewableMap);
+  const profileId = getProfileIdFromSource(profileData);
+  const fullURL = `${domain}/profile/${profileId}?scan=true`;
 
   const questions = [funQuestion1, funQuestion2];
 
@@ -191,6 +205,9 @@ export const EditProfilePage = ({
           label="Additional Link"
           url={additionalLink}
         />
+      )}
+      {resumeURL && viewableMap.resumeURL && (
+        <LinkButton linkIcon={FileText} label="Resume" url={resumeURL} />
       )}
     </div>
   ));
@@ -251,8 +268,7 @@ export const EditProfilePage = ({
       <div className="flex flex-col justify-center items-center col-span-1 gap-4">
         <div className="place-items-center w-fit">
           <div className="w-32 h-32 bg-bt-blue-100 relative overflow-hidden rounded-full mx-auto mb-4 flex items-center justify-center">
-            {profileData.profilePictureURL &&
-            profileData.viewableMap.profilePictureURL ? (
+            {profileData.profilePictureURL && viewableMap.profilePictureURL ? (
               <Image
                 src={profileData.profilePictureURL}
                 alt="Profile Picture"
@@ -316,10 +332,10 @@ export const EditProfilePage = ({
                     <div className="inline-flex flex-wrap items-center gap-2">
                       <span className="text-sm text-bt-blue-0">Hobbies:</span>
                       <div className="flex flex-wrap gap-2">
-                        {hobby1 && profileData.viewableMap.hobby1 && (
+                        {hobby1 && viewableMap.hobby1 && (
                           <HobbyTag hobby={hobby1} />
                         )}
-                        {hobby2 && profileData.viewableMap.hobby1 && (
+                        {hobby2 && viewableMap.hobby2 && (
                           <HobbyTag hobby={hobby2} />
                         )}
                       </div>

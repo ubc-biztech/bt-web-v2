@@ -1,10 +1,11 @@
 import { fetchBackend } from "@/lib/db";
 import { UserProfile, BackendProfile } from "@/types";
 import { useQuery } from "@tanstack/react-query";
+import { normalizeViewableMap } from "@/util/profile";
 
 export async function getProfile(profileId: string): Promise<UserProfile> {
   const response = await fetchBackend({
-    endpoint: `/profiles/${profileId}`,
+    endpoint: `/profiles/profile/${profileId}`,
     method: "GET",
     authenticatedCall: false,
   });
@@ -24,6 +25,7 @@ export async function getProfile(profileId: string): Promise<UserProfile> {
     linkedIn: backendProfile.linkedIn,
     profilePictureURL: backendProfile.profilePictureURL,
     additionalLink: backendProfile.additionalLink,
+    resumeURL: backendProfile.resumeURL ?? "",
     description: backendProfile.description,
     major: backendProfile.major,
     year: backendProfile.year,
@@ -34,6 +36,7 @@ export async function getProfile(profileId: string): Promise<UserProfile> {
     company: backendProfile.company,
     companyProfileID: backendProfile.companyProfileID,
     companyProfilePictureURL: backendProfile.companyProfilePictureURL,
+    viewableMap: normalizeViewableMap(backendProfile.viewableMap),
   };
 
   return transformedProfile;

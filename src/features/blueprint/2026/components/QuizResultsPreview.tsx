@@ -118,9 +118,7 @@ export default function QuizResultsPreview() {
 
   const { data: userProfile, isLoading: profileLoading } = useUserProfile();
 
-  const profileId = userProfile?.compositeID
-    ? getProfileId(userProfile.compositeID)
-    : null;
+  const profileId = getProfileId(userProfile) || null;
 
   const { data: quizReport, isLoading: quizLoading } = useQuizReport(
     profileId ?? undefined,

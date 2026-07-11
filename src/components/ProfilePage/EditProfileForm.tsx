@@ -11,6 +11,7 @@ import { z } from "zod";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormTextarea } from "./FormComponents/FormTextarea";
 import ProfilePhotoUploader from "@/components/ProfilePage/ProfilePhotoUploader";
+import { normalizeViewableMap } from "@/util/profile";
 
 export const profileFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -34,6 +35,11 @@ export const profileFormSchema = z.object({
   additionalLink: z
     .string()
     .url("Additional link must be a valid URL")
+    .optional()
+    .or(z.literal("")), // Allow empty strings
+  resumeURL: z
+    .string()
+    .url("Resume link must be a valid URL")
     .optional()
     .or(z.literal("")), // Allow empty strings
   viewableMap: z.record(
@@ -72,8 +78,9 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
       linkedIn: "",
       profilePictureURL: "",
       additionalLink: "",
-      viewableMap: {},
       ...profileData,
+      resumeURL: profileData.resumeURL ?? "",
+      viewableMap: normalizeViewableMap(profileData.viewableMap),
     },
     mode: "onChange",
   });
@@ -178,6 +185,14 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                 inputClassName="w-full truncate [&::placeholder]:text-sm"
               />
 
+              <FormInput
+                name="resumeURL"
+                label="Resume Link"
+                placeholder="https://drive.google.com/file/..."
+                control={form.control}
+                inputClassName="w-full truncate [&::placeholder]:text-sm"
+              />
+
               <ProfilePhotoUploader
                 value={form.watch("profilePictureURL")}
                 onChange={(url) =>
@@ -209,6 +224,7 @@ export const EditProfileForm: React.FC<NFCProfilePageProps> = ({
                       { key: "funQuestion2", label: "Fun Question 2" },
                       { key: "linkedIn", label: "LinkedIn" },
                       { key: "additionalLink", label: "Additional Link" },
+                      { key: "resumeURL", label: "Resume Link" },
                       { key: "profilePictureURL", label: "Profile Picture" },
                     ] as const
                   ).map(({ key, label }) => (

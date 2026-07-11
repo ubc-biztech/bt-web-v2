@@ -70,6 +70,7 @@ export const NFCWriter = ({
 }: NFCWriterProps) => {
   const [status, setStatus] = useState<Status>("loading");
   const [token, setToken] = useState<string>(profileID || "");
+  const tokenRef = useRef<string>(profileID || "");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { isNFCSupported, isLoading } = useNFCSupport();
   const { checkUserNeedsCard } = useUserNeedsCard();
@@ -86,8 +87,6 @@ export const NFCWriter = ({
   // Visual styling classes based on current status
   const isSuccess = status === "success";
   const isError = status === "error" || status === "non_member";
-
-  const nfcUrl = generateNfcProfileUrl(token);
 
   // Helper component for consistent status rendering
   const StatusContent = ({
@@ -217,7 +216,9 @@ export const NFCWriter = ({
       if (!ndef) return;
 
       await ndef.write({
-        records: [{ recordType: "url", data: nfcUrl }],
+        records: [
+          { recordType: "url", data: generateNfcProfileUrl(tokenRef.current) },
+        ],
       });
 
       clearOpTimeout();
@@ -270,7 +271,9 @@ export const NFCWriter = ({
     try {
       if (token === "" || !token) {
         const check = await checkUserNeedsCard(email);
-        setToken(check.profileID ?? "");
+        const resolvedToken = check.profileID ?? "";
+        tokenRef.current = resolvedToken;
+        setToken(resolvedToken);
         if (!check.profileID) {
           setStatus("non_member");
           return;
@@ -282,6 +285,7 @@ export const NFCWriter = ({
           setStatus("writing");
         }
       } else {
+        tokenRef.current = token;
         setStatus("writing");
       }
 

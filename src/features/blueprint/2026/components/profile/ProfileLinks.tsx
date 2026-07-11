@@ -1,13 +1,16 @@
 import { UserProfile } from "@/types";
 import BluePrintButton from "../BluePrintButton";
-import { Linkedin, ExternalLink } from "lucide-react";
+import { Linkedin, ExternalLink, FileText } from "lucide-react";
+import { ensureAbsoluteUrl } from "@/util/profile";
 
 interface ProfileLinksProps {
   profile: UserProfile;
 }
 
 export default function ProfileLinks({ profile }: ProfileLinksProps) {
-  const hasLinks = profile.linkedIn || profile.additionalLink;
+  const showResume =
+    profile.resumeURL && profile.viewableMap?.resumeURL === true;
+  const hasLinks = profile.linkedIn || profile.additionalLink || showResume;
 
   if (!hasLinks) return null;
 
@@ -15,11 +18,7 @@ export default function ProfileLinks({ profile }: ProfileLinksProps) {
     <div className="flex flex-col gap-3">
       {profile.linkedIn && (
         <a
-          href={
-            profile.linkedIn.startsWith("http")
-              ? profile.linkedIn
-              : `https://${profile.linkedIn}`
-          }
+          href={ensureAbsoluteUrl(profile.linkedIn)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full"
@@ -33,11 +32,7 @@ export default function ProfileLinks({ profile }: ProfileLinksProps) {
 
       {profile.additionalLink && (
         <a
-          href={
-            profile.additionalLink.startsWith("http")
-              ? profile.additionalLink
-              : `https://${profile.additionalLink}`
-          }
+          href={ensureAbsoluteUrl(profile.additionalLink)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full"
@@ -45,6 +40,20 @@ export default function ProfileLinks({ profile }: ProfileLinksProps) {
           <BluePrintButton className="w-full justify-center py-3 bg-transparent border-white/30">
             <ExternalLink size={18} />
             <span>View Portfolio</span>
+          </BluePrintButton>
+        </a>
+      )}
+
+      {showResume && (
+        <a
+          href={ensureAbsoluteUrl(profile.resumeURL!)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full"
+        >
+          <BluePrintButton className="w-full justify-center py-3 bg-transparent border-white/30">
+            <FileText size={18} />
+            <span>Resume</span>
           </BluePrintButton>
         </a>
       )}
