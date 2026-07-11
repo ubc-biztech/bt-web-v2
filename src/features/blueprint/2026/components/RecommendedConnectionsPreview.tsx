@@ -8,9 +8,7 @@ import { useUserProfile, getProfileId } from "@/queries/userProfile";
 export default function RecommendedConnectionsPreview() {
   // Get user profile to extract profile ID
   const { data: userProfile } = useUserProfile();
-  const profileId = userProfile?.compositeID
-    ? getProfileId(userProfile.compositeID)
-    : null;
+  const profileId = getProfileId(userProfile) || null;
 
   // Get user's MBTI for recommendations
   const { data: quizReport } = useQuizReport(profileId ?? undefined);

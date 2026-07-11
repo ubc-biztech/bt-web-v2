@@ -4,7 +4,7 @@ import { fetchBackendFromServer } from "@/lib/db";
 import { EditProfilePage } from "@/components/ProfilePage/EditProfilePage";
 
 interface NFCProfilePageProps {
-  profileData: BiztechProfile;
+  profileData: BiztechProfile | null;
   error?: string;
   isOwner?: boolean;
 }

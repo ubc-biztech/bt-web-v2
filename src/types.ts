@@ -63,6 +63,7 @@ export type FeedbackQuestion = {
 
 export type UserProfile = {
   profileID: string;
+  compositeID?: string;
   fname: string;
   lname: string;
   pronouns: string;
@@ -74,6 +75,7 @@ export type UserProfile = {
   linkedIn?: string;
   profilePictureURL?: string;
   additionalLink?: string;
+  resumeURL?: string;
   description?: string;
   major?: string;
   year?: string;
@@ -140,6 +142,7 @@ export type AttendeeBasicInformation = BasicInformation & {
 
 export type User = {
   id: string;
+  profileID?: string;
   isMember?: boolean;
   fname?: string;
   education?: string;
@@ -170,6 +173,7 @@ export type UserResponseList = {
 
 export type BackendProfile = {
   profileID: string;
+  compositeID?: string;
   fname: string;
   lname: string;
   pronouns: string;
@@ -181,6 +185,7 @@ export type BackendProfile = {
   linkedIn?: string;
   profilePictureURL?: string;
   additionalLink?: string;
+  resumeURL?: string;
   description?: string;
   major?: string;
   year?: string;
@@ -209,7 +214,8 @@ export type Member = {
   lastName: string;
   major: string;
   prevMember: boolean;
-  profileID: string;
+  profileID?: string;
+  profileType?: "ATTENDEE" | "EXEC" | "PARTNER";
   pronouns: string;
   studentNumber: string;
   topics: string;

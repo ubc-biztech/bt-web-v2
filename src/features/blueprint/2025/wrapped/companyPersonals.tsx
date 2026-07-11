@@ -92,7 +92,7 @@ const BoothSummary = ({ isPartner }: BoothSummaryProps) => {
       companyList.map(async (company) => {
         try {
           const data = await fetchBackend({
-            endpoint: `/profiles/${company.toLowerCase().replace(/[^a-zA-Z]/g, "")}`,
+            endpoint: `/profiles/profile/${company.toLowerCase().replace(/[^a-zA-Z]/g, "")}`,
             method: "GET",
             authenticatedCall: false,
           });

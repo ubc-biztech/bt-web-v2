@@ -27,9 +27,7 @@ const satoshiStyle = {
 export default function BluePrintMBTI2026({ eventId, year }: DynamicPageProps) {
   // Get user profile to extract profile ID
   const { data: userProfile } = useUserProfile();
-  const profileId = userProfile?.compositeID
-    ? getProfileId(userProfile.compositeID)
-    : null;
+  const profileId = getProfileId(userProfile) || null;
 
   const {
     data: quizReport,
