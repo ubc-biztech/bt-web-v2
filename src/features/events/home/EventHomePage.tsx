@@ -3,7 +3,10 @@ import { useUserRegistrations } from "@/queries/registrations";
 import { useUserAttributes } from "@/queries/user";
 import { useRouter } from "next/router";
 import { EventHeroHeader } from "./EventHeroHeader";
-import { RegistrationStatusModule } from "./RegistrationStatusModule";
+import {
+  defaultEventModules,
+  EventModuleRenderer,
+} from "./EventModuleRenderer";
 import type { EventHomeEvent, EventRegistrationRecord } from "./types";
 
 const getRouteParam = (value: string | string[] | undefined) =>
@@ -75,16 +78,18 @@ export default function EventHomePage() {
             <div>
               <EventHeroHeader event={event as EventHomeEvent} />
             </div>
-            <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <RegistrationStatusModule
-                event={event as EventHomeEvent}
-                counts={counts}
-                registration={registration}
-                registrationLoading={registrationLoading}
-                registrationHref={registrationHref}
-                signedIn={signedIn}
-              />
-            </div>
+            <EventModuleRenderer
+              event={event as EventHomeEvent}
+              counts={counts}
+              modules={
+                (event as EventHomeEvent).eventPage?.modules ??
+                defaultEventModules
+              }
+              registration={registration}
+              registrationLoading={registrationLoading}
+              registrationHref={registrationHref}
+              signedIn={signedIn}
+            />
           </>
         )}
       </div>

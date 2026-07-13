@@ -45,16 +45,14 @@ function getRegistrationCopy({
   isFull,
 }: RegistrationStatusModuleProps & { isFull: boolean }): RegistrationCopy {
   const isApplication = event.isApplicationBased;
-  const registrationLabel = isApplication
-    ? "Application"
-    : "Registration";
+  const registrationLabel = isApplication ? "Application" : "Registration";
   const rawStatus = registration?.registrationStatus;
   const deadlinePassed = isDateInPast(event.deadline);
 
   if (registrationLoading) {
     return {
       status: "Checking status...",
-      description: "We are loading your latest event registration state.",
+      description: `Checking your latest ${registrationLabel.toLowerCase()} status.`,
       actionLabel: `View ${registrationLabel.toLowerCase()}`,
       tone: "loading",
     };
@@ -74,8 +72,8 @@ function getRegistrationCopy({
     return {
       status: statusLabel,
       description: needsAction
-        ? `Continue through the existing ${registrationLabel.toLowerCase()} flow to finish your next step.`
-        : `Your ${registrationLabel.toLowerCase()} record is already on file for this event.`,
+        ? `Complete the remaining ${registrationLabel.toLowerCase()} steps to confirm your spot.`
+        : `Your ${registrationLabel.toLowerCase()} is already on file for this event.`,
       actionLabel: needsAction
         ? `Continue ${registrationLabel.toLowerCase()}`
         : `View ${registrationLabel.toLowerCase()}`,
@@ -91,7 +89,7 @@ function getRegistrationCopy({
   if (deadlinePassed) {
     return {
       status: `${registrationLabel} closed`,
-      description: `The ${registrationLabel.toLowerCase()} deadline has passed. The original form page can still show event-specific instructions.`,
+      description: `The ${registrationLabel.toLowerCase()} deadline has passed. Send inquiry through email if you have questions!`,
       actionLabel: `View ${registrationLabel.toLowerCase()} page`,
       tone: "closed",
     };
@@ -101,7 +99,7 @@ function getRegistrationCopy({
     return {
       status: "Event full",
       description:
-        "Capacity is currently full. The original form page can show whether waitlist or event-specific options are available.",
+        "Capacity is currently full. If available, waitlist options will appear in the registration form.",
       actionLabel: `View ${registrationLabel.toLowerCase()} page`,
       tone: "closed",
     };
@@ -110,8 +108,7 @@ function getRegistrationCopy({
   if (!signedIn) {
     return {
       status: isApplication ? "Not submitted" : "Not registered",
-      description:
-        "Start on the original form page. You will be asked to sign in before submitting.",
+      description: `Sign in to fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
       actionLabel: isApplication ? "Start application" : "Start registration",
       tone: "open",
     };
@@ -119,7 +116,7 @@ function getRegistrationCopy({
 
   return {
     status: isApplication ? "Not submitted" : "Not registered",
-    description: `Start the original ${registrationLabel.toLowerCase()} flow when you are ready.`,
+    description: `Fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
     actionLabel: isApplication ? "Start application" : "Start registration",
     tone: "open",
   };
@@ -190,7 +187,10 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
 
       <div className="grid gap-0 border-t border-[#242424] sm:grid-cols-3 sm:divide-x sm:divide-[#242424]">
         <div className="flex items-start gap-2.5 border-b border-[#242424] p-4 sm:border-b-0">
-          <Clock3 className="mt-0.5 h-4 w-4 text-[#9f9f9f]" aria-hidden="true" />
+          <Clock3
+            className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
+            aria-hidden="true"
+          />
           <div>
             <p className="text-[11px] font-800 uppercase tracking-[0.08em] text-[#858585]">
               Deadline
@@ -227,7 +227,10 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
         </div>
 
         <div className="flex items-start gap-2.5 p-4">
-          <Ticket className="mt-0.5 h-4 w-4 text-[#9f9f9f]" aria-hidden="true" />
+          <Ticket
+            className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
+            aria-hidden="true"
+          />
           <div>
             <p className="text-[11px] font-800 uppercase tracking-[0.08em] text-[#858585]">
               Pricing
