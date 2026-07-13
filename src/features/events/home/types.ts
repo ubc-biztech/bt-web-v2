@@ -4,17 +4,19 @@ import type { BiztechEvent } from "@/types/types";
 
 export type EventPageModuleType = "registration" | "qa" | "connections";
 
+export type EventPageModule = {
+  type: EventPageModuleType;
+  enabled: boolean;
+  order: number;
+  config?: Record<string, unknown>;
+};
+
 export type EventPageConfig = {
   enabled?: boolean;
   subtitle?: string;
   targetAudience?: string;
   externalUrl?: string;
-  modules?: Array<{
-    type: EventPageModuleType;
-    enabled: boolean;
-    order: number;
-    config?: Record<string, unknown>;
-  }>;
+  modules?: EventPageModule[];
 };
 
 export type EventHomeEvent = BiztechEvent & {

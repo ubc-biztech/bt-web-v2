@@ -117,7 +117,9 @@ export function getCapacityStats(event: EventHomeEvent, counts?: EventCounts) {
   const activeCount = registeredCount + checkedInCount;
   const spotsRemaining = capacity > 0 ? Math.max(capacity - activeCount, 0) : 0;
   const fillPercentage =
-    capacity > 0 ? Math.min(Math.round((activeCount / capacity) * 100), 100) : 0;
+    capacity > 0
+      ? Math.min(Math.round((activeCount / capacity) * 100), 100)
+      : 0;
 
   return {
     capacity,

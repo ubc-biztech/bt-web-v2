@@ -47,7 +47,8 @@ function DetailRow({ icon: Icon, label, value }: DetailRowProps) {
 
 export function EventHeroHeader({ event }: EventHeroHeaderProps) {
   const overview =
-    stripHtml(event.description) || "More event details will be available soon.";
+    stripHtml(event.description) ||
+    "More event details will be available soon.";
   const externalUrl = getExternalEventUrl(event);
   const eventInitial = event.ename?.charAt(0)?.toUpperCase() || "E";
 
