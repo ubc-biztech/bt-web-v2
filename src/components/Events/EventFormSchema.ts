@@ -13,7 +13,7 @@ export const eventFormSchema = z.object({
     required_error: "End date is required",
   }),
   location: z.string().min(1, "Location is required"),
-  imageUrl: z.string().min(1, "Image URL is required"),
+  imageUrl: z.string().min(1, "Cover photo is required"),
   deadline: z.date({
     required_error: "Registration deadline is required",
   }),
