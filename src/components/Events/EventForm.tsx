@@ -744,7 +744,7 @@ export const EventForm: React.FC<EventFormProps> = ({
               >
                 <FormTextarea
                   name="partnerDescription"
-                  label="Partner Description*"
+                  label="Partner Description"
                 />
                 <CustomQuestions
                   control={form.control}
