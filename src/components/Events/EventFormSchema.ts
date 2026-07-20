@@ -20,8 +20,11 @@ export const eventFormSchema = z.object({
   partnerDescription: z.string().min(1, "Partner description is required"),
 
   // Optional fields
-  price: z.number().default(0),
-  nonMemberPrice: z.number().optional(),
+  price: z.number().min(0, "Price cannot be negative").default(0),
+  nonMemberPrice: z
+    .number()
+    .min(0, "Non-member price cannot be negative")
+    .optional(),
   isApplicationBased: z.boolean().default(false),
   nonBizTechAllowed: z.boolean().default(false),
   isPublished: z.boolean().default(false),
@@ -43,9 +46,15 @@ export const eventFormSchema = z.object({
         question: z.string(),
         required: z.boolean(),
         options: z.array(z.string()),
-        charLimit: z.number().optional(),
+        charLimit: z
+          .number()
+          .min(0, "Character limit cannot be negative")
+          .optional(),
         questionImageUrl: z.string().optional(),
-        participantCap: z.number().optional(),
+        participantCap: z
+          .number()
+          .min(0, "Participant cap cannot be negative")
+          .optional(),
         isSkillsQuestion: z.boolean().optional(),
       }),
     )

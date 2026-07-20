@@ -337,7 +337,12 @@ export const EventForm: React.FC<EventFormProps> = ({
                     label="Event Slug (URL)*"
                     disabled={!!initialData}
                   />
-                  <FormInput name="capacity" label="Capacity*" type="number" />
+                  <FormInput
+                    name="capacity"
+                    label="Capacity*"
+                    type="number"
+                    min={1}
+                  />
                 </div>
                 <div className="rounded-lg bg-bt-blue-600/60 border border-bt-blue-300/20 px-3 py-2 text-xs text-bt-blue-100 space-y-0.5">
                   <div className="flex items-center gap-1.5 text-bt-green-300 font-medium mb-1">
@@ -384,7 +389,12 @@ export const EventForm: React.FC<EventFormProps> = ({
                 title="Pricing"
               >
                 <div className="space-y-4">
-                  <FormInput name="price" label="Member Price" type="number" />
+                  <FormInput
+                    name="price"
+                    label="Member Price"
+                    type="number"
+                    min={0}
+                  />
                   {!nonBizTechAllowed && (
                     <p className="text-sm text-bt-blue-100">
                       Enable &quot;Non-BizTech members allowed?&quot; above to
@@ -396,6 +406,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                       name="nonMemberPrice"
                       label="Non-Member Price"
                       type="number"
+                      min={0}
                     />
                   )}
                 </div>
