@@ -37,6 +37,25 @@ interface EventFormProps {
   eventYear?: string; // Add this prop for constructing URLs
 }
 
+const SectionCard: React.FC<{
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ icon, title, children, className = "" }) => (
+  <div
+    className={`rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-5 space-y-4 ${className}`}
+  >
+    <div className="flex items-center gap-2.5">
+      <span className="text-bt-green-300">{icon}</span>
+      <h4 className="text-sm font-semibold text-white tracking-wide uppercase">
+        {title}
+      </h4>
+    </div>
+    {children}
+  </div>
+);
+
 export const EventForm: React.FC<EventFormProps> = ({
   initialData,
   onSubmit,
@@ -157,25 +176,6 @@ export const EventForm: React.FC<EventFormProps> = ({
       };
     }
   };
-
-  const SectionCard: React.FC<{
-    icon: React.ReactNode;
-    title: string;
-    children: React.ReactNode;
-    className?: string;
-  }> = ({ icon, title, children, className = "" }) => (
-    <div
-      className={`rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-5 space-y-4 ${className}`}
-    >
-      <div className="flex items-center gap-2.5">
-        <span className="text-bt-green-300">{icon}</span>
-        <h4 className="text-sm font-semibold text-white tracking-wide uppercase">
-          {title}
-        </h4>
-      </div>
-      {children}
-    </div>
-  );
 
   return (
     <div className="text-white px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px] mx-auto w-full">
