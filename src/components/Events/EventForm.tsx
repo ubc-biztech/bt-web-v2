@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { SubmitErrorHandler, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -139,6 +139,23 @@ export const EventForm: React.FC<EventFormProps> = ({
     }
   };
 
+  const handleInvalidSubmit: SubmitErrorHandler<EventFormSchema> = (errors) => {
+    const firstError = Object.values(errors).find(
+      (error) => error && "message" in error && error.message,
+    );
+
+    toast({
+      title: "Unable to save event",
+      description:
+        firstError &&
+        "message" in firstError &&
+        typeof firstError.message === "string"
+          ? firstError.message
+          : "Please fix the highlighted fields and try again.",
+      variant: "destructive",
+    });
+  };
+
   const handlePublish = async () => {
     setIsSubmitting(true);
     try {
@@ -180,7 +197,10 @@ export const EventForm: React.FC<EventFormProps> = ({
   return (
     <div className="text-white px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px] mx-auto w-full">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(handleSubmit, handleInvalidSubmit)}
+          className="space-y-6"
+        >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
