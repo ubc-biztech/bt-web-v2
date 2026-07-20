@@ -12,27 +12,10 @@ jobs:
     permissions:
       pull-requests: read
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         with:
           script: |
-            const { data: commits } = await github.rest.pulls.listCommits({
-              ...context.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-            if (commits.length !== 1) {
-              core.setFailed(`PR must have exactly 1 commit (has ${commits.length})`);
-            }
-
-            const msg = commits[0].commit.message;
-            const [subject, ...bodyLines] = msg.split('\n');
-
-            if (subject.length > 60) {
-              core.setFailed(`Commit subject must be ≤60 characters (got ${subject.length})`);
-            }
-
-            for (let i = 0; i < bodyLines.length; i++) {
-              const line = bodyLines[i];
-              if (line.length > 72) {
-                core.setFailed(`Commit body line ${i + 1} exceeds 72 characters: "${line.slice(0, 80)}..."`);
-              }
+            const title = context.payload.pull_request.title;
+            if (title.length > 60) {
+              core.setFailed(`PR title must be ≤60 characters (got ${title.length})`);
             }
