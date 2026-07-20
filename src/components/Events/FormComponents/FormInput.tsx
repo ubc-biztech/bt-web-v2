@@ -15,6 +15,7 @@ interface FormInputProps {
   placeholder?: string;
   type?: string;
   disabled?: boolean;
+  min?: number;
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
@@ -23,6 +24,7 @@ export const FormInput: React.FC<FormInputProps> = ({
   placeholder,
   type = "text",
   disabled = false,
+  min,
 }) => {
   const { control } = useFormContext();
 
@@ -38,6 +40,7 @@ export const FormInput: React.FC<FormInputProps> = ({
               placeholder={placeholder || label}
               type={type}
               disabled={disabled}
+              min={min}
               {...field}
               onChange={(e) => {
                 const value =
