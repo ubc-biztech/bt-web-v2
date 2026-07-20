@@ -17,7 +17,7 @@ export const eventFormSchema = z.object({
   deadline: z.date({
     required_error: "Registration deadline is required",
   }),
-  partnerDescription: z.string().min(1, "Partner description is required"),
+  partnerDescription: z.string().default(""),
 
   // Optional fields
   price: z.number().default(0),
