@@ -152,7 +152,7 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
           <DetailRow
             icon={UsersRound}
             label="Target audience"
-            value={getTargetAudience(event)}
+            value={getTargetAudience()}
           />
         </div>
       </div>

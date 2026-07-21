@@ -1,4 +1,5 @@
 import { getStatusLabel } from "@/lib/registrationStatus";
+import { DBRegistrationStatus } from "@/types/types";
 import {
   AlertCircle,
   ArrowRight,
@@ -60,27 +61,41 @@ function getRegistrationCopy({
 
   if (rawStatus) {
     const statusLabel =
-      rawStatus === "registered" && isApplication
+      rawStatus === DBRegistrationStatus.REGISTERED && isApplication
         ? "Application submitted"
         : getStatusLabel(rawStatus);
 
     const needsAction =
-      rawStatus === "incomplete" ||
-      rawStatus === "accepted" ||
-      rawStatus === "acceptedPending";
+      rawStatus === DBRegistrationStatus.INCOMPLETE ||
+      rawStatus === DBRegistrationStatus.ACCEPTED ||
+      rawStatus === DBRegistrationStatus.ACCEPTED_PENDING;
+
+    const confirmedDescription = `You are registered and confirmed for ${event.ename}.`;
+    const description =
+      rawStatus === DBRegistrationStatus.REGISTERED
+        ? isApplication
+          ? "Your application has been submitted and will be reviewed shortly."
+          : confirmedDescription
+        : rawStatus === DBRegistrationStatus.ACCEPTED_COMPLETE
+          ? confirmedDescription
+          : rawStatus === DBRegistrationStatus.CHECKED_IN
+            ? `Thank you for attending ${event.ename}.`
+            : rawStatus === DBRegistrationStatus.INCOMPLETE
+              ? "Please proceed to checkout to confirm."
+              : needsAction
+                ? `Complete the remaining ${registrationLabel.toLowerCase()} steps to confirm your spot.`
+                : `Your ${registrationLabel.toLowerCase()} is already on file for this event.`;
 
     return {
       status: statusLabel,
-      description: needsAction
-        ? `Complete the remaining ${registrationLabel.toLowerCase()} steps to confirm your spot.`
-        : `Your ${registrationLabel.toLowerCase()} is already on file for this event.`,
+      description,
       actionLabel: needsAction
         ? `Continue ${registrationLabel.toLowerCase()}`
         : `View ${registrationLabel.toLowerCase()}`,
       tone:
-        rawStatus === "cancelled"
+        rawStatus === DBRegistrationStatus.CANCELLED
           ? "closed"
-          : rawStatus === "waitlist" || needsAction
+          : rawStatus === DBRegistrationStatus.WAITLISTED || needsAction
             ? "warning"
             : "success",
     };
