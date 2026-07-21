@@ -113,12 +113,12 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
         <div className="order-2 md:order-1">
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4 text-bt-green-300" aria-hidden="true" />
-            <h2 className="text-base font-800 text-white md:text-lg">
+            <h2 className="text-[22px] font-800 text-white sm:text-base md:text-lg">
               Event Overview
             </h2>
           </div>
           <div className="mt-3 md:max-h-[136px] md:overflow-y-auto md:pr-3 md:[scrollbar-color:#555_transparent] md:[scrollbar-width:thin] md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-[#555] md:[&::-webkit-scrollbar-track]:bg-transparent md:[&::-webkit-scrollbar]:w-1.5">
-            <p className="max-w-2xl text-sm leading-6 text-[#b8b8b8]">
+            <p className="max-w-2xl whitespace-pre-line text-sm leading-6 text-[#b8b8b8]">
               {overview}
             </p>
             {externalUrl && (
