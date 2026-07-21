@@ -28,9 +28,14 @@ const asNumber = (value: unknown) =>
 
 export function stripHtml(value?: string) {
   return (value ?? "")
-    .replace(/\\n/g, " ")
+    .replace(/\\n/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(?:p|div|li)>/gi, "\n\n")
     .replace(/<[^>]*>/g, "")
-    .replace(/\s+/g, " ")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
 
