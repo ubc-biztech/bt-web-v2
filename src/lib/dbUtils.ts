@@ -15,23 +15,31 @@ export async function fetchRegistrationData(eventId: string, year: string) {
 // This function handles converting human-readable status labels (like "Checked-In")
 // to database values (like "checkedIn") for registration updates including check-ins
 export function convertRegistrationStatusToDB(uiStatus: string): string {
-  switch (uiStatus.toLowerCase()) {
+  switch (uiStatus.trim().toLowerCase()) {
     case "registered":
       return DBRegistrationStatus.REGISTERED;
     case "checked-in":
       return DBRegistrationStatus.CHECKED_IN;
     case "checkedin":
+    case "checked in":
       return DBRegistrationStatus.CHECKED_IN;
     case "cancelled":
       return DBRegistrationStatus.CANCELLED;
     case "incomplete":
       return DBRegistrationStatus.INCOMPLETE;
     case "waitlisted":
+    case "waitlist":
       return DBRegistrationStatus.WAITLISTED;
     case "accepted":
       return DBRegistrationStatus.ACCEPTED;
+    case "acceptedcomplete":
+    case "accepted complete":
+      return DBRegistrationStatus.ACCEPTED_COMPLETE;
+    case "acceptedpending":
+    case "accepted pending":
+      return DBRegistrationStatus.ACCEPTED_PENDING;
     default:
-      return uiStatus.toLowerCase();
+      return uiStatus;
   }
 }
 

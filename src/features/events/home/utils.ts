@@ -38,12 +38,9 @@ export function getEventSubtitle(event: EventHomeEvent) {
   return event.eventPage?.subtitle || "Hosted by UBC BizTech";
 }
 
-export function getTargetAudience(event: EventHomeEvent) {
-  return (
-    event.eventPage?.targetAudience ||
-    event.targetAudience ||
-    (event.nonBizTechAllowed ? "Everyone welcome" : "BizTech members")
-  );
+export function getTargetAudience() {
+  // Temporary placeholder until target-audience data is captured on the form.
+  return "Everyone welcome";
 }
 
 export function getExternalEventUrl(event: EventHomeEvent) {
@@ -67,7 +64,7 @@ export function formatEventDateRange(startDate?: string, endDate?: string) {
 
   const sameDay = start.toDateString() === end.toDateString();
   if (sameDay) {
-    return `${fullDateFormatter.format(start)}, ${timeFormatter.format(start)}`;
+    return `${fullDateFormatter.format(start)}, ${timeFormatter.format(start)} - ${timeFormatter.format(end)}`;
   }
 
   const sameYear = start.getFullYear() === end.getFullYear();

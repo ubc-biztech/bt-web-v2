@@ -155,7 +155,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   iconDirection="right"
                   onClick={() =>
                     router.push(
-                      `/event/${highlightedEvent?.id}/${highlightedEvent.year}/register`,
+                      `/event/${highlightedEvent?.id}/${highlightedEvent.year}`,
                     )
                   }
                   size="lg"
