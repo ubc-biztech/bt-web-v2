@@ -92,7 +92,7 @@ export default function BluePrintProfile2026(
         const backendProfile = response as BackendProfile;
 
         const transformedProfile: UserProfile = {
-          profileID: backendProfile.profileID,
+          profileID: backendProfile.profileID ?? profileId,
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
@@ -257,7 +257,9 @@ export default function BluePrintProfile2026(
 
 // Profile Header Component
 function ProfileHeader({ profile }: { profile: UserProfile }) {
-  const fullName = `${profile.fname} ${profile.lname}`;
+  const fullName =
+    [profile.fname, profile.lname].filter(Boolean).join(" ") ||
+    "BizTech Member";
   const isPartner = profile.type.toLowerCase() === "partner";
   const showProfilePicture =
     profile.profilePictureURL &&
@@ -281,8 +283,8 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-2xl font-medium text-white/60">
-              {profile.fname[0]}
-              {profile.lname[0]}
+              {profile.fname?.[0] ?? ""}
+              {profile.lname?.[0] ?? ""}
             </div>
           )}
         </div>
@@ -305,7 +307,7 @@ function ProfileHeader({ profile }: { profile: UserProfile }) {
               : "bg-white/10 border-white/30 text-white/80"
           }`}
         >
-          {isPartner ? "PARTNER" : "ATTENDEE"}
+          {profile.type}
         </span>
       </div>
     </div>

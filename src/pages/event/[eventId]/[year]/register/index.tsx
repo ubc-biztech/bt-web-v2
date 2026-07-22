@@ -23,6 +23,7 @@ import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
+import { checkMembership } from "@/lib/membership";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export default function AttendeeFormRegister() {
   );
   const [userLoggedIn, setUserLoggedIn] = useState<boolean>(false);
   const [userLoading, setUserLoading] = useState<boolean>(true);
+  const [hasMembership, setHasMembership] = useState<boolean>(false);
   const [hasShownMemberToast, setHasShownMemberToast] =
     useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
@@ -120,20 +122,25 @@ export default function AttendeeFormRegister() {
 
         setUser({
           id: email,
-          isMember: false,
           fname: attributes?.name || undefined,
         });
         setUserLoggedIn(true);
 
-        // Fetch user data, but don't fail if backend call fails
-        const userData = await fetchBackend({
-          endpoint: `/users/${email}`,
-          method: "GET",
-        }).catch((backendErr) => {
-          console.log("Backend error:", backendErr);
-        });
+        const [userData, membershipStatus] = await Promise.all([
+          fetchBackend({
+            endpoint: `/users/${email}`,
+            method: "GET",
+          }).catch((backendErr) => {
+            console.log("Backend error:", backendErr);
+          }),
+          checkMembership(email).catch((membershipError) => {
+            console.log("Membership check error:", membershipError);
+            return false;
+          }),
+        ]);
 
         if (userData) setUser(userData);
+        setHasMembership(membershipStatus);
         setUserLoading(false);
       } catch (err: any) {
         const callbackPath = `/event/${eventId}/${year}/register`;
@@ -206,7 +213,7 @@ export default function AttendeeFormRegister() {
 
     if (
       !(
-        user?.isMember ||
+        hasMembership ||
         user?.admin ||
         event.pricing?.nonMembers === undefined ||
         samePricing()
@@ -229,7 +236,15 @@ export default function AttendeeFormRegister() {
       });
       setHasShownMemberToast(true);
     }
-  }, [event, user, userLoggedIn, userLoading, hasShownMemberToast, toast]);
+  }, [
+    event,
+    user,
+    userLoggedIn,
+    userLoading,
+    hasMembership,
+    hasShownMemberToast,
+    toast,
+  ]);
 
   // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
@@ -540,7 +555,7 @@ export default function AttendeeFormRegister() {
 
                   {/* #292: don't show at all if already member or no price difference */}
                   {!currentState.needsConfirmation() &&
-                    !user?.isMember &&
+                    !hasMembership &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
                         <div className="text-sm sm:text-base text-white">
@@ -583,7 +598,7 @@ export default function AttendeeFormRegister() {
                     )}
                   </Button>
 
-                  {currentState.needsPayment() && !user.isMember && (
+                  {currentState.needsPayment() && !hasMembership && (
                     <Button
                       variant="outline"
                       className="border-white/20 text-white hover:bg-white/10"
@@ -676,10 +691,7 @@ export default function AttendeeFormRegister() {
       );
     }
     // members only
-    else if (
-      (!user || !user.isMember) &&
-      event.pricing?.nonMembers === undefined
-    ) {
+    else if (!hasMembership && event.pricing?.nonMembers === undefined) {
       return renderErrorText(
         <div className="text-center">
           <p className="text-l mb-4 text-white">
@@ -710,6 +722,7 @@ export default function AttendeeFormRegister() {
           onSubmitPayment={handlePaymentSubmit}
           event={event}
           user={user}
+          hasMembership={hasMembership}
         />
       );
     }

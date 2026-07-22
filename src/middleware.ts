@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { fetchBackendFromServer } from "./lib/db";
+import { checkMembership } from "./lib/membership";
 import { User } from "./types";
 
 export async function middleware(request: NextRequest) {
@@ -45,7 +46,9 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request: request as any, response: response as any },
     });
 
-    if (!userProfile.isMember) {
+    const hasMembership = await checkMembership(userProfile.id);
+
+    if (!hasMembership) {
       return NextResponse.redirect(new URL("/membership", request.url));
     }
 

@@ -11,13 +11,15 @@ export interface Badge {
 
 export interface Connection {
   compositeID: string;
-  fname: string;
-  pronouns: string;
-  year: string;
+  fname?: string;
+  pronouns?: string;
+  year?: string | number;
   createdAt: number;
   connectionID: string;
-  major: string;
-  lname: string;
+  major?: string;
+  lname?: string;
+  company?: string;
+  title?: string;
   type: string;
   connectionType?: "PARTNER" | "EXEC" | "ATTENDEE";
 }

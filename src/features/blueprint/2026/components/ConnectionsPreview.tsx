@@ -47,7 +47,7 @@ export default function ConnectionsPreview({
 }
 
 function ConnectionCard({ connection }: { connection: Connection }) {
-  const initials = `${connection.fname[0]?.toUpperCase() || ""}${connection.lname[0]?.toUpperCase() || ""}`;
+  const initials = `${connection.fname?.[0]?.toUpperCase() || ""}${connection.lname?.[0]?.toUpperCase() || ""}`;
   const connectionType = connection.connectionType || "ATTENDEE";
 
   const timeAgo = getTimeAgo(connection.createdAt);

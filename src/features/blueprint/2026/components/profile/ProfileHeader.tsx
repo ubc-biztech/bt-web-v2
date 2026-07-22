@@ -6,8 +6,10 @@ interface ProfileHeaderProps {
 }
 
 export default function ProfileHeader({ profile }: ProfileHeaderProps) {
-  const fullName = `${profile.fname} ${profile.lname}`;
-  const isPartner = profile.type === "Partner";
+  const fullName =
+    [profile.fname, profile.lname].filter(Boolean).join(" ") ||
+    "BizTech Member";
+  const isPartner = profile.type === "PARTNER";
   const showProfilePicture =
     profile.profilePictureURL &&
     profile.viewableMap?.profilePictureURL !== false;
@@ -34,8 +36,8 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xl font-medium text-white/60">
-                {profile.fname[0]}
-                {profile.lname[0]}
+                {profile.fname?.[0] ?? ""}
+                {profile.lname?.[0] ?? ""}
               </div>
             )}
           </div>
@@ -59,7 +61,7 @@ export default function ProfileHeader({ profile }: ProfileHeaderProps) {
               : "bg-white/10 border-white/30 text-white/80"
           }`}
         >
-          {isPartner ? "PARTNER" : "ATTENDEE"}
+          {profile.type}
         </span>
       </div>
     </div>

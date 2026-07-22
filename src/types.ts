@@ -64,10 +64,10 @@ export type FeedbackQuestion = {
 export type UserProfile = {
   profileID: string;
   compositeID?: string;
-  fname: string;
-  lname: string;
-  pronouns: string;
-  type: string;
+  fname?: string;
+  lname?: string;
+  pronouns?: string;
+  type: "ATTENDEE" | "EXEC" | "PARTNER";
   hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
@@ -78,12 +78,12 @@ export type UserProfile = {
   resumeURL?: string;
   description?: string;
   major?: string;
-  year?: string;
-  eventIDYear: string;
+  year?: string | number;
+  eventIDYear?: string;
   name?: string;
   role?: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt?: number;
+  updatedAt?: number;
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
@@ -143,14 +143,13 @@ export type AttendeeBasicInformation = BasicInformation & {
 export type User = {
   id: string;
   profileID?: string;
-  isMember?: boolean;
   fname?: string;
   education?: string;
   gender?: string;
-  year?: string;
+  year?: string | number;
   admin?: boolean;
   faculty?: string;
-  studentId?: number;
+  studentId?: string | number;
   createdAt?: number;
   lname?: string;
   major?: string;
@@ -158,6 +157,7 @@ export type User = {
   updatedAt?: number;
   email?: string;
   image?: string;
+  "favedEventsID;year"?: string[];
 };
 
 export enum MemberStatus {
@@ -172,12 +172,12 @@ export type UserResponseList = {
 };
 
 export type BackendProfile = {
-  profileID: string;
+  profileID?: string;
   compositeID?: string;
-  fname: string;
-  lname: string;
-  pronouns: string;
-  profileType: string;
+  fname?: string;
+  lname?: string;
+  pronouns?: string;
+  profileType: "ATTENDEE" | "EXEC" | "PARTNER";
   hobby1?: string;
   hobby2?: string;
   funQuestion1?: string;
@@ -188,12 +188,12 @@ export type BackendProfile = {
   resumeURL?: string;
   description?: string;
   major?: string;
-  year?: string;
-  eventIDYear: string;
+  year?: string | number;
+  eventIDYear?: string;
   position?: string;
   name?: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt?: number;
+  updatedAt?: number;
   company?: string;
   companyProfileID?: string;
   companyProfilePictureURL?: string;
@@ -202,24 +202,26 @@ export type BackendProfile = {
 
 export type Member = {
   id: string;
-  admin: boolean;
-  createdAt: number;
-  diet: string;
+  cardCount: number;
+  admin?: boolean;
+  createdAt?: number;
+  diet?: string;
   discordId?: string;
-  education: string;
-  faculty: string;
-  firstName: string;
-  heardFrom: string;
-  international: boolean;
-  lastName: string;
-  major: string;
-  prevMember: boolean;
-  profileID?: string;
+  education?: string;
+  faculty?: string;
+  firstName?: string;
+  heardFrom?: string;
+  heardFromSpecify?: string;
+  highSchool?: string;
+  international?: boolean;
+  lastName?: string;
+  major?: string;
+  prevMember?: boolean;
   profileType?: "ATTENDEE" | "EXEC" | "PARTNER";
-  pronouns: string;
-  studentNumber: string;
-  topics: string;
-  university: string;
-  updatedAt: number;
-  year: string;
+  pronouns?: string;
+  studentNumber?: string | number;
+  topics?: string[];
+  university?: string;
+  updatedAt?: number;
+  year?: string | number;
 };

@@ -49,7 +49,7 @@ export default function CompanyPage() {
         // Transform backend profile to match our frontend interface
         const transformedProfile: CompanyProfile = {
           id: backendProfile.id,
-          profileID: backendProfile.profileID,
+          profileID: backendProfile.profileID ?? profileId,
           name: backendProfile.name,
           type: backendProfile.type as "Partner" | "Attendee",
           profilePictureURL: backendProfile.profilePictureURL,

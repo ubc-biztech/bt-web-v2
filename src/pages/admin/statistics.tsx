@@ -721,12 +721,13 @@ export default function StatisticsPage({ membersData }: Props) {
     if (!filteredMembers.length) return [];
     const sorted = [...filteredMembers]
       .filter((m) => m.createdAt)
-      .sort((a, b) => a.createdAt - b.createdAt);
+      .sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
     if (!sorted.length) return [];
 
     const monthMap: Record<string, number> = {};
     for (const m of sorted) {
-      const ts = m.createdAt > 1e12 ? m.createdAt : m.createdAt * 1000;
+      const createdAt = m.createdAt ?? 0;
+      const ts = createdAt > 1e12 ? createdAt : createdAt * 1000;
       const date = new Date(ts);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       monthMap[key] = (monthMap[key] || 0) + 1;
@@ -814,7 +815,7 @@ export default function StatisticsPage({ membersData }: Props) {
           </select>
           <p className="hidden sm:block text-xs text-bt-blue-100/60">
             Data from{" "}
-            <code className="text-bt-green-300/70">biztechMembers2026</code>{" "}
+            <code className="text-bt-green-300/70">biztechMembers2027</code>{" "}
             table
           </p>
         </div>
@@ -857,8 +858,7 @@ export default function StatisticsPage({ membersData }: Props) {
               {selectedMemberYear !== "all"
                 ? ` for ${selectedMemberYear}`
                 : ""}{" "}
-              ({filteredMembers.length} members). Data from{" "}
-              <code className="text-bt-green-300/80">biztechMembers2026</code>{" "}
+              ({filteredMembers.length} members). Data from 2027 membership
               table.
             </p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

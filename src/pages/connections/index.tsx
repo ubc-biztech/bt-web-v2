@@ -102,8 +102,8 @@ const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-[#BDC8E3] rounded-full flex items-center justify-center">
                       <span className="text-[#131F3B] font-semibold text-sm">
-                        {connection.fname[0]?.toUpperCase()}
-                        {connection.lname[0]?.toUpperCase()}
+                        {connection.fname?.[0]?.toUpperCase()}
+                        {connection.lname?.[0]?.toUpperCase()}
                       </span>
                     </div>
 
