@@ -7,7 +7,7 @@ interface ProfileInfoProps {
 }
 
 export default function ProfileInfo({ profile }: ProfileInfoProps) {
-  const isPartner = profile.type === "Partner";
+  const isPartner = profile.type === "PARTNER";
 
   if (isPartner) {
     // Partner view: Company & Role

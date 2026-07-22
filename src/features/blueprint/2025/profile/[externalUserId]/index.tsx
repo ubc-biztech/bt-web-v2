@@ -57,7 +57,7 @@ const Index = () => {
 
         // Transform backend profile to match our frontend interface
         const transformedProfile: UserProfile = {
-          profileID: backendProfile.profileID,
+          profileID: backendProfile.profileID ?? profileId,
           fname: backendProfile.fname,
           lname: backendProfile.lname,
           pronouns: backendProfile.pronouns,
@@ -171,7 +171,7 @@ const Index = () => {
           <motion.div variants={itemVariants}>
             {userData.description && (
               <ResponseSection
-                title={`ABOUT ${userData.fname.toUpperCase()}`}
+                title={`ABOUT ${userData.fname?.toUpperCase() ?? "MEMBER"}`}
                 text={userData.description}
               />
             )}

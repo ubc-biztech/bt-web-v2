@@ -14,7 +14,7 @@ import {
 interface UserAttributeFieldProps {
   icon: LucideIcon;
   fieldName: string;
-  value: string | undefined;
+  value: string | number | undefined;
 }
 
 const UserAttributeField = ({
@@ -30,7 +30,7 @@ const UserAttributeField = ({
       </span>
       <p
         className="min-w-0 whitespace-normal break-words [overflow-wrap:anywhere] hyphens-auto leading-relaxed line-clamp-3"
-        title={value}
+        title={value == null ? undefined : String(value)}
       >
         {value ?? "—"}
       </p>

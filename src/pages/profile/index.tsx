@@ -5,15 +5,21 @@ import HeaderCard from "@/components/ProfilePage/HeaderCard";
 import AttributesCard from "@/components/ProfilePage/AttributesCard";
 import SuggestedConnectionsCard from "@/components/ProfilePage/SuggestedConnectionsCard";
 import SuggestedConnectionsSection from "@/components/ProfilePage/SuggestedConnectionsSection";
+import { checkMembership } from "@/lib/membership";
 
 interface ProfilePageProps {
   profileData: User;
   events?: BiztechEvent[];
   error?: string;
   suggestions: any[];
+  hasMembership: boolean;
 }
 
-export default function ProfilePage({ profileData, error }: ProfilePageProps) {
+export default function ProfilePage({
+  profileData,
+  error,
+  hasMembership,
+}: ProfilePageProps) {
   if (error) {
     return (
       <div className="text-bt-red-200 text-center">
@@ -23,7 +29,7 @@ export default function ProfilePage({ profileData, error }: ProfilePageProps) {
     );
   }
 
-  const userRole = profileData.isMember
+  const userRole = hasMembership
     ? "BizTech Member"
     : profileData.admin
       ? "BizTech Executive"
@@ -35,7 +41,7 @@ export default function ProfilePage({ profileData, error }: ProfilePageProps) {
         fname={profileData.fname}
         lname={profileData.lname}
         userRole={userRole}
-        isMember={profileData.isMember}
+        hasMembership={hasMembership}
       />
       <div className="grid grid-cols-1 gap-4 w-full">
         <AttributesCard profileData={profileData} userRole={userRole} />
@@ -56,13 +62,17 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       authenticatedCall: true,
       nextServerContext,
     });
+    const hasMembership = await checkMembership(
+      profileData.email ?? profileData.id,
+    );
 
-    return { props: { profileData } };
+    return { props: { profileData, hasMembership } };
   } catch (error) {
     console.error("Error in getServerSideProps:", error);
     return {
       props: {
         profileData: null,
+        hasMembership: false,
         error:
           error instanceof Error
             ? error.message

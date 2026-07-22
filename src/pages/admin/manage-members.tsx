@@ -93,7 +93,6 @@ type CreateMemberRequest = {
   dietaryRestrictions: string;
   referral: string;
   topics: string;
-  isMember: true;
   adminCreated: true;
 };
 
@@ -169,7 +168,6 @@ export default function ManageMembers({ initialData }: Props) {
         dietaryRestrictions: values.dietaryRestrictions || "None",
         referral: values.referral,
         topics: values.topics.join(","),
-        isMember: true,
         adminCreated: true,
       };
 
@@ -339,8 +337,6 @@ export default function ManageMembers({ initialData }: Props) {
   };
 
   const resolveMemberProfileId = async (member: Member) => {
-    if (member.profileID) return member.profileID;
-
     const user = await fetchBackend({
       endpoint: `/users/${member.id}`,
       method: "GET",
@@ -1235,7 +1231,7 @@ export default function ManageMembers({ initialData }: Props) {
         {showNfcWriter && selectedMember && (
           <NFCWriter
             email={selectedMember.id}
-            firstName={selectedMember.firstName}
+            firstName={selectedMember.firstName ?? ""}
             exit={closeNfcWriter}
             closeAll={closeAllNfc}
             numCards={selectedMember.cardCount ?? 0}

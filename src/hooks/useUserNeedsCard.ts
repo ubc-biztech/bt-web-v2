@@ -3,7 +3,6 @@ import { fetchBackend } from "@/lib/db";
 
 type MemberCardRecord = {
   cardCount?: number;
-  profileID?: string | null;
 };
 
 type UserProfileRecord = {
@@ -45,14 +44,13 @@ export const useUserNeedsCard = () => {
         return { needsCard: false, profileID: null };
       }
 
-      let profileID = member.profileID ?? null;
-      if (!profileID) {
-        const user = (await fetchBackend({
-          endpoint: `/users/${userID}`,
-          method: "GET",
-        })) as UserProfileRecord | null;
-        profileID = user?.profileID ?? null;
-      }
+      // Membership rows only establish current membership. The persistent
+      // profile relationship belongs to the user row.
+      const user = (await fetchBackend({
+        endpoint: `/users/${userID}`,
+        method: "GET",
+      })) as UserProfileRecord | null;
+      const profileID = user?.profileID ?? null;
 
       if (!profileID) {
         setError("Member does not have a profile ID yet");

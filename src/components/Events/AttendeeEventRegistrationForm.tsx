@@ -70,6 +70,7 @@ interface AttendeeEventRegistrationFormProps {
     data: z.infer<ReturnType<typeof createDynamicSchema>>,
   ) => Promise<Boolean>;
   user: User;
+  hasMembership: boolean;
 }
 
 const createDynamicSchema = (event: BiztechEvent) => {
@@ -92,7 +93,14 @@ const createDynamicSchema = (event: BiztechEvent) => {
 
 export const AttendeeEventRegistrationForm: React.FC<
   AttendeeEventRegistrationFormProps
-> = ({ event, initialData, onSubmit, onSubmitPayment, user }) => {
+> = ({
+  event,
+  initialData,
+  onSubmit,
+  onSubmitPayment,
+  user,
+  hasMembership,
+}) => {
   const schema = useMemo(() => createDynamicSchema(event), [event]);
   type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
 
@@ -613,8 +621,8 @@ export const AttendeeEventRegistrationForm: React.FC<
                 {user?.admin ? (
                   <Button type="submit">Submit</Button>
                 ) : !user?.admin &&
-                  ((user?.isMember && event.pricing?.members > 0) ||
-                    (!user?.isMember && event.pricing?.nonMembers)) &&
+                  ((hasMembership && event.pricing?.members > 0) ||
+                    (!hasMembership && event.pricing?.nonMembers)) &&
                   !event.isApplicationBased ? (
                   <Button type="submit">Proceed to Payment</Button>
                 ) : (

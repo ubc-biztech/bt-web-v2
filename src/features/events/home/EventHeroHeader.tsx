@@ -28,7 +28,7 @@ type DetailRowProps = {
 
 function DetailRow({ icon: Icon, label, value }: DetailRowProps) {
   return (
-    <div className="flex max-w-full min-w-0 items-center gap-3 md:grid md:grid-cols-[18px_1fr] md:border-b md:border-[#242424] md:py-2 md:last:border-b-0">
+    <div className="flex max-w-full min-w-0 items-center gap-3 md:grid md:grid-cols-[18px_1fr] md:border-b md:border-[#263451] md:py-2 md:last:border-b-0">
       <Icon
         className="h-4 w-4 shrink-0 text-[#b8b8b8] md:mt-0.5 md:text-[#9f9f9f]"
         aria-hidden="true"
@@ -53,7 +53,7 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
   const eventInitial = event.ename?.charAt(0)?.toUpperCase() || "E";
 
   return (
-    <section className="overflow-hidden rounded-lg border border-[#242424] bg-[#151515] shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
+    <section className="overflow-hidden rounded-lg border border-[#263451] bg-[#0B152C] shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
       <div className="relative min-h-[116px] overflow-hidden md:min-h-[132px]">
         {event.imageUrl ? (
           <Image
@@ -109,7 +109,7 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
         </div>
       </div>
 
-      <div className="grid gap-5 border-t border-[#242424] p-4 md:grid-cols-[1.05fr_1fr] md:gap-6 md:p-5">
+      <div className="grid gap-5 border-t border-[#263451] p-4 md:grid-cols-[1.05fr_1fr] md:gap-6 md:p-5">
         <div className="order-2 md:order-1">
           <div className="flex items-center gap-2">
             <Info className="h-4 w-4 text-bt-green-300" aria-hidden="true" />
@@ -138,7 +138,7 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
           </div>
         </div>
 
-        <div className="order-1 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[#242424] pb-5 md:order-2 md:block md:border-b-0 md:pb-0 md:pl-6">
+        <div className="order-1 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[#263451] pb-5 md:order-2 md:block md:border-b-0 md:pb-0 md:pl-6">
           <DetailRow
             icon={MapPin}
             label="Location"
