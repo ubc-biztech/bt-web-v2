@@ -80,7 +80,7 @@ const Membership: React.FC = () => {
         const [hasMembership, userExists] = await Promise.all([
           checkMembership(userEmail),
           fetchBackend({
-            endpoint: `/users/check/${encodeURIComponent(userEmail)}`,
+            endpoint: `/users/check/${userEmail}`,
             method: "GET",
             authenticatedCall: false,
           }),
