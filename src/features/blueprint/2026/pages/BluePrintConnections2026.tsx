@@ -59,7 +59,11 @@ const BluePrintConnections2026 = ({ eventId, year }: DynamicPageProps) => {
               `${connection.fname} ${connection.lname}`,
               connection.major,
               connection.year,
-            ].some((field) => field?.toLowerCase().includes(searchLower));
+            ].some((field) =>
+              String(field ?? "")
+                .toLowerCase()
+                .includes(searchLower),
+            );
 
           const currType = connection.connectionType || "ATTENDEE";
           const matchesType =
@@ -78,7 +82,7 @@ const BluePrintConnections2026 = ({ eventId, year }: DynamicPageProps) => {
                 `${a.fname} ${a.lname}`,
               );
             case "year":
-              return (a.year || "").localeCompare(b.year || "");
+              return String(a.year ?? "").localeCompare(String(b.year ?? ""));
             default:
               return b.createdAt - a.createdAt;
           }
@@ -244,7 +248,7 @@ function ConnectionCard({
   eventId: string;
   year: string;
 }) {
-  const initials = `${connection.fname[0]?.toUpperCase() || ""}${connection.lname[0]?.toUpperCase() || ""}`;
+  const initials = `${connection.fname?.[0]?.toUpperCase() || ""}${connection.lname?.[0]?.toUpperCase() || ""}`;
   const connectionType = connection.connectionType || "ATTENDEE";
   const timeAgo = getTimeAgo(connection.createdAt);
 

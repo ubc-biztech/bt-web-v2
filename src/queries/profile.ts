@@ -13,7 +13,7 @@ export async function getProfile(profileId: string): Promise<UserProfile> {
   const backendProfile = response as BackendProfile;
 
   const transformedProfile: UserProfile = {
-    profileID: backendProfile.profileID,
+    profileID: backendProfile.profileID ?? profileId,
     fname: backendProfile.fname,
     lname: backendProfile.lname,
     pronouns: backendProfile.pronouns,

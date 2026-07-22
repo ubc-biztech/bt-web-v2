@@ -5,11 +5,11 @@ import { getProfileIdFromSource, normalizeViewableMap } from "@/util/profile";
 export interface UserProfile {
   profileID?: string;
   compositeID?: string;
-  profileType: string;
-  fname: string;
-  lname: string;
+  profileType: "ATTENDEE" | "EXEC" | "PARTNER";
+  fname?: string;
+  lname?: string;
   pronouns?: string;
-  year?: string;
+  year?: string | number;
   major?: string;
   hobby1?: string;
   hobby2?: string;
@@ -28,6 +28,24 @@ export interface UserProfile {
 export interface UserProfileByEmail {
   "favedEventsID;year"?: string[];
   [key: string]: unknown;
+}
+
+function normalizeStringSet(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string");
+  }
+
+  if (value instanceof Set) {
+    return Array.from(value).filter(
+      (item): item is string => typeof item === "string",
+    );
+  }
+
+  if (value && typeof value === "object" && "values" in value) {
+    return normalizeStringSet((value as { values?: unknown }).values);
+  }
+
+  return [];
 }
 
 async function fetchUserProfile(): Promise<UserProfile> {
@@ -59,7 +77,12 @@ async function fetchUserProfileByEmail(
     endpoint: `/users/${email}`,
     method: "GET",
   });
-  return response || {};
+  if (!response) return {};
+
+  return {
+    ...response,
+    "favedEventsID;year": normalizeStringSet(response["favedEventsID;year"]),
+  };
 }
 
 export function useUserProfileByEmail(email: string | undefined) {

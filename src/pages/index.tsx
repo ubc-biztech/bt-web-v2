@@ -17,6 +17,7 @@ import { GetServerSideProps } from "next";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { AuthError } from "@aws-amplify/auth";
+import { checkMembership } from "@/lib/membership";
 
 interface ProfilePageProps {
   events: BiztechEvent[];
@@ -45,16 +46,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           return;
         }
 
-        // User is authenticated, now check their profile for membership status
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-        });
+        const [userProfile, hasMembership] = await Promise.all([
+          fetchBackend({
+            endpoint: `/users/self`,
+            method: "GET",
+          }),
+          checkMembership(userEmail),
+        ]);
 
         setProfile(userProfile);
 
-        // Check if user is a member, if not redirect to membership
-        if (!userProfile.isMember) {
+        if (!hasMembership) {
           await router.push("/membership");
           return;
         }

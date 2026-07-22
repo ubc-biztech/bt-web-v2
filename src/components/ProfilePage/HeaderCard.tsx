@@ -6,12 +6,12 @@ export default function HeaderCard({
   fname,
   lname,
   userRole,
-  isMember,
+  hasMembership,
 }: {
   fname?: string;
   lname?: string;
   userRole: string;
-  isMember?: boolean;
+  hasMembership: boolean;
 }) {
   const userInitials = `${fname?.[0] || ""}${lname?.[0] || ""}`.toUpperCase();
 
@@ -31,7 +31,9 @@ export default function HeaderCard({
         </div>
       </div>
       <Link href="/profile/edit">
-        {isMember && <Button variant="outline"> View your NFC Profile </Button>}
+        {hasMembership && (
+          <Button variant="outline"> View your NFC Profile </Button>
+        )}
       </Link>
     </GenericCard>
   );

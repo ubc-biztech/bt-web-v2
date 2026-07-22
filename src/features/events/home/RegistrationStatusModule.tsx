@@ -164,7 +164,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     : "Your Registration Status";
 
   return (
-    <section className="flex min-h-[275px] flex-col overflow-hidden rounded-lg border border-[#242424] bg-[#151515] shadow-[0_12px_28px_rgba(0,0,0,0.2)]">
+    <section className="flex min-h-[275px] flex-col overflow-hidden rounded-lg border border-[#263451] bg-[#0B152C] shadow-[0_12px_28px_rgba(0,0,0,0.2)]">
       <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-wrap items-center gap-2.5">
@@ -200,8 +200,8 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
         </div>
       </div>
 
-      <div className="grid gap-0 border-t border-[#242424] sm:grid-cols-3 sm:divide-x sm:divide-[#242424]">
-        <div className="flex items-start gap-2.5 border-b border-[#242424] p-4 sm:border-b-0">
+      <div className="grid gap-0 border-t border-[#263451] sm:grid-cols-3 sm:divide-x sm:divide-[#263451]">
+        <div className="flex items-start gap-2.5 border-b border-[#263451] p-4 sm:border-b-0">
           <Clock3
             className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
             aria-hidden="true"
@@ -216,7 +216,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
           </div>
         </div>
 
-        <div className="flex items-start gap-2.5 border-b border-[#242424] p-4 sm:border-b-0">
+        <div className="flex items-start gap-2.5 border-b border-[#263451] p-4 sm:border-b-0">
           <UsersRound
             className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
             aria-hidden="true"

@@ -1,21 +1,8 @@
 import { fetchBackend } from "@/lib/db";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Member } from "@/types";
 
-export interface Member {
-  profileID?: string;
-  profileType?: "PARTNER" | "EXEC" | "ATTENDEE";
-  id: string;
-  firstName: string;
-  lastName: string;
-  faculty?: string;
-  year?: string;
-  major?: string;
-  cardCount?: number;
-  international?: boolean;
-  topics?: string[];
-  createdAt?: number;
-  updatedAt?: number;
-}
+export type { Member } from "@/types";
 
 export async function getMembers(): Promise<Member[]> {
   const response = await fetchBackend({

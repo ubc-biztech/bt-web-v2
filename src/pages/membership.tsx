@@ -16,6 +16,7 @@ import {
   membershipValidationSchema,
   MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
+import { checkMembership } from "@/lib/membership";
 
 const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -37,6 +38,7 @@ const Membership: React.FC = () => {
 
     const checkUserAndGetEmail = async () => {
       if (!router.isReady) return;
+      let userEmail = "";
 
       // auth check, should redirect to /login on error
       try {
@@ -53,7 +55,7 @@ const Membership: React.FC = () => {
 
         // 2.now safe to read attributes
         const attributes = await fetchUserAttributes();
-        const userEmail = attributes?.email || "";
+        userEmail = attributes?.email || "";
         if (!userEmail) {
           if (!hasRedirectedRef.current) {
             hasRedirectedRef.current = true;
@@ -73,15 +75,18 @@ const Membership: React.FC = () => {
         return;
       }
 
-      // backend profile check, should NOT redirect to /login on error
+      // Membership and user records are checked independently.
       try {
-        // 3.backend profile/membership
-        const userProfile = await fetchBackend({
-          endpoint: `/users/self`,
-          method: "GET",
-        });
+        const [hasMembership, userExists] = await Promise.all([
+          checkMembership(userEmail),
+          fetchBackend({
+            endpoint: `/users/check/${encodeURIComponent(userEmail)}`,
+            method: "GET",
+            authenticatedCall: false,
+          }),
+        ]);
 
-        if (userProfile?.isMember) {
+        if (hasMembership) {
           const redirectUrl = getQueryString(router.query.redirect) ?? "/";
           if (!hasRedirectedRef.current) {
             hasRedirectedRef.current = true;
@@ -91,7 +96,7 @@ const Membership: React.FC = () => {
         }
 
         // Not a member -> render form
-        setIsUser(true);
+        setIsUser(userExists === true);
         setLoading(false);
       } catch (error) {
         // Don't redirect, avoid infinite loop
@@ -128,7 +133,6 @@ const Membership: React.FC = () => {
       year: values.levelOfStudy,
       international: values.internationalStudent === "Yes",
       prev_member: values.previousMember === "Yes",
-      isMember: true,
       admin: email.toLowerCase().endsWith("@ubcbiztech.com"),
     };
 
