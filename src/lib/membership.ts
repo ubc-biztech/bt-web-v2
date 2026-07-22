@@ -5,7 +5,7 @@ export async function checkMembership(email: string): Promise<boolean> {
   const normalizedEmail = email.trim().toLowerCase();
 
   const hasMembership = await fetchBackend({
-    endpoint: `/users/checkMembership/${encodeURIComponent(normalizedEmail)}`,
+    endpoint: `/users/checkMembership/${normalizedEmail}`,
     method: "GET",
     authenticatedCall: false,
   });
