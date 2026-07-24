@@ -46,7 +46,9 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request: request as any, response: response as any },
     });
 
-    const hasMembership = await checkMembership(userProfile.id);
+    const hasMembership = await checkMembership(
+      userProfile.email ?? userProfile.id,
+    );
 
     if (!hasMembership) {
       return NextResponse.redirect(new URL("/membership", request.url));

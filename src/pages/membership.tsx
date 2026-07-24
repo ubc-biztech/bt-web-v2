@@ -12,6 +12,7 @@ import MembershipFormSection, {
   MembershipFormValues,
 } from "@/components/SignUpForm/MembershipFormSection";
 import { useToast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 import {
   membershipValidationSchema,
   MEMBERSHIP_FORM_DEFAULTS,
@@ -167,8 +168,16 @@ const Membership: React.FC = () => {
           }),
         ]);
 
-        await fetchBackend({ endpoint: "/profiles", method: "POST" });
-        router.push(`/`);
+        // Profile creation can fail since we only update memberships each year
+        // Profiles may already exist since we don't update them each year, thus use a try catch block to prevent blocking the redirect
+        try {
+          await fetchBackend({ endpoint: "/profiles", method: "POST" });
+        } catch (profileError) {
+          console.error("Profile creation failed:", profileError);
+        }
+
+        window.location.assign("/");
+        return;
       } else {
         const paymentBody = {
           paymentName: "BizTech Membership",
@@ -231,6 +240,7 @@ const Membership: React.FC = () => {
 
   return (
     <FormProvider {...methods}>
+      <Toaster />
       <div className="flex min-h-screen flex-1 flex-col justify-center py-8 px-4 sm:px-6 lg:px-8 bg-bt-blue-600">
         <form
           className="max-w-xl mx-auto mt-12 px-4"
