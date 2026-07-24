@@ -1,7 +1,6 @@
 import { useEvent, useEventCounts } from "@/queries/events";
 import { useUserRegistrations } from "@/queries/registrations";
 import { useUserAttributes } from "@/queries/user";
-import { useRouter } from "next/router";
 import { EventHeroHeader } from "./EventHeroHeader";
 import {
   defaultEventModules,
@@ -9,8 +8,10 @@ import {
 } from "./EventModuleRenderer";
 import type { EventHomeEvent, EventRegistrationRecord } from "./types";
 
-const getRouteParam = (value: string | string[] | undefined) =>
-  Array.isArray(value) ? value[0] : value;
+type EventHomePageProps = {
+  eventId: string;
+  year: string;
+};
 
 function EventHomeSkeleton() {
   return (
@@ -35,11 +36,7 @@ function EventHomeError() {
   );
 }
 
-export default function EventHomePage() {
-  const router = useRouter();
-  const eventId = getRouteParam(router.query.eventId);
-  const year = getRouteParam(router.query.year);
-
+export default function EventHomePage({ eventId, year }: EventHomePageProps) {
   const {
     data: event,
     isLoading: eventLoading,
@@ -58,18 +55,14 @@ export default function EventHomePage() {
 
   const signedIn = !!email;
   const registrationLoading =
-    userLoading || (signedIn ? registrationsLoading : false);
-  const registrationHref =
-    eventId && year
-      ? `/event/${eventId}/${year}/register`
-      : event
-        ? `/event/${event.id}/${event.year}/register`
-        : "/events";
+    (userLoading && email === undefined) ||
+    (signedIn && registrationsLoading && registration === undefined);
+  const registrationHref = `/event/${eventId}/${year}/register`;
 
   return (
     <main className="min-h-[calc(100vh-8rem)] bg-transparent text-white">
       <div className="mx-auto flex w-full max-w-[1260px] flex-col">
-        {!router.isReady || eventLoading ? (
+        {eventLoading && !event ? (
           <EventHomeSkeleton />
         ) : eventError || !event ? (
           <EventHomeError />

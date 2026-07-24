@@ -139,7 +139,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   // Otherwise, wrap it in the Layout
   return (
-    <QueryProvider>
+    <QueryProvider dehydratedState={pageProps.dehydratedState}>
       <Layout>{content}</Layout>
     </QueryProvider>
   );
