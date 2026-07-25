@@ -123,7 +123,7 @@ export default function PartnerFormRegister() {
         <p className="text-l mb-4">You&apos;ve already registered!</p>
         <button
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
-          onClick={() => (window.location.href = "/")}
+          onClick={() => (window.location.href = "/events")}
         >
           Upcoming Events
         </button>
