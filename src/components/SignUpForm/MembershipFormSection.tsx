@@ -110,7 +110,7 @@ export default function MembershipFormSection({
 
   return (
     <div className="border-b border-white/10 pb-12">
-      <h2 className="text-base font-semibold leading-7 text-white">
+      <h2 className="text-base font-semibold leading-10 text-white">
         Personal Information
       </h2>
 
