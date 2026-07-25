@@ -6,6 +6,7 @@ import AttributesCard from "@/components/ProfilePage/AttributesCard";
 import SuggestedConnectionsCard from "@/components/ProfilePage/SuggestedConnectionsCard";
 import SuggestedConnectionsSection from "@/components/ProfilePage/SuggestedConnectionsSection";
 import { checkMembership } from "@/lib/membership";
+import { UnauthenticatedUserError } from "@/lib/dbUtils";
 
 interface ProfilePageProps {
   profileData: User;
@@ -66,9 +67,42 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       profileData.email ?? profileData.id,
     );
 
+    if (!hasMembership) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    }
+
     return { props: { profileData, hasMembership } };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in getServerSideProps:", error);
+
+    if (
+      error?.name === UnauthenticatedUserError.name ||
+      error?.status === 401 ||
+      error?.status === 403 ||
+      error?.message === "Authentication required but no valid session found"
+    ) {
+      return {
+        redirect: {
+          destination: "/login?redirect=%2Fprofile",
+          permanent: false,
+        },
+      };
+    }
+
+    if (error?.status === 404) {
+      return {
+        redirect: {
+          destination: "/membership",
+          permanent: false,
+        },
+      };
+    }
+
     return {
       props: {
         profileData: null,
