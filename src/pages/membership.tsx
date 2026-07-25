@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { fetchBackend } from "@/lib/db";
 import { getQueryString } from "@/util/url";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { useForm, FormProvider } from "react-hook-form";
 import MembershipFormSection, {
@@ -18,6 +17,7 @@ import {
   MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
 import { checkMembership } from "@/lib/membership";
+import { ArrowLeft, UserRound } from "lucide-react";
 
 const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -240,18 +240,50 @@ const Membership: React.FC = () => {
                 Create an account to sign up for our events and become a BizTech
                 member.
               </p>
-              <div className="mt-6 flex flex-row justify-center gap-x-8 gap-y-4">
-                <Button variant="green" size="sm">
-                  <Link href="/login?clearAuth=1">Back to Login Page</Link>
-                </Button>
-                <Button variant="green" size="sm">
-                  <Link
-                    href={getQueryString(router.query.redirect) ?? "/events"}
-                  >
-                    Continue as Guest
-                  </Link>
-                </Button>
+
+              <div className="mt-6 rounded-lg border border-bt-blue-300 bg-bt-blue-500/40 p-4 text-left">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-bt-green-300/40 text-bt-green-300">
+                    <UserRound
+                      aria-hidden="true"
+                      className="h-6 w-6"
+                      strokeWidth={2}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold leading-6 text-white">
+                      Not a member?
+                    </h3>
+                    <p className="text-xs leading-5 text-bt-blue-0">
+                      Attend eligible events as a guest.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href={getQueryString(router.query.redirect) ?? "/events"}
+                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bt-green-0 focus-visible:ring-offset-2 focus-visible:ring-offset-bt-blue-600"
+                >
+                  <UserRound
+                    aria-hidden="true"
+                    className="h-5 w-5"
+                    strokeWidth={2}
+                  />
+                  <span>Continue as Guest</span>
+                </Link>
               </div>
+
+              <Link
+                href="/login?clearAuth=1"
+                className="mx-auto mt-4 inline-flex items-center gap-2 text-xs text-bt-blue-100 hover:text-white focus-visible:outline-none focus-visible:underline"
+              >
+                <ArrowLeft
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  strokeWidth={2}
+                />
+                <span>Back to Login Page</span>
+              </Link>
             </div>
 
             <MembershipFormSection
