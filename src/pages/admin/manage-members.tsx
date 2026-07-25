@@ -93,7 +93,6 @@ type CreateMemberRequest = {
   dietaryRestrictions: string;
   referral: string;
   topics: string;
-  adminCreated: true;
 };
 
 const COLS_DEFAULT = {
@@ -168,7 +167,6 @@ export default function ManageMembers({ initialData }: Props) {
         dietaryRestrictions: values.dietaryRestrictions || "None",
         referral: values.referral,
         topics: values.topics.join(","),
-        adminCreated: true,
       };
 
       const response = await fetchBackend({

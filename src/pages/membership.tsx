@@ -139,44 +139,29 @@ const Membership: React.FC = () => {
 
     try {
       if (userBody.admin) {
-        await Promise.all([
-          fetchBackend({
-            endpoint: "/members",
-            method: "POST",
-            data: {
-              email: userBody.email,
-              education: userBody.education,
-              first_name: userBody.fname,
-              last_name: userBody.lname,
-              pronouns: userBody.gender,
-              student_number: userBody.studentId,
-              faculty: userBody.faculty,
-              year: userBody.year,
-              major: userBody.major,
-              prev_member: userBody.prev_member,
-              international: userBody.international,
-              topics: topicsString,
-              heard_from: values.referral,
-              diet: userBody.diet,
-              admin: userBody.admin,
-            },
-          }),
-          fetchBackend({
-            endpoint: isUser ? `/users/${userBody.email}` : "/users",
-            method: isUser ? "PATCH" : "POST",
-            data: { ...userBody, admin: undefined },
-          }),
-        ]);
+        await fetchBackend({
+          endpoint: "/members/grant",
+          method: "POST",
+          data: {
+            email: userBody.email,
+            firstName: userBody.fname,
+            lastName: userBody.lname,
+            studentNumber: userBody.studentId,
+            education: userBody.education,
+            pronouns: userBody.gender,
+            levelOfStudy: userBody.year,
+            faculty: userBody.faculty,
+            major: userBody.major,
+            internationalStudent: userBody.international,
+            previousMember: userBody.prev_member,
+            dietaryRestrictions: userBody.diet,
+            referral: values.referral,
+            topics: topicsString,
+          },
+        });
 
-        // Profile creation can fail since we only update memberships each year
-        // Profiles may already exist since we don't update them each year, thus use a try catch block to prevent blocking the redirect
-        try {
-          await fetchBackend({ endpoint: "/profiles", method: "POST" });
-        } catch (profileError) {
-          console.error("Profile creation failed:", profileError);
-        }
-
-        window.location.assign("/");
+        const redirectUrl = getQueryString(router.query.redirect) ?? "/";
+        window.location.assign(redirectUrl);
         return;
       } else {
         const paymentBody = {
