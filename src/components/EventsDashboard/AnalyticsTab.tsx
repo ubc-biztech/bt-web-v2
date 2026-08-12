@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Registration } from "@/types/types";
 import { fetchBackend } from "@/lib/db";
 import { OVERALL_RATING_QUESTION_ID } from "@/constants/feedbackQuestionTypes";
@@ -21,6 +22,8 @@ import {
   UserCircle,
   MessageSquareText,
   Star,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   AreaChart,
@@ -71,6 +74,137 @@ interface DistributionItem {
   percentage: number;
 }
 
+type OrderedChoiceInsight = {
+  percentage: number;
+  averageScore: number;
+  maxScore: number;
+};
+
+const ORDERED_CHOICE_SCALES = [
+  ["poor", "fair", "good", "excellent"],
+  ["very poor", "poor", "fair", "good", "excellent"],
+  ["terrible", "bad", "okay", "good", "great"],
+  ["very bad", "bad", "neutral", "good", "very good"],
+  [
+    "very dissatisfied",
+    "dissatisfied",
+    "neutral",
+    "satisfied",
+    "very satisfied",
+  ],
+  ["very unlikely", "unlikely", "neutral", "likely", "very likely"],
+  ["strongly disagree", "disagree", "neutral", "agree", "strongly agree"],
+  ["low", "medium", "high"],
+  ["never", "rarely", "sometimes", "often", "always"],
+];
+
+const clampPercentage = (value: number) => {
+  return Math.max(0, Math.min(100, Math.round(value)));
+};
+
+const parseFeedbackChoices = (choices: unknown): string[] => {
+  if (Array.isArray(choices)) {
+    return choices.map((choice) => String(choice).trim()).filter(Boolean);
+  }
+
+  if (typeof choices !== "string") return [];
+
+  return choices
+    .split(",")
+    .map((choice) => choice.trim())
+    .filter(Boolean);
+};
+
+const getScalePercentage = (average: number, scaleMax: number) => {
+  if (
+    !Number.isFinite(average) ||
+    !Number.isFinite(scaleMax) ||
+    scaleMax <= 0
+  ) {
+    return 0;
+  }
+
+  return clampPercentage((average / scaleMax) * 100);
+};
+
+const normalizeChoiceLabel = (choice: string) => {
+  return choice
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+};
+
+const getKnownOrderedChoiceScores = (choices: string[]) => {
+  const normalizedChoices = choices.map(normalizeChoiceLabel);
+
+  for (const scale of ORDERED_CHOICE_SCALES) {
+    const scalePositions = normalizedChoices.map((choice) =>
+      scale.indexOf(choice),
+    );
+    const allChoicesAreKnown = scalePositions.every(
+      (position) => position >= 0,
+    );
+    if (!allChoicesAreKnown) continue;
+
+    const choicesFollowScaleOrder = scalePositions.every((position, index) => {
+      if (index === 0) return true;
+      return position > scalePositions[index - 1];
+    });
+
+    if (choicesFollowScaleOrder) {
+      return choices.map((_, index) => index + 1);
+    }
+  }
+
+  return null;
+};
+
+const getOrderedChoiceInsight = (
+  items: DistributionItem[],
+  choices: string[],
+): OrderedChoiceInsight | null => {
+  if (choices.length < 2 || items.length === 0) return null;
+
+  const countsByLabel = new Map(items.map((item) => [item.label, item.count]));
+  const totalResponses = items.reduce((sum, item) => sum + item.count, 0);
+  if (totalResponses === 0) return null;
+
+  const numericChoices = choices.map((choice) => Number(choice));
+  const hasNumericScale = numericChoices.every(Number.isFinite);
+
+  if (hasNumericScale) {
+    const maxScore = Math.max(...numericChoices);
+    if (maxScore <= 0) return null;
+
+    const weightedScore = choices.reduce((sum, choice, index) => {
+      return sum + numericChoices[index] * (countsByLabel.get(choice) || 0);
+    }, 0);
+    const averageScore = weightedScore / totalResponses;
+
+    return {
+      averageScore,
+      maxScore,
+      percentage: getScalePercentage(averageScore, maxScore),
+    };
+  }
+
+  const orderedChoiceScores = getKnownOrderedChoiceScores(choices);
+  if (!orderedChoiceScores) return null;
+
+  const maxScore = orderedChoiceScores.length;
+  const weightedScore = choices.reduce((sum, choice, index) => {
+    return sum + orderedChoiceScores[index] * (countsByLabel.get(choice) || 0);
+  }, 0);
+  const averageScore = weightedScore / totalResponses;
+
+  return {
+    averageScore,
+    maxScore,
+    percentage: getScalePercentage(averageScore, maxScore),
+  };
+};
+
 // chart tooltip
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -111,6 +245,16 @@ export default function AnalyticsTab({
   const [timelineMode, setTimelineMode] = useState<"cumulative" | "daily">(
     "cumulative",
   );
+  const [expandedFeedbackQuestions, setExpandedFeedbackQuestions] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleFeedbackSourceTruth = (questionKey: string) => {
+    setExpandedFeedbackQuestions((current) => ({
+      ...current,
+      [questionKey]: !current[questionKey],
+    }));
+  };
 
   /* ---------------------------------------------------------------- */
   /*  Feedback submissions                                            */
@@ -139,6 +283,59 @@ export default function AnalyticsTab({
     formType: "attendee" | "partner";
     questions: FeedbackQuestion[];
     submissions: FeedbackSubmission[];
+  };
+
+  type LinearScaleFeedbackAnalytics = {
+    formType: "attendee" | "partner";
+    questionId: string;
+    label: string;
+    type: "LINEAR_SCALE";
+    responseCount: number;
+    totalSubmissions: number;
+    average: number;
+    scaleMin: number;
+    scaleMax: number;
+    scaleMinLabel?: string;
+    scaleMaxLabel?: string;
+    distribution: Record<number, number>;
+  };
+
+  type ChoiceFeedbackAnalytics = {
+    formType: "attendee" | "partner";
+    questionId: string;
+    label: string;
+    type: "MULTIPLE_CHOICE" | "CHECKBOXES";
+    responseCount: number;
+    totalSubmissions: number;
+    choices: string[];
+    items: DistributionItem[];
+  };
+
+  type WrittenFeedbackAnalytics = {
+    formType: "attendee" | "partner";
+    questionId: string;
+    label: string;
+    type: string;
+    responseCount: number;
+    totalSubmissions: number;
+    answers: string[];
+  };
+
+  type FeedbackAnalyticsItem =
+    | LinearScaleFeedbackAnalytics
+    | ChoiceFeedbackAnalytics
+    | WrittenFeedbackAnalytics;
+
+  type OverallFeedbackRating = {
+    formType: "attendee" | "partner";
+    average: number;
+    percentage: number;
+    count: number;
+  };
+
+  type FeedbackResponseBreakdown = {
+    formType: "attendee" | "partner";
+    count: number;
   };
 
   const [feedbackData, setFeedbackData] = useState<FeedbackSummary[]>([]);
@@ -180,7 +377,7 @@ export default function AnalyticsTab({
   }, [eventData]);
 
   /** Build per-question aggregate data for feedback */
-  const feedbackAnalytics = useMemo(() => {
+  const feedbackAnalytics = useMemo<FeedbackAnalyticsItem[]>(() => {
     return feedbackData.flatMap(({ formType, questions, submissions }) => {
       if (submissions.length === 0) return [];
 
@@ -202,7 +399,7 @@ export default function AnalyticsTab({
             formType,
             questionId: q.questionId,
             label: q.label,
-            type: q.type as string,
+            type: q.type,
             responseCount: nums.length,
             totalSubmissions: submissions.length,
             average: avg,
@@ -216,6 +413,9 @@ export default function AnalyticsTab({
 
         if (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES") {
           const counts: Record<string, number> = {};
+          const choices = parseFeedbackChoices(
+            (q as { choices?: unknown }).choices,
+          );
           answers.forEach((a) => {
             const values = Array.isArray(a) ? a : [a];
             values.forEach((v: string) => {
@@ -235,9 +435,10 @@ export default function AnalyticsTab({
             formType,
             questionId: q.questionId,
             label: q.label,
-            type: q.type as string,
+            type: q.type,
             responseCount: answers.length,
             totalSubmissions: submissions.length,
+            choices,
             items,
           };
         }
@@ -247,23 +448,18 @@ export default function AnalyticsTab({
           formType,
           questionId: q.questionId,
           label: q.label,
-          type: q.type as string,
+          type: q.type,
           responseCount: answers.length,
           totalSubmissions: submissions.length,
-          recentAnswers: answers.slice(0, 5).map(String),
+          answers: answers.map(String),
         };
       });
     });
   }, [feedbackData]);
 
   /** Extract the overall-rating score per form type (percentage out of 10) */
-  const overallRatings = useMemo(() => {
-    const result: {
-      formType: "attendee" | "partner";
-      average: number;
-      percentage: number;
-      count: number;
-    }[] = [];
+  const overallRatings = useMemo<OverallFeedbackRating[]>(() => {
+    const result: OverallFeedbackRating[] = [];
 
     for (const { formType, submissions } of feedbackData) {
       const scores = submissions
@@ -285,6 +481,62 @@ export default function AnalyticsTab({
 
     return result;
   }, [feedbackData]);
+
+  const overallRating = useMemo(() => {
+    const responseCount = overallRatings.reduce(
+      (sum, rating) => sum + rating.count,
+      0,
+    );
+    if (responseCount === 0) return null;
+
+    const average =
+      overallRatings.reduce(
+        (sum, rating) => sum + rating.average * rating.count,
+        0,
+      ) / responseCount;
+    const formTypes = overallRatings.map((rating) => rating.formType);
+
+    return {
+      average,
+      percentage: Math.max(0, Math.min(100, Math.round((average / 10) * 100))),
+      responseCount,
+      formTypes,
+    };
+  }, [overallRatings]);
+
+  const feedbackResponseBreakdown = useMemo<FeedbackResponseBreakdown[]>(() => {
+    return feedbackData
+      .map(({ formType, submissions }) => ({
+        formType,
+        count: submissions.length,
+      }))
+      .filter(({ count }) => count > 0);
+  }, [feedbackData]);
+
+  const feedbackAnalyticsGroups = useMemo(() => {
+    const insightQuestions = feedbackAnalytics.filter(
+      (q): q is LinearScaleFeedbackAnalytics | ChoiceFeedbackAnalytics =>
+        q.questionId !== OVERALL_RATING_QUESTION_ID &&
+        q.type !== "SHORT_TEXT" &&
+        q.type !== "LONG_TEXT",
+    );
+    const writtenQuestions = feedbackAnalytics.filter(
+      (q): q is WrittenFeedbackAnalytics =>
+        q.questionId !== OVERALL_RATING_QUESTION_ID && "answers" in q,
+    );
+    const writtenResponseCount = writtenQuestions.reduce(
+      (sum, question) => sum + question.responseCount,
+      0,
+    );
+
+    return {
+      overallRating,
+      responseBreakdown: feedbackResponseBreakdown,
+      insightQuestions,
+      writtenQuestions,
+      writtenResponseCount,
+    };
+  }, [feedbackAnalytics, feedbackResponseBreakdown, overallRating]);
 
   // registration status
   const statusCounts = useMemo(() => {
@@ -729,46 +981,6 @@ export default function AnalyticsTab({
           </Card>
         )}
       </div>
-
-      {/* overall rating cards */}
-      {overallRatings.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-          {overallRatings.map(({ formType, average, percentage, count }) => (
-            <Card
-              key={formType}
-              className="border-bt-blue-300/30 bg-bt-blue-500/40"
-            >
-              <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
-                    <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
-                  </div>
-                  <p className="text-[10px] md:text-xs text-bt-blue-100 capitalize">
-                    {formType} Rating
-                  </p>
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <p className="text-2xl md:text-3xl font-bold text-bt-green-300">
-                    {percentage}%
-                  </p>
-                  <span className="text-xs md:text-sm text-bt-blue-200">
-                    ({average.toFixed(1)}/10)
-                  </span>
-                </div>
-                <div className="mt-1.5 h-1.5 rounded-full bg-bt-blue-500/50 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <p className="text-[10px] md:text-xs text-bt-blue-200 mt-1">
-                  {count} response{count !== 1 && "s"}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
 
       {/* status breakdown */}
       <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
@@ -1228,206 +1440,506 @@ export default function AnalyticsTab({
             </h3>
           </div>
 
-          {/* summary KPI row */}
-          {feedbackData.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-              {feedbackData.map(({ formType, submissions }) => (
-                <Card
-                  key={formType}
-                  className="border-bt-blue-300/30 bg-bt-blue-500/40"
-                >
-                  <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
-                        <MessageSquareText className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
+          {feedbackAnalyticsGroups.overallRating && (
+            <Card className="overflow-hidden border-2 border-bt-green-300/55 bg-bt-blue-500/55 shadow-[0_18px_50px_rgba(0,0,0,0.28),inset_0_0_80px_rgba(117,212,80,0.1)]">
+              <CardContent className="p-6 md:p-8">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="mb-3 flex items-center gap-3">
+                      <div className="rounded-lg bg-bt-green-400/20 p-3 shadow-[0_0_30px_rgba(117,212,80,0.16)]">
+                        <Star className="h-6 w-6 text-bt-green-300" />
                       </div>
-                      <p className="text-[10px] md:text-xs text-bt-blue-100 capitalize">
-                        {formType} Responses
+                      <p className="text-base font-semibold uppercase tracking-wide text-bt-green-300 md:text-lg">
+                        Overall Event Rating
                       </p>
                     </div>
-                    <p className="text-2xl md:text-3xl font-bold">
-                      {submissions.length}
+                    <p className="max-w-2xl text-base text-bt-blue-100">
+                      Based on{" "}
+                      <span className="font-semibold text-white">
+                        {feedbackAnalyticsGroups.overallRating.responseCount}
+                      </span>{" "}
+                      {feedbackAnalyticsGroups.overallRating.formTypes
+                        .length === 1
+                        ? `${feedbackAnalyticsGroups.overallRating.formTypes[0]} `
+                        : ""}
+                      response
+                      {feedbackAnalyticsGroups.overallRating.responseCount !== 1
+                        ? "s"
+                        : ""}
+                      .
                     </p>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {/* average of all LINEAR_SCALE questions */}
-              {(() => {
-                const scaleQuestions = feedbackAnalytics.filter(
-                  (q) => q.type === "LINEAR_SCALE" && "average" in q,
-                );
-                if (scaleQuestions.length === 0) return null;
-                const overallAvg =
-                  scaleQuestions.reduce(
-                    (sum, q) => sum + ((q as any).average ?? 0),
-                    0,
-                  ) / scaleQuestions.length;
-                return (
-                  <Card className="border-bt-blue-300/30 bg-bt-blue-500/40">
-                    <CardContent className="pt-3 pb-3 md:pt-4 md:pb-4 px-3 md:px-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="rounded-lg bg-bt-blue-600/60 p-1.5">
-                          <Star className="w-3.5 h-3.5 md:w-4 md:h-4 text-bt-green-300" />
-                        </div>
-                        <p className="text-[10px] md:text-xs text-bt-blue-100">
-                          Avg Rating
-                        </p>
+                    {feedbackAnalyticsGroups.responseBreakdown.length > 1 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {feedbackAnalyticsGroups.responseBreakdown.map(
+                          ({ formType, count }) => (
+                            <div
+                              key={formType}
+                              className="rounded-full border border-bt-green-300/25 bg-bt-green-400/10 px-3 py-1 text-xs capitalize text-bt-blue-0"
+                            >
+                              <span className="font-semibold text-white">
+                                {count}
+                              </span>{" "}
+                              {formType}
+                            </div>
+                          ),
+                        )}
                       </div>
-                      <p className="text-2xl md:text-3xl font-bold">
-                        {overallAvg.toFixed(1)}
-                      </p>
-                      <p className="text-[10px] md:text-xs text-bt-blue-200 mt-0.5">
-                        across {scaleQuestions.length} question
-                        {scaleQuestions.length !== 1 && "s"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                );
-              })()}
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-bt-green-300/35 bg-bt-green-400/10 px-6 py-5 shadow-[0_0_36px_rgba(117,212,80,0.18)] md:min-w-[260px] md:text-right">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-bt-green-200">
+                      Event score
+                    </p>
+                    <p className="mt-1 text-[48px] font-bold leading-none text-bt-green-300 drop-shadow-[0_0_18px_rgba(117,212,80,0.3)] md:text-[56px]">
+                      {feedbackAnalyticsGroups.overallRating.percentage}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 h-4 overflow-hidden rounded-full bg-bt-blue-600/70">
+                  <div
+                    className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                    style={{
+                      width: `${feedbackAnalyticsGroups.overallRating.percentage}%`,
+                    }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* insight question cards */}
+          {feedbackAnalyticsGroups.insightQuestions.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {feedbackAnalyticsGroups.insightQuestions.map((q) => {
+                const tag = q.formType === "partner" ? " (Partner)" : "";
+
+                if (q.type === "LINEAR_SCALE") {
+                  const percentage = getScalePercentage(q.average, q.scaleMax);
+                  const questionKey = `${q.formType}-${q.questionId}`;
+                  const sourceTruthExpanded =
+                    expandedFeedbackQuestions[questionKey] || false;
+                  const sourceTruthItems: DistributionItem[] = [];
+                  for (let value = q.scaleMin; value <= q.scaleMax; value++) {
+                    const count = q.distribution[value] || 0;
+                    sourceTruthItems.push({
+                      label: String(value),
+                      count,
+                      percentage: Math.round(
+                        (count / (q.responseCount || 1)) * 100,
+                      ),
+                    });
+                  }
+
+                  return (
+                    <Card
+                      key={questionKey}
+                      className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                    >
+                      <CardHeader className="pb-3 md:pb-4">
+                        <CardTitle className="text-sm md:text-base">
+                          {q.label}
+                          {tag}
+                        </CardTitle>
+                        <p className="text-xs text-bt-blue-200">
+                          {q.responseCount} response
+                          {q.responseCount !== 1 && "s"}
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="flex items-end justify-between gap-4">
+                          <div>
+                            <p className="text-3xl font-bold leading-none text-bt-green-300">
+                              {percentage}%
+                            </p>
+                            <p className="mt-1 text-xs font-semibold text-bt-blue-100">
+                              Satisfaction score
+                            </p>
+                          </div>
+                          <p className="text-right text-xs text-bt-blue-200">
+                            avg{" "}
+                            <span className="font-semibold text-white">
+                              {q.average.toFixed(1)}
+                            </span>{" "}
+                            / {q.scaleMax}
+                          </p>
+                        </div>
+
+                        <div>
+                          <div className="h-2.5 overflow-hidden rounded-full bg-bt-blue-600/60">
+                            <div
+                              className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                          {(q.scaleMinLabel || q.scaleMaxLabel) && (
+                            <div className="mt-1 flex justify-between text-[10px] text-bt-blue-200">
+                              <span>{q.scaleMinLabel || q.scaleMin}</span>
+                              <span>{q.scaleMaxLabel || q.scaleMax}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 w-full justify-between border-bt-blue-300/30 bg-bt-blue-600/30 px-3 text-sm text-bt-blue-0 hover:bg-bt-blue-600/60"
+                          aria-expanded={sourceTruthExpanded}
+                          onClick={() => toggleFeedbackSourceTruth(questionKey)}
+                        >
+                          <span className="flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4 text-bt-green-300" />
+                            Source of truth
+                          </span>
+                          {sourceTruthExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+
+                        {sourceTruthExpanded && (
+                          <div className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/25 p-3">
+                            <div className="mb-3">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-bt-blue-100">
+                                Raw distribution
+                              </p>
+                              <p className="text-[10px] text-bt-blue-200">
+                                Counts for each selected scale value.
+                              </p>
+                            </div>
+                            <HorizontalBar
+                              items={sourceTruthItems}
+                              maxItems={sourceTruthItems.length}
+                            />
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                }
+
+                if (q.type === "MULTIPLE_CHOICE") {
+                  const orderedInsight = getOrderedChoiceInsight(
+                    q.items,
+                    q.choices,
+                  );
+                  const topItem = q.items[0];
+                  const questionKey = `${q.formType}-${q.questionId}`;
+                  const sourceTruthExpanded =
+                    expandedFeedbackQuestions[questionKey] || false;
+
+                  return (
+                    <Card
+                      key={questionKey}
+                      className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                    >
+                      <CardHeader className="pb-3 md:pb-4">
+                        <CardTitle className="text-sm md:text-base">
+                          {q.label}
+                          {tag}
+                        </CardTitle>
+                        <p className="text-xs text-bt-blue-200">
+                          {q.responseCount} response
+                          {q.responseCount !== 1 && "s"}
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        {orderedInsight ? (
+                          <div className="space-y-4">
+                            <div className="flex items-end justify-between gap-4">
+                              <div>
+                                <p className="text-3xl font-bold leading-none text-bt-green-300">
+                                  {orderedInsight.percentage}%
+                                </p>
+                                <p className="mt-1 text-xs font-semibold text-bt-blue-100">
+                                  Satisfaction score
+                                </p>
+                              </div>
+                              <p className="text-right text-xs text-bt-blue-200">
+                                avg{" "}
+                                <span className="font-semibold text-white">
+                                  {orderedInsight.averageScore.toFixed(1)}
+                                </span>{" "}
+                                / {orderedInsight.maxScore}
+                              </p>
+                            </div>
+                            <div className="h-2.5 overflow-hidden rounded-full bg-bt-blue-600/60">
+                              <div
+                                className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                                style={{
+                                  width: `${orderedInsight.percentage}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        ) : topItem ? (
+                          <div className="space-y-3">
+                            <p className="text-xs font-medium uppercase tracking-wide text-bt-blue-200">
+                              Top answer
+                            </p>
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                              <p className="text-lg font-semibold leading-tight text-white md:text-xl">
+                                {topItem.label}
+                              </p>
+                              <p className="shrink-0 text-sm text-bt-blue-100">
+                                <span className="text-xl font-bold text-bt-green-300 md:text-2xl">
+                                  {topItem.percentage}%
+                                </span>{" "}
+                                selected
+                              </p>
+                            </div>
+                            <div className="h-2.5 overflow-hidden rounded-full bg-bt-blue-600/60">
+                              <div
+                                className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                                style={{ width: `${topItem.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-bt-blue-100">
+                            No answers submitted for this question.
+                          </p>
+                        )}
+
+                        <div className="mt-4 space-y-3">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-full justify-between border-bt-blue-300/30 bg-bt-blue-600/30 px-3 text-sm text-bt-blue-0 hover:bg-bt-blue-600/60"
+                            aria-expanded={sourceTruthExpanded}
+                            onClick={() =>
+                              toggleFeedbackSourceTruth(questionKey)
+                            }
+                          >
+                            <span className="flex items-center gap-2">
+                              <BarChart3 className="h-4 w-4 text-bt-green-300" />
+                              Source of truth
+                            </span>
+                            {sourceTruthExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+
+                          {sourceTruthExpanded && (
+                            <div className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/25 p-3">
+                              <div className="mb-3">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-bt-blue-100">
+                                  Raw distribution
+                                </p>
+                                <p className="text-[10px] text-bt-blue-200">
+                                  Counts for each submitted answer.
+                                </p>
+                              </div>
+                              {q.items.length > 0 ? (
+                                <HorizontalBar
+                                  items={q.items}
+                                  maxItems={q.items.length}
+                                />
+                              ) : (
+                                <p className="text-sm text-bt-blue-100">
+                                  No answers submitted for this question.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                }
+
+                if (q.type === "CHECKBOXES") {
+                  const questionKey = `${q.formType}-${q.questionId}`;
+                  const sourceTruthExpanded =
+                    expandedFeedbackQuestions[questionKey] || false;
+                  const topCheckboxItems = q.items.slice(0, 2);
+
+                  return (
+                    <Card
+                      key={questionKey}
+                      className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                    >
+                      <CardHeader className="pb-3 md:pb-4">
+                        <CardTitle className="text-sm md:text-base">
+                          {q.label}
+                          {tag}
+                        </CardTitle>
+                        <p className="text-xs text-bt-blue-200">
+                          {q.responseCount} response
+                          {q.responseCount !== 1 && "s"}
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {q.items.length > 0 ? (
+                          <div className="space-y-3">
+                            <p className="text-xs font-medium uppercase tracking-wide text-bt-blue-200">
+                              Top selected responses
+                            </p>
+                            {topCheckboxItems.map((item) => (
+                              <div key={item.label} className="space-y-1.5">
+                                <div className="flex items-center justify-between gap-3 text-sm">
+                                  <span className="min-w-0 truncate text-bt-blue-0">
+                                    {item.label}
+                                  </span>
+                                  <span className="shrink-0 font-semibold text-bt-green-300">
+                                    {item.percentage}%
+                                  </span>
+                                </div>
+                                <div className="h-2 overflow-hidden rounded-full bg-bt-blue-600/60">
+                                  <div
+                                    className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
+                                    style={{ width: `${item.percentage}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                            {q.items.length > topCheckboxItems.length && (
+                              <p className="text-[10px] text-bt-blue-200">
+                                +{q.items.length - topCheckboxItems.length} more
+                                option
+                                {q.items.length - topCheckboxItems.length !== 1
+                                  ? "s"
+                                  : ""}{" "}
+                                in source of truth
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-bt-blue-100">
+                            No options selected for this question.
+                          </p>
+                        )}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 w-full justify-between border-bt-blue-300/30 bg-bt-blue-600/30 px-3 text-sm text-bt-blue-0 hover:bg-bt-blue-600/60"
+                          aria-expanded={sourceTruthExpanded}
+                          onClick={() => toggleFeedbackSourceTruth(questionKey)}
+                        >
+                          <span className="flex items-center gap-2">
+                            <BarChart3 className="h-4 w-4 text-bt-green-300" />
+                            Source of truth
+                          </span>
+                          {sourceTruthExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </Button>
+
+                        {sourceTruthExpanded && (
+                          <div className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/25 p-3">
+                            <div className="mb-3">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-bt-blue-100">
+                                Raw distribution
+                              </p>
+                              <p className="text-[10px] text-bt-blue-200">
+                                Counts for every selected checkbox option.
+                              </p>
+                            </div>
+                            {q.items.length > 0 ? (
+                              <HorizontalBar
+                                items={q.items}
+                                maxItems={q.items.length}
+                              />
+                            ) : (
+                              <p className="text-sm text-bt-blue-100">
+                                No options selected for this question.
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                }
+
+                return null;
+              })}
             </div>
           )}
 
-          {/* per-question cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {feedbackAnalytics.map((q) => {
-              const tag = q.formType === "partner" ? " (Partner)" : "";
+          {feedbackAnalyticsGroups.writtenQuestions.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquareText className="h-4 w-4 text-bt-green-300" />
+                  <h4 className="text-base font-semibold text-white">
+                    Written Responses
+                  </h4>
+                </div>
+                <p className="text-xs text-bt-blue-200">
+                  {feedbackAnalyticsGroups.writtenResponseCount} written
+                  response
+                  {feedbackAnalyticsGroups.writtenResponseCount !== 1
+                    ? "s"
+                    : ""}
+                </p>
+              </div>
 
-              // LINEAR_SCALE → rating bar
-              if (q.type === "LINEAR_SCALE" && "average" in q) {
-                const {
-                  average,
-                  scaleMin,
-                  scaleMax,
-                  distribution,
-                  scaleMinLabel,
-                  scaleMaxLabel,
-                } = q as any;
-                const range = scaleMax - scaleMin || 1;
-                const items = [];
-                for (let v = scaleMin; v <= scaleMax; v++) {
-                  items.push({
-                    label: String(v),
-                    count: distribution[v] || 0,
-                    percentage: Math.round(
-                      ((distribution[v] || 0) / (q.responseCount || 1)) * 100,
-                    ),
-                  });
-                }
-                return (
-                  <Card
-                    key={q.questionId}
-                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
-                  >
-                    <CardHeader className="pb-3 md:pb-4">
-                      <CardTitle className="text-base md:text-lg">
-                        {q.label}
-                        {tag}
-                      </CardTitle>
-                      <p className="text-xs text-bt-blue-200">
-                        {q.responseCount} response{q.responseCount !== 1 && "s"}{" "}
-                        · avg{" "}
-                        <span className="font-semibold text-bt-green-300">
-                          {(average as number).toFixed(1)}
-                        </span>
-                        {scaleMinLabel || scaleMaxLabel ? (
-                          <span className="ml-1 text-bt-blue-200">
-                            ({scaleMinLabel || scaleMin} →{" "}
-                            {scaleMaxLabel || scaleMax})
-                          </span>
-                        ) : null}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      {/* progress bar for average */}
-                      <div className="mb-4">
-                        <div className="h-3 rounded-full bg-bt-blue-600/40 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-bt-green-400 transition-all duration-500"
-                            style={{
-                              width: `${(((average as number) - scaleMin) / range) * 100}%`,
-                            }}
-                          />
+              <div className="grid grid-cols-1 gap-4">
+                {feedbackAnalyticsGroups.writtenQuestions.map((q) => {
+                  const tag = q.formType === "partner" ? " (Partner)" : "";
+
+                  return (
+                    <Card
+                      key={`${q.formType}-${q.questionId}`}
+                      className="border-bt-blue-300/30 bg-bt-blue-500/40"
+                    >
+                      <CardHeader className="pb-3 md:pb-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <CardTitle className="text-sm md:text-base">
+                            {q.label}
+                            {tag}
+                          </CardTitle>
+                          <div className="shrink-0 rounded-full border border-bt-green-300/25 bg-bt-green-400/10 px-3 py-1 text-xs text-bt-blue-0">
+                            <span className="font-semibold text-white">
+                              {q.responseCount}
+                            </span>{" "}
+                            response{q.responseCount !== 1 && "s"}
+                          </div>
                         </div>
-                        <div className="flex justify-between text-[10px] text-bt-blue-200 mt-1">
-                          <span>{scaleMin}</span>
-                          <span>{scaleMax}</span>
-                        </div>
-                      </div>
-                      <HorizontalBar items={items} />
-                    </CardContent>
-                  </Card>
-                );
-              }
-
-              // MC / CHECKBOXES → horizontal bars
-              if (
-                (q.type === "MULTIPLE_CHOICE" || q.type === "CHECKBOXES") &&
-                "items" in q
-              ) {
-                return (
-                  <Card
-                    key={q.questionId}
-                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
-                  >
-                    <CardHeader className="pb-3 md:pb-4">
-                      <CardTitle className="text-base md:text-lg">
-                        {q.label}
-                        {tag}
-                      </CardTitle>
-                      <p className="text-xs text-bt-blue-200">
-                        {q.responseCount} response{q.responseCount !== 1 && "s"}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <HorizontalBar items={(q as any).items} />
-                    </CardContent>
-                  </Card>
-                );
-              }
-
-              // text answers → show recent samples
-              if ("recentAnswers" in q) {
-                return (
-                  <Card
-                    key={q.questionId}
-                    className="border-bt-blue-300/30 bg-bt-blue-500/40"
-                  >
-                    <CardHeader className="pb-3 md:pb-4">
-                      <CardTitle className="text-base md:text-lg">
-                        {q.label}
-                        {tag}
-                      </CardTitle>
-                      <p className="text-xs text-bt-blue-200">
-                        {q.responseCount} response{q.responseCount !== 1 && "s"}
-                      </p>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-2">
-                        {(q as any).recentAnswers.map(
-                          (answer: string, i: number) => (
-                            <li
-                              key={i}
-                              className="text-sm text-bt-blue-0 rounded-lg bg-bt-blue-600/40 p-2.5"
-                            >
-                              &ldquo;{answer}&rdquo;
-                            </li>
-                          ),
-                        )}
-                        {q.responseCount > 5 && (
-                          <p className="text-[10px] text-muted-foreground text-center">
-                            +{q.responseCount - 5} more
+                      </CardHeader>
+                      <CardContent>
+                        {q.answers.length > 0 ? (
+                          <div className="space-y-2">
+                            <div className="max-h-[184px] space-y-2 overflow-y-auto pr-2">
+                              {q.answers.map((answer, i) => (
+                                <div
+                                  key={`${q.questionId}-${i}`}
+                                  className="rounded-lg border border-bt-blue-300/15 bg-bt-blue-600/35 p-3 text-sm leading-relaxed text-bt-blue-0"
+                                >
+                                  &ldquo;{answer}&rdquo;
+                                </div>
+                              ))}
+                            </div>
+                            {q.answers.length > 3 && (
+                              <p className="text-[10px] text-bt-blue-200">
+                                Scroll to view {q.answers.length - 3} more
+                                response{q.answers.length - 3 !== 1 && "s"}.
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-bt-blue-100">
+                            No written responses submitted for this question.
                           </p>
                         )}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                );
-              }
-
-              return null;
-            })}
-          </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
