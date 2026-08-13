@@ -9,11 +9,16 @@ import { FormCheckbox } from "./FormComponents/FormCheckbox";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormTextarea } from "./FormComponents/FormTextarea";
 import { FormDatePicker } from "./FormComponents/FormDatePicker";
+import { FormSelect } from "./FormComponents/FormSelect";
 import { CustomQuestions } from "./CustomQuestions";
 import { EventPreview } from "./EventPreview";
 import EventThumbnailUploader from "./EventThumbnailUploader";
 import Link from "next/link";
 import { useEffect } from "react";
+import {
+  DEFAULT_REGISTRATION_FORM_KEY,
+  REGISTRATION_FORM_OPTIONS,
+} from "@/features/registrationForms/registry";
 import {
   ImageIcon,
   FileText,
@@ -86,6 +91,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       nonMemberPrice: 0,
       isPublished: false,
       isCompleted: false,
+      registrationFormKey: DEFAULT_REGISTRATION_FORM_KEY,
       ...initialData,
     },
     mode: "onChange", // Changed from 'onBlur'
@@ -100,6 +106,12 @@ export const EventForm: React.FC<EventFormProps> = ({
     name: "nonBizTechAllowed",
   });
   const eventSlug = useWatch({ control: form.control, name: "eventSlug" });
+  const registrationFormKey = useWatch({
+    control: form.control,
+    name: "registrationFormKey",
+  });
+  const usesCustomRegistrationForm =
+    registrationFormKey !== DEFAULT_REGISTRATION_FORM_KEY;
 
   // Track if form is dirty (has unsaved changes)
   const formIsDirty =
@@ -315,6 +327,16 @@ export const EventForm: React.FC<EventFormProps> = ({
                 icon={<Settings className="w-4 h-4" />}
                 title="Event Settings"
               >
+                <div className="space-y-1.5">
+                  <FormSelect
+                    name="registrationFormKey"
+                    label="Registration Form"
+                    options={REGISTRATION_FORM_OPTIONS}
+                  />
+                  <p className="text-xs leading-5 text-bt-blue-100">
+                    Select the attendee registration experience for this event.
+                  </p>
+                </div>
                 <FormCheckbox
                   name="isApplicationBased"
                   label="This is an application based event (i.e. you will accept / reject applicants)"
@@ -426,11 +448,31 @@ export const EventForm: React.FC<EventFormProps> = ({
                 icon={<Users className="w-4 h-4" />}
                 title="Attendee Registration Questions"
               >
-                <CustomQuestions
-                  control={form.control}
-                  name="customQuestions"
-                  label="Attendee Custom Questions"
-                />
+                {usesCustomRegistrationForm && (
+                  <p className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/45 px-3 py-2 text-xs leading-5 text-bt-blue-100">
+                    This form&apos;s questions are managed in code. Select the
+                    default registration form to edit questions here.
+                  </p>
+                )}
+                <div
+                  aria-disabled={usesCustomRegistrationForm}
+                  className={
+                    usesCustomRegistrationForm
+                      ? "pointer-events-none select-none opacity-45 grayscale"
+                      : ""
+                  }
+                >
+                  <fieldset
+                    disabled={usesCustomRegistrationForm}
+                    className="m-0 min-w-0 border-0 p-0"
+                  >
+                    <CustomQuestions
+                      control={form.control}
+                      name="customQuestions"
+                      label="Attendee Custom Questions"
+                    />
+                  </fieldset>
+                </div>
               </SectionCard>
 
               {/* Partner Information */}

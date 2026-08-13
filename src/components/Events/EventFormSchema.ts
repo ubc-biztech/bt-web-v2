@@ -1,4 +1,17 @@
 import { z } from "zod";
+import {
+  DEFAULT_REGISTRATION_FORM_KEY,
+  isRegistrationFormKey,
+  type RegistrationFormKey,
+} from "@/features/registrationForms/registry";
+
+const registrationFormKeySchema = z
+  .string()
+  .refine(
+    (value): value is RegistrationFormKey => isRegistrationFormKey(value),
+    "Select a valid registration form",
+  )
+  .default(DEFAULT_REGISTRATION_FORM_KEY);
 
 export const eventFormSchema = z.object({
   // Required fields (marked with * in the UI)
@@ -26,6 +39,7 @@ export const eventFormSchema = z.object({
   nonBizTechAllowed: z.boolean().default(false),
   isPublished: z.boolean().default(false),
   isCompleted: z.boolean().default(false),
+  registrationFormKey: registrationFormKeySchema,
 
   // Arrays with defaults
   customQuestions: z
