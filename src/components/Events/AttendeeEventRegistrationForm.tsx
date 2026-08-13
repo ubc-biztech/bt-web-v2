@@ -27,10 +27,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
-import { BiztechEvent, User } from "@/types";
+import { BiztechEvent } from "@/types";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MultiSelectCheckbox } from "@/components/Events/FormComponents/MultiSelectCheckbox";
+import type { RegistrationFormProps } from "@/features/registrationForms/types";
+import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
+import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import Image from "next/image";
 const baseSchema = (hide: boolean) =>
   z.object({
@@ -60,19 +63,6 @@ const baseSchema = (hide: boolean) =>
       .min(1, "Please specify how you heard about this event"),
   });
 
-interface AttendeeEventRegistrationFormProps {
-  event: BiztechEvent;
-  initialData?: Partial<z.infer<ReturnType<typeof createDynamicSchema>>>;
-  onSubmit: (
-    data: z.infer<ReturnType<typeof createDynamicSchema>>,
-  ) => Promise<Boolean>;
-  onSubmitPayment: (
-    data: z.infer<ReturnType<typeof createDynamicSchema>>,
-  ) => Promise<Boolean>;
-  user: User;
-  hasMembership: boolean;
-}
-
 const createDynamicSchema = (event: BiztechEvent) => {
   const hide = event?.id === "alumni-night";
   const dynamicSchema =
@@ -91,15 +81,12 @@ const createDynamicSchema = (event: BiztechEvent) => {
   });
 };
 
-export const AttendeeEventRegistrationForm: React.FC<
-  AttendeeEventRegistrationFormProps
-> = ({
+export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
   event,
-  initialData,
   onSubmit,
-  onSubmitPayment,
   user,
   hasMembership,
+  submitting,
 }) => {
   const schema = useMemo(() => createDynamicSchema(event), [event]);
   type FormValues = z.infer<ReturnType<typeof createDynamicSchema>>;
@@ -108,7 +95,7 @@ export const AttendeeEventRegistrationForm: React.FC<
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: initialData || {
+    defaultValues: {
       emailAddress: user.email || user.id,
       firstName: "",
       lastName: "",
@@ -123,16 +110,39 @@ export const AttendeeEventRegistrationForm: React.FC<
   });
 
   const handleSubmit: SubmitHandler<FormValues> = async (data) => {
-    if (await onSubmit(data)) {
-      toast({
-        title: "Registration Submitted",
-        description: "Your registration has been successfully submitted.",
-      });
-    }
-  };
+    const dynamicResponses = { ...data.customQuestions };
 
-  const handlePaymentSubmit: SubmitHandler<FormValues> = async (data) => {
-    if (await onSubmitPayment(data)) {
+    for (const question of event.registrationQuestions ?? []) {
+      if (
+        question.type === QuestionTypes.CHECKBOX &&
+        dynamicResponses[question.questionId]
+      ) {
+        dynamicResponses[question.questionId] = cleanOtherQuestions(
+          dynamicResponses[question.questionId],
+        );
+      }
+    }
+
+    const payload: RegistrationPayload = {
+      email: data.emailAddress,
+      fname: data.firstName,
+      studentId: user.studentId,
+      basicInformation: {
+        fname: data.firstName,
+        lname: data.lastName,
+        gender: data.preferredPronouns,
+        diet: data.dietaryRestrictions,
+        heardFrom: data.howDidYouHear,
+        ...(event.id !== "alumni-night" && {
+          year: data.yearLevel,
+          faculty: data.faculty,
+          major: data.majorSpecialization,
+        }),
+      },
+      dynamicResponses,
+    };
+
+    if (await onSubmit(payload)) {
       toast({
         title: "Registration Submitted",
         description: "Your registration has been successfully submitted.",
@@ -227,14 +237,7 @@ export const AttendeeEventRegistrationForm: React.FC<
       {/* Main content */}
       <div className="flex-1">
         <Form {...form}>
-          <form
-            onSubmit={
-              !user?.admin &&
-              (event.pricing?.nonMembers > 0 || event.pricing?.members > 0)
-                ? form.handleSubmit(handlePaymentSubmit)
-                : form.handleSubmit(handleSubmit)
-            }
-          >
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             {/* Preview column */}
             <div className="container py-10">
               <div className="space-y-4 p-4 max-w-lg mx-auto relative">
@@ -619,14 +622,20 @@ export const AttendeeEventRegistrationForm: React.FC<
                 ))}
                 <div className="h-px my-8" />
                 {user?.admin ? (
-                  <Button type="submit">Submit</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit"}
+                  </Button>
                 ) : !user?.admin &&
                   ((hasMembership && event.pricing?.members > 0) ||
                     (!hasMembership && event.pricing?.nonMembers)) &&
                   !event.isApplicationBased ? (
-                  <Button type="submit">Proceed to Payment</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Proceed to Payment"}
+                  </Button>
                 ) : (
-                  <Button type="submit">Submit</Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? "Submitting..." : "Submit"}
+                  </Button>
                 )}
               </div>
             </div>

@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
 import type { RegistrationQuestion } from "@/types";
+import type { RegistrationFormProps } from "./types";
 
 const DefaultRegistrationForm = dynamic(() =>
   import("@/components/Events/AttendeeEventRegistrationForm").then(
@@ -9,7 +11,7 @@ const DefaultRegistrationForm = dynamic(() =>
 
 export type RegistrationFormDefinition = {
   label: string;
-  Component: typeof DefaultRegistrationForm;
+  Component: ComponentType<RegistrationFormProps>;
   questions?: readonly RegistrationQuestion[];
 };
 

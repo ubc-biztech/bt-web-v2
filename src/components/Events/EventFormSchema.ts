@@ -45,7 +45,7 @@ export const eventFormSchema = z.object({
   customQuestions: z
     .array(
       z.object({
-        id: z.string(),
+        id: z.string().min(1, "Question ID is required"),
         type: z.enum([
           "TEXT",
           "SELECT",

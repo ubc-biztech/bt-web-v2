@@ -41,7 +41,7 @@ export type RegistrationQuestion = {
   choices?: string;
   charLimit?: number;
   questionImageUrl?: string;
-  participantCap?: string;
+  participantCap?: number | string;
   isSkillsQuestion?: boolean;
 };
 
