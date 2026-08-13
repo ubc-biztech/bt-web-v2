@@ -5,6 +5,7 @@ import { EventForm } from "@/components/Events/EventForm";
 import { EventFormSchema } from "@/components/Events/EventFormSchema";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
+import { DEFAULT_REGISTRATION_FORM_KEY } from "@/features/registrationForms/registry";
 
 const EditEventPage: NextPage = () => {
   const { toast } = useToast();
@@ -62,6 +63,8 @@ const EditEventPage: NextPage = () => {
           nonBizTechAllowed: !!data.nonBizTechAllowed,
           isPublished: !!data.isPublished,
           isCompleted: !!data.isCompleted,
+          registrationFormKey:
+            data.registrationFormKey ?? DEFAULT_REGISTRATION_FORM_KEY,
           customQuestions: Array.isArray(data.registrationQuestions)
             ? data.registrationQuestions.map(transformBackendQuestion)
             : [],
@@ -146,6 +149,7 @@ const EditEventPage: NextPage = () => {
               : Number(data.price) || 0,
         }),
       },
+      registrationFormKey: data.registrationFormKey,
       registrationQuestions: data.customQuestions.map(transformCustomQuestion),
       partnerRegistrationQuestions: data.partnerCustomQuestions.map(
         transformCustomQuestion,

@@ -79,6 +79,7 @@ const CreateEventPage: NextPage = () => {
       },
       isPublished: false,
       isCompleted: false,
+      registrationFormKey: data.registrationFormKey,
       registrationQuestions: data.customQuestions.map(transformCustomQuestion),
       partnerRegistrationQuestions: data.partnerCustomQuestions.map(
         transformCustomQuestion,

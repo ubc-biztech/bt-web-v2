@@ -15,6 +15,7 @@ export type BiztechEvent = {
   longitude: number;
   facebookUrl: string;
   deadline: string;
+  registrationFormKey?: string;
   registrationStatus: any;
   registrationQuestions?: RegistrationQuestion[];
   pricing: any;
