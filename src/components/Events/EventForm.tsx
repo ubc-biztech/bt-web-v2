@@ -3,6 +3,13 @@ import { SubmitErrorHandler, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { EventFormSchema, eventFormSchema } from "./EventFormSchema";
 import { FormCheckbox } from "./FormComponents/FormCheckbox";
@@ -13,6 +20,13 @@ import { FormSelect } from "./FormComponents/FormSelect";
 import { CustomQuestions } from "./CustomQuestions";
 import { EventPreview } from "./EventPreview";
 import EventThumbnailUploader from "./EventThumbnailUploader";
+import {
+  EVENT_PAGE_MODULE_TYPES,
+  normalizeEventPageConfig,
+  normalizeEventPageModules,
+  type EventPageModule,
+  type EventPageModuleType,
+} from "@/lib/eventPageConfig";
 import Link from "next/link";
 import { useEffect } from "react";
 import {
@@ -20,6 +34,7 @@ import {
   REGISTRATION_FORM_OPTIONS,
 } from "@/features/registrationForms/registry";
 import {
+  ArrowDown,
   ImageIcon,
   FileText,
   Calendar,
@@ -30,8 +45,10 @@ import {
   Send,
   CheckCircle2,
   ArrowLeft,
+  ArrowUp,
   MapPin,
   Link as LinkIcon,
+  LayoutGrid,
   Settings,
 } from "lucide-react";
 
@@ -61,6 +78,35 @@ const SectionCard: React.FC<{
   </div>
 );
 
+const moduleCopy: Record<
+  EventPageModuleType,
+  { title: string; description: string }
+> = {
+  registration: {
+    title: "Registration",
+    description: "Shows the existing registration or application status card.",
+  },
+  qa: {
+    title: "Q&A Board",
+    description: "Shows anonymous event questions and answers.",
+  },
+  connections: {
+    title: "Connections",
+    description: "Shows event networking and connection insights.",
+  },
+};
+
+const visibilityOptions: Array<{
+  value: EventPageModule["visibility"];
+  label: string;
+}> = [
+  { value: "public", label: "Public" },
+  { value: "signedIn", label: "Signed in" },
+  { value: "registered", label: "Registered" },
+  { value: "checkedIn", label: "Checked in" },
+  { value: "admin", label: "Admin only" },
+];
+
 export const EventForm: React.FC<EventFormProps> = ({
   initialData,
   onSubmit,
@@ -69,6 +115,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 }) => {
   // Add state to track if we're intentionally submitting/updating
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const initialEventPage = normalizeEventPageConfig(initialData?.eventPage);
 
   const form = useForm<EventFormSchema>({
     resolver: zodResolver(eventFormSchema),
@@ -93,6 +140,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       isCompleted: false,
       registrationFormKey: DEFAULT_REGISTRATION_FORM_KEY,
       ...initialData,
+      eventPage: initialEventPage,
     },
     mode: "onChange", // Changed from 'onBlur'
   });
@@ -112,6 +160,91 @@ export const EventForm: React.FC<EventFormProps> = ({
   });
   const usesCustomRegistrationForm =
     registrationFormKey !== DEFAULT_REGISTRATION_FORM_KEY;
+  const eventPageModules = useWatch({
+    control: form.control,
+    name: "eventPage.modules",
+  });
+  const orderedEventPageModules = normalizeEventPageModules(eventPageModules);
+
+  const setEventPageModules = (modules: EventPageModule[]) => {
+    form.setValue(
+      "eventPage.modules",
+      modules.map((module, index) => ({
+        ...module,
+        order: index + 1,
+      })),
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
+  };
+
+  const toggleEventPageModule = (moduleId: EventPageModuleType) => {
+    const existingModule = orderedEventPageModules.find(
+      (module) => module.id === moduleId,
+    );
+
+    if (existingModule) {
+      setEventPageModules(
+        orderedEventPageModules.filter((module) => module.id !== moduleId),
+      );
+      return;
+    }
+
+    setEventPageModules([
+      ...orderedEventPageModules,
+      {
+        id: moduleId,
+        order: orderedEventPageModules.length + 1,
+        visibility: "public",
+        config: {},
+      },
+    ]);
+  };
+
+  const updateModuleVisibility = (
+    moduleId: EventPageModuleType,
+    visibility: EventPageModule["visibility"],
+  ) => {
+    setEventPageModules(
+      orderedEventPageModules.map((module) =>
+        module.id === moduleId ? { ...module, visibility } : module,
+      ),
+    );
+  };
+
+  const moveEventPageWidgetModule = (
+    moduleId: EventPageModuleType,
+    direction: -1 | 1,
+  ) => {
+    const fixedModules = orderedEventPageModules.filter(
+      (module) => module.id === "registration",
+    );
+    const widgetModules = orderedEventPageModules.filter(
+      (module) => module.id !== "registration",
+    );
+    const widgetIndex = widgetModules.findIndex(
+      (module) => module.id === moduleId,
+    );
+    const targetIndex = widgetIndex + direction;
+
+    if (
+      widgetIndex < 0 ||
+      targetIndex < 0 ||
+      targetIndex >= widgetModules.length
+    ) {
+      return;
+    }
+
+    const nextWidgetModules = [...widgetModules];
+    [nextWidgetModules[widgetIndex], nextWidgetModules[targetIndex]] = [
+      nextWidgetModules[targetIndex],
+      nextWidgetModules[widgetIndex],
+    ];
+
+    setEventPageModules([...fixedModules, ...nextWidgetModules]);
+  };
 
   // Track if form is dirty (has unsaved changes)
   const formIsDirty =
@@ -390,6 +523,135 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <div className="truncate">{getSlugPreview().partner}</div>
                 </div>
                 <FormTextarea name="description" label="Description*" />
+              </SectionCard>
+
+              <SectionCard
+                icon={<LayoutGrid className="w-4 h-4" />}
+                title="Event Page"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormInput
+                    name="eventPage.subtitle"
+                    label="Subtitle"
+                    placeholder="Hosted by UBC BizTech"
+                  />
+                  <div className="sm:col-span-2">
+                    <FormInput
+                      name="eventPage.externalUrl"
+                      label="External Link"
+                      placeholder="https://..."
+                      type="url"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {EVENT_PAGE_MODULE_TYPES.map((moduleId) => {
+                    const enabledModule = orderedEventPageModules.find(
+                      (module) => module.id === moduleId,
+                    );
+                    const isRegistrationModule = moduleId === "registration";
+                    const orderedWidgetModules = orderedEventPageModules.filter(
+                      (module) => module.id !== "registration",
+                    );
+                    const widgetIndex = orderedWidgetModules.findIndex(
+                      (module) => module.id === moduleId,
+                    );
+
+                    return (
+                      <div
+                        key={moduleId}
+                        className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/50 p-4"
+                      >
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                          <div>
+                            <p className="text-sm font-semibold text-white">
+                              {moduleCopy[moduleId].title}
+                            </p>
+                            <p className="mt-1 text-xs text-bt-blue-100">
+                              {moduleCopy[moduleId].description}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            {enabledModule && (
+                              <>
+                                {isRegistrationModule ? (
+                                  <span className="rounded-md border border-bt-blue-300/30 px-3 py-2 text-xs font-semibold text-bt-blue-100">
+                                    Fixed position
+                                  </span>
+                                ) : (
+                                  <>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() =>
+                                        moveEventPageWidgetModule(moduleId, -1)
+                                      }
+                                      disabled={widgetIndex <= 0}
+                                      aria-label={`Move ${moduleCopy[moduleId].title} up`}
+                                    >
+                                      <ArrowUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="icon"
+                                      onClick={() =>
+                                        moveEventPageWidgetModule(moduleId, 1)
+                                      }
+                                      disabled={
+                                        widgetIndex ===
+                                        orderedWidgetModules.length - 1
+                                      }
+                                      aria-label={`Move ${moduleCopy[moduleId].title} down`}
+                                    >
+                                      <ArrowDown className="h-4 w-4" />
+                                    </Button>
+                                  </>
+                                )}
+                                <div className="w-36">
+                                  <Select
+                                    value={enabledModule.visibility}
+                                    onValueChange={(value) =>
+                                      updateModuleVisibility(
+                                        moduleId,
+                                        value as EventPageModule["visibility"],
+                                      )
+                                    }
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {visibilityOptions.map((option) => (
+                                        <SelectItem
+                                          key={option.value}
+                                          value={option.value}
+                                        >
+                                          {option.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </>
+                            )}
+                            <Button
+                              type="button"
+                              variant={enabledModule ? "green" : "outline"}
+                              size="sm"
+                              onClick={() => toggleEventPageModule(moduleId)}
+                            >
+                              {enabledModule ? "Enabled" : "Enable"}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </SectionCard>
 
               {/* Date & Time */}

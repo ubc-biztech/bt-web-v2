@@ -188,7 +188,7 @@ export default function AdminEvent({ initialData, eventData }: Props) {
               </Link>
               <div className="text-bt-blue-300">|</div>
               <Link
-                href={`/event/${router.query.eventId}/${router.query.year}/edit`}
+                href={`/event/${router.query.eventId}/${router.query.year}`}
                 className="flex flex-row gap-1.5 md:gap-2 items-center hover:underline"
               >
                 <Eye className="w-3.5 h-3.5 md:w-4 md:h-4" />

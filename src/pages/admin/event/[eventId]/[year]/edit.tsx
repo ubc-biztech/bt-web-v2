@@ -10,6 +10,7 @@ import {
   getRegistrationQuestions,
   transformEventFormQuestions,
 } from "@/features/registrationForms/questions";
+import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
 
 const EditEventPage: NextPage = () => {
   const { toast } = useToast();
@@ -69,6 +70,7 @@ const EditEventPage: NextPage = () => {
           isCompleted: !!data.isCompleted,
           registrationFormKey:
             data.registrationFormKey ?? DEFAULT_REGISTRATION_FORM_KEY,
+          eventPage: normalizeEventPageConfig(data.eventPage),
           customQuestions: Array.isArray(data.registrationQuestions)
             ? data.registrationQuestions.map(transformBackendQuestion)
             : [],
@@ -153,6 +155,7 @@ const EditEventPage: NextPage = () => {
       nonBizTechAllowed: data.nonBizTechAllowed,
       isPublished: data.isPublished,
       isCompleted: data.isCompleted,
+      eventPage: data.eventPage,
     };
 
     try {

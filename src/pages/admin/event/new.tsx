@@ -75,6 +75,7 @@ const CreateEventPage: NextPage = () => {
       },
       isPublished: false,
       isCompleted: false,
+      eventPage: data.eventPage,
       registrationFormKey: data.registrationFormKey,
       registrationQuestions: getRegistrationQuestions(
         data.registrationFormKey,
