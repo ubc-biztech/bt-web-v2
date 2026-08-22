@@ -2,6 +2,8 @@ import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 import type { RegistrationQuestion } from "@/types";
 import type { RegistrationFormProps } from "./types";
+import { MISRegistrationForm } from "./mis-2026/RegistrationForm";
+import { MIS_REGISTRATION_QUESTIONS } from "./mis-2026/Definition";
 
 const DefaultRegistrationForm = dynamic(() =>
   import("@/components/Events/AttendeeEventRegistrationForm").then(
@@ -19,6 +21,12 @@ export const REGISTRATION_FORMS = {
   default: {
     label: "Default registration form",
     Component: DefaultRegistrationForm,
+  },
+
+  "mis-night-2026": {
+    label: "MIS 2026 registration form",
+    Component: MISRegistrationForm,
+    questions: MIS_REGISTRATION_QUESTIONS,
   },
 } as const satisfies Record<string, RegistrationFormDefinition>;
 
