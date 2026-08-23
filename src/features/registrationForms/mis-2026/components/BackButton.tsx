@@ -18,11 +18,10 @@ export function BackButton({
       disabled={disabled}
       aria-label={label}
       className={`
-        group flex size-24 items-center justify-center
-        rounded-full border-[3px] border-[#2A2A2A]
-        bg-[#1C1C1C]
+        group flex size-10 items-center justify-center
+        rounded-full bg-[#1E1E1E]
         transition-all duration-200
-        hover:border-[#3A3A3A] hover:bg-[#252525]
+        hover:bg-[#282828]
         active:scale-95
         focus-visible:outline-none
         focus-visible:ring-4 focus-visible:ring-[#98F3FF]/30
@@ -32,16 +31,16 @@ export function BackButton({
     >
       <svg
         aria-hidden="true"
-        viewBox="0 0 24 36"
+        viewBox="0 0 24 24"
         fill="none"
-        className="h-10 w-7 transition-transform duration-200 group-hover:-translate-x-0.5"
+        className="h-[45%] w-[45%] transition-transform duration-200 group-hover:-translate-x-0.5"
       >
         <path
-          d="M19 4L7 18L19 32"
+          d="M15 4L7 12L15 20"
           stroke="#98F3FF"
-          strokeWidth="7"
-          strokeLinecap="butt"
-          strokeLinejoin="miter"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </button>
