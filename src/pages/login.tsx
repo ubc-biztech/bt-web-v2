@@ -11,6 +11,7 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
 import { getQueryString } from "@/util/url";
+import { ensureAuthenticatedUser } from "@/lib/user";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -58,6 +59,8 @@ const LoginForm: React.FC = () => {
           setIsLoading(false);
           return; // stay on login
         }
+
+        await ensureAuthenticatedUser();
 
         if (hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
@@ -131,6 +134,8 @@ const LoginForm: React.FC = () => {
         setIsLoading(false);
         return;
       }
+
+      await ensureAuthenticatedUser();
 
       const redirectUrl = getQueryString(router.query.redirect);
       const stateParam = getQueryString(router.query.state);
