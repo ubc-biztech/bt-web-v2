@@ -18,6 +18,7 @@ import {
 } from "@/components/SignUpForm/membershipFormSchema";
 import { checkMembership } from "@/lib/membership";
 import { ArrowLeft, UserRound } from "lucide-react";
+import { ensureAuthenticatedUser } from "@/lib/user";
 
 const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -67,6 +68,7 @@ const Membership: React.FC = () => {
 
         setEmail(userEmail);
         methods.setValue("email", userEmail);
+        await ensureAuthenticatedUser();
       } catch (error) {
         // Treat any error as unauthenticated -> go to login
         if (!hasRedirectedRef.current) {
@@ -138,6 +140,12 @@ const Membership: React.FC = () => {
     };
 
     try {
+      await fetchBackend({
+        endpoint: "/profiles",
+        method: "POST",
+        data: { ...values },
+      });
+
       if (userBody.admin) {
         await fetchBackend({
           endpoint: "/members/grant",
