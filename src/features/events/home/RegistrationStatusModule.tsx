@@ -3,6 +3,7 @@ import { DBRegistrationStatus } from "@/types/types";
 import {
   AlertCircle,
   ArrowRight,
+  CalendarPlus,
   CheckCircle2,
   Loader2,
   Ticket,
@@ -17,6 +18,7 @@ import {
   formatDeadlineStatus,
   formatPrimaryPrice,
   getCapacityStats,
+  getGoogleCalendarUrl,
   isDateInPast,
 } from "./utils";
 
@@ -143,8 +145,24 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   loading: Loader2,
 };
 
+function canShowCalendarCtaForRegistrationStatus(
+  event: EventHomeEvent,
+  registrationStatus?: string,
+) {
+  if (registrationStatus === DBRegistrationStatus.CHECKED_IN) return true;
+  if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE)
+    return true;
+
+  // Application-based events should only expose the calendar CTA after acceptance is fully confirmed.
+  return (
+    !event.isApplicationBased &&
+    registrationStatus === DBRegistrationStatus.REGISTERED
+  );
+}
+
 export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
-  const { event, counts, registrationHref, registrationLoading } = props;
+  const { event, counts, registration, registrationHref, registrationLoading } =
+    props;
   const stats = getCapacityStats(event, counts);
   const isFull = stats.capacity > 0 && stats.spotsRemaining === 0;
   const copy = getRegistrationCopy({ ...props, isFull });
@@ -152,7 +170,14 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   const deadlineStatus = formatDeadlineStatus(event.deadline);
   const ctaDisabled = copy.tone === "loading";
   const isConfirmed = copy.tone === "success";
-  const showAction = !isConfirmed;
+  const shouldShowCalendarCta = canShowCalendarCtaForRegistrationStatus(
+    event,
+    registration?.registrationStatus,
+  );
+  const shouldShowRegistrationCta = !isConfirmed;
+  const eventHasEnded = isDateInPast(event.endDate);
+  const calendarHref =
+    shouldShowCalendarCta && !eventHasEnded ? getGoogleCalendarUrl(event) : "";
   const statusLine = isConfirmed
     ? event.isApplicationBased
       ? copy.status
@@ -196,7 +221,17 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
         )}
       </div>
 
-      {showAction && (
+      {calendarHref ? (
+        <Link
+          href={calendarHref}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[10px] border border-[#A2B1D5] bg-transparent px-6 text-base font-600 text-white transition hover:border-white hover:bg-white/5"
+        >
+          <CalendarPlus className="h-5 w-5" aria-hidden="true" />
+          Add to calendar
+        </Link>
+      ) : shouldShowRegistrationCta ? (
         <Link
           href={registrationHref}
           aria-disabled={ctaDisabled}
@@ -209,7 +244,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
           {copy.actionLabel}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
-      )}
+      ) : null}
     </section>
   );
 }

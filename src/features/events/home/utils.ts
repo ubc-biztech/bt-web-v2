@@ -1,3 +1,4 @@
+import { CLIENT_URL } from "@/lib/dbconfig";
 import type { EventCounts, EventHomeEvent } from "./types";
 
 const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
@@ -26,6 +27,12 @@ const asDate = (value?: string) => {
 const asNumber = (value: unknown) =>
   typeof value === "number" && Number.isFinite(value) ? value : 0;
 
+const formatGoogleCalendarDate = (date: Date) =>
+  date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
+
 export function stripHtml(value?: string) {
   return (value ?? "")
     .replace(/\\n/g, "\n")
@@ -51,6 +58,40 @@ export function getExternalEventUrl(event: EventHomeEvent) {
     event.facebookUrl ||
     ""
   );
+}
+
+export function getPublicEventUrl(event: EventHomeEvent) {
+  return new URL(`/event/${event.id}/${event.year}`, CLIENT_URL).toString();
+}
+
+function getGoogleCalendarDetails(event: EventHomeEvent) {
+  const eventUrl = getPublicEventUrl(event);
+  const externalUrl = getExternalEventUrl(event);
+
+  return [
+    stripHtml(event.description),
+    `Event page: ${eventUrl}`,
+    externalUrl && externalUrl !== eventUrl ? `More info: ${externalUrl}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function getGoogleCalendarUrl(event: EventHomeEvent) {
+  const start = asDate(event.startDate);
+  const end = asDate(event.endDate);
+
+  if (!start || !end) return "";
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.ename,
+    dates: `${formatGoogleCalendarDate(start)}/${formatGoogleCalendarDate(end)}`,
+    details: getGoogleCalendarDetails(event),
+    location: event.elocation ?? "",
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 export function getEventAccessLabel(event: EventHomeEvent) {
