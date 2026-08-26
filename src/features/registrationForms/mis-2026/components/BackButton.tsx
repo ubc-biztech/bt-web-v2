@@ -29,20 +29,17 @@ export function BackButton({
         ${className}
       `}
     >
-      <svg
+      <span
         aria-hidden="true"
-        viewBox="0 0 24 24"
-        fill="none"
-        className="h-[45%] w-[45%] transition-transform duration-200 group-hover:-translate-x-0.5"
+        className="
+          block text-center text-[24px] font-normal leading-none
+          tracking-normal text-[#98F3FF]
+          transition-transform duration-200
+          group-hover:-translate-x-0.5
+        "
       >
-        <path
-          d="M15 4L7 12L15 20"
-          stroke="#98F3FF"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+        &#8249;
+      </span>
     </button>
   );
 }
