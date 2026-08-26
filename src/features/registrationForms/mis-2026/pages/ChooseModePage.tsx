@@ -14,16 +14,19 @@ const MODES = [
     mode: "guided",
     title: "Help me choose my building block",
     description: "Take a 60-second personality quiz",
+    mobileOrder: "order-2",
   },
   {
     mode: "self-select",
     title: "I know my focus area",
     description: "Jump straight to picking your block!",
+    mobileOrder: "order-1",
   },
 ] as const satisfies readonly {
   mode: MISFlowMode;
   title: string;
   description: string;
+  mobileOrder: string;
 }[];
 
 export function ChooseModePage({
@@ -46,13 +49,13 @@ export function ChooseModePage({
   return (
     <section
       data-step="choose-mode"
-      className="flex min-h-[100dvh] w-full flex-col px-6 py-10 md:px-10 md:py-20"
+      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[67px] pt-[88px] md:px-10 md:py-20"
     >
-      <div className="mx-auto flex w-full max-w-[1000px] flex-col">
+      <div className="mx-auto flex w-full max-w-[422px] flex-1 flex-col md:max-w-[1007px]">
         <div className="flex items-center justify-between">
           <BackButton onClick={onBack} />
 
-          <span className="text-[14px] font-medium text-[#98F3FF]/70">
+          <span className="text-[14px] font-medium leading-none tracking-normal text-[#98F3FF]/70">
             Step 1 of 3
           </span>
         </div>
@@ -61,16 +64,16 @@ export function ChooseModePage({
           How do you want to find your block?
         </h1>
 
-        <p className="mt-2 text-[15px] font-normal text-white/80 md:text-[16px]">
+        <p className="mt-3 text-[16.29px] font-normal leading-[1.4] text-white/80 md:mt-2 md:text-[16px]">
           Already know which one you are, or want help discovering it?
         </p>
 
         <div
-          className="mt-10 grid grid-cols-1 gap-6 md:mt-12 md:grid-cols-2"
+          className="mx-auto mt-[110px] grid w-full max-w-[410px] grid-cols-1 gap-4 md:mt-12 md:max-h-[368px] md:min-h-0 md:max-w-none md:flex-1 md:grid-cols-2 md:gap-6"
           role="group"
           aria-label="Choose how to find your block"
         >
-          {MODES.map(({ mode, title, description }) => {
+          {MODES.map(({ mode, title, description, mobileOrder }) => {
             const isSelected = selectedMode === mode;
 
             return (
@@ -80,41 +83,43 @@ export function ChooseModePage({
                 aria-pressed={isSelected}
                 onClick={() => setSelectedMode(mode)}
                 className={`
-                  flex min-h-[200px] flex-col items-start justify-center
-                  rounded-2xl border bg-[#141414] px-8 py-10 text-left
+                  ${mobileOrder} flex h-[92px] flex-col items-start justify-center
+                  rounded-[20px] border-[1.5px] bg-[#1A1A1A] px-[18.41px] text-left
                   transition-all duration-200
-                  hover:border-[#3A3A3A] hover:bg-[#1A1A1A]
+                  hover:bg-[#202020]
                   focus-visible:outline-none focus-visible:ring-4
                   focus-visible:ring-[#98F3FF]/30
-                  md:min-h-[365px] md:px-11
+                  md:order-none md:h-full md:px-11 md:py-4
                   ${
                     isSelected
-                      ? "border-[#98F3FF] bg-[#181818] shadow-[0_0_0_1px_#98F3FF]"
-                      : "border-[#2A2A2A]"
+                      ? "border-[#98F3FF]"
+                      : "border-[#2A2A2A] hover:border-[#3A3A3A]"
                   }
                 `}
               >
-                <span className="text-[22px] font-bold leading-tight text-white md:text-[26px]">
-                  {title}
-                </span>
+                <span className="flex w-full flex-col gap-[13.65px] md:w-[325.35px] md:gap-3">
+                  <span className="text-[18px] font-bold leading-none text-white md:text-[28px] md:leading-[33px]">
+                    {title}
+                  </span>
 
-                <span className="mt-3 text-[15px] font-normal text-[#A0A0A0] md:text-[16px]">
-                  {description}
+                  <span className="text-[12px] font-normal leading-none text-[#A0A0A0] md:text-[16px] md:leading-[19px]">
+                    {description}
+                  </span>
                 </span>
               </button>
             );
           })}
         </div>
 
-        <p className="mt-10 text-center text-[14px] italic text-[#B0B0B0] md:text-[15px]">
+        <p className="mx-auto mt-6 w-full max-w-[410px] text-center text-[12px] italic leading-[18px] text-[#B0B0B0] md:mt-10 md:max-w-none md:text-[15px]">
           Both options register you for the MIS Night event.
         </p>
 
-        <div className="mt-8 flex justify-center md:justify-end">
+        <div className="mt-auto flex justify-center pt-10 md:mt-8 md:justify-end md:pt-0">
           <ActionButton
             disabled={!selectedMode}
             onClick={handleContinue}
-            className="!w-full !max-w-[422px] !text-[26px]"
+            className="!h-[69px] !min-h-[69px] !w-full !max-w-[422px] !rounded-[25.07px] !py-5 !text-[26px]"
           >
             Continue
           </ActionButton>
