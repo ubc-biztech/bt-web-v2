@@ -6,6 +6,8 @@ import { fetchBackend } from "@/lib/db";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/router";
 import { postQuestEvent } from "@/queries/quests";
+import { fetchUserAttributes } from "@aws-amplify/auth";
+import { checkMembership } from "@/lib/membership";
 
 interface ConnectionModalProps {
   profileData: BiztechProfile;
@@ -32,6 +34,20 @@ const ConnectionModal: React.FC<ConnectionModalProps> = ({
 
     if (!signedIn) {
       await router.push(`/login?redirect=/profile/${profileID}?scan=true`);
+      return;
+    }
+
+    const attributes = await fetchUserAttributes();
+    const hasMembership = attributes.email
+      ? await checkMembership(attributes.email)
+      : false;
+    if (!hasMembership) {
+      toast({
+        title: "Membership required",
+        description:
+          "Purchase a BizTech membership to connect with other profiles.",
+      });
+      return;
     }
 
     try {
