@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { fetchBackendFromServer } from "./lib/db";
-import { checkMembership } from "./lib/membership";
 import { User } from "./types";
 
 export async function middleware(request: NextRequest) {
@@ -18,8 +17,8 @@ export async function middleware(request: NextRequest) {
     "/event",
     "/become-a-member",
     "/membership",
+    "/onboarding",
     "/login",
-    "/profile",
     "/register",
     "/forgot-password",
     "/verify",
@@ -46,12 +45,10 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request: request as any, response: response as any },
     });
 
-    const hasMembership = await checkMembership(
-      userProfile.email ?? userProfile.id,
-    );
-
-    if (!hasMembership) {
-      return NextResponse.redirect(new URL("/membership", request.url));
+    if (userProfile.onboardingYear !== new Date().getFullYear()) {
+      const onboardingUrl = new URL("/onboarding", request.url);
+      onboardingUrl.searchParams.set("redirect", pathname);
+      return NextResponse.redirect(onboardingUrl);
     }
 
     if (pathname.startsWith("/admin") && !userProfile.admin) {
@@ -61,7 +58,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error: any) {
     if (error.status === 404) {
-      return NextResponse.redirect(new URL("/membership", request.url));
+      return NextResponse.redirect(new URL("/onboarding", request.url));
     }
 
     return NextResponse.redirect(new URL("/login", request.url));

@@ -155,6 +155,11 @@ export type User = {
   major?: string;
   diet?: string;
   updatedAt?: number;
+  onboardingYear?: number;
+  international?: boolean;
+  prevMember?: boolean;
+  referral?: string;
+  topics?: string[];
   email?: string;
   image?: string;
   "favedEventsID;year"?: string[];

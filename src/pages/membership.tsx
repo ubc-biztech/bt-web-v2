@@ -17,16 +17,18 @@ import {
   MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
 import { checkMembership } from "@/lib/membership";
-import { ArrowLeft, UserRound } from "lucide-react";
-import { ensureAuthenticatedUser } from "@/lib/user";
+import { ArrowLeft } from "lucide-react";
+import { ensureAuthenticatedUser, needsOnboarding } from "@/lib/user";
+import { User } from "@/types";
 
 const Membership: React.FC = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUser, setIsUser] = useState(false);
+  const [checkoutError, setCheckoutError] = useState(false);
 
   const router = useRouter();
+  const isOnboarding = router.pathname === "/onboarding";
   const { toast } = useToast();
   const hasRedirectedRef = useRef(false); // prevent double-redirect
 
@@ -78,18 +80,11 @@ const Membership: React.FC = () => {
         return;
       }
 
-      // Membership and user records are checked independently.
+      // Onboarding is required before optional membership checkout.
       try {
-        const [hasMembership, userExists] = await Promise.all([
-          checkMembership(userEmail),
-          fetchBackend({
-            endpoint: `/users/check/${userEmail}`,
-            method: "GET",
-            authenticatedCall: false,
-          }),
-        ]);
+        const hasMembership = await checkMembership(userEmail);
 
-        if (hasMembership) {
+        if (hasMembership && !isOnboarding) {
           const redirectUrl = getQueryString(router.query.redirect) ?? "/";
           if (!hasRedirectedRef.current) {
             hasRedirectedRef.current = true;
@@ -98,11 +93,83 @@ const Membership: React.FC = () => {
           return;
         }
 
-        // Not a member -> render form
-        setIsUser(userExists === true);
+        if (!isOnboarding) {
+          const user: User = await fetchBackend({
+            endpoint: "/users/self",
+            method: "GET",
+          });
+          if (needsOnboarding(user)) {
+            await router.replace("/onboarding?redirect=%2Fmembership");
+            return;
+          }
+          const baseUrl =
+            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
+              ? "http://localhost:3000/"
+              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
+                ? "https://dev.v2.ubcbiztech.com/"
+                : "https://app.ubcbiztech.com/";
+
+          if (user.admin) {
+            await fetchBackend({
+              endpoint: "/members/grant",
+              method: "POST",
+              data: {
+                email: user.email ?? user.id,
+                firstName: user.fname ?? "",
+                lastName: user.lname ?? "",
+                studentNumber: user.studentId ?? "",
+                education: user.education ?? "",
+                pronouns: user.gender ?? "",
+                levelOfStudy: user.year ?? "",
+                faculty: user.faculty ?? "",
+                major: user.major ?? "",
+                internationalStudent: user.international ?? false,
+                previousMember: user.prevMember ?? false,
+                dietaryRestrictions: user.diet ?? "None",
+                referral: user.referral ?? "",
+                topics: (user.topics ?? []).join(","),
+              },
+            });
+            window.location.assign(
+              getQueryString(router.query.redirect) ?? "/",
+            );
+            return;
+          }
+
+          const checkoutUrl = await fetchBackend({
+            endpoint: "/payments",
+            method: "POST",
+            data: {
+              paymentName: "BizTech Membership",
+              paymentImages: ["https://imgur.com/TRiZYtG.png"],
+              paymentType: "Member",
+              success_url: baseUrl,
+              cancel_url: `${baseUrl}membership`,
+              education: user.education ?? "",
+              student_number: user.studentId ?? "",
+              fname: user.fname ?? "",
+              lname: user.lname ?? "",
+              major: user.major ?? "",
+              email: user.email ?? user.id,
+              year: user.year ?? "",
+              faculty: user.faculty ?? "",
+              pronouns: user.gender ?? "",
+              diet: user.diet ?? "None",
+              prev_member: user.prevMember ?? false,
+              international: user.international ?? false,
+              referral: user.referral ?? "",
+              topics: (user.topics ?? []).join(","),
+            },
+          });
+
+          window.location.assign(checkoutUrl);
+          return;
+        }
+
+        // Onboarding remains editable even when it was completed previously.
         setLoading(false);
       } catch (error) {
-        // Don't redirect, avoid infinite loop
+        if (!isOnboarding) setCheckoutError(true);
       } finally {
         if (!cancelled) {
           const t = setTimeout(() => setLoading(false), 1000);
@@ -121,23 +188,6 @@ const Membership: React.FC = () => {
 
   const onSubmit = async (values: MembershipFormValues) => {
     setIsSubmitting(true);
-    const topicsString = values.topics.join(",");
-
-    const userBody = {
-      email,
-      fname: values.firstName,
-      lname: values.lastName,
-      studentId: values.studentNumber,
-      gender: values.pronouns,
-      education: values.education,
-      faculty: values.faculty,
-      major: values.major,
-      diet: values.dietaryRestrictions || "None",
-      year: values.levelOfStudy,
-      international: values.internationalStudent === "Yes",
-      prev_member: values.previousMember === "Yes",
-      admin: email.toLowerCase().endsWith("@ubcbiztech.com"),
-    };
 
     try {
       await fetchBackend({
@@ -146,72 +196,8 @@ const Membership: React.FC = () => {
         data: { ...values },
       });
 
-      if (userBody.admin) {
-        await fetchBackend({
-          endpoint: "/members/grant",
-          method: "POST",
-          data: {
-            email: userBody.email,
-            firstName: userBody.fname,
-            lastName: userBody.lname,
-            studentNumber: userBody.studentId,
-            education: userBody.education,
-            pronouns: userBody.gender,
-            levelOfStudy: userBody.year,
-            faculty: userBody.faculty,
-            major: userBody.major,
-            internationalStudent: userBody.international,
-            previousMember: userBody.prev_member,
-            dietaryRestrictions: userBody.diet,
-            referral: values.referral,
-            topics: topicsString,
-          },
-        });
-
-        const redirectUrl = getQueryString(router.query.redirect) ?? "/";
-        window.location.assign(redirectUrl);
-        return;
-      } else {
-        const paymentBody = {
-          paymentName: "BizTech Membership",
-          paymentImages: ["https://imgur.com/TRiZYtG.png"],
-          paymentType: isUser ? "Member" : "OAuthMember",
-          success_url:
-            process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-              ? "http://localhost:3000/"
-              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
-                ? "https://dev.v2.ubcbiztech.com/"
-                : "https://app.ubcbiztech.com/",
-          cancel_url:
-            (process.env.NEXT_PUBLIC_REACT_APP_STAGE === "local"
-              ? "http://localhost:3000/"
-              : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
-                ? "https://dev.v2.ubcbiztech.com/"
-                : "https://app.ubcbiztech.com/") + "membership",
-          education: userBody.education,
-          student_number: userBody.studentId,
-          fname: userBody.fname,
-          lname: userBody.lname,
-          major: userBody.major,
-          email: userBody.email,
-          year: userBody.year,
-          faculty: userBody.faculty,
-          pronouns: userBody.gender,
-          diet: userBody.diet,
-          prev_member: userBody.prev_member,
-          international: userBody.international,
-          referral: values.referral,
-          topics: topicsString,
-        };
-
-        const response = await fetchBackend({
-          endpoint: "/payments",
-          method: "POST",
-          data: paymentBody,
-        });
-
-        window.open(response, "_self");
-      }
+      const redirectUrl = getQueryString(router.query.redirect) ?? "/";
+      window.location.assign(redirectUrl);
     } catch (error) {
       console.error("Error during submission:", error);
       toast({
@@ -231,6 +217,27 @@ const Membership: React.FC = () => {
     );
   }
 
+  if (!isOnboarding) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bt-blue-600 px-4 text-center text-white">
+        {checkoutError ? (
+          <>
+            <p>We couldn&apos;t start membership checkout. Please try again.</p>
+            <button
+              type="button"
+              className="rounded-md bg-bt-green-300 px-4 py-2 font-semibold text-bt-blue-600 hover:bg-bt-green-500"
+              onClick={() => router.reload()}
+            >
+              Try again
+            </button>
+          </>
+        ) : (
+          <PageLoadingState />
+        )}
+      </div>
+    );
+  }
+
   return (
     <FormProvider {...methods}>
       <Toaster />
@@ -242,44 +249,11 @@ const Membership: React.FC = () => {
           <div className="space-y-6">
             <div className="border-b border-white/10 pb-6 text-center">
               <h2 className="text-base font-semibold leading-7 text-white">
-                Create your user!
+                Complete your onboarding
               </h2>
               <p className="mt-8 text-sm leading-6 text-white">
-                Create an account to sign up for our events and become a BizTech
-                member.
+                Tell us about yourself to finish setting up your BizTech profile.
               </p>
-
-              <div className="mt-6 rounded-lg border border-bt-blue-300 bg-bt-blue-500/40 p-4 text-left">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-bt-green-300/40 text-bt-green-300">
-                    <UserRound
-                      aria-hidden="true"
-                      className="h-6 w-6"
-                      strokeWidth={2}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold leading-6 text-white">
-                      Not a member?
-                    </h3>
-                    <p className="text-xs leading-5 text-bt-blue-0">
-                      Attend eligible events as a guest.
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href={getQueryString(router.query.redirect) ?? "/events"}
-                  className="mt-4 flex w-full items-center justify-center gap-2 rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bt-green-0 focus-visible:ring-offset-2 focus-visible:ring-offset-bt-blue-600"
-                >
-                  <UserRound
-                    aria-hidden="true"
-                    className="h-5 w-5"
-                    strokeWidth={2}
-                  />
-                  <span>Continue as Guest</span>
-                </Link>
-              </div>
 
               <Link
                 href="/login?clearAuth=1"
@@ -307,9 +281,7 @@ const Membership: React.FC = () => {
               className="rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500"
               disabled={isSubmitting}
             >
-              {email.toLowerCase().endsWith("@ubcbiztech.com")
-                ? "Create Membership"
-                : "Proceed to Payment"}
+              Complete Onboarding
             </button>
           </div>
         </form>
