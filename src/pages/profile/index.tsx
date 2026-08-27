@@ -67,15 +67,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       profileData.email ?? profileData.id,
     );
 
-    if (!hasMembership) {
-      return {
-        redirect: {
-          destination: "/membership",
-          permanent: false,
-        },
-      };
-    }
-
     return { props: { profileData, hasMembership } };
   } catch (error: any) {
     console.error("Error in getServerSideProps:", error);
@@ -97,7 +88,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     if (error?.status === 404) {
       return {
         redirect: {
-          destination: "/membership",
+          destination: "/onboarding",
           permanent: false,
         },
       };

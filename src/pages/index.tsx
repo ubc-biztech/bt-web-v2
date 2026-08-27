@@ -17,7 +17,6 @@ import { GetServerSideProps } from "next";
 import { UnauthenticatedUserError } from "@/lib/dbUtils";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { AuthError } from "@aws-amplify/auth";
-import { checkMembership } from "@/lib/membership";
 
 interface ProfilePageProps {
   events: BiztechEvent[];
@@ -46,20 +45,12 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           return;
         }
 
-        const [userProfile, hasMembership] = await Promise.all([
-          fetchBackend({
-            endpoint: `/users/self`,
-            method: "GET",
-          }),
-          checkMembership(userEmail),
-        ]);
+        const userProfile = await fetchBackend({
+          endpoint: `/users/self`,
+          method: "GET",
+        });
 
         setProfile(userProfile);
-
-        if (!hasMembership) {
-          await router.push("/membership");
-          return;
-        }
 
         // Fetch user registrations
         const registrationsRes = await fetchBackend({
@@ -82,8 +73,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           // Backend says user is not authenticated, redirect to login
           await router.push("/login");
         } else if (error.status === 404) {
-          // User profile doesn't exist, redirect to membership
-          await router.push("/membership");
+          await router.push("/onboarding");
         } else {
           // Other errors - just log and show loading state
           console.error("Failed to fetch user data:", error);

@@ -11,7 +11,11 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
 import { getQueryString } from "@/util/url";
-import { ensureAuthenticatedUser } from "@/lib/user";
+import {
+  ensureAuthenticatedUser,
+  getAuthenticatedUser,
+  needsOnboarding,
+} from "@/lib/user";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -61,6 +65,7 @@ const LoginForm: React.FC = () => {
         }
 
         await ensureAuthenticatedUser();
+        const appUser = await getAuthenticatedUser();
 
         if (hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
@@ -78,11 +83,12 @@ const LoginForm: React.FC = () => {
           ).toString();
         }
 
-        const membershipUrl = finalRedirect
-          ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
-          : "/membership";
-
-        await router.replace(membershipUrl);
+        const destination = finalRedirect ?? "/";
+        await router.replace(
+          needsOnboarding(appUser)
+            ? `/onboarding?redirect=${encodeURIComponent(destination)}`
+            : destination,
+        );
       } catch {
         // treat as signed-out
         await clearAuthState();
@@ -136,6 +142,7 @@ const LoginForm: React.FC = () => {
       }
 
       await ensureAuthenticatedUser();
+      const appUser = await getAuthenticatedUser();
 
       const redirectUrl = getQueryString(router.query.redirect);
       const stateParam = getQueryString(router.query.state);
@@ -147,11 +154,12 @@ const LoginForm: React.FC = () => {
           : null;
 
       const finalRedirect = oauthRedirect ?? redirectUrl;
-      const membershipUrl = finalRedirect
-        ? `/membership?redirect=${encodeURIComponent(finalRedirect)}`
-        : "/membership";
-
-      await router.replace(membershipUrl);
+      const destination = finalRedirect ?? "/";
+      await router.replace(
+        needsOnboarding(appUser)
+          ? `/onboarding?redirect=${encodeURIComponent(destination)}`
+          : destination,
+      );
     } catch (error: any) {
       console.error("Error signing in", error);
       let emailError = "";

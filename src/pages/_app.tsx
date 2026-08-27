@@ -37,6 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
     "/signup",
     "/account-creation",
     "/membership",
+    "/onboarding",
     "/register",
     "/verify",
     "/forgot-password",
