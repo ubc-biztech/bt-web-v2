@@ -29,6 +29,7 @@ export const MISRegistrationSchema = z.object({
   year: z.string().trim().min(1, "Year is required"),
   faculty: z.string().trim().min(1, "Faculty is required"),
   major: z.string().trim().min(1, "Major is required"),
+  dietaryRestrictions: z.string().trim().optional(),
   careerInterest: z.enum(MIS_CAREER_INTERESTS, {
     required_error: "Select a career interest",
     invalid_type_error: "Select a valid career interest",
