@@ -1,24 +1,13 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState } from "react";
-import ArchitectMascot from "@/assets/2026/mis-night/architect_mascot.svg";
-import DesignerMascot from "@/assets/2026/mis-night/designer_mascot.svg";
-import LogicianMascot from "@/assets/2026/mis-night/logicion_mascot.svg";
-import StrategistMascot from "@/assets/2026/mis-night/strategist_mascot.svg";
-import VisionaryMascot from "@/assets/2026/mis-night/visionary_mascot.svg";
+import { BUILDING_BLOCK_LIST } from "../buildingBlocks";
 import { ActionButton } from "../components/ActionButton";
 import { BackButton } from "../components/BackButton";
 
 type InfoPageProps = {
   onBack: () => void;
   onContinue: () => void;
-};
-
-type BuildingBlockStructure = {
-  image: typeof VisionaryMascot;
-  header: string;
-  description: string;
-  potentialRoles: readonly string[];
 };
 
 type SlideDirection = -1 | 1;
@@ -41,87 +30,24 @@ const cardVariants = {
   }),
 };
 
-const buildingBlockList = [
-  {
-    image: VisionaryMascot,
-    header: "The Visionary",
-    description:
-      "You are the big-picture dreamer who spots opportunities before anyone else does. In tech, you lead product discovery and turn abstract concepts into products and businesses people actually want.",
-    potentialRoles: [
-      "Product management",
-      "Product operations",
-      "Venture capital",
-      "Tech entrepreneurship",
-    ],
-  },
-  {
-    image: DesignerMascot,
-    header: "The Designer",
-    description:
-      "You are the empathetic creative who cares deeply about how people feel. In your work, you craft intuitive, human-centered experiences and visual journeys so digital products are effortless to use.",
-    potentialRoles: [
-      "UX/UI & Product design",
-      "Motion design",
-      "User experience research",
-      "Brand strategy",
-    ],
-  },
-  {
-    image: ArchitectMascot,
-    header: "The Architect",
-    description:
-      "You are the practical builder who loves figuring out how things work. This can look like engineering, securing, and scaling the structural software and systems that keep platforms running reliably.",
-    potentialRoles: [
-      "Software engineering",
-      "Cloud infrastructure",
-      "Cybersecurity",
-      "DevOps",
-    ],
-  },
-  {
-    image: LogicianMascot,
-    header: "The Logician",
-    description:
-      "You are the curious puzzle-solver who looks for patterns in everything. In tech, you translate complex data and machine learning models into smart, predictive insights that drive intelligent decisions.",
-    potentialRoles: [
-      "AI/ML engineering",
-      "MIS faculty & academic researchers",
-      "Tech sales & account management",
-      "Data analytics",
-    ],
-  },
-  {
-    image: StrategistMascot,
-    header: "The Strategist",
-    description:
-      "You are the charismatic connector who knows how to make things happen in the real world. You drive go-to-market strategies, consulting solutions, and business growth to turn great technology into widespread adoption.",
-    potentialRoles: [
-      "Tech consulting",
-      "Growth & product marketing",
-      "Tech sales & account management",
-      "Solutions engineering",
-    ],
-  },
-] as const satisfies readonly BuildingBlockStructure[];
-
 export function InfoPage({ onBack, onContinue }: InfoPageProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<SlideDirection>(1);
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const currentBlock = buildingBlockList[currentIndex];
+  const currentBlock = BUILDING_BLOCK_LIST[currentIndex];
   const Mascot = currentBlock.image;
 
   function showPreviousBlock() {
     setDirection(-1);
     setCurrentIndex(
       (index) =>
-        (index - 1 + buildingBlockList.length) % buildingBlockList.length,
+        (index - 1 + BUILDING_BLOCK_LIST.length) % BUILDING_BLOCK_LIST.length,
     );
   }
 
   function showNextBlock() {
     setDirection(1);
-    setCurrentIndex((index) => (index + 1) % buildingBlockList.length);
+    setCurrentIndex((index) => (index + 1) % BUILDING_BLOCK_LIST.length);
   }
 
   function showBlock(index: number) {
@@ -175,7 +101,7 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
 
             <article
               aria-live="polite"
-              aria-label={`${currentBlock.header}, ${currentIndex + 1} of ${buildingBlockList.length}`}
+              aria-label={`${currentBlock.header}, ${currentIndex + 1} of ${BUILDING_BLOCK_LIST.length}`}
               className="relative h-[clamp(360px,43dvh,380px)] min-h-0 overflow-hidden rounded-[20px] border-2 border-[#98F3FF] bg-[#1A1A1A] md:h-[clamp(320px,42dvh,332px)] md:max-h-[332px]"
             >
               <AnimatePresence
@@ -251,7 +177,7 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
             className="mt-[clamp(1.25rem,3dvh,2rem)] flex items-center justify-center gap-3 md:mt-10"
             aria-label="Choose a building block"
           >
-            {buildingBlockList.map((block, index) => {
+            {BUILDING_BLOCK_LIST.map((block, index) => {
               const isCurrent = currentIndex === index;
 
               return (
