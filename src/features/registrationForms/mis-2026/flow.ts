@@ -27,49 +27,117 @@ export type MISQuizQuestion = {
 export const MIS_QUIZ_QUESTIONS = [
   {
     id: "challenge",
-    prompt: "What kind of challenge sounds the most energizing?",
+    prompt: "What kind of challenge do you find most satisfying?",
     options: [
-      { label: "Imagining what could come next", value: "The Visionary" },
-      { label: "Shaping how people experience it", value: "The Designer" },
-      { label: "Building the system behind it", value: "The Architect" },
-      { label: "Finding the pattern in the data", value: "The Logician" },
       {
-        label: "Turning the idea into a winning plan",
+        label: "Starting with a blank page to shape a brand-new concept.",
+        value: "The Visionary",
+      },
+      {
+        label: "Taking something confusing and making it effortless to use.",
+        value: "The Designer",
+      },
+      {
+        label:
+          "Setting up a reliable system that runs smoothly without maintenance.",
+        value: "The Architect",
+      },
+      {
+        label: "Digging into complex patterns to figure out the “so what?”",
+        value: "The Logician",
+      },
+      {
+        label:
+          "Figuring out how to get people genuinely excited about something.",
         value: "The Strategist",
       },
     ],
   },
   {
     id: "team-role",
-    prompt: "Which role do you naturally take in a team?",
+    prompt: "What is your biggest pet peeve when working on a project?",
     options: [
-      { label: "I set the direction", value: "The Visionary" },
-      { label: "I advocate for the user", value: "The Designer" },
-      { label: "I connect all the moving parts", value: "The Architect" },
-      { label: "I test assumptions with evidence", value: "The Logician" },
-      { label: "I decide how we get there", value: "The Strategist" },
+      {
+        label:
+          "Wasting time building something without knowing why it matters.",
+        value: "The Visionary",
+      },
+      {
+        label:
+          "Poorly thought-out experiences that frustrate the person using them.",
+        value: "The Designer",
+      },
+      {
+        label: "Fragile setups that break the moment you scale them.",
+        value: "The Architect",
+      },
+      {
+        label: "Gut decisions made with zero evidence or rationale.",
+        value: "The Logician",
+      },
+      {
+        label:
+          "Great work that gets completely ignored because nobody knows how to deliver it.",
+        value: "The Strategist",
+      },
     ],
   },
   {
     id: "outcome",
-    prompt: "What outcome feels the most satisfying?",
+    prompt:
+      "You`re handed a messy, disorganized project. What is your immediate instinct?",
     options: [
-      { label: "A bold idea people believe in", value: "The Visionary" },
-      { label: "An experience people love using", value: "The Designer" },
-      { label: "A solution that works reliably", value: "The Architect" },
-      { label: "An answer supported by evidence", value: "The Logician" },
-      { label: "A plan that creates real impact", value: "The Strategist" },
+      {
+        label: "Step back to define the core objective.",
+        value: "The Visionary",
+      },
+      {
+        label:
+          "Walk through it from the end-user`s perspective to identify friction.",
+        value: "The Designer",
+      },
+      {
+        label: "Rebuild the parts that are actively failing.",
+        value: "The Architect",
+      },
+      {
+        label: "Gather all available inputs to pinpoint the exact root cause.",
+        value: "The Logician",
+      },
+      {
+        label: "Realign the team and divide responsibilities.",
+        value: "The Strategist",
+      },
     ],
   },
   {
     id: "growth",
-    prompt: "Which skill would you most like to strengthen?",
+    prompt:
+      "You’re planning a trip with friends. What part do you naturally take over?",
     options: [
-      { label: "Communicating a compelling vision", value: "The Visionary" },
-      { label: "Designing with empathy", value: "The Designer" },
-      { label: "Creating scalable systems", value: "The Architect" },
-      { label: "Making sense of complex information", value: "The Logician" },
-      { label: "Choosing the strongest path forward", value: "The Strategist" },
+      {
+        label: "Pitching the overall vibe and destination ideas.",
+        value: "The Visionary",
+      },
+      {
+        label: "Planning the aesthetic spots and cafes for taking breaks.",
+        value: "The Designer",
+      },
+      {
+        label:
+          "Figuring out the transit routes and coordinating what everyone is bringing.",
+        value: "The Architect",
+      },
+      {
+        label:
+          "Digging through Reddit threads and Beli reviews to find the hidden gems.",
+        value: "The Logician",
+      },
+      {
+        label:
+          "Getting everyone to show up on time and keeping the group on schedule.",
+        value: "The Strategist",
+      },
     ],
   },
 ] as const satisfies readonly MISQuizQuestion[];
@@ -77,6 +145,7 @@ export const MIS_QUIZ_QUESTIONS = [
 export type MISFlowState = {
   step: MISFlowStep;
   mode?: MISFlowMode;
+  returnToChooseBlock?: boolean;
   quizIndex: number;
   quizAnswers: Record<string, MISCareerInterest>;
   recommendation?: MISCareerInterest;
@@ -91,6 +160,7 @@ export const INITIAL_MIS_FLOW_STATE: MISFlowState = {
 export type MISFlowAction =
   | { type: "START" }
   | { type: "CONTINUE_FROM_INFO" }
+  | { type: "VIEW_INFO" }
   | { type: "CHOOSE_MODE"; mode: MISFlowMode }
   | { type: "CHOOSE_BLOCK"; block: MISCareerInterest }
   | {
@@ -128,7 +198,16 @@ export function misFlowReducer(
       return state.step === "welcome" ? { ...state, step: "info" } : state;
 
     case "CONTINUE_FROM_INFO":
-      return state.step === "info" ? { ...state, step: "choose-mode" } : state;
+      if (state.step !== "info") return state;
+
+      return state.returnToChooseBlock
+        ? { ...state, step: "choose-block", returnToChooseBlock: undefined }
+        : { ...state, step: "choose-mode" };
+
+    case "VIEW_INFO":
+      return state.step === "choose-block"
+        ? { ...state, step: "info", returnToChooseBlock: true }
+        : state;
 
     case "CHOOSE_MODE":
       if (state.step !== "choose-mode") return state;
@@ -198,7 +277,13 @@ export function misFlowReducer(
     case "BACK":
       switch (state.step) {
         case "info":
-          return { ...state, step: "welcome" };
+          return state.returnToChooseBlock
+            ? {
+                ...state,
+                step: "choose-block",
+                returnToChooseBlock: undefined,
+              }
+            : { ...state, step: "welcome" };
         case "choose-mode":
           return { ...state, step: "info" };
         case "choose-block":

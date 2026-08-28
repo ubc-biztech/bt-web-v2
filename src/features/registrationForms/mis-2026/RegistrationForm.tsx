@@ -152,6 +152,7 @@ export function MISRegistrationForm({
             blocks={MIS_CAREER_INTERESTS}
             selectedBlock={selectedBlock}
             onBack={() => dispatch({ type: "BACK" })}
+            onViewDescriptions={() => dispatch({ type: "VIEW_INFO" })}
             onSelectBlock={selectBlock}
             onContinue={continueFromBlockSelection}
           />
