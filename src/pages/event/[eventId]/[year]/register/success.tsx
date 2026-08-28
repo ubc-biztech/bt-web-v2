@@ -3,8 +3,9 @@ import { LinkIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
+import { MISRegistrationSuccessPage } from "@/features/registrationForms/mis-2026/pages/RegistrationSuccessPage";
 
-const SuccessPage = () => {
+const GenericSuccessPage = () => {
   const router = useRouter();
   const [linkCopied, setLinkCopied] = useState(false);
   const [companionAvailable, setCompanionAvailable] = useState(false);
@@ -105,6 +106,28 @@ const SuccessPage = () => {
       </div>
     </div>
   );
+};
+
+const SuccessPage = () => {
+  const router = useRouter();
+
+  if (!router.isReady) return null;
+
+  const eventId = Array.isArray(router.query.eventId)
+    ? router.query.eventId[0]
+    : router.query.eventId;
+  const year = Array.isArray(router.query.year)
+    ? router.query.year[0]
+    : router.query.year;
+
+  switch (eventId) {
+    case "MIS_Night_2026":
+      return (
+        <MISRegistrationSuccessPage eventId={eventId} year={year ?? "2026"} />
+      );
+    default:
+      return <GenericSuccessPage />;
+  }
 };
 
 export default SuccessPage;
