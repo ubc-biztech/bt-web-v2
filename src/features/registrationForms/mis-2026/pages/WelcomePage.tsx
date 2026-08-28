@@ -1,5 +1,4 @@
 import ArchitectMascot from "@/assets/2026/mis-night/architect_mascot.svg";
-import FiveMascots from "@/assets/2026/mis-night/five_mascot.png";
 import DesignerMascot from "@/assets/2026/mis-night/designer_mascot.svg";
 import LogicianMascot from "@/assets/2026/mis-night/logicion_mascot.svg";
 import MISLogo from "@/assets/2026/mis-night/mis_logo.svg";
@@ -13,7 +12,6 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import Image from "next/image";
 import { ActionButton } from "../components/ActionButton";
 import styles from "./WelcomePage.module.css";
 
@@ -51,7 +49,7 @@ type WelcomePageProps = {
 
 const MOBILE_CAROUSEL_SLOT = 112;
 const MOBILE_CAROUSEL_LENGTH = MOBILE_CAROUSEL_SLOT * MASCOTS.length;
-const MOBILE_CAROUSEL_SPEED = 0.05;
+const MOBILE_CAROUSEL_SPEED = 0.07;
 
 function wrapCarouselPosition(position: number) {
   const halfLength = MOBILE_CAROUSEL_LENGTH / 2;
@@ -156,7 +154,7 @@ function MobileMascotCarousel({
 
   return (
     <div
-      className={`shrink-0 md:hidden ${styles.carousel}`}
+      className={`shrink-0 ${styles.carousel}`}
       aria-label="MIS building block mascots"
     >
       {MASCOTS.map((mascot, index) => (
@@ -210,17 +208,17 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
       </div>
 
       <div className="flex w-full shrink-0 items-center justify-center">
-        <div className="md:hidden">
+        <div>
           <MobileMascotCarousel shouldReduceMotion={shouldReduceMotion} />
         </div>
 
-        <Image
+        {/* <Image
           src={FiveMascots}
           alt=""
           className="hidden h-auto w-full max-w-[560px] md:block"
           sizes="(max-width: 768px) 90vw, 560px"
           priority
-        />
+        /> */}
       </div>
 
       <div className="flex w-full shrink-0 justify-center">

@@ -49,7 +49,7 @@ export function ChooseModePage({
   return (
     <section
       data-step="choose-mode"
-      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[67px] pt-[88px] md:px-10 md:py-20"
+      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[clamp(2rem,7dvh,3.75rem)] pt-[clamp(2.75rem,8dvh,4.5rem)] md:px-10 md:py-[clamp(2rem,7dvh,3.75rem)]"
     >
       <div className="mx-auto flex w-full max-w-[422px] flex-1 flex-col md:max-w-[1007px]">
         <div className="flex items-center justify-between">
@@ -60,7 +60,7 @@ export function ChooseModePage({
           </span>
         </div>
 
-        <h1 className="mt-12 text-[28px] font-bold leading-tight tracking-[-0.01em] text-[#98F3FF] md:text-[40px]">
+        <h1 className="mt-9 text-[24px] font-bold leading-tight tracking-[-0.01em] text-[#98F3FF] md:text-[36px]">
           How do you want to find your block?
         </h1>
 
@@ -119,7 +119,7 @@ export function ChooseModePage({
           <ActionButton
             disabled={!selectedMode}
             onClick={handleContinue}
-            className="!h-[69px] !min-h-[69px] !w-full !max-w-[422px] !rounded-[25.07px] !py-5 !text-[26px]"
+            className="!h-[60px] !min-h-[60px] !w-full !max-w-[422px] !rounded-[25.07px] !py-3 !text-[24px]"
           >
             Continue
           </ActionButton>
