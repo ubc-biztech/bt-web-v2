@@ -7,7 +7,7 @@ import {
   defaultEventModules,
   EventModuleRenderer,
 } from "./EventModuleRenderer";
-import type { EventHomeEvent, EventRegistrationRecord } from "./types";
+import type { EventHomeEvent, EventRegistrationRecord, EventPageModule } from "./types";
 
 const getRouteParam = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
@@ -57,6 +57,7 @@ export default function EventHomePage() {
   ) as EventRegistrationRecord | undefined;
 
   const signedIn = !!email;
+  const isAdmin = userAttributes?.isAdmin ?? false;
   const registrationLoading =
     userLoading || (signedIn ? registrationsLoading : false);
   const registrationHref =
@@ -81,14 +82,18 @@ export default function EventHomePage() {
             <EventModuleRenderer
               event={event as EventHomeEvent}
               counts={counts}
-              modules={
-                (event as EventHomeEvent).eventPage?.modules ??
-                defaultEventModules
-              }
+              modules={(() => {
+                const modules = (event as EventHomeEvent).eventPage?.modules ?? defaultEventModules;
+                if (!modules.find((m) => m.type === "qa")) {
+                  return [...modules, { type: "qa", enabled: true, order: 2 }];
+                }
+                return modules;
+              })()}
               registration={registration}
               registrationLoading={registrationLoading}
               registrationHref={registrationHref}
               signedIn={signedIn}
+              isAdmin={isAdmin}
             />
           </>
         )}

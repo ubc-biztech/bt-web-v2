@@ -1,4 +1,5 @@
 import { RegistrationStatusModule } from "./RegistrationStatusModule";
+import { QaModule } from "../qa/QaModule";
 import type {
   EventCounts,
   EventHomeEvent,
@@ -8,7 +9,7 @@ import type {
 
 export const defaultEventModules: EventPageModule[] = [
   { type: "registration", enabled: true, order: 1 },
-  { type: "qa", enabled: false, order: 2 },
+  { type: "qa", enabled: true, order: 2 },
   { type: "connections", enabled: false, order: 3 },
 ];
 
@@ -20,6 +21,7 @@ type EventModuleRendererProps = {
   registrationHref: string;
   registrationLoading: boolean;
   signedIn: boolean;
+  isAdmin: boolean;
 };
 
 export function EventModuleRenderer({
@@ -30,6 +32,7 @@ export function EventModuleRenderer({
   registrationHref,
   registrationLoading,
   signedIn,
+  isAdmin,
 }: EventModuleRendererProps) {
   const enabledModules = (modules ?? defaultEventModules)
     .filter((module) => module.enabled)
@@ -53,7 +56,16 @@ export function EventModuleRenderer({
                 signedIn={signedIn}
               />
             );
-          case "qa": // SOON TO BE ADDED TODO
+          case "qa":
+            return (
+              <QaModule
+                key={module.type}
+                eventId={event.id}
+                year={String(event.year)}
+                isAdmin={isAdmin}
+                signedIn={signedIn}
+              />
+            );
           case "connections":
             return null;
           default:
