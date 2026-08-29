@@ -3,6 +3,7 @@ import { LinkIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
+import { MIS_NIGHT_EVENT_ID } from "@/features/registrationForms/mis-2026/constants";
 import { MISRegistrationSuccessPage } from "@/features/registrationForms/mis-2026/pages/RegistrationSuccessPage";
 
 const GenericSuccessPage = () => {
@@ -121,7 +122,7 @@ const SuccessPage = () => {
     : router.query.year;
 
   switch (eventId) {
-    case "MIS_Night_2026":
+    case MIS_NIGHT_EVENT_ID:
       return (
         <MISRegistrationSuccessPage eventId={eventId} year={year ?? "2026"} />
       );

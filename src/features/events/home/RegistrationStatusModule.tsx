@@ -9,6 +9,7 @@ import {
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
+import { MIS_NIGHT_EVENT_ID } from "@/features/registrationForms/mis-2026/constants";
 import type {
   EventCounts,
   EventHomeEvent,
@@ -145,8 +146,6 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   loading: Loader2,
 };
 
-const BUILDING_BLOCK_EVENT_ID = "MIS_Night_2026";
-
 function canShowCalendarCtaForRegistrationStatus(
   event: EventHomeEvent,
   registrationStatus?: string,
@@ -178,7 +177,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   );
   const shouldShowRegistrationCta = !isConfirmed;
   const shouldShowBuildingBlockCta =
-    event.id === BUILDING_BLOCK_EVENT_ID &&
+    event.id === MIS_NIGHT_EVENT_ID &&
     (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
       registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
   const eventHasEnded = isDateInPast(event.endDate);
