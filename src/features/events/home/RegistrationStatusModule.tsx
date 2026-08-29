@@ -9,7 +9,7 @@ import {
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
-import { MIS_NIGHT_EVENT_ID } from "@/features/registrationForms/mis-2026/constants";
+import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
 import type {
   EventCounts,
   EventHomeEvent,
@@ -177,7 +177,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   );
   const shouldShowRegistrationCta = !isConfirmed;
   const shouldShowBuildingBlockCta =
-    event.id === MIS_NIGHT_EVENT_ID &&
+    isMISNightEventId(event.id) &&
     (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
       registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
   const eventHasEnded = isDateInPast(event.endDate);
