@@ -4,6 +4,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
+// MOCK: delete this import + ./mockData.ts to restore live data
+import {
+  USE_MOCK_WALL_DATA,
+  getMockSnapshot,
+  MOCK_PEOPLE,
+} from "./mockData";
+import {
+  ARCHETYPE_COLOR,
+  ARCHETYPE_ICON,
+  archetypeFor,
+  getArchetypeImage,
+  isArchetype,
+  preloadArchetypeImages,
+  type Archetype,
+} from "./archetypes";
+import WallBackdrop from "./WallBackdrop";
 import { Button } from "@/components/ui/button";
 import {
   RefreshCw,
@@ -45,6 +61,17 @@ const CHARGE_PER_DEG = -80;
 const CHARGE_DIST_MAX = 300;
 const COLLIDE_BASE = 18 * VIS;
 const COLLIDE_PER_DEG = 4 * VIS;
+
+/** Archetype illustration is drawn this many times the node radius wide. */
+const ICON_SCALE = 5;
+
+/* idle "alive" motion — gentle bob plus an occasional horizontal flip */
+const BOB_AMP = 0.1; // fraction of the icon radius
+const BOB_PERIOD_MS = 1200;
+const FLIP_MIN_MS = 5000;
+const FLIP_MAX_MS = 11_000;
+const FLIP_DUR_MS = 380;
+const FLIP_SQUASH = 0.14;
 
 const SPOTLIGHT_MS = 6000;
 const HALO_RECENT_MS = 20_000;
@@ -268,12 +295,32 @@ const makeFakeId = () => `sim-${Math.random().toString(36).slice(2, 10)}`;
 const pickRandom = <T,>(arr: T[]): T =>
   arr[Math.floor(Math.random() * arr.length)];
 
-const makeFakeProfile = () => ({
-  id: makeFakeId(),
-  name: `${pickRandom(SIM_FIRST_NAMES)} ${pickRandom(SIM_LAST_NAMES)}`,
-  major: pickRandom(SIM_MAJORS),
-  year: pickRandom(SIM_YEARS),
-});
+/**
+ * A person for the simulation to connect. On mock data this draws from the
+ * notional roster (never inventing anyone) and returns null once everyone is
+ * already in play; otherwise it invents a plausible attendee.
+ */
+const makeFakeProfile = (
+  taken: Array<{ id: string }> = [],
+): { id: string; name: string } | null => {
+  if (USE_MOCK_WALL_DATA) {
+    const used = new Set(taken.map((t) => t.id));
+    const fresh = MOCK_PEOPLE.filter((m) => !used.has(m.id));
+    if (!fresh.length) return null;
+    const person = pickRandom(fresh);
+    return {
+      id: person.id,
+      name: person.name,
+      archetype: person.archetype,
+    } as { id: string; name: string };
+  }
+  return {
+    id: makeFakeId(),
+    name: `${pickRandom(SIM_FIRST_NAMES)} ${pickRandom(SIM_LAST_NAMES)}`,
+    major: pickRandom(SIM_MAJORS),
+    year: pickRandom(SIM_YEARS),
+  } as { id: string; name: string };
+};
 
 /* cluster palette */
 const CLUSTER_PALETTE = [
@@ -295,6 +342,7 @@ const CLUSTER_PALETTE = [
 type WallNode = {
   id: string;
   name: string;
+  archetype?: Archetype;
   avatar?: string;
   x?: number;
   y?: number;
@@ -320,11 +368,20 @@ const asString = (v: any, fallback: string) => {
   return fallback;
 };
 
-const normalizeNode = (n: any): WallNode => ({
-  id: asString(n.id, String(n.id)),
-  name: asString(n.name, String(n.id)),
-  avatar: n.avatar ? asString(n.avatar, "") : undefined,
-});
+const normalizeNode = (n: any): WallNode => {
+  const id = asString(n.id, String(n.id));
+  const raw = asString(n.archetype, "").toUpperCase();
+  return {
+    id,
+    name: asString(n.name, id),
+    archetype: isArchetype(raw) ? raw : archetypeFor(id),
+    avatar: n.avatar ? asString(n.avatar, "") : undefined,
+  };
+};
+
+/** Archetype of a node currently in the graph (falls back deterministically). */
+const nodeArchetype = (n: any, id: string): Archetype =>
+  isArchetype(n?.archetype) ? n.archetype : archetypeFor(id);
 
 const firstName = (raw: string | undefined, fallbackId: string) => {
   const name = (raw ?? "").trim();
@@ -342,11 +399,54 @@ const fullName = (raw: string | undefined, fallbackId: string) => {
 
 const endId = (e: any) => (e && typeof e === "object" ? e.id : String(e));
 
-const idToColor = (id: string) => {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  const hue = h % 360;
-  return `hsl(${hue} 70% 68%)`;
+/**
+ * Random-but-stable motion seed per node, so no two characters bob in step or
+ * flip on the same beat. Rolled once the first time a node is drawn.
+ */
+type MotionSeed = {
+  bobPhase: number;
+  bobPeriod: number;
+  flipPeriod: number;
+  flipOffset: number;
+};
+const motionSeeds = new Map<string, MotionSeed>();
+
+const motionSeed = (id: string): MotionSeed => {
+  let seed = motionSeeds.get(id);
+  if (!seed) {
+    const flipPeriod = FLIP_MIN_MS + Math.random() * (FLIP_MAX_MS - FLIP_MIN_MS);
+    seed = {
+      bobPhase: Math.random() * Math.PI * 2,
+      bobPeriod: BOB_PERIOD_MS * (0.85 + Math.random() * 0.4),
+      flipPeriod,
+      flipOffset: Math.random() * flipPeriod,
+    };
+    motionSeeds.set(id, seed);
+  }
+  return seed;
+};
+
+/** Idle animation for a single character: gentle bob, occasional flip. */
+const idleMotion = (id: string, rr: number, now: number) => {
+  const { bobPhase, bobPeriod, flipPeriod, flipOffset } = motionSeed(id);
+
+  const bobY =
+    Math.sin((now / bobPeriod) * Math.PI * 2 + bobPhase) * rr * BOB_AMP;
+
+  const t = now + flipOffset;
+  const facing = Math.floor(t / flipPeriod) % 2 === 0 ? 1 : -1;
+
+  let sx = facing;
+  let sy = 1;
+  const into = t % flipPeriod;
+  if (into < FLIP_DUR_MS) {
+    // swing through zero width: starts on the old facing, lands on the new one
+    const q = into / FLIP_DUR_MS;
+    sx = -facing * Math.cos(q * Math.PI);
+    sy = 1 + FLIP_SQUASH * Math.sin(q * Math.PI);
+  }
+
+  return { bobY, sx, sy };
 };
 
 const drawLabel = (
@@ -624,6 +724,7 @@ export default function ConnectionWall() {
       .map((id) => ({
         id,
         name: nodesByIdRef.current[id]?.name || id,
+        archetype: nodeArchetype(nodesByIdRef.current[id], id),
         degree: degree[id] || 0,
       }))
       .sort((a, b) => b.degree - a.degree);
@@ -867,11 +968,14 @@ export default function ConnectionWall() {
         eventId: eid,
         sinceSec: String(SNAPSHOT_WINDOW_SEC),
       });
-      const res: SnapshotResponse = await fetchBackend({
-        endpoint: `/interactions/wall?${qs.toString()}`,
-        method: "GET",
-        authenticatedCall: false,
-      });
+      // MOCK: delete this ternary (keep the fetchBackend call) to restore live data
+      const res: SnapshotResponse = USE_MOCK_WALL_DATA
+        ? getMockSnapshot()
+        : await fetchBackend({
+            endpoint: `/interactions/wall?${qs.toString()}`,
+            method: "GET",
+            authenticatedCall: false,
+          });
 
       for (const raw of res.nodes) {
         const n = normalizeNode(raw);
@@ -909,6 +1013,17 @@ export default function ConnectionWall() {
     } catch {
       setLastError("Snapshot fetch failed");
     }
+  }, []);
+
+  /* ── preload archetype illustrations ── */
+  useEffect(() => {
+    let cancelled = false;
+    preloadArchetypeImages().then(() => {
+      if (!cancelled) setDataTick((t) => t + 1);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /* ── fetch events list ── */
@@ -1329,23 +1444,30 @@ export default function ConnectionWall() {
     try {
       const pool = simPoolRef.current;
 
-      const pickOrCreate = (): { id: string; name: string } => {
+      const pickOrCreate = (): { id: string; name: string } | null => {
         if (pool.length > 0 && Math.random() > SIM_NEW_NODE_CHANCE) {
           return pickRandom(pool);
         }
-        const profile = makeFakeProfile();
+        const profile = makeFakeProfile(pool);
+        if (!profile) return pool.length ? pickRandom(pool) : null;
         pool.push(profile);
         return profile;
       };
 
       const from = pickOrCreate();
       let to = pickOrCreate();
+      if (!from || !to) return;
       let attempts = 0;
-      while (to.id === from.id && attempts < 5) {
+      while (to && to.id === from.id && attempts < 5) {
         to = pickOrCreate();
         attempts++;
       }
-      if (to.id === from.id) return;
+      if (!to || to.id === from.id) return;
+
+      /* the roster is finite, so skip pairs already on the wall — otherwise
+         the ticker would announce a connection that draws no new link */
+      if (pairKeySetRef.current.has(pairKey({ source: from.id, target: to.id })))
+        return;
 
       const now = Date.now();
 
@@ -1591,11 +1713,13 @@ export default function ConnectionWall() {
   /* ════════════════════════════════════════════════════════════ */
   return (
     <div
-      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-white/[0.04] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
+      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-[#1a1a1a] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
     >
+      <WallBackdrop />
+
       {/* ── header ── */}
       {!kiosk && (
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
+        <div className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className={`w-2 h-2 rounded-full shrink-0 ${
@@ -1634,14 +1758,14 @@ export default function ConnectionWall() {
                 onChange={(e) => handleEventChange(e.target.value)}
                 className="appearance-none rounded-lg border border-white/20 bg-white/10 text-white text-xs px-3 py-1.5 pr-7 focus:outline-none focus:ring-1 focus:ring-emerald-400/50 cursor-pointer min-w-[140px] max-w-[220px] truncate"
               >
-                <option value={EVENT_ID} className="bg-[#1a1f3a] text-white">
+                <option value={EVENT_ID} className="bg-[#1c1c1c] text-white">
                   Current Event
                 </option>
                 {events.map((ev) => (
                   <option
                     key={`${ev.id}-${ev.year}`}
                     value={ev.id}
-                    className="bg-[#1a1f3a] text-white"
+                    className="bg-[#1c1c1c] text-white"
                   >
                     {ev.ename}
                     {ev.startDate
@@ -1777,7 +1901,7 @@ export default function ConnectionWall() {
       {/* ── search bar ── */}
       {searchOpen && !kiosk && (
         <div className="absolute top-14 left-4 z-30 w-80 max-w-[calc(100vw-2rem)]">
-          <div className="rounded-xl border border-white/15 bg-[#1a1f3a]/95 backdrop-blur-md shadow-2xl overflow-hidden">
+          <div className="rounded-xl border border-white/15 bg-[#1c1c1c]/95 backdrop-blur-md shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10">
               <Search className="w-4 h-4 text-white/50 shrink-0" />
               <input
@@ -1815,9 +1939,11 @@ export default function ConnectionWall() {
                       }}
                       className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/10 transition-colors text-left"
                     >
-                      <div
-                        className="w-3 h-3 rounded-full shrink-0"
-                        style={{ backgroundColor: idToColor(n.id) }}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={ARCHETYPE_ICON[nodeArchetype(n, n.id)]}
+                        alt=""
+                        className="w-5 h-5 shrink-0"
                       />
                       <div className="min-w-0">
                         <div className="text-white text-sm truncate">
@@ -1842,7 +1968,7 @@ export default function ConnectionWall() {
       {/* ── analytics panel ── */}
       {showAnalytics && !kiosk && networkStats && (
         <aside className="absolute left-3 top-14 z-10 mt-4">
-          <div className="w-[260px] rounded-xl border border-white/10 bg-[#1a1f3a]/90 backdrop-blur-sm p-3">
+          <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-3">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
@@ -1940,7 +2066,7 @@ export default function ConnectionWall() {
       {/* ── leaderboard ── */}
       {showLeaderboard && !kiosk && (
         <aside className="absolute right-3 top-14 z-10 hidden xl:block mt-4">
-          <div className="w-[260px] rounded-xl border border-white/10 bg-[#1a1f3a]/90 backdrop-blur-sm p-3">
+          <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-2">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4" />
@@ -1984,20 +2110,18 @@ export default function ConnectionWall() {
       {/* ── node detail panel ── */}
       {detailNode && !kiosk && (
         <aside className="absolute right-3 bottom-20 z-20 hidden md:block">
-          <div className="w-[280px] rounded-xl border border-white/10 bg-[#1a1f3a]/95 backdrop-blur-md p-3 shadow-2xl">
+          <div className="w-[280px] rounded-xl border border-white/10 bg-[#1c1c1c]/95 backdrop-blur-md p-3 shadow-2xl">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 min-w-0">
-                <div
-                  className="w-4 h-4 rounded-full shrink-0"
-                  style={{
-                    backgroundColor:
-                      clusterMode && clusterMap.has(detailNodeId!)
-                        ? CLUSTER_PALETTE[
-                            clusterMap.get(detailNodeId!)! %
-                              CLUSTER_PALETTE.length
-                          ]
-                        : idToColor(detailNodeId!),
-                  }}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={
+                    ARCHETYPE_ICON[
+                      nodeArchetype(detailNode.node, detailNodeId!)
+                    ]
+                  }
+                  alt=""
+                  className="w-6 h-6 shrink-0"
                 />
                 <h3 className="text-white font-medium text-sm truncate">
                   {fullName(detailNode.node.name, detailNode.node.id)}
@@ -2019,8 +2143,23 @@ export default function ConnectionWall() {
               </button>
             </div>
 
-            <div className="text-xs text-white/60 mb-3">
-              {detailNode.degree} connection{detailNode.degree !== 1 ? "s" : ""}
+            <div className="flex items-center gap-2 mb-3">
+              <span
+                className="text-[10px] font-semibold tracking-wider px-1.5 py-0.5 rounded"
+                style={{
+                  color:
+                    ARCHETYPE_COLOR[
+                      nodeArchetype(detailNode.node, detailNodeId!)
+                    ],
+                  backgroundColor: "rgba(255,255,255,0.07)",
+                }}
+              >
+                {nodeArchetype(detailNode.node, detailNodeId!)}
+              </span>
+              <span className="text-xs text-white/60">
+                {detailNode.degree} connection
+                {detailNode.degree !== 1 ? "s" : ""}
+              </span>
             </div>
 
             {detailNode.connections.length > 0 && (
@@ -2038,7 +2177,10 @@ export default function ConnectionWall() {
                       <span className="flex items-center gap-2 min-w-0">
                         <div
                           className="w-2 h-2 rounded-full shrink-0"
-                          style={{ backgroundColor: idToColor(c.id) }}
+                          style={{
+                            backgroundColor:
+                              ARCHETYPE_COLOR[nodeArchetype(c, c.id)],
+                          }}
                         />
                         <span className="text-white/80 text-xs truncate">
                           {firstName(c.name, c.id)}
@@ -2078,7 +2220,7 @@ export default function ConnectionWall() {
       {/* ── path finder panel ── */}
       {pathMode && !kiosk && (
         <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 mt-1">
-          <div className="rounded-xl border border-violet-400/20 bg-[#1a1f3a]/95 backdrop-blur-md px-4 py-2.5 shadow-2xl flex items-center gap-3 text-sm">
+          <div className="rounded-xl border border-violet-400/20 bg-[#1c1c1c]/95 backdrop-blur-md px-4 py-2.5 shadow-2xl flex items-center gap-3 text-sm">
             <Route className="w-4 h-4 text-violet-400 shrink-0" />
             {!pathStart && (
               <span className="text-white/80">
@@ -2183,11 +2325,14 @@ export default function ConnectionWall() {
       </div>
 
       {/* ── graph ── */}
-      <div className="relative h-[75vh] sm:h-[85vh] pb-16">
+      <div className="relative z-10 h-[75vh] sm:h-[85vh] pb-16">
         <ForceGraph2D
           ref={fgRef as any}
           graphData={graphDataMemo as any}
           backgroundColor="rgba(0,0,0,0)"
+          // idle bob/flip needs a frame every tick, not just while the
+          // simulation is hot — force-graph otherwise parks the render loop
+          autoPauseRedraw={false}
           nodeRelSize={9 * VIS}
           warmupTicks={200}
           cooldownTicks={400}
@@ -2451,13 +2596,20 @@ export default function ConnectionWall() {
             const rRaw = baseR * (0.4 + 0.7 * k);
             const r = Number.isFinite(rRaw) ? rRaw : baseR;
 
-            // color: cluster mode or default
+            // archetype illustration replaces the plain dot; rr is its radius
+            const arche = nodeArchetype(node, id);
+            const iconSize = r * ICON_SCALE;
+            const rr = iconSize / 2;
+
+            const { bobY, sx, sy } = idleMotion(id, rr, Date.now());
+
+            // color: cluster mode or archetype
             let base: string;
             if (clusterMode && clusterMap.has(id)) {
               base =
                 CLUSTER_PALETTE[clusterMap.get(id)! % CLUSTER_PALETTE.length];
             } else {
-              base = idToColor(id);
+              base = ARCHETYPE_COLOR[arche];
             }
 
             // dim non-highlighted nodes
@@ -2485,8 +2637,8 @@ export default function ConnectionWall() {
             }
 
             // bloom
-            const innerR = Math.max(0.0001, r * 0.2);
-            const outerR = Math.max(innerR + 0.0001, r * 2.2);
+            const innerR = Math.max(0.0001, rr * 0.2);
+            const outerR = Math.max(innerR + 0.0001, rr * 1.9);
             if (
               isFiniteNum(node.x) &&
               isFiniteNum(node.y) &&
@@ -2518,7 +2670,7 @@ export default function ConnectionWall() {
             // intro ring
             if (introT < 1) {
               const ringProg = 1 - introT;
-              const ringR = r + 12 * ringProg * VIS;
+              const ringR = rr + 12 * ringProg * VIS;
               ctx.save();
               ctx.beginPath();
               ctx.arc(node.x, node.y, ringR, 0, 2 * Math.PI);
@@ -2533,7 +2685,7 @@ export default function ConnectionWall() {
             const ago = ts ? Date.now() - ts : Infinity;
             if (ago < HALO_RECENT_MS) {
               const progress = 1 - ago / HALO_RECENT_MS;
-              const haloR = r + 10 * progress * VIS;
+              const haloR = rr + 10 * progress * VIS;
               ctx.save();
               ctx.beginPath();
               ctx.arc(node.x, node.y, haloR, 0, 2 * Math.PI);
@@ -2547,7 +2699,7 @@ export default function ConnectionWall() {
             if (highlightSet.has(id)) {
               ctx.save();
               ctx.beginPath();
-              ctx.arc(node.x, node.y, r + 6 * VIS, 0, 2 * Math.PI);
+              ctx.arc(node.x, node.y, rr + 4 * VIS, 0, 2 * Math.PI);
               ctx.strokeStyle = "rgba(110, 231, 183, 0.8)";
               ctx.lineWidth = 2 * VIS;
               ctx.shadowColor = "rgba(110, 231, 183, 0.6)";
@@ -2560,7 +2712,7 @@ export default function ConnectionWall() {
             if (pathMode && pathStart === id) {
               ctx.save();
               ctx.beginPath();
-              ctx.arc(node.x, node.y, r + 8 * VIS, 0, 2 * Math.PI);
+              ctx.arc(node.x, node.y, rr + 6 * VIS, 0, 2 * Math.PI);
               ctx.strokeStyle = "rgba(196, 148, 255, 0.9)";
               ctx.lineWidth = 2.5 * VIS;
               ctx.shadowColor = "rgba(196, 148, 255, 0.7)";
@@ -2574,23 +2726,33 @@ export default function ConnectionWall() {
             ) {
               ctx.save();
               ctx.beginPath();
-              ctx.arc(node.x, node.y, r + 5 * VIS, 0, 2 * Math.PI);
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
               ctx.strokeStyle = "rgba(196, 148, 255, 0.6)";
               ctx.lineWidth = 1.5 * VIS;
               ctx.stroke();
               ctx.restore();
             }
 
-            // core
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
-            ctx.shadowColor = base;
+            // core: the character casts its own glow — no disc behind it
             const glow = 12 + Math.min(18, Math.sqrt(Math.max(1, deg)) * 1.4);
-            ctx.shadowBlur = glow * VIS * (0.8 + 0.2 * k);
+
+            const icon = getArchetypeImage(arche);
+            ctx.save();
             ctx.globalAlpha = nodeAlpha;
-            ctx.fillStyle = base;
-            ctx.fill();
+            ctx.shadowColor = base;
+            ctx.shadowBlur = glow * VIS * (0.8 + 0.2 * k);
+            if (icon) {
+              // sx sweeps +1 → 0 → -1 for the flip, sy squashes on the way
+              ctx.translate(node.x, node.y + bobY);
+              ctx.scale(sx, sy);
+              ctx.drawImage(icon, -rr, -rr, iconSize, iconSize);
+            } else {
+              // illustration not decoded yet — fall back to the dot
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+              ctx.fillStyle = base;
+              ctx.fill();
+            }
             ctx.restore();
 
             // crown/badge
@@ -2604,7 +2766,7 @@ export default function ConnectionWall() {
               ctx.lineWidth = 2.4 * VIS;
               ctx.globalAlpha = nodeAlpha;
               ctx.beginPath();
-              ctx.arc(node.x, node.y, r + 5 * VIS, 0, 2 * Math.PI);
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
               ctx.stroke();
               ctx.restore();
             }
@@ -2621,7 +2783,7 @@ export default function ConnectionWall() {
               drawLabel(
                 ctx,
                 label,
-                node.x + r + 4 * VIS,
+                node.x + rr + 4 * VIS,
                 node.y + 0.5,
                 fontSize,
               );
@@ -2636,7 +2798,7 @@ export default function ConnectionWall() {
             const r = (4 + Math.min(7, Math.sqrt(degree[id] || 1) * 1.4)) * VIS;
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(node.x, node.y, r + 2 * VIS, 0, 2 * Math.PI);
+            ctx.arc(node.x, node.y, (r * ICON_SCALE) / 2 + 2 * VIS, 0, 2 * Math.PI);
             ctx.fill();
           }}
         />
@@ -2644,12 +2806,12 @@ export default function ConnectionWall() {
 
       {/* ── footer: ticker ── */}
       {showTicker && (
-        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#1a1f3a] border-t border-white/10 px-4 sm:px-6 py-2">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-[#1c1c1c] border-t border-white/10 px-4 sm:px-6 py-2">
           <div className="flex items-center justify-between gap-3">
             <div className="relative w-full">
               {ticker.length === 0 ? (
                 <div className="text-white/50 text-sm py-1">
-                  Connections appear in real-time. Use NFC BizCards to light up
+                  Connections appear in real-time. Use NFC Cards to light up
                   the wall. Press S to search, H for heatmap.
                 </div>
               ) : (

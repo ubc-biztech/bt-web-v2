@@ -1008,7 +1008,7 @@ export default function ConnectionWall3D() {
             <div className="relative w-full">
               {ticker.length === 0 ? (
                 <div className="text-white/60 text-sm py-1">
-                  Tip: connections appear in real-time. Use your NFC BizCards to
+                  Tip: connections appear in real-time. Use your NFC Cards to
                   light up the wall. Press H to toggle heatmap.
                 </div>
               ) : (
