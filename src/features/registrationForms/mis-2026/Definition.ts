@@ -3,8 +3,8 @@ import type { RegistrationQuestion } from "@/types";
 
 export const MIS_CAREER_INTERESTS = [
   "The Visionary",
-  "The Designer",
   "The Architect",
+  "The Designer",
   "The Logician",
   "The Strategist",
 ] as const;

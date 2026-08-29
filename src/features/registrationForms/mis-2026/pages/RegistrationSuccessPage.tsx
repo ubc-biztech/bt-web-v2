@@ -30,20 +30,14 @@ type SuccessDetails = {
   schedule: string;
 };
 
-const FALLBACK_SCHEDULE =
-  "Wednesday, Sep 9, 6:00 PM – 8:30 PM @ AMS Great Hall";
+const DISPLAYED_EVENT_TIME = "5:00 PM – 8:00 PM";
+const FALLBACK_SCHEDULE = `Friday, Sep 9, ${DISPLAYED_EVENT_TIME} @ AMS Great Hall`;
 const dmSans = DM_Sans({ subsets: ["latin"] });
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
   month: "short",
   day: "numeric",
-  timeZone: "America/Vancouver",
-});
-
-const timeFormatter = new Intl.DateTimeFormat("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
   timeZone: "America/Vancouver",
 });
 
@@ -59,21 +53,15 @@ function formatSchedule(event?: BiztechEvent) {
   if (!event?.startDate) return FALLBACK_SCHEDULE;
 
   const start = new Date(event.startDate);
-  const end = event.endDate ? new Date(event.endDate) : undefined;
 
   if (Number.isNaN(start.getTime())) return FALLBACK_SCHEDULE;
 
   const date = dateFormatter.format(start);
-  const startTime = timeFormatter.format(start);
-  const endTime =
-    end && !Number.isNaN(end.getTime())
-      ? ` – ${timeFormatter.format(end)}`
-      : "";
   const location = event.elocation?.trim()
     ? ` @ ${event.elocation.trim()}`
     : "";
 
-  return `${date}, ${startTime}${endTime}${location}`;
+  return `${date}, ${DISPLAYED_EVENT_TIME}${location}`;
 }
 
 export function MISRegistrationSuccessPage({

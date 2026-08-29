@@ -202,7 +202,7 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
 
         <div className="mt-4 hidden flex-wrap items-center justify-center gap-5 md:flex">
           <EventPill>SEP 9</EventPill>
-          <EventPill>6:00 PM</EventPill>
+          <EventPill>5:00 PM</EventPill>
           <EventPill>AMS GREAT HALL</EventPill>
         </div>
       </div>

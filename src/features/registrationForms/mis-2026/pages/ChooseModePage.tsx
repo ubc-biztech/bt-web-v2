@@ -97,12 +97,12 @@ export function ChooseModePage({
                   }
                 `}
               >
-                <span className="flex w-full flex-col gap-[13.65px] md:w-[325.35px] md:gap-3">
-                  <span className="text-[18px] font-bold leading-none text-white md:text-[28px] md:leading-[33px]">
+                <span className="flex w-full min-w-0 max-w-full flex-col gap-[13.65px] md:gap-3">
+                  <span className="break-words whitespace-normal text-[18px] font-bold leading-none text-white md:text-[28px] md:leading-[33px]">
                     {title}
                   </span>
 
-                  <span className="text-[12px] font-normal leading-none text-[#A0A0A0] md:text-[16px] md:leading-[19px]">
+                  <span className="break-words whitespace-normal text-[12px] font-normal leading-none text-[#A0A0A0] md:text-[16px] md:leading-[19px]">
                     {description}
                   </span>
                 </span>

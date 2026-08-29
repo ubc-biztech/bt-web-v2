@@ -60,7 +60,7 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
   return (
     <section
       data-step="info"
-      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[clamp(2rem,7dvh,3.75rem)] pt-[clamp(2.75rem,8dvh,4.5rem)] md:h-[100dvh] md:min-h-0 md:overflow-hidden md:px-10 md:py-[clamp(2rem,7dvh,3.75rem)]"
+      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[clamp(2rem,7dvh,3.75rem)] pt-[clamp(2.75rem,8dvh,4.5rem)] md:px-10 md:py-[clamp(2rem,7dvh,3.75rem)]"
     >
       <div className="mx-auto flex w-full max-w-[422px] flex-1 flex-col md:max-w-[1007px]">
         <div className="flex items-center justify-between">

@@ -145,6 +145,8 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   loading: Loader2,
 };
 
+const BUILDING_BLOCK_EVENT_ID = "MIS_Night_2026";
+
 function canShowCalendarCtaForRegistrationStatus(
   event: EventHomeEvent,
   registrationStatus?: string,
@@ -175,6 +177,10 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     registration?.registrationStatus,
   );
   const shouldShowRegistrationCta = !isConfirmed;
+  const shouldShowBuildingBlockCta =
+    event.id === BUILDING_BLOCK_EVENT_ID &&
+    (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
+      registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
   const eventHasEnded = isDateInPast(event.endDate);
   const calendarHref =
     shouldShowCalendarCta && !eventHasEnded ? getGoogleCalendarUrl(event) : "";
@@ -189,11 +195,26 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   return (
     <section className="flex min-h-[128px] flex-col justify-between rounded-[14px] border border-[#26314a] bg-[#111a30] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)] lg:p-6">
       <div>
-        <div className="flex min-w-0 items-center gap-2">
-          <Ticket className="h-6 w-6 text-[#0ec58c]" aria-hidden="true" />
-          <h2 className="break-words text-[24px] font-800 leading-none text-white">
-            {formatPrimaryPrice(event)}
-          </h2>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Ticket className="h-6 w-6 text-[#0ec58c]" aria-hidden="true" />
+            <h2 className="break-words text-[24px] font-800 leading-none text-white">
+              {formatPrimaryPrice(event)}
+            </h2>
+          </div>
+
+          {shouldShowBuildingBlockCta ? (
+            <Link
+              href={`/event/${event.id}/${event.year}/register/success`}
+              className="group inline-flex min-h-7 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded px-1 py-1 text-[10px] font-700 leading-none text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A2B1D5]/50"
+            >
+              View building block
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </Link>
+          ) : null}
         </div>
 
         <div

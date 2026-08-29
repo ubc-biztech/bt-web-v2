@@ -59,11 +59,6 @@ export const MIS_QUIZ_QUESTIONS = [
     options: [
       {
         label:
-          "Wasting time building something without knowing why it matters.",
-        value: "The Visionary",
-      },
-      {
-        label:
           "Poorly thought-out experiences that frustrate the person using them.",
         value: "The Designer",
       },
@@ -80,6 +75,11 @@ export const MIS_QUIZ_QUESTIONS = [
           "Great work that gets completely ignored because nobody knows how to deliver it.",
         value: "The Strategist",
       },
+      {
+        label:
+          "Wasting time building something without knowing why it matters.",
+        value: "The Visionary",
+      },
     ],
   },
   {
@@ -87,15 +87,6 @@ export const MIS_QUIZ_QUESTIONS = [
     prompt:
       "You`re handed a messy, disorganized project. What is your immediate instinct?",
     options: [
-      {
-        label: "Step back to define the core objective.",
-        value: "The Visionary",
-      },
-      {
-        label:
-          "Walk through it from the end-user`s perspective to identify friction.",
-        value: "The Designer",
-      },
       {
         label: "Rebuild the parts that are actively failing.",
         value: "The Architect",
@@ -108,13 +99,32 @@ export const MIS_QUIZ_QUESTIONS = [
         label: "Realign the team and divide responsibilities.",
         value: "The Strategist",
       },
+      {
+        label: "Step back to define the core objective.",
+        value: "The Visionary",
+      },
+      {
+        label:
+          "Walk through it from the end-user`s perspective to identify friction.",
+        value: "The Designer",
+      },
     ],
   },
   {
     id: "growth",
     prompt:
-      "You’re planning a trip with friends. What part do you naturally take over?",
+      "You`re planning a trip with friends. What part do you naturally take over?",
     options: [
+      {
+        label:
+          "Digging through Reddit threads and Beli reviews to find the hidden gems.",
+        value: "The Logician",
+      },
+      {
+        label:
+          "Getting everyone to show up on time and keeping the group on schedule.",
+        value: "The Strategist",
+      },
       {
         label: "Pitching the overall vibe and destination ideas.",
         value: "The Visionary",
@@ -127,16 +137,6 @@ export const MIS_QUIZ_QUESTIONS = [
         label:
           "Figuring out the transit routes and coordinating what everyone is bringing.",
         value: "The Architect",
-      },
-      {
-        label:
-          "Digging through Reddit threads and Beli reviews to find the hidden gems.",
-        value: "The Logician",
-      },
-      {
-        label:
-          "Getting everyone to show up on time and keeping the group on schedule.",
-        value: "The Strategist",
       },
     ],
   },

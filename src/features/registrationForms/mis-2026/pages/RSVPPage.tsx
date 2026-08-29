@@ -76,7 +76,7 @@ export function RSVPPage({
   return (
     <section
       data-step="rsvp"
-      className="flex min-h-[100dvh] w-full flex-col px-6 pb-16 pt-10 md:px-20 md:py-20"
+      className="flex min-h-[100dvh] w-full flex-col px-6 pb-16 pt-[80px] md:px-20 md:py-20"
     >
       <div className="relative mx-auto flex w-full max-w-[422px] flex-1 flex-col md:max-w-[1003px]">
         <div className="flex items-center justify-between">
@@ -127,19 +127,6 @@ export function RSVPPage({
                 </p>
               ) : null}
             </div>
-
-            <button
-              type="button"
-              onClick={onEditFirstField}
-              aria-label="Edit full name"
-              className="flex size-8 shrink-0 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#98F3FF]/40 md:size-10"
-            >
-              <EditIcon
-                focusable="false"
-                aria-hidden="true"
-                className="size-6 text-white [&_path]:stroke-current"
-              />
-            </button>
           </div>
 
           <div className="mt-4 h-px bg-[#2A2A2A] md:mt-5" />
