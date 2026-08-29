@@ -60,14 +60,14 @@ export function ChooseBlockPage({
   return (
     <section
       data-step="choose-block"
-      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[clamp(2rem,6dvh,3.75rem)] pt-[clamp(2.75rem,8dvh,4.5rem)] md:h-[100dvh] md:min-h-0 md:overflow-hidden md:px-10 md:py-[clamp(2rem,7dvh,3.75rem)]"
+      className="flex min-h-[100dvh] w-full flex-col px-6 pb-[clamp(2rem,6dvh,3.75rem)] pt-[clamp(2.75rem,8dvh,4.5rem)] md:px-10 md:py-[clamp(2rem,7dvh,3.75rem)]"
     >
       <div className="mx-auto flex w-full max-w-[422px] flex-1 flex-col md:max-w-[1007px]">
         <div className="flex items-center justify-between">
           <BackButton onClick={onBack} />
 
           <span className="text-[14px] font-medium leading-none text-[#98F3FF]/70">
-            Step 1 of 3
+            Step 2 of 3
           </span>
         </div>
 
@@ -96,7 +96,7 @@ export function ChooseBlockPage({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => onSelectBlock(block)}
-                className={`group flex h-[82px] w-full items-center gap-3 rounded-[18px] border bg-[#1A1A1A] px-4 py-2 text-left transition-all duration-200 hover:bg-[#202020] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#98F3FF]/30 md:h-[clamp(96px,13dvh,130px)] md:gap-5 md:px-6 ${
+                className={`group flex min-h-[82px] w-full items-center gap-3 rounded-[18px] border bg-[#1A1A1A] px-4 py-2 text-left transition-all duration-200 hover:bg-[#202020] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#98F3FF]/30 md:min-h-[clamp(96px,13dvh,130px)] md:gap-5 md:px-6 ${
                   isLastBlock ? "md:col-span-2 md:mx-auto md:max-w-[389px]" : ""
                 } ${
                   isSelected

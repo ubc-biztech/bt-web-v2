@@ -89,7 +89,7 @@ export default function EventHomePage() {
           <>
             <EventHeroHeader event={configuredEvent} />
             <div className="px-4 pb-7 pt-6 md:px-10 md:pb-10 md:pt-9 lg:px-11 lg:pb-11 lg:pt-11">
-              <div className="max-w-[1075px]">
+              <div className="mx-auto w-full max-w-[1075px]">
                 <div className="grid gap-6 lg:grid-cols-[minmax(260px,315px)_minmax(0,736px)] lg:items-start">
                   <EventModuleRenderer
                     className="grid grid-cols-1 gap-4"

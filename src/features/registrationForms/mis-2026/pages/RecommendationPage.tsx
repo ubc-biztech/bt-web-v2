@@ -27,7 +27,7 @@ export function RecommendationPage({
         <BackButton
           onClick={onBack}
           label="Back to choose your block"
-          className="absolute left-6 top-20 z-10 md:left-10 md:top-[clamp(2rem,5dvh,3.5rem)]"
+          className="absolute left-6 top-20 z-40 md:left-10 md:top-[clamp(2rem,5dvh,3.5rem)]"
         />
 
         <p className="relative z-10 text-[18px] font-bold text-[#A7F2FC]">
@@ -51,7 +51,7 @@ export function RecommendationPage({
       <BackButton
         onClick={onBack}
         label="Back to choose your block"
-        className="absolute left-6 top-20 z-10 md:left-10 md:top-[clamp(2rem,5dvh,3.5rem)]"
+        className="absolute left-6 top-20 z-40 md:left-10 md:top-[clamp(2rem,5dvh,3.5rem)]"
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[520px] flex-1 flex-col items-center justify-center text-center">
