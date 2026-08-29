@@ -64,6 +64,14 @@ import {
   MEMBERSHIP_FORM_DEFAULTS,
 } from "@/components/SignUpForm/membershipFormSchema";
 import { useMembers, useInvalidateMembers, Member } from "@/queries/members";
+import { useAllEvents } from "@/queries/events";
+import {
+  createPartnerMemberships,
+  createPartnerRegistrations,
+  ParsedPartner,
+  PartnerBatchResponse,
+} from "@/queries/partnerIngestion";
+import { parsePartnerCsv } from "@/util/partnerCsv";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Tooltip,
@@ -125,14 +133,27 @@ export default function ManageMembers({ initialData }: Props) {
   const { isNFCSupported } = useNFCSupport();
   const [showNfcWriter, setShowNfcWriter] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPartnerDialogOpen, setIsPartnerDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [copiedMemberId, setCopiedMemberId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const { toast } = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [visibleCols, setVisibleCols] = useState(COLS_DEFAULT);
+  const [selectedCsvFileName, setSelectedCsvFileName] = useState("");
+  const [parsedPartners, setParsedPartners] = useState<ParsedPartner[]>([]);
+  const [csvErrors, setCsvErrors] = useState<string[]>([]);
+  const [shouldCreateMemberships, setShouldCreateMemberships] = useState(false);
+  const [shouldRegisterForEvent, setShouldRegisterForEvent] = useState(false);
+  const [selectedEventKey, setSelectedEventKey] = useState("");
+  const [membershipResult, setMembershipResult] =
+    useState<PartnerBatchResponse | null>(null);
+  const [registrationResult, setRegistrationResult] =
+    useState<PartnerBatchResponse | null>(null);
+  const [isSubmittingPartners, setIsSubmittingPartners] = useState(false);
 
   const { data: membersData, isLoading, refetch } = useMembers();
+  const { data: eventsData } = useAllEvents();
   const data = membersData ?? initialData ?? null;
   const invalidateMembers = useInvalidateMembers();
 
@@ -148,6 +169,128 @@ export default function ManageMembers({ initialData }: Props) {
 
   const closeCreateMemberModal = () => {
     setIsModalOpen(false);
+  };
+
+  const openPartnerDialog = () => {
+    setSelectedCsvFileName("");
+    setParsedPartners([]);
+    setCsvErrors([]);
+    setShouldCreateMemberships(false);
+    setShouldRegisterForEvent(false);
+    setSelectedEventKey("");
+    setMembershipResult(null);
+    setRegistrationResult(null);
+    setIsPartnerDialogOpen(true);
+  };
+
+  const closePartnerDialog = () => {
+    setIsPartnerDialogOpen(false);
+  };
+
+  const handlePartnerCsvChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const result = await parsePartnerCsv(file);
+    setSelectedCsvFileName(file.name);
+    setParsedPartners(result.partners);
+    setCsvErrors(result.errors);
+    setMembershipResult(null);
+    setRegistrationResult(null);
+    event.target.value = "";
+  };
+
+  const canApplyPartnerIngestion =
+    parsedPartners.length > 0 &&
+    csvErrors.length === 0 &&
+    (shouldCreateMemberships || shouldRegisterForEvent) &&
+    (!shouldRegisterForEvent || selectedEventKey) &&
+    !isSubmittingPartners;
+
+  const handleApplyPartnerIngestion = async () => {
+    if (!canApplyPartnerIngestion) return;
+
+    setIsSubmittingPartners(true);
+    setMembershipResult(null);
+    setRegistrationResult(null);
+
+    try {
+      if (shouldCreateMemberships) {
+        const response = await createPartnerMemberships(parsedPartners);
+        setMembershipResult(response);
+        await refreshData();
+      }
+
+      if (shouldRegisterForEvent) {
+        const [eventID, yearValue] = selectedEventKey.split(";");
+        const response = await createPartnerRegistrations({
+          eventID,
+          year: Number(yearValue),
+          partners: parsedPartners,
+        });
+        setRegistrationResult(response);
+      }
+
+      toast({
+        title: "Partner batch complete",
+        description: "Review the results before closing this dialog.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Failed to process partners",
+        description:
+          err?.message?.message ?? err?.message ?? "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingPartners(false);
+    }
+  };
+
+  const renderPartnerBatchResult = (
+    title: string,
+    result: PartnerBatchResponse | null,
+  ) => {
+    if (!result) return null;
+
+    const notableRows = result.results.filter(
+      (row) => row.status !== "created",
+    );
+
+    return (
+      <div className="rounded-lg border border-bt-blue-300/50 bg-bt-blue-600/40 p-4">
+        <p className="text-sm font-medium text-white">{title}</p>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+          <div className="rounded-md bg-bt-green-300/10 px-2 py-2 text-bt-green-200">
+            <p className="font-semibold">{result.created}</p>
+            <p>Created</p>
+          </div>
+          <div className="rounded-md bg-yellow-400/10 px-2 py-2 text-yellow-100">
+            <p className="font-semibold">{result.skipped}</p>
+            <p>Skipped</p>
+          </div>
+          <div className="rounded-md bg-red-500/10 px-2 py-2 text-red-100">
+            <p className="font-semibold">{result.failed}</p>
+            <p>Failed</p>
+          </div>
+        </div>
+
+        {notableRows.length > 0 && (
+          <div className="mt-3 max-h-32 overflow-y-auto rounded-md border border-bt-blue-300/40 bg-bt-blue-700/40 p-2">
+            <ul className="space-y-1 text-xs text-bt-blue-50">
+              {notableRows.map((row, index) => (
+                <li key={`${row.email}-${row.status}-${index}`}>
+                  <span className="font-medium">{row.email || "Unknown"}</span>{" "}
+                  {row.status}: {row.reason || "No reason provided"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const handleCreateMemberSubmit = async (values: MembershipFormValues) => {
@@ -706,6 +849,16 @@ export default function ManageMembers({ initialData }: Props) {
               <Button
                 variant="green"
                 size="sm"
+                onClick={openPartnerDialog}
+                className="gap-1.5 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Add Partners</span>
+              </Button>
+
+              <Button
+                variant="green"
+                size="sm"
                 onClick={openCreateMemberModal}
                 className="gap-1.5 shrink-0"
               >
@@ -1235,6 +1388,175 @@ export default function ManageMembers({ initialData }: Props) {
             numCards={selectedMember.cardCount ?? 0}
           />
         )}
+
+        {/* Add Partners Dialog */}
+        <Dialog
+          open={isPartnerDialogOpen}
+          onOpenChange={setIsPartnerDialogOpen}
+        >
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-bt-blue-500 border-bt-blue-300">
+            <div className="mb-2">
+              <h3 className="text-lg font-semibold text-white">Add Partners</h3>
+              <p className="text-sm text-bt-blue-100">
+                Upload a partner CSV, then choose which batch actions to run.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-lg border border-bt-blue-300/50 bg-bt-blue-600/40 p-4">
+                <p className="text-sm font-medium text-white">CSV file</p>
+                <p className="mt-1 text-xs text-bt-blue-100">
+                  Required columns: Email Address, First Name, Last Name.
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <input
+                    id="partner-csv-upload"
+                    type="file"
+                    accept=".csv,text/csv"
+                    onChange={handlePartnerCsvChange}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="partner-csv-upload"
+                    className="inline-flex h-9 cursor-pointer items-center justify-center rounded-md border border-bt-blue-300 bg-bt-blue-500 px-3 text-sm font-medium text-white transition-colors hover:bg-bt-blue-400"
+                  >
+                    {selectedCsvFileName ? "Replace CSV" : "Choose CSV"}
+                  </label>
+                  <span className="text-xs text-bt-blue-100">
+                    {selectedCsvFileName || "No file selected"}
+                  </span>
+                </div>
+                {selectedCsvFileName && (
+                  <p className="mt-2 text-xs text-bt-blue-100">
+                    {selectedCsvFileName} · {parsedPartners.length} row
+                    {parsedPartners.length === 1 ? "" : "s"} parsed
+                  </p>
+                )}
+                {csvErrors.length > 0 && (
+                  <div className="mt-3 rounded-md border border-red-400/40 bg-red-500/10 p-3">
+                    <p className="text-xs font-medium text-red-100">
+                      Fix these CSV issues before applying:
+                    </p>
+                    <ul className="mt-2 space-y-1 text-xs text-red-100">
+                      {csvErrors.slice(0, 6).map((error) => (
+                        <li key={error}>{error}</li>
+                      ))}
+                    </ul>
+                    {csvErrors.length > 6 && (
+                      <p className="mt-2 text-xs text-red-100">
+                        {csvErrors.length - 6} more issue
+                        {csvErrors.length - 6 === 1 ? "" : "s"}
+                      </p>
+                    )}
+                  </div>
+                )}
+                {parsedPartners.length > 0 && csvErrors.length === 0 && (
+                  <div className="mt-3 rounded-md border border-bt-blue-300/40 bg-bt-blue-700/40 p-3">
+                    <p className="text-xs font-medium text-white">Preview</p>
+                    <ul className="mt-2 space-y-1 text-xs text-bt-blue-50">
+                      {parsedPartners.slice(0, 5).map((partner) => (
+                        <li key={partner.email}>
+                          <span className="font-medium">{partner.email}</span> -{" "}
+                          {partner.firstName} {partner.lastName}
+                        </li>
+                      ))}
+                    </ul>
+                    {parsedPartners.length > 5 && (
+                      <p className="mt-2 text-xs text-bt-blue-100">
+                        {parsedPartners.length - 5} more partner
+                        {parsedPartners.length - 5 === 1 ? "" : "s"}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-bt-blue-300/50 bg-bt-blue-600/40 p-4">
+                <p className="text-sm font-medium text-white">Actions</p>
+                <p className="mt-1 text-xs text-bt-blue-100">
+                  Choose create memberships, register for an event, or both.
+                </p>
+                <div className="mt-3 space-y-3">
+                  <label className="flex items-center gap-2 text-sm text-white">
+                    <Checkbox
+                      checked={shouldCreateMemberships}
+                      onCheckedChange={(checked) =>
+                        setShouldCreateMemberships(Boolean(checked))
+                      }
+                    />
+                    Create memberships
+                  </label>
+
+                  <label className="flex items-center gap-2 text-sm text-white">
+                    <Checkbox
+                      checked={shouldRegisterForEvent}
+                      onCheckedChange={(checked) => {
+                        const enabled = Boolean(checked);
+                        setShouldRegisterForEvent(enabled);
+                        if (!enabled) setSelectedEventKey("");
+                      }}
+                    />
+                    Register for an event
+                  </label>
+
+                  {shouldRegisterForEvent && (
+                    <div className="max-w-sm">
+                      <Select
+                        value={selectedEventKey}
+                        onValueChange={setSelectedEventKey}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select event" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(eventsData ?? []).map((event) => (
+                            <SelectItem
+                              key={`${event.id};${event.year}`}
+                              value={`${event.id};${event.year}`}
+                            >
+                              {event.ename || event.id} ({event.year})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {(membershipResult || registrationResult) && (
+                <div className="space-y-3">
+                  {renderPartnerBatchResult(
+                    "Membership creation",
+                    membershipResult,
+                  )}
+                  {renderPartnerBatchResult(
+                    "Event registration",
+                    registrationResult,
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-bt-blue-300/50">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closePartnerDialog}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="green"
+                  disabled={!canApplyPartnerIngestion}
+                  onClick={handleApplyPartnerIngestion}
+                >
+                  {isSubmittingPartners ? "Applying..." : "Apply"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Create Member Dialog */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

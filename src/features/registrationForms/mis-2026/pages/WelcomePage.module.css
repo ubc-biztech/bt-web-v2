@@ -1,0 +1,39 @@
+.logo {
+  width: min(70vw, 350px);
+}
+
+.logo > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.carousel {
+  position: relative;
+  width: calc(100% + 3rem);
+  height: 184px;
+  margin-inline: -1.5rem;
+}
+
+.mascot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+  place-items: center;
+  border: 2px solid #292929;
+  border-radius: 9999px;
+  background: #191919;
+  opacity: 0;
+  animation: none;
+  will-change: transform, opacity;
+}
+
+@media (min-width: 768px) {
+  .logo {
+    width: 310px;
+  }
+}

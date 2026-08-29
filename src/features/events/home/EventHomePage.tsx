@@ -1,12 +1,10 @@
 import { useEvent, useEventCounts } from "@/queries/events";
 import { useUserRegistrations } from "@/queries/registrations";
 import { useUserAttributes } from "@/queries/user";
+import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
 import { useRouter } from "next/router";
-import { EventHeroHeader } from "./EventHeroHeader";
-import {
-  defaultEventModules,
-  EventModuleRenderer,
-} from "./EventModuleRenderer";
+import { EventAboutCard, EventHeroHeader } from "./EventHeroHeader";
+import { EventModuleRenderer } from "./EventModuleRenderer";
 import type { EventHomeEvent, EventRegistrationRecord } from "./types";
 
 const getRouteParam = (value: string | string[] | undefined) =>
@@ -14,7 +12,7 @@ const getRouteParam = (value: string | string[] | undefined) =>
 
 function EventHomeSkeleton() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 px-4 py-5 md:px-6 md:py-7 lg:px-7 lg:py-6">
       <div className="h-[280px] animate-pulse rounded-lg border border-[#242424] bg-[#151515]" />
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="h-[260px] animate-pulse rounded-lg border border-[#242424] bg-[#151515]" />
@@ -25,7 +23,7 @@ function EventHomeSkeleton() {
 
 function EventHomeError() {
   return (
-    <div className="rounded-lg border border-bt-red-300/30 bg-bt-red-300/10 p-6">
+    <div className="m-4 rounded-lg border border-bt-red-300/30 bg-bt-red-300/10 p-6 md:m-6 lg:m-7">
       <h1 className="text-2xl font-800 text-white">Event unavailable</h1>
       <p className="mt-2 max-w-xl text-sm leading-6 text-white/65">
         We could not load this event right now. Check that the event URL is
@@ -65,31 +63,59 @@ export default function EventHomePage() {
       : event
         ? `/event/${event.id}/${event.year}/register`
         : "/events";
+  const eventHomeEvent = event ? (event as EventHomeEvent) : undefined;
+  const configuredEvent = eventHomeEvent
+    ? {
+        ...eventHomeEvent,
+        eventPage: normalizeEventPageConfig(eventHomeEvent.eventPage),
+      }
+    : undefined;
+  const configuredModules = configuredEvent?.eventPage.modules ?? [];
+  const registrationModules = configuredModules.filter(
+    (module) => module.id === "registration",
+  );
+  const contentModules = configuredModules.filter(
+    (module) => module.id !== "registration",
+  );
 
   return (
-    <main className="min-h-[calc(100vh-8rem)] bg-transparent text-white">
-      <div className="mx-auto flex w-full max-w-[1260px] flex-col">
+    <main className="-mx-8 -mb-8 -mt-8 min-h-screen bg-bt-blue-600 text-white md:-m-12 lg:-m-16">
+      <div className="flex w-full max-w-none flex-col">
         {!router.isReady || eventLoading ? (
           <EventHomeSkeleton />
-        ) : eventError || !event ? (
+        ) : eventError || !configuredEvent ? (
           <EventHomeError />
         ) : (
           <>
-            <div>
-              <EventHeroHeader event={event as EventHomeEvent} />
+            <EventHeroHeader event={configuredEvent} />
+            <div className="px-4 pb-7 pt-6 md:px-10 md:pb-10 md:pt-9 lg:px-11 lg:pb-11 lg:pt-11">
+              <div className="mx-auto w-full max-w-[1075px]">
+                <div className="grid gap-6 lg:grid-cols-[minmax(260px,315px)_minmax(0,736px)] lg:items-start">
+                  <EventModuleRenderer
+                    className="grid grid-cols-1 gap-4"
+                    event={configuredEvent}
+                    counts={counts}
+                    modules={registrationModules}
+                    registration={registration}
+                    registrationLoading={registrationLoading}
+                    registrationHref={registrationHref}
+                    signedIn={signedIn}
+                  />
+                  <EventAboutCard event={configuredEvent} />
+                </div>
+
+                <EventModuleRenderer
+                  className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,527px)_minmax(0,1fr)]"
+                  event={configuredEvent}
+                  counts={counts}
+                  modules={contentModules}
+                  registration={registration}
+                  registrationLoading={registrationLoading}
+                  registrationHref={registrationHref}
+                  signedIn={signedIn}
+                />
+              </div>
             </div>
-            <EventModuleRenderer
-              event={event as EventHomeEvent}
-              counts={counts}
-              modules={
-                (event as EventHomeEvent).eventPage?.modules ??
-                defaultEventModules
-              }
-              registration={registration}
-              registrationLoading={registrationLoading}
-              registrationHref={registrationHref}
-              signedIn={signedIn}
-            />
           </>
         )}
       </div>

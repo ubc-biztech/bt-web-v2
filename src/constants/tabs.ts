@@ -8,12 +8,10 @@ import {
   LogOut,
   Mail,
   PlusSquareIcon,
-  ScanBarcode,
   UserCircle2,
   Users,
   ScanFace,
   BadgeCheckIcon,
-  Instagram,
   Handshake,
 } from "lucide-react";
 
@@ -37,16 +35,6 @@ export const admin = [
     title: "Statistics",
     link: "/admin/statistics",
     icon: LineChartIcon,
-  },
-  {
-    title: "Instagram Analytics",
-    link: "/admin/instagram-analytics",
-    icon: Instagram,
-  },
-  {
-    title: "Edit Companion",
-    link: "/admin/edit-companion",
-    icon: ScanBarcode,
   },
   {
     title: "Emails",

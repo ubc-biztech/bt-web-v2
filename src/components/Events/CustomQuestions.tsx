@@ -22,7 +22,7 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
 
   const addCustomQuestion = () => {
     append({
-      id: "",
+      id: crypto.randomUUID(),
       type: "TEXT",
       question: "",
       required: false,

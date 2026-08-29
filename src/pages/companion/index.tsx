@@ -1,6 +1,6 @@
 import React from "react";
 import { fetchUserAttributes } from "@aws-amplify/auth";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { getLatestRegisteredEvent } from "@/lib/companionHelpers";
@@ -27,11 +27,13 @@ const Companion = () => {
         }
 
         // Try to redirect to user's latest registered event with companion
-        const latestEvent = await getLatestRegisteredEvent(savedEmail);
-        if (latestEvent) {
-          router.push(`/companion/${latestEvent.eventId}/${latestEvent.year}`);
-          return;
-        }
+        // Commented out for 2027 so far, to prevent blueprint 2026 and kickstart 2026 redirect
+
+        // const latestEvent = await getLatestRegisteredEvent(savedEmail);
+        // if (latestEvent) {
+        //   router.push(`/companion/${latestEvent.eventId}/${latestEvent.year}`);
+        //   return;
+        // }
 
         // If no registered events with companions, show message
         setNoEventsMessage(true);

@@ -3,16 +3,15 @@ import {
   ExternalLink,
   Info,
   MapPin,
+  Undo2,
   UsersRound,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { EventHomeEvent } from "./types";
 import {
-  formatEventDateRange,
+  getEventAccessLabel,
   getEventSubtitle,
   getExternalEventUrl,
-  getTargetAudience,
   stripHtml,
 } from "./utils";
 
@@ -22,53 +21,93 @@ type EventHeroHeaderProps = {
 
 type DetailRowProps = {
   icon: typeof MapPin;
-  label: string;
   value: string;
+  secondary?: string;
 };
 
-function DetailRow({ icon: Icon, label, value }: DetailRowProps) {
+const timeFormatter = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+const heroDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+function getEventTimeRange(event: EventHomeEvent) {
+  const start = event.startDate ? new Date(event.startDate) : null;
+  const end = event.endDate ? new Date(event.endDate) : null;
+
+  if (!start || Number.isNaN(start.getTime())) return "";
+  if (!end || Number.isNaN(end.getTime())) return timeFormatter.format(start);
+
+  return `${timeFormatter.format(start)} - ${timeFormatter.format(end)}`;
+}
+
+function getEventDateLabel(event: EventHomeEvent) {
+  const start = event.startDate ? new Date(event.startDate) : null;
+  const end = event.endDate ? new Date(event.endDate) : null;
+
+  if (!start || Number.isNaN(start.getTime())) return "Date TBA";
+  if (!end || Number.isNaN(end.getTime()))
+    return heroDateFormatter.format(start);
+  if (start.toDateString() === end.toDateString()) {
+    return heroDateFormatter.format(start);
+  }
+
+  return `${heroDateFormatter.format(start)} - ${heroDateFormatter.format(end)}`;
+}
+
+function HeroMetaItem({ icon: Icon, value, secondary }: DetailRowProps) {
   return (
-    <div className="flex max-w-full min-w-0 items-center gap-3 md:grid md:grid-cols-[18px_1fr] md:border-b md:border-[#263451] md:py-2 md:last:border-b-0">
+    <span className="inline-flex min-w-0 items-center gap-3 text-[14px] font-600 leading-none text-bt-blue-0">
       <Icon
-        className="h-4 w-4 shrink-0 text-[#b8b8b8] md:mt-0.5 md:text-[#9f9f9f]"
+        className="h-[17px] w-[17px] shrink-0 text-bt-blue-0"
         aria-hidden="true"
       />
-      <div className="min-w-0 md:flex md:flex-row md:items-start md:justify-between md:gap-5">
-        <p className="hidden text-xs font-700 text-[#9f9f9f] md:block">
-          {label}
-        </p>
-        <p className="min-w-0 break-words text-sm font-600 leading-5 text-[#b8b8b8] md:text-right md:text-xs md:font-800 md:text-white">
-          {value}
-        </p>
-      </div>
-    </div>
+      <span className="min-w-0">
+        <span className="block truncate">{value}</span>
+        {secondary && (
+          <span className="mt-1 block truncate text-[11px] text-bt-blue-0">
+            {secondary}
+          </span>
+        )}
+      </span>
+    </span>
   );
 }
 
 export function EventHeroHeader({ event }: EventHeroHeaderProps) {
-  const overview =
-    stripHtml(event.description) ||
-    "More event details will be available soon.";
   const externalUrl = getExternalEventUrl(event);
-  const eventInitial = event.ename?.charAt(0)?.toUpperCase() || "E";
+  const subtitle = getEventSubtitle(event);
+  const timeRange = getEventTimeRange(event);
 
   return (
-    <section className="overflow-hidden rounded-lg border border-[#263451] bg-[#0B152C] shadow-[0_16px_40px_rgba(0,0,0,0.22)]">
-      <div className="relative min-h-[116px] overflow-hidden md:min-h-[132px]">
+    <section className="overflow-hidden rounded-lg border border-bt-blue-300 bg-bt-blue-600 shadow-[0_16px_40px_rgba(0,0,0,0.22)] lg:rounded-none lg:border-x-0 lg:border-t-0 lg:shadow-none">
+      <div className="relative min-h-[260px] overflow-hidden bg-bt-blue-700 md:min-h-[294px]">
         {event.imageUrl ? (
-          <Image
-            src={event.imageUrl}
-            alt={`${event.ename} cover`}
-            fill
-            priority
-            sizes="(max-width: 768px) 100vw, 1200px"
-            className="object-cover"
+          <div
+            className="absolute inset-0 bg-bt-blue-700 bg-cover bg-center"
+            aria-label={`${event.ename} cover`}
+            role="img"
+            style={{ backgroundImage: `url("${event.imageUrl}")` }}
           />
         ) : (
           <div className="absolute inset-0 bg-bt-blue-500" />
         )}
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/65" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,17,32,0)_0%,rgba(11,17,32,0.6)_42%,rgba(11,17,32,0.95)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(11,17,32,0.78)_0%,rgba(11,17,32,0.2)_42%,rgba(11,17,32,0)_100%)]" />
+
+        <Link
+          href="/events"
+          className="absolute left-5 top-5 z-20 inline-flex items-center gap-1.5 text-[12px] font-700 text-bt-blue-0 transition hover:text-white md:left-8 md:top-6 md:text-sm"
+        >
+          <Undo2 className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
+          Back to Events
+        </Link>
 
         {externalUrl && (
           <Link
@@ -76,85 +115,63 @@ export function EventHeroHeader({ event }: EventHeroHeaderProps) {
             target="_blank"
             rel="noreferrer"
             aria-label={`Open ${event.ename} event link`}
-            className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#444] bg-[#3f3f3f] text-white transition hover:bg-[#505050]"
+            className="absolute right-5 top-5 z-20 inline-flex h-9 w-9 items-center justify-center rounded-md border border-bt-blue-300 bg-bt-blue-500 text-white transition hover:bg-bt-blue-400 md:right-8 md:top-6"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </Link>
         )}
 
-        <div className="relative z-10 flex min-h-[116px] flex-col justify-end gap-3 p-4 sm:flex-row sm:items-center sm:justify-start md:min-h-[132px] md:p-5">
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md border border-[#444] bg-[#f5f5f5] shadow-md md:h-12 md:w-12">
-            {event.imageUrl ? (
-              <Image
-                src={event.imageUrl}
-                alt=""
-                fill
-                sizes="48px"
-                className="object-cover"
-              />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-lg font-800 text-[#151515]">
-                {eventInitial}
-              </span>
-            )}
-          </div>
-          <div className="min-w-0 pr-12 sm:pr-16">
-            <h1 className="break-words text-[26px] font-800 leading-none tracking-[0] text-white md:text-[34px]">
+        <div className="relative z-10 flex min-h-[260px] flex-col justify-end px-5 pb-7 pr-16 pt-20 md:min-h-[294px] md:justify-start md:px-10 md:pb-7 md:pr-20 md:pt-[114px]">
+          <div className="max-w-[820px]">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#6043e3] px-3.5 py-1.5 text-[12px] font-800 uppercase tracking-[0] text-[#eaf6fe] md:text-[16px]">
+              <UsersRound className="h-4 w-4 shrink-0" aria-hidden="true" />
+              Event
+            </span>
+            <h1 className="mt-3 break-words text-[38px] font-800 leading-none tracking-[0] text-white md:text-[56px]">
               {event.ename}
             </h1>
-            <p className="mt-1 text-sm font-600 text-[#c8c8c8]">
-              {getEventSubtitle(event)}
-            </p>
+            {subtitle && (
+              <p className="mt-2 text-sm font-700 text-[#d7d7d7]">{subtitle}</p>
+            )}
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <HeroMetaItem
+                icon={CalendarDays}
+                value={getEventDateLabel(event)}
+                secondary={timeRange}
+              />
+              <HeroMetaItem
+                icon={MapPin}
+                value={event.elocation || "Location TBA"}
+              />
+              <HeroMetaItem
+                icon={UsersRound}
+                value={getEventAccessLabel(event)}
+              />
+            </div>
           </div>
         </div>
       </div>
+    </section>
+  );
+}
 
-      <div className="grid gap-5 border-t border-[#263451] p-4 md:grid-cols-[1.05fr_1fr] md:gap-6 md:p-5">
-        <div className="order-2 md:order-1">
-          <div className="flex items-center gap-2">
-            <Info className="h-4 w-4 text-bt-green-300" aria-hidden="true" />
-            <h2 className="text-[22px] font-800 text-white sm:text-base md:text-lg">
-              Event Overview
-            </h2>
-          </div>
-          <div className="mt-3 md:max-h-[136px] md:overflow-y-auto md:pr-3 md:[scrollbar-color:#555_transparent] md:[scrollbar-width:thin] md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-[#555] md:[&::-webkit-scrollbar-track]:bg-transparent md:[&::-webkit-scrollbar]:w-1.5">
-            <p className="max-w-2xl whitespace-pre-line text-sm leading-6 text-[#b8b8b8]">
-              {overview}
-            </p>
-            {externalUrl && (
-              <p className="mt-4 text-xs text-[#aaa] md:text-sm">
-                For more info, visit{" "}
-                <Link
-                  href={externalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 font-700 text-[#8f86ff] transition hover:text-[#b8b3ff]"
-                >
-                  {event.ename} event page
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </p>
-            )}
-          </div>
-        </div>
+export function EventAboutCard({ event }: EventHeroHeaderProps) {
+  const overview =
+    stripHtml(event.description) ||
+    "More event details will be available soon.";
 
-        <div className="order-1 flex flex-wrap items-center gap-x-8 gap-y-4 border-b border-[#263451] pb-5 md:order-2 md:block md:border-b-0 md:pb-0 md:pl-6">
-          <DetailRow
-            icon={MapPin}
-            label="Location"
-            value={event.elocation || "Location TBA"}
-          />
-          <DetailRow
-            icon={CalendarDays}
-            label="Dates"
-            value={formatEventDateRange(event.startDate, event.endDate)}
-          />
-          <DetailRow
-            icon={UsersRound}
-            label="Target audience"
-            value={getTargetAudience()}
-          />
-        </div>
+  return (
+    <section className="rounded-lg border border-[#263451] bg-[#0B152C] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)] md:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+      <div className="flex items-center gap-2">
+        <Info className="h-[17px] w-[17px] text-white" aria-hidden="true" />
+        <h2 className="text-[24px] font-800 leading-none text-white">
+          About Event
+        </h2>
+      </div>
+      <div className="mt-3 md:max-h-[132px] md:overflow-y-auto md:pr-3 md:[scrollbar-color:#555_transparent] md:[scrollbar-width:thin] md:[&::-webkit-scrollbar-thumb]:rounded-full md:[&::-webkit-scrollbar-thumb]:bg-[#555] md:[&::-webkit-scrollbar-track]:bg-transparent md:[&::-webkit-scrollbar]:w-1.5 lg:max-h-[132px]">
+        <p className="whitespace-pre-line text-[16px] font-500 leading-normal text-bt-blue-0">
+          {overview}
+        </p>
       </div>
     </section>
   );

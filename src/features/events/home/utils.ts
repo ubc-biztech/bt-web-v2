@@ -1,3 +1,4 @@
+import { CLIENT_URL } from "@/lib/dbconfig";
 import type { EventCounts, EventHomeEvent } from "./types";
 
 const monthDayFormatter = new Intl.DateTimeFormat("en-US", {
@@ -26,6 +27,12 @@ const asDate = (value?: string) => {
 const asNumber = (value: unknown) =>
   typeof value === "number" && Number.isFinite(value) ? value : 0;
 
+const formatGoogleCalendarDate = (date: Date) =>
+  date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}Z$/, "Z");
+
 export function stripHtml(value?: string) {
   return (value ?? "")
     .replace(/\\n/g, "\n")
@@ -40,12 +47,7 @@ export function stripHtml(value?: string) {
 }
 
 export function getEventSubtitle(event: EventHomeEvent) {
-  return event.eventPage?.subtitle || "Hosted by UBC BizTech";
-}
-
-export function getTargetAudience() {
-  // Temporary placeholder until target-audience data is captured on the form.
-  return "Everyone welcome";
+  return event.eventPage?.subtitle?.trim() ?? "";
 }
 
 export function getExternalEventUrl(event: EventHomeEvent) {
@@ -56,6 +58,44 @@ export function getExternalEventUrl(event: EventHomeEvent) {
     event.facebookUrl ||
     ""
   );
+}
+
+export function getPublicEventUrl(event: EventHomeEvent) {
+  return new URL(`/event/${event.id}/${event.year}`, CLIENT_URL).toString();
+}
+
+function getGoogleCalendarDetails(event: EventHomeEvent) {
+  const eventUrl = getPublicEventUrl(event);
+  const externalUrl = getExternalEventUrl(event);
+
+  return [
+    stripHtml(event.description),
+    `Event page: ${eventUrl}`,
+    externalUrl && externalUrl !== eventUrl ? `More info: ${externalUrl}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+export function getGoogleCalendarUrl(event: EventHomeEvent) {
+  const start = asDate(event.startDate);
+  const end = asDate(event.endDate);
+
+  if (!start || !end) return "";
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.ename,
+    dates: `${formatGoogleCalendarDate(start)}/${formatGoogleCalendarDate(end)}`,
+    details: getGoogleCalendarDetails(event),
+    location: event.elocation ?? "",
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function getEventAccessLabel(event: EventHomeEvent) {
+  return event.nonBizTechAllowed ? "Public" : "Members only";
 }
 
 export function formatEventDateRange(startDate?: string, endDate?: string) {
@@ -84,6 +124,32 @@ export function formatDeadline(deadline?: string) {
   return fullDateFormatter.format(deadlineDate);
 }
 
+export function formatDeadlineStatus(deadline?: string) {
+  const deadlineDate = asDate(deadline);
+  if (!deadlineDate) return "Registration deadline TBA";
+
+  const now = new Date();
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+  );
+  const startOfDeadline = new Date(
+    deadlineDate.getFullYear(),
+    deadlineDate.getMonth(),
+    deadlineDate.getDate(),
+  );
+  const daysRemaining = Math.ceil(
+    (startOfDeadline.getTime() - startOfToday.getTime()) /
+      (1000 * 60 * 60 * 24),
+  );
+
+  if (daysRemaining < 0) return "Registration closed";
+  if (daysRemaining === 0) return "Registration closes today";
+  if (daysRemaining === 1) return "1 day left to register";
+  return `${daysRemaining} days left to register`;
+}
+
 export function isDateInPast(date?: string) {
   const value = asDate(date);
   return value ? value.getTime() < Date.now() : false;
@@ -110,6 +176,19 @@ export function formatPrice(event: EventHomeEvent) {
   }
 
   return `Members $${memberPrice.toFixed(2)} - Non-members $${nonMemberPrice.toFixed(2)}`;
+}
+
+export function formatPrimaryPrice(event: EventHomeEvent) {
+  const memberPrice =
+    typeof event.pricing?.members === "number" ? event.pricing.members : null;
+  const nonMemberPrice =
+    typeof event.pricing?.nonMembers === "number"
+      ? event.pricing.nonMembers
+      : null;
+  const displayPrice = nonMemberPrice ?? memberPrice;
+
+  if (displayPrice === null) return "Pricing TBA";
+  return displayPrice > 0 ? `$${displayPrice.toFixed(2)}` : "Free";
 }
 
 export function getCapacityStats(event: EventHomeEvent, counts?: EventCounts) {
