@@ -35,7 +35,7 @@ export const BUILDING_BLOCKS: Record<MISCareerInterest, BuildingBlock> = {
     potentialRoles: [
       "UX/UI & Product design",
       "Motion design",
-      "User experience research",
+      "UX research",
       "Brand strategy",
     ],
     traits: ["Empathetic", "Creative", "Intuitive"],
@@ -61,7 +61,7 @@ export const BUILDING_BLOCKS: Record<MISCareerInterest, BuildingBlock> = {
     potentialRoles: [
       "AI/ML engineering",
       "MIS faculty & academic researchers",
-      "Tech sales & account management",
+      "Account management",
       "Data analytics",
     ],
     traits: ["Analytical", "Precise", "Inquisitive"],
@@ -73,8 +73,8 @@ export const BUILDING_BLOCKS: Record<MISCareerInterest, BuildingBlock> = {
       "You are the charismatic connector who knows how to make things happen in the real world. You drive go-to-market strategies, consulting solutions, and business growth to turn great technology into widespread adoption.",
     potentialRoles: [
       "Tech consulting",
-      "Growth & product marketing",
-      "Tech sales & account management",
+      "Product marketing",
+      "Tech sales",
       "Solutions engineering",
     ],
     traits: ["Dynamic", "Driven", "Adaptive"],

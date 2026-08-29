@@ -197,7 +197,7 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
         </div>
 
         <p className="mt-2 text-[14px] font-normal tracking-[0.01em] text-white/80 md:mt-4 md:text-[20px] sm:text-[16px]">
-          Explore the building blocks of tech.
+          Explore the building blocks of business and tech.
         </p>
 
         <div className="mt-4 hidden flex-wrap items-center justify-center gap-5 md:flex">

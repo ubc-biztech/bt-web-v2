@@ -71,7 +71,7 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
           </span>
         </div>
 
-        <h1 className="mt-9 text-[24px] font-bold leading-tight tracking-[-0.01em] text-[#98F3FF] md:text-[36px]">
+        <h1 className="mt-9 text-[24px] font-[900] leading-tight text-[#98F3FF] md:text-[36px]">
           Meet the Building Blocks
         </h1>
 
@@ -81,12 +81,12 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
         </p>
 
         <div
-          className="mx-auto mt-[clamp(1.5rem,5dvh,3rem)] w-full max-w-[410px] md:mt-10 md:max-w-[670px]"
+          className="mx-auto mt-[clamp(1.5rem,5dvh,3rem)] w-full max-w-[410px] md:mt-10 md:max-w-none"
           role="region"
           aria-label="Building block carousel"
           aria-roledescription="carousel"
         >
-          <div className="grid grid-cols-[40px_minmax(0,1fr)_40px] items-center gap-4 md:grid-cols-[44px_minmax(0,1fr)_44px] md:gap-6">
+          <div className="grid grid-cols-[40px_minmax(0,302px)_40px] items-center justify-center gap-2 xs:gap-4 md:grid-cols-[48px_612px_48px] md:gap-6">
             <button
               type="button"
               onClick={showPreviousBlock}
@@ -102,10 +102,11 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
             <article
               aria-live="polite"
               aria-label={`${currentBlock.header}, ${currentIndex + 1} of ${BUILDING_BLOCK_LIST.length}`}
-              className="relative h-[clamp(360px,43dvh,380px)] min-h-0 overflow-hidden rounded-[20px] border-2 border-[#98F3FF] bg-[#1A1A1A] md:h-[clamp(320px,42dvh,332px)] md:max-h-[332px]"
+              className="relative min-h-[360px] overflow-hidden rounded-[21.556px] border-[2.021px] border-[#98F3FF] bg-[#1A1A1A] md:h-[402px] md:min-h-0 md:max-h-none md:rounded-[30.093px] md:border-[2.821px]"
             >
               <AnimatePresence
                 initial={false}
+                mode="wait"
                 custom={shouldReduceMotion ? 0 : direction}
               >
                 <motion.div
@@ -120,36 +121,36 @@ export function InfoPage({ onBack, onContinue }: InfoPageProps) {
                       ? { duration: 0.12 }
                       : { duration: 0.28, ease: [0.22, 1, 0.36, 1] }
                   }
-                  className="absolute inset-0 flex h-full flex-col items-center justify-center px-5 py-5 text-center md:px-10 md:py-5 md:text-left"
+                  className="flex min-h-[360px] flex-col items-center justify-center px-3 py-5 text-center md:absolute md:inset-0 md:h-full md:min-h-0 md:px-7 md:py-7 md:text-left"
                 >
-                  <div className="flex w-full flex-col items-center gap-1 md:flex-row md:gap-9">
-                    <div className="flex h-[124px] w-[136px] shrink-0 items-center justify-center md:h-[190px] md:w-[210px]">
-                      <span className="inline-flex origin-center scale-[2.75] md:scale-[4.25]">
+                  <div className="flex w-full flex-col items-center gap-2 md:flex-row md:items-start md:justify-center md:gap-8">
+                    <div className="flex h-[106px] w-[136px] shrink-0 items-center justify-center md:h-[178px] md:w-[209px]">
+                      <span className="inline-flex origin-center scale-[2.45] md:scale-[4.25]">
                         <Mascot focusable="false" aria-hidden="true" />
                       </span>
                     </div>
 
-                    <div className="min-w-0 text-center md:text-left">
-                      <h2 className="text-[18px] font-bold leading-tight text-white md:text-[24px]">
+                    <div className="min-w-0 text-center md:w-[285px] md:text-left">
+                      <h2 className="text-[18px] font-[900] leading-tight text-white md:text-[25.129px]">
                         {currentBlock.header}
                       </h2>
 
-                      <p className="mt-3 text-[12px] font-normal leading-[1.35] text-white/75 md:text-[14px] md:leading-[1.4]">
+                      <p className="mt-2 text-[12px] font-normal leading-[1.35] text-white/75 md:mt-[16.753px] md:text-[16.753px] md:leading-[1.3]">
                         {currentBlock.description}
                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-2 flex w-full min-w-0 flex-col items-center md:mt-6">
-                    <h3 className="text-[12px] font-bold leading-none text-[#98F3FF] md:text-[14px]">
+                  <div className="mt-3 flex w-full min-w-0 flex-col items-center md:mt-[18px]">
+                    <h3 className="text-[12px] font-bold leading-[1.3] text-[#98F3FF] md:text-[16.753px]">
                       Potential roles
                     </h3>
 
-                    <ul className="mt-2 flex flex-wrap justify-center gap-1 md:gap-2">
+                    <ul className="mt-2 flex flex-wrap justify-center gap-x-[6.125px] gap-y-2 md:gap-x-[8.551px]">
                       {currentBlock.potentialRoles.map((role) => (
                         <li
                           key={role}
-                          className="rounded-full border border-white/30 bg-white/[0.06] px-1.5 py-1 text-[9px] leading-none text-white/80 md:text-[11px] md:px-2.5"
+                          className="whitespace-nowrap rounded-full border-[0.766px] border-white/40 bg-[#DBDBDB]/10 px-[7.657px] py-[3.063px] text-[9px] leading-none text-white/80 md:border-[1.069px] md:px-[10.689px] md:py-[4.276px] md:text-[12.83px]"
                         >
                           {role}
                         </li>

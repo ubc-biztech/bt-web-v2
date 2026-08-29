@@ -1,5 +1,6 @@
 import { fetchUserAttributes } from "@aws-amplify/auth";
 import { Check } from "lucide-react";
+import { DM_Sans } from "next/font/google";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import MISBackground from "@/assets/2026/mis-night/background.svg";
@@ -31,6 +32,7 @@ type SuccessDetails = {
 
 const FALLBACK_SCHEDULE =
   "Wednesday, Sep 9, 6:00 PM – 8:30 PM @ AMS Great Hall";
+const dmSans = DM_Sans({ subsets: ["latin"] });
 
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "long",
@@ -162,7 +164,9 @@ export function MISRegistrationSuccessPage({
     : details.profileName;
 
   return (
-    <div className="fixed inset-y-0 left-0 right-0 z-20 isolate overflow-x-hidden overflow-y-auto bg-black text-white md:left-[250px]">
+    <div
+      className={`${dmSans.className} fixed inset-y-0 left-0 right-0 z-20 isolate overflow-x-hidden overflow-y-auto bg-black text-white md:left-[250px]`}
+    >
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-y-0 left-0 right-0 overflow-hidden md:left-[250px]"
@@ -186,7 +190,7 @@ export function MISRegistrationSuccessPage({
             />
           </div>
 
-          <h1 className="mt-7 text-[36px] font-black leading-none tracking-[-0.025em] text-[#A7F2FC] md:mt-9 md:text-[44px]">
+          <h1 className="mt-7 text-[36px] font-[900] leading-none tracking-[-0.025em] text-[#A7F2FC] md:mt-9 md:text-[44px]">
             You&apos;re all set!
           </h1>
 
@@ -203,18 +207,18 @@ export function MISRegistrationSuccessPage({
                     className="max-h-[38px] max-w-[43px]"
                   />
                 ) : (
-                  <span className="text-[20px] font-black text-[#A7F2FC]">
+                  <span className="text-[20px] font-[900] text-[#A7F2FC]">
                     {details.profileName.charAt(0).toUpperCase()}
                   </span>
                 )}
               </span>
 
               <div className="min-w-0">
-                <h2 className="text-[17px] font-black leading-tight text-white md:text-[18px]">
+                <h2 className="text-[17px] font-[900] leading-tight text-white md:text-[18px]">
                   {profileHeading}
                 </h2>
                 {result ? (
-                  <p className="mt-1 text-[11px] font-black uppercase leading-none tracking-[0.08em] text-[#A7F2FC] md:text-[12px]">
+                  <p className="mt-1 text-[11px] font-[900] uppercase leading-none tracking-[0.08em] text-[#A7F2FC] md:text-[12px]">
                     {result.header}
                   </p>
                 ) : null}
@@ -223,7 +227,7 @@ export function MISRegistrationSuccessPage({
 
             <div className="my-5 h-px bg-[#292929]" />
 
-            <h3 className="text-[10px] font-black uppercase tracking-[0.1em] text-white/50">
+            <h3 className="text-[10px] font-[900] uppercase tracking-[0.1em] text-white/50">
               Date &amp; location
             </h3>
             <p className="mt-2 text-[14px] leading-[1.4] text-white/85 md:text-[15px]">
@@ -233,7 +237,7 @@ export function MISRegistrationSuccessPage({
 
           <Link
             href={`/event/${eventId}/${year}`}
-            className="mt-auto flex h-[68px] w-full items-center justify-center rounded-[24px] bg-[#917EF4] px-6 text-[22px] font-black text-white transition-colors hover:bg-[#A698FA] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B2A3FF]/50 md:mt-11 md:h-[60px] md:max-w-[376px] md:rounded-[22px] md:text-[19px]"
+            className="mt-auto flex h-[68px] w-full items-center justify-center rounded-[24px] bg-[#917EF4] px-6 text-[22px] font-[900] text-white transition-colors hover:bg-[#A698FA] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B2A3FF]/50 md:mt-11 md:h-[60px] md:max-w-[376px] md:rounded-[22px] md:text-[19px]"
           >
             View Registration
           </Link>
