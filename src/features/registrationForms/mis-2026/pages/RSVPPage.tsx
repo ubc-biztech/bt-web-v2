@@ -26,6 +26,7 @@ type RSVPPageProps = {
   stepLabel: string;
   submitting: boolean;
   onBack: () => void;
+  onEditFirstField: () => void;
 };
 
 const MASCOT_BY_BLOCK = {
@@ -68,6 +69,7 @@ export function RSVPPage({
   stepLabel,
   submitting,
   onBack,
+  onEditFirstField,
 }: RSVPPageProps) {
   const Mascot = careerInterest ? MASCOT_BY_BLOCK[careerInterest] : null;
 
@@ -89,7 +91,7 @@ export function RSVPPage({
         </div>
 
         <div className="mt-14 md:mt-8">
-          <h1 className="text-[32.587px] font-black leading-tight text-[#98F3FF] md:text-[32px]">
+          <h1 className="text-[32.587px] font-[900] leading-tight text-[#98F3FF] md:text-[32px]">
             Confirm your RSVP details
           </h1>
 
@@ -126,16 +128,18 @@ export function RSVPPage({
               ) : null}
             </div>
 
-            <span
-              aria-hidden="true"
-              className="flex size-8 shrink-0 items-center justify-center rounded-md text-white md:size-10"
+            <button
+              type="button"
+              onClick={onEditFirstField}
+              aria-label="Edit full name"
+              className="flex size-8 shrink-0 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#98F3FF]/40 md:size-10"
             >
               <EditIcon
                 focusable="false"
                 aria-hidden="true"
                 className="size-6 text-white [&_path]:stroke-current"
               />
-            </span>
+            </button>
           </div>
 
           <div className="mt-4 h-px bg-[#2A2A2A] md:mt-5" />

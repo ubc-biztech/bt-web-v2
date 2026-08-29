@@ -1,7 +1,8 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { ChevronDown } from "lucide-react";
+import { DM_Sans } from "next/font/google";
 import MISBackground from "@/assets/2026/mis-night/background.svg";
 import type { RegistrationFormProps } from "@/features/registrationForms/types";
 import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
@@ -37,6 +38,40 @@ const RSVP_FIELDS = [
 
 const DIETARY_OPTIONS = ["None", "Vegetarian", "Vegan", "Gluten-free", "Other"];
 const STEP_LABEL = "Step 3 of 3";
+const dmSans = DM_Sans({ subsets: ["latin"] });
+
+const YEAR_LEVEL_ALIASES: Record<string, string> = {
+  "1": "1st Year",
+  "1st": "1st Year",
+  "1st year": "1st Year",
+  year1: "1st Year",
+  "year 1": "1st Year",
+  "2": "2nd Year",
+  "2nd": "2nd Year",
+  "2nd year": "2nd Year",
+  year2: "2nd Year",
+  "year 2": "2nd Year",
+  "3": "3rd Year",
+  "3rd": "3rd Year",
+  "3rd year": "3rd Year",
+  year3: "3rd Year",
+  "year 3": "3rd Year",
+  "4": "4th Year",
+  "4th": "4th Year",
+  "4th year": "4th Year",
+  year4: "4th Year",
+  "year 4": "4th Year",
+  "5": "5+ Year",
+  "5+": "5+ Year",
+  "5th": "5+ Year",
+  "5th year": "5+ Year",
+  "5+ year": "5+ Year",
+  "year5+": "5+ Year",
+  "year 5+": "5+ Year",
+  "not applicable": "Not Applicable",
+  notapplicable: "Not Applicable",
+  other: "Other",
+};
 
 function normalizeDietaryRestriction(value?: string) {
   const trimmedValue = value?.trim();
@@ -48,6 +83,14 @@ function normalizeDietaryRestriction(value?: string) {
       (option) => option.toLowerCase() === trimmedValue.toLowerCase(),
     ) ?? trimmedValue
   );
+}
+
+function normalizeYearLevel(value?: string) {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) return "";
+
+  return YEAR_LEVEL_ALIASES[trimmedValue.toLowerCase()] ?? trimmedValue;
 }
 
 export function MISRegistrationForm({
@@ -71,7 +114,7 @@ export function MISRegistrationForm({
       firstName: user.fname ?? "",
       lastName: user.lname ?? "",
       studentId: user.studentId?.toString() ?? "",
-      year: user.year?.toString() ?? "",
+      year: normalizeYearLevel(user.year?.toString()),
       faculty: user.faculty ?? "",
       major: user.major ?? "",
       dietaryRestrictions: initialDietaryRestriction,
@@ -79,6 +122,7 @@ export function MISRegistrationForm({
   });
   const { setValue } = form;
   const selectedBlock = form.watch("careerInterest");
+  const fullNameInputRef = useRef<HTMLInputElement>(null);
   const [fullName, setFullName] = useState(
     `${user.fname ?? ""} ${user.lname ?? ""}`.trim(),
   );
@@ -123,6 +167,15 @@ export function MISRegistrationForm({
     dispatch({ type: "CHOOSE_BLOCK", block: selectedBlock });
   }
 
+  function focusFirstRSVPField() {
+    fullNameInputRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    fullNameInputRef.current?.focus();
+    fullNameInputRef.current?.select();
+  }
+
   function handleFullNameChange(value: string) {
     setFullName(value);
 
@@ -151,6 +204,7 @@ export function MISRegistrationForm({
         control: (
           <input
             id="mis-rsvp-full-name"
+            ref={fullNameInputRef}
             value={fullName}
             onChange={(event) => handleFullNameChange(event.target.value)}
             className={RSVP_CONTROL_CLASS}
@@ -301,6 +355,7 @@ export function MISRegistrationForm({
             stepLabel={STEP_LABEL}
             submitting={submitting}
             onBack={() => dispatch({ type: "BACK" })}
+            onEditFirstField={focusFirstRSVPField}
           />
         );
 
@@ -310,7 +365,9 @@ export function MISRegistrationForm({
   }
 
   return (
-    <div className="fixed inset-y-0 left-0 right-0 z-20 isolate overflow-x-hidden overflow-y-auto overscroll-contain bg-black text-white md:left-[250px]">
+    <div
+      className={`${dmSans.className} fixed inset-y-0 left-0 right-0 z-20 isolate overflow-x-hidden overflow-y-auto overscroll-contain bg-black text-white md:left-[250px]`}
+    >
       <div
         aria-hidden="true"
         className="pointer-events-none fixed inset-y-0 left-0 right-0 overflow-hidden md:left-[250px]"

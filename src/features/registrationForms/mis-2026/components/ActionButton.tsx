@@ -23,7 +23,7 @@ export function ActionButton({
       className={`
         inline-flex min-h-[69px] w-[422px] items-center justify-center gap-3
         rounded-full bg-[#947FFE] px-8 py-4
-        text-2xl font-bold leading-none text-white
+        text-2xl font-[800] leading-none text-white
         transition-all duration-200
         hover:bg-[#B2A3FF]
         active:scale-[0.98]
