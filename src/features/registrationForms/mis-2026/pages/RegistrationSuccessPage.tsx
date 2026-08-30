@@ -1,11 +1,11 @@
 import { fetchUserAttributes } from "@aws-amplify/auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { DM_Sans } from "next/font/google";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import MISBackground from "@/assets/2026/mis-night/background.svg";
 import { fetchBackend } from "@/lib/db";
-import type { BiztechEvent } from "@/types";
 import { MIS_CAREER_INTERESTS, type MISCareerInterest } from "../Definition";
 import { BUILDING_BLOCKS } from "../buildingBlocks";
 import { ConfettiBackground } from "../components/ConfettiBackground";
@@ -30,16 +30,8 @@ type SuccessDetails = {
   schedule: string;
 };
 
-const DISPLAYED_EVENT_TIME = "5:00 PM – 8:00 PM";
-const FALLBACK_SCHEDULE = `Friday, Sep 9, ${DISPLAYED_EVENT_TIME} @ AMS Great Hall`;
+const SUCCESS_SCHEDULE = "Wednesday, Sep 9, 5:00 PM – 8:30 PM @ AMS Great Hall";
 const dmSans = DM_Sans({ subsets: ["latin"] });
-
-const dateFormatter = new Intl.DateTimeFormat("en-US", {
-  weekday: "long",
-  month: "short",
-  day: "numeric",
-  timeZone: "America/Vancouver",
-});
 
 function readString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
@@ -49,28 +41,14 @@ function isMISCareerInterest(value: unknown): value is MISCareerInterest {
   return MIS_CAREER_INTERESTS.includes(value as MISCareerInterest);
 }
 
-function formatSchedule(event?: BiztechEvent) {
-  if (!event?.startDate) return FALLBACK_SCHEDULE;
-
-  const start = new Date(event.startDate);
-
-  if (Number.isNaN(start.getTime())) return FALLBACK_SCHEDULE;
-
-  const date = dateFormatter.format(start);
-  const location = event.elocation?.trim()
-    ? ` @ ${event.elocation.trim()}`
-    : "";
-
-  return `${date}, ${DISPLAYED_EVENT_TIME}${location}`;
-}
-
 export function MISRegistrationSuccessPage({
   eventId,
   year,
 }: RegistrationSuccessPageProps) {
+  const queryClient = useQueryClient();
   const [details, setDetails] = useState<SuccessDetails>({
     profileName: "BizTech attendee",
-    schedule: FALLBACK_SCHEDULE,
+    schedule: SUCCESS_SCHEDULE,
   });
 
   useEffect(() => {
@@ -81,12 +59,7 @@ export function MISRegistrationSuccessPage({
         const attributes = await fetchUserAttributes();
         const email = attributes.email;
 
-        const [event, registrationResponse, user] = await Promise.all([
-          fetchBackend({
-            endpoint: `/events/${eventId}/${year}`,
-            method: "GET",
-            authenticatedCall: false,
-          }) as Promise<BiztechEvent>,
+        const [registrationResponse, user] = await Promise.all([
           email
             ? fetchBackend({
                 endpoint: `/registrations?email=${email}`,
@@ -129,7 +102,7 @@ export function MISRegistrationSuccessPage({
           careerInterest: isMISCareerInterest(savedCareerInterest)
             ? savedCareerInterest
             : undefined,
-          schedule: formatSchedule(event),
+          schedule: SUCCESS_SCHEDULE,
         });
       } catch (error) {
         console.error("Unable to load MIS registration confirmation:", error);
@@ -225,6 +198,11 @@ export function MISRegistrationSuccessPage({
 
           <Link
             href={`/event/${eventId}/${year}`}
+            onClick={() => {
+              void queryClient.invalidateQueries({
+                queryKey: ["registrations"],
+              });
+            }}
             className="mt-auto flex h-[68px] w-full items-center justify-center rounded-[24px] bg-[#917EF4] px-6 text-[22px] font-[900] text-white transition-colors hover:bg-[#A698FA] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B2A3FF]/50 md:mt-11 md:h-[60px] md:max-w-[376px] md:rounded-[22px] md:text-[19px]"
           >
             View Registration
