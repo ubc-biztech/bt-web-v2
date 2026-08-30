@@ -137,25 +137,25 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
-      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
-        <div className="bg-bt-blue-400 px-6 py-12 shadow sm:rounded-lg sm:px-12">
+    <div className="flex min-h-screen flex-1 flex-col justify-center bg-gradient-to-b from-[#111a30] to-[#1b253d] py-8 sm:px-6 lg:px-8">
+      <div className="mx-5 sm:mx-auto sm:w-full sm:max-w-[456px] rounded-[15px] bg-[#26324d] shadow-[inset_1px_1px_10px_rgba(81,100,149,0.75)]">
+        <div className="px-6 py-12 sm:px-[74px]">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <Image
               className="mx-auto w-auto"
               height={96}
               width={96}
-              src="https://i.ibb.co/s11md5S/Biztech-Logo-1.png"
+              src="/assets/biztech_logo.svg"
               alt="BizTech Logo"
             />
-            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
-              Register
+            <h2 className="mb-3 mt-6 text-center text-[40px] font-semibold leading-tight text-white">
+              Sign up
             </h2>
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               Already have an account? &nbsp;
               <Link
                 href="/login"
-                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
+                className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
               >
                 Login here.
               </Link>
@@ -278,9 +278,9 @@ const Register: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="mt-8 flex w-full justify-center rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="mt-8 flex w-full justify-center rounded-lg bg-[#3b93f7] px-3 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#147fdd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b93f7]"
               >
-                <p className="text-bt-blue-400 font-semibold">Sign up</p>
+                <span className="font-semibold text-white">Sign up</span>
               </button>
             </div>
 

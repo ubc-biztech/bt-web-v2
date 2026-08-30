@@ -10,7 +10,10 @@ export interface MembershipFormValues {
   studentNumber?: string;
   education: string;
   pronouns: string;
+  pronounsOther: string;
+  linkedIn: string;
   levelOfStudy: string;
+  levelOfStudyOther: string;
   faculty: string;
   major: string;
   internationalStudent: string;
