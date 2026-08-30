@@ -1,7 +1,9 @@
 import { fetchBackend } from "@/lib/db";
 import { User } from "@/types";
 
-export const CURRENT_ONBOARDING_YEAR = new Date().getFullYear();
+export const CURRENT_ONBOARDING_YEAR = Number(
+  process.env.NEXT_PUBLIC_ONBOARDING_YEAR,
+);
 
 export function ensureAuthenticatedUser() {
   return fetchBackend({
