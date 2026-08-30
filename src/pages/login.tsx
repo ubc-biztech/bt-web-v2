@@ -233,26 +233,26 @@ const LoginForm: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col justify-center py-8 sm:px-6 lg:px-8 bg-bt-blue-600">
-      <div className="mt-4 mx-8 sm:mx-auto sm:w-full sm:max-w-[480px] bg-bt-blue-400 rounded-lg">
-        <div className="bg-bt-blue-400 px-6 py-12 shadow rounded-lg sm:px-12">
+    <div className="flex min-h-screen flex-1 flex-col justify-center bg-gradient-to-b from-[#111a30] to-[#1b253d] py-8 sm:px-6 lg:px-8">
+      <div className="mx-5 sm:mx-auto sm:w-full sm:max-w-[456px] rounded-[15px] bg-[#26324d] shadow-[inset_1px_1px_10px_rgba(81,100,149,0.75)]">
+        <div className="px-6 py-12 sm:px-[74px]">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <Image
               className="mx-auto"
-              height={150}
-              width={150}
+              height={101}
+              width={101}
               src="/assets/biztech_logo.svg"
               alt="BizTech Logo"
               loading="eager"
             />
-            <h2 className="mt-6 text-center text-2xl font-[600] leading-9 tracking-tight text-white mb-6">
+            <h2 className="mb-3 mt-6 text-center text-[40px] font-semibold leading-tight text-white">
               Sign in
             </h2>
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               New to UBC BizTech? &nbsp;
               <Link
                 href="/register"
-                className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
+                className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
               >
                 Create an account.
               </Link>
@@ -298,7 +298,7 @@ const LoginForm: React.FC = () => {
                 <div className="text-sm leading-6">
                   <Link
                     href="/forgot-password"
-                    className="font-semibold text-bt-green-300 hover:text-bt-green-700"
+                    className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
                   >
                     Forgot password?
                   </Link>
@@ -344,9 +344,9 @@ const LoginForm: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-bt-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex w-full justify-center rounded-lg bg-[#3b93f7] px-3 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#147fdd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b93f7]"
               >
-                <p className="text-bt-blue-400 font-semibold">Sign in</p>
+                <span className="font-semibold text-white">Sign in</span>
               </button>
             </div>
 
