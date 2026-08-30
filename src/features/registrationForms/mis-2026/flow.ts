@@ -27,57 +27,56 @@ export type MISQuizQuestion = {
 export const MIS_QUIZ_QUESTIONS = [
   {
     id: "challenge",
-    prompt: "What kind of challenge do you find most satisfying?",
+    prompt:
+      "When picking a restaurant to go to with friends, what matters most to you?",
     options: [
       {
-        label: "Starting with a blank page to shape a brand-new concept.",
+        label: "Whether it sounds different from places you usually go.",
         value: "The Visionary",
       },
       {
-        label: "Taking something confusing and making it effortless to use.",
+        label: "The atmosphere, aesthetic, and vibe.",
         value: "The Designer",
       },
       {
-        label:
-          "Setting up a reliable system that runs smoothly without maintenance.",
+        label: "Whether it`s convenient and reliable.",
         value: "The Architect",
       },
       {
-        label: "Digging into complex patterns to figure out the “so what?”",
+        label: "Beli or Google Maps reviews.",
         value: "The Logician",
       },
       {
-        label:
-          "Figuring out how to get people genuinely excited about something.",
+        label: "Whether everyone will agree to go and enjoy their time.",
         value: "The Strategist",
       },
     ],
   },
   {
     id: "team-role",
-    prompt: "What is your biggest pet peeve when working on a project?",
+    prompt:
+      "You`re about to buy something just a bit too expensive online. What`s your typical habit?",
     options: [
       {
-        label:
-          "Poorly thought-out experiences that frustrate the person using them.",
+        label: "Prioritize whether it looks and feels the nicest.",
         value: "The Designer",
       },
       {
-        label: "Fragile setups that break the moment you scale them.",
+        label: "Check whether it seems durable and reliable.",
         value: "The Architect",
       },
       {
-        label: "Gut decisions made with zero evidence or rationale.",
+        label:
+          "Compare specifications and reviews until you know way too much.",
         value: "The Logician",
       },
       {
         label:
-          "Great work that gets completely ignored because nobody knows how to deliver it.",
+          "Look at what influencers and community groups are recommending.",
         value: "The Strategist",
       },
       {
-        label:
-          "Wasting time building something without knowing why it matters.",
+        label: "Keep looking because there might be an even better option.",
         value: "The Visionary",
       },
     ],
@@ -85,27 +84,27 @@ export const MIS_QUIZ_QUESTIONS = [
   {
     id: "outcome",
     prompt:
-      "You`re handed a messy, disorganized project. What is your immediate instinct?",
+      "Someone gives you IKEA furniture with no instructions. What happens?",
     options: [
       {
-        label: "Rebuild the parts that are actively failing.",
+        label:
+          "You sort all the pieces first and figure out how everything connects.",
         value: "The Architect",
       },
       {
-        label: "Gather all available inputs to pinpoint the exact root cause.",
+        label: "You try to reverse-engineer how it`s supposed to work.",
         value: "The Logician",
       },
       {
-        label: "Realign the team and divide responsibilities.",
+        label: "You convince someone else to help you.",
         value: "The Strategist",
       },
       {
-        label: "Step back to define the core objective.",
+        label: "You start experimenting and assume you`ll figure it out.",
         value: "The Visionary",
       },
       {
-        label:
-          "Walk through it from the end-user`s perspective to identify friction.",
+        label: "You piece it together based on what feels most natural to use.",
         value: "The Designer",
       },
     ],
@@ -113,29 +112,28 @@ export const MIS_QUIZ_QUESTIONS = [
   {
     id: "growth",
     prompt:
-      "You`re planning a trip with friends. What part do you naturally take over?",
+      "You`re watching a bad movie with friends. What would bother you most?",
     options: [
       {
         label:
-          "Digging through Reddit threads and Beli reviews to find the hidden gems.",
+          "The characters keep making illogical decisions that make zero sense.",
         value: "The Logician",
       },
       {
-        label:
-          "Getting everyone to show up on time and keeping the group on schedule.",
+        label: "The movie doesn`t connect with you.",
         value: "The Strategist",
       },
       {
-        label: "Pitching the overall vibe and destination ideas.",
+        label: "The movie had a great concept but wasted its potential.",
         value: "The Visionary",
       },
       {
-        label: "Planning the aesthetic spots and cafes for taking breaks.",
+        label: "The cinematography, pacing, or visuals just feel off.",
         value: "The Designer",
       },
       {
         label:
-          "Figuring out the transit routes and coordinating what everyone is bringing.",
+          "The world-building keeps changing when it`s convenient for the plot.",
         value: "The Architect",
       },
     ],
