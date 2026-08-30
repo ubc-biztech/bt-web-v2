@@ -9,7 +9,6 @@ import {
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
-import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
 import type {
   EventCounts,
@@ -147,26 +146,6 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   loading: Loader2,
 };
 
-const MIS_NIGHT_TIME_ZONE = "America/Vancouver";
-
-function getCalendarDateRange(event: EventHomeEvent) {
-  if (!isMISNightEventId(event.id)) return undefined;
-
-  const eventDate = new Date(event.startDate);
-  if (Number.isNaN(eventDate.getTime())) return undefined;
-
-  const localDate = formatInTimeZone(
-    eventDate,
-    MIS_NIGHT_TIME_ZONE,
-    "yyyy-MM-dd",
-  );
-
-  return {
-    start: fromZonedTime(`${localDate}T17:00:00`, MIS_NIGHT_TIME_ZONE),
-    end: fromZonedTime(`${localDate}T20:00:00`, MIS_NIGHT_TIME_ZONE),
-  };
-}
-
 function canShowCalendarCtaForRegistrationStatus(
   event: EventHomeEvent,
   registrationStatus?: string,
@@ -201,14 +180,9 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     isMISNightEventId(event.id) &&
     (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
       registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
-  const calendarDateRange = getCalendarDateRange(event);
-  const eventHasEnded = isDateInPast(
-    calendarDateRange?.end.toISOString() ?? event.endDate,
-  );
+  const eventHasEnded = isDateInPast(event.endDate);
   const calendarHref =
-    shouldShowCalendarCta && !eventHasEnded
-      ? getGoogleCalendarUrl(event, calendarDateRange)
-      : "";
+    shouldShowCalendarCta && !eventHasEnded ? getGoogleCalendarUrl(event) : "";
   const statusLine = isConfirmed
     ? event.isApplicationBased
       ? copy.status
