@@ -9,7 +9,10 @@ export const membershipValidationSchema = z
     education: z.string().min(1, "Education selection is required"),
     studentNumber: z.string().optional(),
     pronouns: z.string().min(1, "Please select your pronouns"),
+    pronounsOther: z.string(),
+    linkedIn: z.string(),
     levelOfStudy: z.string().min(1, "Level of study is required"),
+    levelOfStudyOther: z.string(),
     faculty: z.string().min(1, "Faculty is required"),
     major: z.string().min(1, "Major is required"),
     internationalStudent: z
@@ -22,6 +25,21 @@ export const membershipValidationSchema = z
     referral: z.string().min(1, "Referral source is required"),
     topics: z.array(z.string()),
   })
+  .refine(
+    (data) => data.pronouns !== "Other" || data.pronounsOther.trim().length > 0,
+    {
+      message: "Please specify your pronouns",
+      path: ["pronounsOther"],
+    },
+  )
+  .refine(
+    (data) =>
+      data.levelOfStudy !== "Other" || data.levelOfStudyOther.trim().length > 0,
+    {
+      message: "Please specify your level of study",
+      path: ["levelOfStudyOther"],
+    },
+  )
   .refine(
     (data) =>
       data.education === "UBC"
@@ -40,7 +58,10 @@ export const MEMBERSHIP_FORM_DEFAULTS: MembershipFormValues = {
   education: "",
   studentNumber: "",
   pronouns: "",
+  pronounsOther: "",
+  linkedIn: "",
   levelOfStudy: "",
+  levelOfStudyOther: "",
   faculty: "",
   major: "",
   internationalStudent: "",
