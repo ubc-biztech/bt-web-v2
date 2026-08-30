@@ -77,9 +77,12 @@ function getGoogleCalendarDetails(event: EventHomeEvent) {
     .join("\n\n");
 }
 
-export function getGoogleCalendarUrl(event: EventHomeEvent) {
-  const start = asDate(event.startDate);
-  const end = asDate(event.endDate);
+export function getGoogleCalendarUrl(
+  event: EventHomeEvent,
+  dateRange?: { start: Date; end: Date },
+) {
+  const start = dateRange?.start ?? asDate(event.startDate);
+  const end = dateRange?.end ?? asDate(event.endDate);
 
   if (!start || !end) return "";
 
