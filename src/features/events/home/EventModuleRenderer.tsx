@@ -1,5 +1,7 @@
+import { EventConnectionsModule } from "./EventConnectionsModule";
 import { RegistrationStatusModule } from "./RegistrationStatusModule";
 import { defaultEventModules } from "@/lib/eventPageConfig";
+import type { EventPageModuleType } from "@/lib/eventPageConfig";
 import { DBRegistrationStatus } from "@/types/types";
 import type {
   EventCounts,
@@ -52,8 +54,13 @@ function canShowModuleOnPublicEventPage({
   }
 }
 
+const renderableModuleIds = new Set<EventPageModuleType>([
+  "registration",
+  "connections",
+]);
+
 function canRenderModule(module: EventPageModule) {
-  return module.id === "registration";
+  return renderableModuleIds.has(module.id);
 }
 
 export function EventModuleRenderer({
@@ -91,8 +98,9 @@ export function EventModuleRenderer({
                 signedIn={signedIn}
               />
             );
-          case "qa":
           case "connections":
+            return <EventConnectionsModule key={module.id} event={event} />;
+          case "qa":
             return null;
           default:
             return null;
