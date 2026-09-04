@@ -22,6 +22,7 @@ export type EventPageConfig = {
 
 export const defaultEventModules: EventPageModule[] = [
   { id: "registration", order: 1, visibility: "public", config: {} },
+  { id: "qa", order: 2, visibility: "public", config: {} },
 ];
 
 export const defaultEventPageConfig: EventPageConfig = {
@@ -34,21 +35,27 @@ export const defaultEventPageConfig: EventPageConfig = {
 export function normalizeEventPageModules(
   modules?: EventPageModule[] | null,
 ): EventPageModule[] {
-  if (!modules) {
-    return defaultEventModules.map((module) => ({
-      ...module,
-      config: { ...(module.config ?? {}) },
-    }));
-  }
-
-  return modules
+  const normalized = (modules ?? defaultEventModules)
     .filter((module) => EVENT_PAGE_MODULE_TYPES.includes(module.id))
     .map((module, index) => ({
       id: module.id,
       visibility: module.visibility ?? "public",
-      config: module.config ?? {},
+      config: { ...(module.config ?? {}) },
       order: typeof module.order === "number" ? module.order : index + 1,
-    }))
+    }));
+
+  // Q&A is available on every event, so add it to configs saved before the
+  // module existed rather than requiring each event to be edited.
+  if (!normalized.some((module) => module.id === "qa")) {
+    normalized.push({
+      id: "qa",
+      order: normalized.length + 1,
+      visibility: "public",
+      config: {},
+    });
+  }
+
+  return normalized
     .sort((a, b) => a.order - b.order)
     .map((module, index) => ({
       ...module,
