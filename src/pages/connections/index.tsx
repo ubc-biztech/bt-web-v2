@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import Head from "next/head";
-import Image from "next/image";
+import { useRouter } from "next/router";
 import { Search } from "lucide-react";
-import { fetchBackendFromServer } from "@/lib/db";
-import { GetServerSideProps } from "next";
-import Link from "next/link";
+import { ConnectionCard } from "@/components/Connections/ConnectionCard";
+import { ConnectionFilters } from "@/components/Connections/ConnectionFilters";
+import { ConnectionsSummary } from "@/components/Connections/ConnectionsSummary";
+import {
+  connectionMatchesSearch,
+  getConnectionType,
+} from "@/lib/connectionHelpers";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,169 +17,219 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Connection } from "@/types/companion";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { ConnectionTypeFilter } from "@/constants/connectionTypes";
+import { useConnections, type ConnectionsScope } from "@/queries/connections";
+import { useEvents } from "@/queries/events";
 
-interface ConnectionsPageProps {
-  connections: Connection[];
+const ALL_EVENTS_VALUE = "all";
+
+function getRouteParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }
 
-const ConnectionsPage: React.FC<ConnectionsPageProps> = ({ connections }) => {
+function eventValueFromQuery(query: {
+  eventId?: string | string[];
+  year?: string | string[];
+}) {
+  const eventId = getRouteParam(query.eventId);
+  const year = getRouteParam(query.year);
+  if (!eventId || !year) return ALL_EVENTS_VALUE;
+  return `${eventId};${year}`;
+}
+
+function ConnectionsPageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton
+            key={index}
+            className="h-[92px] rounded-lg border border-bt-blue-300 bg-bt-blue-500"
+          />
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton
+            key={index}
+            className="h-[180px] rounded-lg border border-bt-blue-200 bg-bt-blue-500"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function ConnectionsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [connectionType, setConnectionType] = useState<string>("ALL");
+  const [roleFilter, setRoleFilter] = useState<ConnectionTypeFilter>("ALL");
+  const selectedEventValue = router.isReady
+    ? eventValueFromQuery(router.query)
+    : ALL_EVENTS_VALUE;
 
-  const filteredConnections = connections.filter((connection) => {
-    const matchesSearch = `${connection.fname} ${connection.lname}`
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+  const { data: events = [] } = useEvents();
 
-    // note that attendee type connections have no connectionType or can be undefined
-    const currType = connection.connectionType || "ATTENDEE";
+  const selectedScope = useMemo<ConnectionsScope | undefined>(() => {
+    if (selectedEventValue === ALL_EVENTS_VALUE) return undefined;
+    const [eventId, year] = selectedEventValue.split(";");
+    if (!eventId || !year) return undefined;
+    return { eventId, year, registeredOnly: true };
+  }, [selectedEventValue]);
 
-    // if it's ALL, let everything pass through
-    const matchesType = connectionType === "ALL" || connectionType === currType;
+  const {
+    data: connections = [],
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useConnections(selectedScope, { enabled: router.isReady });
 
-    return matchesSearch && matchesType;
-  });
+  const filteredConnections = useMemo(
+    () =>
+      connections.filter((connection) => {
+        const matchesSearch = connectionMatchesSearch(connection, searchQuery);
+        const matchesRole =
+          roleFilter === "ALL" || getConnectionType(connection) === roleFilter;
+        return matchesSearch && matchesRole;
+      }),
+    [connections, roleFilter, searchQuery],
+  );
+
+  const totalCount = connections.length;
+  const filteredCount = filteredConnections.length;
+  const showInitialLoading = isLoading && connections.length === 0;
+  const emptyMessage =
+    searchQuery || roleFilter !== "ALL"
+      ? "No connections match your current filters."
+      : selectedScope
+        ? "No connections found for this event."
+        : "No connections found.";
 
   return (
     <>
       <Head>
-        <title>Connections History </title>
+        <title>My Connections</title>
         <meta
           name="description"
           content="Manage your networking connections and NFC interactions"
         />
       </Head>
 
-      <main className="bg-bt-blue-600 min-h-screen w-full">
-        <div className="mx-auto pt-8 flex flex-col mt-9">
-          <span>
-            <h2 className="text-white text-xl lg:text-[40px]">
-              Connections History
-            </h2>
-            <div className="flex items-center justify-between h-[40px]">
-              <p className="text-[#BDC8E3]">View your connection history</p>
-            </div>
-          </span>
-          <div className="bg-bt-blue-300 h-[1px] my-4" />
-
-          <div className="mb-6 flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-neutral-500" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by user"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white border-2 bt-blue-400-500 border-solid rounded-lg text-bt-blue-300 placeholder-neutral-500 focus:outline-none focus:ring-4 focus:ring-blue-400 focus:bt-blue-400-600"
-              />
-            </div>
-            <div className="w-full sm:w-48">
-              <Select
-                value={connectionType}
-                onValueChange={(e) => setConnectionType(e)}
-              >
-                <SelectTrigger className="h-[52px]">
-                  <SelectValue placeholder="Select Connection Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ALL">All Connections</SelectItem>
-                  <SelectItem value="PARTNER">Partners</SelectItem>
-                  <SelectItem value="EXEC">Execs</SelectItem>
-                  <SelectItem value="ATTENDEE">Attendees</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredConnections.map((connection) => (
-              <div
-                key={connection.connectionID}
-                className="bg-[#131F3B] rounded-lg p-4 border border-[#92A4CD] hover:border-[#92A4CD]/80 transition-colors duration-200 shadow-lg"
-                style={{
-                  boxShadow: "inset 0 0 20px rgba(255, 255, 255, 0.1)",
-                }}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-[#BDC8E3] rounded-full flex items-center justify-center">
-                      <span className="text-[#131F3B] font-semibold text-sm">
-                        {connection.fname?.[0]?.toUpperCase()}
-                        {connection.lname?.[0]?.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <div className="flex-1">
-                      <h3 className="text-white font-medium text-lg">
-                        {connection.fname} {connection.lname}
-                      </h3>
-                      <p className="text-[#BDC8E3] text-sm mt-1">
-                        {connection.pronouns}, {connection.major}
-                      </p>
-                    </div>
-                  </div>
-
-                  <Link href={`/profile/${connection.type.split("#")[1]}`}>
-                    <button className="text-gray-400 hover:text-white transition-colors duration-200">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                        />
-                      </svg>
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredConnections.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-bt-blue-0 text-lg">
-                No connections found matching your search.
+      <main className="w-full text-white">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <h1 className="text-xl font-800 text-white lg:text-[40px] lg:leading-tight">
+                My Connections
+              </h1>
+              <p className="mt-1 text-bt-blue-0">
+                {showInitialLoading
+                  ? "Loading connections..."
+                  : totalCount === 1
+                    ? "1 connection made"
+                    : `${totalCount} connections made`}
               </p>
             </div>
+
+            <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:min-w-[460px]">
+              <Select
+                value={selectedEventValue}
+                onValueChange={(value) => {
+                  if (value === ALL_EVENTS_VALUE) {
+                    void router.replace("/connections", undefined, {
+                      shallow: true,
+                    });
+                    return;
+                  }
+
+                  const [eventId, year] = value.split(";");
+                  void router.replace(
+                    { pathname: "/connections", query: { eventId, year } },
+                    undefined,
+                    { shallow: true },
+                  );
+                }}
+              >
+                <SelectTrigger className="h-11 w-full text-white sm:w-48">
+                  <SelectValue placeholder="All Events" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ALL_EVENTS_VALUE}>All Events</SelectItem>
+                  {events.map((event) => (
+                    <SelectItem
+                      key={`${event.id};${event.year}`}
+                      value={`${event.id};${event.year}`}
+                    >
+                      {event.ename}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="relative flex-1">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bt-blue-0"
+                  aria-hidden="true"
+                />
+                <Input
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search connections..."
+                  className="h-11 pl-10 text-white placeholder:text-bt-blue-0"
+                />
+              </div>
+            </div>
+          </div>
+
+          {isError ? (
+            <div className="rounded-lg border border-bt-red-300/30 bg-bt-red-300/10 p-6 text-center">
+              <p className="font-medium text-white">
+                Couldn&apos;t load connections.
+              </p>
+              <p className="mt-2 text-sm text-bt-blue-0">
+                Please try again in a moment.
+              </p>
+              <Button className="mt-4" onClick={() => refetch()}>
+                Retry
+              </Button>
+            </div>
+          ) : showInitialLoading ? (
+            <ConnectionsPageSkeleton />
+          ) : (
+            <>
+              <div className={isFetching ? "opacity-80" : undefined}>
+                <ConnectionsSummary connections={connections} />
+              </div>
+
+              <ConnectionFilters
+                value={roleFilter}
+                onChange={setRoleFilter}
+                filteredCount={filteredCount}
+                totalCount={totalCount}
+              />
+
+              {filteredCount === 0 ? (
+                <div className="rounded-lg border border-bt-blue-300 bg-bt-blue-500 py-12 text-center">
+                  <p className="text-bt-blue-0">{emptyMessage}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {filteredConnections.map((connection) => (
+                    <ConnectionCard
+                      key={connection.compositeID || connection.connectionID}
+                      connection={connection}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const nextServerContext = { request: context.req, response: context.res };
-
-  try {
-    const response = await fetchBackendFromServer({
-      endpoint: "/interactions/journal",
-      method: "GET",
-      nextServerContext,
-    });
-
-    return {
-      props: {
-        connections: response.data || [],
-      },
-    };
-  } catch (err: any) {
-    // Optionally handle auth errors/redirects here
-    return {
-      props: {
-        connections: [],
-      },
-    };
-  }
-};
-
-export default ConnectionsPage;
+}

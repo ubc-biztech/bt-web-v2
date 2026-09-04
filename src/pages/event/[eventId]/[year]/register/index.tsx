@@ -1,7 +1,6 @@
 "use client";
-import { AttendeeEventRegistrationForm } from "@/components/Events/AttendeeEventRegistrationForm";
 import { BiztechEvent, DBRegistrationStatus, User } from "@/types";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -16,14 +15,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { QuestionTypes } from "@/constants/questionTypes";
-import { cleanOtherQuestions } from "@/util/registrationQuestionHelpers";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 import { checkMembership } from "@/lib/membership";
+import { getRegistrationForm } from "@/features/registrationForms/registry";
+import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
@@ -46,14 +45,13 @@ export default function AttendeeFormRegister() {
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
   const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
   const [companionAvailable, setCompanionAvailable] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { toast } = useToast();
 
-  const isAlumniNight = event?.id === "alumni-night";
-
-  const samePricing = () => {
+  const samePricing = useCallback(() => {
     return event.pricing?.members === event.pricing?.nonMembers;
-  };
+  }, [event.pricing?.members, event.pricing?.nonMembers]);
 
   const getRegistrationState = async () => {
     if (regState) return regState;
@@ -63,9 +61,9 @@ export default function AttendeeFormRegister() {
     return state;
   };
 
-  const priceDiff = () => {
+  const priceDiff = useCallback(() => {
     return event.pricing?.nonMembers - event.pricing?.members;
-  };
+  }, [event.pricing?.members, event.pricing?.nonMembers]);
 
   const isDeadlinePassed = () => {
     const deadline = Date.parse(event.deadline);
@@ -73,24 +71,27 @@ export default function AttendeeFormRegister() {
     return deadline < Date.now();
   };
 
-  const checkRegistered = async (email: string): Promise<Boolean> => {
-    const registrations = await fetchBackend({
-      endpoint: `/registrations?email=${email}`,
-      method: "GET",
-      authenticatedCall: false,
-    });
-    const exists: boolean = registrations.data.some(
-      (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
-    );
-    if (exists) {
-      const registration = registrations.data.find(
+  const checkRegistered = useCallback(
+    async (email: string): Promise<boolean> => {
+      const registrations = await fetchBackend({
+        endpoint: `/registrations?email=${email}`,
+        method: "GET",
+        authenticatedCall: false,
+      });
+      const exists: boolean = registrations.data.some(
         (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
       );
-      setRegistrationStatus(registration.registrationStatus);
-    }
-    setUserRegistered(exists);
-    return exists;
-  };
+      if (exists) {
+        const registration = registrations.data.find(
+          (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
+        );
+        setRegistrationStatus(registration.registrationStatus);
+      }
+      setUserRegistered(exists);
+      return exists;
+    },
+    [event.id, event.year],
+  );
 
   useEffect(() => {
     if (!userLoggedIn || !user?.id || !event?.id || !event?.year) return;
@@ -244,55 +245,52 @@ export default function AttendeeFormRegister() {
     hasMembership,
     hasShownMemberToast,
     toast,
+    checkRegistered,
+    priceDiff,
+    samePricing,
   ]);
 
   // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
 
-  const cleanFormData = (data: any) => {
-    if (!event?.registrationQuestions) return;
-    for (let question of event?.registrationQuestions) {
-      if (question.type === QuestionTypes.CHECKBOX && data.customQuestions) {
-        data.customQuestions[question.questionId] = cleanOtherQuestions(
-          data?.customQuestions[question.questionId],
-        );
-      }
-    }
-  };
+  const submitRegistration = async (
+    payload: RegistrationPayload,
+  ): Promise<boolean> => {
+    if (isSubmitting) return false;
 
-  const handleSubmit = async (data: any): Promise<Boolean> => {
-    cleanFormData(data);
-
-    if (!userLoggedIn && (await checkRegistered(data["emailAddress"]))) {
-      return false;
-    }
-
-    const basicInformation = {
-      fname: data["firstName"],
-      lname: data["lastName"],
-      gender: data["preferredPronouns"],
-      diet: data["dietaryRestrictions"],
-      heardFrom: data["howDidYouHear"],
-      ...(!isAlumniNight && {
-        year: data["yearLevel"],
-        faculty: data["faculty"],
-        major: data["majorSpecialization"],
-      }),
-    };
-
-    const payload = {
-      email: data["emailAddress"],
-      fname: data["firstName"],
-      studentId: data["studentId"],
-      basicInformation,
-      dynamicResponses: data["customQuestions"],
-    };
-
+    setIsSubmitting(true);
     try {
-      const state = await getRegistrationState();
+      if (!userLoggedIn && (await checkRegistered(payload.email))) {
+        return false;
+      }
 
+      const state = await getRegistrationState();
       if (!state) {
         throw new Error("Unable to initialize registration state");
+      }
+
+      const requiresPayment =
+        !user.admin &&
+        (event.pricing?.nonMembers > 0 || event.pricing?.members > 0);
+
+      if (requiresPayment) {
+        const result = event.isApplicationBased
+          ? await state.regForPaidApp(payload)
+          : await state.regForPaid(payload);
+
+        if (event.isApplicationBased) {
+          await router.push(
+            `/event/${eventId}/${year}/register/success?isApplicationBased=true`,
+          );
+          return true;
+        }
+
+        if (!result?.paymentUrl) {
+          throw new Error("No payment URL returned");
+        }
+
+        window.open(result.paymentUrl, "_self");
+        return true;
       }
 
       if (event.isApplicationBased) {
@@ -304,67 +302,11 @@ export default function AttendeeFormRegister() {
       await router.push(`/event/${eventId}/${year}/register/success`);
       return true;
     } catch (error) {
+      console.error("Registration submission failed:", error);
       alert("An error has occurred. Please contact an exec for support.");
       return false;
-    }
-  };
-
-  const handlePaymentSubmit = async (data: any): Promise<Boolean> => {
-    cleanFormData(data);
-
-    if (!userLoggedIn && (await checkRegistered(data["emailAddress"]))) {
-      return false;
-    }
-
-    const basicInformation = {
-      fname: data["firstName"],
-      lname: data["lastName"],
-      year: data["yearLevel"],
-      faculty: data["faculty"],
-      major: data["majorSpecialization"],
-      gender: data["preferredPronouns"],
-      diet: data["dietaryRestrictions"],
-      heardFrom: data["howDidYouHear"],
-    };
-
-    const payload = {
-      email: data["emailAddress"],
-      fname: data["firstName"],
-      studentId: data["studentId"],
-      basicInformation,
-      dynamicResponses: data["customQuestions"],
-    };
-
-    try {
-      const state = await getRegistrationState();
-
-      if (!state) {
-        throw new Error("Unable to initialize registration state");
-      }
-
-      const result = event.isApplicationBased
-        ? await state.regForPaidApp(payload)
-        : await state.regForPaid(payload);
-
-      if (event.isApplicationBased) {
-        await router.push(
-          `/event/${eventId}/${year}/register/success?isApplicationBased=${true}`,
-        );
-        return true;
-      }
-
-      if (result?.paymentUrl) {
-        window.open(result.paymentUrl, "_self");
-        return true;
-      }
-
-      alert(
-        "An error has occurred: No payment URL returned. Please contact an exec for support.",
-      );
-      return false;
-    } catch (error) {
-      alert("An error has occurred. Please contact an exec for support.");
-      return false;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -709,20 +651,37 @@ export default function AttendeeFormRegister() {
       );
 
       // regular
-    } else if (event && event.registrationQuestions) {
+    } else if (event) {
       {
         event?.pricing?.nonMembers &&
           event?.pricing?.members &&
           event?.pricing?.members != event?.pricing?.nonMembers &&
           renderIsNonMemberDialog();
       }
+      const definition = getRegistrationForm(event.registrationFormKey);
+
+      if (!definition) {
+        return renderErrorText(
+          <div className="text-center">
+            <p className="text-lg mb-4 text-white">
+              This event&apos;s registration form is not available.
+            </p>
+            <p className="text-sm text-white/75">
+              Please contact a BizTech exec for support.
+            </p>
+          </div>,
+        );
+      }
+
+      const RegistrationForm = definition.Component;
+
       return (
-        <AttendeeEventRegistrationForm
-          onSubmit={handleSubmit}
-          onSubmitPayment={handlePaymentSubmit}
+        <RegistrationForm
           event={event}
           user={user}
           hasMembership={hasMembership}
+          submitting={isSubmitting}
+          onSubmit={submitRegistration}
         />
       );
     }

@@ -3,22 +3,23 @@ import { DBRegistrationStatus } from "@/types/types";
 import {
   AlertCircle,
   ArrowRight,
+  CalendarPlus,
   CheckCircle2,
-  Clock3,
   Loader2,
   Ticket,
-  UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
 import type {
   EventCounts,
   EventHomeEvent,
   EventRegistrationRecord,
 } from "./types";
 import {
-  formatDeadline,
-  formatPrice,
+  formatDeadlineStatus,
+  formatPrimaryPrice,
   getCapacityStats,
+  getGoogleCalendarUrl,
   isDateInPast,
 } from "./utils";
 
@@ -124,7 +125,7 @@ function getRegistrationCopy({
     return {
       status: isApplication ? "Not submitted" : "Not registered",
       description: `Sign in to fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
-      actionLabel: isApplication ? "Start application" : "Start registration",
+      actionLabel: isApplication ? "Start application" : "Register now",
       tone: "open",
     };
   }
@@ -132,18 +133,10 @@ function getRegistrationCopy({
   return {
     status: isApplication ? "Not submitted" : "Not registered",
     description: `Fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
-    actionLabel: isApplication ? "Start application" : "Start registration",
+    actionLabel: isApplication ? "Start application" : "Register now",
     tone: "open",
   };
 }
-
-const toneClasses: Record<RegistrationCopy["tone"], string> = {
-  open: "border-[#75d450]/35 bg-[#75d450]/10 text-[#9be67c]",
-  success: "border-[#75d450]/35 bg-[#75d450]/10 text-[#9be67c]",
-  warning: "border-[#ffd66b]/35 bg-[#ffd66b]/10 text-[#ffd66b]",
-  closed: "border-[#ff647e]/35 bg-[#ff647e]/10 text-[#ff9aad]",
-  loading: "border-[#444] bg-[#2a2a2a] text-[#c8c8c8]",
-};
 
 const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   open: Ticket,
@@ -153,109 +146,125 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   loading: Loader2,
 };
 
+function canShowCalendarCtaForRegistrationStatus(
+  event: EventHomeEvent,
+  registrationStatus?: string,
+) {
+  if (registrationStatus === DBRegistrationStatus.CHECKED_IN) return true;
+  if (registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE)
+    return true;
+
+  // Application-based events should only expose the calendar CTA after acceptance is fully confirmed.
+  return (
+    !event.isApplicationBased &&
+    registrationStatus === DBRegistrationStatus.REGISTERED
+  );
+}
+
 export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
-  const { event, counts, registrationHref, registrationLoading } = props;
+  const { event, counts, registration, registrationHref, registrationLoading } =
+    props;
   const stats = getCapacityStats(event, counts);
   const isFull = stats.capacity > 0 && stats.spotsRemaining === 0;
   const copy = getRegistrationCopy({ ...props, isFull });
   const StatusIcon = toneIcons[copy.tone];
-  const statusTitle = event.isApplicationBased
-    ? "Your Application Status"
-    : "Your Registration Status";
+  const deadlineStatus = formatDeadlineStatus(event.deadline);
+  const ctaDisabled = copy.tone === "loading";
+  const isConfirmed = copy.tone === "success";
+  const shouldShowCalendarCta = canShowCalendarCtaForRegistrationStatus(
+    event,
+    registration?.registrationStatus,
+  );
+  const shouldShowRegistrationCta = !isConfirmed;
+  const shouldShowBuildingBlockCta =
+    isMISNightEventId(event.id) &&
+    (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
+      registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
+  const eventHasEnded = isDateInPast(event.endDate);
+  const calendarHref =
+    shouldShowCalendarCta && !eventHasEnded ? getGoogleCalendarUrl(event) : "";
+  const statusLine = isConfirmed
+    ? event.isApplicationBased
+      ? copy.status
+      : "You're registered"
+    : copy.tone === "open"
+      ? deadlineStatus
+      : copy.status;
 
   return (
-    <section className="flex min-h-[275px] flex-col overflow-hidden rounded-lg border border-[#263451] bg-[#0B152C] shadow-[0_12px_28px_rgba(0,0,0,0.2)]">
-      <div className="flex flex-1 flex-col gap-4 p-5 md:p-6">
-        <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <p className="text-xs font-800 text-[#9f9f9f] md:text-sm">
-              {statusTitle}
-            </p>
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-800 ${toneClasses[copy.tone]}`}
+    <section className="flex min-h-[128px] flex-col justify-between rounded-[14px] border border-[#26314a] bg-[#111a30] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)] lg:p-6">
+      <div>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Ticket className="h-6 w-6 text-[#0ec58c]" aria-hidden="true" />
+            <h2 className="break-words text-[24px] font-800 leading-none text-white">
+              {formatPrimaryPrice(event)}
+            </h2>
+          </div>
+
+          {shouldShowBuildingBlockCta ? (
+            <Link
+              href={`/event/${event.id}/${event.year}/register/success`}
+              className="group inline-flex min-h-7 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded px-1 py-1 text-[10px] font-700 leading-none text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A2B1D5]/50"
             >
-              <StatusIcon
-                className={`h-3 w-3 ${registrationLoading ? "animate-spin" : ""}`}
+              View building block
+              <ArrowRight
+                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
                 aria-hidden="true"
               />
-              {copy.tone === "open" ? "Open" : copy.status}
-            </span>
-          </div>
-          <Link
-            href={registrationHref}
-            className="inline-flex h-9 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-[#6254f3] px-4 text-sm font-800 text-white transition hover:bg-[#7568ff] sm:w-fit"
-          >
-            {copy.actionLabel}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+            </Link>
+          ) : null}
         </div>
 
-        <div className="min-w-0">
-          <h2 className="mt-3 break-words text-2xl font-800 leading-none text-white md:text-[30px]">
-            {copy.status}
-          </h2>
-          <p className="mt-2 max-w-xl text-xs leading-5 text-[#aaa] md:text-sm">
+        <div
+          className={`mt-4 flex items-center gap-3 text-[14px] font-600 ${
+            copy.tone === "success"
+              ? "text-[#0ec58c]"
+              : copy.tone === "closed"
+                ? "text-[#ff9aad]"
+                : copy.tone === "warning"
+                  ? "text-[#ffd66b]"
+                  : "text-[#9f9f9f]"
+          }`}
+        >
+          <StatusIcon
+            className={`h-5 w-5 ${registrationLoading ? "animate-spin" : ""}`}
+            aria-hidden="true"
+          />
+          <span>{statusLine}</span>
+        </div>
+
+        {!isConfirmed && copy.tone !== "open" && (
+          <p className="mt-3 text-xs leading-5 text-[#aeb7c8]">
             {copy.description}
           </p>
-        </div>
+        )}
       </div>
 
-      <div className="grid gap-0 border-t border-[#263451] sm:grid-cols-3 sm:divide-x sm:divide-[#263451]">
-        <div className="flex items-start gap-2.5 border-b border-[#263451] p-4 sm:border-b-0">
-          <Clock3
-            className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
-            aria-hidden="true"
-          />
-          <div>
-            <p className="text-[11px] font-800 uppercase tracking-[0.08em] text-[#858585]">
-              Deadline
-            </p>
-            <p className="mt-1 text-xs font-800 text-white md:text-sm">
-              {formatDeadline(event.deadline)}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-2.5 border-b border-[#263451] p-4 sm:border-b-0">
-          <UsersRound
-            className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
-            aria-hidden="true"
-          />
-          <div className="w-full">
-            <p className="text-[11px] font-800 uppercase tracking-[0.08em] text-[#858585]">
-              Capacity
-            </p>
-            <p className="mt-1 text-xs font-800 text-white md:text-sm">
-              {stats.capacity > 0
-                ? `${stats.spotsRemaining} spots left`
-                : "Capacity TBA"}
-            </p>
-            {stats.capacity > 0 && (
-              <div className="mt-2 h-1 overflow-hidden rounded-full bg-[#303030]">
-                <div
-                  className="h-full rounded-full bg-bt-green-300"
-                  style={{ width: `${stats.fillPercentage}%` }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-start gap-2.5 p-4">
-          <Ticket
-            className="mt-0.5 h-4 w-4 text-[#9f9f9f]"
-            aria-hidden="true"
-          />
-          <div>
-            <p className="text-[11px] font-800 uppercase tracking-[0.08em] text-[#858585]">
-              Pricing
-            </p>
-            <p className="mt-1 text-xs font-800 text-white md:text-sm">
-              {formatPrice(event)}
-            </p>
-          </div>
-        </div>
-      </div>
+      {calendarHref ? (
+        <Link
+          href={calendarHref}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[10px] border border-[#A2B1D5] bg-transparent px-6 text-base font-600 text-white transition hover:border-white hover:bg-white/5"
+        >
+          <CalendarPlus className="h-5 w-5" aria-hidden="true" />
+          Add to calendar
+        </Link>
+      ) : shouldShowRegistrationCta ? (
+        <Link
+          href={registrationHref}
+          aria-disabled={ctaDisabled}
+          className={`mt-4 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md border px-4 text-xs font-800 transition ${
+            ctaDisabled
+              ? "pointer-events-none border-[#263451] bg-[#263451] text-[#9f9f9f]"
+              : "border-[#4D9CFF] bg-[#4D9CFF] text-white hover:border-[#67adff] hover:bg-[#67adff]"
+          }`}
+        >
+          {copy.actionLabel}
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
+      ) : null}
     </section>
   );
 }

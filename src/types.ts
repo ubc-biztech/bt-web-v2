@@ -1,3 +1,5 @@
+import type { EventPageConfig } from "@/lib/eventPageConfig";
+
 export type BiztechEvent = {
   id: string;
   year: number;
@@ -15,6 +17,7 @@ export type BiztechEvent = {
   longitude?: number;
   facebookUrl?: string;
   deadline: string;
+  registrationFormKey?: string;
   registrationQuestions?: RegistrationQuestion[];
   pricing: any;
   partnerRegistrationQuestions: RegistrationQuestion[];
@@ -28,6 +31,7 @@ export type BiztechEvent = {
   nonBizTechAllowed: boolean;
   isCompleted: boolean;
   hasDomainSpecificQuestions?: boolean;
+  eventPage?: EventPageConfig;
   counts?: any;
   registrationQuestionsAlternate?: RegistrationQuestion[] | string;
 };
@@ -40,7 +44,7 @@ export type RegistrationQuestion = {
   choices?: string;
   charLimit?: number;
   questionImageUrl?: string;
-  participantCap?: string;
+  participantCap?: number | string;
   isSkillsQuestion?: boolean;
 };
 

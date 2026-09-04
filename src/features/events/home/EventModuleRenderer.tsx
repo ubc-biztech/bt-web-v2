@@ -1,4 +1,8 @@
+import { EventConnectionsModule } from "./EventConnectionsModule";
 import { RegistrationStatusModule } from "./RegistrationStatusModule";
+import { defaultEventModules } from "@/lib/eventPageConfig";
+import type { EventPageModuleType } from "@/lib/eventPageConfig";
+import { DBRegistrationStatus } from "@/types/types";
 import type {
   EventCounts,
   EventHomeEvent,
@@ -6,14 +10,9 @@ import type {
   EventRegistrationRecord,
 } from "./types";
 
-export const defaultEventModules: EventPageModule[] = [
-  { type: "registration", enabled: true, order: 1 },
-  { type: "qa", enabled: false, order: 2 },
-  { type: "connections", enabled: false, order: 3 },
-];
-
 type EventModuleRendererProps = {
   event: EventHomeEvent;
+  className?: string;
   counts?: EventCounts;
   modules?: EventPageModule[];
   registration?: EventRegistrationRecord;
@@ -22,8 +21,51 @@ type EventModuleRendererProps = {
   signedIn: boolean;
 };
 
+const canShowAdminOnlyModulesOnPublicPage = false;
+
+function hasAnyEventRegistration(registration?: EventRegistrationRecord) {
+  return Boolean(registration);
+}
+
+function canShowModuleOnPublicEventPage({
+  module,
+  registration,
+  signedIn,
+}: {
+  module: EventPageModule;
+  registration?: EventRegistrationRecord;
+  signedIn: boolean;
+}) {
+  switch (module.visibility) {
+    case "public":
+      return true;
+    case "signedIn":
+      return signedIn;
+    case "registered":
+      return hasAnyEventRegistration(registration);
+    case "checkedIn":
+      return (
+        registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN
+      );
+    case "admin":
+      return canShowAdminOnlyModulesOnPublicPage;
+    default:
+      return false;
+  }
+}
+
+const renderableModuleIds = new Set<EventPageModuleType>([
+  "registration",
+  "connections",
+]);
+
+function canRenderModule(module: EventPageModule) {
+  return renderableModuleIds.has(module.id);
+}
+
 export function EventModuleRenderer({
   event,
+  className = "mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2",
   counts,
   modules,
   registration,
@@ -32,19 +74,22 @@ export function EventModuleRenderer({
   signedIn,
 }: EventModuleRendererProps) {
   const enabledModules = (modules ?? defaultEventModules)
-    .filter((module) => module.enabled)
+    .filter((module) =>
+      canShowModuleOnPublicEventPage({ module, registration, signedIn }),
+    )
+    .filter(canRenderModule)
     .sort((a, b) => a.order - b.order);
 
   if (enabledModules.length === 0) return null;
 
   return (
-    <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <div className={className}>
       {enabledModules.map((module) => {
-        switch (module.type) {
+        switch (module.id) {
           case "registration":
             return (
               <RegistrationStatusModule
-                key={module.type}
+                key={module.id}
                 event={event}
                 counts={counts}
                 registration={registration}
@@ -53,8 +98,9 @@ export function EventModuleRenderer({
                 signedIn={signedIn}
               />
             );
-          case "qa": // SOON TO BE ADDED TODO
           case "connections":
+            return <EventConnectionsModule key={module.id} event={event} />;
+          case "qa":
             return null;
           default:
             return null;

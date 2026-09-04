@@ -22,4 +22,7 @@ export interface Connection {
   title?: string;
   type: string;
   connectionType?: "PARTNER" | "EXEC" | "ATTENDEE";
+  linkedIn?: string;
+  linkedin?: string;
+  profilePictureURL?: string;
 }

@@ -5,6 +5,12 @@ import { EventForm } from "@/components/Events/EventForm";
 import { EventFormSchema } from "@/components/Events/EventFormSchema";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
+import { DEFAULT_REGISTRATION_FORM_KEY } from "@/features/registrationForms/registry";
+import {
+  getRegistrationQuestions,
+  transformEventFormQuestions,
+} from "@/features/registrationForms/questions";
+import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
 
 const EditEventPage: NextPage = () => {
   const { toast } = useToast();
@@ -15,7 +21,7 @@ const EditEventPage: NextPage = () => {
 
   // Transform backend question format to frontend format
   const transformBackendQuestion = (q: any) => ({
-    id: q.questionId,
+    id: q.questionId || crypto.randomUUID(),
     type: q.type,
     question: q.label, // Convert back to v2 format
     required: q.required,
@@ -62,6 +68,9 @@ const EditEventPage: NextPage = () => {
           nonBizTechAllowed: !!data.nonBizTechAllowed,
           isPublished: !!data.isPublished,
           isCompleted: !!data.isCompleted,
+          registrationFormKey:
+            data.registrationFormKey ?? DEFAULT_REGISTRATION_FORM_KEY,
+          eventPage: normalizeEventPageConfig(data.eventPage),
           customQuestions: Array.isArray(data.registrationQuestions)
             ? data.registrationQuestions.map(transformBackendQuestion)
             : [],
@@ -111,21 +120,9 @@ const EditEventPage: NextPage = () => {
       return;
     }
 
-    // Transform custom questions to match v1 format
-    const transformCustomQuestion = (q: any) => {
-      return {
-        type: q.type,
-        questionId: q.id,
-        label: q.question,
-        choices: q.options.join(","),
-        required: q.required,
-        charLimit: q.charLimit || undefined,
-        questionImageUrl: q.questionImageUrl || "",
-        participantCap:
-          q.type === "WORKSHOP_SELECTION" ? q.participantCap : undefined,
-        isSkillsQuestion: q.type === "SKILLS" ? true : undefined,
-      };
-    };
+    const defaultRegistrationQuestions = transformEventFormQuestions(
+      data.customQuestions,
+    );
 
     const body = {
       ename: data.eventName,
@@ -146,14 +143,19 @@ const EditEventPage: NextPage = () => {
               : Number(data.price) || 0,
         }),
       },
-      registrationQuestions: data.customQuestions.map(transformCustomQuestion),
-      partnerRegistrationQuestions: data.partnerCustomQuestions.map(
-        transformCustomQuestion,
+      registrationFormKey: data.registrationFormKey,
+      registrationQuestions: getRegistrationQuestions(
+        data.registrationFormKey,
+        defaultRegistrationQuestions,
+      ),
+      partnerRegistrationQuestions: transformEventFormQuestions(
+        data.partnerCustomQuestions,
       ),
       isApplicationBased: data.isApplicationBased,
       nonBizTechAllowed: data.nonBizTechAllowed,
       isPublished: data.isPublished,
       isCompleted: data.isCompleted,
+      eventPage: data.eventPage,
     };
 
     try {

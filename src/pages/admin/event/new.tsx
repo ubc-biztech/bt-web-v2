@@ -5,6 +5,10 @@ import { EventFormSchema } from "@/components/Events/EventFormSchema";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
+import {
+  getRegistrationQuestions,
+  transformEventFormQuestions,
+} from "@/features/registrationForms/questions";
 
 const CreateEventPage: NextPage = () => {
   const { toast } = useToast();
@@ -44,17 +48,9 @@ const CreateEventPage: NextPage = () => {
       }
     });
 
-    const transformCustomQuestion = (q: any) => ({
-      type: q.type,
-      label: q.question, // note: v2 uses 'question', v1 uses 'label'
-      choices: q.options.join(","), // v1 expects comma-separated string
-      required: q.required,
-      charLimit: q.charLimit || undefined,
-      questionImageUrl: q.questionImageUrl || "",
-      participantCap:
-        q.type === "WORKSHOP_SELECTION" ? q.participantCap : undefined,
-      isSkillsQuestion: q.type === "SKILLS" ? true : undefined,
-    });
+    const defaultRegistrationQuestions = transformEventFormQuestions(
+      data.customQuestions,
+    );
 
     const body = {
       id: data.eventSlug,
@@ -79,9 +75,14 @@ const CreateEventPage: NextPage = () => {
       },
       isPublished: false,
       isCompleted: false,
-      registrationQuestions: data.customQuestions.map(transformCustomQuestion),
-      partnerRegistrationQuestions: data.partnerCustomQuestions.map(
-        transformCustomQuestion,
+      eventPage: data.eventPage,
+      registrationFormKey: data.registrationFormKey,
+      registrationQuestions: getRegistrationQuestions(
+        data.registrationFormKey,
+        defaultRegistrationQuestions,
+      ),
+      partnerRegistrationQuestions: transformEventFormQuestions(
+        data.partnerCustomQuestions,
       ),
       isApplicationBased: data.isApplicationBased,
       nonBizTechAllowed: data.nonBizTechAllowed,
