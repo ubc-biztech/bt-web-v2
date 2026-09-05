@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 import { fetchBackendFromServer } from "./lib/db";
 import { User } from "./types";
-import { CURRENT_ONBOARDING_YEAR } from "./lib/user";
+import { needsOnboarding } from "./lib/user";
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -46,7 +46,7 @@ export async function middleware(request: NextRequest) {
       nextServerContext: { request: request as any, response: response as any },
     });
 
-    if (userProfile.onboardingYear !== CURRENT_ONBOARDING_YEAR) {
+    if (needsOnboarding(userProfile)) {
       const onboardingUrl = new URL("/onboarding", request.url);
       onboardingUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(onboardingUrl);

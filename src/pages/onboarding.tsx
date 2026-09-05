@@ -17,15 +17,13 @@ import {
   UserRound,
 } from "lucide-react";
 import { fetchBackend } from "@/lib/db";
-import { ensureAuthenticatedUser } from "@/lib/user";
+import { ensureAuthenticatedUser, getAuthenticatedUser } from "@/lib/user";
 import { getQueryString } from "@/util/url";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  MEMBERSHIP_FORM_DEFAULTS,
-  membershipValidationSchema,
-} from "@/components/SignUpForm/membershipFormSchema";
+import { MEMBERSHIP_FORM_DEFAULTS } from "@/components/SignUpForm/membershipFormSchema";
+import { onboardingValidationSchema } from "@/components/SignUpForm/onboardingFormSchema";
 import type { MembershipFormValues } from "@/components/SignUpForm/MembershipFormSection";
 
 const faculties = [
@@ -101,11 +99,11 @@ export default function Onboarding() {
   });
   const redirected = useRef(false);
   const methods = useForm<MembershipFormValues>({
-    resolver: zodResolver(membershipValidationSchema),
+    resolver: zodResolver(onboardingValidationSchema),
     defaultValues: MEMBERSHIP_FORM_DEFAULTS,
     mode: "onTouched",
   });
-  const { setValue } = methods;
+  const { reset } = methods;
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -116,8 +114,62 @@ export default function Onboarding() {
         if (!session.tokens?.accessToken) throw new Error("Unauthenticated");
         const attributes = await fetchUserAttributes();
         if (!attributes.email) throw new Error("Missing email");
-        setValue("email", attributes.email);
         await ensureAuthenticatedUser();
+        const [user, profile] = await Promise.all([
+          getAuthenticatedUser(),
+          fetchBackend({ endpoint: "/profiles/user/", method: "GET" }).catch(
+            () => null,
+          ),
+        ]);
+        if (cancelled) return;
+        const savedPronouns = profile?.pronouns ?? user.gender ?? "";
+        const savedLevelOfStudy = profile?.year ?? user.year ?? "";
+        const standardPronouns = ["He/Him", "She/Her", "They/Them"];
+        const standardLevels = ["Undergraduate", "Graduate", "Post-doc"];
+
+        reset({
+          ...MEMBERSHIP_FORM_DEFAULTS,
+          email: attributes.email,
+          firstName: user.fname ?? profile?.fname ?? "",
+          lastName: user.lname ?? profile?.lname ?? "",
+          studentNumber:
+            user.studentId === undefined ? "" : String(user.studentId),
+          education: user.education ?? "",
+          pronouns: standardPronouns.includes(savedPronouns)
+            ? savedPronouns
+            : savedPronouns
+              ? "Other"
+              : "",
+          pronounsOther: standardPronouns.includes(savedPronouns)
+            ? ""
+            : savedPronouns,
+          linkedIn: profile?.linkedIn ?? "",
+          levelOfStudy: standardLevels.includes(savedLevelOfStudy)
+            ? savedLevelOfStudy
+            : savedLevelOfStudy
+              ? "Other"
+              : "",
+          levelOfStudyOther: standardLevels.includes(savedLevelOfStudy)
+            ? ""
+            : savedLevelOfStudy,
+          faculty: user.faculty ?? "",
+          major: user.major ?? profile?.major ?? "",
+          internationalStudent:
+            typeof user.international === "boolean"
+              ? user.international
+                ? "Yes"
+                : "No"
+              : "",
+          previousMember:
+            typeof user.prevMember === "boolean"
+              ? user.prevMember
+                ? "Yes"
+                : "No"
+              : "",
+          dietaryRestrictions: user.diet ?? "None",
+          referral: user.referral ?? "",
+          topics: Array.isArray(user.topics) ? user.topics : [],
+        });
         if (!cancelled) setLoading(false);
       } catch {
         if (!redirected.current) {
@@ -132,7 +184,7 @@ export default function Onboarding() {
       cancelled = true;
       window.clearTimeout(safety);
     };
-  }, [router, setValue]);
+  }, [router, reset]);
 
   async function next() {
     const fields = stepFields[step];
@@ -364,7 +416,8 @@ function TextField({
         {...register(name)}
         type={type}
         placeholder={placeholder}
-        disabled={disabled}
+        readOnly={disabled}
+        aria-readonly={disabled}
         className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-70`}
       />
       <ErrorText name={name} />
@@ -453,7 +506,11 @@ function ProfileStep() {
     <div className="mx-auto max-w-[600px]">
       <Heading>Create your profile</Heading>
       <div className="grid gap-5 sm:grid-cols-2">
-        <TextField name="firstName" label="First Name" placeholder="First Name" />
+        <TextField
+          name="firstName"
+          label="First Name"
+          placeholder="First Name"
+        />
         <TextField name="lastName" label="Last Name" placeholder="Last Name" />
       </div>
       <div className="mt-5">

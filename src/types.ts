@@ -160,6 +160,7 @@ export type User = {
   diet?: string;
   updatedAt?: number;
   onboardingYear?: number;
+  needsOnboarding?: boolean;
   international?: boolean;
   prevMember?: boolean;
   referral?: string;
