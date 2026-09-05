@@ -26,21 +26,6 @@ export const membershipValidationSchema = z
     topics: z.array(z.string()),
   })
   .refine(
-    (data) => data.pronouns !== "Other" || data.pronounsOther.trim().length > 0,
-    {
-      message: "Please specify your pronouns",
-      path: ["pronounsOther"],
-    },
-  )
-  .refine(
-    (data) =>
-      data.levelOfStudy !== "Other" || data.levelOfStudyOther.trim().length > 0,
-    {
-      message: "Please specify your level of study",
-      path: ["levelOfStudyOther"],
-    },
-  )
-  .refine(
     (data) =>
       data.education === "UBC"
         ? !!data.studentNumber && /^\d{8}$/.test(data.studentNumber)
