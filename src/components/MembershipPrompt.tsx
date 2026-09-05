@@ -31,11 +31,14 @@ export default function MembershipPrompt() {
   if (!show) return null;
 
   return (
-    <div className="fixed left-1/2 top-4 z-[100] w-fit max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border border-bt-green-300/40 bg-bt-blue-500 px-4 py-3 text-white shadow-xl">
-      <div className="flex items-center gap-2">
+    <aside
+      aria-label="Membership offer"
+      className="mb-6 w-full rounded-lg border border-bt-green-300/40 bg-bt-blue-500 px-4 py-3 text-white shadow-lg sm:px-5 md:-mt-3"
+    >
+      <div className="flex items-start gap-3 sm:items-center">
         <Bell
           aria-hidden="true"
-          className="h-4 w-4 shrink-0 text-bt-green-300"
+          className="mt-0.5 h-4 w-4 shrink-0 text-bt-green-300 sm:mt-0"
         />
         <p className="text-xs text-bt-blue-0">
           Looks like you aren&apos;t a member yet!{" "}
@@ -48,6 +51,6 @@ export default function MembershipPrompt() {
           now to gain access to exclusive features.
         </p>
       </div>
-    </div>
+    </aside>
   );
 }

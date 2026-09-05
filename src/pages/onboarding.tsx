@@ -17,6 +17,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { fetchBackend } from "@/lib/db";
+import { checkMembership } from "@/lib/membership";
 import { ensureAuthenticatedUser, getAuthenticatedUser } from "@/lib/user";
 import { getQueryString } from "@/util/url";
 import PageLoadingState from "@/components/Common/PageLoadingState";
@@ -46,6 +47,7 @@ const topics = [
   "Health Tech",
 ];
 const diets = ["Vegetarian", "Vegan", "Gluten-free", "Halal", "Kosher", "None"];
+const referralSources = ["Word of Mouth", "Instagram", "Website", "Other"];
 const stepFields: (keyof MembershipFormValues)[][] = [
   [],
   [
@@ -93,6 +95,7 @@ export default function Onboarding() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [hasMembership, setHasMembership] = useState(false);
   const [{ step, direction }, dispatch] = useReducer(flowReducer, {
     step: 0,
     direction: 1,
@@ -114,12 +117,16 @@ export default function Onboarding() {
         if (!session.tokens?.accessToken) throw new Error("Unauthenticated");
         const attributes = await fetchUserAttributes();
         if (!attributes.email) throw new Error("Missing email");
+        const membershipPromise = checkMembership(attributes.email).catch(
+          () => false,
+        );
         await ensureAuthenticatedUser();
-        const [user, profile] = await Promise.all([
+        const [user, profile, membershipStatus] = await Promise.all([
           getAuthenticatedUser(),
           fetchBackend({ endpoint: "/profiles/user/", method: "GET" }).catch(
             () => null,
           ),
+          membershipPromise,
         ]);
         if (cancelled) return;
         const savedPronouns = profile?.pronouns ?? user.gender ?? "";
@@ -167,9 +174,14 @@ export default function Onboarding() {
                 : "No"
               : "",
           dietaryRestrictions: user.diet ?? "None",
-          referral: user.referral ?? "",
+          referral: referralSources.includes(user.referral ?? "")
+            ? (user.referral ?? "")
+            : user.referral
+              ? "Other"
+              : "",
           topics: Array.isArray(user.topics) ? user.topics : [],
         });
+        setHasMembership(membershipStatus);
         if (!cancelled) setLoading(false);
       } catch {
         if (!redirected.current) {
@@ -238,7 +250,7 @@ export default function Onboarding() {
       <Toaster />
       <main className="min-h-screen overflow-x-hidden bg-gradient-to-b from-[#111a30] to-[#1b253d] text-[#f7faff]">
         {step > 0 && <Brand />}
-        <div className="mx-auto flex min-h-screen w-full max-w-[1000px] items-center justify-center px-5 py-28 sm:px-8">
+        <div className="mx-auto flex min-h-screen w-full max-w-[920px] items-center justify-center px-5 py-20 sm:px-8">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.section
               key={step}
@@ -254,6 +266,7 @@ export default function Onboarding() {
                 <Welcome onStart={() => dispatch({ type: "go", step: 1 })} />
               ) : step === 6 ? (
                 <Complete
+                  hasMembership={hasMembership}
                   onHome={() =>
                     window.location.assign(
                       getQueryString(router.query.redirect) ?? "/",
@@ -262,20 +275,28 @@ export default function Onboarding() {
                   onMembership={() => router.push("/membership")}
                 />
               ) : (
-                <div className="mx-auto w-full max-w-[900px]">
+                <div className="mx-auto w-full max-w-[856px]">
                   <Progress
                     step={step + 1}
                     onBack={(target) =>
                       dispatch({ type: "go", step: target - 1 })
                     }
                   />
-                  <div className="mt-12">
+                  <div className="mt-9">
                     {step === 1 && <ProfileStep />}
                     {step === 2 && <AcademicStep />}
                     {step === 3 && <PreferencesStep />}
                     {step === 4 && <HistoryStep />}
                   </div>
-                  <div className="mt-12 flex justify-center">
+                  <div className="mt-9 flex justify-center gap-3">
+                    <SecondaryButton
+                      onClick={() =>
+                        dispatch({ type: "go", step: Math.max(0, step - 1) })
+                      }
+                      disabled={submitting}
+                    >
+                      Back
+                    </SecondaryButton>
                     <PrimaryButton
                       onClick={step === 4 ? submit : next}
                       disabled={submitting}
@@ -295,14 +316,14 @@ export default function Onboarding() {
 
 function Brand() {
   return (
-    <div className="absolute left-5 top-6 z-10 flex items-center gap-3 sm:left-10 sm:top-10">
+    <div className="absolute left-5 top-5 z-10 flex items-center gap-2 sm:left-10 sm:top-8">
       <Image
         src="/assets/biztech_logo.svg"
         alt="UBC BizTech"
-        width={50}
-        height={50}
+        width={30}
+        height={30}
       />
-      <span className="hidden text-2xl font-semibold sm:block">
+      <span className="hidden text-base font-semibold sm:block">
         UBC BizTech
       </span>
     </div>
@@ -310,21 +331,24 @@ function Brand() {
 }
 function Welcome({ onStart }: { onStart: () => void }) {
   return (
-    <div className="mx-auto flex max-w-[715px] flex-col items-center text-center">
+    <div className="mx-auto flex max-w-[600px] flex-col items-center text-center">
       <Image
         src="/assets/onboarding/bizbot-face.png"
         alt="BizBot"
-        width={179}
-        height={155}
+        width={124}
+        height={107}
         priority
       />
-      <h1 className="mt-6 text-[40px] font-semibold leading-tight sm:text-5xl">
+      <h1 className="mt-6 text-[32px] font-semibold leading-tight sm:text-[36px]">
         Welcome to UBC BizTech
       </h1>
-      <p className="mt-6 text-xl sm:text-2xl">
+      <p className="mt-4 text-[16px]">
         Just a few quick questions and you&apos;re in!
       </p>
-      <PrimaryButton className="mt-6" onClick={onStart}>
+      <PrimaryButton
+        className="mt-6 !px-7 !py-2.5 !text-[16px]"
+        onClick={onStart}
+      >
         Get started
       </PrimaryButton>
     </div>
@@ -347,12 +371,12 @@ function Progress({
   onBack: (step: number) => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[600px] px-5">
+    <div className="mx-auto w-full max-w-[560px] px-4">
       <div className="relative flex items-start justify-between">
-        <div className="absolute left-4 right-4 top-[14px] h-1 rounded bg-[#1b2540]" />
+        <div className="absolute left-3 right-3 top-[12px] h-0.5 rounded bg-[#1b2540]" />
         <div
-          className="absolute left-4 top-[14px] h-1 rounded bg-[#3b9ff7] transition-all duration-300"
-          style={{ width: `calc((100% - 32px) * ${(step - 1) / 5})` }}
+          className="absolute left-3 top-[12px] h-0.5 rounded bg-[#3b9ff7] transition-all duration-300"
+          style={{ width: `calc((100% - 24px) * ${(step - 1) / 5})` }}
         />
         {progressIcons.map((Icon, index) => {
           const node = index + 1;
@@ -365,9 +389,9 @@ function Progress({
               aria-label={`Go back to onboarding step ${node}`}
               disabled={!clickable}
               onClick={() => clickable && onBack(node)}
-              className={`relative z-10 flex h-7 w-7 items-center justify-center rounded-full border transition ${done ? "border-[#3b9ff7] bg-[#3b9ff7] text-white" : "border-[#33415f] bg-[#1b253d] text-[#7282a8]"} ${clickable ? "cursor-pointer hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b9ff7]" : "cursor-default"}`}
+              className={`relative z-10 flex h-6 w-6 items-center justify-center rounded-full border transition ${done ? "border-[#3b9ff7] bg-[#3b9ff7] text-white" : "border-[#33415f] bg-[#1b253d] text-[#7282a8]"} ${clickable ? "cursor-pointer hover:scale-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b9ff7]" : "cursor-default"}`}
             >
-              <Icon size={14} strokeWidth={2.3} />
+              <Icon size={12} strokeWidth={2.3} />
             </button>
           );
         })}
@@ -378,35 +402,41 @@ function Progress({
 
 function Heading({ children }: { children: React.ReactNode }) {
   return (
-    <h1 className="mb-8 text-center text-[34px] font-semibold leading-tight sm:text-[40px]">
+    <h1 className="mb-7 text-center text-[28px] font-semibold leading-tight sm:text-[34px]">
       {children}
     </h1>
   );
 }
 function Label({ children }: { children: React.ReactNode }) {
-  return <label className="mb-2 block text-base font-medium">{children}</label>;
+  return (
+    <label className="mb-1.5 block text-[14px] font-medium">{children}</label>
+  );
 }
 function ErrorText({ name }: { name: keyof MembershipFormValues }) {
   const { formState } = useFormContext<MembershipFormValues>();
   const message = formState.errors[name]?.message;
   return message ? (
-    <p className="mt-1 text-sm text-[#ff8a9e]">{String(message)}</p>
+    <p className="mt-1 text-[13px] text-[#ff8a9e]">{String(message)}</p>
   ) : null;
 }
 const fieldClass =
-  "h-12 w-full rounded-lg border border-[#3b4866] bg-[#26324d] px-4 text-base text-white outline-none transition placeholder:text-[#a2b1d5] focus:border-[#3b9ff7] focus:ring-2 focus:ring-[#3b9ff7]/20";
+  "h-11 w-full rounded-md border border-[#3b4866] bg-[#26324d] px-3.5 text-[14px] text-white outline-none transition placeholder:text-[#a2b1d5] focus:border-[#3b9ff7] focus:ring-2 focus:ring-[#3b9ff7]/20";
 function TextField({
   name,
   label,
   type = "text",
   placeholder,
   disabled,
+  maxLength,
+  inputMode,
 }: {
   name: keyof MembershipFormValues;
   label: string;
   type?: string;
   placeholder?: string;
   disabled?: boolean;
+  maxLength?: number;
+  inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
   const { register } = useFormContext<MembershipFormValues>();
   return (
@@ -418,7 +448,9 @@ function TextField({
         placeholder={placeholder}
         readOnly={disabled}
         aria-readonly={disabled}
-        className={`${fieldClass} disabled:cursor-not-allowed disabled:opacity-70`}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        className={`${fieldClass} ${disabled ? "cursor-not-allowed !border-[#303b55] !bg-[#182238] !text-[#8d9ab9] opacity-75" : ""}`}
       />
       <ErrorText name={name} />
     </div>
@@ -485,13 +517,13 @@ function Pills({
       });
   }
   return (
-    <div className="flex flex-wrap gap-2.5">
+    <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
       {options.map((option, index) => (
         <button
           key={option}
           type="button"
           onClick={() => choose(option, index)}
-          className={`rounded-full border px-5 py-2.5 text-base font-medium transition ${selected.includes(values[index]) ? "border-[#3b9ff7] bg-[#3b9ff7] text-white" : "border-[#3b4866] bg-[#26324d] text-[#f7faff] hover:border-[#7282a8]"}`}
+          className={`rounded-full border px-4 py-2 text-[14px] font-medium leading-5 transition ${selected.includes(values[index]) ? "border-[#3b9ff7] bg-[#3b9ff7] text-white" : "border-[#3b4866] bg-[#26324d] text-[#f7faff] hover:border-[#7282a8]"}`}
         >
           {option}
         </button>
@@ -503,9 +535,9 @@ function Pills({
 function ProfileStep() {
   const { watch } = useFormContext<MembershipFormValues>();
   return (
-    <div className="mx-auto max-w-[600px]">
+    <div className="mx-auto max-w-[560px]">
       <Heading>Create your profile</Heading>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         <TextField
           name="firstName"
           label="First Name"
@@ -513,14 +545,16 @@ function ProfileStep() {
         />
         <TextField name="lastName" label="Last Name" placeholder="Last Name" />
       </div>
-      <div className="mt-5">
+      <div className="mt-4">
         <TextField
           name="studentNumber"
           label="Student Number"
           placeholder="12345678"
+          maxLength={8}
+          inputMode="numeric"
         />
       </div>
-      <div className="mt-5">
+      <div className="mt-4">
         <Label>Pronouns</Label>
         <Pills
           name="pronouns"
@@ -528,7 +562,7 @@ function ProfileStep() {
         />
         <ErrorText name="pronouns" />
         {watch("pronouns") === "Other" && (
-          <div className="mt-3">
+          <div className="mt-2.5">
             <TextField
               name="pronounsOther"
               label=""
@@ -537,10 +571,10 @@ function ProfileStep() {
           </div>
         )}
       </div>
-      <div className="mt-5">
+      <div className="mt-4">
         <TextField name="email" label="Email Address" type="email" disabled />
       </div>
-      <div className="mt-5">
+      <div className="mt-4">
         <TextField
           name="linkedIn"
           label="LinkedIn"
@@ -555,7 +589,7 @@ function AcademicStep() {
   return (
     <div>
       <Heading>Your academic details</Heading>
-      <div className="mx-auto max-w-[600px] space-y-5">
+      <div className="mx-auto max-w-[600px] space-y-4">
         <div>
           <Label>Education</Label>
           <Pills
@@ -577,7 +611,7 @@ function AcademicStep() {
           />
           <ErrorText name="levelOfStudy" />
           {watch("levelOfStudy") === "Other" && (
-            <div className="mt-3">
+            <div className="mt-2.5">
               <TextField
                 name="levelOfStudyOther"
                 label=""
@@ -614,7 +648,7 @@ function PreferencesStep() {
         <Pills name="topics" options={topics} multiple />
       </div>
       <ErrorText name="topics" />
-      <h2 className="mb-5 mt-16 text-center text-3xl font-semibold">
+      <h2 className="mb-4 mt-12 text-center text-[26px] font-semibold sm:text-[30px]">
         Any dietary restrictions?
       </h2>
       <div className="flex justify-center">
@@ -625,12 +659,12 @@ function PreferencesStep() {
   );
 }
 function HistoryStep() {
-  const { setValue, watch, register } = useFormContext<MembershipFormValues>();
+  const { setValue, watch } = useFormContext<MembershipFormValues>();
   const previous = watch("previousMember");
   return (
     <div>
       <Heading>Were you a BizTech member last year?</Heading>
-      <div className="mx-auto grid max-w-[856px] gap-4 sm:grid-cols-2">
+      <div className="mx-auto grid max-w-[800px] gap-3 sm:grid-cols-2">
         {[
           ["Yes", "Yes, I was!"],
           ["No", "No, this is my first time"],
@@ -644,13 +678,13 @@ function HistoryStep() {
                 shouldDirty: true,
               })
             }
-            className={`flex h-20 items-center justify-between rounded-xl border px-6 text-left text-lg ${previous === value ? "border-[#3b9ff7] bg-[#26324d]" : "border-[#3b4866] bg-[#1b253d]"}`}
+            className={`flex h-16 items-center justify-between rounded-lg border px-5 text-left text-base ${previous === value ? "border-[#3b9ff7] bg-[#26324d]" : "border-[#3b4866] bg-[#1b253d]"}`}
           >
             <span>{label}</span>
             <span
-              className={`flex h-6 w-6 items-center justify-center rounded-full border ${previous === value ? "border-[#3b9ff7] bg-[#3b9ff7]" : "border-[#7282a8]"}`}
+              className={`flex h-5 w-5 items-center justify-center rounded-full border ${previous === value ? "border-[#3b9ff7] bg-[#3b9ff7]" : "border-[#7282a8]"}`}
             >
-              {previous === value && <Check size={14} />}
+              {previous === value && <Check size={12} />}
             </span>
           </button>
         ))}
@@ -660,41 +694,42 @@ function HistoryStep() {
         <motion.div
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-auto mt-6 flex max-w-[856px] items-center gap-4 rounded-xl border border-[#3b4866] bg-[#26324d] p-5"
+          className="mx-auto mt-4 flex max-w-[800px] items-center gap-3 rounded-lg border border-[#3b4866] bg-[#26324d] p-4"
         >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#3b9ff7]/15 text-[#3b9ff7]">
-            <Heart />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#3b9ff7]/15 text-[#3b9ff7]">
+            <Heart size={20} />
           </span>
           <div>
-            <h3 className="text-lg font-semibold">Welcome back! 👋</h3>
-            <p className="text-base text-[#d8e1f5]">
+            <h3 className="text-base font-semibold">Welcome back! 👋</h3>
+            <p className="text-[14px] text-[#d8e1f5]">
               We&apos;re so thrilled to have you with us again :)
             </p>
           </div>
         </motion.div>
       )}
-      <div className="mx-auto mt-6 max-w-[866px]">
-        <Label>How did you hear about us?</Label>
-        <input
-          {...register("referral")}
-          className={fieldClass}
-          placeholder="e.g. Instagram, friend, event, etc."
+      <div className="mx-auto mt-4 max-w-[800px]">
+        <SelectField
+          name="referral"
+          label="How did you hear about us?"
+          options={referralSources}
+          placeholder="Select a referral source"
         />
-        <ErrorText name="referral" />
       </div>
     </div>
   );
 }
 function Complete({
+  hasMembership,
   onHome,
   onMembership,
 }: {
+  hasMembership: boolean;
   onHome: () => void;
   onMembership: () => void;
 }) {
   const price = process.env.NEXT_PUBLIC_MEMBERSHIP_PRICE ?? "10";
   return (
-    <div className="relative mx-auto max-w-[800px] text-center">
+    <div className="relative mx-auto max-w-[760px] text-center">
       <Sparkles
         className="absolute left-[8%] top-10 text-[#3b9ff7]"
         size={42}
@@ -705,31 +740,34 @@ function Complete({
       />
       <Progress step={6} onBack={() => undefined} />
       <Image
-        className="mx-auto mt-12"
+        className="mx-auto mt-9"
         src="/assets/onboarding/bizbot-face.png"
         alt="Celebrating BizBot"
-        width={160}
-        height={140}
+        width={112}
+        height={98}
       />
-      <h1 className="mt-8 text-5xl font-semibold sm:text-6xl">
+      <h1 className="mt-6 text-[36px] font-semibold sm:text-[44px]">
         You&apos;re all set!
       </h1>
-      <p className="mt-5 text-lg sm:text-xl">
+      <p className="mt-3 text-base">
         Welcome to BizTech! You can now browse our events and resources.
       </p>
-      <div className="mt-12 flex flex-col items-center gap-5 rounded-xl border border-[#3b4866] bg-[#26324d] p-6 text-left sm:flex-row">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#75d450]/15 text-[#75d450]">
-          <Gift />
-        </span>
-        <div className="flex-1">
-          <h2 className="text-xl font-semibold">Get full access</h2>
-          <p className="mt-1 text-base text-[#d8e1f5]">
-            Get a BizTech membership for ${price} to unlock all exclusive perks.
-          </p>
+      {!hasMembership && (
+        <div className="mt-9 flex flex-col items-center gap-4 rounded-lg border border-[#3b4866] bg-[#26324d] p-5 text-left sm:flex-row">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#75d450]/15 text-[#75d450]">
+            <Gift size={20} />
+          </span>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold">Get full access</h2>
+            <p className="mt-1 text-[14px] text-[#d8e1f5]">
+              Get a BizTech membership for ${price} to unlock all exclusive
+              perks.
+            </p>
+          </div>
+          <PrimaryButton onClick={onMembership}>Become a member</PrimaryButton>
         </div>
-        <PrimaryButton onClick={onMembership}>Become a member</PrimaryButton>
-      </div>
-      <PrimaryButton className="mt-12" onClick={onHome}>
+      )}
+      <PrimaryButton className="mt-9" onClick={onHome}>
         Go to home
       </PrimaryButton>
     </div>
@@ -744,7 +782,23 @@ function PrimaryButton({
     <button
       type="button"
       {...props}
-      className={`rounded-lg bg-[#3b93f7] px-7 py-2.5 text-base font-semibold text-white shadow-sm transition hover:bg-[#147fdd] disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+      className={`rounded-md bg-[#3b93f7] px-5 py-2 text-[14px] font-semibold text-white shadow-sm transition hover:bg-[#147fdd] disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function SecondaryButton({
+  children,
+  className = "",
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      type="button"
+      {...props}
+      className={`rounded-md border border-[#3b4866] bg-[#1b253d] px-5 py-2 text-[14px] font-semibold text-[#d8e1f5] transition hover:border-[#7282a8] hover:bg-[#26324d] disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
     >
       {children}
     </button>
