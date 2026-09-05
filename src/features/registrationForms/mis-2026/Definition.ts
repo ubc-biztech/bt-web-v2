@@ -2,8 +2,8 @@ import { z } from "zod";
 import type { RegistrationQuestion } from "@/types";
 
 export const MIS_CAREER_INTERESTS = [
-  "The Visionary",
   "The Architect",
+  "The Visionary",
   "The Designer",
   "The Logician",
   "The Strategist",
