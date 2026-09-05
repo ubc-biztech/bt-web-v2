@@ -163,7 +163,7 @@ export default function Membership() {
           type="button"
           onClick={startCheckout}
           disabled={isSubmitting}
-          className="mt-8 flex w-full justify-center rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-500 shadow-sm hover:bg-bt-green-500 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-8 flex w-full justify-center rounded-md bg-[#3b93f7] px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#147fdd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b93f7] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting
             ? "Starting checkout..."
