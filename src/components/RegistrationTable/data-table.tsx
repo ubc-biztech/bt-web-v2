@@ -190,6 +190,7 @@ export function DataTable({
         setGlobalFilter={setGlobalFilter}
         eventId={eventId}
         year={year}
+        isApplicationBased={eventData.isApplicationBased}
       />
 
       <TableComponent>

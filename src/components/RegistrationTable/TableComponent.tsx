@@ -27,6 +27,13 @@ export const TableHeader = <T,>({ table }: TableHeaderProps<T>) => (
         {headerGroup.headers.map((header) => (
           <TableHead
             key={header.id}
+            aria-sort={
+              header.column.getIsSorted() === "asc"
+                ? "ascending"
+                : header.column.getIsSorted() === "desc"
+                  ? "descending"
+                  : undefined
+            }
             className={cn(
               "text-white font-600 border-bt-blue-200 border truncate",
               (table.getIsSomePageRowsSelected() ||

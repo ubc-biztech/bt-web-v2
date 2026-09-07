@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
-import { Filter, Search, Download, Copy, Check } from "lucide-react";
+import { Columns3, Search, Download, Copy, Check } from "lucide-react";
 import { TableFilterButtons } from "./TableFilterButtons";
 import { TableIconButtons } from "./TableIconButtons";
 import { AddAttendeeDialog } from "./AddAttendeeDialog";
@@ -35,6 +35,9 @@ import {
 import { Input as SearchBar } from "@/components/RegistrationTable/Input";
 import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
+import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
+import { ColumnMeta } from "./columns";
+import { RegistrationFilters } from "./RegistrationFilters";
 import { Label } from "@/components/ui/label";
 
 interface TableHeaderProps {
@@ -49,6 +52,7 @@ interface TableHeaderProps {
   setGlobalFilter: (updater: any) => void;
   eventId: string;
   year: string;
+  isApplicationBased: boolean;
 }
 
 type SelectValue =
@@ -76,6 +80,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   setGlobalFilter,
   eventId,
   year,
+  isApplicationBased,
 }) => {
   const selectedRowsCount = Object.keys(rowSelection).length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
@@ -100,7 +105,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   const handleMassUpdate = async () => {
-    if (!newStatus) return;
+    if (!isApplicationBased || !newStatus) return;
     const selectedRows = getSelectedRows();
     setIsSubmitting(true);
     setMassUpdateError(null);
@@ -183,7 +188,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       "First Name",
       "Last Name",
       "Registration Status",
-      "Application Status",
+      ...(isApplicationBased ? ["Application Status"] : []),
       "Points",
       "Is Partner",
       "Faculty",
@@ -198,7 +203,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       r.basicInformation?.fname || r.fname || "",
       r.basicInformation?.lname || r.lname || "",
       r.registrationStatus || "",
-      r.applicationStatus || "",
+      ...(isApplicationBased ? [r.applicationStatus || ""] : []),
       r.points ?? "",
       r.isPartner ? "Yes" : "No",
       r.basicInformation?.faculty || "",
@@ -236,11 +241,12 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-3 md:gap-0 xl:flex-row items-stretch xl:items-center justify-between">
+    <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center relative gap-1.5 md:gap-2 flex-wrap md:flex-nowrap">
         {selectedRowsCount > 0 && (
           <TableFilterButtons
             selectedRowsCount={selectedRowsCount}
+            isApplicationBased={isApplicationBased}
             table={table}
             setShowMassUpdateStatus={setShowMassUpdateStatus}
             setShowCreateTeam={setShowCreateTeam}
@@ -260,6 +266,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               <Button
                 variant="ghost"
                 className="bg-[#6578A8] rounded-md px-2"
+                aria-label="Export CSV"
                 onClick={handleExportCSV}
               >
                 <Download className="w-4 h-4" />
@@ -308,54 +315,45 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           className="bg-white shadow-inner-blue-concave"
         ></SearchBar>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger className="bg-[#6578A8] rounded-md">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="bg-[#6578A8] rounded-md px-2"
-                    ref={filterButtonRef}
-                  >
-                    <Filter />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className={"bg-[#485A85]"}>
-                  <DropdownMenuLabel className={"text-md font-600 pr-5"}>
-                    Filter by Column
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator className={"bg-[#8DA1D1]"} />
-                  <DropdownMenuCheckboxItem
-                    checked={table.getIsAllColumnsVisible()}
-                    onCheckedChange={table.getToggleAllColumnsVisibilityHandler()}
-                  >
-                    Show All
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuSeparator className={"bg-[#8DA1D1]"} />
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) =>
-                          column.toggleVisibility(value)
-                        }
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Filter</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="bg-[#6578A8] rounded-md px-2"
+              ref={filterButtonRef}
+              aria-label="Show or hide columns"
+            >
+              <Columns3 />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={"bg-[#485A85]"}>
+            <DropdownMenuLabel className={"text-md font-600 pr-5"}>
+              Show Columns
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className={"bg-[#8DA1D1]"} />
+            <DropdownMenuCheckboxItem
+              checked={table.getIsAllColumnsVisible()}
+              onCheckedChange={table.getToggleAllColumnsVisibilityHandler()}
+            >
+              Show All
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator className={"bg-[#8DA1D1]"} />
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(value)}
+                >
+                  {(column.columnDef.meta as ColumnMeta | undefined)?.label ||
+                    column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="flex flex-col sm:flex-row items-center justify-between space-x-2 mt-4 lg:mt-0">
@@ -368,7 +366,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           + Add Attendee
         </Button>
         <Select value={selectedValue} onValueChange={handleSelectChange}>
-          <SelectTrigger className="w-[180px] bg-bt-blue-400 text-white">
+          <SelectTrigger
+            aria-label="Registration view"
+            className="w-[180px] bg-bt-blue-400 text-white"
+          >
             <SelectValue placeholder="Attendees" />
           </SelectTrigger>
           <SelectContent className="bg-[#485A85] text-white">
@@ -386,6 +387,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           </SelectContent>
         </Select>
       </div>
+      <RegistrationFilters table={table} />
 
       <Dialog
         open={showMassUpdateStatus}
@@ -393,7 +395,9 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
       >
         <DialogContent className="max-w-md w-full bg-bt-blue-400">
           <DialogHeader>
-            <DialogTitle className="text-white">Mass Update Status</DialogTitle>
+            <DialogTitle className="text-white">
+              Update Application Status
+            </DialogTitle>
           </DialogHeader>
 
           {/* divider */}
@@ -423,12 +427,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="registered">Registered</SelectItem>
-              <SelectItem value="checkedIn">Checked-In</SelectItem>
-              <SelectItem value="accepted">Accepted</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-              <SelectItem value="waitlisted">Waitlisted</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              {APPLICATION_STATUS_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button
@@ -497,6 +500,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         onOpenChange={setShowAddAttendee}
         eventId={eventId}
         year={year}
+        isApplicationBased={isApplicationBased}
         refreshTable={refreshTable}
       />
 
