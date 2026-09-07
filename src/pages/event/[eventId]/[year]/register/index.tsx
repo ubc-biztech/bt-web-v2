@@ -250,7 +250,6 @@ export default function AttendeeFormRegister() {
     samePricing,
   ]);
 
-  // TODO?: are cancellations even useful? I don't think it's ever been used before.
   // TODO: implement dynamic workshop counts
 
   const submitRegistration = async (
@@ -403,6 +402,14 @@ export default function AttendeeFormRegister() {
     // TODO: Maybe put stripe link here if user registers, but doesn't complete payment. There status will be
     // INCOMPLETE, but they won't have access to the same checkout session.
     if (userRegistered) {
+      if (registrationStatus === DBRegistrationStatus.CANCELLED) {
+        return renderErrorText(
+          <p className="text-center text-white">
+            Your registration has been cancelled. If you change your mind,
+            contact the event team to register again.
+          </p>,
+        );
+      }
       if (regState?.isConfirmed && regState.isConfirmed()) {
         return renderErrorText(
           <div className="text-center">
