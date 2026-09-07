@@ -16,6 +16,7 @@ import { FilePenLine, UsersRound, Trash2 } from "lucide-react";
 
 interface TableFilterButtonsProps {
   selectedRowsCount: number;
+  isApplicationBased: boolean;
   table: Table<any>;
   setShowMassUpdateStatus: (show: boolean) => void;
   setShowCreateTeam: (show: boolean) => void;
@@ -24,6 +25,7 @@ interface TableFilterButtonsProps {
 
 export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
   selectedRowsCount,
+  isApplicationBased,
   table,
   setShowMassUpdateStatus,
   setShowCreateTeam,
@@ -58,16 +60,19 @@ export const TableFilterButtons: React.FC<TableFilterButtonsProps> = ({
             <TooltipContent>Add to Team</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <FilePenLine
+        {isApplicationBased && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger
+                aria-label="Update application status"
                 onClick={() => handleIconClick("massUpdateStatus")}
-              />
-            </TooltipTrigger>
-            <TooltipContent>Mass Update Status</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+              >
+                <FilePenLine />
+              </TooltipTrigger>
+              <TooltipContent>Update Application Status</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>

@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { Registration } from "@/types/types";
 import { Table } from "@tanstack/react-table";
+import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
 import { getStatusLabel } from "@/lib/registrationStatus";
 
 interface SelectCellProps {
@@ -71,21 +72,37 @@ const SelectCell: React.FC<SelectCellProps> = ({
     setValue(e.target.value);
   };
 
-  const getLabel = (value: string) => getStatusLabel(value);
+  const getLabel = (value: string) =>
+    column === "applicationStatus"
+      ? APPLICATION_STATUS_OPTIONS.find(
+          (option) => option.value === value.toLowerCase(),
+        )?.label || value
+      : getStatusLabel(value);
+  const selectedValue =
+    column === "applicationStatus"
+      ? String(value).toLowerCase()
+      : String(value);
 
   return (
     <div>
       {dropDownList ? (
-        <Select onValueChange={onSelectChange} defaultValue="Not Found">
-          <SelectTrigger className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100">
+        <Select onValueChange={onSelectChange} value={selectedValue}>
+          <SelectTrigger
+            aria-label={
+              column === "applicationStatus"
+                ? "Application status"
+                : "Registration status"
+            }
+            className="p3 rounded-none bg-bt-blue-400 text-white p-0 border-0 border-b-2 border-b-bt-blue-100"
+          >
             <SelectValue>{getLabel(value as string)}</SelectValue>
           </SelectTrigger>
-          <SelectContent className="focus:border-0 bg-white">
+          <SelectContent className="focus:border-0 bg-bt-blue-400 text-white">
             <SelectGroup>
               {/* Use the key to access the correct dropDownList */}
               {dropDownList.map((item) => (
                 <SelectItem key={item} value={item}>
-                  {item}
+                  {getLabel(item)}
                 </SelectItem>
               ))}
             </SelectGroup>

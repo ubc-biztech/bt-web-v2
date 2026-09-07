@@ -19,6 +19,7 @@ interface AddAttendeeDialogProps {
   onOpenChange: (open: boolean) => void;
   eventId: string;
   year: string;
+  isApplicationBased: boolean;
   refreshTable: () => Promise<void>;
 }
 
@@ -27,6 +28,7 @@ export const AddAttendeeDialog: React.FC<AddAttendeeDialogProps> = ({
   onOpenChange,
   eventId,
   year,
+  isApplicationBased,
   refreshTable,
 }) => {
   const { toast } = useToast();
@@ -62,7 +64,9 @@ export const AddAttendeeDialog: React.FC<AddAttendeeDialogProps> = ({
           eventID: eventId,
           year: Number(year),
           registrationStatus: DBRegistrationStatus.REGISTERED,
-          applicationStatus: ApplicationStatus.REVIEWING,
+          applicationStatus: isApplicationBased
+            ? ApplicationStatus.REVIEWING
+            : "",
         },
         authenticatedCall: true,
       });
