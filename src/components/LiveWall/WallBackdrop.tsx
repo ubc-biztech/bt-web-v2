@@ -17,6 +17,10 @@ export default function WallBackdrop() {
     <div
       className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
       style={{
+        // The container behind this is black, so opacity reads the way you'd
+        // expect: lower = closer to black = darker. (Over the old #1a1a1a
+        // ground it did the opposite, lifting the blacks toward grey.)
+        opacity: 0.4,
         backgroundColor: WALL_PALETTE.ground,
         backgroundImage: `url(${WALL_BG})`,
         backgroundSize: "cover",
