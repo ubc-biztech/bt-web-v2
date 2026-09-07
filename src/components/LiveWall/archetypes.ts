@@ -14,20 +14,36 @@ export const ARCHETYPES = [
 export type Archetype = (typeof ARCHETYPES)[number];
 
 export const ARCHETYPE_ICON: Record<Archetype, string> = {
-  ARCHITECT: "/assets/misnight/mis_architect.svg",
-  DESIGNER: "/assets/misnight/mis_designer.svg",
-  LOGICIAN: "/assets/misnight/mis_logician.svg",
-  STRATEGIST: "/assets/misnight/mis_strategist.svg",
-  VISIONARY: "/assets/misnight/mis_visionary.svg",
+  ARCHITECT: "/assets/misnight/Architect.svg",
+  DESIGNER: "/assets/misnight/Designers.svg",
+  LOGICIAN: "/assets/misnight/Logician.svg",
+  STRATEGIST: "/assets/misnight/Strategist.svg",
+  VISIONARY: "/assets/misnight/Visionaries.svg",
 };
 
 /** Dominant colour of each illustration — used for the node glow/bloom. */
 export const ARCHETYPE_COLOR: Record<Archetype, string> = {
-  ARCHITECT: "#ED9407",
+  ARCHITECT: "#FF7A32",
   DESIGNER: "#FFFF57",
   LOGICIAN: "#947FFE",
-  STRATEGIST: "#109AFF",
-  VISIONARY: "#D44142",
+  STRATEGIST: "#71FC7A",
+  VISIONARY: "#FF7CC4",
+};
+
+/**
+ * Per-archetype size trim.
+ *
+ * The illustrations were exported with inconsistent viewBoxes: Visionaries is
+ * 996x932 with the character filling only ~0.66x0.84 of it, while the others
+ * run edge to edge at ~635x616. Drawn into one box that makes visionaries
+ * read small, so each is nudged back to a common apparent size here.
+ */
+export const ARCHETYPE_SCALE: Record<Archetype, number> = {
+  ARCHITECT: 1,
+  DESIGNER: 1.05,
+  LOGICIAN: 1,
+  STRATEGIST: 0.92,
+  VISIONARY: 1.6,
 };
 
 export const isArchetype = (v: any): v is Archetype =>
