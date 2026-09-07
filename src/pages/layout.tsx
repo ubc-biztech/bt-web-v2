@@ -5,7 +5,6 @@ import { useRouter } from "next/router";
 import MembershipPrompt from "@/components/MembershipPrompt";
 import OnboardingChecker from "@/components/OnboardingChecker";
 
-
 const membershipPromptRoutes = new Set([
   "/",
   "/events",

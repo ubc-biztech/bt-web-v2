@@ -87,7 +87,7 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
   const questions = isPartnerForm ? partnerQuestions : customQuestions;
   const formDescription = isPartnerForm ? partnerDescription : description;
 
-  const customQuestions = questions?.map((question, index) => {
+  const renderedQuestions = questions?.map((question, index) => {
     const key = `${question.type}-${question.question}`;
 
     if (question.type === "SELECT" || question.type === "WORKSHOP_SELECTION") {
@@ -211,7 +211,7 @@ export const PreviewForm: React.FC<PreviewFormProps> = ({
         options={HEAR_ABOUT_OPTIONS}
       />
 
-      {customQuestions}
+      {renderedQuestions}
     </div>
   );
 };

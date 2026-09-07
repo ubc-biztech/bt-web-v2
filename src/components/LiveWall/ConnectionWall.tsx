@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
