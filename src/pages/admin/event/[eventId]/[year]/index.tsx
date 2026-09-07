@@ -1,83 +1,149 @@
 import { useRouter } from "next/router";
 import { DataTable } from "@/components/RegistrationTable/data-table";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
 import { Button } from "@/components/ui/button";
-import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Registration } from "@/types/types";
-import { BiztechEvent, RegistrationQuestion } from "@/types";
+import { RegistrationQuestion } from "@/types";
 import Link from "next/link";
 import {
   ChartLine,
-  Edit,
   Eye,
   MessageSquareText,
   Pencil,
   Table2,
   UsersRound,
 } from "lucide-react";
-import Tabs from "@/components/EventsDashboard/Tabs";
 import DynamicTabs from "@/components/EventsDashboard/Tabs";
-import TeamsTab from "@/components/EventsDashboard/TeamsTab";
-import AnalyticsTab from "@/components/EventsDashboard/AnalyticsTab";
-import FeedbackTab from "@/components/EventsDashboard/FeedbackTab";
+const TeamsTab = dynamic(
+  () => import("@/components/EventsDashboard/TeamsTab"),
+  {
+    loading: () => (
+      <p role="status" className="text-white p-4">
+        Loading tab...
+      </p>
+    ),
+  },
+);
+const AnalyticsTab = dynamic(
+  () => import("@/components/EventsDashboard/AnalyticsTab"),
+  {
+    loading: () => (
+      <p role="status" className="text-white p-4">
+        Loading tab...
+      </p>
+    ),
+  },
+);
+const FeedbackTab = dynamic(
+  () => import("@/components/EventsDashboard/FeedbackTab"),
+  {
+    loading: () => (
+      <p role="status" className="text-white p-4">
+        Loading tab...
+      </p>
+    ),
+  },
+);
 import EventOverviewGraphic from "@/components/EventsDashboard/EventOverviewGraphic";
 
-type Props = {
-  initialData: Registration[] | null;
-  eventData: any | null;
-};
-
-export default function AdminEvent({ initialData, eventData }: Props) {
+export default function AdminEvent() {
   const router = useRouter();
-  const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Registration[] | null>(initialData);
-  const [dynamicColumns, setDynamicColumns] = useState<
-    ColumnDef<Registration>[]
-  >([]);
+  const { eventId, year } = router.query;
+  if (
+    !router.isReady ||
+    typeof eventId !== "string" ||
+    typeof year !== "string"
+  ) {
+    return null;
+  }
+
+  // Next reuses this page between events; remount to clear the previous event's data.
+  return (
+    <AdminEventContent
+      key={`${eventId}/${year}`}
+      eventId={eventId}
+      year={year}
+    />
+  );
+}
+
+function AdminEventContent({
+  eventId,
+  year,
+}: {
+  eventId: string;
+  year: string;
+}) {
+  const router = useRouter();
+  const [isLoading, setLoading] = useState(true);
+  const [data, setData] = useState<Registration[] | null>(null);
+  const [eventData, setEventData] = useState<any | null>(null);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    if (router.isReady) {
-      const eventId = router.query.eventId as string;
-      const year = router.query.year as string;
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
 
-      if (eventId && year) {
-        fetchBackend({
-          endpoint: `/events/${eventId}/${year}`,
-          method: "GET",
-          authenticatedCall: false,
-        }).then((eventDetails: BiztechEvent) => {
-          const questionColumns =
-            eventDetails.registrationQuestions?.map(
-              (q: RegistrationQuestion) => ({
-                id: q.label,
-                header: q.label,
-                accessorFn: (row: any) => {
-                  return (
-                    row.dynamicResponses?.[q.questionId] ??
-                    row.dynamicResponses?.[
-                      (
-                        eventDetails?.registrationQuestionsAlternate as RegistrationQuestion[]
-                      )?.find(
-                        (altQ: RegistrationQuestion) => altQ.label === q.label,
-                      )?.questionId ?? ""
-                    ] ??
-                    ""
-                  );
-                },
-              }),
-            ) || [];
-          setDynamicColumns(questionColumns);
+    Promise.all([
+      fetchBackend({
+        endpoint: `/registrations?eventID=${encodeURIComponent(eventId)}&year=${encodeURIComponent(year)}`,
+        method: "GET",
+        authenticatedCall: true,
+      }),
+      fetchBackend({
+        endpoint: `/events/${encodeURIComponent(eventId)}/${encodeURIComponent(year)}`,
+        method: "GET",
+        authenticatedCall: false,
+      }),
+    ])
+      .then(([registrations, event]) => {
+        if (!event || !Array.isArray(registrations?.data)) {
+          throw new Error("Invalid event data response");
+        }
+        if (cancelled) return;
+        setData(registrations.data);
+        setEventData({
+          ...event,
+          registrationQuestions: event.registrationQuestions || [],
+          counts: event.counts || {},
         });
-        console.log(data);
-        console.log("temp");
-      }
-    }
-  }, [router.isReady, router.query.eventId, router.query.year]);
+      })
+      .catch(() => {
+        if (!cancelled) setError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-  if (!router.isReady) return null;
+    return () => {
+      cancelled = true;
+    };
+  }, [eventId, year, attempt]);
+
+  const dynamicColumns = useMemo<ColumnDef<Registration>[]>(
+    () =>
+      eventData?.registrationQuestions?.map((q: RegistrationQuestion) => ({
+        id: q.label,
+        header: q.label,
+        accessorFn: (row: Registration) =>
+          row.dynamicResponses?.[q.questionId] ??
+          row.dynamicResponses?.[
+            (
+              eventData.registrationQuestionsAlternate as
+                | RegistrationQuestion[]
+                | undefined
+            )?.find((altQ) => altQ.label === q.label)?.questionId ?? ""
+          ] ??
+          "",
+      })) || [],
+    [eventData],
+  );
 
   const tabs = [
     {
@@ -125,7 +191,7 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         <div className="flex justify-center items-center h-64">
           <p className="text-white">Loading...</p>
         </div>
-      ) : !data ? (
+      ) : !data || !eventData ? (
         <div className="flex justify-center items-center h-64">
           <p className="text-white">Event not found</p>
         </div>
@@ -206,45 +272,34 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         </div>
 
         <div className="mt-4 md:mt-6 w-full">
-          <DynamicTabs tabs={tabs} panels={panels} />
+          {error ? (
+            <div
+              role="alert"
+              className="flex flex-col items-center gap-4 py-16 text-white"
+            >
+              <p>Could not load event data. Please try again.</p>
+              <Button onClick={() => setAttempt((value) => value + 1)}>
+                Retry
+              </Button>
+            </div>
+          ) : isLoading ? (
+            <div
+              role="status"
+              className="flex justify-center items-center h-64 text-white"
+            >
+              Loading event data...
+            </div>
+          ) : (
+            <DynamicTabs tabs={tabs} panels={panels} />
+          )}
         </div>
       </div>
     </main>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { eventId, year } = context.params as { eventId: string; year: string };
-
-  try {
-    const [registrationData, eventData] = await Promise.all([
-      fetchBackend({
-        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
-        method: "GET",
-        authenticatedCall: false,
-      }),
-      fetchBackend({
-        endpoint: `/events/${eventId}/${year}`,
-        method: "GET",
-        authenticatedCall: false,
-      }),
-    ]);
-
-    if (!eventData.registrationQuestions) {
-      eventData.registrationQuestions = [];
-    }
-    if (!eventData.counts) {
-      eventData.counts = {};
-    }
-
-    return {
-      props: {
-        initialData: registrationData.data,
-        eventData: eventData,
-      },
-    };
-  } catch (error) {
-    console.error("Failed to fetch initial data:", error);
-    return { props: { initialData: null, eventData: null } };
-  }
-};
+// Keep server-side routing so middleware still checks admin access on navigation.
+// Data loads in the browser instead of blocking the route response.
+export const getServerSideProps: GetServerSideProps = async () => ({
+  props: {},
+});
