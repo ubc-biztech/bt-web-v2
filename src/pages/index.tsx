@@ -7,7 +7,9 @@ import Divider from "@/components/Common/Divider";
 import { GenericCard } from "@/components/Common/Cards";
 import Image from "next/image";
 import { IconButton } from "@/components/Common/IconButton";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Pencil } from "lucide-react";
+import Link from "next/link";
+import { useAuthState } from "@/queries/user";
 import EventsAttended from "@/components/Blocks/EventsAttended";
 import { getHighlightedEvent } from "@/util/sort";
 import { format, toDate } from "date-fns";
@@ -28,6 +30,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   highlightedEvent,
 }) => {
   const router = useRouter();
+  const { isAdmin } = useAuthState();
   const [profile, setProfile] = useState<User | null>(null);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -116,12 +119,20 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       />
       <div className="grid lg:grid-cols-2 grid-cols-1 gap-6 mt-6">
         <GenericCard
+          className="relative flex flex-col gap-1"
           title={
             getEventState(highlightedEvent) === "Past"
               ? "Our Latest Event"
               : "Our Next Event"
           }
         >
+          {isAdmin && highlightedEvent && (
+            <Link
+              href={`/admin/event/${highlightedEvent.id}/${highlightedEvent.year}/edit`}
+              aria-label={`Edit ${highlightedEvent.ename}`}
+              className="absolute inset-0 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-bt-green-300"
+            />
+          )}
           <div className="text-bt-blue-0 h-full flex flex-col justify-center">
             <BizImage
               height={480}
@@ -141,19 +152,36 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   </p>
                 </div>
 
-                <IconButton
-                  label="View Details"
-                  icon={ArrowUpRight}
-                  iconDirection="right"
-                  onClick={() =>
-                    router.push(
-                      `/event/${highlightedEvent?.id}/${highlightedEvent.year}`,
-                    )
-                  }
-                  size="lg"
-                  className="bg-bt-green-500 hover:bg-bt-green-700 text-bt-blue-600 rounded-full"
-                  disabled={getEventState(highlightedEvent) === "Past"}
-                />
+                <div className="relative z-10 flex flex-wrap gap-2">
+                  <IconButton
+                    label="View Details"
+                    icon={ArrowUpRight}
+                    iconDirection="right"
+                    onClick={() =>
+                      router.push(
+                        `/event/${highlightedEvent?.id}/${highlightedEvent.year}`,
+                      )
+                    }
+                    size="lg"
+                    className="bg-bt-green-500 hover:bg-bt-green-700 text-bt-blue-600 rounded-full"
+                    disabled={getEventState(highlightedEvent) === "Past"}
+                  />
+                  {isAdmin && (
+                    <IconButton
+                      label="Edit Event"
+                      icon={Pencil}
+                      iconDirection="right"
+                      onClick={() =>
+                        router.push(
+                          `/admin/event/${highlightedEvent.id}/${highlightedEvent.year}/edit`,
+                        )
+                      }
+                      size="lg"
+                      variant="green-outline"
+                      className="rounded-full"
+                    />
+                  )}
+                </div>
               </div>
             ) : (
               <div className="h-full w-full place-content-center text-center text-bt-blue-0">
@@ -164,7 +192,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         </GenericCard>
 
         <GenericCard title="Events Attended">
-          <EventsAttended events={events} registrations={registrations} />
+          <EventsAttended
+            events={events}
+            registrations={registrations}
+            isAdmin={isAdmin}
+          />
         </GenericCard>
       </div>
     </div>
