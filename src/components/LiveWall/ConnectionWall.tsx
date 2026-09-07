@@ -5,13 +5,10 @@ import dynamic from "next/dynamic";
 import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
 // MOCK: delete this import + ./mockData.ts to restore live data
-import {
-  USE_MOCK_WALL_DATA,
-  getMockSnapshot,
-  MOCK_PEOPLE,
-} from "./mockData";
+import { USE_MOCK_WALL_DATA, getMockSnapshot, MOCK_PEOPLE } from "./mockData";
 import {
   ARCHETYPE_COLOR,
+  ARCHETYPE_SCALE,
   ARCHETYPE_ICON,
   archetypeFor,
   getArchetypeImage,
@@ -92,7 +89,7 @@ const STREAK_THRESHOLD = 3;
 const QR_URL = process.env.NEXT_PUBLIC_WALL_QR_URL || "";
 
 const CROWN_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
-const CROWN_GLOW = 108 * VIS;
+const CROWN_GLOW = 190 * VIS;
 
 const HEATMAP_WINDOW_MS = 5 * 60_000;
 const HEATMAP_ENABLED_DEFAULT = true;
@@ -104,8 +101,6 @@ const TRAIL_WINDOW_MS = 90_000;
 const TRAIL_MAX = 2000;
 const TRAIL_LINE_WIDTH = 1 * VIS;
 const TRAIL_DASH: [number, number] = [4 * VIS, 6 * VIS];
-
-const LABEL_ZOOM_THRESHOLD = 0.8 / VIS;
 
 /* ───────────────────────── milestones ─────────────────────── */
 const MILESTONE_THRESHOLDS = [
@@ -414,7 +409,8 @@ const motionSeeds = new Map<string, MotionSeed>();
 const motionSeed = (id: string): MotionSeed => {
   let seed = motionSeeds.get(id);
   if (!seed) {
-    const flipPeriod = FLIP_MIN_MS + Math.random() * (FLIP_MAX_MS - FLIP_MIN_MS);
+    const flipPeriod =
+      FLIP_MIN_MS + Math.random() * (FLIP_MAX_MS - FLIP_MIN_MS);
     seed = {
       bobPhase: Math.random() * Math.PI * 2,
       bobPeriod: BOB_PERIOD_MS * (0.85 + Math.random() * 0.4),
@@ -447,6 +443,19 @@ const idleMotion = (id: string, rr: number, now: number) => {
   }
 
   return { bobY, sx, sy };
+};
+
+/**
+ * Size an illustration into a box of side `box` without squashing it, then
+ * apply that archetype's trim. The exports run from aspect 0.79 (Strategist,
+ * tall and narrow) to 1.07, so drawing them all into a square stretched some
+ * characters wider than others.
+ */
+const fitIcon = (icon: HTMLImageElement, arche: Archetype, box: number) => {
+  const iw = icon.naturalWidth || 1;
+  const ih = icon.naturalHeight || 1;
+  const k = (box * ARCHETYPE_SCALE[arche]) / Math.max(iw, ih);
+  return { w: iw * k, h: ih * k };
 };
 
 const drawLabel = (
@@ -616,6 +625,14 @@ export default function ConnectionWall() {
   /* ── trails & heatmap ── */
   const [trails, setTrails] = useState<Trail[]>([]);
   const [heatmapEnabled, setHeatmapEnabled] = useState(HEATMAP_ENABLED_DEFAULT);
+
+  /**
+   * Name tags for the current frame, drawn after every node so no character
+   * can land on top of someone else's name.
+   */
+  const labelQueue = useRef<
+    { text: string; x: number; y: number; size: number; alpha: number }[]
+  >([]);
 
   /* ── ticker measure ── */
   const tickerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -1466,7 +1483,9 @@ export default function ConnectionWall() {
 
       /* the roster is finite, so skip pairs already on the wall — otherwise
          the ticker would announce a connection that draws no new link */
-      if (pairKeySetRef.current.has(pairKey({ source: from.id, target: to.id })))
+      if (
+        pairKeySetRef.current.has(pairKey({ source: from.id, target: to.id }))
+      )
         return;
 
       const now = Date.now();
@@ -1713,13 +1732,13 @@ export default function ConnectionWall() {
   /* ════════════════════════════════════════════════════════════ */
   return (
     <div
-      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-[#1a1a1a] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
+      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-black overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
     >
       <WallBackdrop />
 
       {/* ── header ── */}
       {!kiosk && (
-        <div className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
+        <div className="relative z-20 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className={`w-2 h-2 rounded-full shrink-0 ${
@@ -1900,7 +1919,7 @@ export default function ConnectionWall() {
 
       {/* ── search bar ── */}
       {searchOpen && !kiosk && (
-        <div className="absolute top-14 left-4 z-30 w-80 max-w-[calc(100vw-2rem)]">
+        <div className="absolute top-14 left-4 z-40 w-80 max-w-[calc(100vw-2rem)]">
           <div className="rounded-xl border border-white/15 bg-[#1c1c1c]/95 backdrop-blur-md shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10">
               <Search className="w-4 h-4 text-white/50 shrink-0" />
@@ -1943,7 +1962,7 @@ export default function ConnectionWall() {
                       <img
                         src={ARCHETYPE_ICON[nodeArchetype(n, n.id)]}
                         alt=""
-                        className="w-5 h-5 shrink-0"
+                        className="w-5 h-5 shrink-0 object-contain"
                       />
                       <div className="min-w-0">
                         <div className="text-white text-sm truncate">
@@ -1967,7 +1986,7 @@ export default function ConnectionWall() {
 
       {/* ── analytics panel ── */}
       {showAnalytics && !kiosk && networkStats && (
-        <aside className="absolute left-3 top-14 z-10 mt-4">
+        <aside className="absolute left-3 top-14 z-30 mt-4">
           <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-3">
               <div className="flex items-center gap-2">
@@ -2065,7 +2084,7 @@ export default function ConnectionWall() {
 
       {/* ── leaderboard ── */}
       {showLeaderboard && !kiosk && (
-        <aside className="absolute right-3 top-14 z-10 hidden xl:block mt-4">
+        <aside className="absolute right-3 top-14 z-30 hidden xl:block mt-4">
           <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-2">
               <div className="flex items-center gap-2">
@@ -2109,7 +2128,7 @@ export default function ConnectionWall() {
 
       {/* ── node detail panel ── */}
       {detailNode && !kiosk && (
-        <aside className="absolute right-3 bottom-20 z-20 hidden md:block">
+        <aside className="absolute right-3 bottom-20 z-30 hidden md:block">
           <div className="w-[280px] rounded-xl border border-white/10 bg-[#1c1c1c]/95 backdrop-blur-md p-3 shadow-2xl">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 min-w-0">
@@ -2121,7 +2140,7 @@ export default function ConnectionWall() {
                     ]
                   }
                   alt=""
-                  className="w-6 h-6 shrink-0"
+                  className="w-6 h-6 shrink-0 object-contain"
                 />
                 <h3 className="text-white font-medium text-sm truncate">
                   {fullName(detailNode.node.name, detailNode.node.id)}
@@ -2219,7 +2238,7 @@ export default function ConnectionWall() {
 
       {/* ── path finder panel ── */}
       {pathMode && !kiosk && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 mt-1">
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 mt-1">
           <div className="rounded-xl border border-violet-400/20 bg-[#1c1c1c]/95 backdrop-blur-md px-4 py-2.5 shadow-2xl flex items-center gap-3 text-sm">
             <Route className="w-4 h-4 text-violet-400 shrink-0" />
             {!pathStart && (
@@ -2280,7 +2299,7 @@ export default function ConnectionWall() {
 
       {/* ── milestone celebration ── */}
       {milestone && (
-        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
           <div className="animate-[milestoneIn_6s_ease-out_forwards] flex flex-col items-center gap-3">
             <div className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-500/20 via-emerald-500/20 to-violet-500/20 border border-emerald-300/30 shadow-2xl backdrop-blur-md">
               <PartyPopper className="w-8 h-8 text-yellow-400" />
@@ -2301,7 +2320,7 @@ export default function ConnectionWall() {
       )}
 
       {/* ── spotlight banner ── */}
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-3 z-20 space-y-2">
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-3 z-40 space-y-2">
         {spotlights.slice(0, 2).map((s) => (
           <div
             key={s.id}
@@ -2313,7 +2332,7 @@ export default function ConnectionWall() {
       </div>
 
       {/* ── achievement toasts ── */}
-      <div className="pointer-events-none absolute left-3 bottom-20 z-20 space-y-2">
+      <div className="pointer-events-none absolute left-3 bottom-20 z-40 space-y-2">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -2350,6 +2369,8 @@ export default function ConnectionWall() {
             ctx: CanvasRenderingContext2D,
             globalScale: number,
           ) => {
+            labelQueue.current.length = 0;
+
             try {
               const arr: any[] = graphDataRef.current.nodes || [];
               const nodeIndex: Record<string, any> = {};
@@ -2420,6 +2441,16 @@ export default function ConnectionWall() {
                 ctx.restore();
               }
             } catch {}
+          }}
+          onRenderFramePost={(ctx: CanvasRenderingContext2D) => {
+            // topmost canvas layer: edges, then characters, then names
+            for (const l of labelQueue.current) {
+              ctx.save();
+              ctx.globalAlpha = l.alpha;
+              drawLabel(ctx, l.text, l.x, l.y, l.size);
+              ctx.restore();
+            }
+            labelQueue.current.length = 0;
           }}
           onEngineStop={() => {
             const g = fgRef.current as any;
@@ -2745,7 +2776,8 @@ export default function ConnectionWall() {
               // sx sweeps +1 → 0 → -1 for the flip, sy squashes on the way
               ctx.translate(node.x, node.y + bobY);
               ctx.scale(sx, sy);
-              ctx.drawImage(icon, -rr, -rr, iconSize, iconSize);
+              const fit = fitIcon(icon, arche, iconSize);
+              ctx.drawImage(icon, -fit.w / 2, -fit.h / 2, fit.w, fit.h);
             } else {
               // illustration not decoded yet — fall back to the dot
               ctx.beginPath();
@@ -2760,34 +2792,41 @@ export default function ConnectionWall() {
               const rank = rankMap[id];
               const color = CROWN_COLORS[rank];
               ctx.save();
-              ctx.shadowColor = color;
-              ctx.shadowBlur = CROWN_GLOW;
-              ctx.strokeStyle = color;
-              ctx.lineWidth = 2.4 * VIS;
               ctx.globalAlpha = nodeAlpha;
+              ctx.shadowColor = color;
+              ctx.strokeStyle = color;
+
+              // stroked three times over: canvas caps how much a single
+              // shadow can build up, so stacking passes is what actually
+              // reads as a glow rather than a slightly fuzzy ring
+              ctx.shadowBlur = CROWN_GLOW;
+              ctx.lineWidth = 1.6 * VIS;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.stroke();
+
+              ctx.shadowBlur = CROWN_GLOW * 0.45;
+              ctx.lineWidth = 2.6 * VIS;
               ctx.beginPath();
               ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
               ctx.stroke();
               ctx.restore();
             }
 
-            // label
-            const show =
-              globalScale > LABEL_ZOOM_THRESHOLD ||
-              hoverId === id ||
-              focusedId === id ||
-              highlightSet.has(id);
-            if (show && nodeAlpha > 0.3) {
-              const label = firstName(node.name, id);
-              const fontSize = Math.max(8 * VIS, (9 * VIS) / globalScale);
-              drawLabel(
-                ctx,
-                label,
-                node.x + rr + 4 * VIS,
-                node.y + 0.5,
-                fontSize,
-              );
-            }
+            // Name tags are queued, not drawn here: force-graph paints nodes
+            // one at a time, so a tag drawn inline gets covered by whichever
+            // character is painted next. The queue is flushed in
+            // onRenderFramePost, once every character is down.
+            labelQueue.current.push({
+              text: firstName(node.name, id),
+              x: node.x + rr + 4 * VIS,
+              y: node.y + 0.5,
+              // divided by globalScale, so it holds one size on screen
+              size: Math.max(8 * VIS, (9 * VIS) / globalScale),
+              // dimmed nodes keep a readable floor instead of fading out
+              alpha: Math.max(0.72, nodeAlpha),
+            });
           }}
           nodePointerAreaPaint={(
             node: any,
@@ -2798,7 +2837,13 @@ export default function ConnectionWall() {
             const r = (4 + Math.min(7, Math.sqrt(degree[id] || 1) * 1.4)) * VIS;
             ctx.fillStyle = color;
             ctx.beginPath();
-            ctx.arc(node.x, node.y, (r * ICON_SCALE) / 2 + 2 * VIS, 0, 2 * Math.PI);
+            ctx.arc(
+              node.x,
+              node.y,
+              (r * ICON_SCALE) / 2 + 2 * VIS,
+              0,
+              2 * Math.PI,
+            );
             ctx.fill();
           }}
         />
@@ -2811,8 +2856,8 @@ export default function ConnectionWall() {
             <div className="relative w-full">
               {ticker.length === 0 ? (
                 <div className="text-white/50 text-sm py-1">
-                  Connections appear in real-time. Use NFC Cards to light up
-                  the wall. Press S to search, H for heatmap.
+                  Connections appear in real-time. Use NFC Cards to light up the
+                  wall. Press S to search, H for heatmap.
                 </div>
               ) : (
                 <div
