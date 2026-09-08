@@ -2,13 +2,41 @@ import { useEvent, useEventCounts } from "@/queries/events";
 import { useUserRegistrations } from "@/queries/registrations";
 import { useUserAttributes } from "@/queries/user";
 import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
+import { DBRegistrationStatus } from "@/types/types";
 import { useRouter } from "next/router";
 import { EventAboutCard, EventHeroHeader } from "./EventHeroHeader";
 import { EventModuleRenderer } from "./EventModuleRenderer";
-import type { EventHomeEvent, EventRegistrationRecord } from "./types";
+import { QaModule } from "../qa/QaModule";
+import type {
+  EventHomeEvent,
+  EventPageModule,
+  EventRegistrationRecord,
+} from "./types";
 
 const getRouteParam = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
+
+function canShowQaModule(
+  module: EventPageModule,
+  registration: EventRegistrationRecord | undefined,
+  signedIn: boolean,
+) {
+  switch (module.visibility) {
+    case "public":
+      return true;
+    case "signedIn":
+      return signedIn;
+    case "registered":
+      return Boolean(registration);
+    case "checkedIn":
+      return (
+        registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN
+      );
+    case "admin":
+    default:
+      return false;
+  }
+}
 
 function EventHomeSkeleton() {
   return (
@@ -104,16 +132,31 @@ export default function EventHomePage() {
                   <EventAboutCard event={configuredEvent} />
                 </div>
 
-                <EventModuleRenderer
-                  className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,527px)_minmax(0,1fr)]"
-                  event={configuredEvent}
-                  counts={counts}
-                  modules={contentModules}
-                  registration={registration}
-                  registrationLoading={registrationLoading}
-                  registrationHref={registrationHref}
-                  signedIn={signedIn}
-                />
+                <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,527px)_minmax(0,1fr)]">
+                  {contentModules.map((module) =>
+                    module.id === "qa" ? (
+                      canShowQaModule(module, registration, signedIn) ? (
+                        <QaModule
+                          key={module.id}
+                          eventId={configuredEvent.id}
+                          year={String(configuredEvent.year)}
+                        />
+                      ) : null
+                    ) : (
+                      <EventModuleRenderer
+                        key={module.id}
+                        className="contents"
+                        event={configuredEvent}
+                        counts={counts}
+                        modules={[module]}
+                        registration={registration}
+                        registrationLoading={registrationLoading}
+                        registrationHref={registrationHref}
+                        signedIn={signedIn}
+                      />
+                    ),
+                  )}
+                </div>
               </div>
             </div>
           </>

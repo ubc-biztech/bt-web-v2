@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
+import { CancelRegistrationButton } from "./CancelRegistrationButton";
 import type {
   EventCounts,
   EventHomeEvent,
@@ -86,7 +87,9 @@ function getRegistrationCopy({
               ? "Please proceed to checkout to confirm."
               : needsAction
                 ? `Complete the remaining ${registrationLabel.toLowerCase()} steps to confirm your spot.`
-                : `Your ${registrationLabel.toLowerCase()} is already on file for this event.`;
+                : rawStatus === DBRegistrationStatus.CANCELLED
+                  ? "Your registration has been cancelled. If you change your mind, contact the event team to register again."
+                  : `Your ${registrationLabel.toLowerCase()} is already on file for this event.`;
 
     return {
       status: statusLabel,
@@ -196,7 +199,9 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     event,
     registration?.registrationStatus,
   );
-  const shouldShowRegistrationCta = !isConfirmed;
+  const shouldShowRegistrationCta =
+    !isConfirmed &&
+    registration?.registrationStatus !== DBRegistrationStatus.CANCELLED;
   const shouldShowBuildingBlockCta =
     isMISNightEventId(event.id) &&
     (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
@@ -291,6 +296,9 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       ) : null}
+      {props.signedIn && !registrationLoading && registration && (
+        <CancelRegistrationButton event={event} registration={registration} />
+      )}
     </section>
   );
 }

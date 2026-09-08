@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Column } from "@tanstack/react-table";
 import { CircleChevronDown, CircleChevronUp } from "lucide-react";
 
@@ -11,32 +11,26 @@ export const SortableHeader = <T,>({
   column,
   title,
 }: SortableHeaderProps<T>) => {
-  const [hover, setHover] = useState(false);
+  const sorted = column.getIsSorted();
+  const Icon = sorted === "desc" ? CircleChevronDown : CircleChevronUp;
+
   return (
-    <div
-      className={`group cursor-pointer select-none ${
-        column.getIsSorted() === "asc" || column.getIsSorted() === "desc"
-          ? "text-black"
-          : "hover:text-black text-white"
-      } transition-colors duration-200 ease-in-out inline-flex gap-1`}
+    <button
+      type="button"
+      className="group inline-flex items-center gap-2 whitespace-nowrap text-white hover:text-bt-blue-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
       onClick={column.getToggleSortingHandler()}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      aria-label={`Sort by ${title}`}
     >
       {title}
-      <div
-        className={`${
-          column.getIsSorted() === "asc"
-            ? "text-bt-green-300" // Color for ascending sort
-            : column.getIsSorted() === "desc"
-              ? "text-bt-red-200" // Color for descending sort
-              : "text-black" // Default color for unsorted
+      {/* Keep the icon's space even when unsorted, so hover cannot resize the column. */}
+      <Icon
+        aria-hidden="true"
+        className={`h-5 w-5 shrink-0 transition-opacity ${
+          sorted
+            ? "text-bt-green-300 opacity-100"
+            : "opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
         }`}
-      >
-        {(column.getIsSorted() === "asc" ||
-          (hover && column.getIsSorted() != "desc")) && <CircleChevronUp />}
-        {column.getIsSorted() === "desc" && <CircleChevronDown />}
-      </div>
-    </div>
+      />
+    </button>
   );
 };

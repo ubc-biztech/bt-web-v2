@@ -34,3 +34,21 @@ export function useUserAttributes() {
     retry: 1,
   });
 }
+
+/**
+ * Sign-in state for components that gate UI on it. Shares the cached
+ * `useUserAttributes` query, so it is safe to call from as many components as
+ * need it rather than threading `signedIn` down through props.
+ *
+ * `authLoading` matters: until the query settles, `signedIn` is false for a
+ * signed-in user, so acting on it (e.g. redirecting to /login) is wrong.
+ */
+export function useAuthState() {
+  const { data, isLoading } = useUserAttributes();
+  return {
+    email: data?.email,
+    signedIn: !!data?.email,
+    isAdmin: data?.isAdmin ?? false,
+    authLoading: isLoading,
+  };
+}

@@ -8,6 +8,10 @@ import { NFCCardCell } from "./NFCCardCell";
 import { SortableHeader } from "./SortableHeader";
 import { BiztechEvent } from "@/types/types";
 import { Registration } from "@/types/types";
+import {
+  APPLICATION_STATUS_OPTIONS,
+  YEAR_STANDING_LABELS,
+} from "@/constants/registrations";
 import { cn } from "@/lib/utils";
 import {
   RegistrationStatusOptions,
@@ -15,6 +19,7 @@ import {
 } from "@/lib/registrationStatus";
 
 export type ColumnMeta = {
+  label?: string;
   type?: "select" | "number";
   options?: { value: string; label: string }[];
 };
@@ -25,6 +30,7 @@ export const createColumns = (
 ): ColumnDef<Registration>[] => [
   {
     id: "edit",
+    meta: { label: "Details" } as ColumnMeta,
     size: 30,
     cell: (props) => (
       <EditCell
@@ -36,6 +42,7 @@ export const createColumns = (
   },
   {
     id: "select",
+    meta: { label: "Select" } as ColumnMeta,
     header: ({ table }) => {
       const isChecked =
         table.getIsAllPageRowsSelected() || table.getIsSomePageRowsSelected()
@@ -96,6 +103,7 @@ export const createColumns = (
       />
     ),
     meta: {
+      label: "Registration Status",
       type: "select",
       options: RegistrationStatusOptions,
     } as ColumnMeta,
@@ -105,33 +113,40 @@ export const createColumns = (
       getSortOrder(rowA.getValue("registrationStatus") as string) -
       getSortOrder(rowB.getValue("registrationStatus") as string),
   },
-  {
-    accessorKey: "applicationStatus",
-    header: ({ column }) => (
-      <SortableHeader title="App. Status" column={column} />
-    ),
-    cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
-    meta: {
-      type: "select",
-      options: [
-        { value: "Accepted", label: "Accepted" },
-        { value: "Reviewing", label: "Reviewing" },
-        { value: "Waitlist", label: "Waitlist" },
-        { value: "Rejected", label: "Rejected" },
-      ],
-    } as ColumnMeta,
-    size: 200,
-    enableSorting: true,
-    sortingFn: (rowA, rowB) => {
-      const order = ["Accepted", "Reviewing", "Waitlist", "Rejected"];
-      return (
-        order.indexOf(rowA.getValue("applicationStatus")) -
-        order.indexOf(rowB.getValue("applicationStatus"))
-      );
-    },
-  },
+  ...(eventData.isApplicationBased
+    ? ([
+        {
+          accessorKey: "applicationStatus",
+          header: ({ column }) => (
+            <SortableHeader title="App. Status" column={column} />
+          ),
+          cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
+          meta: {
+            label: "Application Status",
+            type: "select",
+            options: APPLICATION_STATUS_OPTIONS,
+          } as ColumnMeta,
+          size: 200,
+          enableSorting: true,
+          sortingFn: (rowA, rowB) => {
+            const order: string[] = APPLICATION_STATUS_OPTIONS.map(
+              (option) => option.value,
+            );
+            return (
+              order.indexOf(
+                String(rowA.getValue("applicationStatus")).toLowerCase(),
+              ) -
+              order.indexOf(
+                String(rowB.getValue("applicationStatus")).toLowerCase(),
+              )
+            );
+          },
+        },
+      ] as ColumnDef<Registration>[])
+    : []),
   {
     id: "nfcCard",
+    meta: { label: "NFC Card" } as ColumnMeta,
     header: "NFC Card",
     cell: (props) => <NFCCardCell {...props} refreshTable={refreshTable} />,
     size: 120,
@@ -139,6 +154,7 @@ export const createColumns = (
   },
   {
     accessorKey: "basicInformation.fname",
+    meta: { label: "First Name" } as ColumnMeta,
     header: ({ column }) => (
       <SortableHeader title="First Name" column={column} />
     ),
@@ -146,6 +162,7 @@ export const createColumns = (
   },
   {
     accessorKey: "basicInformation.lname",
+    meta: { label: "Last Name" } as ColumnMeta,
     header: ({ column }) => (
       <SortableHeader title="Last Name" column={column} />
     ),
@@ -153,6 +170,7 @@ export const createColumns = (
   },
   {
     accessorKey: "id",
+    meta: { label: "Email" } as ColumnMeta,
     header: ({ column }) => <SortableHeader title="Email" column={column} />,
     cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
   },
@@ -161,11 +179,13 @@ export const createColumns = (
     header: ({ column }) => <SortableHeader title="Points" column={column} />,
     cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
     meta: {
+      label: "Points",
       type: "number",
     } as ColumnMeta,
   },
   {
     accessorKey: "studentId",
+    meta: { label: "Student Number" } as ColumnMeta,
     header: ({ column }) => (
       <SortableHeader title="Student Number" column={column} />
     ),
@@ -173,11 +193,34 @@ export const createColumns = (
   },
   {
     accessorKey: "basicInformation.faculty",
+    filterFn: "equalsString",
+    meta: { label: "Faculty" } as ColumnMeta,
     header: ({ column }) => <SortableHeader title="Faculty" column={column} />,
     cell: (props) => <TableCell {...props} refreshTable={refreshTable} />,
   },
   {
+    id: "basicInformation_year",
+    accessorFn: (row) => {
+      const year = row.basicInformation?.year || "";
+      return YEAR_STANDING_LABELS[year] || year;
+    },
+    header: ({ column }) => (
+      <SortableHeader title="Year Standing" column={column} />
+    ),
+    meta: { label: "Year Standing" } as ColumnMeta,
+    filterFn: "equalsString",
+    cell: ({ getValue }) => getValue() || "—",
+  },
+  {
+    accessorKey: "basicInformation.major",
+    header: ({ column }) => <SortableHeader title="Major" column={column} />,
+    meta: { label: "Major" } as ColumnMeta,
+    filterFn: "equalsString",
+    cell: ({ getValue }) => getValue() || "—",
+  },
+  {
     accessorKey: "updatedAt",
+    meta: { label: "Updated At" } as ColumnMeta,
     header: ({ column }) => (
       <SortableHeader title="Updated At" column={column} />
     ),
@@ -203,6 +246,7 @@ export const createColumns = (
   },
   {
     accessorKey: "createdAt",
+    meta: { label: "Created At" } as ColumnMeta,
     header: ({ column }) => (
       <SortableHeader title="Created At" column={column} />
     ),

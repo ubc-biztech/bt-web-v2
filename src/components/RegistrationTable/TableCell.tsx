@@ -13,6 +13,7 @@ import { Registration } from "@/types/types";
 import { updateRegistrationData, prepareUpdatePayload } from "@/lib/dbUtils";
 import { NfcPopup } from "../NFCWrite/NFCPopup";
 import { useUserNeedsCard } from "@/hooks/useUserNeedsCard";
+import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
 import { getStatusLabel, getStatusColor } from "@/lib/registrationStatus";
 
 interface TableCellProps extends CellContext<Registration, unknown> {
@@ -29,7 +30,13 @@ export const TableCell = memo(
     const [showNfcPopup, setShowNfcPopup] = useState(false);
 
     useEffect(() => {
-      setValue(getStatusLabel(initialValue as string));
+      setValue(
+        column.id === "applicationStatus"
+          ? APPLICATION_STATUS_OPTIONS.find(
+              (option) => option.value === String(initialValue).toLowerCase(),
+            )?.label || initialValue
+          : getStatusLabel(initialValue as string),
+      );
     }, [initialValue, column.id, row.original.id]);
 
     const onBlur = async () => {

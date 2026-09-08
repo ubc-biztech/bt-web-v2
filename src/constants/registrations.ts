@@ -1,3 +1,5 @@
+import { ApplicationStatus } from "@/types";
+
 export const ATTENDEE_TABLE_TYPE = "attendee";
 export const PARTNER_TABLE_TYPE = "partner";
 export const APPLICATION_TABLE_TYPE = "applicationView";
@@ -45,3 +47,24 @@ export const REGISTRATION_LABELS = {
 
 export const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+// Keep display labels separate from the lowercase values expected by the API.
+export const APPLICATION_STATUS_OPTIONS = [
+  { value: ApplicationStatus.ACCEPTED, label: "Accepted" },
+  { value: ApplicationStatus.REVIEWING, label: "Reviewing" },
+  { value: ApplicationStatus.WAITLIST, label: "Waitlist" },
+  { value: ApplicationStatus.REJECTED, label: "Rejected" },
+];
+
+export const YEAR_STANDING_LABELS: Record<string, string> = {
+  year1: "Year 1",
+  year2: "Year 2",
+  year3: "Year 3",
+  year4: "Year 4",
+  "year5+": "Year 5+",
+  "1": "Year 1",
+  "2": "Year 2",
+  "3": "Year 3",
+  "4": "Year 4",
+  "5": "Year 5+",
+};

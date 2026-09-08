@@ -26,8 +26,9 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
         const accessorKey = column.id;
         const header = column.columnDef.header;
 
-        if (accessorKey && typeof header === "string") {
-          labels[accessorKey] = header;
+        const label = (column.columnDef.meta as ColumnMeta | undefined)?.label;
+        if (accessorKey && (label || typeof header === "string")) {
+          labels[accessorKey] = label || (header as string);
         }
       });
       return labels;
@@ -54,6 +55,10 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
   }, [table]);
   const fieldsToDisplay = Object.keys(row.original).filter(
     (key) =>
+      (key !== "applicationStatus" ||
+        table
+          .getAllColumns()
+          .some((column) => column.id === "applicationStatus")) &&
       key !== "shouldNotDisplay" &&
       key !== "id" &&
       key !== "dynamicResponses" &&
@@ -96,7 +101,9 @@ const UserInfo: React.FC<EditCellProps> = ({ row, table, refreshTable }) => {
         >
       ).map((key) => (
         <div key={key}>
-          <label className="block font-bold text-bt-blue-100">{key}:</label>
+          <label className="block font-bold text-bt-blue-100">
+            {fieldLabels[`basicInformation_${key}`] || key}:
+          </label>
           <span>{String(row.original.basicInformation[key])}</span>
         </div>
       ))}
