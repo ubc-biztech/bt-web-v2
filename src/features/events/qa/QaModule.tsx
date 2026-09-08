@@ -18,7 +18,9 @@ export function QaModule({ eventId, year }: QaModuleProps) {
   const { data: questions, isLoading, isError } = useQaQuestions(eventId, year);
   const boardHref = `/event/${eventId}/${year}/qa`;
 
-  const featured = questions?.find((q) => q.isPinned) ?? questions?.[0];
+  const featured =
+    questions?.find((q) => !q.isHidden && q.isPinned) ??
+    questions?.find((q) => !q.isHidden);
 
   return (
     <section className="flex min-h-[275px] flex-col overflow-hidden rounded-lg border border-[#263451] bg-[#0B152C] shadow-[0_12px_28px_rgba(0,0,0,0.2)]">

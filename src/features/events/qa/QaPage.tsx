@@ -13,6 +13,7 @@ import {
   QA_FILTER_TABS,
   QA_FILTER_TAB_LABELS,
   QA_FILTER_TAB_PREDICATES,
+  PUBLIC_QA_FILTER_TABS,
   type QaFilterTab,
 } from "./types";
 
@@ -33,6 +34,8 @@ export function QaPage({ eventId, year, eventName = "Event" }: QaPageProps) {
   const { isAdmin } = useAuthState();
   const { data: questions, isLoading, isError } = useQaQuestions(eventId, year);
   const { upvotedIds, markUpvoted } = useUpvotedQuestions(eventId, year);
+  const activeTab = !isAdmin && tab === "hidden" ? "all" : tab;
+  const displayedTabs = isAdmin ? QA_FILTER_TABS : PUBLIC_QA_FILTER_TABS;
 
   const visibleQuestions = useMemo(() => {
     if (!questions) return [];
@@ -43,12 +46,12 @@ export function QaPage({ eventId, year, eventName = "Event" }: QaPageProps) {
       : questions;
 
     return [...matching]
-      .filter(QA_FILTER_TAB_PREDICATES[tab])
+      .filter(QA_FILTER_TAB_PREDICATES[activeTab])
       .sort(
         (a, b) =>
           Number(b.isPinned) - Number(a.isPinned) || b.upvotes - a.upvotes,
       );
-  }, [questions, tab, search]);
+  }, [questions, activeTab, search]);
 
   const tabCounts = useMemo(() => {
     const source = questions ?? [];
@@ -126,14 +129,14 @@ export function QaPage({ eventId, year, eventName = "Event" }: QaPageProps) {
         </div>
 
         <Tabs
-          value={tab}
+          value={activeTab}
           onValueChange={(value) => {
             setTab(value as QaFilterTab);
             setPage(1);
           }}
         >
           <TabsList className="bg-[#0B152C]">
-            {QA_FILTER_TABS.map((tabValue) => (
+            {displayedTabs.map((tabValue) => (
               <TabsTrigger key={tabValue} value={tabValue}>
                 {QA_FILTER_TAB_LABELS[tabValue]} ({tabCounts[tabValue]})
               </TabsTrigger>
