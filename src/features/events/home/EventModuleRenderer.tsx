@@ -1,7 +1,7 @@
 import { EventConnectionsModule } from "./EventConnectionsModule";
 import { RegistrationStatusModule } from "./RegistrationStatusModule";
+import { QaModule } from "../qa/QaModule";
 import { defaultEventModules } from "@/lib/eventPageConfig";
-import type { EventPageModuleType } from "@/lib/eventPageConfig";
 import { DBRegistrationStatus } from "@/types/types";
 import type {
   EventCounts,
@@ -54,15 +54,6 @@ function canShowModuleOnPublicEventPage({
   }
 }
 
-const renderableModuleIds = new Set<EventPageModuleType>([
-  "registration",
-  "connections",
-]);
-
-function canRenderModule(module: EventPageModule) {
-  return renderableModuleIds.has(module.id);
-}
-
 export function EventModuleRenderer({
   event,
   className = "mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2",
@@ -77,7 +68,6 @@ export function EventModuleRenderer({
     .filter((module) =>
       canShowModuleOnPublicEventPage({ module, registration, signedIn }),
     )
-    .filter(canRenderModule)
     .sort((a, b) => a.order - b.order);
 
   if (enabledModules.length === 0) return null;
@@ -98,10 +88,16 @@ export function EventModuleRenderer({
                 signedIn={signedIn}
               />
             );
+          case "qa":
+            return (
+              <QaModule
+                key={module.id}
+                eventId={event.id}
+                year={String(event.year)}
+              />
+            );
           case "connections":
             return <EventConnectionsModule key={module.id} event={event} />;
-          case "qa":
-            return null;
           default:
             return null;
         }
