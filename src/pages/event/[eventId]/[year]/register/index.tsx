@@ -644,9 +644,8 @@ export default function AttendeeFormRegister() {
       return renderErrorText(
         <div className="text-center">
           <p className="text-l mb-4 text-white">
-            Sorry, this event is for members only. This event is for members
-            only. To access the form, please sign in or register for a
-            membership.
+            Sorry, this event is for members only. To access the form, please
+            sign in or register for a membership.
           </p>
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
