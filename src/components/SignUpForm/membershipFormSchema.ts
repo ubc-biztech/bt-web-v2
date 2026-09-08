@@ -24,7 +24,9 @@ export const membershipFormFieldsSchema = z.object({
     .string()
     .min(1, "Please specify if you were a previous member"),
   dietaryRestrictions: z.string().min(1, "Dietary restrictions are required"),
+  dietaryRestrictionsOther: z.string(),
   referral: z.string().min(1, "Referral source is required"),
+  referralOther: z.string(),
   topics: z.array(z.string()),
 });
 
@@ -55,6 +57,8 @@ export const MEMBERSHIP_FORM_DEFAULTS: MembershipFormValues = {
   internationalStudent: "",
   previousMember: "",
   dietaryRestrictions: "None",
+  dietaryRestrictionsOther: "",
   referral: "",
+  referralOther: "",
   topics: [],
 };
