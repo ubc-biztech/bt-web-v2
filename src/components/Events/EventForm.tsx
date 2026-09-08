@@ -21,6 +21,7 @@ import { CustomQuestions } from "./CustomQuestions";
 import { EventPreview } from "./EventPreview";
 import EventThumbnailUploader from "./EventThumbnailUploader";
 import {
+  EVENT_PAGE_MODULES,
   EVENT_PAGE_MODULE_TYPES,
   normalizeEventPageConfig,
   normalizeEventPageModules,
@@ -77,24 +78,6 @@ const SectionCard: React.FC<{
     {children}
   </div>
 );
-
-const moduleCopy: Record<
-  EventPageModuleType,
-  { title: string; description: string }
-> = {
-  registration: {
-    title: "Registration",
-    description: "Shows the existing registration or application status card.",
-  },
-  qa: {
-    title: "Q&A Board",
-    description: "Shows anonymous event questions and answers.",
-  },
-  connections: {
-    title: "Connections",
-    description: "Shows event networking and connection insights.",
-  },
-};
 
 const visibilityOptions: Array<{
   value: EventPageModule["visibility"];
@@ -547,6 +530,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
                 <div className="space-y-3">
                   {EVENT_PAGE_MODULE_TYPES.map((moduleId) => {
+                    const moduleDefinition = EVENT_PAGE_MODULES[moduleId];
                     const enabledModule = orderedEventPageModules.find(
                       (module) => module.id === moduleId,
                     );
@@ -566,10 +550,10 @@ export const EventForm: React.FC<EventFormProps> = ({
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                           <div>
                             <p className="text-sm font-semibold text-white">
-                              {moduleCopy[moduleId].title}
+                              {moduleDefinition.title}
                             </p>
                             <p className="mt-1 text-xs text-bt-blue-100">
-                              {moduleCopy[moduleId].description}
+                              {moduleDefinition.description}
                             </p>
                           </div>
 
@@ -590,7 +574,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                                         moveEventPageWidgetModule(moduleId, -1)
                                       }
                                       disabled={widgetIndex <= 0}
-                                      aria-label={`Move ${moduleCopy[moduleId].title} up`}
+                                      aria-label={`Move ${moduleDefinition.title} up`}
                                     >
                                       <ArrowUp className="h-4 w-4" />
                                     </Button>
@@ -605,7 +589,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                                         widgetIndex ===
                                         orderedWidgetModules.length - 1
                                       }
-                                      aria-label={`Move ${moduleCopy[moduleId].title} down`}
+                                      aria-label={`Move ${moduleDefinition.title} down`}
                                     >
                                       <ArrowDown className="h-4 w-4" />
                                     </Button>
