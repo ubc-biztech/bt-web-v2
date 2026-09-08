@@ -45,8 +45,30 @@ const topics = [
   "E-commerce",
   "Cybersecurity",
   "Health Tech",
+  "Software Engineering",
+  "Product Management",
+  "Machine Learning",
+  "Consulting",
+  "UX/UI Design",
+  "Marketing",
 ];
-const diets = ["Vegetarian", "Vegan", "Gluten-free", "Halal", "Kosher", "None"];
+const levelOfStudyOptions = [
+  "1st Year",
+  "2nd Year",
+  "3rd Year",
+  "4th Year",
+  "5+ Year",
+  "Other",
+];
+const diets = [
+  "Vegetarian",
+  "Vegan",
+  "Gluten-free",
+  "Halal",
+  "Kosher",
+  "None",
+  "Other",
+];
 const referralSources = ["Word of Mouth", "Instagram", "Website", "Other"];
 const stepFields: (keyof MembershipFormValues)[][] = [
   [],
@@ -68,8 +90,8 @@ const stepFields: (keyof MembershipFormValues)[][] = [
     "major",
     "internationalStudent",
   ],
-  ["topics", "dietaryRestrictions"],
-  ["previousMember", "referral"],
+  ["topics", "dietaryRestrictions", "dietaryRestrictionsOther"],
+  ["previousMember", "referral", "referralOther"],
 ];
 
 type FlowState = { step: number; direction: number };
@@ -131,8 +153,9 @@ export default function Onboarding() {
         if (cancelled) return;
         const savedPronouns = profile?.pronouns ?? user.gender ?? "";
         const savedLevelOfStudy = profile?.year ?? user.year ?? "";
+        const savedDietaryRestrictions = user.diet ?? "None";
+        const savedReferral = user.referral ?? "";
         const standardPronouns = ["He/Him", "She/Her", "They/Them"];
-        const standardLevels = ["Undergraduate", "Graduate", "Post-doc"];
 
         reset({
           ...MEMBERSHIP_FORM_DEFAULTS,
@@ -151,12 +174,12 @@ export default function Onboarding() {
             ? ""
             : savedPronouns,
           linkedIn: profile?.linkedIn ?? "",
-          levelOfStudy: standardLevels.includes(savedLevelOfStudy)
+          levelOfStudy: levelOfStudyOptions.includes(savedLevelOfStudy)
             ? savedLevelOfStudy
             : savedLevelOfStudy
               ? "Other"
               : "",
-          levelOfStudyOther: standardLevels.includes(savedLevelOfStudy)
+          levelOfStudyOther: levelOfStudyOptions.includes(savedLevelOfStudy)
             ? ""
             : savedLevelOfStudy,
           faculty: user.faculty ?? "",
@@ -173,12 +196,20 @@ export default function Onboarding() {
                 ? "Yes"
                 : "No"
               : "",
-          dietaryRestrictions: user.diet ?? "None",
-          referral: referralSources.includes(user.referral ?? "")
-            ? (user.referral ?? "")
-            : user.referral
+          dietaryRestrictions: diets.includes(savedDietaryRestrictions)
+            ? savedDietaryRestrictions
+            : "Other",
+          dietaryRestrictionsOther: diets.includes(savedDietaryRestrictions)
+            ? ""
+            : savedDietaryRestrictions,
+          referral: referralSources.includes(savedReferral)
+            ? savedReferral
+            : savedReferral
               ? "Other"
               : "",
+          referralOther: referralSources.includes(savedReferral)
+            ? ""
+            : savedReferral,
           topics: Array.isArray(user.topics) ? user.topics : [],
         });
         setHasMembership(membershipStatus);
@@ -212,19 +243,35 @@ export default function Onboarding() {
   const submit = methods.handleSubmit(async (values) => {
     setSubmitting(true);
     try {
+      const {
+        pronounsOther,
+        levelOfStudyOther,
+        dietaryRestrictionsOther,
+        referralOther,
+        ...profileValues
+      } = values;
+
       await fetchBackend({
         endpoint: "/profiles",
         method: "POST",
         data: {
-          ...values,
+          ...profileValues,
           pronouns:
             values.pronouns === "Other"
-              ? values.pronounsOther.trim()
+              ? pronounsOther.trim()
               : values.pronouns,
           levelOfStudy:
             values.levelOfStudy === "Other"
-              ? values.levelOfStudyOther.trim()
+              ? levelOfStudyOther.trim()
               : values.levelOfStudy,
+          dietaryRestrictions:
+            values.dietaryRestrictions === "Other"
+              ? dietaryRestrictionsOther.trim()
+              : values.dietaryRestrictions,
+          referral:
+            values.referral === "Other"
+              ? referralOther.trim()
+              : values.referral,
         },
       });
       dispatch({ type: "complete" });
@@ -485,17 +532,28 @@ function SelectField({
     </div>
   );
 }
-function Pills({
-  name,
-  options,
-  values = options,
-  multiple = false,
-}: {
+type PillsProps = {
   name: keyof MembershipFormValues;
   options: string[];
   values?: string[];
   multiple?: boolean;
-}) {
+};
+
+function Pills(props: PillsProps) {
+  return <PillGroup {...props} centered={false} />;
+}
+
+function CenteredPills(props: PillsProps) {
+  return <PillGroup {...props} centered />;
+}
+
+function PillGroup({
+  name,
+  options,
+  values = options,
+  multiple = false,
+  centered,
+}: PillsProps & { centered: boolean }) {
   const { setValue, watch } = useFormContext<MembershipFormValues>();
   const value = watch(name);
   const selected = Array.isArray(value) ? value : [value];
@@ -517,7 +575,9 @@ function Pills({
       });
   }
   return (
-    <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+    <div
+      className={`flex flex-wrap justify-center gap-2 ${centered ? "" : "sm:justify-start"}`}
+    >
       {options.map((option, index) => (
         <button
           key={option}
@@ -548,7 +608,7 @@ function ProfileStep() {
       <div className="mt-4">
         <TextField
           name="studentNumber"
-          label="Student Number"
+          label="Student Number (Optional)"
           placeholder="12345678"
           maxLength={8}
           inputMode="numeric"
@@ -577,7 +637,7 @@ function ProfileStep() {
       <div className="mt-4">
         <TextField
           name="linkedIn"
-          label="LinkedIn"
+          label="LinkedIn (Optional)"
           placeholder="https://www.linkedin.com/in/your-profile/"
         />
       </div>
@@ -605,10 +665,7 @@ function AcademicStep() {
         </div>
         <div>
           <Label>Level of Study</Label>
-          <Pills
-            name="levelOfStudy"
-            options={["Undergraduate", "Graduate", "Post-doc", "Other"]}
-          />
+          <Pills name="levelOfStudy" options={levelOfStudyOptions} />
           <ErrorText name="levelOfStudy" />
           {watch("levelOfStudy") === "Other" && (
             <div className="mt-2.5">
@@ -641,11 +698,12 @@ function AcademicStep() {
   );
 }
 function PreferencesStep() {
+  const { watch } = useFormContext<MembershipFormValues>();
   return (
     <div>
       <Heading>What do you want to nerd out about?</Heading>
       <div className="flex justify-center">
-        <Pills name="topics" options={topics} multiple />
+        <CenteredPills name="topics" options={topics} multiple />
       </div>
       <ErrorText name="topics" />
       <h2 className="mb-4 mt-12 text-center text-[26px] font-semibold sm:text-[30px]">
@@ -655,6 +713,15 @@ function PreferencesStep() {
         <Pills name="dietaryRestrictions" options={diets} />
       </div>
       <ErrorText name="dietaryRestrictions" />
+      {watch("dietaryRestrictions") === "Other" && (
+        <div className="mx-auto mt-2.5 max-w-[560px]">
+          <TextField
+            name="dietaryRestrictionsOther"
+            label=""
+            placeholder="Please specify your dietary restrictions"
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -714,6 +781,15 @@ function HistoryStep() {
           options={referralSources}
           placeholder="Select a referral source"
         />
+        {watch("referral") === "Other" && (
+          <div className="mt-2.5">
+            <TextField
+              name="referralOther"
+              label=""
+              placeholder="Please tell us how you heard about us"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

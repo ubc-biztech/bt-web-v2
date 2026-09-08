@@ -19,7 +19,9 @@ export interface MembershipFormValues {
   internationalStudent: string;
   previousMember: string;
   dietaryRestrictions: string;
+  dietaryRestrictionsOther: string;
   referral: string;
+  referralOther: string;
   topics: string[];
 }
 
