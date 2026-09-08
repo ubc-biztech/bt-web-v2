@@ -176,7 +176,8 @@ export default function Membership() {
           href={getQueryString(router.query.redirect) ?? "/"}
           className="mx-auto mt-5 inline-flex items-center gap-2 text-sm text-bt-blue-100 hover:text-white"
         >
-          I&apos;ll join later
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          Back to the app
         </Link>
       </div>
     </div>

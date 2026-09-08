@@ -1,6 +1,5 @@
 import { EventConnectionsModule } from "./EventConnectionsModule";
 import { RegistrationStatusModule } from "./RegistrationStatusModule";
-import { QaModule } from "../qa/QaModule";
 import { defaultEventModules } from "@/lib/eventPageConfig";
 import type { EventPageModuleType } from "@/lib/eventPageConfig";
 import { DBRegistrationStatus } from "@/types/types";
@@ -57,7 +56,6 @@ function canShowModuleOnPublicEventPage({
 
 const renderableModuleIds = new Set<EventPageModuleType>([
   "registration",
-  "qa",
   "connections",
 ]);
 
@@ -100,16 +98,10 @@ export function EventModuleRenderer({
                 signedIn={signedIn}
               />
             );
-          case "qa":
-            return (
-              <QaModule
-                key={module.id}
-                eventId={event.id}
-                year={String(event.year)}
-              />
-            );
           case "connections":
             return <EventConnectionsModule key={module.id} event={event} />;
+          case "qa":
+            return null;
           default:
             return null;
         }

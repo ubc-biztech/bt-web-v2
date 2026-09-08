@@ -26,23 +26,4 @@ export const onboardingValidationSchema =
         path: ["levelOfStudyOther"],
       });
     }
-
-    if (
-      data.dietaryRestrictions === "Other" &&
-      !data.dietaryRestrictionsOther.trim()
-    ) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please specify your dietary restrictions",
-        path: ["dietaryRestrictionsOther"],
-      });
-    }
-
-    if (data.referral === "Other" && !data.referralOther.trim()) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please tell us how you heard about us",
-        path: ["referralOther"],
-      });
-    }
   });
