@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { fetchBackend } from "@/lib/db";
-import { BiztechEvent, FeedbackQuestion } from "@/types";
+import {
+  BiztechEvent,
+  FeedbackQuestion,
+  FeedbackGridDefinition,
+} from "@/types";
 import { FeedbackQuestionsBuilder } from "@/components/Events/FeedbackQuestionsBuilder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +34,11 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { generateStageURL } from "@/util/url";
 import {
+  formatFeedbackAnswer as formatAnswer,
+  validateGridConfig,
+} from "@/lib/feedbackGrid";
+import { getFeedbackAnswerFields } from "@/lib/feedbackGrid";
+import {
   OVERALL_RATING_QUESTION_ID,
   DEFAULT_OVERALL_RATING_QUESTION,
 } from "@/constants/feedbackQuestionTypes";
@@ -54,6 +63,7 @@ type FrontendFeedbackQuestion = {
   question: string;
   required: boolean;
   options: string[];
+  grid?: FeedbackGridDefinition;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;
@@ -87,6 +97,7 @@ const transformToFrontend = (
   type: q.type,
   question: q.label,
   required: q.required,
+  grid: q.grid ?? { rows: [], columns: [] },
   options: q.choices
     ? q.choices
         .split(",")
@@ -130,6 +141,16 @@ const transformToBackend = (q: FrontendFeedbackQuestion) => ({
     .filter(Boolean)
     .join(","),
   required: q.required,
+  grid:
+    q.type === "MULTIPLE_CHOICE_GRID"
+      ? {
+          rows: q.grid!.rows.map((row) => ({
+            id: row.id,
+            label: row.label.trim(),
+          })),
+          columns: q.grid!.columns.map((column) => column.trim()),
+        }
+      : undefined,
   scaleMin: q.type === "LINEAR_SCALE" ? Number(q.scaleMin ?? 1) : undefined,
   scaleMax: q.type === "LINEAR_SCALE" ? Number(q.scaleMax ?? 5) : undefined,
   scaleMinLabel: q.type === "LINEAR_SCALE" ? q.scaleMinLabel || "" : "",
@@ -143,12 +164,6 @@ const formatSubmittedAt = (value?: number) => {
   } catch {
     return String(value);
   }
-};
-
-const formatAnswer = (value: unknown) => {
-  if (Array.isArray(value)) return value.join(", ");
-  if (value === undefined || value === null || value === "") return "-";
-  return String(value);
 };
 
 const getOverallRatingFromResponses = (responses?: Record<string, any>) => {
@@ -266,6 +281,21 @@ export default function FeedbackTab({
         values.partnerFeedbackQuestions || [],
       ),
     };
+    for (const question of [
+      ...normalizedValues.attendeeFeedbackQuestions,
+      ...normalizedValues.partnerFeedbackQuestions,
+    ]) {
+      if (question.type !== "MULTIPLE_CHOICE_GRID") continue;
+      const error = validateGridConfig(question.grid);
+      if (error) {
+        toast({
+          title: "Invalid grid",
+          description: `${question.question || "Untitled question"}: ${error}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     setIsSaving(true);
     try {
       await fetchBackend({
@@ -363,10 +393,9 @@ export default function FeedbackTab({
   const currentSubmissions = submissions[responsesActiveTab]?.submissions || [];
 
   const questionLabels = useMemo(() => {
-    const entries = (currentMeta?.feedbackQuestions || []).map((q) => [
-      q.questionId,
-      q.label,
-    ]);
+    const entries = getFeedbackAnswerFields(
+      currentMeta?.feedbackQuestions || [],
+    ).map((q) => [q.questionId, q.label]);
     return Object.fromEntries(entries) as Record<string, string>;
   }, [currentMeta]);
 
@@ -746,7 +775,8 @@ function ResponsesPanel({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const questionOrder = useMemo(
-    () => questions.map((question) => question.questionId),
+    () =>
+      getFeedbackAnswerFields(questions).map((question) => question.questionId),
     [questions],
   );
   const orderedQuestionSet = useMemo(
@@ -794,9 +824,7 @@ function ResponsesPanel({
         submission.respondentEmail || "",
         ...Object.entries(submission.responses || {}).map(([key, value]) => {
           const questionLabel = questionLabels[key] || key;
-          const answerText = Array.isArray(value)
-            ? value.join(" ")
-            : String(value ?? "");
+          const answerText = formatAnswer(value);
           return `${questionLabel} ${answerText}`;
         }),
       ]
