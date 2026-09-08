@@ -727,7 +727,7 @@ function Complete({
   onHome: () => void;
   onMembership: () => void;
 }) {
-  const price = process.env.NEXT_PUBLIC_MEMBERSHIP_PRICE ?? "10";
+  const price = "12";
   return (
     <div className="relative mx-auto max-w-[760px] text-center">
       <Sparkles
