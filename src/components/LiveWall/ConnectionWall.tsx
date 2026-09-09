@@ -6,8 +6,8 @@ import { WS_URL, EVENT_ID } from "@/lib/dbconfig";
 import { fetchBackend } from "@/lib/db";
 import {
   ARCHETYPE_COLOR,
-  ARCHETYPE_ICON,
   ARCHETYPE_SCALE,
+  ARCHETYPE_ICON,
   archetypeFor,
   getArchetypeImage,
   isArchetype,
@@ -47,36 +47,32 @@ const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), {
 
 /* ───────────────────────── tunables ───────────────────────── */
 const VIS = 0.5;
-const WALL_FONT = '"DM Sans", ui-sans-serif, system-ui, sans-serif';
 const SNAPSHOT_WINDOW_SEC = 860_400;
 const RECENT_EDGE_WINDOW_MS = 5 * 60_000;
 const TICKER_MAX = 24;
 
-const CHARGE_BASE = -30;
-const CHARGE_PER_DEG = -2;
-/**
- * Repulsion has to outrun the link force at graph scale. Capping its reach
- * meant well-separated clusters stopped pushing each other apart at all,
- * which is what collapsed the wall into one blob.
+/* ── layout physics ──
+ * repel   : every node pushes every other node away; hubs push harder
+ * link    : every edge pulls its two endpoints toward LINK_DISTANCE apart
+ * collide : hard no-overlap radius so icons never sit on top of each other
+ * gravity : very weak pull toward the origin so islands stay on screen —
+ *           replaces force-graph's default "center" force, which drags every
+ *           component into one pile in the middle
  */
-const CHARGE_DIST_MAX = 1500;
-/**
- * Personal space per person. The name tag is far wider than the character it
- * hangs under, so this is sized for the tag, not the illustration.
- */
-/** Resting length of a connection — long enough to read both cards. */
-const LINK_DISTANCE = 280;
-/** Weak, so links suggest structure instead of hauling everyone inward. */
-const LINK_STRENGTH = 0.08;
-/**
- * Repulsion this strong has no equilibrium on its own — d3's center force
- * only re-centres the centroid, it doesn't hold anything in, so clusters
- * drift apart forever. A weak pull toward the origin is the counterweight
- * that lets the two forces settle into a spread graph instead of a blob.
- */
-const GRAVITY = 0.015;
+const REPEL_BASE = -900; // more negative = nodes push apart harder
+const REPEL_PER_DEG = -120; // extra push per connection, so dense groups spread
+const REPEL_DIST_MAX = 320 * VIS; // reach — short, so islands don't fling each other away
+const LINK_DISTANCE = 110 * VIS; // resting edge length
+const LINK_PER_DEG = 22 * VIS; // hubs get longer edges so their spokes fan out
+const LINK_STRENGTH = 0.4; // divided by the smaller endpoint degree, so hub edges pull gently
+const COLLIDE_BASE = 26 * VIS;
+const COLLIDE_PER_DEG = 4 * VIS;
+const GRAVITY = 0.045; // pull toward the origin; raise if groups drift off screen
 /* how far outside its anchor a newly connected node first appears */
 const SPAWN_OFFSET = 46 * VIS;
+
+/** Archetype illustration is drawn this many times the node radius wide. */
+const ICON_SCALE = 5;
 
 /* idle "alive" motion — gentle bob plus an occasional horizontal flip */
 const BOB_AMP = 0.1; // fraction of the icon radius
@@ -104,7 +100,8 @@ const STREAK_THRESHOLD = 3;
 
 const QR_URL = process.env.NEXT_PUBLIC_WALL_QR_URL || "";
 
-const CROWN_COLORS = ["#D9A400", "#8C8C8C", "#A9662E"];
+const CROWN_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
+const CROWN_GLOW = 190 * VIS;
 
 const HEATMAP_WINDOW_MS = 5 * 60_000;
 const HEATMAP_ENABLED_DEFAULT = true;
@@ -249,12 +246,12 @@ const firstName = (raw: string | undefined, fallbackId: string) => {
   const cleaned = name.includes(",")
     ? name.split(",")[1]?.trim() || name
     : name;
-  return (cleaned.split(/\s+/)[0] || fallbackId).toLowerCase();
+  return cleaned.split(/\s+/)[0] || fallbackId;
 };
 
 const fullName = (raw: string | undefined, fallbackId: string) => {
   const name = (raw ?? "").trim();
-  return (name || fallbackId).toLowerCase();
+  return name || fallbackId;
 };
 
 const endId = (e: any) => (e && typeof e === "object" ? e.id : String(e));
@@ -311,49 +308,10 @@ const idleMotion = (id: string, rr: number, now: number) => {
 };
 
 /**
- * A person on the wall is labelled with the MIS Night name tag: white card,
- * hard black rule, the archetype glyph and its name in the archetype colour,
- * then the person's name set big and black underneath.
- *
- * Sizes are divided by `globalScale` so the tag holds one constant size on
- * screen no matter how far the wall is zoomed.
- */
-/**
- * The node IS the placard.
- *
- * The invariant we want is: if you can see someone's icon, you can read
- * their name. That only holds if the icon and the name are one object that
- * scales together — a separate label, however cleverly placed, can always
- * be dropped, occluded, or shrunk out of step with the icon it belongs to.
- *
- * So a person renders as one card, sized in graph units, with their
- * character inside it. Zooming scales card and name together, and the
- * collide force is sized from the card, so two cards can never overlap in
- * graph space and therefore never overlap on screen at any zoom.
- */
-const CARD_PAD = 3;
-const CARD_ICON = 12;
-const CARD_GAP = 3;
-const CARD_NAME = 9;
-const CARD_CORNER = 3;
-/** Medium, not black — the guide's weight was shouting at wall scale. */
-const CARD_WEIGHT = 500;
-const CARD_FILL = "#1C1C1C";
-const CARD_INK = "rgba(255,255,255,0.92)";
-const CARD_EDGE = "rgba(255,255,255,0.22)";
-/** Hairline by default; states thicken it only slightly. */
-const CARD_EDGE_W = 0.4;
-const CARD_EDGE_W_ACTIVE = 1.1;
-/** Clear space around a card when the layout packs them together. */
-const CARD_MARGIN = 9;
-
-/** How long after tapping in your card stays picked out of the crowd. */
-const CARD_RECENT_MS = 30_000;
-
-/**
- * Size an illustration into a box of side `box` without squashing it. The
- * exports have aspect ratios from 0.79 to 1.07, so drawing them into a
- * square stretched some characters wider than others.
+ * Size an illustration into a box of side `box` without squashing it, then
+ * apply that archetype's trim. The exports run from aspect 0.79 (Strategist,
+ * tall and narrow) to 1.07, so drawing them all into a square stretched some
+ * characters wider than others.
  */
 const fitIcon = (icon: HTMLImageElement, arche: Archetype, box: number) => {
   const iw = icon.naturalWidth || 1;
@@ -362,62 +320,26 @@ const fitIcon = (icon: HTMLImageElement, arche: Archetype, box: number) => {
   return { w: iw * k, h: ih * k };
 };
 
-type CardBox = { w: number; h: number; textW: number };
-
-/**
- * Name widths are measured off-canvas and cached — the layout needs a card's
- * size to set its collision radius, which happens outside any paint call.
- */
-let measureCtx: CanvasRenderingContext2D | null = null;
-const nameWidths = new Map<string, number>();
-
-/** Widths measured before DM Sans decodes are the fallback face's. */
-const resetNameWidths = () => nameWidths.clear();
-
-const nameWidth = (name: string) => {
-  const hit = nameWidths.get(name);
-  if (hit !== undefined) return hit;
-  if (!measureCtx && typeof document !== "undefined") {
-    measureCtx = document.createElement("canvas").getContext("2d");
-  }
-  if (!measureCtx) return name.length * CARD_NAME * 0.58;
-  measureCtx.font = `${CARD_WEIGHT} ${CARD_NAME}px ${WALL_FONT}`;
-  const w = measureCtx.measureText(name).width;
-  nameWidths.set(name, w);
-  return w;
-};
-
-const cardMetrics = (name: string): CardBox => {
-  const textW = nameWidth(name);
-  return {
-    w: CARD_PAD * 2 + CARD_ICON + CARD_GAP + textW,
-    h: CARD_PAD * 2 + CARD_ICON,
-    textW,
-  };
-};
-
-/** Radius that keeps two cards apart whatever their names. */
-const cardRadius = (name: string) => {
-  const { w, h } = cardMetrics(name);
-  return Math.hypot(w, h) / 2 + CARD_MARGIN;
-};
-
-const roundRect = (
+const drawLabel = (
   ctx: CanvasRenderingContext2D,
+  text: string,
   x: number,
   y: number,
-  w: number,
-  h: number,
-  r: number,
+  fontSize: number,
 ) => {
-  const rr = Math.min(r, w / 2, h / 2);
-  ctx.beginPath();
-  ctx.moveTo(x + rr, y);
-  ctx.arcTo(x + w, y, x + w, y + h, rr);
-  ctx.arcTo(x + w, y + h, x, y + h, rr);
-  ctx.arcTo(x, y + h, x, y, rr);
-  ctx.arcTo(x, y, x + w, y, rr);
-  ctx.closePath();
+  ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, Inter, sans-serif`;
+  const padX = 4 * VIS;
+  const padY = 2 * VIS;
+  const w = ctx.measureText(text).width;
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  ctx.fillRect(
+    x - 3 * VIS,
+    y - fontSize * 0.85,
+    w + padX + 3 * VIS,
+    fontSize + padY,
+  );
+  ctx.fillStyle = "rgba(255,255,255,0.94)";
+  ctx.fillText(text, x, y);
 };
 
 const easeOutBack = (t: number, s = 1.10158) =>
@@ -572,6 +494,14 @@ export default function ConnectionWall() {
   /* ── trails & heatmap ── */
   const [trails, setTrails] = useState<Trail[]>([]);
   const [heatmapEnabled, setHeatmapEnabled] = useState(HEATMAP_ENABLED_DEFAULT);
+
+  /**
+   * Name tags for the current frame, drawn after every node so no character
+   * can land on top of someone else's name.
+   */
+  const labelQueue = useRef<
+    { text: string; x: number; y: number; size: number; alpha: number }[]
+  >([]);
 
   /* ── ticker measure ── */
   const tickerContainerRef = useRef<HTMLDivElement | null>(null);
@@ -983,16 +913,6 @@ export default function ConnectionWall() {
     [loadSnapshot],
   );
 
-  /* ── DM Sans must be decoded before the canvas can set a tag in it ── */
-  useEffect(() => {
-    const fonts = (document as any).fonts;
-    if (!fonts?.load) return;
-    fonts
-      .load(`${CARD_WEIGHT} ${CARD_NAME}px "DM Sans"`)
-      .then(() => resetNameWidths())
-      .catch(() => {});
-  }, []);
-
   /* ── preload archetype illustrations ── */
   useEffect(() => {
     let cancelled = false;
@@ -1123,30 +1043,47 @@ export default function ConnectionWall() {
     };
 
     const configureForces = (g: any) => {
-      const charge = (g.d3Force && g.d3Force("charge")) || forceManyBody();
-      charge
-        .strength((n: any) => {
-          const d = degreeRef.current[n.id] || 0;
-          return CHARGE_BASE + d * CHARGE_PER_DEG;
-        })
-        .distanceMax(CHARGE_DIST_MAX)
-        .distanceMin(2);
-      g.d3Force?.("charge", charge);
+      const deg = (id: string) => degreeRef.current[id] || 0;
 
-      // sized from each card, so two cards can never overlap in graph space
-      // — which is what makes "see the icon, read the name" hold at any zoom
+      /* nodes repel each other */
+      const repel = (g.d3Force && g.d3Force("charge")) || forceManyBody();
+      repel
+        .strength((n: any) => REPEL_BASE + deg(n.id) * REPEL_PER_DEG)
+        .distanceMax(REPEL_DIST_MAX)
+        .distanceMin(4);
+      g.d3Force?.("charge", repel);
+
+      /* edges pull their endpoints together */
+      const link = g.d3Force?.("link");
+      if (link) {
+        link
+          .distance((l: any) => {
+            const hub = Math.max(deg(endId(l.source)), deg(endId(l.target)));
+            return LINK_DISTANCE + Math.sqrt(hub) * LINK_PER_DEG;
+          })
+          /* weaker on hubs so one popular person can't drag a whole
+             group into a knot */
+          .strength((l: any) => {
+            const lo = Math.max(
+              1,
+              Math.min(deg(endId(l.source)), deg(endId(l.target))),
+            );
+            return LINK_STRENGTH / lo;
+          });
+      }
+
+      /* never overlap */
       const collide = forceCollide()
-        .radius((n: any) => cardRadius(firstName(n.name, n.id)))
-        .strength(1)
-        .iterations(3);
+        .radius(
+          (n: any) =>
+            COLLIDE_BASE + Math.sqrt(deg(n.id) || 1) * COLLIDE_PER_DEG,
+        )
+        .strength(0.9)
+        .iterations(2);
       g.d3Force?.("collide", collide);
 
-      // without this the link force falls back to d3's default 30px rest
-      // length, which pulls everyone back into a knot the charge can't undo
-      const link = g.d3Force?.("link");
-      link?.distance?.(LINK_DISTANCE);
-      link?.strength?.(LINK_STRENGTH);
-
+      /* weak gravity instead of the default centering force */
+      g.d3Force?.("center", null);
       g.d3Force?.("x", forceX(0).strength(GRAVITY));
       g.d3Force?.("y", forceY(0).strength(GRAVITY));
 
@@ -1716,13 +1653,13 @@ export default function ConnectionWall() {
   /* ════════════════════════════════════════════════════════════ */
   return (
     <div
-      className={`font-dmsans antialiased min-h-[95vh] rounded-2xl border border-white/10 bg-[#1a1a1a] overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
+      className={`min-h-[95vh] rounded-2xl border border-white/10 bg-black overflow-hidden relative ${kiosk ? "cursor-none" : ""}`}
     >
       <WallBackdrop />
 
       {/* ── header ── */}
       {!kiosk && (
-        <div className="relative z-10 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
+        <div className="relative z-20 flex items-center justify-between px-4 sm:px-6 py-3 border-b border-white/10 gap-2 flex-wrap">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className={`w-2 h-2 rounded-full shrink-0 ${
@@ -1764,20 +1701,22 @@ export default function ConnectionWall() {
                 <option value={EVENT_ID} className="bg-[#1c1c1c] text-white">
                   Current Event
                 </option>
-                {events.map((ev) => (
-                  <option
-                    key={`${ev.id}-${ev.year}`}
-                    /* must match the id the backend stamps on live
+                {events
+                  .filter((ev) => `${ev.id};${ev.year}` !== EVENT_ID)
+                  .map((ev) => (
+                    <option
+                      key={`${ev.id}-${ev.year}`}
+                      /* must match the id the backend stamps on live
                        connections (CURRENT_EVENT in interactions/constants) */
-                    value={`${ev.id}-${ev.year}`}
-                    className="bg-[#1c1c1c] text-white"
-                  >
-                    {ev.ename}
-                    {ev.startDate
-                      ? ` (${new Date(ev.startDate).toLocaleDateString("en-US", { month: "short", year: "2-digit" })})`
-                      : ""}
-                  </option>
-                ))}
+                      value={`${ev.id};${ev.year}`}
+                      className="bg-[#1c1c1c] text-white"
+                    >
+                      {ev.ename}
+                      {ev.startDate
+                        ? ` (${new Date(ev.startDate).toLocaleDateString("en-US", { month: "short", year: "2-digit" })})`
+                        : ""}
+                    </option>
+                  ))}
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-white/50 pointer-events-none" />
             </div>
@@ -1805,21 +1744,21 @@ export default function ConnectionWall() {
                   setSearchOpen((v) => !v);
                   setTimeout(() => searchInputRef.current?.focus(), 50);
                 }}
-                className={`p-1.5 rounded-md transition-colors ${searchOpen ? "bg-white text-[#111]" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={`p-1.5 rounded-md transition-colors ${searchOpen ? "bg-emerald-400/20 text-emerald-300" : "text-white/60 hover:text-white hover:bg-white/10"}`}
                 title="Search people (S)"
               >
                 <Search className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setShowAnalytics((v) => !v)}
-                className={`p-1.5 rounded-md transition-colors ${showAnalytics ? "bg-white text-[#111]" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={`p-1.5 rounded-md transition-colors ${showAnalytics ? "bg-emerald-400/20 text-emerald-300" : "text-white/60 hover:text-white hover:bg-white/10"}`}
                 title="Network analytics"
               >
                 <BarChart3 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setClusterMode((v) => !v)}
-                className={`p-1.5 rounded-md transition-colors ${clusterMode ? "bg-white text-[#111]" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={`p-1.5 rounded-md transition-colors ${clusterMode ? "bg-emerald-400/20 text-emerald-300" : "text-white/60 hover:text-white hover:bg-white/10"}`}
                 title="Color by cluster"
               >
                 <Network className="w-4 h-4" />
@@ -1840,7 +1779,7 @@ export default function ConnectionWall() {
               </button>
               <button
                 onClick={() => setHeatmapEnabled((v) => !v)}
-                className={`p-1.5 rounded-md transition-colors ${heatmapEnabled ? "bg-white text-[#111]" : "text-white/60 hover:text-white hover:bg-white/10"}`}
+                className={`p-1.5 rounded-md transition-colors ${heatmapEnabled ? "bg-emerald-400/20 text-emerald-300" : "text-white/60 hover:text-white hover:bg-white/10"}`}
                 title="Toggle heatmap (H)"
               >
                 {heatmapEnabled ? (
@@ -1905,7 +1844,7 @@ export default function ConnectionWall() {
 
       {/* ── search bar ── */}
       {searchOpen && !kiosk && (
-        <div className="absolute top-14 left-4 z-30 w-80 max-w-[calc(100vw-2rem)]">
+        <div className="absolute top-14 left-4 z-40 w-80 max-w-[calc(100vw-2rem)]">
           <div className="rounded-xl border border-white/15 bg-[#1c1c1c]/95 backdrop-blur-md shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10">
               <Search className="w-4 h-4 text-white/50 shrink-0" />
@@ -1948,10 +1887,10 @@ export default function ConnectionWall() {
                       <img
                         src={ARCHETYPE_ICON[nodeArchetype(n, n.id)]}
                         alt=""
-                        className="w-5 h-5 shrink-0"
+                        className="w-5 h-5 shrink-0 object-contain"
                       />
                       <div className="min-w-0">
-                        <div className="text-white text-sm font-bold truncate">
+                        <div className="text-white text-sm truncate">
                           {fullName(n.name, n.id)}
                         </div>
                         <div className="text-white/40 text-xs">
@@ -1972,7 +1911,7 @@ export default function ConnectionWall() {
 
       {/* ── analytics panel ── */}
       {showAnalytics && !kiosk && networkStats && (
-        <aside className="absolute left-3 top-14 z-10 mt-4">
+        <aside className="absolute left-3 top-14 z-30 mt-4">
           <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-3">
               <div className="flex items-center gap-2">
@@ -2053,7 +1992,7 @@ export default function ConnectionWall() {
                           className="flex-1 rounded-t-sm transition-all duration-300"
                           style={{
                             height: h,
-                            backgroundColor: `rgba(255, 255, 255, ${0.25 + recency * 0.6})`,
+                            backgroundColor: `rgba(110, 231, 183, ${0.2 + recency * 0.6})`,
                             minWidth: 3,
                           }}
                           title={`${val} connections`}
@@ -2070,7 +2009,7 @@ export default function ConnectionWall() {
 
       {/* ── leaderboard ── */}
       {showLeaderboard && !kiosk && (
-        <aside className="absolute right-3 top-14 z-10 hidden xl:block mt-4">
+        <aside className="absolute right-3 top-14 z-30 hidden xl:block mt-4">
           <div className="w-[260px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
             <div className="flex items-center justify-between text-white/90 mb-2">
               <div className="flex items-center gap-2">
@@ -2114,8 +2053,8 @@ export default function ConnectionWall() {
 
       {/* ── node detail panel ── */}
       {detailNode && !kiosk && (
-        <aside className="absolute right-3 bottom-20 z-20 hidden md:block">
-          <div className="w-[280px] rounded-xl border border-white/10 bg-[#1c1c1c]/90 backdrop-blur-sm p-3">
+        <aside className="absolute right-3 bottom-20 z-30 hidden md:block">
+          <div className="w-[280px] rounded-xl border border-white/10 bg-[#1c1c1c]/95 backdrop-blur-md p-3 shadow-2xl">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 min-w-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -2126,9 +2065,9 @@ export default function ConnectionWall() {
                     ]
                   }
                   alt=""
-                  className="w-6 h-6 shrink-0"
+                  className="w-6 h-6 shrink-0 object-contain"
                 />
-                <h3 className="text-white font-bold text-sm truncate">
+                <h3 className="text-white font-medium text-sm truncate">
                   {fullName(detailNode.node.name, detailNode.node.id)}
                 </h3>
                 {rankMap[detailNodeId!] !== undefined && (
@@ -2150,15 +2089,16 @@ export default function ConnectionWall() {
 
             <div className="flex items-center gap-2 mb-3">
               <span
-                className="text-[11px] font-bold lowercase"
+                className="text-[10px] font-semibold tracking-wider px-1.5 py-0.5 rounded"
                 style={{
                   color:
                     ARCHETYPE_COLOR[
                       nodeArchetype(detailNode.node, detailNodeId!)
                     ],
+                  backgroundColor: "rgba(255,255,255,0.07)",
                 }}
               >
-                {nodeArchetype(detailNode.node, detailNodeId!).toLowerCase()}
+                {nodeArchetype(detailNode.node, detailNodeId!)}
               </span>
               <span className="text-xs text-white/60">
                 {detailNode.degree} connection
@@ -2223,9 +2163,9 @@ export default function ConnectionWall() {
 
       {/* ── path finder panel ── */}
       {pathMode && !kiosk && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-30 mt-1">
-          <div className="rounded-xl border-2 border-violet-400/40 bg-[#1c1c1c]/95 backdrop-blur-md px-4 py-2.5 flex items-center gap-3 text-sm">
-            <Route className="w-4 h-4 text-violet-300 shrink-0" />
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-40 mt-1">
+          <div className="rounded-xl border border-violet-400/20 bg-[#1c1c1c]/95 backdrop-blur-md px-4 py-2.5 shadow-2xl flex items-center gap-3 text-sm">
+            <Route className="w-4 h-4 text-violet-400 shrink-0" />
             {!pathStart && (
               <span className="text-white/80">
                 Click a person to set the{" "}
@@ -2284,15 +2224,15 @@ export default function ConnectionWall() {
 
       {/* ── milestone celebration ── */}
       {milestone && (
-        <div className="pointer-events-none absolute inset-0 z-40 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center">
           <div className="animate-[milestoneIn_6s_ease-out_forwards] flex flex-col items-center gap-3">
-            <div className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#5B3FD6]/10 via-[#28B45A]/10 to-[#5B3FD6]/10 border border-white/20 shadow-2xl backdrop-blur-md">
+            <div className="flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-violet-500/20 via-emerald-500/20 to-violet-500/20 border border-emerald-300/30 shadow-2xl backdrop-blur-md">
               <PartyPopper className="w-8 h-8 text-yellow-400" />
               <div className="text-center">
                 <div className="text-3xl font-bold text-white">
                   {milestone.value.toLocaleString()}
                 </div>
-                <div className="text-white/70 text-sm font-medium">
+                <div className="text-emerald-200 text-sm font-medium">
                   {milestone.type === "connections"
                     ? "Connections Made!"
                     : "People Connected!"}
@@ -2305,11 +2245,11 @@ export default function ConnectionWall() {
       )}
 
       {/* ── spotlight banner ── */}
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-3 z-20 space-y-2">
+      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-3 z-40 space-y-2">
         {spotlights.slice(0, 2).map((s) => (
           <div
             key={s.id}
-            className="mt-20 px-4 py-2 rounded-full bg-emerald-400/15 border border-white/20 text-white text-lg font-semibold shadow-lg animate-[fadeSlide_6s_ease-out_forwards]"
+            className="mt-20 px-4 py-2 rounded-full bg-emerald-400/15 border border-emerald-300/30 text-emerald-100 text-lg font-semibold shadow-lg animate-[fadeSlide_6s_ease-out_forwards]"
           >
             {s.from} <span className="opacity-70">connected with</span> {s.to}
           </div>
@@ -2317,7 +2257,7 @@ export default function ConnectionWall() {
       </div>
 
       {/* ── achievement toasts ── */}
-      <div className="pointer-events-none absolute left-3 bottom-20 z-20 space-y-2">
+      <div className="pointer-events-none absolute left-3 bottom-20 z-40 space-y-2">
         {toasts.map((t) => (
           <div
             key={t.id}
@@ -2356,6 +2296,8 @@ export default function ConnectionWall() {
             ctx: CanvasRenderingContext2D,
             globalScale: number,
           ) => {
+            labelQueue.current.length = 0;
+
             try {
               const arr: any[] = graphDataRef.current.nodes || [];
               const nodeIndex: Record<string, any> = {};
@@ -2436,6 +2378,16 @@ export default function ConnectionWall() {
                 ctx.restore();
               }
             } catch {}
+          }}
+          onRenderFramePost={(ctx: CanvasRenderingContext2D) => {
+            // topmost canvas layer: edges, then characters, then names
+            for (const l of labelQueue.current) {
+              ctx.save();
+              ctx.globalAlpha = l.alpha;
+              drawLabel(ctx, l.text, l.x, l.y, l.size);
+              ctx.restore();
+            }
+            labelQueue.current.length = 0;
           }}
           onEngineStop={() => {
             const g = fgRef.current as any;
@@ -2542,11 +2494,11 @@ export default function ConnectionWall() {
                 nh.has(s.id) ||
                 nh.has(t.id);
               if (on) {
-                lw = 1.9;
-                alpha = 0.95;
+                lw = 1.6 * VIS;
+                alpha = 0.65;
               } else if (!hasHighlight) {
-                lw = 0.5;
-                alpha = 0.16;
+                lw = 0.4 * VIS;
+                alpha = 0.12;
               }
             }
 
@@ -2597,25 +2549,29 @@ export default function ConnectionWall() {
             if (!isFiniteNum(node.x) || !isFiniteNum(node.y)) return;
 
             const id = node.id as string;
-            const arche = nodeArchetype(node, id);
-            const name = firstName(node.name, id);
+            const deg = Number.isFinite(degree[id]) ? degree[id] : 1;
 
             const born = node.__born as number | undefined;
             const age = born ? Date.now() - born : Infinity;
-            const introT =
+            const introTRaw =
               born != null ? Math.min(1, Math.max(0, age / INTRO_MS)) : 1;
-            const kRaw = easeOutBack(Number.isFinite(introT) ? introT : 1);
-            const pop = Number.isFinite(kRaw) ? 0.4 + 0.6 * kRaw : 1;
+            const introT = Number.isFinite(introTRaw) ? introTRaw : 1;
+            const kRaw = easeOutBack(introT);
+            const k = Number.isFinite(kRaw) ? kRaw : 1;
 
-            const m = cardMetrics(name);
-            const w = m.w * pop;
-            const h = m.h * pop;
-            const x = node.x - w / 2;
-            const y = node.y - h / 2;
+            const baseR =
+              (3 + Math.min(7, Math.sqrt(Math.max(1, deg)) * 1.4)) * VIS;
+            const rRaw = baseR * (0.4 + 0.7 * k);
+            const r = Number.isFinite(rRaw) ? rRaw : baseR;
 
-            const { bobY, sx, sy } = idleMotion(id, CARD_ICON / 2, Date.now());
+            // archetype illustration replaces the plain dot; rr is its radius
+            const arche = nodeArchetype(node, id);
+            const iconSize = r * ICON_SCALE;
+            const rr = iconSize / 2;
 
-            // accent: cluster mode or archetype
+            const { bobY, sx, sy } = idleMotion(id, rr, Date.now());
+
+            // color: cluster mode or archetype
             let base: string;
             if (clusterMode && clusterMap.has(id)) {
               base =
@@ -2624,121 +2580,208 @@ export default function ConnectionWall() {
               base = ARCHETYPE_COLOR[arche];
             }
 
-            // dim cards outside the current highlight
+            // dim non-highlighted nodes
             const hasHighlight = highlightSet.size > 0;
-            let nodeAlpha = 1;
+            let nodeAlpha = 0.85;
             if (pathNodeSet.size > 0) {
+              /* path finder: highlight path, dim rest */
               if (pathNodeSet.has(id)) {
                 nodeAlpha = 1;
-                base = "#5B4BF0";
+                base = "hsl(270, 80%, 75%)";
               } else {
-                nodeAlpha = 0.12;
+                nodeAlpha = 0.08;
               }
             } else if (hasHighlight && !highlightSet.has(id)) {
-              let neighbour = false;
+              let isNeighborOfHighlight = false;
               Array.from(highlightSet).some((hid) => {
-                if (neighborsRef.current.get(hid)?.has(id)) {
-                  neighbour = true;
+                const nbrs = neighborsRef.current.get(hid);
+                if (nbrs?.has(id)) {
+                  isNeighborOfHighlight = true;
                   return true;
                 }
                 return false;
               });
-              nodeAlpha = neighbour ? 0.45 : 0.15;
+              nodeAlpha = isNeighborOfHighlight ? 0.4 : 0.12;
             }
 
-            // whoever just tapped in wears their archetype colour, so you can
-            // pick yourself out of a full wall the moment you scan
-            const ts = lastSeen.current[id];
-            const ago = ts ? Date.now() - ts : Infinity;
-            const recent = ago < CARD_RECENT_MS;
-
-            ctx.save();
-            ctx.globalAlpha = nodeAlpha;
-
-            // the card
-            roundRect(ctx, x, y, w, h, CARD_CORNER * pop);
-            ctx.fillStyle = CARD_FILL;
-            ctx.fill();
-
-            let edge = CARD_EDGE;
-            let edgeW = CARD_EDGE_W;
-            if (rankMap[id] !== undefined) {
-              edge = CROWN_COLORS[rankMap[id]];
-              edgeW = CARD_EDGE_W_ACTIVE;
-            }
-            if (recent) {
-              edge = base;
-              edgeW = CARD_EDGE_W_ACTIVE;
-            }
-            if (highlightSet.has(id) || pathNodeSet.has(id)) {
-              edge = pathNodeSet.has(id) ? "#947FFE" : "rgba(255,255,255,0.9)";
-              edgeW = CARD_EDGE_W_ACTIVE;
-            }
-            ctx.strokeStyle = edge;
-            ctx.lineWidth = edgeW * pop;
-            ctx.stroke();
-
-            // the character, inside its own square on the left
-            const iconBox = CARD_ICON * pop;
-            const cxIcon = x + CARD_PAD * pop + iconBox / 2;
-            const cyIcon = y + h / 2;
-            const icon = getArchetypeImage(arche);
-            if (icon) {
-              const fit = fitIcon(icon, arche, iconBox);
-              ctx.save();
-              // sx sweeps +1 → 0 → -1 for the flip, sy squashes on the way
-              ctx.translate(cxIcon, cyIcon + bobY * pop);
-              ctx.scale(sx, sy);
-              ctx.drawImage(icon, -fit.w / 2, -fit.h / 2, fit.w, fit.h);
-              ctx.restore();
-            } else {
-              ctx.beginPath();
-              ctx.arc(cxIcon, cyIcon, iconBox * 0.35, 0, 2 * Math.PI);
-              ctx.fillStyle = base;
-              ctx.fill();
-            }
-
-            // the name
-            ctx.font = `${CARD_WEIGHT} ${CARD_NAME * pop}px ${WALL_FONT}`;
-            ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = CARD_INK;
-            ctx.fillText(
-              name,
-              x + (CARD_PAD + CARD_ICON + CARD_GAP) * pop,
-              cyIcon + CARD_NAME * pop * 0.06,
-            );
-
-            ctx.restore();
-
-            // a card that just lit up pulses its edge outward once
-            if (ago < HALO_RECENT_MS) {
-              const p = 1 - ago / HALO_RECENT_MS;
-              const g = 5 * (1 - p);
-              ctx.save();
-              ctx.globalAlpha = nodeAlpha * p * 0.7;
-              roundRect(
-                ctx,
-                x - g,
-                y - g,
-                w + g * 2,
-                h + g * 2,
-                (CARD_CORNER + g) * pop,
+            // bloom
+            const innerR = Math.max(0.0001, rr * 0.2);
+            const outerR = Math.max(innerR + 0.0001, rr * 1.9);
+            if (
+              isFiniteNum(node.x) &&
+              isFiniteNum(node.y) &&
+              isFiniteNum(innerR) &&
+              isFiniteNum(outerR)
+            ) {
+              const grad = ctx.createRadialGradient(
+                node.x,
+                node.y,
+                innerR,
+                node.x,
+                node.y,
+                outerR,
               );
-              ctx.strokeStyle = base;
-              ctx.lineWidth = 0.9;
+              grad.addColorStop(
+                0,
+                base.replace(/68%\)/, "80%)").replace(/\d+%\)$/, "80%)"),
+              );
+              grad.addColorStop(1, "rgba(255,255,255,0)");
+              ctx.save();
+              ctx.globalAlpha = 0.35 * k * (nodeAlpha / 0.85);
+              ctx.fillStyle = grad;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, outerR, 0, 2 * Math.PI);
+              ctx.fill();
+              ctx.restore();
+            }
+
+            // intro ring
+            if (introT < 1) {
+              const ringProg = 1 - introT;
+              const ringR = rr + 12 * ringProg * VIS;
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, ringR, 0, 2 * Math.PI);
+              ctx.strokeStyle = `rgba(255,255,255,${0.24 * ringProg})`;
+              ctx.lineWidth = 2.2 * VIS * (ringProg + 0.2);
               ctx.stroke();
               ctx.restore();
             }
+
+            // recent halo
+            const ts = lastSeen.current[id];
+            const ago = ts ? Date.now() - ts : Infinity;
+            if (ago < HALO_RECENT_MS) {
+              const progress = 1 - ago / HALO_RECENT_MS;
+              const haloR = rr + 10 * progress * VIS;
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, haloR, 0, 2 * Math.PI);
+              ctx.strokeStyle = `rgba(255,255,255,${0.18 * progress})`;
+              ctx.lineWidth = 3 * VIS * progress;
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // search highlight ring
+            if (highlightSet.has(id)) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 4 * VIS, 0, 2 * Math.PI);
+              ctx.strokeStyle = "rgba(110, 231, 183, 0.8)";
+              ctx.lineWidth = 2 * VIS;
+              ctx.shadowColor = "rgba(110, 231, 183, 0.6)";
+              ctx.shadowBlur = 12 * VIS;
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // path finder: ring for start/path nodes
+            if (pathMode && pathStart === id) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 6 * VIS, 0, 2 * Math.PI);
+              ctx.strokeStyle = "rgba(196, 148, 255, 0.9)";
+              ctx.lineWidth = 2.5 * VIS;
+              ctx.shadowColor = "rgba(196, 148, 255, 0.7)";
+              ctx.shadowBlur = 16 * VIS;
+              ctx.stroke();
+              ctx.restore();
+            } else if (
+              pathNodeSet.has(id) &&
+              pathResult &&
+              pathResult.length > 0
+            ) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
+              ctx.strokeStyle = "rgba(196, 148, 255, 0.6)";
+              ctx.lineWidth = 1.5 * VIS;
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // core: the character casts its own glow — no disc behind it
+            const glow = 12 + Math.min(18, Math.sqrt(Math.max(1, deg)) * 1.4);
+
+            const icon = getArchetypeImage(arche);
+            ctx.save();
+            ctx.globalAlpha = nodeAlpha;
+            ctx.shadowColor = base;
+            ctx.shadowBlur = glow * VIS * (0.8 + 0.2 * k);
+            if (icon) {
+              // sx sweeps +1 → 0 → -1 for the flip, sy squashes on the way
+              ctx.translate(node.x, node.y + bobY);
+              ctx.scale(sx, sy);
+              const fit = fitIcon(icon, arche, iconSize);
+              ctx.drawImage(icon, -fit.w / 2, -fit.h / 2, fit.w, fit.h);
+            } else {
+              // illustration not decoded yet — fall back to the dot
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, r, 0, 2 * Math.PI);
+              ctx.fillStyle = base;
+              ctx.fill();
+            }
+            ctx.restore();
+
+            // crown/badge
+            if (rankMap[id] !== undefined) {
+              const rank = rankMap[id];
+              const color = CROWN_COLORS[rank];
+              ctx.save();
+              ctx.globalAlpha = nodeAlpha;
+              ctx.shadowColor = color;
+              ctx.strokeStyle = color;
+
+              // stroked three times over: canvas caps how much a single
+              // shadow can build up, so stacking passes is what actually
+              // reads as a glow rather than a slightly fuzzy ring
+              ctx.shadowBlur = CROWN_GLOW;
+              ctx.lineWidth = 1.6 * VIS;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.stroke();
+
+              ctx.shadowBlur = CROWN_GLOW * 0.45;
+              ctx.lineWidth = 2.6 * VIS;
+              ctx.beginPath();
+              ctx.arc(node.x, node.y, rr + 3 * VIS, 0, 2 * Math.PI);
+              ctx.stroke();
+              ctx.restore();
+            }
+
+            // Name tags are queued, not drawn here: force-graph paints nodes
+            // one at a time, so a tag drawn inline gets covered by whichever
+            // character is painted next. The queue is flushed in
+            // onRenderFramePost, once every character is down.
+            labelQueue.current.push({
+              text: firstName(node.name, id),
+              x: node.x + rr + 4 * VIS,
+              y: node.y + 0.5,
+              // divided by globalScale, so it holds one size on screen
+              size: Math.max(8 * VIS, (9 * VIS) / globalScale),
+              // dimmed nodes keep a readable floor instead of fading out
+              alpha: Math.max(0.72, nodeAlpha),
+            });
           }}
           nodePointerAreaPaint={(
             node: any,
             color: string,
             ctx: CanvasRenderingContext2D,
           ) => {
-            const m = cardMetrics(firstName(node.name, node.id));
+            const id = node.id as string;
+            const r = (4 + Math.min(7, Math.sqrt(degree[id] || 1) * 1.4)) * VIS;
             ctx.fillStyle = color;
-            ctx.fillRect(node.x - m.w / 2, node.y - m.h / 2, m.w, m.h);
+            ctx.beginPath();
+            ctx.arc(
+              node.x,
+              node.y,
+              (r * ICON_SCALE) / 2 + 2 * VIS,
+              0,
+              2 * Math.PI,
+            );
+            ctx.fill();
           }}
         />
       </div>
@@ -2831,7 +2874,7 @@ export default function ConnectionWall() {
           color: rgba(255, 255, 255, 0.9);
         }
         .ticker__time {
-          color: rgba(255, 255, 255, 0.5);
+          color: rgba(255, 255, 255, 0.6);
         }
         @keyframes tickerScroll {
           from {
