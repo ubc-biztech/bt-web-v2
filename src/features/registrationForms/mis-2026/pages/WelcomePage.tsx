@@ -14,6 +14,7 @@ import {
 } from "framer-motion";
 import { ActionButton } from "../components/ActionButton";
 import styles from "./WelcomePage.module.css";
+import type { BiztechEvent } from "@/types";
 
 const MASCOTS = [
   {
@@ -44,6 +45,7 @@ const MASCOTS = [
 ] as const;
 
 type WelcomePageProps = {
+  event: BiztechEvent;
   onContinue: () => void;
 };
 
@@ -181,8 +183,19 @@ function EventPill({ children }: { children: string }) {
   );
 }
 
-export function WelcomePage({ onContinue }: WelcomePageProps) {
+export function WelcomePage({ event, onContinue }: WelcomePageProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
+  const startDate = new Date(event.startDate);
+  const eventDate = startDate
+    .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    .toUpperCase();
+  const eventTime = startDate
+    .toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .toUpperCase();
 
   return (
     <section
@@ -201,8 +214,8 @@ export function WelcomePage({ onContinue }: WelcomePageProps) {
         </p>
 
         <div className="mt-4 hidden flex-wrap items-center justify-center gap-5 md:flex">
-          <EventPill>SEP 9</EventPill>
-          <EventPill>5:00 PM</EventPill>
+          <EventPill>{eventDate}</EventPill>
+          <EventPill>{eventTime}</EventPill>
           <EventPill>AMS GREAT HALL</EventPill>
         </div>
       </div>

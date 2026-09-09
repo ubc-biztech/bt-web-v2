@@ -113,11 +113,10 @@ const EditEventPage: NextPage = () => {
 
     if (data.deadline > data.startDate) {
       toast({
-        title: "Validation Error",
-        description: "Registration deadline must be before event start date",
-        variant: "destructive",
+        title: "Warning",
+        description:
+          "The registration deadline is after the event start time. This may be unintended.",
       });
-      return;
     }
 
     const defaultRegistrationQuestions = transformEventFormQuestions(
