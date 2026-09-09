@@ -21,13 +21,20 @@ const membershipPromptRoutes = new Set([
 export default function Layout({ children }: any) {
   const router = useRouter();
   const showMembershipPrompt = membershipPromptRoutes.has(router.pathname);
+  const isFeedbackRoute = router.pathname.includes("/feedback");
 
   return (
     <div lang="en" className={`${urbanist.className}`}>
       <div className={`md:pl-[250px]`}>
         <ConfigureAmplifyClientSide />
         <OnboardingChecker />
-        <div className="md:pt-8 pt-24 lg:p-16 md:p-12 p-8 w-full min-h-screen place-content-center">
+        <div
+          className={`${
+            isFeedbackRoute
+              ? "pt-16 px-0 pb-8 md:pt-8 md:px-12 md:pb-12 lg:p-16"
+              : "md:pt-8 pt-24 lg:p-16 md:p-12 p-8"
+          } w-full min-h-screen place-content-center`}
+        >
           {showMembershipPrompt && <MembershipPrompt />}
           {children}
         </div>
