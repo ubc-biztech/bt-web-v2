@@ -279,7 +279,12 @@ export function MISRegistrationForm({
   function renderPage() {
     switch (flow.step) {
       case "welcome":
-        return <WelcomePage onContinue={() => dispatch({ type: "START" })} />;
+        return (
+          <WelcomePage
+            event={event}
+            onContinue={() => dispatch({ type: "START" })}
+          />
+        );
 
       case "info":
         return (
