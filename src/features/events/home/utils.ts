@@ -181,14 +181,19 @@ export function formatPrice(event: EventHomeEvent) {
   return `Members $${memberPrice.toFixed(2)} - Non-members $${nonMemberPrice.toFixed(2)}`;
 }
 
-export function formatPrimaryPrice(event: EventHomeEvent) {
+export function formatPrimaryPrice(
+  event: EventHomeEvent,
+  hasMembership = false,
+) {
   const memberPrice =
     typeof event.pricing?.members === "number" ? event.pricing.members : null;
   const nonMemberPrice =
     typeof event.pricing?.nonMembers === "number"
       ? event.pricing.nonMembers
       : null;
-  const displayPrice = nonMemberPrice ?? memberPrice;
+  const displayPrice = hasMembership
+    ? (memberPrice ?? nonMemberPrice)
+    : (nonMemberPrice ?? memberPrice);
 
   if (displayPrice === null) return "Pricing TBA";
   return displayPrice > 0 ? `$${displayPrice.toFixed(2)}` : "Free";

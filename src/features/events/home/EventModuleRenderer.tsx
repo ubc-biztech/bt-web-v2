@@ -19,6 +19,8 @@ type EventModuleRendererProps = {
   registrationHref: string;
   registrationLoading: boolean;
   signedIn: boolean;
+  hasMembership: boolean;
+  membershipLoading: boolean;
 };
 
 const canShowAdminOnlyModulesOnPublicPage = false;
@@ -63,6 +65,8 @@ export function EventModuleRenderer({
   registrationHref,
   registrationLoading,
   signedIn,
+  hasMembership,
+  membershipLoading,
 }: EventModuleRendererProps) {
   const enabledModules = (modules ?? defaultEventModules)
     .filter((module) =>
@@ -86,6 +90,8 @@ export function EventModuleRenderer({
                 registrationHref={registrationHref}
                 registrationLoading={registrationLoading}
                 signedIn={signedIn}
+                hasMembership={hasMembership}
+                membershipLoading={membershipLoading}
               />
             );
           case "qa":
