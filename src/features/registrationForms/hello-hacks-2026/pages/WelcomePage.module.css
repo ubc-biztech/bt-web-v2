@@ -1,0 +1,230 @@
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+  overflow: hidden;
+  color: #181818;
+  background: #f4f4f1
+    url("/assets/2026/hello-hacks/welcome/paper-texture-square.png") no-repeat
+    23.5% center / auto 100%;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+/* The fixed registration shell owns scrolling while this step is mounted. */
+:global(body):has(.screen) {
+  overflow: hidden;
+}
+
+.statusStrip {
+  position: absolute;
+  top: 88px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100% - 48px);
+  max-width: 386px;
+  height: 37px;
+  transform: translateX(-50%);
+  color: #20386a;
+  font-size: 16.774px;
+  font-weight: 600;
+  line-height: 37px;
+}
+
+.statusStrip img {
+  width: 94px;
+  height: 24px;
+}
+
+.hero {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 471px;
+  margin: 0 auto;
+  padding-top: clamp(149px, 26.07dvh, 267px);
+  padding-bottom: 130px;
+  text-align: center;
+}
+
+.heading {
+  max-width: calc(100% - 32px);
+  margin: 0;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 36px;
+}
+
+.logo {
+  position: relative;
+  flex-shrink: 0;
+  width: 73.25%;
+  aspect-ratio: 345 / 178;
+  margin-top: 50px;
+}
+
+.hello {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 61%;
+}
+
+.hacks {
+  position: absolute;
+  top: 58.3%;
+  left: 4.73%;
+  width: 86.33%;
+  height: 41.7%;
+}
+
+.tagline {
+  margin: 21px 0 0;
+  color: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 35px;
+}
+
+.button.button {
+  flex-shrink: 0;
+  width: 61.5%;
+  aspect-ratio: 290 / 67;
+  min-height: 44px;
+  margin-top: 41px;
+  padding: 0;
+  border: 1px solid rgba(94, 179, 255, 0.7);
+  border-radius: 999px;
+  color: white;
+  background: linear-gradient(180deg, #307bf2, #328bfc);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(113, 206, 255, 0.45);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+.button:hover {
+  filter: brightness(1.04);
+}
+.button:active {
+  filter: brightness(0.97);
+}
+.button:focus-visible {
+  outline: 2px solid #1c59b6;
+  outline-offset: 4px;
+}
+
+.dock {
+  position: absolute;
+  bottom: max(2.91%, env(safe-area-inset-bottom));
+  left: 50%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4.38%;
+  width: 72.68%;
+  max-width: 342.34px;
+  transform: translateX(-50%);
+}
+
+.dockIcon {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 18.75%;
+}
+
+.desktopIcon {
+  display: none;
+}
+
+@media (max-width: 359px) {
+  .heading {
+    font-size: 30px;
+    line-height: 32px;
+  }
+  .logo {
+    margin-top: 40px;
+  }
+  .tagline {
+    margin-top: 18px;
+    line-height: 30px;
+  }
+  .button.button {
+    margin-top: 34px;
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 431px) {
+  .heading {
+    font-size: 42.86px;
+    line-height: 41.84px;
+  }
+  .logo {
+    margin-top: 60px;
+  }
+  .tagline {
+    margin-top: 25px;
+    font-size: 20px;
+    line-height: 41.84px;
+  }
+  .button.button {
+    margin-top: 49px;
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 768px) {
+  .statusStrip {
+    display: none;
+  }
+  .screen {
+    min-height: 760px;
+    background-size: cover;
+    background-position: center;
+  }
+  .hero {
+    justify-content: center;
+    max-width: none;
+    padding: 120px 16px 80px;
+  }
+  .logo {
+    width: 345px;
+    max-width: 100%;
+    margin-top: 40px;
+  }
+  .tagline {
+    margin-top: 40px;
+  }
+  .button.button {
+    width: 290px;
+    max-width: 100%;
+    margin-top: 40px;
+  }
+  .dock {
+    bottom: 39px;
+    width: calc(100% - 64px);
+    max-width: 656px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .desktopIcon {
+    display: block;
+  }
+  .biztechIcon {
+    opacity: 0.8;
+  }
+}
