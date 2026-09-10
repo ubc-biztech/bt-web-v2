@@ -4,6 +4,8 @@ import type { RegistrationQuestion } from "@/types";
 import type { RegistrationFormProps } from "./types";
 import { MISRegistrationForm } from "./mis-2026/RegistrationForm";
 import { MIS_REGISTRATION_QUESTIONS } from "./mis-2026/Definition";
+import { HelloHacksRegistrationForm } from "./hello-hacks-2026/RegistrationForm";
+import { HELLO_HACKS_REGISTRATION_QUESTIONS } from "./hello-hacks-2026/Definition";
 
 const DefaultRegistrationForm = dynamic(() =>
   import("@/components/Events/AttendeeEventRegistrationForm").then(
@@ -27,6 +29,12 @@ export const REGISTRATION_FORMS = {
     label: "MIS 2026 registration form",
     Component: MISRegistrationForm,
     questions: MIS_REGISTRATION_QUESTIONS,
+  },
+
+  "hello-hacks-2026": {
+    label: "HelloHacks 2026 registration form",
+    Component: HelloHacksRegistrationForm,
+    questions: HELLO_HACKS_REGISTRATION_QUESTIONS,
   },
 } as const satisfies Record<string, RegistrationFormDefinition>;
 
