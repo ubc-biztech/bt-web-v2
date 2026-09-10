@@ -5,6 +5,8 @@ import { CLIENT_URL } from "@/lib/dbconfig";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
 import { MISRegistrationSuccessPage } from "@/features/registrationForms/mis-2026/pages/RegistrationSuccessPage";
+import { isHelloHacksEventId } from "@/features/registrationForms/hello-hacks-2026/constants";
+import { HelloHacksRegistrationSuccessPage } from "@/features/registrationForms/hello-hacks-2026/pages/RegistrationSuccessPage";
 
 const GenericSuccessPage = () => {
   const router = useRouter();
@@ -124,6 +126,15 @@ const SuccessPage = () => {
   if (isMISNightEventId(eventId)) {
     return (
       <MISRegistrationSuccessPage eventId={eventId} year={year ?? "2026"} />
+    );
+  }
+
+  if (isHelloHacksEventId(eventId)) {
+    return (
+      <HelloHacksRegistrationSuccessPage
+        eventId={eventId}
+        year={year ?? "2026"}
+      />
     );
   }
 
