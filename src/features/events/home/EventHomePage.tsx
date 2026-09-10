@@ -2,6 +2,7 @@ import { useEvent, useEventCounts } from "@/queries/events";
 import { useUserRegistrations } from "@/queries/registrations";
 import { useUserAttributes } from "@/queries/user";
 import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
+import { useMembershipStatus } from "@/lib/membership";
 import { DBRegistrationStatus } from "@/types/types";
 import { useRouter } from "next/router";
 import { EventAboutCard, EventHeroHeader } from "./EventHeroHeader";
@@ -74,6 +75,8 @@ export default function EventHomePage() {
   const { data: counts } = useEventCounts(eventId, year);
   const { data: userAttributes, isLoading: userLoading } = useUserAttributes();
   const email = userAttributes?.email;
+  const { data: hasMembership = false, isLoading: membershipLoading } =
+    useMembershipStatus(email);
   const { data: registrations, isLoading: registrationsLoading } =
     useUserRegistrations(email);
 
@@ -128,6 +131,8 @@ export default function EventHomePage() {
                     registrationLoading={registrationLoading}
                     registrationHref={registrationHref}
                     signedIn={signedIn}
+                    hasMembership={hasMembership}
+                    membershipLoading={membershipLoading}
                   />
                   <EventAboutCard event={configuredEvent} />
                 </div>
@@ -153,6 +158,8 @@ export default function EventHomePage() {
                         registrationLoading={registrationLoading}
                         registrationHref={registrationHref}
                         signedIn={signedIn}
+                        hasMembership={hasMembership}
+                        membershipLoading={membershipLoading}
                       />
                     ),
                   )}

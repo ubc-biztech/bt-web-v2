@@ -32,6 +32,8 @@ type RegistrationStatusModuleProps = {
   registrationLoading: boolean;
   registrationHref: string;
   signedIn: boolean;
+  hasMembership: boolean;
+  membershipLoading: boolean;
 };
 
 type RegistrationCopy = {
@@ -63,10 +65,13 @@ function getRegistrationCopy({
   }
 
   if (rawStatus) {
-    const statusLabel =
-      rawStatus === DBRegistrationStatus.REGISTERED && isApplication
-        ? "Application submitted"
-        : getStatusLabel(rawStatus);
+    let statusLabel: string = getStatusLabel(rawStatus);
+
+    if (rawStatus === DBRegistrationStatus.ACCEPTED_COMPLETE) {
+      statusLabel = "Registered";
+    } else if (rawStatus === DBRegistrationStatus.REGISTERED && isApplication) {
+      statusLabel = "Application submitted";
+    }
 
     const needsAction =
       rawStatus === DBRegistrationStatus.INCOMPLETE ||
@@ -186,8 +191,16 @@ function canShowCalendarCtaForRegistrationStatus(
 }
 
 export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
-  const { event, counts, registration, registrationHref, registrationLoading } =
-    props;
+  const {
+    event,
+    counts,
+    registration,
+    registrationHref,
+    registrationLoading,
+    signedIn,
+    hasMembership,
+    membershipLoading,
+  } = props;
   const stats = getCapacityStats(event, counts);
   const isFull = stats.capacity > 0 && stats.spotsRemaining === 0;
   const copy = getRegistrationCopy({ ...props, isFull });
@@ -195,6 +208,13 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   const deadlineStatus = formatDeadlineStatus(event.deadline);
   const ctaDisabled = copy.tone === "loading";
   const isConfirmed = copy.tone === "success";
+  const shouldShowMemberPrice =
+    signedIn &&
+    !membershipLoading &&
+    !hasMembership &&
+    typeof event.pricing?.members === "number" &&
+    typeof event.pricing?.nonMembers === "number" &&
+    event.pricing.members !== event.pricing.nonMembers;
   const shouldShowCalendarCta = canShowCalendarCtaForRegistrationStatus(
     event,
     registration?.registrationStatus,
@@ -226,11 +246,18 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     <section className="flex min-h-[128px] flex-col justify-between rounded-[14px] border border-[#26314a] bg-[#111a30] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)] lg:p-6">
       <div>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <Ticket className="h-6 w-6 text-[#0ec58c]" aria-hidden="true" />
-            <h2 className="break-words text-[24px] font-800 leading-none text-white">
-              {formatPrimaryPrice(event)}
-            </h2>
+          <div className="flex min-w-0 items-start gap-2">
+            <Ticket
+              className="mt-0.5 h-6 w-6 text-[#0ec58c]"
+              aria-hidden="true"
+            />
+            <div>
+              <h2 className="break-words text-[24px] font-800 leading-none text-white">
+                {signedIn && membershipLoading
+                  ? "Checking price..."
+                  : formatPrimaryPrice(event, hasMembership)}
+              </h2>
+            </div>
           </div>
 
           {shouldShowBuildingBlockCta ? (
@@ -246,6 +273,15 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
             </Link>
           ) : null}
         </div>
+
+        {shouldShowMemberPrice ? (
+          <p className="text-[10px] font-600 text-[#aeb7c8]">
+            Members pay{" "}
+            {formatPrimaryPrice(event, true) == "Free"
+              ? "nothing — join on our homepage!"
+              : formatPrimaryPrice(event, true)}
+          </p>
+        ) : null}
 
         <div
           className={`mt-4 flex items-center gap-3 text-[14px] font-600 ${
