@@ -9,8 +9,8 @@ export function SuccessPage({ onViewApplication }: SuccessPageProps) {
     <section data-step="success" aria-live="polite">
       <h1>Application sent!</h1>
       <p>
-        Thank you for applying to HelloHacks. We&apos;ll let you know your
-        status by [date].
+        Thank you for applying to HelloHacks! Keep an eye on your inbox — we’ll
+        be in touch shortly.
       </p>
       {onViewApplication ? (
         <ActionButton onClick={onViewApplication}>

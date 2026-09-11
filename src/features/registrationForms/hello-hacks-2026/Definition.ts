@@ -260,6 +260,7 @@ export const HelloHacksRegistrationSchema = z.object({
   year: z.string().trim().min(1, "Year is required"),
   faculty: z.string().trim().min(1, "Faculty is required"),
   major: z.string().trim().min(1, "Specialization is required"),
+  dietaryRestrictions: z.string().trim().optional(),
   avatar: z.enum(HH_AVATAR_IDS, {
     required_error: "Pick an avatar",
     invalid_type_error: "Pick a valid avatar",

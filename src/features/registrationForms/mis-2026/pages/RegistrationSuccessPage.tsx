@@ -1,8 +1,6 @@
 import { fetchUserAttributes } from "@aws-amplify/auth";
-import { useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import { DM_Sans } from "next/font/google";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import MISBackground from "@/assets/2026/mis-night/background.svg";
 import { fetchBackend } from "@/lib/db";
@@ -45,7 +43,6 @@ export function MISRegistrationSuccessPage({
   eventId,
   year,
 }: RegistrationSuccessPageProps) {
-  const queryClient = useQueryClient();
   const [details, setDetails] = useState<SuccessDetails>({
     profileName: "BizTech attendee",
     schedule: SUCCESS_SCHEDULE,
@@ -196,17 +193,12 @@ export function MISRegistrationSuccessPage({
             </p>
           </section>
 
-          <Link
+          <a
             href={`/event/${eventId}/${year}`}
-            onClick={() => {
-              void queryClient.invalidateQueries({
-                queryKey: ["registrations"],
-              });
-            }}
             className="mt-auto flex h-[68px] w-full items-center justify-center rounded-[24px] bg-[#917EF4] px-6 text-[22px] font-[900] text-white transition-colors hover:bg-[#A698FA] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#B2A3FF]/50 md:mt-11 md:h-[60px] md:max-w-[376px] md:rounded-[22px] md:text-[19px]"
           >
             View Registration
-          </Link>
+          </a>
         </div>
       </main>
     </div>

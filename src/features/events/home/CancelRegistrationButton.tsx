@@ -47,8 +47,14 @@ export function CancelRegistrationButton({
         user.name ||
         "Attendee";
 
+      // Keep valid email path characters literal for deployed API handlers that
+      // validate path parameters before URL-decoding them.
+      const emailPath = encodeURIComponent(user.email)
+        .replace(/%40/g, "@")
+        .replace(/%2B/g, "+");
+
       await fetchBackend({
-        endpoint: `/registrations/${encodeURIComponent(user.email)}/${encodeURIComponent(firstName)}`,
+        endpoint: `/registrations/${emailPath}/${encodeURIComponent(firstName)}`,
         method: "PUT",
         data: {
           eventID: event.id,
