@@ -31,7 +31,7 @@ export function ReviewPage({
   return (
     <section
       data-step="review"
-      className="relative min-h-screen overflow-hidden bg-[#f7f6f1] px-6 pb-12 pt-[88px] text-[#181818] sm:px-10 md:px-16 md:py-16 lg:px-20"
+      className="relative min-h-screen overflow-hidden bg-[#f7f6f1] px-[var(--hh-step-pad-x)] pb-12 pt-[var(--hh-step-pad-top)] font-sf tracking-normal text-[#181818] sm:px-10 md:px-16 md:pb-16 md:pt-[var(--hh-step-pad-top-lg)] lg:px-20"
     >
       <div
         aria-hidden="true"
@@ -44,11 +44,11 @@ export function ReviewPage({
         style={{ backgroundImage: `url('${ASSETS}/paper-desktop.png')` }}
       />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[760px] flex-col gap-8 md:gap-10">
-        <header className="flex w-full flex-col items-start gap-3">
+      <div className="relative z-10 mx-auto flex w-full max-w-[var(--hh-step-column)] flex-col gap-8 md:gap-10">
+        <header className="flex w-full flex-col items-start gap-[var(--hh-status-gap)]">
           <span
             aria-hidden="true"
-            className="flex h-[37px] w-full items-center justify-between text-[16.774px] font-600 leading-[37px] text-[#20386a] md:hidden"
+            className="flex h-[var(--hh-status-height)] w-full items-center justify-between text-[16.774px] font-600 leading-[var(--hh-status-height)] text-[#20386a] md:hidden"
           >
             <span>9:26</span>
             <Image
@@ -61,14 +61,14 @@ export function ReviewPage({
 
           <BackButton
             onClick={onBack}
-            className="h-6 w-6 bg-[url('/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg')] bg-contain bg-center bg-no-repeat text-transparent"
+            className="h-[var(--hh-back-size)] w-[var(--hh-back-size)] bg-[url('/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg')] bg-contain bg-center bg-no-repeat text-transparent"
           />
 
           <div className="flex w-full flex-col items-start gap-1">
-            <h1 className="text-[32px] font-800 leading-[38px] text-[#181818] md:text-[42px] md:leading-[48px]">
+            <h1 className="text-[32px] font-700 leading-[38px] text-[#181818] md:text-[36px] md:leading-[41.84px]">
               Review
             </h1>
-            <p className="text-sm leading-5 text-[#3c3c3c] md:text-base md:leading-6">
+            <p className="text-base font-400 leading-6 text-[#3c3c3c]">
               Please take one last look before submitting.
             </p>
           </div>
@@ -86,7 +86,7 @@ export function ReviewPage({
                 </dt>
                 <dd className="m-0 min-w-0">
                   {row.media ?? (
-                    <span className="block truncate text-base font-700 leading-5 text-[#181818]">
+                    <span className="block truncate text-base font-500 leading-5 text-[#181818]">
                       {row.value}
                     </span>
                   )}
@@ -108,7 +108,7 @@ export function ReviewPage({
         <ActionButton
           type="submit"
           disabled={submitting}
-          className="mx-auto h-[66px] w-full max-w-[292px] rounded-full border border-[#64b5ff] bg-[linear-gradient(180deg,#307bf2,#328bfc)] px-8 py-0 text-[22px] font-400 leading-none shadow-[inset_0_1px_2px_rgba(255,255,255,0.3),inset_0_-1px_2px_rgba(113,206,255,0.45)] transition disabled:cursor-not-allowed disabled:opacity-50"
+          className="mx-auto h-[66px] w-full max-w-[292px] rounded-full border border-[#64b5ff] bg-[linear-gradient(180deg,#307bf2,#328bfc)] px-8 py-0 text-[22px] font-400 leading-6 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3),inset_0_-1px_2px_rgba(113,206,255,0.45)] transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? "Submitting..." : "Submit Application"}
         </ActionButton>

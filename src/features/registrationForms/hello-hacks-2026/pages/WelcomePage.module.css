@@ -21,14 +21,14 @@
 
 .statusStrip {
   position: absolute;
-  top: 88px;
+  top: var(--hh-step-pad-top);
   left: 50%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: calc(100% - 48px);
   max-width: 386px;
-  height: 37px;
+  height: var(--hh-status-height);
   transform: translateX(-50%);
   color: #20386a;
   font-size: 16.774px;

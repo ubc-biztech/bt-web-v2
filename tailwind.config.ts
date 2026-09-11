@@ -23,6 +23,9 @@ const config: Config = {
       redhat: ["Red Hat Mono", "monospace"],
       bricolage: ["var(--font-bricolage)", ...fontFamily.sans],
       instrument: ["var(--font-instrument)", ...fontFamily.serif],
+      // Matches the stack the HelloHacks step stylesheets declare, so the
+      // Tailwind-only steps render in SF Pro alongside them.
+      sf: ["-apple-system", "BlinkMacSystemFont", "Arial", "sans-serif"],
     },
     fontWeight: {
       "100": "100",

@@ -5,6 +5,21 @@
 :root {
   --font-urbanist: "Urbanist", sans-serif;
 
+  /*
+   * HelloHacks registration chrome. Every step reads these so the status strip,
+   * back arrow and title land in the same place and nothing shifts between
+   * steps. Change them here rather than in an individual step's stylesheet.
+   */
+  --hh-step-pad-top: 88px;
+  --hh-step-pad-x: 24px;
+  --hh-status-height: 37px;
+  --hh-status-gap: 12px;
+  --hh-back-size: 24px;
+  --hh-back-gap: 12px;
+  /* Desktop (>=768px) drops the status strip; the arrow anchors here. */
+  --hh-step-pad-top-lg: 64px;
+  --hh-step-column: 760px;
+
   --foreground-rgb: 255, 255, 255;
   --background-start-rgb: 11, 17, 30;
   --background-end-rgb: 18, 32, 61;
