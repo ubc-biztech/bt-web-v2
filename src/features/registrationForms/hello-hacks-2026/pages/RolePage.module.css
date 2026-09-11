@@ -5,7 +5,13 @@
   flex-direction: column;
   padding: 29px 24px max(90px, env(safe-area-inset-bottom));
   color: #181818;
+<<<<<<< Updated upstream
   background: #f7f6f1 url("/assets/2026/hello-hacks/role-select/paper-mobile.png") center / cover no-repeat;
+=======
+  background: #f7f6f1
+    url("/assets/2026/hello-hacks/role-select/paper-mobile.png") center / cover
+    no-repeat;
+>>>>>>> Stashed changes
   font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
 }
 
@@ -19,7 +25,13 @@
   flex-direction: column;
 }
 
+<<<<<<< Updated upstream
 .header { width: 100%; }
+=======
+.header {
+  width: 100%;
+}
+>>>>>>> Stashed changes
 
 .status {
   display: flex;
@@ -32,7 +44,14 @@
   font-weight: 600;
 }
 
+<<<<<<< Updated upstream
 .statusIcons { width: 94px; height: 24px; }
+=======
+.statusIcons {
+  width: 94px;
+  height: 24px;
+}
+>>>>>>> Stashed changes
 
 .backButton.backButton {
   display: block;
@@ -40,11 +59,22 @@
   height: 24px;
   margin-bottom: 12px;
   padding: 0;
+<<<<<<< Updated upstream
   background: url("/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg") center / 24px 24px no-repeat;
   color: transparent;
 }
 
 .backButton:focus-visible, .option:focus-visible, .continue:focus-visible {
+=======
+  background: url("/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg")
+    center / 24px 24px no-repeat;
+  color: transparent;
+}
+
+.backButton:focus-visible,
+.option:focus-visible,
+.continue:focus-visible {
+>>>>>>> Stashed changes
   outline: 2px solid #0088ff;
   outline-offset: 4px;
 }
@@ -88,6 +118,7 @@
   border: 1.5px solid;
   border-radius: 16px;
   text-align: left;
+<<<<<<< Updated upstream
   transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1), fill 150ms cubic-bezier(0.4, 0, 0.2, 1), stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -96,6 +127,34 @@
 .optionUnselected:hover { background: #f5faff; }
 
 .emoji { flex-shrink: 0; font-size: 24px; line-height: 29px; }
+=======
+  transition:
+    color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    text-decoration-color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    fill 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.optionSelected {
+  border-color: #0088ff;
+  background: #eaf6fe;
+}
+.optionUnselected {
+  border-color: #e1e1e1;
+  background: transparent;
+}
+.optionUnselected:hover {
+  background: #f5faff;
+}
+
+.emoji {
+  flex-shrink: 0;
+  font-size: 24px;
+  line-height: 29px;
+}
+>>>>>>> Stashed changes
 
 .optionText {
   display: flex;
@@ -105,8 +164,22 @@
   gap: 4px;
 }
 
+<<<<<<< Updated upstream
 .optionLabel { color: #181818; font-size: 16px; font-weight: 700; line-height: 19px; }
 .optionDescription { color: #717171; font-size: 12px; line-height: 16px; }
+=======
+.optionLabel {
+  color: #181818;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19px;
+}
+.optionDescription {
+  color: #717171;
+  font-size: 12px;
+  line-height: 16px;
+}
+>>>>>>> Stashed changes
 
 .continue.continue {
   flex-shrink: 0;
@@ -117,16 +190,34 @@
   padding: 16px 20px;
   border: 1px solid #64b5ff;
   background: #0088ff;
+<<<<<<< Updated upstream
   box-shadow: inset 0 1px 2px #ffffff66, inset 0 -1px 2px #71ceff73, 0 8px 15px #00000005;
+=======
+  box-shadow:
+    inset 0 1px 2px #ffffff66,
+    inset 0 -1px 2px #71ceff73,
+    0 8px 15px #00000005;
+>>>>>>> Stashed changes
   font-size: 22px;
   font-weight: 500;
   line-height: 26px;
 }
 
+<<<<<<< Updated upstream
 .continue:disabled { cursor: not-allowed; }
 
 @media (min-width: 445px) and (max-width: 767px) {
   .page { padding-inline: 42px; }
+=======
+.continue:disabled {
+  cursor: not-allowed;
+}
+
+@media (min-width: 445px) and (max-width: 767px) {
+  .page {
+    padding-inline: 42px;
+  }
+>>>>>>> Stashed changes
 }
 
 @media (min-width: 768px) {
@@ -146,14 +237,26 @@
     font-size: 34px;
     line-height: 39.5px;
   }
+<<<<<<< Updated upstream
   .status { display: none; }
+=======
+  .status {
+    display: none;
+  }
+>>>>>>> Stashed changes
   .options {
     max-width: none;
     margin: 0;
     padding: 22px;
     gap: 11px;
   }
+<<<<<<< Updated upstream
   .option { padding: 15px; }
+=======
+  .option {
+    padding: 15px;
+  }
+>>>>>>> Stashed changes
   .continue.continue {
     align-self: flex-start;
     width: auto;
@@ -165,5 +268,11 @@
 }
 
 @media (min-width: 1200px) {
+<<<<<<< Updated upstream
   .page { padding-inline: 80px; }
+=======
+  .page {
+    padding-inline: 80px;
+  }
+>>>>>>> Stashed changes
 }
