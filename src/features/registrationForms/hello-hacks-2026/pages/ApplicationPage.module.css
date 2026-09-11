@@ -253,8 +253,16 @@
   position: relative;
   display: flex;
   flex: 0 0 auto;
+  flex-direction: column;
+  gap: 6px;
   align-items: center;
   justify-content: center;
+}
+
+.ratingNumber {
+  color: #181818;
+  font-size: 13px;
+  line-height: 16px;
 }
 
 .ratingInput {

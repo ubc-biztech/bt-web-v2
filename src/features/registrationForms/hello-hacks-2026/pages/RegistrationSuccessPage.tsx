@@ -59,7 +59,7 @@ export function HelloHacksRegistrationSuccessPage({
     <section
       data-page="hello-hacks-success"
       aria-live="polite"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f6f1] px-6 py-16 text-[#181818]"
+      className="relative flex min-h-[calc(100svh-64px)] items-center justify-center overflow-hidden bg-[#f7f6f1] px-6 py-8 text-[#181818] md:min-h-svh"
     >
       <div
         aria-hidden="true"
