@@ -257,6 +257,20 @@ export default function AttendeeFormRegister() {
   ): Promise<boolean> => {
     if (isSubmitting) return false;
 
+    // The HelloHacks success screen shows the avatar the applicant picked, and
+    // the form's state is gone by the time that route mounts. Other forms set
+    // no `hh_avatar`, so their redirect is unchanged.
+    const successUrl = (extra?: Record<string, string>) => {
+      const query = new URLSearchParams(extra);
+      const avatar = payload.dynamicResponses?.hh_avatar;
+
+      if (avatar) query.set("avatar", String(avatar));
+
+      const search = query.toString();
+
+      return `/event/${eventId}/${year}/register/success${search ? `?${search}` : ""}`;
+    };
+
     setIsSubmitting(true);
     try {
       if (!userLoggedIn && (await checkRegistered(payload.email))) {
@@ -278,9 +292,7 @@ export default function AttendeeFormRegister() {
           : await state.regForPaid(payload);
 
         if (event.isApplicationBased) {
-          await router.push(
-            `/event/${eventId}/${year}/register/success?isApplicationBased=true`,
-          );
+          await router.push(successUrl({ isApplicationBased: "true" }));
           return true;
         }
 
@@ -298,7 +310,7 @@ export default function AttendeeFormRegister() {
         await state.regForFree(payload);
       }
 
-      await router.push(`/event/${eventId}/${year}/register/success`);
+      await router.push(successUrl());
       return true;
     } catch (error) {
       console.error("Registration submission failed:", error);
