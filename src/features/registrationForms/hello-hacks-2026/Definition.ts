@@ -20,16 +20,37 @@ export type HHAvatarId = (typeof HH_AVATAR_IDS)[number];
 export type HHAvatar = {
   id: HHAvatarId;
   label: string;
+  /** Circle fill behind the shared BizBot render. */
+  color: string;
 };
 
-// TODO(design): swap placeholder labels for the final BizBot names + art.
+/**
+ * Every avatar is the same BizBot on a different coloured circle, so there is
+ * one shared image rather than six. The small render is enough for the grid;
+ * the large one backs the preview.
+ *
+ * TODO(assets): both live under `confirm-details/` because that page landed
+ * first. They are shared now — move them somewhere neutral on the next asset
+ * pass and update both pages together.
+ */
+export const HH_BIZBOT_SRC =
+  "/assets/2026/hello-hacks/confirm-details/bizbot-avatar.png";
+export const HH_BIZBOT_SRC_LARGE =
+  "/assets/2026/hello-hacks/confirm-details/bizbot-avatar-large.png";
+
+/** Intrinsic ratio of the BizBot render (512x442), and its share of the circle. */
+export const HH_BIZBOT_RATIO = 512 / 442;
+export const HH_BIZBOT_CIRCLE_SHARE = "62%";
+
+// TODO(design): swap placeholder labels for the final BizBot names. Colours are
+// read off the 1.2 frame and want confirming against the file.
 export const HH_AVATARS = [
-  { id: "classic", label: "Classic" },
-  { id: "bloom", label: "Bloom" },
-  { id: "shades", label: "Shades" },
-  { id: "propeller", label: "Propeller" },
-  { id: "violet", label: "Violet" },
-  { id: "pizza", label: "Pizza" },
+  { id: "classic", label: "Classic", color: "#c4a03c" },
+  { id: "bloom", label: "Bloom", color: "#de8cc3" },
+  { id: "shades", label: "Shades", color: "#55b39b" },
+  { id: "propeller", label: "Propeller", color: "#6798ce" },
+  { id: "violet", label: "Violet", color: "#8e7fc8" },
+  { id: "pizza", label: "Pizza", color: "#c87b45" },
 ] as const satisfies readonly HHAvatar[];
 
 export const HH_TRACK_IDS = [
