@@ -30,6 +30,17 @@ export function RolePage({
     <section data-step="role" className={styles.page}>
       <div className={styles.content}>
         <header className={styles.header}>
+          <span aria-hidden="true" className={styles.status}>
+            <span>9:26</span>
+            <Image
+              src="/assets/2026/hello-hacks/confirm-details/mobile-status-icons.svg"
+              alt=""
+              width={94}
+              height={24}
+              className={styles.statusIcons}
+            />
+          </span>
+
           <BackButton onClick={onBack} className={styles.backButton} />
           <h1 id="role-heading" className={styles.heading}>
             What’s your role?
