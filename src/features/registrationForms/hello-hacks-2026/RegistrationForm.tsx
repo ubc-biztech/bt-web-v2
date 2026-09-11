@@ -64,7 +64,6 @@ export function HelloHacksRegistrationForm({
   onSubmit,
 }: RegistrationFormProps) {
   const [flow, dispatch] = useReducer(hhFlowReducer, INITIAL_HH_FLOW_STATE);
-  const preview = useTrackPreview();
   const fullNameInputRef = useRef<HTMLInputElement>(null);
   const [fullName, setFullName] = useState(
     `${user.fname ?? ""} ${user.lname ?? ""}`.trim(),
@@ -82,10 +81,12 @@ export function HelloHacksRegistrationForm({
       whyAttend: "",
       projectIdea: "",
       skillsGoal: "",
+      soundtrack: HH_TRACKS[0].id,
     },
   });
   const { setValue, watch, trigger } = form;
   const values = watch();
+  const preview = useTrackPreview(values.soundtrack, flow.step === "song");
 
   function select(field: FieldName, value: string) {
     setValue(field, value, { shouldDirty: true, shouldValidate: true });
@@ -94,13 +95,11 @@ export function HelloHacksRegistrationForm({
   /** Validates only the fields owned by the current step before advancing. */
   async function continueWith(fields: readonly FieldName[]) {
     if (await trigger(fields as FieldName[])) {
-      preview.stop();
       dispatch({ type: "CONTINUE" });
     }
   }
 
   function goBack() {
-    preview.stop();
     dispatch({ type: "BACK" });
   }
 
