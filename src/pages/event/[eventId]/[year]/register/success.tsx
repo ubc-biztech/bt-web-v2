@@ -134,6 +134,7 @@ const SuccessPage = () => {
       <HelloHacksRegistrationSuccessPage
         eventId={eventId}
         year={year ?? "2026"}
+        avatar={router.query.avatar}
       />
     );
   }
