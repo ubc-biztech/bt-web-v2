@@ -6,6 +6,7 @@ import type { RegistrationFormProps } from "@/features/registrationForms/types";
 import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
 import {
   HH_AVATARS,
+  HH_DEFAULT_AVATAR,
   HH_ROLES,
   HH_TRACKS,
   HelloHacksRegistrationSchema,
@@ -365,6 +366,7 @@ export function HelloHacksRegistrationForm({
         return (
           <ConfirmDetailsPage
             fields={confirmDetailFields}
+            avatar={chosenAvatar ?? HH_DEFAULT_AVATAR}
             profileName={fullName || "Your profile"}
             profilePronouns={user.gender}
             canContinue={CONFIRM_FIELDS.every(([field]) => isFilled(field))}
