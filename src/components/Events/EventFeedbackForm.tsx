@@ -25,6 +25,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BadgeCheck, Building, Calendar, CircleAlert } from "lucide-react";
 import { extractMonthDay, extractTime } from "@/util/extractDate";
 import { cn } from "@/lib/utils";
+import { getFeedbackAnswerFields } from "@/lib/feedbackGrid";
+import { FeedbackGrid } from "./FeedbackGrid";
 
 type FeedbackFormValues = {
   respondentName?: string;
@@ -106,8 +108,14 @@ const createFeedbackSchema = (questions: FeedbackQuestion[]) =>
           continue;
         }
 
-        if (question.type === FeedbackQuestionTypes.MULTIPLE_CHOICE) {
-          const options = normalizeChoices(question.choices);
+        if (
+          question.type === FeedbackQuestionTypes.MULTIPLE_CHOICE ||
+          question.type === FeedbackQuestionTypes.MULTIPLE_CHOICE_GRID
+        ) {
+          const options =
+            question.type === FeedbackQuestionTypes.MULTIPLE_CHOICE_GRID
+              ? question.grid!.columns
+              : normalizeChoices(question.choices);
           const text = typeof answer === "string" ? answer.trim() : "";
           if (question.required && !text) {
             ctx.addIssue({
@@ -194,10 +202,17 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
   isSubmitting,
   onSubmit,
 }) => {
-  const schema = useMemo(() => createFeedbackSchema(questions), [questions]);
+  const answerFields = useMemo(
+    () => getFeedbackAnswerFields(questions),
+    [questions],
+  );
+  const schema = useMemo(
+    () => createFeedbackSchema(answerFields),
+    [answerFields],
+  );
 
   const defaultResponses = useMemo(() => {
-    return questions.reduce<Record<string, any>>((acc, question) => {
+    return answerFields.reduce<Record<string, any>>((acc, question) => {
       if (question.type === FeedbackQuestionTypes.CHECKBOXES) {
         acc[question.questionId] = [];
       } else {
@@ -205,7 +220,7 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
       }
       return acc;
     }, {});
-  }, [questions]);
+  }, [answerFields]);
 
   const form = useForm<FeedbackFormValues>({
     resolver: zodResolver(schema),
@@ -219,6 +234,7 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
   const submitHandler: SubmitHandler<FeedbackFormValues> = async (values) => {
     await onSubmit(values);
   };
+  const responses = form.watch("responses");
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
@@ -318,7 +334,7 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                     <FormField
                       key={question.questionId}
                       control={form.control}
-                      name={`responses.${question.questionId}`}
+                      name={`responses.${question.grid?.rows[0]?.id || question.questionId}`}
                       render={({ field, fieldState }) => (
                         <FormItem
                           className={cn(
@@ -373,15 +389,18 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                               <RadioGroup
                                 value={field.value ?? ""}
                                 onValueChange={field.onChange}
-                                className="space-y-2"
+                                className="gap-4"
                               >
                                 {choices.map((choice) => (
                                   <FormItem
                                     key={choice}
-                                    className="flex items-start space-x-2"
+                                    className="flex items-start gap-2 space-y-0"
                                   >
                                     <FormControl>
-                                      <RadioGroupItem value={choice} />
+                                      <RadioGroupItem
+                                        value={choice}
+                                        className="mt-0.5 shrink-0"
+                                      />
                                     </FormControl>
                                     <FormLabel className="min-w-0 font-normal break-words leading-5">
                                       {choice}
@@ -435,6 +454,38 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                                 })}
                               </div>
                             </FormControl>
+                          )}
+
+                          {question.type ===
+                            FeedbackQuestionTypes.MULTIPLE_CHOICE_GRID && (
+                            <>
+                              <FeedbackGrid
+                                rows={question.grid!.rows}
+                                columns={question.grid!.columns}
+                                label={question.label}
+                                value={responses}
+                                onChange={(rowId, choice) =>
+                                  form.setValue(`responses.${rowId}`, choice, {
+                                    shouldDirty: true,
+                                    shouldValidate: true,
+                                  })
+                                }
+                                onBlur={field.onBlur}
+                                invalid={question.grid!.rows.some(({ id }) =>
+                                  Boolean(
+                                    form.formState.errors.responses?.[id],
+                                  ),
+                                )}
+                              />
+                              {question.grid!.rows.some(({ id }) =>
+                                Boolean(form.formState.errors.responses?.[id]),
+                              ) && (
+                                <p role="alert" className="text-sm text-white">
+                                  Please select a valid option in every required
+                                  row.
+                                </p>
+                              )}
+                            </>
                           )}
 
                           {question.type ===
