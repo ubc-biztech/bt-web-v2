@@ -112,6 +112,7 @@ export function ApplicationPage({
                             className={styles.ratingCircle}
                             aria-hidden="true"
                           />
+                          <span className={styles.ratingNumber}>{rating}</span>
                         </label>
                       ))}
                     </div>
@@ -192,9 +193,6 @@ export function ApplicationPage({
                 <div className={styles.fieldLabel}>
                   <span id={TEAMMATES_LABEL_ID} className={styles.questionText}>
                     List up to 3 other people you&apos;d like to team up with.
-                  </span>
-                  <span className={styles.helperText}>
-                    Team placements are not guaranteed.
                   </span>
                 </div>
                 <div
