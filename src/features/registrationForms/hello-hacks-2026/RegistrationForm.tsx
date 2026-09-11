@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useRef, useReducer, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Path } from "react-hook-form";
 import type { RegistrationFormProps } from "@/features/registrationForms/types";
@@ -23,7 +23,11 @@ import { useTrackPreview } from "./hooks/useTrackPreview";
 import { CharacterCountField } from "./components/CharacterCountField";
 import { ApplicationPage } from "./pages/ApplicationPage";
 import { AvatarPage } from "./pages/AvatarPage";
-import { ConfirmDetailsPage } from "./pages/ConfirmDetailsPage";
+import {
+  ConfirmDetailsPage,
+  type ConfirmDetailField,
+} from "./pages/ConfirmDetailsPage";
+import { ConfirmDetailsInput } from "./components/ConfirmDetailsInput";
 import { ReviewPage, type ReviewRow } from "./pages/ReviewPage";
 import { RolePage } from "./pages/RolePage";
 import { SongPage } from "./pages/SongPage";
@@ -61,6 +65,10 @@ export function HelloHacksRegistrationForm({
 }: RegistrationFormProps) {
   const [flow, dispatch] = useReducer(hhFlowReducer, INITIAL_HH_FLOW_STATE);
   const preview = useTrackPreview();
+  const fullNameInputRef = useRef<HTMLInputElement>(null);
+  const [fullName, setFullName] = useState(
+    `${user.fname ?? ""} ${user.lname ?? ""}`.trim(),
+  );
   const form = useForm<HelloHacksRegistrationValues>({
     resolver: zodResolver(HelloHacksRegistrationSchema),
     defaultValues: {
@@ -100,8 +108,79 @@ export function HelloHacksRegistrationForm({
     dispatch({ type: "EDIT", step });
   }
 
+  function handleFullNameChange(value: string) {
+    setFullName(value);
+
+    const trimmedValue = value.trim();
+    const [firstName = "", ...lastNameParts] = trimmedValue.split(/\s+/);
+    setValue("firstName", firstName, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue("lastName", lastNameParts.join(" "), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }
+
+  function focusFirstConfirmField() {
+    fullNameInputRef.current?.focus();
+    fullNameInputRef.current?.select();
+  }
+
   const isFilled = (field: FieldName) =>
     Boolean(values[field]?.toString().trim());
+
+  const confirmDetailFields: ConfirmDetailField[] = [
+    {
+      id: "full-name",
+      label: "Full name",
+      error:
+        form.formState.errors.firstName || form.formState.errors.lastName
+          ? "Please enter your first and last name"
+          : undefined,
+      control: (
+        <ConfirmDetailsInput
+          ref={fullNameInputRef}
+          value={fullName}
+          onChange={(event) => handleFullNameChange(event.target.value)}
+          autoComplete="name"
+        />
+      ),
+    },
+    {
+      id: "email",
+      label: "Email address",
+      error: form.formState.errors.email?.message,
+      control: (
+        <ConfirmDetailsInput
+          {...form.register("email")}
+          className="cursor-default"
+          readOnly
+          aria-readonly="true"
+          autoComplete="email"
+        />
+      ),
+    },
+    {
+      id: "year",
+      label: "Year level",
+      error: form.formState.errors.year?.message,
+      control: <ConfirmDetailsInput {...form.register("year")} />,
+    },
+    {
+      id: "faculty",
+      label: "Faculty",
+      error: form.formState.errors.faculty?.message,
+      control: <ConfirmDetailsInput {...form.register("faculty")} />,
+    },
+    {
+      id: "major",
+      label: "Specialization",
+      error: form.formState.errors.major?.message,
+      control: <ConfirmDetailsInput {...form.register("major")} />,
+    },
+  ];
 
   const reviewRows: ReviewRow[] = [
     {
@@ -234,24 +313,16 @@ export function HelloHacksRegistrationForm({
       case "confirm-details":
         return (
           <ConfirmDetailsPage
+            fields={confirmDetailFields}
+            profileName={fullName || "Your profile"}
+            profilePronouns={user.gender}
             canContinue={CONFIRM_FIELDS.every(([field]) => isFilled(field))}
             onBack={goBack}
             onContinue={() =>
               continueWith(CONFIRM_FIELDS.map(([field]) => field))
             }
-          >
-            {CONFIRM_FIELDS.map(([field, label]) => (
-              <label key={field}>
-                <span>{label}</span>
-                <input {...form.register(field)} />
-                {form.formState.errors[field]?.message ? (
-                  <span role="alert">
-                    {form.formState.errors[field]?.message}
-                  </span>
-                ) : null}
-              </label>
-            ))}
-          </ConfirmDetailsPage>
+            onEditFirstField={focusFirstConfirmField}
+          />
         );
 
       case "review":
