@@ -66,7 +66,7 @@ export function AvatarPage({
   return (
     <section
       data-step="avatar"
-      className="relative min-h-screen overflow-hidden bg-[#f7f6f1] px-6 py-12 text-[#181818] sm:px-10 md:px-16 md:py-16 lg:px-20"
+      className="relative min-h-screen overflow-hidden bg-[#f7f6f1] px-6 pb-12 pt-20 text-[#181818] sm:px-10 md:px-16 md:py-16 lg:px-20"
     >
       <div
         aria-hidden="true"

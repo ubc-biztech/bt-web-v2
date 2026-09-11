@@ -1,0 +1,8 @@
+:global(html):has(.shell),
+:global(body):has(.shell) {
+  overflow: hidden;
+}
+
+.shell {
+  overscroll-behavior-y: contain;
+}

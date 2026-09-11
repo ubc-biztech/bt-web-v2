@@ -1,4 +1,5 @@
 import { useRef, useReducer, useState } from "react";
+import styles from "./RegistrationForm.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Path } from "react-hook-form";
 import type { RegistrationFormProps } from "@/features/registrationForms/types";
@@ -343,7 +344,9 @@ export function HelloHacksRegistrationForm({
     // TODO(design): paper-texture background once the asset lands.
     // globals.css forces h1/h2/h3 to white; the light shell has to opt out of
     // that or every unstyled stub renders white-on-white.
-    <div className="fixed inset-y-0 left-0 right-0 z-20 isolate overflow-y-auto bg-white text-black [&_h1]:text-inherit [&_h2]:text-inherit [&_h3]:text-inherit md:left-[250px]">
+    <div
+      className={`${styles.shell} fixed inset-y-0 left-0 right-0 z-20 isolate overflow-y-auto bg-white text-black [&_h1]:text-inherit [&_h2]:text-inherit [&_h3]:text-inherit md:left-[250px]`}
+    >
       <form
         className="relative z-10 h-full w-full"
         onSubmit={form.handleSubmit(handleValidSubmit)}
