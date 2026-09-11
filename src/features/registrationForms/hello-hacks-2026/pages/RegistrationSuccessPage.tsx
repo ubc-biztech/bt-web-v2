@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { resolveAvatar } from "../Definition";
 import { AvatarBubble } from "../components/AvatarBubble";
 
@@ -108,8 +107,8 @@ export function HelloHacksRegistrationSuccessPage({
         </h1>
 
         <p className="mt-3 max-w-[340px] text-base leading-6 text-[#3c3c3c]">
-          Thank you for applying to HelloHacks. We&apos;ll let you know your
-          status by [date].
+          Thank you for applying to HelloHacks! Keep an eye on your inbox —
+          we’ll be in touch shortly.
         </p>
 
         <div className="mt-8">
@@ -120,12 +119,12 @@ export function HelloHacksRegistrationSuccessPage({
           />
         </div>
 
-        <Link
+        <a
           href={`/event/${eventId}/${year}`}
           className="mt-8 flex h-[66px] w-full max-w-[292px] items-center justify-center rounded-full border border-[#64b5ff] bg-[linear-gradient(180deg,#307bf2,#328bfc)] text-[22px] font-400 leading-none text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.3),inset_0_-1px_2px_rgba(113,206,255,0.45)] transition hover:brightness-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1094f7] focus-visible:ring-offset-2"
         >
           View Application
-        </Link>
+        </a>
       </div>
     </section>
   );
