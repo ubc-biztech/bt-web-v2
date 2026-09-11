@@ -3,7 +3,15 @@ import { membershipFormFieldsSchema } from "./membershipFormSchema";
 
 export const onboardingValidationSchema =
   membershipFormFieldsSchema.superRefine((data, context) => {
-    if (data.studentNumber && !/^\d+$/.test(data.studentNumber)) {
+    if (data.education === "UBC") {
+      if (!data.studentNumber || !/^\d{8}$/.test(data.studentNumber)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Please provide a valid student number",
+          path: ["studentNumber"],
+        });
+      }
+    } else if (data.studentNumber && !/^\d+$/.test(data.studentNumber)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Student number must contain numbers only",
