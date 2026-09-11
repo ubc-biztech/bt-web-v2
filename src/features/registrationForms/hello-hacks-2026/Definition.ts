@@ -52,26 +52,26 @@ export type HHTrack = {
 export const HH_TRACKS = [
   {
     id: "hh-tune-1",
-    title: "HH Tune 1",
-    artist: "TBD",
+    title: "Late Night Build",
+    artist: "BizTech Beats",
     src: "/assets/2026/hello-hacks/audio/hh-tune-1.m4a",
   },
   {
     id: "hh-tune-2",
-    title: "HH Tune 2",
-    artist: "TBD",
+    title: "Coffee Shop Jazz",
+    artist: "Lil Tao",
     src: "/assets/2026/hello-hacks/audio/hh-tune-2.m4a",
   },
   {
     id: "hh-tune-3",
-    title: "HH Tune 3",
-    artist: "TBD",
+    title: "Bay Breeze",
+    artist: "Kevina Xiao",
     src: "/assets/2026/hello-hacks/audio/hh-tune-3.m4a",
   },
   {
     id: "hh-tune-4",
-    title: "HH Tune 4",
-    artist: "TBD",
+    title: "Jump Start",
+    artist: "University of British Chudlumbia",
     src: "/assets/2026/hello-hacks/audio/hh-tune-4.m4a",
   },
 ] as const satisfies readonly HHTrack[];
