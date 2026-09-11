@@ -13,6 +13,11 @@ export const ONBOARDING_YEAR_LEVELS = [
 export const onboardingValidationSchema = membershipFormFieldsSchema
   .extend({
     dietaryRestrictionsOther: z.string(),
+    studentNumber: z
+      .string()
+      .trim()
+      .max(8, "Student number must be 8 characters or fewer")
+      .optional(),
     levelOfStudy: z
       .string()
       .refine((value) => ONBOARDING_YEAR_LEVELS.includes(value), {

@@ -588,7 +588,7 @@ function ProfileStep() {
       <div className="mt-4">
         <TextField
           name="studentNumber"
-          label="Student Number"
+          label="Student Number (optional)"
           placeholder="12345678"
           maxLength={8}
           inputMode="numeric"
