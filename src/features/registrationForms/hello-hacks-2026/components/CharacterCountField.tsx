@@ -1,4 +1,5 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
+import styles from "./CharacterCountField.module.css";
 
 type CharacterCountFieldProps = {
   label: string;
@@ -9,8 +10,9 @@ type CharacterCountFieldProps = {
 };
 
 /**
- * Unstyled placeholder for the short-answer inputs on the application step.
- * Owns the character counter so the styled version only replaces markup.
+ * One short-answer question on the application step: label, textarea, and the
+ * live character counter. `maxLength` caps typing at the limit, so the counter
+ * is a progress readout rather than an error state.
  */
 export function CharacterCountField({
   label,
@@ -20,13 +22,23 @@ export function CharacterCountField({
   field,
 }: CharacterCountFieldProps) {
   return (
-    <label>
-      <span>{label}</span>
-      <textarea {...field} maxLength={charLimit} placeholder="Short answer" />
-      <span aria-hidden="true">
+    <label className={styles.field}>
+      <span className={styles.label}>{label}</span>
+      <textarea
+        {...field}
+        maxLength={charLimit}
+        placeholder="Short answer"
+        rows={1}
+        className={styles.input}
+      />
+      <span aria-hidden="true" className={styles.count}>
         {value.length} / {charLimit}
       </span>
-      {error ? <span role="alert">{error}</span> : null}
+      {error ? (
+        <span role="alert" className={styles.error}>
+          {error}
+        </span>
+      ) : null}
     </label>
   );
 }

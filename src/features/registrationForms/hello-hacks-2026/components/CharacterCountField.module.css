@@ -1,0 +1,59 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.label {
+  color: #181818;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 19px;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 16px;
+  border: 1px solid #ece9e0;
+  border-radius: 12px;
+  background: #f7f6f1;
+  color: #181818;
+  font: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  resize: none;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.input::placeholder {
+  color: #a3a3a3;
+}
+
+.input:focus-visible {
+  border-color: #9dcdfd;
+  box-shadow: 0 0 0 2px #1094f733;
+}
+
+.count {
+  align-self: flex-end;
+  color: #8e8e93;
+  font-size: 12px;
+  line-height: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.error {
+  color: #d9344e;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+@media (min-width: 768px) {
+  .label {
+    font-size: 16px;
+  }
+}
