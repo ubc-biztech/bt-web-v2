@@ -88,7 +88,8 @@ export function HelloHacksRegistrationForm({
       firstName: user.fname ?? "",
       lastName: user.lname ?? "",
       studentId: user.studentId?.toString() ?? "",
-      year: user.year?.toString() ?? "",
+      year: "",
+      dietaryRestrictions: user.diet ?? "",
       faculty: user.faculty ?? "",
       major: user.major ?? "",
       teammate1: "",
@@ -195,6 +196,17 @@ export function HelloHacksRegistrationForm({
       error: formState.errors.major?.message,
       control: <ConfirmDetailsInput {...register("major")} />,
     },
+    {
+      id: "dietary-restrictions",
+      label: "Dietary restrictions (optional)",
+      error: formState.errors.dietaryRestrictions?.message,
+      control: (
+        <ConfirmDetailsInput
+          {...register("dietaryRestrictions")}
+          placeholder="e.g. Vegetarian, nut allergy, or none"
+        />
+      ),
+    },
   ];
 
   const reviewRows: ReviewRow[] = [
@@ -241,6 +253,12 @@ export function HelloHacksRegistrationForm({
       step: "application" as const,
     })),
     {
+      key: "dietaryRestrictions",
+      label: "Dietary restrictions",
+      value: values.dietaryRestrictions?.trim() || "None",
+      step: "confirm-details",
+    },
+    {
       key: "profile",
       label: "Profile",
       value: "Confirmed",
@@ -261,6 +279,7 @@ export function HelloHacksRegistrationForm({
         year: submitted.year,
         faculty: submitted.faculty,
         major: submitted.major,
+        diet: submitted.dietaryRestrictions || "None",
       },
       dynamicResponses: {
         hh_avatar: submitted.avatar,

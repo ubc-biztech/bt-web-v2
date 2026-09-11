@@ -1,8 +1,25 @@
 import { z } from "zod";
 import { membershipFormFieldsSchema } from "./membershipFormSchema";
 
-export const onboardingValidationSchema =
-  membershipFormFieldsSchema.superRefine((data, context) => {
+export const ONBOARDING_YEAR_LEVELS = [
+  "1st Year",
+  "2nd Year",
+  "3rd Year",
+  "4th Year",
+  "5+ Year",
+  "Other",
+];
+
+export const onboardingValidationSchema = membershipFormFieldsSchema
+  .extend({
+    dietaryRestrictionsOther: z.string(),
+    levelOfStudy: z
+      .string()
+      .refine((value) => ONBOARDING_YEAR_LEVELS.includes(value), {
+        message: "Please select your year level",
+      }),
+  })
+  .superRefine((data, context) => {
     if (data.studentNumber && !/^\d+$/.test(data.studentNumber)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
@@ -11,11 +28,14 @@ export const onboardingValidationSchema =
       });
     }
 
-    if (data.pronouns === "Other" && !data.pronounsOther.trim()) {
+    if (
+      data.dietaryRestrictions === "Other" &&
+      !data.dietaryRestrictionsOther.trim()
+    ) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please specify your pronouns",
-        path: ["pronounsOther"],
+        message: "Please specify your dietary restrictions",
+        path: ["dietaryRestrictionsOther"],
       });
     }
 
@@ -26,4 +46,14 @@ export const onboardingValidationSchema =
         path: ["levelOfStudyOther"],
       });
     }
+
+    if (data.pronouns === "Other" && !data.pronounsOther.trim()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please specify your pronouns",
+        path: ["pronounsOther"],
+      });
+    }
   });
+
+export type OnboardingFormValues = z.infer<typeof onboardingValidationSchema>;

@@ -24,8 +24,11 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import { MEMBERSHIP_FORM_DEFAULTS } from "@/components/SignUpForm/membershipFormSchema";
-import { onboardingValidationSchema } from "@/components/SignUpForm/onboardingFormSchema";
-import type { MembershipFormValues } from "@/components/SignUpForm/MembershipFormSection";
+import {
+  onboardingValidationSchema,
+  ONBOARDING_YEAR_LEVELS,
+  type OnboardingFormValues,
+} from "@/components/SignUpForm/onboardingFormSchema";
 
 const faculties = [
   "Arts",
@@ -41,14 +44,27 @@ const faculties = [
 const topics = [
   "Careers in Tech",
   "Startups",
-  "AI",
+  "AI + ML",
+  "Software Engineering",
+  "Product Management",
+  "UX/UI Design",
+  "Consulting",
+  "Data Science",
   "E-commerce",
   "Cybersecurity",
   "Health Tech",
 ];
-const diets = ["Vegetarian", "Vegan", "Gluten-free", "Halal", "Kosher", "None"];
+const diets = [
+  "Vegetarian",
+  "Vegan",
+  "Gluten-free",
+  "Halal",
+  "Kosher",
+  "None",
+  "Other",
+];
 const referralSources = ["Word of Mouth", "Instagram", "Website", "Other"];
-const stepFields: (keyof MembershipFormValues)[][] = [
+const stepFields: (keyof OnboardingFormValues)[][] = [
   [],
   [
     "firstName",
@@ -68,7 +84,7 @@ const stepFields: (keyof MembershipFormValues)[][] = [
     "major",
     "internationalStudent",
   ],
-  ["topics", "dietaryRestrictions"],
+  ["topics", "dietaryRestrictions", "dietaryRestrictionsOther"],
   ["previousMember", "referral"],
 ];
 
@@ -101,9 +117,12 @@ export default function Onboarding() {
     direction: 1,
   });
   const redirected = useRef(false);
-  const methods = useForm<MembershipFormValues>({
+  const methods = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingValidationSchema),
-    defaultValues: MEMBERSHIP_FORM_DEFAULTS,
+    defaultValues: {
+      ...MEMBERSHIP_FORM_DEFAULTS,
+      dietaryRestrictionsOther: "",
+    },
     mode: "onTouched",
   });
   const { reset } = methods;
@@ -132,7 +151,6 @@ export default function Onboarding() {
         const savedPronouns = profile?.pronouns ?? user.gender ?? "";
         const savedLevelOfStudy = profile?.year ?? user.year ?? "";
         const standardPronouns = ["He/Him", "She/Her", "They/Them"];
-        const standardLevels = ["Undergraduate", "Graduate", "Post-doc"];
 
         reset({
           ...MEMBERSHIP_FORM_DEFAULTS,
@@ -151,12 +169,12 @@ export default function Onboarding() {
             ? ""
             : savedPronouns,
           linkedIn: profile?.linkedIn ?? "",
-          levelOfStudy: standardLevels.includes(savedLevelOfStudy)
+          levelOfStudy: ONBOARDING_YEAR_LEVELS.includes(savedLevelOfStudy)
             ? savedLevelOfStudy
             : savedLevelOfStudy
               ? "Other"
               : "",
-          levelOfStudyOther: standardLevels.includes(savedLevelOfStudy)
+          levelOfStudyOther: ONBOARDING_YEAR_LEVELS.includes(savedLevelOfStudy)
             ? ""
             : savedLevelOfStudy,
           faculty: user.faculty ?? "",
@@ -173,13 +191,26 @@ export default function Onboarding() {
                 ? "Yes"
                 : "No"
               : "",
-          dietaryRestrictions: user.diet ?? "None",
+          dietaryRestrictions: diets.includes(user.diet ?? "None")
+            ? (user.diet ?? "None")
+            : "Other",
+          dietaryRestrictionsOther: diets.includes(user.diet ?? "None")
+            ? ""
+            : (user.diet ?? ""),
           referral: referralSources.includes(user.referral ?? "")
             ? (user.referral ?? "")
             : user.referral
               ? "Other"
               : "",
-          topics: Array.isArray(user.topics) ? user.topics : [],
+          topics: Array.isArray(user.topics)
+            ? Array.from(
+                new Set(
+                  user.topics.map((topic) =>
+                    topic === "AI" ? "AI + ML" : topic,
+                  ),
+                ),
+              )
+            : [],
         });
         setHasMembership(membershipStatus);
         if (!cancelled) setLoading(false);
@@ -217,6 +248,10 @@ export default function Onboarding() {
         method: "POST",
         data: {
           ...values,
+          dietaryRestrictions:
+            values.dietaryRestrictions === "Other"
+              ? values.dietaryRestrictionsOther.trim()
+              : values.dietaryRestrictions,
           pronouns:
             values.pronouns === "Other"
               ? values.pronounsOther.trim()
@@ -412,8 +447,8 @@ function Label({ children }: { children: React.ReactNode }) {
     <label className="mb-1.5 block text-[14px] font-medium">{children}</label>
   );
 }
-function ErrorText({ name }: { name: keyof MembershipFormValues }) {
-  const { formState } = useFormContext<MembershipFormValues>();
+function ErrorText({ name }: { name: keyof OnboardingFormValues }) {
+  const { formState } = useFormContext<OnboardingFormValues>();
   const message = formState.errors[name]?.message;
   return message ? (
     <p className="mt-1 text-[13px] text-[#ff8a9e]">{String(message)}</p>
@@ -430,7 +465,7 @@ function TextField({
   maxLength,
   inputMode,
 }: {
-  name: keyof MembershipFormValues;
+  name: keyof OnboardingFormValues;
   label: string;
   type?: string;
   placeholder?: string;
@@ -438,13 +473,14 @@ function TextField({
   maxLength?: number;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
 }) {
-  const { register } = useFormContext<MembershipFormValues>();
+  const { register } = useFormContext<OnboardingFormValues>();
   return (
     <div>
       {label && <Label>{label}</Label>}
       <input
         {...register(name)}
         type={type}
+        aria-label={label || placeholder}
         placeholder={placeholder}
         readOnly={disabled}
         aria-readonly={disabled}
@@ -462,12 +498,12 @@ function SelectField({
   options,
   placeholder,
 }: {
-  name: keyof MembershipFormValues;
+  name: keyof OnboardingFormValues;
   label: string;
   options: string[];
   placeholder: string;
 }) {
-  const { register } = useFormContext<MembershipFormValues>();
+  const { register } = useFormContext<OnboardingFormValues>();
   return (
     <div>
       <Label>{label}</Label>
@@ -490,13 +526,15 @@ function Pills({
   options,
   values = options,
   multiple = false,
+  centered = false,
 }: {
-  name: keyof MembershipFormValues;
+  name: keyof OnboardingFormValues;
   options: string[];
   values?: string[];
   multiple?: boolean;
+  centered?: boolean;
 }) {
-  const { setValue, watch } = useFormContext<MembershipFormValues>();
+  const { setValue, watch } = useFormContext<OnboardingFormValues>();
   const value = watch(name);
   const selected = Array.isArray(value) ? value : [value];
   function choose(option: string, index: number) {
@@ -517,7 +555,9 @@ function Pills({
       });
   }
   return (
-    <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+    <div
+      className={`flex flex-wrap justify-center gap-2 ${centered ? "" : "sm:justify-start"}`}
+    >
       {options.map((option, index) => (
         <button
           key={option}
@@ -533,7 +573,7 @@ function Pills({
 }
 
 function ProfileStep() {
-  const { watch } = useFormContext<MembershipFormValues>();
+  const { watch } = useFormContext<OnboardingFormValues>();
   return (
     <div className="mx-auto max-w-[560px]">
       <Heading>Create your profile</Heading>
@@ -585,7 +625,7 @@ function ProfileStep() {
   );
 }
 function AcademicStep() {
-  const { watch } = useFormContext<MembershipFormValues>();
+  const { watch } = useFormContext<OnboardingFormValues>();
   return (
     <div>
       <Heading>Your academic details</Heading>
@@ -605,17 +645,14 @@ function AcademicStep() {
         </div>
         <div>
           <Label>Level of Study</Label>
-          <Pills
-            name="levelOfStudy"
-            options={["Undergraduate", "Graduate", "Post-doc", "Other"]}
-          />
+          <Pills name="levelOfStudy" options={ONBOARDING_YEAR_LEVELS} />
           <ErrorText name="levelOfStudy" />
           {watch("levelOfStudy") === "Other" && (
             <div className="mt-2.5">
               <TextField
                 name="levelOfStudyOther"
-                label=""
-                placeholder="Please specify your level of study"
+                label="Please specify your level of study"
+                placeholder="e.g. Graduate student"
               />
             </div>
           )}
@@ -641,11 +678,12 @@ function AcademicStep() {
   );
 }
 function PreferencesStep() {
+  const { watch } = useFormContext<OnboardingFormValues>();
   return (
     <div>
       <Heading>What do you want to nerd out about?</Heading>
       <div className="flex justify-center">
-        <Pills name="topics" options={topics} multiple />
+        <Pills name="topics" options={topics} multiple centered />
       </div>
       <ErrorText name="topics" />
       <h2 className="mb-4 mt-12 text-center text-[26px] font-semibold sm:text-[30px]">
@@ -655,11 +693,20 @@ function PreferencesStep() {
         <Pills name="dietaryRestrictions" options={diets} />
       </div>
       <ErrorText name="dietaryRestrictions" />
+      {watch("dietaryRestrictions") === "Other" && (
+        <div className="mx-auto mt-4 max-w-[560px]">
+          <TextField
+            name="dietaryRestrictionsOther"
+            label="Please specify your dietary restrictions"
+            placeholder="e.g. Nut allergy, dairy-free"
+          />
+        </div>
+      )}
     </div>
   );
 }
 function HistoryStep() {
-  const { setValue, watch } = useFormContext<MembershipFormValues>();
+  const { setValue, watch } = useFormContext<OnboardingFormValues>();
   const previous = watch("previousMember");
   return (
     <div>
