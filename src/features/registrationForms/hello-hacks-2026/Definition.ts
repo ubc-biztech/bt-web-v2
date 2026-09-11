@@ -146,7 +146,23 @@ export const HH_ROLES = [
   },
 ] as const satisfies readonly HHRole[];
 
-export const HH_ANSWER_CHAR_LIMIT = 300;
+export const HH_CODING_CONFIDENCE_IDS = ["1", "2", "3", "4", "5"] as const;
+
+export type HHCodingConfidenceId = (typeof HH_CODING_CONFIDENCE_IDS)[number];
+
+export const HH_WORKSHOP_CHOICES = ["Yes", "No"] as const;
+
+export type HHWorkshopChoice = (typeof HH_WORKSHOP_CHOICES)[number];
+
+export const HH_HACKATHONS_CHAR_LIMIT = 50;
+export const HH_TEN_K_WORD_LIMIT = 150;
+export const HH_BEIGE_FLAG_WORD_LIMIT = 75;
+
+export function countWords(value: string): number {
+  const trimmed = value.trim();
+  if (!trimmed) return 0;
+  return trimmed.split(/\s+/).length;
+}
 
 export const HELLO_HACKS_REGISTRATION_QUESTIONS = [
   {
@@ -171,36 +187,69 @@ export const HELLO_HACKS_REGISTRATION_QUESTIONS = [
     choices: HH_ROLE_IDS.join(","),
   },
   {
-    questionId: "hh_why_attend",
-    label: "Why do you want to attend HelloHacks?",
-    type: "TEXT",
+    questionId: "hh_coding_confidence",
+    label: "How confident are you in your coding abilities?",
+    type: "SELECT",
     required: true,
-    charLimit: HH_ANSWER_CHAR_LIMIT,
+    choices: HH_CODING_CONFIDENCE_IDS.join(","),
   },
   {
-    questionId: "hh_project_idea",
-    label: "Tell us about something you've built or want to build.",
+    questionId: "hh_hackathons_attended",
+    label: "How many hackathons have you attended?",
     type: "TEXT",
     required: true,
-    charLimit: HH_ANSWER_CHAR_LIMIT,
+    charLimit: HH_HACKATHONS_CHAR_LIMIT,
   },
   {
-    questionId: "hh_skills_goal",
-    label: "What skills do you hope to gain from participating in HelloHacks?",
+    questionId: "hh_workshop",
+    label:
+      "Will you be attending the pre-hackathon workshop? (September 24 from 6:30pm - 9:00pm)",
+    type: "SELECT",
+    required: true,
+    choices: HH_WORKSHOP_CHOICES.join(","),
+  },
+  {
+    questionId: "hh_ten_k",
+    label: "If you had 10k right now, what would you do with it and why?",
     type: "TEXT",
     required: true,
-    charLimit: HH_ANSWER_CHAR_LIMIT,
+    charLimit: HH_TEN_K_WORD_LIMIT,
+  },
+  {
+    questionId: "hh_beige_flag",
+    label: "What's your beige flag?",
+    type: "TEXT",
+    required: true,
+    charLimit: HH_BEIGE_FLAG_WORD_LIMIT,
+  },
+  {
+    questionId: "hh_teammate_1",
+    label: "Teammate 1",
+    type: "TEXT",
+    required: false,
+  },
+  {
+    questionId: "hh_teammate_2",
+    label: "Teammate 2",
+    type: "TEXT",
+    required: false,
+  },
+  {
+    questionId: "hh_teammate_3",
+    label: "Teammate 3",
+    type: "TEXT",
+    required: false,
   },
 ] satisfies readonly RegistrationQuestion[];
 
-const shortAnswer = (message: string) =>
+const wordLimitedAnswer = (message: string, wordLimit: number) =>
   z
     .string()
     .trim()
     .min(1, message)
-    .max(
-      HH_ANSWER_CHAR_LIMIT,
-      `Keep this under ${HH_ANSWER_CHAR_LIMIT} characters`,
+    .refine(
+      (value) => countWords(value) <= wordLimit,
+      `Keep this under ${wordLimit} words`,
     );
 
 export const HelloHacksRegistrationSchema = z.object({
@@ -223,11 +272,33 @@ export const HelloHacksRegistrationSchema = z.object({
     required_error: "Select a role",
     invalid_type_error: "Select a valid role",
   }),
-  whyAttend: shortAnswer("Tell us why you want to attend"),
-  projectIdea: shortAnswer(
-    "Tell us about something you've built or want to build",
+  codingConfidence: z.enum(HH_CODING_CONFIDENCE_IDS, {
+    required_error: "Select a rating",
+    invalid_type_error: "Select a valid rating",
+  }),
+  hackathonsAttended: z
+    .string()
+    .trim()
+    .min(1, "Tell us how many hackathons you've attended")
+    .max(
+      HH_HACKATHONS_CHAR_LIMIT,
+      `Keep this under ${HH_HACKATHONS_CHAR_LIMIT} characters`,
+    ),
+  workshop: z.enum(HH_WORKSHOP_CHOICES, {
+    required_error: "Select an option",
+    invalid_type_error: "Select a valid option",
+  }),
+  tenKPlan: wordLimitedAnswer(
+    "Tell us what you would do with $10k",
+    HH_TEN_K_WORD_LIMIT,
   ),
-  skillsGoal: shortAnswer("Tell us what skills you hope to gain"),
+  beigeFlag: wordLimitedAnswer(
+    "Tell us your beige flag",
+    HH_BEIGE_FLAG_WORD_LIMIT,
+  ),
+  teammate1: z.string().trim().optional(),
+  teammate2: z.string().trim().optional(),
+  teammate3: z.string().trim().optional(),
 });
 
 export type HelloHacksRegistrationValues = z.infer<

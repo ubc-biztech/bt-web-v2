@@ -1,0 +1,459 @@
+/* The fixed registration shell owns scrolling while this step is mounted. */
+:global(body):has(.page) {
+  overflow: hidden;
+}
+
+.page {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #181818;
+  background-color: #f7f6f1;
+  font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  letter-spacing: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.paper {
+  min-height: 100%;
+  width: 100%;
+  background-color: #f7f6f1;
+  background-image: url("/assets/2026/hello-hacks/confirm-details/paper-texture.jpeg");
+  background-repeat: repeat-y;
+  background-position: top center;
+  background-size: 100% auto;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 760px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: calc(64px + 24px) 24px max(40px, env(safe-area-inset-bottom));
+  gap: 28px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 376px;
+}
+
+.statusStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 37px;
+  margin-bottom: 4px;
+  color: #20386a;
+  font-size: 16.774px;
+  font-weight: 600;
+  line-height: 37px;
+}
+
+.statusStrip img {
+  width: 94px;
+  height: 24px;
+}
+
+.back {
+  display: block;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: url("/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg")
+    center / 24px 24px no-repeat;
+  color: transparent;
+}
+
+.back > span {
+  visibility: hidden;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  margin: 0;
+  color: #181818;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 38px;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 760px;
+  color: #3c3c3c;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 376px;
+  padding: 24px;
+  border-radius: 24px;
+  background: white;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.1);
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.questionText {
+  color: #181818;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+}
+
+.helperText {
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.fieldInput,
+.fieldTextarea {
+  width: 100%;
+  border: 1.5px solid #e1e0db;
+  border-radius: 12px;
+  background: #f7f6f1;
+  color: #181818;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.fieldInput {
+  min-height: 42px;
+  padding: 10px 16px;
+}
+
+.fieldTextarea {
+  min-height: 120px;
+  padding: 12px 16px;
+  resize: vertical;
+}
+
+.fieldInput::placeholder,
+.fieldTextarea::placeholder {
+  color: #8e8e93;
+  font-weight: 400;
+}
+
+.fieldInput:focus,
+.fieldTextarea:focus {
+  border-color: #9dcdfd;
+  box-shadow: 0 0 0 2px rgba(16, 148, 247, 0.2);
+}
+
+.counterRow {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.counter {
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.counterOver {
+  color: #d9344e;
+  font-weight: 500;
+}
+
+.fieldError {
+  color: #d9344e;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.confidenceSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ratingGroup {
+  width: 100%;
+}
+
+.ratingRow {
+  display: grid;
+  grid-template-columns: minmax(0, auto) 1fr minmax(0, auto);
+  align-items: center;
+  gap: 12px 16px;
+  width: 100%;
+}
+
+.ratingLabel {
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.ratingOptions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: clamp(6px, 1.5vw, 12px);
+  min-width: 0;
+}
+
+.ratingEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+
+.ratingOption {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.ratingInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ratingCircle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(18px, 4.5vw, 28px);
+  height: clamp(18px, 4.5vw, 28px);
+  border: 2px solid #c8c7c2;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.ratingInput:focus-visible + .ratingCircle {
+  outline: 2px solid #1094f7;
+  outline-offset: 2px;
+}
+
+.ratingInput:checked + .ratingCircle {
+  border-color: #1094f7;
+  background: #1094f7;
+  box-shadow: inset 0 0 0 3px white;
+}
+
+.ratingHint {
+  color: #8e8e93;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #181818;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.radioInput {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #1094f7;
+  cursor: pointer;
+}
+
+.teammateFields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.continue {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 292px;
+  height: 66px;
+  margin-inline: auto;
+  padding: 0;
+  border: 1px solid rgba(132, 204, 255, 0.7);
+  border-radius: 999px;
+  background: #1094f7;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.55),
+    0 9px 18px rgba(16, 148, 247, 0.22);
+  color: white;
+  font-family: inherit;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.15s ease;
+}
+
+.continue:hover:not(:disabled) {
+  background: #008af0;
+}
+
+.continue:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.continue:focus-visible {
+  outline: 2px solid #1094f7;
+  outline-offset: 4px;
+}
+
+@media (max-width: 767px) {
+  .ratingRow {
+    gap: 8px 10px;
+  }
+
+  .ratingLabel,
+  .ratingHint {
+    font-size: 12px;
+  }
+
+  .title {
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 38px;
+  }
+}
+
+/* Small phones: reclaim horizontal room so the rating scale never overflows. */
+@media (max-width: 400px) {
+  .content {
+    padding-inline: 16px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .ratingRow {
+    gap: 8px;
+  }
+
+  .ratingLabel,
+  .ratingHint {
+    font-size: 11px;
+    line-height: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .statusStrip {
+    display: none;
+  }
+
+  .paper {
+    background-image: url("/assets/2026/hello-hacks/confirm-details/paper-desktop.png");
+  }
+
+  .content {
+    align-items: flex-start;
+    padding: 48px 32px 56px;
+    gap: 32px;
+  }
+
+  .header {
+    max-width: none;
+  }
+
+  .title {
+    font-size: 36px;
+    line-height: 41.84px;
+  }
+
+  .card {
+    max-width: 760px;
+    padding: 24px;
+  }
+
+  .sections {
+    gap: 28px;
+  }
+
+  .continue {
+    margin-inline: 0;
+  }
+}
+
+@media (min-width: 768px) and (max-height: 850px) {
+  .content {
+    padding-top: 40px;
+    padding-bottom: 40px;
+    gap: 24px;
+  }
+
+  .continue {
+    height: 56px;
+  }
+}
