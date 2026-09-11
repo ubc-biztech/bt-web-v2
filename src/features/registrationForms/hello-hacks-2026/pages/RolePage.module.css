@@ -3,7 +3,7 @@
   display: flex;
   min-height: 100%;
   flex-direction: column;
-  padding: 29px 24px max(90px, env(safe-area-inset-bottom));
+  padding: 93px 24px max(90px, env(safe-area-inset-bottom));
   color: #181818;
   background: #f7f6f1
     url("/assets/2026/hello-hacks/role-select/paper-mobile.png") center / cover
@@ -16,7 +16,7 @@
   display: flex;
   width: 100%;
   max-width: 760px;
-  min-height: calc(100svh - 119px);
+  min-height: calc(100svh - 183px);
   margin-inline: auto;
   flex-direction: column;
 }
