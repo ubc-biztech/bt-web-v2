@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import type { HHAvatar } from "../Definition";
 import { ActionButton } from "../components/ActionButton";
+import { AvatarBubble } from "../components/AvatarBubble";
 import { BackButton } from "../components/BackButton";
 import styles from "./ConfirmDetailsPage.module.css";
 
@@ -13,6 +15,8 @@ export type ConfirmDetailField = {
 
 type ConfirmDetailsPageProps = {
   fields: readonly ConfirmDetailField[];
+  /** The BizBot picked on the avatar step, so this card matches the others. */
+  avatar: HHAvatar;
   profileName: string;
   profilePronouns?: string;
   canContinue: boolean;
@@ -23,6 +27,7 @@ type ConfirmDetailsPageProps = {
 
 export function ConfirmDetailsPage({
   fields,
+  avatar,
   profileName,
   profilePronouns,
   canContinue,
@@ -77,15 +82,7 @@ export function ConfirmDetailsPage({
         <div className="w-full max-w-[376px] self-center rounded-[24px] bg-white p-6 shadow-[0_0_35px_rgba(0,0,0,0.1)] sm:max-w-[760px]">
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-4">
-              <span className="relative flex h-[60.9px] w-[60.9px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#78b3e9]">
-                <Image
-                  alt=""
-                  src="/assets/2026/hello-hacks/confirm-details/bizbot-avatar.png"
-                  width={38}
-                  height={30}
-                  className="h-[30px] w-[38px] object-contain"
-                />
-              </span>
+              <AvatarBubble avatar={avatar} size="60.9px" />
               <p className="min-w-0 truncate text-lg font-800 leading-none text-[#181818]">
                 {displayName}
               </p>
