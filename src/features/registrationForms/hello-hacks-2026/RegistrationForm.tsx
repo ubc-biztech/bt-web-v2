@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useRef, useReducer, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, type Path } from "react-hook-form";
@@ -189,6 +190,19 @@ export function HelloHacksRegistrationForm({
         HH_AVATARS.find(({ id }) => id === values.avatar)?.label ??
         "Not selected",
       step: "avatar",
+      // TODO: swap for the shared AvatarBubble once the avatar-page branch
+      // lands — it carries the per-avatar colour this falls back on.
+      media: values.avatar ? (
+        <span className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-[#6798ce]">
+          <Image
+            src="/assets/2026/hello-hacks/confirm-details/bizbot-avatar.png"
+            alt=""
+            width={160}
+            height={138}
+            className="h-auto w-[62%]"
+          />
+        </span>
+      ) : undefined,
     },
     {
       key: "soundtrack",
