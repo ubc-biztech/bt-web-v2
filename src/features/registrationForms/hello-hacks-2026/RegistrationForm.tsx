@@ -4,7 +4,6 @@ import { useForm, type Path } from "react-hook-form";
 import type { RegistrationFormProps } from "@/features/registrationForms/types";
 import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
 import {
-  HH_ANSWER_CHAR_LIMIT,
   HH_AVATARS,
   HH_ROLES,
   HH_TRACKS,
@@ -20,7 +19,6 @@ import {
   type HHEditableStep,
 } from "./flow";
 import { useTrackPreview } from "./hooks/useTrackPreview";
-import { CharacterCountField } from "./components/CharacterCountField";
 import { ApplicationPage } from "./pages/ApplicationPage";
 import { AvatarPage } from "./pages/AvatarPage";
 import {
@@ -36,13 +34,26 @@ import { WelcomePage } from "./pages/WelcomePage";
 
 type FieldName = Path<HelloHacksRegistrationValues>;
 
+const APPLICATION_REQUIRED_FIELDS = [
+  "codingConfidence",
+  "hackathonsAttended",
+  "workshop",
+  "tenKPlan",
+  "beigeFlag",
+] as const satisfies readonly FieldName[];
+
 const APPLICATION_FIELDS = [
-  ["whyAttend", "Why do you want to attend HelloHacks?"],
-  ["projectIdea", "Tell us about something you've built or want to build."],
+  ["codingConfidence", "How confident are you in your coding abilities?"],
+  ["hackathonsAttended", "How many hackathons have you attended?"],
   [
-    "skillsGoal",
-    "What skills do you hope to gain from participating in HelloHacks?",
+    "workshop",
+    "Will you be attending the pre-hackathon workshop? (September 24 from 6:30pm - 9:00pm)",
   ],
+  ["tenKPlan", "If you had 10k right now, what would you do with it and why?"],
+  ["beigeFlag", "What's your beige flag?"],
+  ["teammate1", "Teammate 1"],
+  ["teammate2", "Teammate 2"],
+  ["teammate3", "Teammate 3"],
 ] as const satisfies readonly (readonly [FieldName, string])[];
 
 /**
@@ -78,13 +89,16 @@ export function HelloHacksRegistrationForm({
       year: user.year?.toString() ?? "",
       faculty: user.faculty ?? "",
       major: user.major ?? "",
-      whyAttend: "",
-      projectIdea: "",
-      skillsGoal: "",
+      teammate1: "",
+      teammate2: "",
+      teammate3: "",
+      hackathonsAttended: "",
+      tenKPlan: "",
+      beigeFlag: "",
       soundtrack: HH_TRACKS[0].id,
     },
   });
-  const { setValue, watch, trigger } = form;
+  const { setValue, watch, trigger, register, formState } = form;
   const values = watch();
   const preview = useTrackPreview(values.soundtrack, flow.step === "song");
 
@@ -135,7 +149,7 @@ export function HelloHacksRegistrationForm({
       id: "full-name",
       label: "Full name",
       error:
-        form.formState.errors.firstName || form.formState.errors.lastName
+        formState.errors.firstName || formState.errors.lastName
           ? "Please enter your first and last name"
           : undefined,
       control: (
@@ -150,10 +164,10 @@ export function HelloHacksRegistrationForm({
     {
       id: "email",
       label: "Email address",
-      error: form.formState.errors.email?.message,
+      error: formState.errors.email?.message,
       control: (
         <ConfirmDetailsInput
-          {...form.register("email")}
+          {...register("email")}
           className="cursor-default"
           readOnly
           aria-readonly="true"
@@ -164,20 +178,20 @@ export function HelloHacksRegistrationForm({
     {
       id: "year",
       label: "Year level",
-      error: form.formState.errors.year?.message,
-      control: <ConfirmDetailsInput {...form.register("year")} />,
+      error: formState.errors.year?.message,
+      control: <ConfirmDetailsInput {...register("year")} />,
     },
     {
       id: "faculty",
       label: "Faculty",
-      error: form.formState.errors.faculty?.message,
-      control: <ConfirmDetailsInput {...form.register("faculty")} />,
+      error: formState.errors.faculty?.message,
+      control: <ConfirmDetailsInput {...register("faculty")} />,
     },
     {
       id: "major",
       label: "Specialization",
-      error: form.formState.errors.major?.message,
-      control: <ConfirmDetailsInput {...form.register("major")} />,
+      error: formState.errors.major?.message,
+      control: <ConfirmDetailsInput {...register("major")} />,
     },
   ];
 
@@ -237,9 +251,14 @@ export function HelloHacksRegistrationForm({
         hh_avatar: submitted.avatar,
         hh_soundtrack: submitted.soundtrack,
         hh_role: submitted.role,
-        hh_why_attend: submitted.whyAttend,
-        hh_project_idea: submitted.projectIdea,
-        hh_skills_goal: submitted.skillsGoal,
+        hh_coding_confidence: submitted.codingConfidence,
+        hh_hackathons_attended: submitted.hackathonsAttended,
+        hh_workshop: submitted.workshop,
+        hh_ten_k: submitted.tenKPlan,
+        hh_beige_flag: submitted.beigeFlag,
+        hh_teammate_1: submitted.teammate1 ?? "",
+        hh_teammate_2: submitted.teammate2 ?? "",
+        hh_teammate_3: submitted.teammate3 ?? "",
       },
     };
 
@@ -290,23 +309,32 @@ export function HelloHacksRegistrationForm({
       case "application":
         return (
           <ApplicationPage
-            canContinue={APPLICATION_FIELDS.every(([field]) => isFilled(field))}
+            canContinue={APPLICATION_REQUIRED_FIELDS.every((field) =>
+              isFilled(field),
+            )}
             onBack={goBack}
-            onContinue={() =>
-              continueWith(APPLICATION_FIELDS.map(([field]) => field))
+            onContinue={() => continueWith([...APPLICATION_REQUIRED_FIELDS])}
+            codingConfidence={values.codingConfidence}
+            onSelectCodingConfidence={(rating) =>
+              select("codingConfidence", rating)
             }
-          >
-            {APPLICATION_FIELDS.map(([field, label]) => (
-              <CharacterCountField
-                key={field}
-                label={label}
-                charLimit={HH_ANSWER_CHAR_LIMIT}
-                value={values[field]?.toString() ?? ""}
-                error={form.formState.errors[field]?.message}
-                field={form.register(field)}
-              />
-            ))}
-          </ApplicationPage>
+            codingConfidenceError={formState.errors.codingConfidence?.message}
+            hackathonsAttended={values.hackathonsAttended ?? ""}
+            hackathonsField={register("hackathonsAttended")}
+            hackathonsError={formState.errors.hackathonsAttended?.message}
+            workshop={values.workshop}
+            onSelectWorkshop={(choice) => select("workshop", choice)}
+            workshopError={formState.errors.workshop?.message}
+            tenKPlan={values.tenKPlan ?? ""}
+            tenKField={register("tenKPlan")}
+            tenKError={formState.errors.tenKPlan?.message}
+            beigeFlag={values.beigeFlag ?? ""}
+            beigeFlagField={register("beigeFlag")}
+            beigeFlagError={formState.errors.beigeFlag?.message}
+            teammate1Field={register("teammate1")}
+            teammate2Field={register("teammate2")}
+            teammate3Field={register("teammate3")}
+          />
         );
 
       case "confirm-details":
