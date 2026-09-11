@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useRef, useReducer, useState } from "react";
 import styles from "./RegistrationForm.module.css";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +6,7 @@ import type { RegistrationFormProps } from "@/features/registrationForms/types";
 import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
 import {
   HH_AVATARS,
+  HH_DEFAULT_AVATAR,
   HH_ROLES,
   HH_TRACKS,
   HelloHacksRegistrationSchema,
@@ -22,6 +22,7 @@ import {
 } from "./flow";
 import { useTrackPreview } from "./hooks/useTrackPreview";
 import { ApplicationPage } from "./pages/ApplicationPage";
+import { AvatarBubble } from "./components/AvatarBubble";
 import { AvatarPage } from "./pages/AvatarPage";
 import {
   ConfirmDetailsPage,
@@ -209,26 +210,16 @@ export function HelloHacksRegistrationForm({
     },
   ];
 
+  const chosenAvatar = HH_AVATARS.find(({ id }) => id === values.avatar);
+
   const reviewRows: ReviewRow[] = [
     {
       key: "avatar",
       label: "Avatar",
-      value:
-        HH_AVATARS.find(({ id }) => id === values.avatar)?.label ??
-        "Not selected",
+      value: chosenAvatar?.label ?? "Not selected",
       step: "avatar",
-      // TODO: swap for the shared AvatarBubble once the avatar-page branch
-      // lands — it carries the per-avatar colour this falls back on.
-      media: values.avatar ? (
-        <span className="flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full bg-[#6798ce]">
-          <Image
-            src="/assets/2026/hello-hacks/confirm-details/bizbot-avatar.png"
-            alt=""
-            width={160}
-            height={138}
-            className="h-auto w-[62%]"
-          />
-        </span>
+      media: chosenAvatar ? (
+        <AvatarBubble avatar={chosenAvatar} size="72px" />
       ) : undefined,
     },
     {
@@ -375,6 +366,7 @@ export function HelloHacksRegistrationForm({
         return (
           <ConfirmDetailsPage
             fields={confirmDetailFields}
+            avatar={chosenAvatar ?? HH_DEFAULT_AVATAR}
             profileName={fullName || "Your profile"}
             profilePronouns={user.gender}
             canContinue={CONFIRM_FIELDS.every(([field]) => isFilled(field))}
