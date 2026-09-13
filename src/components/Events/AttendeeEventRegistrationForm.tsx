@@ -58,6 +58,7 @@ const baseSchema = (hide: boolean) =>
       "Other/Prefer not to say",
     ]),
     dietaryRestrictions: z.string().optional(),
+    dietaryRestrictionsOther: z.string().trim().optional(),
     howDidYouHear: z
       .string()
       .min(1, "Please specify how you heard about this event"),
@@ -76,9 +77,18 @@ const createDynamicSchema = (event: BiztechEvent) => {
       {} as Record<string, z.ZodTypeAny>,
     ) || {};
 
-  return baseSchema(hide).extend({
-    customQuestions: z.object(dynamicSchema),
-  });
+  return baseSchema(hide)
+    .extend({
+      customQuestions: z.object(dynamicSchema),
+    })
+    .refine(
+      (data) =>
+        data.dietaryRestrictions !== "other" || !!data.dietaryRestrictionsOther,
+      {
+        message: "Please specify your dietary restrictions or allergies",
+        path: ["dietaryRestrictionsOther"],
+      },
+    );
 };
 
 export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
@@ -104,6 +114,7 @@ export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
       majorSpecialization: "",
       preferredPronouns: "He/Him/His",
       dietaryRestrictions: "",
+      dietaryRestrictionsOther: "",
       howDidYouHear: "",
       customQuestions: {},
     },
@@ -131,7 +142,10 @@ export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
         fname: data.firstName,
         lname: data.lastName,
         gender: data.preferredPronouns,
-        diet: data.dietaryRestrictions,
+        diet:
+          data.dietaryRestrictions === "other"
+            ? `Other: ${data.dietaryRestrictionsOther}`
+            : data.dietaryRestrictions,
         heardFrom: data.howDidYouHear,
         ...(event.id !== "alumni-night" && {
           year: data.yearLevel,
@@ -488,6 +502,27 @@ export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
                     </FormItem>
                   )}
                 />
+                {form.watch("dietaryRestrictions") === "other" && (
+                  <FormField
+                    control={form.control}
+                    name="dietaryRestrictionsOther"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Please specify your dietary restrictions or allergies*
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            required
+                            placeholder="e.g. peanut allergy, dairy-free"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <FormField
                   control={form.control}
                   name="howDidYouHear"
