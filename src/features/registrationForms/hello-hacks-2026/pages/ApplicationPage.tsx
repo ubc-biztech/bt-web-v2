@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import {
   HH_CODING_CONFIDENCE_IDS,
+  HH_TEAMMATE_CHAR_LIMIT,
   HH_WORKSHOP_CHOICES,
   type HHCodingConfidenceId,
   type HHWorkshopChoice,
@@ -204,16 +205,19 @@ export function ApplicationPage({
                     {...teammate1Field}
                     placeholder="Teammate 1"
                     aria-label="Teammate 1"
+                    maxLength={HH_TEAMMATE_CHAR_LIMIT}
                   />
                   <ConfirmDetailsInput
                     {...teammate2Field}
                     placeholder="Teammate 2"
                     aria-label="Teammate 2"
+                    maxLength={HH_TEAMMATE_CHAR_LIMIT}
                   />
                   <ConfirmDetailsInput
                     {...teammate3Field}
                     placeholder="Teammate 3"
                     aria-label="Teammate 3"
+                    maxLength={HH_TEAMMATE_CHAR_LIMIT}
                   />
                 </div>
               </div>

@@ -93,16 +93,16 @@ export default function EventsAttended({
         </div>
       )}
 
-      <div className="relative h-2 w-full overflow-hidden rounded-full bg-bt-green-700/40">
+      <div className="relative h-2 w-full overflow-hidden rounded-full bg-[#1b2540]">
         <div
-          className="absolute left-0 top-0 h-full rounded-full bg-bt-green-300 transition-all"
+          className="absolute left-0 top-0 h-full rounded-full bg-[#3b9ff7] transition-all"
           style={{ width: `${progress}%` }}
         />
       </div>
 
       <p className="text-left text-sm text-bt-blue-0">
         You’ve attended{" "}
-        <span className="font-semibold text-bt-green-300">
+        <span className="font-semibold text-[#3b9ff7]">
           {attended}/{total}
         </span>{" "}
         of our events this year!

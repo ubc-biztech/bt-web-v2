@@ -130,7 +130,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
             <Link
               href={`/admin/event/${highlightedEvent.id}/${highlightedEvent.year}/edit`}
               aria-label={`Edit ${highlightedEvent.ename}`}
-              className="absolute inset-0 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-bt-green-300"
+              className="absolute inset-0 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b93f7]"
             />
           )}
           <div className="text-bt-blue-0 h-full flex flex-col justify-center">
@@ -163,7 +163,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                       )
                     }
                     size="lg"
-                    className="bg-bt-green-500 hover:bg-bt-green-700 text-bt-blue-600 rounded-full"
+                    className="bg-[#3b93f7] hover:bg-[#147fdd] text-white rounded-full focus-visible:ring-[#3b93f7]"
                     disabled={getEventState(highlightedEvent) === "Past"}
                   />
                   {isAdmin && (
@@ -177,8 +177,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                         )
                       }
                       size="lg"
-                      variant="green-outline"
-                      className="rounded-full"
+                      variant="outline"
+                      className="rounded-full border-[#3b93f7] bg-[#3b93f7]/10 text-[#3b93f7] hover:border-[#71b4ff] hover:bg-[#3b93f7]/15 hover:text-[#71b4ff] focus-visible:ring-[#3b93f7]"
                     />
                   )}
                 </div>

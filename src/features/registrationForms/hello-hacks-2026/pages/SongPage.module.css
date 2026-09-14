@@ -10,7 +10,7 @@
   flex-direction: column;
   align-items: center;
   min-height: 100%;
-  padding: 76px 28px 42px;
+  padding: var(--hh-step-pad-top) var(--hh-step-pad-x) 42px;
   color: #181818;
   background: #f4f4f1
     url("/assets/2026/hello-hacks/confirm-details/paper-desktop.png") center /
@@ -32,13 +32,58 @@
   margin: 8px 0 0;
   font-size: 16px;
 }
+/*
+ * Same 24px arrow every other step uses, sitting above the title rather than
+ * pinned to the page corner. The reduced `.page` padding keeps the heading at
+ * the height it had when the button was taken out of the flow.
+ */
+.statusStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 760px;
+  height: var(--hh-status-height);
+  margin-bottom: var(--hh-status-gap);
+  color: #20386a;
+  font-size: 16.774px;
+  font-weight: 600;
+  line-height: var(--hh-status-height);
+}
+
+.statusStrip img {
+  width: 94px;
+  height: 24px;
+}
+
+@media (min-width: 768px) {
+  .statusStrip {
+    display: none;
+  }
+
+  .page {
+    padding-top: var(--hh-step-pad-top-lg);
+  }
+}
+
+.backRow {
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: var(--hh-back-gap);
+}
+
 .back {
-  position: absolute;
-  left: 28px;
-  top: 28px;
-  color: #181818;
-  width: 44px;
-  height: 44px;
+  display: block;
+  width: var(--hh-back-size);
+  height: var(--hh-back-size);
+  padding: 0;
+  background: url("/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg")
+    center / 24px 24px no-repeat;
+  color: transparent;
+}
+
+.back > span {
+  visibility: hidden;
 }
 .ipod {
   position: relative;
@@ -46,7 +91,7 @@
   width: 245px;
   max-width: 100%;
   aspect-ratio: 310 / 560;
-  margin-top: 44px;
+  margin-top: 24px;
   isolation: isolate;
 }
 .body.body {
@@ -174,18 +219,11 @@
 }
 @media (max-width: 767px) {
   .page {
-    /* Navbar.tsx has a fixed 64px mobile header. */
-    --mobile-nav-height: 64px;
-    padding-top: calc(var(--mobile-nav-height) + 70px);
     padding-bottom: max(48px, env(safe-area-inset-bottom));
   }
   .header {
     width: 100%;
     text-align: left;
-  }
-  .back {
-    left: 18px;
-    top: calc(var(--mobile-nav-height) + 22px);
   }
   .header h1 {
     font-size: 32px;
@@ -200,7 +238,8 @@
   }
   .continue.continue {
     width: 244px;
-    margin-top: 68px;
+    /* The shared status strip and back row took the space this used to have. */
+    margin-top: 28px;
   }
 }
 

@@ -113,9 +113,9 @@ export function HelloHacksRegistrationSuccessPage({
 
         <div className="mt-8">
           <AvatarBubble
-            color={chosen.color}
+            avatar={chosen}
             size="clamp(140px, 30vw, 172px)"
-            large
+            priority
           />
         </div>
 

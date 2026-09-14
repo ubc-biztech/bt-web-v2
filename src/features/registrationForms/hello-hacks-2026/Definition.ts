@@ -20,38 +20,72 @@ export type HHAvatarId = (typeof HH_AVATAR_IDS)[number];
 export type HHAvatar = {
   id: HHAvatarId;
   label: string;
-  /** Circle fill behind the shared BizBot render. */
+  /** Full circular BizBot render — the fill and the decoration are baked in. */
+  src: string;
+  /** The circle's fill, sampled from `src`. Backs the art while it loads. */
   color: string;
 };
 
+const AVATAR_ASSETS = "/assets/2026/hello-hacks/avatars";
+
 /**
- * Every avatar is the same BizBot on a different coloured circle, so there is
- * one shared image rather than six. The small render is enough for the grid;
- * the large one backs the preview.
+ * Intrinsic size of every avatar render. The art is only 110px wide, so it is
+ * served as-is rather than run through the image optimiser, which otherwise
+ * picks a srcset entry far below the size the hero displays it at.
  *
- * TODO(assets): both live under `confirm-details/` because that page landed
- * first. They are shared now — move them somewhere neutral on the next asset
- * pass and update both pages together.
+ * TODO(design): ask for 2x exports — the hero scales these up to 172px.
  */
-export const HH_BIZBOT_SRC =
-  "/assets/2026/hello-hacks/confirm-details/bizbot-avatar.png";
-export const HH_BIZBOT_SRC_LARGE =
-  "/assets/2026/hello-hacks/confirm-details/bizbot-avatar-large.png";
+export const HH_AVATAR_WIDTH = 110;
+export const HH_AVATAR_HEIGHT = 109;
 
-/** Intrinsic ratio of the BizBot render (512x442), and its share of the circle. */
-export const HH_BIZBOT_RATIO = 512 / 442;
-export const HH_BIZBOT_CIRCLE_SHARE = "62%";
-
-// TODO(design): swap placeholder labels for the final BizBot names. Colours are
-// read off the 1.2 frame and want confirming against the file.
+// Grid order follows the 1.2 frame: hearts, shades, propeller, then plain,
+// headphones, pizza.
 export const HH_AVATARS = [
-  { id: "classic", label: "Classic", color: "#c4a03c" },
-  { id: "bloom", label: "Bloom", color: "#de8cc3" },
-  { id: "shades", label: "Shades", color: "#55b39b" },
-  { id: "propeller", label: "Propeller", color: "#6798ce" },
-  { id: "violet", label: "Violet", color: "#8e7fc8" },
-  { id: "pizza", label: "Pizza", color: "#c87b45" },
+  {
+    id: "bloom",
+    label: "Bloom",
+    src: `${AVATAR_ASSETS}/bloom.png`,
+    color: "#cdae5c",
+  },
+  {
+    id: "shades",
+    label: "Shades",
+    src: `${AVATAR_ASSETS}/shades.png`,
+    color: "#db85bd",
+  },
+  {
+    id: "propeller",
+    label: "Propeller",
+    src: `${AVATAR_ASSETS}/propeller.png`,
+    color: "#52b9a7",
+  },
+  {
+    id: "classic",
+    label: "Classic",
+    src: `${AVATAR_ASSETS}/classic.png`,
+    color: "#5c98cd",
+  },
+  {
+    id: "violet",
+    label: "Violet",
+    src: `${AVATAR_ASSETS}/violet.png`,
+    color: "#9571b5",
+  },
+  {
+    id: "pizza",
+    label: "Pizza",
+    src: `${AVATAR_ASSETS}/pizza.png`,
+    color: "#cd855c",
+  },
 ] as const satisfies readonly HHAvatar[];
+
+/**
+ * Shown in the picker before anything is chosen, and as the fallback for an
+ * unrecognised id. Named rather than indexed, because the grid order follows
+ * the design frame and does not lead with this one.
+ */
+export const HH_DEFAULT_AVATAR: HHAvatar =
+  HH_AVATARS.find(({ id }) => id === "classic") ?? HH_AVATARS[0];
 
 /**
  * Resolves an avatar arriving from outside the form — the `avatar` query param
@@ -61,7 +95,7 @@ export const HH_AVATARS = [
 export function resolveAvatar(value?: string | string[]): HHAvatar {
   const id = Array.isArray(value) ? value[0] : value;
 
-  return HH_AVATARS.find((avatar) => avatar.id === id) ?? HH_AVATARS[0];
+  return HH_AVATARS.find((avatar) => avatar.id === id) ?? HH_DEFAULT_AVATAR;
 }
 
 export const HH_TRACK_IDS = [
@@ -157,6 +191,8 @@ export type HHWorkshopChoice = (typeof HH_WORKSHOP_CHOICES)[number];
 export const HH_HACKATHONS_CHAR_LIMIT = 50;
 export const HH_TEN_K_WORD_LIMIT = 150;
 export const HH_BEIGE_FLAG_WORD_LIMIT = 75;
+/** Teammate boxes take a name, and were reaching the backend unbounded. */
+export const HH_TEAMMATE_CHAR_LIMIT = 50;
 
 export function countWords(value: string): number {
   const trimmed = value.trim();
@@ -227,20 +263,32 @@ export const HELLO_HACKS_REGISTRATION_QUESTIONS = [
     label: "Teammate 1",
     type: "TEXT",
     required: false,
+    charLimit: HH_TEAMMATE_CHAR_LIMIT,
   },
   {
     questionId: "hh_teammate_2",
     label: "Teammate 2",
     type: "TEXT",
     required: false,
+    charLimit: HH_TEAMMATE_CHAR_LIMIT,
   },
   {
     questionId: "hh_teammate_3",
     label: "Teammate 3",
     type: "TEXT",
     required: false,
+    charLimit: HH_TEAMMATE_CHAR_LIMIT,
   },
 ] satisfies readonly RegistrationQuestion[];
+
+const teammateName = z
+  .string()
+  .trim()
+  .max(
+    HH_TEAMMATE_CHAR_LIMIT,
+    `Keep this under ${HH_TEAMMATE_CHAR_LIMIT} characters`,
+  )
+  .optional();
 
 const wordLimitedAnswer = (message: string, wordLimit: number) =>
   z
@@ -297,9 +345,9 @@ export const HelloHacksRegistrationSchema = z.object({
     "Tell us your beige flag",
     HH_BEIGE_FLAG_WORD_LIMIT,
   ),
-  teammate1: z.string().trim().optional(),
-  teammate2: z.string().trim().optional(),
-  teammate3: z.string().trim().optional(),
+  teammate1: teammateName,
+  teammate2: teammateName,
+  teammate3: teammateName,
 });
 
 export type HelloHacksRegistrationValues = z.infer<

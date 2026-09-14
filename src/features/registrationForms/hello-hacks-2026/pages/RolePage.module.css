@@ -3,7 +3,8 @@
   display: flex;
   min-height: 100%;
   flex-direction: column;
-  padding: 93px 24px max(90px, env(safe-area-inset-bottom));
+  padding: var(--hh-step-pad-top) var(--hh-step-pad-x)
+    max(90px, env(safe-area-inset-bottom));
   color: #181818;
   background: #f7f6f1
     url("/assets/2026/hello-hacks/role-select/paper-mobile.png") center / cover
@@ -27,10 +28,11 @@
 
 .status {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
-  height: 37px;
-  margin-bottom: 32px;
+  height: var(--hh-status-height);
+  margin-bottom: var(--hh-status-gap);
   color: #20386a;
   font-size: 16.774px;
   font-weight: 600;
@@ -43,9 +45,9 @@
 
 .backButton.backButton {
   display: block;
-  width: 24px;
-  height: 24px;
-  margin-bottom: 12px;
+  width: var(--hh-back-size);
+  height: var(--hh-back-size);
+  margin-bottom: var(--hh-back-gap);
   padding: 0;
   background: url("/assets/2026/hello-hacks/confirm-details/arrow-narrow-left.svg")
     center / 24px 24px no-repeat;
@@ -174,15 +176,19 @@
 }
 
 @media (min-width: 768px) {
+  /* The status strip is mobile chrome only, as on every other step. */
+  .status {
+    display: none;
+  }
+
   .page {
-    justify-content: center;
-    padding: 120px 32px 80px;
+    padding: var(--hh-step-pad-top-lg) 32px 80px;
     background-image: url("/assets/2026/hello-hacks/confirm-details/paper-desktop.png");
     background-size: cover;
     background-position: center;
   }
   .content {
-    max-width: 740px;
+    max-width: var(--hh-step-column);
     min-height: 0;
     gap: 32px;
   }

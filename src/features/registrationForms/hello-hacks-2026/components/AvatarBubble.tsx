@@ -1,41 +1,37 @@
 import Image from "next/image";
 import {
-  HH_BIZBOT_CIRCLE_SHARE,
-  HH_BIZBOT_RATIO,
-  HH_BIZBOT_SRC,
-  HH_BIZBOT_SRC_LARGE,
+  HH_AVATAR_HEIGHT,
+  HH_AVATAR_WIDTH,
+  type HHAvatar,
 } from "../Definition";
 
 type AvatarBubbleProps = {
-  color: string;
+  avatar: HHAvatar;
   /** Any CSS length — callers scale the same circle from grid item to hero. */
   size: string;
-  large?: boolean;
+  /** Skips lazy-loading for the hero render, which is above the fold. */
+  priority?: boolean;
 };
 
 /**
- * The coloured circle every avatar is built from. All six share one BizBot
- * render and differ only by the fill behind it.
+ * A single avatar. The fill and the decoration are baked into the art, so this
+ * only sizes it and clips the transparent corners; `color` backs the circle so
+ * there is no hole while the image loads.
  */
-export function AvatarBubble({
-  color,
-  size,
-  large = false,
-}: AvatarBubbleProps) {
-  const width = large ? 320 : 160;
-
+export function AvatarBubble({ avatar, size, priority }: AvatarBubbleProps) {
   return (
     <span
-      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full"
-      style={{ width: size, height: size, backgroundColor: color }}
+      className="block shrink-0 overflow-hidden rounded-full"
+      style={{ width: size, height: size, backgroundColor: avatar.color }}
     >
       <Image
-        src={large ? HH_BIZBOT_SRC_LARGE : HH_BIZBOT_SRC}
+        src={avatar.src}
         alt=""
-        width={width}
-        height={Math.round(width / HH_BIZBOT_RATIO)}
-        className="h-auto"
-        style={{ width: HH_BIZBOT_CIRCLE_SHARE }}
+        width={HH_AVATAR_WIDTH}
+        height={HH_AVATAR_HEIGHT}
+        priority={priority}
+        unoptimized
+        className="h-full w-full object-contain"
       />
     </span>
   );

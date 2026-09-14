@@ -63,7 +63,19 @@ export function SongPage({
       className={styles.page}
       aria-labelledby="song-title"
     >
-      <BackButton onClick={onBack} className={styles.back} />
+      <span aria-hidden="true" className={styles.statusStrip}>
+        <span>9:26</span>
+        <Image
+          src="/assets/2026/hello-hacks/confirm-details/mobile-status-icons.svg"
+          alt=""
+          width={94}
+          height={24}
+        />
+      </span>
+
+      <div className={styles.backRow}>
+        <BackButton onClick={onBack} className={styles.back} />
+      </div>
       <header className={styles.header}>
         <h1 id="song-title">Choose a song</h1>
         <p className="text-black">What&apos;s playing while you build?</p>
