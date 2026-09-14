@@ -209,9 +209,7 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   const ctaDisabled = copy.tone === "loading";
   const isConfirmed = copy.tone === "success";
   const shouldShowMemberPrice =
-    signedIn &&
-    !membershipLoading &&
-    !hasMembership &&
+    (!signedIn || (!membershipLoading && !hasMembership)) &&
     typeof event.pricing?.members === "number" &&
     typeof event.pricing?.nonMembers === "number" &&
     event.pricing.members !== event.pricing.nonMembers;

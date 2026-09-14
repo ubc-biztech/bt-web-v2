@@ -1,4 +1,8 @@
-import { fetchUserAttributes, AuthError } from "@aws-amplify/auth";
+import {
+  fetchAuthSession,
+  fetchUserAttributes,
+  AuthError,
+} from "@aws-amplify/auth";
 import { useQuery } from "@tanstack/react-query";
 
 export interface UserAttributes {
@@ -14,9 +18,17 @@ export interface UserAttributes {
 
 export async function getUserAttributes(): Promise<UserAttributes | null> {
   try {
-    const attributes = await fetchUserAttributes();
-    const email = attributes?.email || "";
-    const isAdmin = email.split("@")[1] === "ubcbiztech.com";
+    const [attributes, session] = await Promise.all([
+      fetchUserAttributes(),
+      fetchAuthSession(),
+    ]);
+    const emailVerified = String(attributes?.email_verified) === "true";
+    const email = emailVerified ? (attributes?.email || "").toLowerCase() : "";
+    const groups = session.tokens?.idToken?.payload["cognito:groups"];
+    const isAdmin =
+      emailVerified &&
+      ((Array.isArray(groups) && groups.includes("admin")) ||
+        email.endsWith("@ubcbiztech.com"));
     return { ...attributes, isAdmin, email };
   } catch (e) {
     if (e instanceof AuthError && e.name === "UserUnAuthenticatedException") {

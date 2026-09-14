@@ -261,7 +261,7 @@ export function HelloHacksRegistrationForm({
     if (flow.step !== "review") return;
 
     const payload: RegistrationPayload = {
-      email: submitted.email,
+      email: user.email ?? user.id,
       fname: submitted.firstName,
       studentId: submitted.studentId || undefined,
       basicInformation: {

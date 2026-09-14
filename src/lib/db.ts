@@ -21,6 +21,19 @@ interface FetchBackendServerOptions extends FetchBackendOptions {
   };
 }
 
+function getErrorMessage(responseData: unknown): string {
+  if (typeof responseData === "string") return responseData;
+  if (
+    responseData &&
+    typeof responseData === "object" &&
+    "message" in responseData &&
+    typeof responseData.message === "string"
+  ) {
+    return responseData.message;
+  }
+  return "Request failed";
+}
+
 async function currentSession(): Promise<AuthTokens | null> {
   if (typeof window === "undefined") {
     console.log("Server-side: skipping auth session");
@@ -73,7 +86,7 @@ export async function fetchBackend({
     if (!response.ok) {
       throw {
         status: response.status,
-        message: responseData,
+        message: getErrorMessage(responseData),
       };
     }
 
@@ -136,7 +149,7 @@ export async function fetchBackendFromServer({
     if (!response.ok) {
       throw {
         status: response.status,
-        message: responseData,
+        message: getErrorMessage(responseData),
       };
     }
 
