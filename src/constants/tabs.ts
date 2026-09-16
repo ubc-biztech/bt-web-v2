@@ -41,6 +41,11 @@ export const admin = [
     link: "/admin/emails",
     icon: Mail,
   },
+  {
+    title: "Audit Log",
+    link: "/admin/audit-log",
+    icon: BadgeCheck,
+  },
 ];
 
 export const defaultUser = (isAdmin: boolean, isSignedIn: boolean) => {
