@@ -46,6 +46,12 @@ export type RegistrationQuestion = {
   questionImageUrl?: string;
 };
 
+// One stored grid definition; responses use each row's stable id as the answer key.
+export type FeedbackGridDefinition = {
+  rows: { id: string; label: string }[];
+  columns: string[];
+};
+
 export type FeedbackQuestion = {
   label: string;
   questionId: string;
@@ -54,9 +60,11 @@ export type FeedbackQuestion = {
     | "LONG_TEXT"
     | "MULTIPLE_CHOICE"
     | "CHECKBOXES"
-    | "LINEAR_SCALE";
+    | "LINEAR_SCALE"
+    | "MULTIPLE_CHOICE_GRID";
   required: boolean;
   choices?: string;
+  grid?: FeedbackGridDefinition;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;
