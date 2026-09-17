@@ -1,10 +1,11 @@
 import { getStatusLabel } from "@/lib/registrationStatus";
-import { DBRegistrationStatus } from "@/types/types";
+import { ApplicationStatus, DBRegistrationStatus } from "@/types";
 import {
   AlertCircle,
   ArrowRight,
   CalendarPlus,
   CheckCircle2,
+  Clock3,
   Loader2,
   Ticket,
 } from "lucide-react";
@@ -40,8 +41,23 @@ type RegistrationCopy = {
   status: string;
   description: string;
   actionLabel: string;
-  tone: "open" | "success" | "warning" | "closed" | "loading";
+  tone: "open" | "success" | "reviewing" | "warning" | "closed" | "loading";
 };
+
+function isApplicationUnderReview(
+  event: EventHomeEvent,
+  registration?: EventRegistrationRecord,
+) {
+  const registrationStatus = registration?.registrationStatus;
+
+  return (
+    event.isApplicationBased &&
+    registration?.applicationStatus?.toLowerCase() ===
+      ApplicationStatus.REVIEWING &&
+    (registrationStatus === DBRegistrationStatus.INCOMPLETE ||
+      registrationStatus === DBRegistrationStatus.REGISTERED)
+  );
+}
 
 function getRegistrationCopy({
   event,
@@ -61,6 +77,16 @@ function getRegistrationCopy({
       description: `Checking your latest ${registrationLabel.toLowerCase()} status.`,
       actionLabel: `View ${registrationLabel.toLowerCase()}`,
       tone: "loading",
+    };
+  }
+
+  if (isApplicationUnderReview(event, registration)) {
+    return {
+      status: "Application under review",
+      description:
+        "We've received your application. No action or payment is needed unless you are accepted.",
+      actionLabel: "View application",
+      tone: "reviewing",
     };
   }
 
@@ -150,6 +176,7 @@ function getRegistrationCopy({
 const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   open: Ticket,
   success: CheckCircle2,
+  reviewing: Clock3,
   warning: AlertCircle,
   closed: AlertCircle,
   loading: Loader2,
@@ -208,6 +235,10 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   const deadlineStatus = formatDeadlineStatus(event.deadline);
   const ctaDisabled = copy.tone === "loading";
   const isConfirmed = copy.tone === "success";
+  const applicationUnderReview = isApplicationUnderReview(event, registration);
+  const isWaitlistedApplication =
+    event.isApplicationBased &&
+    registration?.registrationStatus === DBRegistrationStatus.WAITLISTED;
   const shouldShowMemberPrice =
     (!signedIn || (!membershipLoading && !hasMembership)) &&
     typeof event.pricing?.members === "number" &&
@@ -219,6 +250,8 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
   );
   const shouldShowRegistrationCta =
     !isConfirmed &&
+    !applicationUnderReview &&
+    !isWaitlistedApplication &&
     registration?.registrationStatus !== DBRegistrationStatus.CANCELLED;
   const shouldShowBuildingBlockCta =
     isMISNightEventId(event.id) &&
@@ -285,11 +318,13 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
           className={`mt-4 flex items-center gap-3 text-[14px] font-600 ${
             copy.tone === "success"
               ? "text-[#0ec58c]"
-              : copy.tone === "closed"
-                ? "text-[#ff9aad]"
-                : copy.tone === "warning"
-                  ? "text-[#ffd66b]"
-                  : "text-[#9f9f9f]"
+              : copy.tone === "reviewing"
+                ? "text-[#AAE7FF]"
+                : copy.tone === "closed"
+                  ? "text-[#ff9aad]"
+                  : copy.tone === "warning"
+                    ? "text-[#ffd66b]"
+                    : "text-[#9f9f9f]"
           }`}
         >
           <StatusIcon
