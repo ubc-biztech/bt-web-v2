@@ -1,5 +1,10 @@
 "use client";
-import { BiztechEvent, DBRegistrationStatus, User } from "@/types";
+import {
+  ApplicationStatus,
+  BiztechEvent,
+  DBRegistrationStatus,
+  User,
+} from "@/types";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
@@ -18,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { extractMonthDay } from "@/util/extractDate";
 import Image from "next/image";
+import Link from "next/link";
 import { RegistrationStateOld } from "@/lib/registrationStrategy/registrationStateOld";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 import { checkMembership } from "@/lib/membership";
@@ -43,6 +49,8 @@ export default function AttendeeFormRegister() {
     useState<boolean>(false);
   const [registrationStatus, setRegistrationStatus] =
     useState<DBRegistrationStatus>(DBRegistrationStatus.INCOMPLETE);
+  const [applicationStatus, setApplicationStatus] =
+    useState<ApplicationStatus | null>(null);
   const [regState, setRegState] = useState<RegistrationStateOld | null>(null);
   const [companionAvailable, setCompanionAvailable] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,6 +94,7 @@ export default function AttendeeFormRegister() {
           (reg: any) => reg["eventID;year"] === event.id + ";" + event.year,
         );
         setRegistrationStatus(registration.registrationStatus);
+        setApplicationStatus(registration.applicationStatus ?? null);
       }
       setUserRegistered(exists);
       return exists;
@@ -103,6 +112,9 @@ export default function AttendeeFormRegister() {
         setUserRegistered(state.exists());
         setRegistrationStatus(
           state.registrationStatus() ?? DBRegistrationStatus.INCOMPLETE,
+        );
+        setApplicationStatus(
+          state.applicationStatus() as ApplicationStatus | null,
         );
       } catch (err) {
         console.error(err);
@@ -422,6 +434,31 @@ export default function AttendeeFormRegister() {
           </p>,
         );
       }
+      if (
+        event.isApplicationBased &&
+        applicationStatus === ApplicationStatus.REVIEWING &&
+        (registrationStatus === DBRegistrationStatus.INCOMPLETE ||
+          registrationStatus === DBRegistrationStatus.REGISTERED)
+      ) {
+        return renderErrorText(
+          <div className="text-center">
+            <h2 className="mb-3 text-2xl font-semibold text-white">
+              Your application is under review
+            </h2>
+            <p className="mb-5 text-white/80">
+              We&apos;ve received your application. No action or payment is
+              needed unless you are accepted. We&apos;ll email you when a
+              decision is ready.
+            </p>
+            <Link
+              href="/events"
+              className="inline-block rounded bg-blue-500 px-4 py-2 font-bold text-white shadow-md hover:bg-blue-600"
+            >
+              Upcoming Events
+            </Link>
+          </div>,
+        );
+      }
       if (regState?.isConfirmed && regState.isConfirmed()) {
         return renderErrorText(
           <div className="text-center">
@@ -430,12 +467,12 @@ export default function AttendeeFormRegister() {
               There&apos;s no further action required and we&apos;ll see you at
               the event!
             </p>
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
-              onClick={() => (window.location.href = "/events")}
+            <Link
+              href={`/event/${event.id}/${event.year}`}
+              className="inline-block rounded bg-blue-500 px-4 py-2 font-bold text-white shadow-md hover:bg-blue-600"
             >
-              Upcoming Events
-            </button>
+              Back to event page
+            </Link>
           </div>,
         );
       } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
