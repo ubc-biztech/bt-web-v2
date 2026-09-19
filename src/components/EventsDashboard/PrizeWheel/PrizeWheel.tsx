@@ -166,7 +166,7 @@ export default function PrizeWheel({
       setSpinEntries(pool);
       setWinner(null);
       setSpinning(true);
-      function animate(now: number) {
+      const animate = (now: number) => {
         try {
           const progress = Math.min((now - started) / duration, 1);
           const angle =
@@ -193,7 +193,7 @@ export default function PrizeWheel({
         } catch {
           failSpin();
         }
-      }
+      };
       frame.current = requestAnimationFrame(animate);
     } catch {
       failSpin();
