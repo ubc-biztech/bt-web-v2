@@ -133,6 +133,7 @@ export const FormOptions: React.FC<FormOptionsProps> = ({
             <FormControl>
               <Input
                 type="number"
+                min={0}
                 {...register(`${name}.${index}.charLimit` as any, {
                   valueAsNumber: true,
                 })}
