@@ -4,7 +4,12 @@ import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { PageOrientation } from "pdfmake/interfaces";
 
-pdfMake.vfs = pdfFonts;
+// pdfmake 0.2.14 nests the fonts; newer 0.2 releases export the map directly.
+const fontBundle = pdfFonts as unknown as {
+  pdfMake?: { vfs: typeof pdfMake.vfs };
+};
+pdfMake.vfs =
+  fontBundle.pdfMake?.vfs ?? (pdfFonts as unknown as typeof pdfMake.vfs);
 
 // Format timestamp to readable date string
 function formatTimestamp(value: number): string {
