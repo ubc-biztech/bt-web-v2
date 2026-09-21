@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { EventFormSchema } from "../EventFormSchema";
+import { DEFAULT_TEXT_CHAR_LIMIT } from "@/constants/questionTypes";
 
 type QuestionGroupName = "customQuestions" | "partnerCustomQuestions";
 
@@ -133,8 +134,10 @@ export const FormOptions: React.FC<FormOptionsProps> = ({
             <FormControl>
               <Input
                 type="number"
+                placeholder={`${DEFAULT_TEXT_CHAR_LIMIT} (default)`}
                 {...register(`${name}.${index}.charLimit` as any, {
-                  valueAsNumber: true,
+                  setValueAs: (value) =>
+                    value === "" || value == null ? undefined : Number(value),
                 })}
               />
             </FormControl>
