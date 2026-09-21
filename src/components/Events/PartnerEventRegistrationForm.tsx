@@ -21,7 +21,10 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { BiztechEvent } from "@/types";
-import { QuestionTypes } from "@/constants/questionTypes";
+import {
+  DEFAULT_TEXT_CHAR_LIMIT,
+  QuestionTypes,
+} from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
 
@@ -358,6 +361,9 @@ export const PartnerEventRegistrationForm: React.FC<
                           <FormControl>
                             <Input
                               placeholder={`Enter your answer`}
+                              maxLength={
+                                question.charLimit || DEFAULT_TEXT_CHAR_LIMIT
+                              }
                               {...field}
                             />
                           </FormControl>
