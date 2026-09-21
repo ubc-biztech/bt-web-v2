@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
 import { checkMembership } from "@/lib/membership";
 import { ensureAuthenticatedUser, needsOnboarding } from "@/lib/user";
-import { getQueryString } from "@/util/url";
+import { getMembershipHref, getSafeRedirect } from "@/util/url";
 import type { User } from "@/types";
 
 export default function Membership() {
@@ -18,7 +18,14 @@ export default function Membership() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [verificationFailed, setVerificationFailed] = useState(false);
   const hasRedirected = useRef(false);
+  const returnPath = getSafeRedirect(router.query.redirect);
+  const membershipHref = getMembershipHref(returnPath);
+  const checkoutReturn = router.query.checkout === "success";
+  const resumeHref = checkoutReturn
+    ? `${membershipHref}${membershipHref.includes("?") ? "&" : "?"}checkout=success`
+    : membershipHref;
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -33,21 +40,46 @@ export default function Membership() {
         if (!attributes.email) throw new Error("Missing email");
 
         await ensureAuthenticatedUser();
-        const [hasMembership, appUser] = await Promise.all([
-          checkMembership(attributes.email),
+        const [membershipStatus, appUser] = await Promise.all([
+          checkMembership(attributes.email).catch((error) => {
+            if (checkoutReturn) return false;
+            throw error;
+          }),
           fetchBackend({ endpoint: "/users/self", method: "GET" }),
         ]);
 
         if (cancelled) return;
+        let hasMembership = membershipStatus;
+        // Stripe can return before its webhook creates the membership. Never
+        // treat the query flag as payment proof or offer another checkout here.
+        for (
+          let attempt = 0;
+          checkoutReturn && !hasMembership && attempt < 15;
+          attempt++
+        ) {
+          await new Promise((resolve) => window.setTimeout(resolve, 2000));
+          if (cancelled) return;
+          hasMembership = await checkMembership(attributes.email).catch(
+            () => false,
+          );
+        }
+        if (cancelled) return;
         if (hasMembership) {
           hasRedirected.current = true;
-          await router.replace(getQueryString(router.query.redirect) ?? "/");
+          await router.replace(returnPath);
+          return;
+        }
+
+        if (checkoutReturn) {
+          setVerificationFailed(true);
           return;
         }
 
         if (needsOnboarding(appUser)) {
           hasRedirected.current = true;
-          await router.replace("/onboarding?redirect=%2Fmembership");
+          await router.replace(
+            `/onboarding?redirect=${encodeURIComponent(resumeHref)}`,
+          );
           return;
         }
 
@@ -55,7 +87,9 @@ export default function Membership() {
       } catch {
         if (!hasRedirected.current) {
           hasRedirected.current = true;
-          await router.replace("/login?redirect=%2Fmembership");
+          await router.replace(
+            `/login?redirect=${encodeURIComponent(resumeHref)}`,
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -66,7 +100,7 @@ export default function Membership() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, returnPath, checkoutReturn, resumeHref]);
 
   async function startCheckout() {
     if (!user || isSubmitting) return;
@@ -94,7 +128,7 @@ export default function Membership() {
             topics: (user.topics ?? []).join(","),
           },
         });
-        window.location.assign(getQueryString(router.query.redirect) ?? "/");
+        window.location.assign(returnPath);
         return;
       }
 
@@ -104,6 +138,8 @@ export default function Membership() {
           : process.env.NEXT_PUBLIC_REACT_APP_STAGE === "staging"
             ? "https://dev.v2.ubcbiztech.com/"
             : "https://app.ubcbiztech.com/";
+      const successUrl = new URL(membershipHref, baseUrl);
+      successUrl.searchParams.set("checkout", "success");
       const checkoutUrl = await fetchBackend({
         endpoint: "/payments",
         method: "POST",
@@ -111,8 +147,8 @@ export default function Membership() {
           paymentName: "BizTech Membership",
           paymentImages: ["https://imgur.com/TRiZYtG.png"],
           paymentType: "Member",
-          success_url: baseUrl,
-          cancel_url: `${baseUrl}membership`,
+          success_url: successUrl.href,
+          cancel_url: new URL(membershipHref, baseUrl).href,
           education: user.education ?? "",
           student_number: user.studentId ?? "",
           fname: user.fname ?? "",
@@ -139,6 +175,32 @@ export default function Membership() {
       });
       setIsSubmitting(false);
     }
+  }
+
+  if (checkoutReturn) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-bt-blue-600 px-6 text-center text-white">
+        <h1 className="text-2xl font-semibold">
+          {verificationFailed
+            ? "Membership is still processing"
+            : "Confirming your membership…"}
+        </h1>
+        <p className="max-w-md text-bt-blue-0" role="status">
+          {verificationFailed
+            ? "We couldn't verify your membership yet. Please check again in a moment. Don't pay again."
+            : "We'll take you back to where you left off as soon as your membership is ready."}
+        </p>
+        {verificationFailed && (
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-md bg-[#3b93f7] px-5 py-3 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Check again
+          </button>
+        )}
+      </div>
+    );
   }
 
   if (loading || !user) {
@@ -173,7 +235,7 @@ export default function Membership() {
         </button>
 
         <Link
-          href={getQueryString(router.query.redirect) ?? "/"}
+          href={returnPath}
           className="mx-auto mt-5 inline-flex items-center gap-2 text-sm text-bt-blue-100 hover:text-white"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" />
