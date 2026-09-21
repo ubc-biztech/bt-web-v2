@@ -1,6 +1,7 @@
 import { DBRegistrationStatus, ApplicationStatus } from "@/types";
 import { fetchBackend } from "@/lib/db";
 import { CLIENT_URL } from "@/lib/dbconfig";
+import { checkMembership } from "@/lib/membership";
 import {
   RegistrationPayload,
   RegistrationStrategy,
@@ -27,15 +28,22 @@ export class RegistrationStateOld extends RegistrationStrategy {
     return this.record?.applicationStatus ?? null;
   }
 
-  needsPayment() {
+  needsPayment(hasMembership = false) {
+    if (this.needsConfirmation(hasMembership)) return false;
     if (this.event.isApplicationBased) {
       return this.registrationStatus() === DBRegistrationStatus.ACCEPTED;
     }
     return this.registrationStatus() === DBRegistrationStatus.INCOMPLETE;
   }
 
-  needsConfirmation(): boolean {
-    return this.registrationStatus() === DBRegistrationStatus.ACCEPTED_PENDING;
+  needsConfirmation(hasMembership = false): boolean {
+    return (
+      this.registrationStatus() === DBRegistrationStatus.ACCEPTED_PENDING ||
+      (this.event.isApplicationBased &&
+        this.registrationStatus() === DBRegistrationStatus.ACCEPTED &&
+        hasMembership &&
+        this.event.pricing?.members === 0)
+    );
   }
 
   isWaitlisted() {
@@ -141,6 +149,18 @@ export class RegistrationStateOld extends RegistrationStrategy {
   }
 
   async confirmAttendance(): Promise<void> {
+    const current = await RegistrationStateOld.load(
+      this.event,
+      this.userEmail,
+      this.user,
+    );
+    // Existing acceptedPending RSVPs do not depend on membership lookup.
+    if (
+      !current.needsConfirmation() &&
+      !current.needsConfirmation(await checkMembership(this.userEmail))
+    ) {
+      throw new Error("Unable to confirm attendance");
+    }
     const body = {
       eventID: this.event.id,
       year: this.event.year,

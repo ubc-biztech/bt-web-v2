@@ -29,10 +29,12 @@ import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 import { checkMembership } from "@/lib/membership";
 import { getRegistrationForm } from "@/features/registrationForms/registry";
 import type { RegistrationPayload } from "@/lib/registrationStrategy/registrationStrategy";
+import { getMembershipHref } from "@/util/url";
 
 export default function AttendeeFormRegister() {
   const router = useRouter();
   const { eventId, year } = router.query;
+  const membershipHref = getMembershipHref(router.asPath);
   const [event, setEvent] = useState<BiztechEvent>({} as BiztechEvent);
   const [isEventFull, setIsEventFull] = useState<boolean>(false);
   const [regAlert, setRegAlert] = useState<JSX.Element | null>(null);
@@ -475,7 +477,10 @@ export default function AttendeeFormRegister() {
             </Link>
           </div>,
         );
-      } else if (regState?.needsConfirmation() || regState?.needsPayment()) {
+      } else if (
+        regState?.needsConfirmation(hasMembership) ||
+        regState?.needsPayment(hasMembership)
+      ) {
         const PaymentButton = () => {
           const currentState = regState;
           const [isLoading, setIsLoading] = useState(false);
@@ -539,20 +544,20 @@ export default function AttendeeFormRegister() {
                     .
                   </p>
                   <p className="text-sm sm:text-base">
-                    {currentState.needsConfirmation() ? (
+                    {currentState.needsConfirmation(hasMembership) ? (
                       `If you will be attending our event on ${extractMonthDay(event.startDate)} please submit your confirmation below.`
                     ) : (
                       <>
                         To confirm your attendance on{" "}
                         {extractMonthDay(event.startDate)}, please complete your
-                        payment or purchase a membership and return to this
-                        page.
+                        payment or purchase a membership. After buying a
+                        membership, you&apos;ll return here to confirm.
                       </>
                     )}
                   </p>
 
                   {/* #292: don't show at all if already member or no price difference */}
-                  {!currentState.needsConfirmation() &&
+                  {!currentState.needsConfirmation(hasMembership) &&
                     !hasMembership &&
                     !samePricing() && (
                       <div className="mt-1 rounded-lg bg-black/20 border border-white/10 p-3">
@@ -577,7 +582,7 @@ export default function AttendeeFormRegister() {
                 <div className="mt-5 flex flex-col sm:flex-row gap-3">
                   <Button
                     onClick={
-                      currentState.needsConfirmation()
+                      currentState.needsConfirmation(hasMembership)
                         ? handleConfirmClick
                         : handlePaymentClick
                     }
@@ -589,22 +594,23 @@ export default function AttendeeFormRegister() {
                         <Loader2 className="h-5 w-5 mr-2 animate-spin" />
                         Processing...
                       </span>
-                    ) : currentState.needsConfirmation() ? (
+                    ) : currentState.needsConfirmation(hasMembership) ? (
                       "Confirm Attendance"
                     ) : (
                       "Pay and Confirm Attendance"
                     )}
                   </Button>
 
-                  {currentState.needsPayment() && !hasMembership && (
-                    <Button
-                      variant="outline"
-                      className="border-white/20 text-white hover:bg-white/10"
-                      onClick={() => (window.location.href = "/membership")}
-                    >
-                      Become a Member
-                    </Button>
-                  )}
+                  {currentState.needsPayment(hasMembership) &&
+                    !hasMembership && (
+                      <Button
+                        variant="outline"
+                        className="border-white/20 text-white hover:bg-white/10"
+                        onClick={() => (window.location.href = membershipHref)}
+                      >
+                        Become a Member
+                      </Button>
+                    )}
                 </div>
 
                 {error && <p className="mt-3 text-red-300 text-sm">{error}</p>}
@@ -698,7 +704,7 @@ export default function AttendeeFormRegister() {
           </p>
           <button
             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-md"
-            onClick={() => (window.location.href = "/membership")}
+            onClick={() => (window.location.href = membershipHref)}
           >
             Register
           </button>
