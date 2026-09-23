@@ -1,9 +1,6 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { signOut } from "@aws-amplify/auth";
-import { generateStageURL } from "@/util/url";
-import { clearCognitoCookies } from "@/lib/dbUtils";
 import { logout } from "@/util/auth";
 
 interface NavbarItem {
@@ -41,11 +38,10 @@ const NavbarTab: React.FC<NavbarProps> = ({
     if (isSigningOut) return;
     setIsSigningOut(true);
     try {
-      clearCognitoCookies();
       await logout();
+      // OAuth logout redirects away; these only run for local sign-out.
       onLogout?.();
       onTabClick?.();
-      window.location.reload();
     } catch (error) {
       console.error("Error signing out:", error);
       setIsSigningOut(false);

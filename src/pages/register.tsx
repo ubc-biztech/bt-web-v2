@@ -104,6 +104,7 @@ const Register: React.FC = () => {
     try {
       await signInWithRedirect({
         provider: "Google",
+        options: { prompt: "SELECT_ACCOUNT" },
       });
     } catch (error: any) {
       console.error("Error initiating Google sign-in:", error);
