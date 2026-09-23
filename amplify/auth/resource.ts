@@ -3,6 +3,8 @@ import { defineAuth, secret } from "@aws-amplify/backend";
 /**
  * Define and configure your auth resource
  * @see https://docs.amplify.aws/gen2/build-a-backend/auth
+ *
+ * The Cognito domain must use Managed Login to forward SELECT_ACCOUNT to Google.
  */
 export const auth = defineAuth({
   loginWith: {

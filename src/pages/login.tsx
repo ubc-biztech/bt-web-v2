@@ -218,6 +218,7 @@ const LoginForm: React.FC = () => {
       await signInWithRedirect({
         provider: "Google",
         customState: oauthRedirect ?? redirectUrl ?? undefined,
+        options: { prompt: "SELECT_ACCOUNT" },
       });
     } catch (error) {
       console.error("Error initiating Google sign-in:", error);
