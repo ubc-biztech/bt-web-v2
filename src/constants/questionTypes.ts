@@ -6,3 +6,6 @@ export enum QuestionTypes {
   WORKSHOP_SELECTION = "WORKSHOP_SELECTION",
   SKILLS = "SKILLS",
 }
+
+// applied to TEXT questions with no charLimit set; matches the feedback form LONG_TEXT limit
+export const DEFAULT_TEXT_CHAR_LIMIT = 4000;

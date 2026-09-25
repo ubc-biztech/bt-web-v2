@@ -25,6 +25,8 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    if (isMobileDevice && isOpen) return;
+
     const throttledHandleScroll = throttle(() => {
       const currentScrollY = window.scrollY;
       const lastY = lastScrollYRef.current;
@@ -42,13 +44,24 @@ export default function Navbar() {
       window.addEventListener("scroll", throttledHandleScroll);
       return () => window.removeEventListener("scroll", throttledHandleScroll);
     }
-  }, [isMobileDevice, isNavVisible]);
+  }, [isMobileDevice, isNavVisible, isOpen]);
 
   useEffect(() => {
     if (!isMobileDevice) {
       setIsOpen(false);
     }
   }, [isMobileDevice]);
+
+  useEffect(() => {
+    if (!isMobileDevice || !isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileDevice, isOpen]);
 
   const { data: userAttributes, isLoading } = useUserAttributes();
   const queryClient = useQueryClient();
@@ -63,10 +76,16 @@ export default function Navbar() {
     queryClient.invalidateQueries({ queryKey: ["userAttributes"] });
   };
 
-  const RenderNavbarTabs = () => {
+  const RenderNavbarTabs = ({ mobile = false }: { mobile?: boolean }) => {
     return (
       <>
-        <div>
+        <div
+          className={
+            mobile
+              ? "min-h-0 flex-1 overflow-y-auto overscroll-contain"
+              : undefined
+          }
+        >
           <Link href="/" className="mb-8 items-center flex gap-4">
             <Image
               src="/assets/biztech_logo.svg"
@@ -97,15 +116,20 @@ export default function Navbar() {
             />
           ))}
         </div>
-        {isSignedIn ? (
-          <NavbarTab
-            navbarItem={logout}
-            onLogout={handleLogout}
-            onTabClick={() => setIsOpen(false)}
-          />
-        ) : (
-          <NavbarTab navbarItem={signin} />
-        )}
+        <div className={mobile ? "shrink-0" : "contents"}>
+          {isSignedIn ? (
+            <NavbarTab
+              navbarItem={logout}
+              onLogout={handleLogout}
+              onTabClick={() => setIsOpen(false)}
+            />
+          ) : (
+            <NavbarTab
+              navbarItem={signin}
+              onTabClick={() => setIsOpen(false)}
+            />
+          )}
+        </div>
       </>
     );
   };
@@ -113,37 +137,33 @@ export default function Navbar() {
   return (
     <>
       {/* Mobile Header - shows/hides on scroll */}
-      {isMobileDevice && (
-        <motion.div
-          className="p-4 h-16 bg-bt-blue-700 border-b border-bt-blue-300/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
-          initial={{ y: 0 }}
-          animate={{ y: isNavVisible ? 0 : -64 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-        >
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/assets/biztech_logo.svg"
-              alt="Biztech Logo"
-              width={32}
-              height={32}
-            />
-          </Link>
-          <Menu
-            className="text-white cursor-pointer"
-            size={32}
-            onClick={() => setIsOpen(!isOpen)}
+      <motion.div
+        className="md:hidden p-4 h-16 bg-bt-blue-700 border-b border-bt-blue-300/40 shadow-lg w-full top-0 left-0 right-0 justify-between flex fixed z-40"
+        initial={{ y: 0 }}
+        animate={{ y: isNavVisible ? 0 : -64 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/assets/biztech_logo.svg"
+            alt="Biztech Logo"
+            width={32}
+            height={32}
           />
-        </motion.div>
-      )}
+        </Link>
+        <Menu
+          className="text-white cursor-pointer"
+          size={32}
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </motion.div>
 
       {/* Desktop Sidebar - fixed position, doesn't scroll */}
-      {!isMobileDevice && (
-        <div className="fixed top-0 left-0 bottom-0 z-30">
-          <div className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6">
-            <RenderNavbarTabs />
-          </div>
+      <div className="fixed top-0 left-0 bottom-0 z-30 hidden md:block">
+        <div className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6">
+          <RenderNavbarTabs />
         </div>
-      )}
+      </div>
 
       <AnimatePresence>
         {isMobileDevice && isOpen && (
@@ -156,7 +176,7 @@ export default function Navbar() {
             onClick={() => setIsOpen(false)}
           >
             <motion.div
-              className="pt-9 h-full w-[250px] bg-bt-blue-700 flex flex-col justify-between p-6"
+              className="flex h-dvh w-[250px] flex-col bg-bt-blue-700 p-6 pt-9 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
               initial={{ x: "100vw" }}
               animate={{ x: "calc(100vw - 250px)" }}
               exit={{ x: "100vw" }}
@@ -167,7 +187,7 @@ export default function Navbar() {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <RenderNavbarTabs />
+              <RenderNavbarTabs mobile />
             </motion.div>
           </motion.div>
         )}

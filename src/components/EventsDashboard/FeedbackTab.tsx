@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import QRCode from "qrcode";
+import PrizeWheelButton from "./PrizeWheel/PrizeWheelButton";
 import {
   CalendarClock,
   ChevronDown,
@@ -426,6 +427,12 @@ export default function FeedbackTab({
         </div>
 
         <div className="flex w-full flex-wrap items-center gap-2 text-xs text-bt-blue-100 sm:w-auto sm:gap-3">
+          <PrizeWheelButton
+            key={`${eventId}/${year}`}
+            eventId={eventId}
+            year={year}
+            eventName={eventData.ename || eventId}
+          />
           <Link
             href={attendeeFeedbackUrl}
             target="_blank"
