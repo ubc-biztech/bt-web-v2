@@ -20,6 +20,8 @@ export const auth = defineAuth({
       },
       callbackUrls: [
         "http://localhost:3000/login",
+        "https://judging.ubcbiztech.com/login",
+        "https://bt-judging.vercel.app/login",
         "https://app.ubcbiztech.com/login",
         "https://dev.app.ubcbiztech.com/login",
         "https://dev.v2.ubcbiztech.com/login",
@@ -27,6 +29,8 @@ export const auth = defineAuth({
       ],
       logoutUrls: [
         "http://localhost:3000/login",
+        "https://judging.ubcbiztech.com/login",
+        "https://bt-judging.vercel.app/login",
         "https://app.ubcbiztech.com/login",
         "https://dev.app.ubcbiztech.com/login",
         "https://dev.v2.ubcbiztech.com/login",

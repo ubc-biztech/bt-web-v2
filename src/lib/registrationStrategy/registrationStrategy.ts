@@ -89,8 +89,8 @@ export abstract class RegistrationStrategy {
 
   abstract registrationStatus(): any | null;
   abstract applicationStatus(): string | null;
-  abstract needsConfirmation(): boolean;
-  abstract needsPayment(): boolean;
+  abstract needsConfirmation(hasMembership?: boolean): boolean;
+  abstract needsPayment(hasMembership?: boolean): boolean;
   abstract isWaitlisted(): boolean;
   abstract isCheckedIn(): boolean;
   abstract isConfirmed(): boolean;
