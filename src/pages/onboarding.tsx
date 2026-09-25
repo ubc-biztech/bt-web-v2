@@ -19,7 +19,7 @@ import {
 import { fetchBackend } from "@/lib/db";
 import { checkMembership } from "@/lib/membership";
 import { ensureAuthenticatedUser, getAuthenticatedUser } from "@/lib/user";
-import { getQueryString } from "@/util/url";
+import { getMembershipHref, getSafeRedirect } from "@/util/url";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
@@ -217,7 +217,9 @@ export default function Onboarding() {
       } catch {
         if (!redirected.current) {
           redirected.current = true;
-          await router.replace("/login");
+          await router.replace(
+            `/login?redirect=${encodeURIComponent(getSafeRedirect(router.asPath))}`,
+          );
         }
       }
     }
@@ -304,10 +306,12 @@ export default function Onboarding() {
                   hasMembership={hasMembership}
                   onHome={() =>
                     window.location.assign(
-                      getQueryString(router.query.redirect) ?? "/",
+                      getSafeRedirect(router.query.redirect),
                     )
                   }
-                  onMembership={() => router.push("/membership")}
+                  onMembership={() =>
+                    router.push(getMembershipHref(router.query.redirect))
+                  }
                 />
               ) : (
                 <div className="mx-auto w-full max-w-[856px]">

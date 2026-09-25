@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock3,
   Loader2,
+  LogIn,
   Ticket,
 } from "lucide-react";
 import Link from "next/link";
@@ -41,7 +42,14 @@ type RegistrationCopy = {
   status: string;
   description: string;
   actionLabel: string;
-  tone: "open" | "success" | "reviewing" | "warning" | "closed" | "loading";
+  tone:
+    | "open"
+    | "success"
+    | "reviewing"
+    | "warning"
+    | "closed"
+    | "loading"
+    | "signedOut";
 };
 
 function isApplicationUnderReview(
@@ -77,6 +85,17 @@ function getRegistrationCopy({
       description: `Checking your latest ${registrationLabel.toLowerCase()} status.`,
       actionLabel: `View ${registrationLabel.toLowerCase()}`,
       tone: "loading",
+    };
+  }
+
+  if (!signedIn) {
+    return {
+      status: "You're not signed in",
+      description: isApplication
+        ? "Sign in with the email you used to apply to check your status and RSVP if accepted."
+        : "Sign in to view your registration or register for this event.",
+      actionLabel: "Sign in to continue",
+      tone: "signedOut",
     };
   }
 
@@ -156,15 +175,6 @@ function getRegistrationCopy({
     };
   }
 
-  if (!signedIn) {
-    return {
-      status: isApplication ? "Not submitted" : "Not registered",
-      description: `Sign in to fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
-      actionLabel: isApplication ? "Start application" : "Register now",
-      tone: "open",
-    };
-  }
-
   return {
     status: isApplication ? "Not submitted" : "Not registered",
     description: `Fill out the ${registrationLabel.toLowerCase()} form when you are ready.`,
@@ -180,6 +190,7 @@ const toneIcons: Record<RegistrationCopy["tone"], typeof Ticket> = {
   warning: AlertCircle,
   closed: AlertCircle,
   loading: Loader2,
+  signedOut: LogIn,
 };
 
 const MIS_NIGHT_TIME_ZONE = "America/Vancouver";
@@ -244,16 +255,20 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
     typeof event.pricing?.members === "number" &&
     typeof event.pricing?.nonMembers === "number" &&
     event.pricing.members !== event.pricing.nonMembers;
-  const shouldShowCalendarCta = canShowCalendarCtaForRegistrationStatus(
-    event,
-    registration?.registrationStatus,
-  );
+  const shouldShowCalendarCta =
+    signedIn &&
+    canShowCalendarCtaForRegistrationStatus(
+      event,
+      registration?.registrationStatus,
+    );
   const shouldShowRegistrationCta =
-    !isConfirmed &&
-    !applicationUnderReview &&
-    !isWaitlistedApplication &&
-    registration?.registrationStatus !== DBRegistrationStatus.CANCELLED;
+    !signedIn ||
+    (!isConfirmed &&
+      !applicationUnderReview &&
+      !isWaitlistedApplication &&
+      registration?.registrationStatus !== DBRegistrationStatus.CANCELLED);
   const shouldShowBuildingBlockCta =
+    signedIn &&
     isMISNightEventId(event.id) &&
     (registration?.registrationStatus === DBRegistrationStatus.REGISTERED ||
       registration?.registrationStatus === DBRegistrationStatus.CHECKED_IN);
@@ -353,7 +368,11 @@ export function RegistrationStatusModule(props: RegistrationStatusModuleProps) {
         </Link>
       ) : shouldShowRegistrationCta ? (
         <Link
-          href={registrationHref}
+          href={
+            signedIn
+              ? registrationHref
+              : `/login?redirect=${encodeURIComponent(registrationHref)}`
+          }
           aria-disabled={ctaDisabled}
           className={`mt-4 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md border px-4 text-xs font-800 transition ${
             ctaDisabled
