@@ -378,10 +378,13 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                                 {choices.map((choice) => (
                                   <FormItem
                                     key={choice}
-                                    className="flex items-start space-x-2"
+                                    className="flex items-start space-x-2 space-y-0"
                                   >
                                     <FormControl>
-                                      <RadioGroupItem value={choice} />
+                                      <RadioGroupItem
+                                        value={choice}
+                                        className="mt-0.5 shrink-0"
+                                      />
                                     </FormControl>
                                     <FormLabel className="min-w-0 font-normal break-words leading-5">
                                       {choice}
