@@ -21,6 +21,19 @@ export function TimePickerDemo({ date, setDate, className }: TimePickerProps) {
 
   // Convert 24h to 12h format
   const hour12 = hours % 12 || 12;
+  const [hourInput, setHourInput] = React.useState(hour12.toString());
+  const [minuteInput, setMinuteInput] = React.useState(
+    minutes.toString().padStart(2, "0"),
+  );
+
+  React.useEffect(() => {
+    if (document.activeElement !== hourRef.current) {
+      setHourInput(hour12.toString());
+    }
+    if (document.activeElement !== minuteRef.current) {
+      setMinuteInput(minutes.toString().padStart(2, "0"));
+    }
+  }, [hour12, minutes]);
 
   const setHour = (hour: number) => {
     const newDate = new Date(date);
@@ -62,13 +75,15 @@ export function TimePickerDemo({ date, setDate, className }: TimePickerProps) {
           ref={hourRef}
           id="hours"
           className="w-16 text-center bg-[#3A496D] text-white border-gray-600"
-          value={hour12}
+          value={hourInput}
           onChange={(e) => {
+            setHourInput(e.target.value);
             const value = parseInt(e.target.value);
             if (value >= 1 && value <= 12) {
               setHour(value);
             }
           }}
+          onBlur={() => setHourInput(hour12.toString())}
           type="number"
           min={1}
           max={12}
@@ -82,13 +97,15 @@ export function TimePickerDemo({ date, setDate, className }: TimePickerProps) {
           ref={minuteRef}
           id="minutes"
           className="w-16 text-center bg-[#3A496D] text-white border-gray-600"
-          value={minutes.toString().padStart(2, "0")}
+          value={minuteInput}
           onChange={(e) => {
+            setMinuteInput(e.target.value);
             const value = parseInt(e.target.value);
             if (value >= 0 && value <= 59) {
               setMinute(value);
             }
           }}
+          onBlur={() => setMinuteInput(minutes.toString().padStart(2, "0"))}
           type="number"
           min={0}
           max={59}
