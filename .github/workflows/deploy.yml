@@ -1,0 +1,70 @@
+name: Deploy
+
+# main -> staging (Vercel preview, aliased to the staging domain).
+# Published release -> prod, if the tag is on main.
+# Manual run with an older tag -> prod, for rollback.
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to deploy to prod"
+        required: true
+
+env:
+  TARGET: ${{ github.event_name == 'push' && 'staging' || 'prod' }}
+
+concurrency:
+  group: deploy-${{ github.event_name == 'push' && 'staging' || 'prod' }}
+
+jobs:
+  deploy:
+    if: github.event_name != 'release' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+          fetch-depth: 0
+
+      - if: env.TARGET == 'prod'
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: scripts/check-release.sh "$TAG"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.x"
+          cache: "npm"
+
+      - run: npm i -g vercel@latest
+
+      # Build and deploy with the Vercel environment matching the target, so
+      # NEXT_PUBLIC_REACT_APP_STAGE (and the rest) come from Vercel's Preview
+      # env for staging and Production env for prod.
+      - name: Deploy to staging
+        if: env.TARGET == 'staging'
+        run: |
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          vercel build --token="$VERCEL_TOKEN"
+          url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          echo "Deployed $url"
+          if [ -n "${STAGING_ALIAS:-}" ]; then
+            vercel alias set "$url" "$STAGING_ALIAS" --token="$VERCEL_TOKEN"
+          fi
+        env:
+          STAGING_ALIAS: ${{ vars.STAGING_ALIAS }}
+
+      - name: Deploy to prod
+        if: env.TARGET == 'prod'
+        run: |
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
