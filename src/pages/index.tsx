@@ -102,6 +102,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     );
   }
 
+  const eventImage = (
+    <BizImage
+      height={480}
+      width={720}
+      alt="Event cover image"
+      src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
+      style={{ objectFit: "cover" }}
+      className="h-full aspect-[8/5] rounded-xl border-[0.5px] border-bt-blue-0/60"
+    />
+  );
+
   return (
     <div className="h-full relative">
       <h3 className="text-white text-lg lg:text-xl">
@@ -126,22 +137,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
               : "Our Next Event"
           }
         >
-          {isAdmin && highlightedEvent && (
-            <Link
-              href={`/admin/event/${highlightedEvent.id}/${highlightedEvent.year}/edit`}
-              aria-label={`Edit ${highlightedEvent.ename}`}
-              className="absolute inset-0 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b93f7]"
-            />
-          )}
           <div className="text-bt-blue-0 h-full flex flex-col justify-center">
-            <BizImage
-              height={480}
-              width={720}
-              alt="Event cover image"
-              src={highlightedEvent?.imageUrl || "/assets/images/not-found.png"}
-              style={{ objectFit: "cover" }}
-              className="h-full aspect-[8/5] rounded-xl border-[0.5px] border-bt-blue-0/60"
-            />
+            {isAdmin && highlightedEvent ? (
+              <Link
+                href={`/admin/event/${highlightedEvent.id}/${highlightedEvent.year}`}
+                aria-label={`View ${highlightedEvent.ename} event data`}
+                className="block rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3b93f7]"
+              >
+                {eventImage}
+              </Link>
+            ) : (
+              eventImage
+            )}
             {highlightedEvent ? (
               <div className="flex flex-wrap flex-row justify-between gap-4 items-center mt-4">
                 <div>
@@ -150,6 +157,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   <p className="text-xs text-bt-blue-0">
                     {format(toDate(highlightedEvent.startDate), "LLLL d, yyyy")}
                   </p>
+                  {isAdmin && !highlightedEvent.isPublished && (
+                    <p className="text-xs text-bt-blue-200">Unpublished</p>
+                  )}
                 </div>
 
                 <div className="relative z-10 flex flex-wrap gap-2">
@@ -207,27 +217,44 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const nextServerContext = { request: context.req, response: context.res };
 
   try {
-    // Only fetch events on server side
-    const events = await fetchBackendFromServer({
-      endpoint: `/events`,
-      method: "GET",
-      authenticatedCall: false,
-      nextServerContext,
-    });
+    const [events, user] = await Promise.all([
+      fetchBackendFromServer({
+        endpoint: `/events`,
+        method: "GET",
+        authenticatedCall: false,
+        nextServerContext,
+      }),
+      fetchBackendFromServer({
+        endpoint: `/users/self`,
+        method: "GET",
+        authenticatedCall: true,
+        nextServerContext,
+      }).catch(() => null),
+    ]);
+    const isAdmin = user?.admin === true;
+    const now = new Date();
 
     // Filter and highlight events
     const allEvents = events.filter(
       (event: BiztechEvent) =>
         toDate(event.startDate) > toDate(new Date(2025, 5, 1)) &&
-        event.isPublished &&
         event.id !== "alumni-night", // temp filter
     );
+    const publishedEvents = allEvents.filter(
+      (event: BiztechEvent) => event.isPublished,
+    );
 
-    const highlightedEvent = getHighlightedEvent(allEvents);
+    // Admins can preview scheduled drafts; past drafts stay out of the card.
+    const highlightedEvent = getHighlightedEvent(
+      allEvents.filter(
+        (event: BiztechEvent) =>
+          event.isPublished || (isAdmin && toDate(event.startDate) >= now),
+      ),
+    );
 
     return {
       props: {
-        events: allEvents,
+        events: publishedEvents,
         highlightedEvent: highlightedEvent || null,
       },
     };

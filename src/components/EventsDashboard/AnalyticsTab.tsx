@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Registration } from "@/types/types";
+import { DBRegistrationStatus, Registration } from "@/types/types";
 import { fetchBackend } from "@/lib/db";
 import { OVERALL_RATING_QUESTION_ID } from "@/constants/feedbackQuestionTypes";
 import {
@@ -606,12 +606,25 @@ export default function AnalyticsTab({
 
   const metrics = useMemo(() => {
     const total = data.length;
-    const attendees = data.filter((r) => !r.isPartner).length;
+    const attendeeRegistrations = data.filter((r) => !r.isPartner);
+    const attendees = attendeeRegistrations.length;
     const partners = data.filter((r) => r.isPartner).length;
-    const checkedIn = statusCounts["checkedIn"] || 0;
+    const checkedIn = attendeeRegistrations.filter(
+      (r) => r.registrationStatus === DBRegistrationStatus.CHECKED_IN,
+    ).length;
+    // Check-in replaces acceptedComplete, so include both confirmed statuses.
+    const checkinAttendees = eventData?.isApplicationBased
+      ? attendeeRegistrations.filter(
+          (r) =>
+            r.registrationStatus === DBRegistrationStatus.ACCEPTED_COMPLETE ||
+            r.registrationStatus === DBRegistrationStatus.CHECKED_IN,
+        ).length
+      : attendees;
     const capacity = eventData?.capac || 0;
     const checkinRate =
-      attendees > 0 ? ((checkedIn / attendees) * 100).toFixed(1) : "0";
+      checkinAttendees > 0
+        ? ((checkedIn / checkinAttendees) * 100).toFixed(1)
+        : "0";
     const fillRate =
       capacity > 0 ? ((total / capacity) * 100).toFixed(1) : "N/A";
 
@@ -620,11 +633,12 @@ export default function AnalyticsTab({
       attendees,
       partners,
       checkedIn,
+      checkinAttendees,
       capacity,
       checkinRate,
       fillRate,
     };
-  }, [data, statusCounts, eventData]);
+  }, [data, eventData]);
 
   // faculty
   const facultyDistribution = useMemo(() => {
@@ -909,7 +923,10 @@ export default function AnalyticsTab({
               {metrics.checkinRate}%
             </p>
             <p className="text-[10px] md:text-xs text-bt-blue-200 mt-0.5">
-              {metrics.checkedIn} / {metrics.attendees} attendees
+              {metrics.checkedIn} / {metrics.checkinAttendees}{" "}
+              {eventData?.isApplicationBased
+                ? "confirmed attendees"
+                : "attendees"}
             </p>
           </CardContent>
         </Card>
