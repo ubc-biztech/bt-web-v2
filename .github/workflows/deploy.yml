@@ -28,13 +28,16 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      # Until the Vercel secrets are set the deploy steps skip cleanly instead
+      # of failing the check on every push to main.
+      HAS_VERCEL: ${{ secrets.VERCEL_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref }}
           fetch-depth: 0
 
-      - if: env.TARGET == 'prod'
+      - if: env.HAS_VERCEL == 'true' && env.TARGET == 'prod'
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
         run: scripts/check-release.sh "$TAG"
@@ -50,7 +53,7 @@ jobs:
       # NEXT_PUBLIC_REACT_APP_STAGE (and the rest) come from Vercel's Preview
       # env for staging and Production env for prod.
       - name: Deploy to staging
-        if: env.TARGET == 'staging'
+        if: env.HAS_VERCEL == 'true' && env.TARGET == 'staging'
         run: |
           vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
           vercel build --token="$VERCEL_TOKEN"
@@ -63,7 +66,7 @@ jobs:
           STAGING_ALIAS: ${{ vars.STAGING_ALIAS }}
 
       - name: Deploy to prod
-        if: env.TARGET == 'prod'
+        if: env.HAS_VERCEL == 'true' && env.TARGET == 'prod'
         run: |
           vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
           vercel build --prod --token="$VERCEL_TOKEN"
