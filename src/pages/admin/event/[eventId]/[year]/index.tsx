@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
+import { eventRegistrationsEndpoint } from "@/lib/registrationQuery";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Registration } from "@/types/types";
@@ -71,8 +72,6 @@ export default function AdminEvent({ initialData, eventData }: Props) {
             ) || [];
           setDynamicColumns(questionColumns);
         });
-        console.log(data);
-        console.log("temp");
       }
     }
   }, [router.isReady, router.query.eventId, router.query.year]);
@@ -219,7 +218,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     const [registrationData, eventData] = await Promise.all([
       fetchBackend({
-        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        endpoint: eventRegistrationsEndpoint(eventId, year),
         method: "GET",
         authenticatedCall: false,
       }),
