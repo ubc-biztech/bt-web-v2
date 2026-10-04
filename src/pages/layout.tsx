@@ -5,7 +5,6 @@ import { Urbanist } from "next/font/google";
 import { useRouter } from "next/router";
 import MembershipPrompt from "@/components/MembershipPrompt";
 import OnboardingChecker from "@/components/OnboardingChecker";
-import { isHelloHacksEventId } from "@/features/registrationForms/hello-hacks-2026/constants";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -19,17 +18,16 @@ const membershipPromptRoutes = new Set([
   "/connections",
 ]);
 
+const registrationRoutes = new Set([
+  "/event/[eventId]/[year]/register",
+  "/event/[eventId]/[year]/register/success",
+]);
+
 export default function Layout({ children }: any) {
   const router = useRouter();
   const showMembershipPrompt = membershipPromptRoutes.has(router.pathname);
   const isFeedbackRoute = router.pathname.includes("/feedback");
-  const isHelloHacksSuccessRoute =
-    router.pathname === "/event/[eventId]/[year]/register/success" &&
-    isHelloHacksEventId(
-      Array.isArray(router.query.eventId)
-        ? router.query.eventId[0]
-        : router.query.eventId,
-    );
+  const isRegistrationRoute = registrationRoutes.has(router.pathname);
 
   return (
     <div lang="en" className={`${urbanist.className}`}>
@@ -38,7 +36,7 @@ export default function Layout({ children }: any) {
         <OnboardingChecker />
         <div
           className={`${
-            isHelloHacksSuccessRoute
+            isRegistrationRoute
               ? "pt-16 md:pt-0"
               : isFeedbackRoute
                 ? "pt-16 px-0 pb-8 md:pt-8 md:px-12 md:pb-12 lg:p-16"
