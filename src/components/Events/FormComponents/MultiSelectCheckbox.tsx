@@ -103,13 +103,15 @@ export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = ({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <div className="flex flex-row gap-4 items-center">
-            <FormLabel>
-              {label}
-              {required && "*"}
-            </FormLabel>
-            <FormMessage />
-          </div>
+          {label && (
+            <div className="flex flex-row gap-4 items-center">
+              <FormLabel>
+                {label}
+                {required && "*"}
+              </FormLabel>
+              <FormMessage />
+            </div>
+          )}
           <FormControl>
             <div className="space-y-2">
               {options.map((choice, choiceIndex) => {
@@ -119,12 +121,13 @@ export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = ({
                 return (
                   <FormItem
                     key={choiceIndex}
-                    className="flex items-center space-x-2"
+                    className="flex items-start space-x-2 space-y-0"
                   >
                     <FormControl>
                       {isOther ? (
                         <>
                           <Checkbox
+                            className="mt-0.5 shrink-0"
                             checked={isOtherChecked}
                             onCheckedChange={(checked) =>
                               handleCheckboxChange(choice, checked as boolean)
@@ -150,6 +153,7 @@ export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = ({
                         </>
                       ) : (
                         <Checkbox
+                          className="mt-0.5 shrink-0"
                           checked={isChecked}
                           onCheckedChange={(checked) =>
                             handleCheckboxChange(choice, checked as boolean)
@@ -158,7 +162,9 @@ export const MultiSelectCheckbox: React.FC<MultiSelectCheckboxProps> = ({
                         />
                       )}
                     </FormControl>
-                    <FormLabel className="font-normal">{choice}</FormLabel>
+                    <FormLabel className="font-normal leading-snug">
+                      {choice}
+                    </FormLabel>
                   </FormItem>
                 );
               })}
