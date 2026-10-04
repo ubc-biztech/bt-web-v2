@@ -1,9 +1,10 @@
 import { fetchBackend } from "./db";
 import { DBRegistrationStatus } from "@/types";
+import { eventRegistrationsEndpoint } from "./registrationQuery";
 
 export async function fetchRegistrationData(eventId: string, year: string) {
   let registrationData = await fetchBackend({
-    endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+    endpoint: eventRegistrationsEndpoint(eventId, year),
     method: "GET",
     authenticatedCall: false,
   });

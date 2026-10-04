@@ -18,6 +18,7 @@ import { createColumns } from "./columns";
 import { Registration } from "@/types/types";
 import { QrCheckIn } from "../QrScanner/QrScanner";
 import { fetchBackend } from "@/lib/db";
+import { eventRegistrationsEndpoint } from "@/lib/registrationQuery";
 import {
   isCheckedIn,
   isCancelled,
@@ -62,7 +63,7 @@ export function DataTable({
   const refreshTable = useCallback(async () => {
     try {
       const registrationData = await fetchBackend({
-        endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+        endpoint: eventRegistrationsEndpoint(eventId, year),
         method: "GET",
         authenticatedCall: false,
       });
