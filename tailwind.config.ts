@@ -52,7 +52,21 @@ const config: Config = {
       "3xl": "48px",
     },
     extend: {
+      fontFamily: {
+        "product-body": [
+          "SF Pro Display",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "sans-serif",
+        ],
+        "product-heading": ["var(--font-product-heading)", "sans-serif"],
+      },
       colors: {
+        "product-ink": "#081440",
+        "product-muted": "#5e6685",
+        "product-primary": "#6150b8",
+        "product-lavender": "#ede8fa",
         "bt-blue": {
           0: "#BDC8E3FF",
           100: "#A2B1D5FF",
