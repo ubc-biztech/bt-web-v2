@@ -1,4 +1,6 @@
-import { ComponentType } from "react";
+import { createElement, type ComponentType } from "react";
+import ProductPlus2026 from "@/features/product+/2026/ProductPlus2026";
+import type { ProductPlusPage } from "@/features/product+/2026/access";
 import Blueprint2025 from "@/features/blueprint/2025/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
@@ -52,11 +54,47 @@ export interface Event {
   };
 }
 
+function createProductPlusPage(
+  page: ProductPlusPage,
+): ComponentType<DynamicPageProps> {
+  return function ProductPlusCompanionPage() {
+    return createElement(ProductPlus2026, { page });
+  };
+}
+
 // Companion convention:
 // - Event-specific UI lives in `src/components/companion/<event>/<year>/...`
 // - Canonical runtime routes live in `src/pages/companion/[event]/[year]`
 // - Keep shared cross-event UI in neutral folders (e.g. navigation, badges, connections).
 const Events: Event[] = [
+  {
+    activeUntil: new Date("2026-10-30"),
+    eventID: "product+",
+    year: 2026,
+    ChildComponent: ProductPlus2026,
+    pages: {
+      portal: createProductPlusPage("portal"),
+      myteam: createProductPlusPage("myteam"),
+      submission: createProductPlusPage("submission"),
+      productarena: createProductPlusPage("productarena"),
+      admin: createProductPlusPage("admin"),
+    },
+    options: {
+      disableWelcomeHeader: true,
+      BiztechLogo: "/favicon/favicon.ico",
+      Logo: "/favicon/favicon.ico",
+      title: "Product+ 2026",
+      date: "October 18–25, 2026",
+      location: "UBC",
+      colors: {
+        primary: "#6150b8",
+        background: "#f7f4ff",
+      },
+      getScheduleData: () => [],
+      welcomeData: [],
+      headers: [],
+    },
+  },
   {
     activeUntil: new Date("2025-01-31"),
     eventID: "blueprint",

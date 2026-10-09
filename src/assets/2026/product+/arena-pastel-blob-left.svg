@@ -1,0 +1,17 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="2129.43" height="1994.33" viewBox="0 0 2129.43 1994.33" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Pastel blob" filter="url(#filter0_f_0_27)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M1142.22 800.761C1300.5 799.25 1609.16 344.247 1658.18 495.648C1707.27 647.298 1464.3 1320.01 1337.13 1415.27C1204.05 1514.96 1027.34 1577.99 891.752 1481.77C751.728 1382.39 412.831 1077.2 471.568 915.259C523.998 770.71 989.26 802.222 1142.22 800.761Z" fill="url(#paint0_linear_0_27)" fill-opacity="0.15"/>
+</g>
+<defs>
+<filter id="filter0_f_0_27" x="3.50325e-07" y="1.84696e-06" width="2129.43" height="1994.33" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="232.399" result="effect1_foregroundBlur_0_27"/>
+</filter>
+<linearGradient id="paint0_linear_0_27" x1="562.911" y1="1008.81" x2="1496.58" y2="1059.16" gradientUnits="userSpaceOnUse">
+<stop offset="0.0144357" stop-color="#F896B6"/>
+<stop offset="0.55291" stop-color="#F1927F"/>
+<stop offset="1" stop-color="#FFCE9A"/>
+</linearGradient>
+</defs>
+</svg>

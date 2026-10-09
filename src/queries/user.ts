@@ -1,6 +1,7 @@
 import {
   fetchAuthSession,
   fetchUserAttributes,
+  getCurrentUser,
   AuthError,
 } from "@aws-amplify/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -18,6 +19,9 @@ export interface UserAttributes {
 
 export async function getUserAttributes(): Promise<UserAttributes | null> {
   try {
+    // Check for a signed-in user before fetching session credentials. Guest
+    // sessions can otherwise make a network request and mask the login state.
+    await getCurrentUser();
     const [attributes, session] = await Promise.all([
       fetchUserAttributes(),
       fetchAuthSession(),
