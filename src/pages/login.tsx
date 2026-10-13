@@ -10,12 +10,8 @@ import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
-import { getQueryString } from "@/util/url";
-import {
-  ensureAuthenticatedUser,
-  getAuthenticatedUser,
-  needsOnboarding,
-} from "@/lib/user";
+import { getQueryString, getSafeRedirect } from "@/util/url";
+import { ensureAuthenticatedUser } from "@/lib/user";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -65,7 +61,6 @@ const LoginForm: React.FC = () => {
         }
 
         await ensureAuthenticatedUser();
-        const appUser = await getAuthenticatedUser();
 
         if (hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
@@ -83,12 +78,7 @@ const LoginForm: React.FC = () => {
           ).toString();
         }
 
-        const destination = finalRedirect ?? "/";
-        await router.replace(
-          needsOnboarding(appUser)
-            ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-            : destination,
-        );
+        await router.replace(getSafeRedirect(finalRedirect ?? undefined));
       } catch {
         // treat as signed-out
         await clearAuthState();
@@ -142,7 +132,6 @@ const LoginForm: React.FC = () => {
       }
 
       await ensureAuthenticatedUser();
-      const appUser = await getAuthenticatedUser();
 
       const redirectUrl = getQueryString(router.query.redirect);
       const stateParam = getQueryString(router.query.state);
@@ -154,12 +143,7 @@ const LoginForm: React.FC = () => {
           : null;
 
       const finalRedirect = oauthRedirect ?? redirectUrl;
-      const destination = finalRedirect ?? "/";
-      await router.replace(
-        needsOnboarding(appUser)
-          ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-          : destination,
-      );
+      await router.replace(getSafeRedirect(finalRedirect ?? undefined));
     } catch (error: any) {
       console.error("Error signing in", error);
       let emailError = "";

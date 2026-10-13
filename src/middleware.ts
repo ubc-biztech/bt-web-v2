@@ -3,11 +3,19 @@ import { NextRequest } from "next/server";
 import { fetchBackendFromServer } from "./lib/db";
 import { User } from "./types";
 import { needsOnboarding } from "./lib/user";
+import { getSafeRedirect } from "./util/url";
+
+function redirectTo(path: string, request: NextRequest, returnTo?: string) {
+  const url = new URL(path, request.url);
+  if (returnTo) url.searchParams.set("redirect", returnTo);
+  return NextResponse.redirect(url);
+}
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
+  const returnTo = `${pathname}${url.search}`;
 
   // Always allow these paths
   const allowedPrefixes = [
@@ -19,7 +27,6 @@ export async function middleware(request: NextRequest) {
     "/event",
     "/become-a-member",
     "/membership",
-    "/onboarding",
     "/login",
     "/register",
     "/forgot-password",
@@ -40,17 +47,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const isOnboarding = request.nextUrl.pathname === "/onboarding";
+  const onboardingDestination = getSafeRedirect(
+    url.searchParams.get("redirect") ?? undefined,
+  );
+
   try {
     const userProfile: User = await fetchBackendFromServer({
       endpoint: `/users/self`,
       method: "GET",
       nextServerContext: { request: request as any, response: response as any },
     });
+    const requiresOnboarding = needsOnboarding(userProfile);
 
-    if (needsOnboarding(userProfile)) {
-      const onboardingUrl = new URL("/onboarding", request.url);
-      onboardingUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(onboardingUrl);
+    if (isOnboarding) {
+      return requiresOnboarding
+        ? NextResponse.next()
+        : redirectTo(onboardingDestination, request);
+    }
+
+    if (requiresOnboarding) {
+      return redirectTo("/onboarding", request, returnTo);
     }
 
     if (pathname.startsWith("/admin") && !userProfile.admin) {
@@ -59,11 +76,20 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
   } catch (error: any) {
-    if (error.status === 404) {
-      return NextResponse.redirect(new URL("/onboarding", request.url));
+    if (isOnboarding) {
+      if (error.status === 404) return NextResponse.next();
+      return redirectTo(
+        "/login",
+        request,
+        onboardingDestination === "/" ? undefined : onboardingDestination,
+      );
     }
 
-    return NextResponse.redirect(new URL("/login", request.url));
+    if (error.status === 404) {
+      return redirectTo("/onboarding", request, returnTo);
+    }
+
+    return redirectTo("/login", request, returnTo);
   }
 }
 
