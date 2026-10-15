@@ -38,7 +38,7 @@ export default function ProductPlus2026({
       <ConfigureAmplifyClientSide />
       <Head>
         <title>{titles[page]} | Product+ 2026</title>
-        <meta name="theme-color" content="#f7f4ff" />
+        <meta name="theme-color" content="#f7f4ff" key="theme-color" />
       </Head>
       <ProductPlusLayout page={page}>
         <ProductPlusAccess page={page}>

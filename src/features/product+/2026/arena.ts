@@ -12,6 +12,24 @@ export interface AudienceResponse {
   submissions: AudienceSubmission[];
 }
 
+export function partitionSubmissions(submissions: AudienceSubmission[]) {
+  const unvoted: AudienceSubmission[] = [];
+  const voted: AudienceSubmission[] = [];
+  for (const submission of submissions) {
+    (submission.has_voted === true ? voted : unvoted).push(submission);
+  }
+  return { unvoted, voted };
+}
+
+export function shuffleSubmissions(submissions: AudienceSubmission[]) {
+  const shuffled = [...submissions];
+  for (let index = shuffled.length - 1; index > 0; index--) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[other]] = [shuffled[other], shuffled[index]];
+  }
+  return shuffled;
+}
+
 export type VoteChoice = "accept" | "reject";
 
 export function audienceSubmissionsPath(identity: string | null): string {
@@ -26,7 +44,7 @@ export function votingPhase(data: AudienceResponse, now: number) {
   return data.voting_open ? "open" : "paused";
 }
 
-// Keep the server's initial shuffle stable across refreshes and vote reconciliation.
+// Keep the initial shuffle stable across refreshes and vote reconciliation.
 export function orderSubmissions(
   submissions: AudienceSubmission[],
   order: readonly string[],

@@ -53,6 +53,11 @@ export default function App({ Component, pageProps }: AppProps) {
   const isCompanionPath =
     router.pathname.startsWith("/companion") ||
     router.pathname.includes("/companion");
+  const isProductPlusPath =
+    router.pathname === "/productplus/audience" ||
+    (isCompanionPath &&
+      router.query.event === "product+" &&
+      router.query.year === "2026");
   // Only apply Kickstart fonts for Kickstart companion paths
   const isKickstartPath =
     router.pathname.includes("/kickstart/") &&
@@ -92,8 +97,18 @@ export default function App({ Component, pageProps }: AppProps) {
         {/* Theme and Colors */}
         <meta
           name="theme-color"
-          content={isCompanionPath ? "#030608" : "#2A5298"}
+          content={
+            isProductPlusPath
+              ? "#f7f4ff"
+              : isCompanionPath
+                ? "#030608"
+                : "#2A5298"
+          }
+          key="theme-color"
         />
+        {isProductPlusPath ? (
+          <meta name="color-scheme" content="light" key="color-scheme" />
+        ) : null}
 
         {/* Favicon */}
         <link
@@ -121,8 +136,18 @@ export default function App({ Component, pageProps }: AppProps) {
         <link rel="canonical" href="https://ubcbiztech.com" />
       </Head>
 
+      {isProductPlusPath ? (
+        <style jsx global>{`
+          html,
+          body {
+            background-color: #f7f4ff;
+            color-scheme: light;
+          }
+        `}</style>
+      ) : null}
+
       <main
-        className={`${isCompanionPath ? "dark" : ""} ${isKickstartPath ? `${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
+        className={`${isCompanionPath && !isProductPlusPath ? "dark" : ""} ${isKickstartPath ? `${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />
