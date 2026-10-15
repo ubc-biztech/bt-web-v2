@@ -289,7 +289,7 @@ function TeamCodeBox({
         onClick={copy}
         aria-label={copied ? "Team code copied" : "Copy team code"}
         className={cn(
-          "min-h-[34px] gap-[6px] px-3 py-2 text-[13px] shadow-none",
+          "min-h-10 shrink-0 gap-2 px-4 py-2 text-[13px] leading-5 shadow-none [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0",
           copied
             ? "bg-[#cdeadb] text-[#215c47] hover:bg-[#cdeadb] hover:text-[#215c47]"
             : "bg-[rgba(97,79,184,0.12)]",
