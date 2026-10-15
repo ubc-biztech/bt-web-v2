@@ -137,7 +137,10 @@ function TeamSubmission({
     <SubmissionForm
       team={team}
       snapshot={query.data}
-      onSnapshot={(snapshot) => client.setQueryData(queryKey, snapshot)}
+      onSnapshot={async (snapshot) => {
+        await client.cancelQueries({ queryKey });
+        client.setQueryData(queryKey, snapshot);
+      }}
       onAccessLost={() => {
         setAccessLost(true);
         client.removeQueries({ queryKey });

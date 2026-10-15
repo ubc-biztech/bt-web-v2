@@ -231,7 +231,7 @@ export default function SubmissionForm({
   }
 
   async function submit(uploadOnly = false) {
-    if (locked || submitting.current || checkingFile || rejectedFile) return;
+    if (locked || submitting.current || checkingFile) return;
     if (uploadOnly && !file) return;
     if (Date.now() >= deadline) {
       setForceClosed(true);
@@ -251,6 +251,7 @@ export default function SubmissionForm({
     }
     submitting.current = true;
     setNotice(null);
+    setRejectedFile(null);
     setUploadError(null);
     let uploading = !!file && uploadedFile.current?.file !== file;
     try {
@@ -288,6 +289,7 @@ export default function SubmissionForm({
       });
       onSnapshot({ ...snapshot, submission: result });
     } catch (error) {
+      uploadedFile.current = null;
       if (
         mounted.current &&
         uploading &&
