@@ -4,6 +4,8 @@ import { signUp, signInWithRedirect } from "@aws-amplify/auth";
 import { fetchBackend } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
+import { getQueryString } from "@/util/url";
+import { isProductArenaDestination } from "@/features/product+/2026/access";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -23,6 +25,12 @@ const Register: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const destination = getQueryString(router.query.redirect);
+  const arenaRedirect =
+    destination && isProductArenaDestination(destination) ? destination : null;
+  const loginHref = arenaRedirect
+    ? `/login?redirect=${encodeURIComponent(arenaRedirect)}`
+    : "/login";
 
   const validateEmail = (value: string) => {
     let error = "";
@@ -91,7 +99,9 @@ const Register: React.FC = () => {
       });
 
       // Redirect to verification page (if email verification is enabled in Cognito)
-      router.push(`/verify?email=${email}`);
+      router.push(
+        `/verify?email=${encodeURIComponent(email)}${arenaRedirect ? `&redirect=${encodeURIComponent(arenaRedirect)}` : ""}`,
+      );
     } catch (error: any) {
       console.error("Error during sign-up", error);
       handleAuthErrors(error);
@@ -104,6 +114,7 @@ const Register: React.FC = () => {
     try {
       await signInWithRedirect({
         provider: "Google",
+        customState: arenaRedirect ?? undefined,
         options: { prompt: "SELECT_ACCOUNT" },
       });
     } catch (error: any) {
@@ -155,7 +166,7 @@ const Register: React.FC = () => {
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               Already have an account? &nbsp;
               <Link
-                href="/login"
+                href={loginHref}
                 className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
               >
                 Login here.

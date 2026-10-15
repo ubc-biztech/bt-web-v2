@@ -9,6 +9,8 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
+  if (pathname === "/productplus/audience") return NextResponse.next();
+
   // Always allow these paths
   const allowedPrefixes = [
     "/admin/live-wall",
