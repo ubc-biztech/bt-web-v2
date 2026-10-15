@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseQueryOptions,
+} from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
 import { PRODUCT_PLUS_EVENT_ID, PRODUCT_PLUS_YEAR } from "./access";
 
@@ -26,8 +31,15 @@ export function errorStatus(error: unknown): number | undefined {
 }
 
 /** The caller's team for Product+ 2026, or null when they are not on one. */
-export function useProductPlusTeam(email: string | undefined) {
+export function useProductPlusTeam(
+  email: string | undefined,
+  options: Pick<
+    UseQueryOptions<Team | null>,
+    "staleTime" | "gcTime" | "refetchOnWindowFocus" | "retry"
+  > = {},
+) {
   return useQuery<Team | null>({
+    ...options,
     queryKey: teamQueryKey(email),
     queryFn: () =>
       fetchBackend({
