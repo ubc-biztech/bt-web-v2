@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { CircleAlert, CircleCheck } from "lucide-react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -87,6 +88,32 @@ export function Pill({
       )}
       {...props}
     />
+  );
+}
+
+export function ProductToast({
+  tone,
+  children,
+}: {
+  tone: "success" | "error";
+  children: ReactNode;
+}) {
+  const Icon = tone === "success" ? CircleCheck : CircleAlert;
+  return (
+    <div
+      role={tone === "error" ? "alert" : "status"}
+      className={cn(
+        // Fixed so it stays visible after scrolling; centred over <main>, which
+        // sits right of the sidebar (sidebar width + 16px outer padding/gap)
+        "pointer-events-none fixed left-[calc(50%+148px)] top-6 z-50 max-[1200px]:left-[calc(50%+128px)] max-[960px]:left-[calc(50%+113px)] max-[640px]:left-1/2 max-[640px]:top-[calc(16px+env(safe-area-inset-top))] flex w-max max-w-[calc(100%-16px)] -translate-x-1/2 items-center gap-2 rounded-[100px] border px-4 py-2 text-[13px] leading-[18px] shadow-[0_4px_12px_rgba(97,80,184,0.08)] backdrop-blur-[14px]",
+        tone === "success"
+          ? "border-[#b9e0cb] bg-[#e5f5ed]/90 text-[#215c47]"
+          : "border-[#eab9c3] bg-[#fdf0f2]/90 text-[#8a2236]",
+      )}
+    >
+      <Icon aria-hidden="true" className="h-5 w-5 shrink-0" />
+      {children}
+    </div>
   );
 }
 
