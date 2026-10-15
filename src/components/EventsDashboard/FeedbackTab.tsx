@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { fetchBackend } from "@/lib/db";
-import { BiztechEvent, FeedbackQuestion } from "@/types";
+import {
+  BiztechEvent,
+  FeedbackQuestion,
+  FeedbackGridDefinition,
+} from "@/types";
 import { FeedbackQuestionsBuilder } from "@/components/Events/FeedbackQuestionsBuilder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +35,10 @@ import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { generateStageURL } from "@/util/url";
 import {
+  getFeedbackAnswerFields,
+  validateGridConfig,
+} from "@/lib/feedbackGrid";
+import {
   OVERALL_RATING_QUESTION_ID,
   DEFAULT_OVERALL_RATING_QUESTION,
 } from "@/constants/feedbackQuestionTypes";
@@ -55,6 +63,7 @@ type FrontendFeedbackQuestion = {
   question: string;
   required: boolean;
   options: string[];
+  grid?: FeedbackGridDefinition;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;
@@ -88,6 +97,7 @@ const transformToFrontend = (
   type: q.type,
   question: q.label,
   required: q.required,
+  grid: q.grid ?? { rows: [], columns: [] },
   options: q.choices
     ? q.choices
         .split(",")
@@ -122,6 +132,21 @@ const ensureDefaultQuestion = (
   return [{ ...DEFAULT_OVERALL_FRONTEND }, ...nonDefaultQuestions];
 };
 
+const normalizeGridColumns = (question: FrontendFeedbackQuestion) => {
+  if (question.type !== "MULTIPLE_CHOICE_GRID" || !question.grid) {
+    return question;
+  }
+  return {
+    ...question,
+    grid: {
+      ...question.grid,
+      columns: question.grid.columns
+        .map((column) => column.trim())
+        .filter(Boolean),
+    },
+  };
+};
+
 const transformToBackend = (q: FrontendFeedbackQuestion) => ({
   type: q.type,
   questionId: q.id,
@@ -131,6 +156,16 @@ const transformToBackend = (q: FrontendFeedbackQuestion) => ({
     .filter(Boolean)
     .join(","),
   required: q.required,
+  grid:
+    q.type === "MULTIPLE_CHOICE_GRID"
+      ? {
+          rows: q.grid!.rows.map((row) => ({
+            id: row.id,
+            label: row.label.trim(),
+          })),
+          columns: q.grid!.columns.map((column) => column.trim()),
+        }
+      : undefined,
   scaleMin: q.type === "LINEAR_SCALE" ? Number(q.scaleMin ?? 1) : undefined,
   scaleMax: q.type === "LINEAR_SCALE" ? Number(q.scaleMax ?? 5) : undefined,
   scaleMinLabel: q.type === "LINEAR_SCALE" ? q.scaleMinLabel || "" : "",
@@ -262,11 +297,26 @@ export default function FeedbackTab({
       ...values,
       attendeeFeedbackQuestions: ensureDefaultQuestion(
         values.attendeeFeedbackQuestions || [],
-      ),
+      ).map(normalizeGridColumns),
       partnerFeedbackQuestions: ensureDefaultQuestion(
         values.partnerFeedbackQuestions || [],
-      ),
+      ).map(normalizeGridColumns),
     };
+    for (const question of [
+      ...normalizedValues.attendeeFeedbackQuestions,
+      ...normalizedValues.partnerFeedbackQuestions,
+    ]) {
+      if (question.type !== "MULTIPLE_CHOICE_GRID") continue;
+      const error = validateGridConfig(question.grid);
+      if (error) {
+        toast({
+          title: "Invalid grid",
+          description: `${question.question || "Untitled question"}: ${error}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     setIsSaving(true);
     try {
       await fetchBackend({
@@ -364,10 +414,9 @@ export default function FeedbackTab({
   const currentSubmissions = submissions[responsesActiveTab]?.submissions || [];
 
   const questionLabels = useMemo(() => {
-    const entries = (currentMeta?.feedbackQuestions || []).map((q) => [
-      q.questionId,
-      q.label,
-    ]);
+    const entries = getFeedbackAnswerFields(
+      currentMeta?.feedbackQuestions || [],
+    ).map((q) => [q.questionId, q.label]);
     return Object.fromEntries(entries) as Record<string, string>;
   }, [currentMeta]);
 
@@ -753,7 +802,8 @@ function ResponsesPanel({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
 
   const questionOrder = useMemo(
-    () => questions.map((question) => question.questionId),
+    () =>
+      getFeedbackAnswerFields(questions).map((question) => question.questionId),
     [questions],
   );
   const orderedQuestionSet = useMemo(

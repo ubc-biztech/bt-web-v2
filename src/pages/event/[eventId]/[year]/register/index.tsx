@@ -271,11 +271,11 @@ export default function AttendeeFormRegister() {
   ): Promise<boolean> => {
     if (isSubmitting) return false;
 
-    // The HelloHacks success screen shows the avatar the applicant picked, and
-    // the form's state is gone by the time that route mounts. Other forms set
-    // no `hh_avatar`, so their redirect is unchanged.
-    const successUrl = (extra?: Record<string, string>) => {
-      const query = new URLSearchParams(extra);
+    // Carry the application flag even when payment is skipped (free events or
+    // admins).
+    const successUrl = () => {
+      const query = new URLSearchParams();
+      if (event.isApplicationBased) query.set("isApplicationBased", "true");
       const avatar = payload.dynamicResponses?.hh_avatar;
 
       if (avatar) query.set("avatar", String(avatar));
@@ -306,7 +306,7 @@ export default function AttendeeFormRegister() {
           : await state.regForPaid(payload);
 
         if (event.isApplicationBased) {
-          await router.push(successUrl({ isApplicationBased: "true" }));
+          await router.push(successUrl());
           return true;
         }
 
@@ -749,7 +749,7 @@ export default function AttendeeFormRegister() {
   };
 
   return (
-    <main className="bg-bt-blue-600 min-h-screen">
+    <main className="bg-bt-blue-600 min-h-screen pb-8 md:pt-8 md:px-12 md:pb-12 lg:p-16">
       <div className="mx-auto flex flex-col">
         {regAlert}
         {event && renderConditionalViews()}
