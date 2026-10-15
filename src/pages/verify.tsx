@@ -8,7 +8,7 @@ import { isProductArenaDestination } from "@/features/product+/2026/access";
 
 export default function Verify() {
   const router = useRouter();
-  const email = router.query.email as string; 
+  const email = router.query.email as string;
   const destination = getQueryString(router.query.redirect);
   const loginHref =
     destination && isProductArenaDestination(destination)

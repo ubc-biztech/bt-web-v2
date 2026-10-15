@@ -35,7 +35,7 @@ export async function getAudienceSubmissions(
   const { unvoted, voted } = partitionSubmissions(data.submissions);
   data.submissions = [
     ...orderSubmissions(shuffleSubmissions(unvoted), order),
-    ...orderSubmissions(voted, order),
+    ...orderSubmissions(shuffleSubmissions(voted), order),
   ];
   try {
     sessionStorage.setItem(

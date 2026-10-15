@@ -593,7 +593,7 @@ function ArenaContent({
             type="button"
             disabled={!canVote || authFailed}
             onClick={() => void vote("reject")}
-            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-[#eab9c3]/60 bg-[#fff1f2]/70 px-4 text-[14px] font-semibold text-[#9c5360] shadow-[0_4px_20px_rgba(156,83,96,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] enabled:hover:bg-[#ffe4e6]/80 enabled:active:bg-[#ffe4e6] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
+            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-[#eab9c3]/60 bg-[#fff1f2]/70 px-4 text-[14px] font-semibold text-[#9c5360] shadow-[0_4px_20px_rgba(156,83,96,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] enabled:hover:bg-[#ffe4e6]/80 enabled:active:bg-[#ffe4e6] disabled:pointer-events-none disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
           >
             <Pass aria-hidden="true" className="[&_path]:stroke-current" />
             Pass
@@ -603,7 +603,7 @@ function ArenaContent({
             disabled={!canVote || authFailed}
             onClick={() => void vote("accept")}
             className={cn(
-              "flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] enabled:hover:bg-[#ddd2ff] enabled:active:bg-product-primary enabled:active:text-white disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4",
+              "flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] enabled:hover:bg-[#ddd2ff] enabled:active:bg-product-primary enabled:active:text-white disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4",
               locked && "bg-product-primary text-white disabled:opacity-100",
             )}
           >
