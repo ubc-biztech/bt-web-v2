@@ -11,6 +11,13 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
 import { getQueryString } from "@/util/url";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AuthErrorCode,
+  getSignInErrorCode,
+  getSignInErrorMessage,
+} from "@/lib/signInError";
 import { isProductArenaDestination } from "@/features/product+/2026/access";
 import {
   ensureAuthenticatedUser,
