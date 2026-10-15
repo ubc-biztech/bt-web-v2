@@ -1,6 +1,8 @@
 export const PRODUCT_PLUS_COMPANION_PATH = "/companion/product+/2026";
 export const PRODUCT_PLUS_EVENT_PATH = "/event/product+/2026";
-export const PRODUCT_PLUS_REGISTRATION_KEY = "product+;2026";
+export const PRODUCT_PLUS_EVENT_ID = "product+";
+export const PRODUCT_PLUS_YEAR = 2026;
+export const PRODUCT_PLUS_REGISTRATION_KEY = `${PRODUCT_PLUS_EVENT_ID};${PRODUCT_PLUS_YEAR}`;
 
 export type ProductPlusPage =
   | "portal"
