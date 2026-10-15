@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ComponentType,
@@ -30,6 +31,7 @@ import {
 } from "../queries/audience";
 import {
   formatArenaDate,
+  partitionSubmissions,
   votingPhase,
   type AudienceResponse,
   type VoteChoice,
@@ -228,6 +230,8 @@ function ArenaContent({
   const closesAt = data?.voting_deadline;
   const [now, setNow] = useState(() => Date.now());
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [queueCodes, setQueueCodes] = useState<string[] | null>(null);
+  const [reviewing, setReviewing] = useState(false);
   const [watching, setWatching] = useState(!!identity || embedded);
   const [finished, setFinished] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -241,14 +245,49 @@ function ArenaContent({
   const nav = useRef<HTMLElement | null>(null);
   const [navHeight, setNavHeight] = useState(64);
   const phase = data ? votingPhase(data, now) : null;
-  const teams = data?.submissions ?? [];
+  const submissions = data?.submissions;
+  const { unvoted } = useMemo(
+    () => partitionSubmissions(submissions ?? []),
+    [submissions],
+  );
+  const teams = useMemo(() => {
+    if (reviewing) return submissions ?? [];
+    if (queueCodes === null) return unvoted;
+    const byCode = new Map(
+      submissions?.map((entry) => [entry.team_code, entry]),
+    );
+    return queueCodes.flatMap((code) => {
+      const entry = byCode.get(code);
+      return entry ? [entry] : [];
+    });
+  }, [reviewing, submissions, queueCodes, unvoted]);
+  const selectedIndex = teams.findIndex(
+    (entry) => entry.team_code === selectedCode,
+  );
   const index = Math.max(
     0,
-    teams.findIndex((team) => team.team_code === selectedCode),
+    selectedIndex >= 0
+      ? selectedIndex
+      : reviewing
+        ? 0
+        : teams.findIndex((entry) => !entry.has_voted),
   );
   const team = teams[index];
   const introKey = `productplus:2026:arena-intro:v2:${identity}`;
   const loginHref = productPlusLoginPath(router.asPath);
+
+  // Keep the current pitch in place after voting; new unvoted entries join the end.
+  useEffect(() => {
+    if (!submissions) return;
+    setQueueCodes((current) => {
+      if (current === null) return unvoted.map((entry) => entry.team_code);
+      const known = new Set(current);
+      const added = unvoted
+        .filter((entry) => !known.has(entry.team_code))
+        .map((entry) => entry.team_code);
+      return added.length ? [...current, ...added] : current;
+    });
+  }, [submissions, unvoted]);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -313,15 +352,26 @@ function ArenaContent({
   }
 
   function navigate(nextIndex: number) {
-    if (voting.current) return;
+    if (voting.current || nextIndex < 0) return;
     setNotice("");
     setVoteFailed(false);
-    if (nextIndex >= teams.length) setFinished(true);
-    else if (nextIndex >= 0) setSelectedCode(teams[nextIndex].team_code);
+    const next =
+      reviewing || nextIndex < index
+        ? teams[nextIndex]
+        : teams.slice(nextIndex).find((entry) => !entry.has_voted);
+    if (next) setSelectedCode(next.team_code);
+    else setFinished(true);
   }
 
   async function vote(choice: VoteChoice) {
-    if (!team || voting.current || team.has_voted || phase !== "open") return;
+    if (
+      !team ||
+      reviewing ||
+      voting.current ||
+      team.has_voted ||
+      phase !== "open"
+    )
+      return;
     if (!identity) {
       setLoginOpen(true);
       return;
@@ -332,6 +382,7 @@ function ArenaContent({
     setNotice("");
     setVoteFailed(false);
     const code = team.team_code;
+    setSelectedCode(code);
     try {
       await postAudienceVote(code, choice);
       client.setQueryData<AudienceResponse>(
@@ -420,7 +471,7 @@ function ArenaContent({
         {portalButton}
       </ArenaState>
     );
-  } else if (!teams.length) {
+  } else if (!submissions?.length) {
     content = (
       <ArenaState
         title="No pitches yet"
@@ -432,22 +483,45 @@ function ArenaContent({
         {portalButton}
       </ArenaState>
     );
-  } else if (finished) {
+  } else if (
+    finished ||
+    !teams.length ||
+    (!reviewing && selectedIndex < 0 && !unvoted.length)
+  ) {
     content = (
       <ArenaState
-        title="You’ve watched every team"
+        title={
+          unvoted.length ? "You’ve reached the end" : "You’re all caught up"
+        }
         icon={<Complete aria-hidden="true" />}
         description="Thanks for watching! Your votes help decide the Audience Award."
       >
         {portalButton}
+        {unvoted.length && phase === "open" ? (
+          <ProductButton
+            onClick={() => {
+              setReviewing(false);
+              setFinished(false);
+              setQueueCodes(unvoted.map((entry) => entry.team_code));
+              setSelectedCode(unvoted[0].team_code);
+              setNotice("");
+              setVoteFailed(false);
+            }}
+          >
+            Continue voting
+          </ProductButton>
+        ) : null}
         <ProductButton
           variant="secondary"
           onClick={() => {
             setFinished(false);
-            setSelectedCode(teams[0].team_code);
+            setReviewing(true);
+            setSelectedCode(submissions[0].team_code);
+            setNotice("");
+            setVoteFailed(false);
           }}
         >
-          Watch again
+          Review all videos
         </ProductButton>
       </ArenaState>
     );
@@ -467,9 +541,15 @@ function ArenaContent({
     );
   } else {
     const locked = team.has_voted === true;
-    const canVote = phase === "open" && !locked && !pending;
+    const canVote = phase === "open" && !reviewing && !locked && !pending;
     content = (
-      <div className="relative mx-auto flex min-h-[calc(100dvh-var(--arena-top,80px))] w-[min(960px,max(320px,calc((100dvh-var(--arena-top,80px)-270px)*1.777778+44px)))] max-w-full flex-col gap-3 px-4 pb-4 max-[640px]:w-full">
+      <div
+        className={cn(
+          "relative mx-auto flex min-h-[calc(100dvh-var(--arena-top,80px))] w-[min(960px,max(320px,calc((100dvh-var(--arena-top,80px)-270px)*1.777778+44px)))] max-w-full flex-col gap-3 px-4 pb-4 max-[640px]:min-h-0 max-[640px]:w-full max-[640px]:flex-1 max-[640px]:justify-center max-[640px]:pt-4",
+          embedded &&
+            "max-[640px]:pb-[calc(108px+env(safe-area-inset-bottom))]",
+        )}
+      >
         {phase === "closed" || phase === "paused" ? (
           <GlassCard className="!rounded-[28px] !p-4 text-center" role="status">
             <h2 className="font-product-heading text-[24px]">
@@ -500,14 +580,22 @@ function ArenaContent({
           onNext={() => navigate(index + 1)}
           onFinished={() => navigate(teams.length)}
         />
+        {reviewing ? (
+          <p
+            role="status"
+            className="text-center text-[13px] text-product-muted"
+          >
+            Reviewing all pitches. Voting is disabled in review.
+          </p>
+        ) : null}
         <div className="grid grid-cols-2 gap-4 max-[480px]:gap-3">
           <button
             type="button"
             disabled={!canVote || authFailed}
             onClick={() => void vote("reject")}
-            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/70 bg-white/55 px-4 text-[14px] font-semibold text-product-muted shadow-[0_4px_20px_rgba(97,80,184,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] hover:bg-white/80 active:bg-white disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
+            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-[#eab9c3]/60 bg-[#fff1f2]/70 px-4 text-[14px] font-semibold text-[#9c5360] shadow-[0_4px_20px_rgba(156,83,96,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] enabled:hover:bg-[#ffe4e6]/80 enabled:active:bg-[#ffe4e6] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
           >
-            <Pass aria-hidden="true" />
+            <Pass aria-hidden="true" className="[&_path]:stroke-current" />
             Pass
           </button>
           <button
@@ -515,7 +603,7 @@ function ArenaContent({
             disabled={!canVote || authFailed}
             onClick={() => void vote("accept")}
             className={cn(
-              "flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] hover:bg-[#ddd2ff] active:bg-product-primary active:text-white disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4",
+              "flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] enabled:hover:bg-[#ddd2ff] enabled:active:bg-product-primary enabled:active:text-white disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4",
               locked && "bg-product-primary text-white disabled:opacity-100",
             )}
           >
@@ -563,7 +651,7 @@ function ArenaContent({
             </button>
           </p>
         ) : null}
-        <p className="mt-auto rounded-[24px] border border-white/70 bg-white/60 px-4 py-2.5 text-center text-[12px] leading-4 text-product-muted shadow-[0_4px_20px_rgba(97,80,184,0.08)] backdrop-blur-[14.5px]">
+        <p className="mt-auto rounded-[24px] border border-white/70 bg-white/60 px-4 py-2.5 text-center text-[12px] leading-4 text-product-muted shadow-[0_4px_20px_rgba(97,80,184,0.08)] backdrop-blur-[14.5px] max-[640px]:mt-1">
           Your vote is final and cannot be changed. Results stay private until
           the Audience Award is announced at Product+ Summit.
         </p>
@@ -574,7 +662,7 @@ function ArenaContent({
   return (
     <section
       className={cn(
-        "relative isolate min-h-[100dvh] overflow-hidden bg-product-lavender text-product-ink",
+        "relative isolate min-h-[100dvh] overflow-hidden bg-product-lavender text-product-ink max-[640px]:flex max-[640px]:flex-col",
         embedded
           ? "rounded-[32px] max-[640px]:rounded-none max-[640px]:min-h-[100dvh]"
           : "min-h-screen pt-[104px]",
@@ -648,7 +736,9 @@ function ArenaContent({
           ) : null}
         </div>
       )}
-      <div className="relative z-[1]">{content}</div>
+      <div className="relative z-[1] max-[640px]:flex max-[640px]:flex-1 max-[640px]:flex-col">
+        {content}
+      </div>
       <ArenaModal
         open={loginOpen}
         onOpenChange={setLoginOpen}

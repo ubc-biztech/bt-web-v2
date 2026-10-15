@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
 import {
   orderSubmissions,
+  partitionSubmissions,
+  shuffleSubmissions,
   audienceSubmissionsPath,
   type AudienceResponse,
   type VoteChoice,
@@ -19,14 +21,23 @@ export async function getAudienceSubmissions(
     authenticatedCall: identity !== null,
   });
   const storageKey = `productplus:2026:arena-order:${identity ?? "guest"}`;
+  let order: string[] = [];
   try {
     const saved: unknown = JSON.parse(
       sessionStorage.getItem(storageKey) ?? "[]",
     );
-    const order = Array.isArray(saved)
+    order = Array.isArray(saved)
       ? saved.filter((code): code is string => typeof code === "string")
       : [];
-    data.submissions = orderSubmissions(data.submissions, order);
+  } catch {
+    // Ordering still works when browser storage is unavailable.
+  }
+  const { unvoted, voted } = partitionSubmissions(data.submissions);
+  data.submissions = [
+    ...orderSubmissions(shuffleSubmissions(unvoted), order),
+    ...orderSubmissions(voted, order),
+  ];
+  try {
     sessionStorage.setItem(
       storageKey,
       JSON.stringify(data.submissions.map((team) => team.team_code)),

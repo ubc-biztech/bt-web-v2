@@ -1,7 +1,14 @@
 import type { ComponentType, SVGProps } from "react";
+import Link from "next/link";
 import { useUserAttributes } from "@/queries/user";
 import SapLogo from "@/assets/2026/product+/sap-logo.svg";
-import { GlassCard, PageHeading, Pill } from "../components/ProductPlusUI";
+import {
+  GlassCard,
+  PageHeading,
+  Pill,
+  ProductButton,
+} from "../components/ProductPlusUI";
+import { PRODUCT_PLUS_EVENT_PATH } from "../access";
 
 const SAP = SapLogo as unknown as ComponentType<SVGProps<SVGSVGElement>>;
 const competition = [
@@ -61,7 +68,11 @@ export default function PortalPage() {
       <PageHeading
         title={firstName ? `Hi, ${firstName}!` : "Hi there!"}
         description="Welcome to Product+"
-      />
+      >
+        <ProductButton asChild variant="secondary">
+          <Link href={PRODUCT_PLUS_EVENT_PATH}>Return to event portal</Link>
+        </ProductButton>
+      </PageHeading>
       <section aria-labelledby="competition-format">
         <h2
           id="competition-format"
