@@ -60,3 +60,12 @@ export function isProductPlusAdmin(
 export function productPlusLoginPath(destination: string): string {
   return `/login?redirect=${encodeURIComponent(destination)}`;
 }
+
+// Only these audience routes can bypass profile onboarding after login.
+export function isProductArenaDestination(destination: string): boolean {
+  const path = destination.split(/[?#]/)[0];
+  return (
+    path === "/productplus/audience" ||
+    path === `${PRODUCT_PLUS_COMPANION_PATH}/productarena`
+  );
+}

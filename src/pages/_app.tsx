@@ -45,6 +45,7 @@ export default function App({ Component, pageProps }: AppProps) {
     "/investments",
     "/year-in-review",
     "/btx",
+    "/productplus/audience",
   ];
   const isNoLayoutPage = noLayoutPaths.includes(router.pathname);
 

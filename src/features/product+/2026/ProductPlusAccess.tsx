@@ -187,7 +187,8 @@ function AuthenticatedAccess({ page, children }: ProductPlusAccessProps) {
 }
 
 export default function ProductPlusAccess(props: ProductPlusAccessProps) {
-  if (props.page === "portal") return <>{props.children}</>;
+  if (props.page === "portal" || props.page === "productarena")
+    return <>{props.children}</>;
 
   return <AuthenticatedAccess {...props} />;
 }

@@ -3,10 +3,17 @@ import { useRouter } from "next/router";
 import { resendSignUpCode } from "@aws-amplify/auth";
 import Link from "next/link";
 import Image from "next/image";
+import { getQueryString } from "@/util/url";
+import { isProductArenaDestination } from "@/features/product+/2026/access";
 
 export default function Verify() {
   const router = useRouter();
-  const email = router.query.email as string; // Assuming email is passed as a query param
+  const email = router.query.email as string; 
+  const destination = getQueryString(router.query.redirect);
+  const loginHref =
+    destination && isProductArenaDestination(destination)
+      ? `/login?redirect=${encodeURIComponent(destination)}`
+      : "/login";
   const [isResending, setIsResending] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -90,7 +97,7 @@ export default function Verify() {
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 text-bt-blue-0 mb-4">
               Already verified your email? &nbsp;
               <Link
-                href="/login"
+                href={loginHref}
                 className="text-bt-green-300 hover:text-bt-green-700 font-semibold"
               >
                 Login here.

@@ -11,6 +11,7 @@ import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
 import { getQueryString } from "@/util/url";
+import { isProductArenaDestination } from "@/features/product+/2026/access";
 import {
   ensureAuthenticatedUser,
   getAuthenticatedUser,
@@ -30,6 +31,11 @@ const LoginForm: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
 
   const router = useRouter();
+  const audienceDestination = getQueryString(router.query.redirect);
+  const signupHref =
+    audienceDestination && isProductArenaDestination(audienceDestination)
+      ? `/register?redirect=${encodeURIComponent(audienceDestination)}`
+      : "/register";
   const hasRedirectedRef = useRef(false); // prevent double redirects
 
   const clearAuthState = async () => {
@@ -70,7 +76,7 @@ const LoginForm: React.FC = () => {
         if (hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
 
-        const redirectUrl = (router.query.redirect as string) || null;
+        const redirectUrl = getQueryString(router.query.redirect);
         const stateParam = !Array.isArray(router.query.state)
           ? router.query.state
           : null;
@@ -85,7 +91,7 @@ const LoginForm: React.FC = () => {
 
         const destination = finalRedirect ?? "/";
         await router.replace(
-          needsOnboarding(appUser)
+          needsOnboarding(appUser) && !isProductArenaDestination(destination)
             ? `/onboarding?redirect=${encodeURIComponent(destination)}`
             : destination,
         );
@@ -156,7 +162,7 @@ const LoginForm: React.FC = () => {
       const finalRedirect = oauthRedirect ?? redirectUrl;
       const destination = finalRedirect ?? "/";
       await router.replace(
-        needsOnboarding(appUser)
+        needsOnboarding(appUser) && !isProductArenaDestination(destination)
           ? `/onboarding?redirect=${encodeURIComponent(destination)}`
           : destination,
       );
@@ -252,7 +258,7 @@ const LoginForm: React.FC = () => {
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               New to UBC BizTech? &nbsp;
               <Link
-                href="/register"
+                href={signupHref}
                 className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
               >
                 Create an account.
