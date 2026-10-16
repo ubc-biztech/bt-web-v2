@@ -78,7 +78,7 @@ function RubricScores({ submissions }: { submissions: RankedSubmission[] }) {
         ) : null}
       </GlassCard>
       <GlassCard className={cardClass}>
-        <h2 className={headingClass}>Graded: ranked by average total</h2>
+        <h2 className={headingClass}>Graded: ranked by weighted average</h2>
         <ol className="m-0 flex w-full list-none flex-col gap-2 p-0">
           {ranked.map((submission, index) => (
             <li key={submission.team_code}>
@@ -110,8 +110,8 @@ function RubricScores({ submissions }: { submissions: RankedSubmission[] }) {
           <p className="py-5 text-product-muted">No graded submissions yet.</p>
         ) : null}
         <p className="m-0 text-[12px] leading-4 text-product-muted">
-          Scores out of {RUBRIC_MAX}, averaged across saved rubrics. Not yet
-          graded: {ungradedCount}.
+          Weighted scores out of {RUBRIC_MAX}, averaged across saved rubrics.
+          Not yet graded: {ungradedCount}.
         </p>
       </GlassCard>
     </div>

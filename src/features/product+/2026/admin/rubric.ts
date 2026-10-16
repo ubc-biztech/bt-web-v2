@@ -3,37 +3,51 @@ import type { RankedSubmission, Rubric } from "./api";
 export const RUBRIC_CRITERIA = [
   {
     name: "Problem Definition",
-    max: 30,
+    max: 10,
+    weight: 25,
     description:
       "How well does the team define the problem? Do they show a clear understanding of the target user, their needs and pain points?",
   },
   {
-    name: "Product Solution",
-    max: 35,
+    name: "Problem-Solution Fit",
+    max: 10,
+    weight: 25,
     description:
       "How well does the solution respond to the problem? Are key product decisions and priorities explained and justified?",
   },
   {
+    name: "Business Viability",
+    max: 10,
+    weight: 25,
+    description: "How convincing is the business case for the product?",
+  },
+  {
     name: "Research & Supporting Evidence",
-    max: 20,
+    max: 10,
+    weight: 15,
     description:
       "How effectively is research, evidence or reasoning used to support assumptions and direction?",
   },
   {
-    name: "Pitch & Creativity",
-    max: 15,
+    name: "Video Pitch & Creativity",
+    max: 10,
+    weight: 10,
     description:
-      "How clearly do the video and PRD communicate the team’s thinking? Consider storytelling and creativity.",
+      "How clearly does the video pitch communicate the team’s thinking? Consider storytelling and creativity.",
   },
 ] as const;
 
 export const RUBRIC_MAX = RUBRIC_CRITERIA.reduce(
-  (total, criterion) => total + criterion.max,
+  (total, criterion) => total + criterion.weight,
   0,
 );
 
 export function rubricTotal(scores: readonly number[]): number {
-  return scores.reduce((total, score) => total + score, 0);
+  return RUBRIC_CRITERIA.reduce(
+    (total, criterion, index) =>
+      total + (scores[index] / criterion.max) * criterion.weight,
+    0,
+  );
 }
 
 export function validRubricScore(score: string, max: number): boolean {

@@ -6,7 +6,7 @@ import {
   type CSSProperties,
   type SVGProps,
 } from "react";
-import { Pause, Play as PlayIcon } from "lucide-react";
+import { Pause, Play as PlayIcon, RotateCcw, RotateCw } from "lucide-react";
 import PlayAsset from "@/assets/2026/product+/arena-play.svg";
 import PrevAsset from "@/assets/2026/product+/arena-prev.svg";
 import NextAsset from "@/assets/2026/product+/arena-next.svg";
@@ -191,6 +191,17 @@ export default function ArenaPlayer({
     else player.current?.playVideo();
   }
 
+  function seekBy(seconds: number) {
+    const current = player.current;
+    if (!current || !ready) return;
+    const value = Math.max(
+      0,
+      Math.min(current.getCurrentTime() + seconds, current.getDuration()),
+    );
+    current.seekTo(value, true);
+    setElapsed(value);
+  }
+
   const unavailable = !videoId || error;
   const seekValue = Math.max(0, Math.min(elapsed, duration || 1));
   const progress = (seekValue / (duration || 1)) * 100;
@@ -298,43 +309,80 @@ export default function ArenaPlayer({
         </div>
         <span>{timestamp(duration)}</span>
       </div>
-      <div className="relative grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] items-center gap-3">
-        <div className="flex justify-end">
+      <div className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 max-[480px]:gap-1">
+        <div className="flex justify-start">
           <button
             type="button"
             onClick={onPrevious}
             disabled={position === 1 || pending}
-            aria-label="Previous team"
-            className="flex h-9 w-9 items-center justify-center rounded-full border-[1.5px] border-white/95 bg-white/60 shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary"
+            aria-label="Previous video"
+            className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
           >
-            <Prev aria-hidden="true" />
+            <span aria-hidden="true" className="max-[480px]:hidden">
+              <Prev />
+            </span>
+            Previous
           </button>
         </div>
-        <button
-          type="button"
-          onClick={togglePlayback}
-          disabled={unavailable || (started && !ready)}
-          aria-label={playing ? "Pause pitch" : "Play pitch"}
-          className="relative grid h-12 w-12 place-items-center rounded-full border-[1.5px] border-white/90 bg-[linear-gradient(180deg,#cfc5f4_0%,#8e7dd1_45%,#6150b8_60%)] text-white shadow-[0_4px_16px_rgba(97,80,184,0.3),inset_0_2px_3px_rgba(255,255,255,0.8)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary"
-        >
-          {playing ? (
-            <Pause size={22} aria-hidden="true" />
-          ) : (
-            <PlayIcon
-              size={22}
-              className="ml-0.5"
-              fill="currentColor"
+        <div className="flex items-center gap-3 max-[480px]:gap-1">
+          <button
+            type="button"
+            onClick={() => seekBy(-5)}
+            disabled={!ready || unavailable}
+            aria-label="Rewind 5 seconds"
+            title="Rewind 5 seconds"
+            className="relative grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-white/95 bg-white/60 text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:h-8 max-[480px]:w-8"
+          >
+            <RotateCcw size={24} aria-hidden="true" />
+            <span
               aria-hidden="true"
-            />
-          )}
-        </button>
-        <div className="flex justify-start">
+              className="absolute text-[9px] font-semibold"
+            >
+              5
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={togglePlayback}
+            disabled={unavailable || (started && !ready)}
+            aria-label={playing ? "Pause pitch" : "Play pitch"}
+            className="relative grid h-12 w-12 place-items-center rounded-full border-[1.5px] border-white/90 bg-[linear-gradient(180deg,#cfc5f4_0%,#8e7dd1_45%,#6150b8_60%)] text-white shadow-[0_4px_16px_rgba(97,80,184,0.3),inset_0_2px_3px_rgba(255,255,255,0.8)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:h-10 max-[480px]:w-10"
+          >
+            {playing ? (
+              <Pause size={22} aria-hidden="true" />
+            ) : (
+              <PlayIcon
+                size={22}
+                className="ml-0.5"
+                fill="currentColor"
+                aria-hidden="true"
+              />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => seekBy(5)}
+            disabled={!ready || unavailable}
+            aria-label="Forward 5 seconds"
+            title="Forward 5 seconds"
+            className="relative grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-white/95 bg-white/60 text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:h-8 max-[480px]:w-8"
+          >
+            <RotateCw size={24} aria-hidden="true" />
+            <span
+              aria-hidden="true"
+              className="absolute text-[9px] font-semibold"
+            >
+              5
+            </span>
+          </button>
+        </div>
+        <div className="flex justify-end">
           {position === total ? (
             <button
               type="button"
               onClick={onFinished}
               disabled={pending}
-              className="rounded-full border border-white/90 bg-white/70 px-3 py-2 text-[12px] font-semibold text-product-primary disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary"
+              className="rounded-full border border-white/90 bg-white/70 px-3 py-2 text-[12px] font-semibold text-product-primary disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
             >
               Finish
             </button>
@@ -343,16 +391,13 @@ export default function ArenaPlayer({
               type="button"
               onClick={onNext}
               disabled={pending}
-              aria-label="Next team"
-              className={cn(
-                "flex h-9 items-center justify-center rounded-full border-[1.5px] border-white/95 bg-white/60 shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary",
-                team.has_voted
-                  ? "gap-1 px-3 text-[12px] font-semibold text-product-primary"
-                  : "w-9",
-              )}
+              aria-label="Next video"
+              className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
             >
-              <Next aria-hidden="true" />
-              {team.has_voted ? <span>Next team</span> : null}
+              Next
+              <span aria-hidden="true" className="max-[480px]:hidden">
+                <Next />
+              </span>
             </button>
           )}
         </div>
