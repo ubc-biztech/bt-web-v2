@@ -18,10 +18,12 @@ import ArenaLogoAsset from "@/assets/2026/product+/product-arena-logo.svg";
 import CalendarAsset from "@/assets/2026/product+/arena-calendar.svg";
 import LockAsset from "@/assets/2026/product+/registration-lock.svg";
 import CompleteAsset from "@/assets/2026/product+/arena-complete.svg";
-import PassAsset from "@/assets/2026/product+/arena-pass.svg";
 import UpvoteAsset from "@/assets/2026/product+/arena-upvote.svg";
 import ArenaBackdrop from "../components/ArenaBackdrop";
 import ArenaPlayer from "../components/ArenaPlayer";
+import ArenaVoteBurst, {
+  VOTE_BURST_DURATION_MS,
+} from "../components/ArenaVoteBurst";
 import { GlassCard, ProductButton } from "../components/ProductPlusUI";
 import {
   audienceQueryKey,
@@ -46,7 +48,6 @@ const ArenaLogo = ArenaLogoAsset as unknown as Svg;
 const Calendar = CalendarAsset as unknown as Svg;
 const Lock = LockAsset as unknown as Svg;
 const Complete = CompleteAsset as unknown as Svg;
-const Pass = PassAsset as unknown as Svg;
 const Upvote = UpvoteAsset as unknown as Svg;
 
 function ArenaModal({
@@ -113,9 +114,9 @@ function ArenaIntroModal({
         "Every team shares a 1–2 minute video. Teams appear in random order.",
     },
     {
-      title: "Vote or Pass",
+      title: "Upvote or Downvote",
       description:
-        "Tap Vote to support a team, or Pass to move on to the next one.",
+        "Tap Upvote or Downvote to rate a pitch, then Next to watch another team.",
     },
     {
       title: "Votes are final",
@@ -237,6 +238,10 @@ function ArenaContent({
   const [loginOpen, setLoginOpen] = useState(false);
   const [introOpen, setIntroOpen] = useState(false);
   const [pending, setPending] = useState(false);
+  const [voteBurst, setVoteBurst] = useState<{
+    choice: VoteChoice;
+    id: number;
+  } | null>(null);
   const voting = useRef(false);
   const lastVoteChoice = useRef<VoteChoice>("accept");
   const [notice, setNotice] = useState("");
@@ -293,6 +298,15 @@ function ArenaContent({
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!voteBurst) return;
+    const timer = window.setTimeout(
+      () => setVoteBurst(null),
+      VOTE_BURST_DURATION_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [voteBurst]);
 
   // Re-read server config at each boundary, including the opening transition.
   useEffect(() => {
@@ -399,7 +413,13 @@ function ArenaContent({
               }
             : current,
       );
-      setNotice("Vote recorded.");
+      setNotice(
+        choice === "accept" ? "Upvote recorded." : "Downvote recorded.",
+      );
+      setVoteBurst((previous) => ({
+        choice,
+        id: (previous?.id ?? 0) + 1,
+      }));
     } catch (error) {
       const status =
         error && typeof error === "object" && "status" in error
@@ -521,7 +541,7 @@ function ArenaContent({
             setVoteFailed(false);
           }}
         >
-          Review all videos
+          Rewatch all videos
         </ProductButton>
       </ArenaState>
     );
@@ -529,7 +549,7 @@ function ArenaContent({
     content = (
       <ArenaState
         title="Welcome to Product Arena"
-        description="Watch the 1 minute pitch from every competing team, then Vote or Pass. Continue with your email to get started."
+        description="Watch the 1 minute pitch from every competing team, then Upvote or Downvote. Continue with your email to get started."
       >
         <ProductButton onClick={() => setLoginOpen(true)}>
           Continue with email to vote
@@ -585,7 +605,7 @@ function ArenaContent({
             role="status"
             className="text-center text-[13px] text-product-muted"
           >
-            Reviewing all pitches. Voting is disabled in review.
+            Rewatching all pitches. You&apos;ve already voted on this one!
           </p>
         ) : null}
         <div className="grid grid-cols-2 gap-4 max-[480px]:gap-3">
@@ -593,25 +613,26 @@ function ArenaContent({
             type="button"
             disabled={!canVote || authFailed}
             onClick={() => void vote("reject")}
-            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-[#eab9c3]/60 bg-[#fff1f2]/70 px-4 text-[14px] font-semibold text-[#9c5360] shadow-[0_4px_20px_rgba(156,83,96,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] enabled:hover:bg-[#ffe4e6]/80 enabled:active:bg-[#ffe4e6] disabled:pointer-events-none disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
+            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-[#eab9c3]/60 bg-[#fff1f2]/70 px-4 text-[14px] font-semibold text-[#9c5360] shadow-[0_4px_20px_rgba(156,83,96,0.08),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14.5px] enabled:hover:bg-[#ffe4e6]/80 enabled:active:bg-[#ffe4e6] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
           >
-            <Pass aria-hidden="true" className="[&_path]:stroke-current" />
-            Pass
+            <Upvote
+              aria-hidden="true"
+              className="rotate-180 [&_path]:stroke-current"
+            />
+            {pending && lastVoteChoice.current === "reject"
+              ? "Voting…"
+              : "Downvote"}
           </button>
           <button
             type="button"
             disabled={!canVote || authFailed}
             onClick={() => void vote("accept")}
-            className={cn(
-              "flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] enabled:hover:bg-[#ddd2ff] enabled:active:bg-product-primary enabled:active:text-white disabled:pointer-events-none disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4",
-              locked && "bg-product-primary text-white disabled:opacity-100",
-            )}
+            className="flex h-10 items-center justify-center gap-2 [&>svg]:size-5 rounded-[28px] border border-white/90 bg-[#e8e0ff] px-4 text-[14px] font-semibold text-product-primary shadow-[0_4px_10px_rgba(97,79,184,0.18),inset_0_1px_2px_rgba(255,255,255,0.8)] enabled:hover:bg-[#ddd2ff] enabled:active:bg-product-primary enabled:active:text-white disabled:cursor-default disabled:opacity-50 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-product-primary max-[480px]:h-11 max-[480px]:px-4"
           >
-            <Upvote
-              aria-hidden="true"
-              className={locked ? "brightness-0 invert" : undefined}
-            />
-            {pending ? "Voting…" : locked ? "Voted" : "Upvote"}
+            <Upvote aria-hidden="true" />
+            {pending && lastVoteChoice.current === "accept"
+              ? "Voting…"
+              : "Upvote"}
           </button>
         </div>
         {notice ? (
@@ -676,6 +697,9 @@ function ArenaContent({
       aria-labelledby="arena-heading"
     >
       <ArenaBackdrop />
+      {voteBurst ? (
+        <ArenaVoteBurst key={voteBurst.id} choice={voteBurst.choice} />
+      ) : null}
       {!embedded ? (
         <header
           ref={(element) => {

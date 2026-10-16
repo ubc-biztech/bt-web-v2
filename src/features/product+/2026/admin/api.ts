@@ -3,6 +3,7 @@ import type { Submission } from "../submission/submission";
 
 export interface Rubric {
   judge_user_id: string;
+  /** Five raw scores from 0 to 10, in RUBRIC_CRITERIA order. */
   scores: number[];
   comments: string[];
 }
@@ -10,6 +11,7 @@ export interface Rubric {
 export interface RankedSubmission {
   team_code: string;
   team_name: string;
+  /** Mean weighted total out of 100, or null when no judges have scored. */
   rubric_average: number | null;
   rubric_count: number;
   upvotes: number;

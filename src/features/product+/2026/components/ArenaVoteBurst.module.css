@@ -1,0 +1,61 @@
+.storm {
+  position: fixed;
+  z-index: 40;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+.emoji {
+  position: absolute;
+  top: 0;
+  left: var(--left);
+  font-size: var(--size);
+  line-height: 1;
+  animation: flow var(--duration) linear var(--delay) both;
+  will-change: transform;
+}
+
+.glyph {
+  display: block;
+  filter: drop-shadow(0 4px 6px rgba(43, 31, 88, 0.16));
+  animation: sway var(--sway-duration) ease-in-out var(--sway-delay) infinite
+    alternate;
+}
+
+@keyframes flow {
+  from {
+    transform: translate3d(-50%, var(--start-y), 0);
+  }
+  to {
+    transform: translate3d(-50%, var(--end-y), 0);
+  }
+}
+
+@keyframes sway {
+  from {
+    transform: translateX(calc(var(--drift) * -1))
+      rotate(calc(var(--rotation) * -1));
+  }
+  to {
+    transform: translateX(var(--drift)) rotate(var(--rotation));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .storm {
+    display: none;
+  }
+  .emoji,
+  .glyph {
+    animation: none;
+  }
+}

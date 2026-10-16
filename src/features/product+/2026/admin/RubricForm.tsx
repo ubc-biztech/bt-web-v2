@@ -54,7 +54,7 @@ export default function RubricForm({
     if (!valid) {
       setNotice({
         error: true,
-        message: "Enter all four scores within their allowed ranges.",
+        message: "Enter a score from 0 to 10 for every criterion.",
       });
       return;
     }
@@ -99,22 +99,33 @@ export default function RubricForm({
       <div className="flex min-h-0 flex-1 flex-col gap-5 min-[1200px]:overflow-y-auto min-[1200px]:pr-1">
         <p className="m-0 text-[13px] leading-[18px] text-product-muted">
           Preliminary round: judge product thinking, strategic decisions and
-          justification across the pitch video and PRD.
+          justification across the pitch video and PRD. Score each criterion out
+          of 10; weights are applied to the total.
         </p>
         <fieldset
           disabled={saving}
           className="m-0 flex min-w-0 flex-col gap-5 border-0 p-0"
         >
-          <legend className="sr-only">Four rubric criteria</legend>
+          <legend className="sr-only">
+            {RUBRIC_CRITERIA.length} rubric criteria
+          </legend>
           {RUBRIC_CRITERIA.map((criterion, index) => (
             <div key={criterion.name} className="flex min-w-0 flex-col gap-2">
               <div className="flex items-center justify-between gap-3">
-                <label
-                  htmlFor={`rubric-score-${index}`}
-                  className="min-w-0 text-[15px] font-semibold leading-5"
-                >
-                  {criterion.name}
-                </label>
+                <div className="min-w-0">
+                  <label
+                    htmlFor={`rubric-score-${index}`}
+                    className="block text-[15px] font-semibold leading-5"
+                  >
+                    {criterion.name}
+                  </label>
+                  <span
+                    id={`rubric-weight-${index}`}
+                    className="text-[12px] leading-4 text-product-muted"
+                  >
+                    Weight: {criterion.weight}%
+                  </span>
+                </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <Input
                     id={`rubric-score-${index}`}
@@ -129,7 +140,7 @@ export default function RubricForm({
                       draft.scores[index] !== "" &&
                       !validRubricScore(draft.scores[index], criterion.max)
                     }
-                    aria-describedby={`rubric-help-${index}`}
+                    aria-describedby={`rubric-weight-${index} rubric-help-${index}`}
                     className={`${fieldClass} h-11 w-[76px] px-2.5 aria-[invalid=true]:border-[#99263d]`}
                     onChange={(event) => {
                       const value = event.target.value;
@@ -180,7 +191,7 @@ export default function RubricForm({
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#bfb2e5] pt-3.5">
         <div className="flex flex-col gap-0.5">
           <span className="text-[12px] font-semibold text-product-muted">
-            Preliminary round total
+            Weighted total
           </span>
           <output
             className="font-product-heading text-[26px] leading-8 text-product-primary"

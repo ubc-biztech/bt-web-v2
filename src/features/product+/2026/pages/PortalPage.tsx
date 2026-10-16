@@ -20,7 +20,7 @@ const competition = [
   },
   {
     title: "Product Arena",
-    date: "October 22",
+    date: "October 20",
     inPerson: false,
     description: "Product pitch & doc submission for preliminary judging.",
   },

@@ -1,0 +1,20 @@
+.confetti {
+  animation: confetti-fade 2400ms ease-out forwards;
+}
+
+@keyframes confetti-fade {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+    animation: none;
+  }
+}

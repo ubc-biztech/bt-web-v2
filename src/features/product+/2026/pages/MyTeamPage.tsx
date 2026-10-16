@@ -289,16 +289,22 @@ function TeamCodeBox({
         onClick={copy}
         aria-label={copied ? "Team code copied" : "Copy team code"}
         className={cn(
-          "min-h-10 shrink-0 gap-2 px-4 py-2 text-[13px] leading-5 shadow-none [&>svg]:h-4 [&>svg]:w-4 [&>svg]:shrink-0",
+          "min-h-[34px] min-w-[120px] shrink-0 gap-[6px] px-3 py-2 text-[13px] shadow-none",
           copied
             ? "bg-[#cdeadb] text-[#215c47] hover:bg-[#cdeadb] hover:text-[#215c47]"
             : "bg-[rgba(97,79,184,0.12)]",
         )}
       >
         {copied ? (
-          <CopyConfirmed aria-hidden="true" width={16} height={16} />
+          <CopyConfirmed
+            aria-hidden="true"
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            className="shrink-0"
+          />
         ) : (
-          <Copy aria-hidden="true" />
+          <Copy aria-hidden="true" className="shrink-0" />
         )}
         {copied ? "Copied" : "Tap to copy"}
       </ProductButton>
