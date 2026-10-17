@@ -10,7 +10,7 @@ import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
-import { getQueryString } from "@/util/url";
+import { getQueryString, getSafeRedirect } from "@/util/url";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -103,9 +103,11 @@ const LoginForm: React.FC = () => {
           ).toString();
         }
 
-        const destination = finalRedirect ?? "/";
+        const destination = getSafeRedirect(finalRedirect);
         await router.replace(
-          needsOnboarding(appUser) && !isProductArenaDestination(destination)
+          needsOnboarding(appUser) &&
+            !isProductArenaDestination(destination) &&
+            !/^\/onboarding(?:[?#]|$)/.test(destination)
             ? `/onboarding?redirect=${encodeURIComponent(destination)}`
             : destination,
         );
@@ -185,9 +187,11 @@ const LoginForm: React.FC = () => {
           : null;
 
       const finalRedirect = oauthRedirect ?? redirectUrl;
-      const destination = finalRedirect ?? "/";
+      const destination = getSafeRedirect(finalRedirect);
       await router.replace(
-        needsOnboarding(appUser) && !isProductArenaDestination(destination)
+        needsOnboarding(appUser) &&
+          !isProductArenaDestination(destination) &&
+          !/^\/onboarding(?:[?#]|$)/.test(destination)
           ? `/onboarding?redirect=${encodeURIComponent(destination)}`
           : destination,
       );
