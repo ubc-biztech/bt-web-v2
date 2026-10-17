@@ -381,13 +381,13 @@ export default function SubmissionView({
                 </p>
               )}
               {videoId && !errors.video_url && (
-                <div className="flex h-[124px] items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#22315f,#7463a6)]">
+                <div className="flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl bg-[linear-gradient(180deg,#22315f,#7463a6)]">
                   {playing === videoId ? (
                     <iframe
                       key={videoId}
                       title="Submission video preview"
                       className="h-full w-full border-0"
-                      src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`}
+                      src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&playsinline=1`}
                       allow="autoplay; encrypted-media; picture-in-picture"
                       allowFullScreen
                     />

@@ -10,7 +10,7 @@ import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
-import { getQueryString, getSafeRedirect } from "@/util/url";
+import { getLoginRedirect } from "@/util/url";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -18,12 +18,24 @@ import {
   getSignInErrorCode,
   getSignInErrorMessage,
 } from "@/lib/signInError";
-import { isProductArenaDestination } from "@/features/product+/2026/access";
+import {
+  isProductArenaDestination,
+  isProductPlusLoginDestination,
+} from "@/features/product+/2026/access";
 import {
   ensureAuthenticatedUser,
   getAuthenticatedUser,
   needsOnboarding,
 } from "@/lib/user";
+
+async function getPostLoginPath(destination: string): Promise<string> {
+  if (isProductPlusLoginDestination(destination)) return destination;
+
+  const user = await getAuthenticatedUser();
+  return needsOnboarding(user) && !/^\/onboarding(?:[?#]|$)/.test(destination)
+    ? `/onboarding?redirect=${encodeURIComponent(destination)}`
+    : destination;
+}
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -41,11 +53,13 @@ const LoginForm: React.FC = () => {
   const [isResending, setIsResending] = useState(false);
 
   const router = useRouter();
-  const audienceDestination = getQueryString(router.query.redirect);
-  const signupHref =
-    audienceDestination && isProductArenaDestination(audienceDestination)
-      ? `/register?redirect=${encodeURIComponent(audienceDestination)}`
-      : "/register";
+  const audienceDestination = getLoginRedirect(
+    router.query.redirect,
+    router.query.state,
+  );
+  const signupHref = isProductArenaDestination(audienceDestination)
+    ? `/register?redirect=${encodeURIComponent(audienceDestination)}`
+    : "/register";
   const hasRedirectedRef = useRef(false); // prevent double redirects
 
   useEffect(() => {
@@ -75,6 +89,11 @@ const LoginForm: React.FC = () => {
         return;
       }
 
+      // Capture before Amplify completes OAuth and clears the callback URL.
+      const destination = getLoginRedirect(
+        router.query.redirect,
+        router.query.state,
+      );
       try {
         const session = await fetchAuthSession();
         const isSignedIn = !!session?.tokens?.accessToken;
@@ -85,32 +104,10 @@ const LoginForm: React.FC = () => {
         }
 
         await ensureAuthenticatedUser();
-        const appUser = await getAuthenticatedUser();
 
-        if (hasRedirectedRef.current) return;
+        if (cancelled || hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
-
-        const redirectUrl = getQueryString(router.query.redirect);
-        const stateParam = !Array.isArray(router.query.state)
-          ? router.query.state
-          : null;
-        let finalRedirect = redirectUrl;
-
-        if (stateParam && stateParam.split("-").length === 2) {
-          finalRedirect = Buffer.from(
-            stateParam.split("-")[1],
-            "hex",
-          ).toString();
-        }
-
-        const destination = getSafeRedirect(finalRedirect);
-        await router.replace(
-          needsOnboarding(appUser) &&
-            !isProductArenaDestination(destination) &&
-            !/^\/onboarding(?:[?#]|$)/.test(destination)
-            ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-            : destination,
-        );
+        await router.replace(await getPostLoginPath(destination));
       } catch {
         // treat as signed-out
         await clearAuthState();
@@ -153,6 +150,10 @@ const LoginForm: React.FC = () => {
     }
 
     setIsSubmitting(true);
+    const destination = getLoginRedirect(
+      router.query.redirect,
+      router.query.state,
+    );
     try {
       const user = await signIn({ username: email, password });
       if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
@@ -175,26 +176,7 @@ const LoginForm: React.FC = () => {
       }
 
       await ensureAuthenticatedUser();
-      const appUser = await getAuthenticatedUser();
-
-      const redirectUrl = getQueryString(router.query.redirect);
-      const stateParam = getQueryString(router.query.state);
-
-      // oauth redirect takes precedence over url param
-      const oauthRedirect =
-        stateParam?.split("-").length === 2
-          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
-          : null;
-
-      const finalRedirect = oauthRedirect ?? redirectUrl;
-      const destination = getSafeRedirect(finalRedirect);
-      await router.replace(
-        needsOnboarding(appUser) &&
-          !isProductArenaDestination(destination) &&
-          !/^\/onboarding(?:[?#]|$)/.test(destination)
-          ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-          : destination,
-      );
+      await router.replace(await getPostLoginPath(destination));
     } catch (error) {
       console.error("Error signing in", error);
       if (getSignInErrorCode(error) === AuthErrorCode.USER_NOT_CONFIRMED) {
@@ -235,18 +217,14 @@ const LoginForm: React.FC = () => {
   const handleGoogleSignIn = async () => {
     setSignInError("");
     try {
-      const redirectUrl = getQueryString(router.query.redirect);
-      const stateParam = getQueryString(router.query.state);
-
-      // oauth redirect takes precedence over url param
-      const oauthRedirect =
-        stateParam?.split("-").length === 2
-          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
-          : null;
+      const destination = getLoginRedirect(
+        router.query.redirect,
+        router.query.state,
+      );
 
       await signInWithRedirect({
         provider: "Google",
-        customState: oauthRedirect ?? redirectUrl ?? undefined,
+        customState: destination === "/" ? undefined : destination,
         options: { prompt: "SELECT_ACCOUNT" },
       });
     } catch (error) {

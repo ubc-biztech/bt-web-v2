@@ -1,3 +1,5 @@
+import { getSafeRedirect } from "@/util/url";
+
 export const PRODUCT_PLUS_COMPANION_PATH = "/companion/product+/2026";
 export const PRODUCT_PLUS_EVENT_PATH = "/event/product+/2026";
 export const PRODUCT_PLUS_EVENT_ID = "product+";
@@ -63,11 +65,30 @@ export function productPlusLoginPath(destination: string): string {
   return `/login?redirect=${encodeURIComponent(destination)}`;
 }
 
-// Only these audience routes can bypass profile onboarding after login.
+function destinationPath(destination: string): string | null {
+  if (getSafeRedirect(destination) !== destination) return null;
+  try {
+    return decodeURIComponent(destination.split(/[?#]/)[0]).replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
 export function isProductArenaDestination(destination: string): boolean {
-  const path = destination.split(/[?#]/)[0];
+  const path = destinationPath(destination);
   return (
     path === "/productplus/audience" ||
     path === `${PRODUCT_PLUS_COMPANION_PATH}/productarena`
+  );
+}
+
+// Product+ checks authentication and registration on the destination page.
+export function isProductPlusLoginDestination(destination: string): boolean {
+  const path = destinationPath(destination);
+  return (
+    path === "/productplus/audience" ||
+    path === `${PRODUCT_PLUS_COMPANION_PATH}/productarena` ||
+    path === `${PRODUCT_PLUS_COMPANION_PATH}/myteam` ||
+    path === `${PRODUCT_PLUS_COMPANION_PATH}/submission`
   );
 }
