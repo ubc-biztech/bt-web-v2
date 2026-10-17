@@ -10,27 +10,61 @@ import Link from "next/link";
 import PageLoadingState from "@/components/Common/PageLoadingState";
 import { clearCognitoCookies } from "@/lib/dbUtils";
 import Image from "next/image";
-import { getQueryString } from "@/util/url";
+import { getLoginRedirect } from "@/util/url";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AuthErrorCode,
+  getSignInErrorCode,
+  getSignInErrorMessage,
+} from "@/lib/signInError";
+import {
+  isProductArenaDestination,
+  isProductPlusLoginDestination,
+} from "@/features/product+/2026/access";
 import {
   ensureAuthenticatedUser,
   getAuthenticatedUser,
   needsOnboarding,
 } from "@/lib/user";
 
+async function getPostLoginPath(destination: string): Promise<string> {
+  if (isProductPlusLoginDestination(destination)) return destination;
+
+  const user = await getAuthenticatedUser();
+  return needsOnboarding(user) && !/^\/onboarding(?:[?#]|$)/.test(destination)
+    ? `/onboarding?redirect=${encodeURIComponent(destination)}`
+    : destination;
+}
+
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
     emailError: string;
-    passwordError: React.ReactNode;
+    passwordError: string;
     confirmationError: string;
   }>({ emailError: "", passwordError: "", confirmationError: "" });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signInError, setSignInError] = useState("");
+  const errorRef = useRef<HTMLDivElement>(null);
   const [showResend, setShowResend] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
   const router = useRouter();
+  const audienceDestination = getLoginRedirect(
+    router.query.redirect,
+    router.query.state,
+  );
+  const signupHref = isProductArenaDestination(audienceDestination)
+    ? `/register?redirect=${encodeURIComponent(audienceDestination)}`
+    : "/register";
   const hasRedirectedRef = useRef(false); // prevent double redirects
+
+  useEffect(() => {
+    if (signInError) errorRef.current?.focus();
+  }, [signInError]);
 
   const clearAuthState = async () => {
     try {
@@ -55,6 +89,11 @@ const LoginForm: React.FC = () => {
         return;
       }
 
+      // Capture before Amplify completes OAuth and clears the callback URL.
+      const destination = getLoginRedirect(
+        router.query.redirect,
+        router.query.state,
+      );
       try {
         const session = await fetchAuthSession();
         const isSignedIn = !!session?.tokens?.accessToken;
@@ -65,30 +104,10 @@ const LoginForm: React.FC = () => {
         }
 
         await ensureAuthenticatedUser();
-        const appUser = await getAuthenticatedUser();
 
-        if (hasRedirectedRef.current) return;
+        if (cancelled || hasRedirectedRef.current) return;
         hasRedirectedRef.current = true;
-
-        const redirectUrl = (router.query.redirect as string) || null;
-        const stateParam = !Array.isArray(router.query.state)
-          ? router.query.state
-          : null;
-        let finalRedirect = redirectUrl;
-
-        if (stateParam && stateParam.split("-").length === 2) {
-          finalRedirect = Buffer.from(
-            stateParam.split("-")[1],
-            "hex",
-          ).toString();
-        }
-
-        const destination = finalRedirect ?? "/";
-        await router.replace(
-          needsOnboarding(appUser)
-            ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-            : destination,
-        );
+        await router.replace(await getPostLoginPath(destination));
       } catch {
         // treat as signed-out
         await clearAuthState();
@@ -118,16 +137,23 @@ const LoginForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting || isResending) return;
+
     const emailError = validateEmail(email);
     const passwordError = validatePassword(password);
-    setIsLoading(true);
+    setSignInError("");
+    setShowResend(false);
+    setErrors({ emailError, passwordError, confirmationError: "" });
 
     if (emailError || passwordError) {
-      setErrors({ emailError, passwordError, confirmationError: "" });
-      setIsLoading(false);
       return;
     }
 
+    setIsSubmitting(true);
+    const destination = getLoginRedirect(
+      router.query.redirect,
+      router.query.state,
+    );
     try {
       const user = await signIn({ username: email, password });
       if (user.nextStep?.signInStep === "CONFIRM_SIGN_UP") {
@@ -137,51 +163,35 @@ const LoginForm: React.FC = () => {
           passwordError: "",
           confirmationError: "Please verify your email before signing in.",
         });
-        setIsLoading(false);
+        return;
+      }
+
+      if (user.nextStep?.signInStep === "RESET_PASSWORD") {
+        setSignInError(
+          getSignInErrorMessage({
+            name: AuthErrorCode.PASSWORD_RESET_REQUIRED,
+          }),
+        );
         return;
       }
 
       await ensureAuthenticatedUser();
-      const appUser = await getAuthenticatedUser();
-
-      const redirectUrl = getQueryString(router.query.redirect);
-      const stateParam = getQueryString(router.query.state);
-
-      // oauth redirect takes precedence over url param
-      const oauthRedirect =
-        stateParam?.split("-").length === 2
-          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
-          : null;
-
-      const finalRedirect = oauthRedirect ?? redirectUrl;
-      const destination = finalRedirect ?? "/";
-      await router.replace(
-        needsOnboarding(appUser)
-          ? `/onboarding?redirect=${encodeURIComponent(destination)}`
-          : destination,
-      );
-    } catch (error: any) {
+      await router.replace(await getPostLoginPath(destination));
+    } catch (error) {
       console.error("Error signing in", error);
-      let emailError = "";
-      let passwordError: React.ReactNode = "";
-      switch (error.code) {
-        case "UserNotConfirmedException":
-          setShowResend(true);
-          emailError = "Your account has not been verified yet.";
-          break;
-        case "UserNotFoundException":
-          emailError = "Incorrect username or password.";
-          break;
-        case "NotAuthorizedException":
-          passwordError = "Incorrect username or password.";
-          break;
-        default:
-          passwordError = error.message;
-          break;
+      if (getSignInErrorCode(error) === AuthErrorCode.USER_NOT_CONFIRMED) {
+        setShowResend(true);
+        setErrors({
+          emailError: "",
+          passwordError: "",
+          confirmationError: "Please verify your email before signing in.",
+        });
+      } else {
+        setSignInError(getSignInErrorMessage(error));
       }
-      setErrors({ emailError, passwordError, confirmationError: "" });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsLoading(false);
   };
 
   const handleResendVerification = async () => {
@@ -205,23 +215,21 @@ const LoginForm: React.FC = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    setSignInError("");
     try {
-      const redirectUrl = getQueryString(router.query.redirect);
-      const stateParam = getQueryString(router.query.state);
-
-      // oauth redirect takes precedence over url param
-      const oauthRedirect =
-        stateParam?.split("-").length === 2
-          ? Buffer.from(stateParam.split("-")[1], "hex").toString()
-          : null;
+      const destination = getLoginRedirect(
+        router.query.redirect,
+        router.query.state,
+      );
 
       await signInWithRedirect({
         provider: "Google",
-        customState: oauthRedirect ?? redirectUrl ?? undefined,
+        customState: destination === "/" ? undefined : destination,
         options: { prompt: "SELECT_ACCOUNT" },
       });
     } catch (error) {
       console.error("Error initiating Google sign-in:", error);
+      setSignInError("Google sign-in couldn’t start. Please try again.");
     }
   };
 
@@ -252,7 +260,7 @@ const LoginForm: React.FC = () => {
             <h2 className="mt-6 text-center text-sm font-[400] leading-9 tracking-tight text-white mb-4">
               New to UBC BizTech? &nbsp;
               <Link
-                href="/register"
+                href={signupHref}
                 className="font-semibold text-[#3b93f7] hover:text-[#71b4ff]"
               >
                 Create an account.
@@ -260,7 +268,26 @@ const LoginForm: React.FC = () => {
             </h2>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form
+            className="space-y-4"
+            onSubmit={handleSubmit}
+            aria-busy={isSubmitting}
+          >
+            {signInError && (
+              <Alert
+                ref={errorRef}
+                tabIndex={-1}
+                className="border-bt-red-200/30 bg-bt-red-800/30 text-bt-red-0 outline-none focus-visible:ring-2 focus-visible:ring-bt-red-200 [&>svg]:top-[18px] [&>svg]:text-bt-red-200 [&>svg~*]:pl-8"
+              >
+                <AlertCircle aria-hidden="true" className="h-5 w-5" />
+                <AlertTitle className="text-sm font-semibold leading-5 tracking-normal text-bt-red-0">
+                  We couldn’t sign you in
+                </AlertTitle>
+                <AlertDescription className="leading-5">
+                  {signInError}
+                </AlertDescription>
+              </Alert>
+            )}
             <div>
               <label
                 htmlFor="email"
@@ -275,13 +302,30 @@ const LoginForm: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   required
+                  disabled={isSubmitting || isResending}
+                  aria-invalid={!!errors.emailError}
+                  aria-describedby={
+                    errors.emailError ? "email-error" : undefined
+                  }
                   placeholder="user@example.com"
                   className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setSignInError("");
+                    setShowResend(false);
+                    setErrors((prev) => ({
+                      ...prev,
+                      emailError: "",
+                      confirmationError: "",
+                    }));
+                  }}
                 />
                 {errors.emailError && (
-                  <div className="text-red-500 text-sm">
+                  <div
+                    id="email-error"
+                    className="mt-2 text-[14px] text-bt-red-100"
+                  >
                     {errors.emailError}
                   </div>
                 )}
@@ -312,13 +356,25 @@ const LoginForm: React.FC = () => {
                   type="password"
                   autoComplete="current-password"
                   required
+                  disabled={isSubmitting || isResending}
+                  aria-invalid={!!errors.passwordError}
+                  aria-describedby={
+                    errors.passwordError ? "password-error" : undefined
+                  }
                   placeholder="Enter 6 characters or more"
                   className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder pl-4 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setSignInError("");
+                    setErrors((prev) => ({ ...prev, passwordError: "" }));
+                  }}
                 />
                 {errors.passwordError && (
-                  <div className="text-red-500 text-sm">
+                  <div
+                    id="password-error"
+                    className="mt-2 text-[14px] text-bt-red-100"
+                  >
                     {errors.passwordError}
                   </div>
                 )}
@@ -326,7 +382,10 @@ const LoginForm: React.FC = () => {
             </div>
 
             {errors.confirmationError && (
-              <div className="text-yellow-500 text-sm">
+              <div
+                role="status"
+                className="text-yellow-300 text-[14px] leading-5"
+              >
                 {errors.confirmationError}
               </div>
             )}
@@ -335,7 +394,7 @@ const LoginForm: React.FC = () => {
               <button
                 type="button"
                 onClick={handleResendVerification}
-                disabled={isResending}
+                disabled={isResending || isSubmitting}
                 className="mt-4 w-full rounded-md bg-bt-green-300 px-3 py-2 text-sm font-semibold text-bt-blue-400 shadow-sm hover:bg-bt-green-700"
               >
                 {isResending ? "Resending..." : "Resend Verification Email"}
@@ -345,13 +404,20 @@ const LoginForm: React.FC = () => {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-lg bg-[#3b93f7] px-3 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#147fdd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b93f7]"
+                disabled={isSubmitting || isResending}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3b93f7] px-3 py-3 text-base font-semibold text-white shadow-sm hover:bg-[#147fdd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3b93f7] disabled:cursor-wait disabled:opacity-70"
               >
-                <span className="font-semibold text-white">Sign in</span>
+                {isSubmitting && (
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-4 w-4 animate-spin motion-reduce:animate-none"
+                  />
+                )}
+                <span className="font-semibold text-white">
+                  {isSubmitting ? "Signing in…" : "Sign in"}
+                </span>
               </button>
             </div>
-
-            {isLoading && <div className="mt-4">Signing in...</div>}
           </form>
 
           <div>
@@ -367,6 +433,7 @@ const LoginForm: React.FC = () => {
               {/* ✅ button instead of Link "#" to avoid Safari ghost nav */}
               <button
                 type="button"
+                disabled={isSubmitting || isResending}
                 className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-neutral-200 focus-visible:ring-transparent"
                 onClick={handleGoogleSignIn}
               >
