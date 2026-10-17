@@ -7,7 +7,6 @@ import {
 } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import styles from "./SubmissionView.module.css";
 import CalendarAsset from "@/assets/2026/product+/submission-calendar.svg";
 import CopyAsset from "@/assets/2026/product+/submission-copy.svg";
 import CopiedAsset from "@/assets/2026/product+/team-copy-confirmed.svg";
@@ -22,7 +21,6 @@ import PdfOutlineAsset from "@/assets/2026/product+/submission-pdf-outline.svg";
 import SuccessAsset from "@/assets/2026/product+/submission-toast-success.svg";
 import ErrorAsset from "@/assets/2026/product+/submission-toast-error.svg";
 import SpinnerAsset from "@/assets/2026/product+/submission-spinner.svg";
-import ConfettiAsset from "@/assets/2026/product+/submission-confetti.svg";
 import {
   GlassCard,
   PageHeading,
@@ -54,7 +52,6 @@ const PdfOutline = PdfOutlineAsset as unknown as SvgComponent;
 const SuccessIcon = SuccessAsset as unknown as SvgComponent;
 const ErrorIcon = ErrorAsset as unknown as SvgComponent;
 const SpinnerIcon = SpinnerAsset as unknown as SvgComponent;
-const Confetti = ConfettiAsset as unknown as SvgComponent;
 
 const inputClass =
   "h-14 min-w-0 rounded-2xl border-[#614fb8]/[0.08] bg-white/[0.85] px-4 py-3 text-[14px] leading-5 text-product-ink shadow-[0_1px_2px_rgba(97,79,184,0.04),inset_0_1px_2px_rgba(255,255,255,0.65)] backdrop-blur-[14px] placeholder:text-product-muted focus-visible:border-[#614fb8] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#614fb8] focus-visible:ring-offset-0 disabled:opacity-100";
@@ -92,7 +89,6 @@ export interface SubmissionViewProps {
   checkingFile: boolean;
   errors: SubmissionErrors;
   notice: SubmissionNotice | null;
-  celebrate: boolean;
   pdfName: string | null;
   rejectedFile: string | null;
   uploadError: string | null;
@@ -118,7 +114,6 @@ export default function SubmissionView({
   checkingFile,
   errors,
   notice,
-  celebrate,
   pdfName,
   rejectedFile,
   uploadError,
@@ -610,17 +605,6 @@ export default function SubmissionView({
           )}
         </form>
       </GlassCard>
-      {celebrate && (
-        <div
-          className={cn(
-            styles.confetti,
-            "pointer-events-none absolute -left-[344px] -top-14 z-10 h-[1024px] w-[1577.23px] motion-reduce:hidden",
-          )}
-          aria-hidden="true"
-        >
-          <Confetti />
-        </div>
-      )}
     </div>
   );
 }

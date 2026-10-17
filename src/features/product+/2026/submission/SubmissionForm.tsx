@@ -56,7 +56,6 @@ export default function SubmissionForm({
   const [rejectedFile, setRejectedFile] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [openingPdf, setOpeningPdf] = useState(false);
-  const [celebrate, setCelebrate] = useState(false);
   const [now, setNow] = useState(Date.now);
   const [forceClosed, setForceClosed] = useState(false);
   const submitting = useRef(false);
@@ -123,11 +122,6 @@ export default function SubmissionForm({
     const timer = window.setTimeout(() => setNotice(null), 5000);
     return () => window.clearTimeout(timer);
   }, [notice]);
-  useEffect(() => {
-    if (!celebrate) return;
-    const timer = window.setTimeout(() => setCelebrate(false), 2400);
-    return () => window.clearTimeout(timer);
-  }, [celebrate]);
   useEffect(() => {
     if (!locked) return;
     fileSelection.current++;
@@ -272,7 +266,6 @@ export default function SubmissionForm({
       setFile(null);
       uploadedFile.current = null;
       setEditing(false);
-      setCelebrate(saved === null);
       setNotice({
         tone: "success",
         message: "Your submission has been saved.",
@@ -348,7 +341,6 @@ export default function SubmissionForm({
       checkingFile={checkingFile}
       errors={errors}
       notice={notice}
-      celebrate={celebrate}
       pdfName={
         file?.name ?? (fields.prd_path ? (saved?.prd_filename ?? "PRD") : null)
       }
