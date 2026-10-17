@@ -31,18 +31,22 @@ export default function SubmissionForm({
   onAccessLost: () => void;
 }) {
   const [saved, setSaved] = useState(snapshot.submission);
-  const [fields, setFields] = useState<SubmissionFields>(
+  const [draftFields, setFields] = useState<
+    Omit<SubmissionFields, "team_name" | "member_names">
+  >(
     () =>
       snapshot.submission ?? {
-        team_name: team.team_name,
         project_title: "",
-        member_names: team.members.length
-          ? team.members.map((member) => member.name)
-          : [""],
         video_url: "",
         prd_path: "",
       },
   );
+  // Team identity is managed on My Team, never by submission edits or snapshots.
+  const fields: SubmissionFields = {
+    ...draftFields,
+    team_name: team.team_name,
+    member_names: team.members.map((member) => member.name),
+  };
   const [editing, setEditing] = useState(!snapshot.submission);
   const [file, setFile] = useState<File | null>(null);
   const [localUrl, setLocalUrl] = useState<string | null>(null);
@@ -77,24 +81,10 @@ export default function SubmissionForm({
     setFields((current) => {
       if (locked) return next;
       return {
-        team_name:
-          current.team_name === (previous?.team_name ?? team.team_name)
-            ? next.team_name
-            : current.team_name,
         project_title:
           (current.project_title ?? "") === (previous?.project_title ?? "")
             ? next.project_title
             : current.project_title,
-        member_names:
-          JSON.stringify(current.member_names) ===
-          JSON.stringify(
-            previous?.member_names ??
-              (team.members.length
-                ? team.members.map((member) => member.name)
-                : [""]),
-          )
-            ? next.member_names
-            : current.member_names,
         video_url:
           current.video_url === (previous?.video_url ?? "")
             ? next.video_url
@@ -102,7 +92,7 @@ export default function SubmissionForm({
         prd_path: next.prd_path,
       };
     });
-  }, [snapshot.submission, phase, locked, team]);
+  }, [snapshot.submission, phase, locked]);
 
   useEffect(() => {
     mounted.current = true;

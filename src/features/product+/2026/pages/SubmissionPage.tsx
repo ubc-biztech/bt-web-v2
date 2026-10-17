@@ -55,7 +55,7 @@ function TeamRequired() {
       <Dialog
         open
         onOpenChange={(open) => {
-          if (!open) void router.replace(PRODUCT_PLUS_COMPANION_PATH);
+          if (!open) void router.replace(`${PRODUCT_PLUS_COMPANION_PATH}/myteam`);
         }}
       >
         <DialogContent
@@ -64,7 +64,7 @@ function TeamRequired() {
             "rounded-[32px] border-white/70 bg-white/[0.95] p-8 font-product-body text-product-ink backdrop-blur-[14px] sm:rounded-[32px] [&>button_svg]:text-product-ink",
           )}
         >
-          <DialogTitle className="font-product-heading text-[24px] font-normal leading-8">
+          <DialogTitle className="font-product-heading text-[24px] font-normal leading-8 text-black">
             Join or create a team first
           </DialogTitle>
           <DialogDescription className="text-[14px] leading-5 text-product-muted">

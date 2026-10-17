@@ -12,8 +12,6 @@ import CalendarAsset from "@/assets/2026/product+/submission-calendar.svg";
 import CopyAsset from "@/assets/2026/product+/submission-copy.svg";
 import CopiedAsset from "@/assets/2026/product+/team-copy-confirmed.svg";
 import EditAsset from "@/assets/2026/product+/edit.svg";
-import AddAsset from "@/assets/2026/product+/member-add.svg";
-import RemoveAsset from "@/assets/2026/product+/member-remove.svg";
 import UploadAsset from "@/assets/2026/product+/upload.svg";
 import UploadErrorAsset from "@/assets/2026/product+/submission-upload-error.svg";
 import PlayAsset from "@/assets/2026/product+/submission-play.svg";
@@ -46,8 +44,6 @@ const CalendarIcon = CalendarAsset as unknown as SvgComponent;
 const CopyIcon = CopyAsset as unknown as SvgComponent;
 const CopiedIcon = CopiedAsset as unknown as SvgComponent;
 const EditIcon = EditAsset as unknown as SvgComponent;
-const AddIcon = AddAsset as unknown as SvgComponent;
-const RemoveIcon = RemoveAsset as unknown as SvgComponent;
 const UploadIcon = UploadAsset as unknown as SvgComponent;
 const UploadErrorIcon = UploadErrorAsset as unknown as SvgComponent;
 const PlayIcon = PlayAsset as unknown as SvgComponent;
@@ -138,7 +134,7 @@ export default function SubmissionView({
 }: SubmissionViewProps) {
   const fileInput = useRef<HTMLInputElement>(null);
   const form = useRef<HTMLFormElement>(null);
-  const teamInput = useRef<HTMLInputElement>(null);
+  const titleInput = useRef<HTMLInputElement>(null);
   const [replacing, setReplacing] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -148,6 +144,10 @@ export default function SubmissionView({
   const fieldClass = cn(
     inputClass,
     locked && "focus-visible:border-[#614fb8]/[0.08] focus-visible:ring-0",
+  );
+  const readOnlyFieldClass = cn(
+    inputClass,
+    "focus-visible:border-[#614fb8]/[0.08] focus-visible:ring-0",
   );
   const videoId = youtubeVideoId(fields.video_url);
 
@@ -273,7 +273,7 @@ export default function SubmissionView({
                   disabled={busy}
                   onClick={() => {
                     onEdit();
-                    teamInput.current?.focus();
+                    titleInput.current?.focus();
                   }}
                   className="min-h-9 gap-2 py-2 pl-3.5 pr-4 shadow-[0_3px_8px_rgba(52,49,92,0.03),inset_0_1px_1px_rgba(255,255,255,0.62)]"
                 >
@@ -288,34 +288,16 @@ export default function SubmissionView({
               <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Team name</span>
                 <Input
-                  ref={teamInput}
-                  className={cn(
-                    fieldClass,
-                    errors.team_name && "border-[#99263d]",
-                  )}
+                  className={readOnlyFieldClass}
                   value={fields.team_name}
-                  readOnly={disabled}
-                  autoComplete="off"
-                  aria-invalid={!!errors.team_name}
-                  aria-describedby={
-                    errors.team_name ? "team-name-error" : undefined
-                  }
-                  onChange={(event) =>
-                    onChange({ ...fields, team_name: event.target.value })
-                  }
+                  readOnly
+                  tabIndex={-1}
                 />
-                {errors.team_name && (
-                  <span
-                    id="team-name-error"
-                    className="text-[13px] leading-[18px] text-[#99263d]"
-                  >
-                    {errors.team_name}
-                  </span>
-                )}
               </label>
               <label className="flex min-w-0 flex-col gap-2">
                 <span className={labelClass}>Project title</span>
                 <Input
+                  ref={titleInput}
                   className={cn(
                     fieldClass,
                     errors.project_title && "border-[#99263d]",
@@ -347,83 +329,15 @@ export default function SubmissionView({
                 </legend>
                 <div className="flex flex-col gap-3">
                   {fields.member_names.map((member, index) => (
-                    <div
+                    <Input
                       key={index}
-                      className="flex min-w-0 items-center gap-3"
-                    >
-                      <Input
-                        className={cn(
-                          fieldClass,
-                          !member && "bg-white/50",
-                          errors.member_names &&
-                            !member.trim() &&
-                            "border-[#99263d]",
-                        )}
-                        aria-label={`Team member ${index + 1}`}
-                        aria-invalid={!!errors.member_names && !member.trim()}
-                        aria-describedby={
-                          errors.member_names ? "member-names-error" : undefined
-                        }
-                        value={member}
-                        placeholder="Full name"
-                        readOnly={disabled}
-                        autoComplete="off"
-                        onChange={(event) =>
-                          onChange({
-                            ...fields,
-                            member_names: fields.member_names.map((name, i) =>
-                              i === index ? event.target.value : name,
-                            ),
-                          })
-                        }
-                      />
-                      {!locked && fields.member_names.length > 1 && (
-                        <ProductButton
-                          type="button"
-                          variant="secondary"
-                          disabled={busy}
-                          className="h-10 min-h-10 w-10 shrink-0 border-[#614fb8]/[0.28] p-0 shadow-[0_2px_6px_rgba(52,49,92,0.07),inset_0_1px_1px_rgba(255,255,255,0.62)]"
-                          aria-label={`Remove ${member || `team member ${index + 1}`} from submission`}
-                          onClick={() =>
-                            onChange({
-                              ...fields,
-                              member_names: fields.member_names.filter(
-                                (_, i) => i !== index,
-                              ),
-                            })
-                          }
-                        >
-                          <RemoveIcon aria-hidden="true" />
-                        </ProductButton>
-                      )}
-                    </div>
+                      className={readOnlyFieldClass}
+                      aria-label={`Team member ${index + 1}`}
+                      value={member}
+                      readOnly
+                      tabIndex={-1}
+                    />
                   ))}
-                  {errors.member_names && (
-                    <p
-                      id="member-names-error"
-                      className="m-0 text-[13px] leading-[18px] text-[#99263d]"
-                    >
-                      {errors.member_names}
-                    </p>
-                  )}
-                  {!locked && (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      className={cn(
-                        linkClass,
-                        "flex min-h-8 items-center gap-1.5 self-start py-1.5 pl-0.5 pr-1",
-                      )}
-                      onClick={() =>
-                        onChange({
-                          ...fields,
-                          member_names: [...fields.member_names, ""],
-                        })
-                      }
-                    >
-                      <AddIcon aria-hidden="true" /> Add member
-                    </button>
-                  )}
                 </div>
               </fieldset>
             </div>
