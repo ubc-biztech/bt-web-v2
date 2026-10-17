@@ -5,6 +5,7 @@ export enum FeedbackQuestionTypes {
   CHECKBOXES = "CHECKBOXES",
   LINEAR_SCALE = "LINEAR_SCALE",
   MULTIPLE_CHOICE_GRID = "MULTIPLE_CHOICE_GRID",
+  SECTION = "SECTION",
 }
 
 export const FEEDBACK_FORM_TYPES = {
