@@ -34,6 +34,10 @@ const QUESTION_TYPE_OPTIONS = [
   { value: FeedbackQuestionTypes.MULTIPLE_CHOICE, label: "Multiple choice" },
   { value: FeedbackQuestionTypes.CHECKBOXES, label: "Checkboxes" },
   { value: FeedbackQuestionTypes.LINEAR_SCALE, label: "Linear scale" },
+  {
+    value: FeedbackQuestionTypes.MULTIPLE_CHOICE_GRID,
+    label: "Multiple-choice grid",
+  },
 ];
 
 export const FeedbackQuestionsBuilder: React.FC<
@@ -50,11 +54,12 @@ export const FeedbackQuestionsBuilder: React.FC<
 
   const addQuestion = () => {
     append({
-      id: "",
+      id: crypto.randomUUID(),
       type: FeedbackQuestionTypes.SHORT_TEXT,
       question: "",
       required: true,
       options: [],
+      grid: { rows: [], columns: [] },
       scaleMin: 1,
       scaleMax: 5,
       scaleMinLabel: "Very dissatisfied",
@@ -297,6 +302,114 @@ export const FeedbackQuestionsBuilder: React.FC<
                     >
                       Add Option
                     </Button>
+                  </div>
+                </div>
+              )}
+
+              {type === FeedbackQuestionTypes.MULTIPLE_CHOICE_GRID && (
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-white">Rows</Label>
+                    {(questions[index]?.grid?.rows || []).map(
+                      (
+                        row: { id: string; label: string },
+                        rowIndex: number,
+                      ) => (
+                        <div key={row.id} className="flex items-center gap-1">
+                          <Input
+                            aria-label={`Row ${rowIndex + 1}`}
+                            value={row.label}
+                            onChange={(event) =>
+                              setValue(
+                                `${name}.${index}.grid.rows.${rowIndex}.label`,
+                                event.target.value,
+                                { shouldDirty: true },
+                              )
+                            }
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            title="Move row up"
+                            aria-label={`Move row ${rowIndex + 1} up`}
+                            disabled={rowIndex === 0}
+                            onClick={() => {
+                              const rows = [...questions[index].grid.rows];
+                              [rows[rowIndex - 1], rows[rowIndex]] = [
+                                rows[rowIndex],
+                                rows[rowIndex - 1],
+                              ];
+                              setValue(`${name}.${index}.grid.rows`, rows, {
+                                shouldDirty: true,
+                              });
+                            }}
+                          >
+                            <ChevronUp className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            title="Remove row"
+                            aria-label={`Remove row ${rowIndex + 1}`}
+                            onClick={() => {
+                              setValue(
+                                `${name}.${index}.grid.rows`,
+                                questions[index].grid.rows.filter(
+                                  (_: unknown, i: number) => i !== rowIndex,
+                                ),
+                                { shouldDirty: true },
+                              );
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ),
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={
+                        (questions[index]?.grid?.rows || []).length >= 20
+                      }
+                      onClick={() => {
+                        setValue(
+                          `${name}.${index}.grid.rows`,
+                          [
+                            ...questions[index].grid.rows,
+                            { id: crypto.randomUUID(), label: "" },
+                          ],
+                          { shouldDirty: true },
+                        );
+                      }}
+                    >
+                      <Plus className="mr-1 h-4 w-4" />
+                      Add row
+                    </Button>
+                  </div>
+                  <div>
+                    <Label
+                      htmlFor={`${name}.${index}.grid.columns`}
+                      className="mb-1.5 block text-xs text-white"
+                    >
+                      Columns (one per line)
+                    </Label>
+                    <Textarea
+                      id={`${name}.${index}.grid.columns`}
+                      rows={6}
+                      placeholder="Poor\nFair\nVery good\nExcellent\nNot applicable"
+                      value={(questions[index]?.grid?.columns || []).join("\n")}
+                      onChange={(event) =>
+                        setValue(
+                          `${name}.${index}.grid.columns`,
+                          event.target.value.split("\n"),
+                          { shouldDirty: true, shouldValidate: true },
+                        )
+                      }
+                    />
                   </div>
                 </div>
               )}

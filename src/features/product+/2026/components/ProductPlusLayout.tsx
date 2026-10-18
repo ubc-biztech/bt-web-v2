@@ -74,7 +74,7 @@ function NavigationItems({
   showAdmin?: boolean;
 }) {
   return navigation
-    .filter((item) => !mobile || item.page !== "admin" || showAdmin)
+    .filter((item) => item.page !== "admin" || showAdmin)
     .map((item) => {
       const active = page === item.page;
       const asset =
@@ -169,7 +169,7 @@ export default function ProductPlusLayout({
           <Logo aria-hidden="true" />
         </Link>
         <nav className="flex flex-col gap-2" aria-label="Product+ navigation">
-          <NavigationItems page={page} />
+          <NavigationItems page={page} showAdmin={isProductPlusAdmin(user)} />
         </nav>
         <Link
           href={accountHref}
@@ -228,7 +228,7 @@ export default function ProductPlusLayout({
         <NavigationItems
           page={page}
           mobile
-          showAdmin={isProductPlusAdmin(user) || page === "admin"}
+          showAdmin={isProductPlusAdmin(user)}
         />
       </nav>
     </div>

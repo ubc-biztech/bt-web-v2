@@ -81,6 +81,9 @@ export async function fetchBackend({
       body,
     });
 
+    // 204 No Content has no body to parse
+    if (response.status === 204) return null;
+
     const responseData = await response.json();
 
     if (!response.ok) {
