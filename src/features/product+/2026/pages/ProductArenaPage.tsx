@@ -116,7 +116,7 @@ function ArenaIntroModal({
     {
       title: "Upvote or Downvote",
       description:
-        "Tap Upvote or Downvote to rate a pitch, then Next to watch another team.",
+        "Tap Upvote or Downvote to rate a pitch and automatically move to the next team.",
     },
     {
       title: "Votes are final",
@@ -187,7 +187,7 @@ function ArenaState({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative grid min-h-[888px] place-items-center px-8 pb-[136px] pt-12 max-[850px]:min-h-[720px] max-[640px]:min-h-[calc(100dvh-104px)] max-[640px]:px-4 max-[640px]:pb-24">
+    <div className="relative grid flex-1 place-items-center px-8 py-12 max-[640px]:px-4 max-[640px]:pt-8 max-[640px]:pb-[var(--arena-state-bottom)]">
       <GlassCard className="flex w-full max-w-[640px] flex-col items-center gap-5 rounded-[40px] px-14 py-12 text-center max-[640px]:rounded-[28px] max-[640px]:px-6 max-[640px]:py-8">
         {icon}
         <h1
@@ -281,7 +281,7 @@ function ArenaContent({
   const introKey = `productplus:2026:arena-intro:v2:${identity}`;
   const loginHref = productPlusLoginPath(router.asPath);
 
-  // Keep the current pitch in place after voting; new unvoted entries join the end.
+  // Keep the pitch order stable while voting; new unvoted entries join the end.
   useEffect(() => {
     if (!submissions) return;
     setQueueCodes((current) => {
@@ -420,6 +420,9 @@ function ArenaContent({
         choice,
         id: (previous?.id ?? 0) + 1,
       }));
+      const next = teams.slice(index + 1).find((entry) => !entry.has_voted);
+      if (next) setSelectedCode(next.team_code);
+      else setFinished(true);
     } catch (error) {
       const status =
         error && typeof error === "object" && "status" in error
@@ -514,7 +517,7 @@ function ArenaContent({
           unvoted.length ? "You’ve reached the end" : "You’re all caught up"
         }
         icon={<Complete aria-hidden="true" />}
-        description="Thanks for watching! Your votes help decide the Audience Award."
+        description="Thanks for watching! Your votes help decide the Audience Choice Award."
       >
         {portalButton}
         {unvoted.length && phase === "open" ? (
@@ -579,7 +582,7 @@ function ArenaContent({
             </h2>
             <p className="mt-2 text-product-muted">
               You can still watch the pitches. Results stay private until the
-              Audience Award is announced.
+              Audience Choice Award is announced.
             </p>
             <ProductButton
               variant="secondary"
@@ -595,6 +598,7 @@ function ArenaContent({
           team={team}
           position={index + 1}
           total={teams.length}
+          showNavigation={reviewing || phase !== "open"}
           pending={pending}
           onPrevious={() => navigate(index - 1)}
           onNext={() => navigate(index + 1)}
@@ -679,7 +683,7 @@ function ArenaContent({
         ) : null}
         <p className="mt-auto rounded-[24px] border border-white/70 bg-white/60 px-4 py-2.5 text-center text-[12px] leading-4 text-product-muted shadow-[0_4px_20px_rgba(97,80,184,0.08)] backdrop-blur-[14.5px] max-[640px]:mt-1">
           Your vote is final and cannot be changed. Results stay private until
-          the Audience Award is announced at Product+ Summit.
+          the Audience Choice Award is announced at Product+ Summit.
         </p>
       </div>
     );
@@ -688,14 +692,18 @@ function ArenaContent({
   return (
     <section
       className={cn(
-        "relative isolate min-h-[100dvh] overflow-hidden bg-product-lavender text-product-ink max-[640px]:flex max-[640px]:flex-col",
+        "relative isolate flex min-h-[100dvh] flex-col overflow-hidden bg-product-lavender text-product-ink",
+        // The embedded shell adds 16px of padding and 2px of borders.
         embedded
-          ? "rounded-[32px] max-[640px]:rounded-none max-[640px]:min-h-[100dvh]"
-          : "min-h-screen pt-[104px]",
+          ? "min-h-[calc(100dvh-18px)] rounded-[32px] max-[640px]:min-h-[100dvh] max-[640px]:rounded-none"
+          : "pt-[104px]",
       )}
       style={
         {
           "--arena-top": `${embedded ? 80 : navHeight + 40}px`,
+          "--arena-state-bottom": embedded
+            ? "calc(108px + env(safe-area-inset-bottom))"
+            : "48px",
           ...(embedded ? {} : { paddingTop: navHeight + 40 }),
         } as CSSProperties
       }
@@ -765,7 +773,7 @@ function ArenaContent({
           ) : null}
         </div>
       )}
-      <div className="relative z-[1] max-[640px]:flex max-[640px]:flex-1 max-[640px]:flex-col">
+      <div className="relative z-[1] flex flex-1 flex-col">
         {content}
       </div>
       <ArenaModal

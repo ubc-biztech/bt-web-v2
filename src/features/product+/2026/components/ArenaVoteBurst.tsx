@@ -9,19 +9,22 @@ const entranceOrder = [
   10, 22, 5, 15, 29, 8, 20, 1, 24, 13, 17,
 ];
 
+const animationSpeed = 2;
+
 const particles = entranceOrder.map((entry, index) => ({
   left: `${3 + (index / (entranceOrder.length - 1)) * 94}%`,
   size: `${28 + ((index * 11) % 28)}px`,
-  delay: entry * 32,
-  duration: 2400 + (index % 5) * 120,
-  swayDuration: 1600 + (index % 4) * 280,
-  swayDelay: (index % 6) * -250,
+  delay: (entry * 32) / animationSpeed,
+  duration: (2400 + (index % 5) * 120) / animationSpeed,
+  swayDuration: (1600 + (index % 4) * 280) / animationSpeed,
+  swayDelay: ((index % 6) * -250) / animationSpeed,
   drift: `${6 + (index % 5) * 2}px`,
   rotation: `${3 + (index % 4)}deg`,
 }));
 
 export const VOTE_BURST_DURATION_MS =
-  Math.max(...particles.map(({ delay, duration }) => delay + duration)) + 100;
+  Math.max(...particles.map(({ delay, duration }) => delay + duration)) +
+  100 / animationSpeed;
 
 export default function ArenaVoteBurst({ choice }: { choice: VoteChoice }) {
   const rising = choice === "accept";
