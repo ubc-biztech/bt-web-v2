@@ -55,7 +55,8 @@ function TeamRequired() {
       <Dialog
         open
         onOpenChange={(open) => {
-          if (!open) void router.replace(`${PRODUCT_PLUS_COMPANION_PATH}/myteam`);
+          if (!open)
+            void router.replace(`${PRODUCT_PLUS_COMPANION_PATH}/myteam`);
         }}
       >
         <DialogContent

@@ -37,13 +37,13 @@ const competition = [
 const scheduleHeader = [
   {
     title: "KickOff Schedule",
-    date: "Sunday, October 18"
+    date: "Sunday, October 18",
   },
   {
     title: "Summit Schedule",
-    date: "Sunday, October 25"
-  }
-]
+    date: "Sunday, October 25",
+  },
+];
 const schedule = [
   [
     { time: "10:00 AM", title: "Check-in", location: "HA 492" },
@@ -86,15 +86,25 @@ const schedule = [
       title: "Lunch",
       location: "Great Hall South",
     },
-    { time: "1:00 PM", title: "Conference Opening Ceremony", location: "Great Hall South", highlight: true },
+    {
+      time: "1:00 PM",
+      title: "Conference Opening Ceremony",
+      location: "Great Hall South",
+      highlight: true,
+    },
     {
       time: "1:30 PM",
       title: "Finalist Presentations",
       location: "Great Hall South",
     },
     { time: "2:45 PM", title: "Awards Ceremony", location: "Great Hall South" },
-    { time: "3:00 PM", title: "Open Networking & Company Booths", location: "Great Hall South", highlight: true  },
-  ]
+    {
+      time: "3:00 PM",
+      title: "Open Networking & Company Booths",
+      location: "Great Hall South",
+      highlight: true,
+    },
+  ],
 ];
 
 export default function PortalPage() {

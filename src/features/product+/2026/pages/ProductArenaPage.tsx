@@ -773,9 +773,7 @@ function ArenaContent({
           ) : null}
         </div>
       )}
-      <div className="relative z-[1] flex flex-1 flex-col">
-        {content}
-      </div>
+      <div className="relative z-[1] flex flex-1 flex-col">{content}</div>
       <ArenaModal
         open={loginOpen}
         onOpenChange={setLoginOpen}
