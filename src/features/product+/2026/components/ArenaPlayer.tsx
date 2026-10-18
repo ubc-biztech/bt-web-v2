@@ -91,6 +91,7 @@ export default function ArenaPlayer({
   team,
   position,
   total,
+  showNavigation,
   pending,
   onPrevious,
   onNext,
@@ -99,6 +100,7 @@ export default function ArenaPlayer({
   team: AudienceSubmission;
   position: number;
   total: number;
+  showNavigation: boolean;
   pending: boolean;
   onPrevious(): void;
   onNext(): void;
@@ -310,21 +312,23 @@ export default function ArenaPlayer({
         <span>{timestamp(duration)}</span>
       </div>
       <div className="relative grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 max-[480px]:gap-1">
-        <div className="flex justify-start">
-          <button
-            type="button"
-            onClick={onPrevious}
-            disabled={position === 1 || pending}
-            aria-label="Previous video"
-            className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
-          >
-            <span aria-hidden="true" className="max-[480px]:hidden">
-              <Prev />
-            </span>
-            Previous
-          </button>
-        </div>
-        <div className="flex items-center gap-3 max-[480px]:gap-1">
+        {showNavigation ? (
+          <div className="flex justify-start">
+            <button
+              type="button"
+              onClick={onPrevious}
+              disabled={position === 1 || pending}
+              aria-label="Previous video"
+              className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
+            >
+              <span aria-hidden="true" className="max-[480px]:hidden">
+                <Prev />
+              </span>
+              Previous
+            </button>
+          </div>
+        ) : null}
+        <div className="col-start-2 flex items-center gap-3 max-[480px]:gap-1">
           <button
             type="button"
             onClick={() => seekBy(-5)}
@@ -376,31 +380,33 @@ export default function ArenaPlayer({
             </span>
           </button>
         </div>
-        <div className="flex justify-end">
-          {position === total ? (
-            <button
-              type="button"
-              onClick={onFinished}
-              disabled={pending}
-              className="rounded-full border border-white/90 bg-white/70 px-3 py-2 text-[12px] font-semibold text-product-primary disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
-            >
-              Finish
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onNext}
-              disabled={pending}
-              aria-label="Next video"
-              className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
-            >
-              Next
-              <span aria-hidden="true" className="max-[480px]:hidden">
-                <Next />
-              </span>
-            </button>
-          )}
-        </div>
+        {showNavigation ? (
+          <div className="flex justify-end">
+            {position === total ? (
+              <button
+                type="button"
+                onClick={onFinished}
+                disabled={pending}
+                className="rounded-full border border-white/90 bg-white/70 px-3 py-2 text-[12px] font-semibold text-product-primary disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
+              >
+                Finish
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onNext}
+                disabled={pending}
+                aria-label="Next video"
+                className="flex h-9 items-center justify-center gap-1 rounded-full border-[1.5px] border-white/95 bg-white/60 px-3 text-[12px] font-semibold text-product-primary shadow-[0_4px_12px_rgba(97,80,184,0.18)] disabled:cursor-default disabled:opacity-40 focus-visible:outline focus-visible:outline-product-primary max-[480px]:px-2 max-[480px]:text-[11px]"
+              >
+                Next
+                <span aria-hidden="true" className="max-[480px]:hidden">
+                  <Next />
+                </span>
+              </button>
+            )}
+          </div>
+        ) : null}
       </div>
     </section>
   );
