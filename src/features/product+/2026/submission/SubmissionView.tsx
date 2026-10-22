@@ -21,6 +21,9 @@ import PdfOutlineAsset from "@/assets/2026/product+/submission-pdf-outline.svg";
 import SuccessAsset from "@/assets/2026/product+/submission-toast-success.svg";
 import ErrorAsset from "@/assets/2026/product+/submission-toast-error.svg";
 import SpinnerAsset from "@/assets/2026/product+/submission-spinner.svg";
+import JudgeFeedbackList, {
+  type JudgeFeedback,
+} from "../components/JudgeFeedbackList";
 import {
   GlassCard,
   PageHeading,
@@ -83,6 +86,7 @@ export interface SubmissionViewProps {
   fields: SubmissionFields;
   saved: Submission | null;
   deadline: string;
+  feedback: JudgeFeedback[];
   locked: boolean;
   editing: boolean;
   phase: SubmissionPhase;
@@ -108,6 +112,7 @@ export default function SubmissionView({
   fields,
   saved,
   deadline,
+  feedback,
   locked,
   editing,
   phase,
@@ -605,6 +610,15 @@ export default function SubmissionView({
           )}
         </form>
       </GlassCard>
+
+      {feedback.length > 0 && (
+        <GlassCard className="flex flex-col gap-5 p-5 min-[641px]:p-7">
+          <h2 className="m-0 font-product-heading text-[24px] font-normal leading-8 tracking-[-0.5px] text-product-ink">
+            Feedback
+          </h2>
+          <JudgeFeedbackList feedback={feedback} />
+        </GlassCard>
+      )}
     </div>
   );
 }
