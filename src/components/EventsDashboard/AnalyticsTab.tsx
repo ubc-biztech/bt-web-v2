@@ -381,7 +381,8 @@ export default function AnalyticsTab({
     return feedbackData.flatMap(({ formType, questions, submissions }) => {
       if (submissions.length === 0) return [];
 
-      return questions.map((q) => {
+      const answerQuestions = questions.filter((q) => q.type !== "SECTION");
+      return answerQuestions.map((q) => {
         const answers = submissions
           .map((s) => s.responses?.[q.questionId])
           .filter((v) => v != null && v !== "");
