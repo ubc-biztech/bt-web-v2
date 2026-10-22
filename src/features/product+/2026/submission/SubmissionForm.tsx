@@ -335,6 +335,7 @@ export default function SubmissionForm({
       fields={fields}
       saved={saved}
       deadline={snapshot.submission_deadline}
+      feedback={snapshot.feedback ?? []}
       locked={locked}
       editing={editing}
       phase={phase}

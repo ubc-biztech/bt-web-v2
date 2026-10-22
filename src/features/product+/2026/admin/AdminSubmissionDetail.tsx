@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import JudgeFeedbackList from "../components/JudgeFeedbackList";
 import { GlassCard, Pill, ProductButton } from "../components/ProductPlusUI";
 import { errorMessage, errorStatus } from "../submission/api";
 import { youtubeVideoId } from "../submission/submission";
@@ -231,26 +232,23 @@ export default function AdminSubmissionDetail({
                   </span>
                 </div>
                 {data.graded_submissions.length ? (
-                  <ul className="m-0 flex list-none flex-col gap-2 p-0">
-                    {data.graded_submissions.map((rubric) => (
-                      <li
-                        key={rubric.judge_user_id}
-                        className="flex items-center justify-between gap-3"
-                      >
-                        <span className="min-w-0 break-words text-[14px] [overflow-wrap:anywhere]">
-                          {rubric.judge_user_id}
-                          {rubric.judge_user_id.toLowerCase() ===
-                          judgeId.toLowerCase()
-                            ? " (you)"
-                            : ""}
-                        </span>
-                        <Pill className="shrink-0 px-2.5 py-0.5 text-[12px] leading-4">
+                  <JudgeFeedbackList
+                    feedback={data.graded_submissions}
+                    renderAside={(rubric) => (
+                      <span className="flex shrink-0 items-center gap-2">
+                        {rubric.judge_user_id.toLowerCase() ===
+                        judgeId.toLowerCase() ? (
+                          <span className="text-[13px] text-product-muted">
+                            (you)
+                          </span>
+                        ) : null}
+                        <Pill className="px-2.5 py-0.5 text-[12px] leading-4">
                           {formatScore(rubricTotal(rubric.scores))} /{" "}
                           {RUBRIC_MAX}
                         </Pill>
-                      </li>
-                    ))}
-                  </ul>
+                      </span>
+                    )}
+                  />
                 ) : (
                   <p className="m-0 text-[13px] text-product-muted">
                     No rubrics submitted yet.
