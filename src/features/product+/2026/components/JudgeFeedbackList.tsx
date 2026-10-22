@@ -9,9 +9,11 @@ export interface JudgeFeedback {
 
 export default function JudgeFeedbackList<T extends JudgeFeedback>({
   feedback,
+  judgeLabel,
   renderAside,
 }: {
   feedback: readonly T[];
+  judgeLabel?: string;
   renderAside?: (judge: T) => ReactNode;
 }) {
   return (
@@ -25,7 +27,7 @@ export default function JudgeFeedbackList<T extends JudgeFeedback>({
           <li key={judge.judge_user_id} className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-3">
               <span className="min-w-0 break-words text-[14px] font-semibold [overflow-wrap:anywhere]">
-                {judge.judge_user_id}
+                {judgeLabel ?? judge.judge_user_id}
               </span>
               {renderAside?.(judge)}
             </div>
