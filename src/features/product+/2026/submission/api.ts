@@ -1,4 +1,5 @@
 import { fetchBackend } from "@/lib/db";
+import type { JudgeFeedback } from "../components/JudgeFeedbackList";
 import type {
   Submission,
   SubmissionFields,
@@ -9,6 +10,8 @@ export interface SubmissionSnapshot {
   submission: Submission | null;
   submission_deadline: string;
   can_edit: boolean;
+  /** Judge comments without scores; absent on backends that predate it. */
+  feedback?: JudgeFeedback[];
 }
 
 // Workflow 1 PR #802 supersedes the older route in the Workflow 5 Notion page.
