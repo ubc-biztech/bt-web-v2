@@ -616,7 +616,7 @@ export default function SubmissionView({
           <h2 className="m-0 font-product-heading text-[24px] font-normal leading-8 tracking-[-0.5px] text-product-ink">
             Feedback
           </h2>
-          <JudgeFeedbackList feedback={feedback} />
+          <JudgeFeedbackList feedback={feedback} judgeLabel="Judge Feedback" />
         </GlassCard>
       )}
     </div>
