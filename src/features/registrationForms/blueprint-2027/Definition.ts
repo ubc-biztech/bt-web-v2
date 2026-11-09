@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizePartnerLinkedin } from "./linkedin";
 import type { RegistrationQuestion } from "@/types";
 
 export const BLUEPRINT_REGISTRATION_QUESTIONS =
@@ -34,48 +35,94 @@ export const AREAS_OF_EXPERTISE = [
   "Other",
 ] as const;
 
-export const DIETARY_OPTIONS = ["None", "Vegetarian", "Vegan", "Gluten-free", "Other"] as const;
+export const DIETARY_OPTIONS = [
+  "None",
+  "Vegetarian",
+  "Vegan",
+  "Gluten-free",
+  "Halal",
+  "Kosher",
+  "Other",
+] as const;
 
-export const blueprintPartnerRegistrationSchema = z.object({
-  email: z.string().email(),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
-  nametag: z.string().min(1, "Name for nametag is required"), // Name as you would like to see it on your name tag
-  pronouns: z.enum(PRONOUNS, {
-    required_error: "Pick a pronoun option",
-    invalid_type_error: "Pick a valid pronoun option",
-  }),
-  otherPronoun: z.string().optional(), // optional field for partners to specify any other pronouns
-  linkedin: z.string().url("Enter a valid LinkedIn URL"),
-  companyName: z.string().min(1, "Organization name is required"), // can list as myself if no affiliation
-  role: z.string().min(1, "Role is required"),
-  areasOfExpertise: z.enum(AREAS_OF_EXPERTISE, {
-    required_error: "Pick an area of expertise",
-    invalid_type_error: "Pick a valid area of expertise",
-  }),
-  headshot: z
-  .instanceof(File, { message: "An headshot is required." })
+export const blueprintHeadshotSchema = z
+  .instanceof(File, {
+    message:
+      "Upload a headshot or give permission to use your LinkedIn headshot.",
+  })
   .refine((file) => file.size <= MAX_FILE_SIZE, {
-    message: "Max file size is 10MB.",
+    message: "Max file size is 10 MB.",
   })
   .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
     message: ".jpg, .jpeg, and .png files are accepted.",
-  }),
-  dietaryRestrictions: z.enum(DIETARY_OPTIONS, {
-    required_error: "Pick a dietary restriction option",
-    invalid_type_error: "Pick a valid dietary restriction option",
-  }),
-  otherDietaryRestrictions: z.string().optional(), // optional field for partners to specify any other dietary restrictions
-  parkingNeeds: z.boolean({
-    required_error: "Please indicate if you need parking",
-    invalid_type_error: "Please select a valid option for parking needs",
-  }), // "Yes/Likely" or "No"
-  coffeeChatInterest: z.boolean({
-    required_error: "Please indicate your interest in being available for a coffee chat", // in addition to their current role
-    invalid_type_error: "Interest in coffee chat must be a boolean",
-  }),
-  askMeAbout: z.string().optional(), // optional field for partners to have a short description of what people can ask them during coffee chats
-});
+  });
+
+export const blueprintPartnerRegistrationSchema = z
+  .object({
+    email: z.string().email(),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    nametag: z.string().min(1, "Name for nametag is required"),
+    pronouns: z.enum(PRONOUNS, {
+      required_error: "Pick a pronoun option",
+      invalid_type_error: "Pick a valid pronoun option",
+    }),
+    otherPronoun: z.string().optional(),
+    linkedin: z
+      .string()
+      .transform(normalizePartnerLinkedin)
+      .pipe(z.string().url("Enter a valid LinkedIn URL"))
+      .refine((value) => {
+        try {
+          const url = new URL(value);
+          return (
+            url.protocol === "https:" &&
+            ["linkedin.com", "www.linkedin.com"].includes(url.hostname) &&
+            /^\/in\/[^/]+\/?$/.test(url.pathname) &&
+            !url.username &&
+            !url.password
+          );
+        } catch {
+          return false;
+        }
+      }, "Enter your LinkedIn profile URL"),
+    companyName: z.string(),
+    participatingIndependently: z.boolean().default(false),
+    role: z.string().min(1, "Role is required"),
+    areasOfExpertise: z
+      .array(z.enum(AREAS_OF_EXPERTISE))
+      .min(1, "Pick at least one area of expertise"),
+    otherExpertise: z.string().optional(),
+    headshot: z.union(
+      [blueprintHeadshotSchema, z.literal("linkedin-permission")],
+      {
+        errorMap: () => ({
+          message:
+            "Upload a headshot or give permission to use your LinkedIn headshot.",
+        }),
+      },
+    ),
+    dietaryRestrictions: z.enum(DIETARY_OPTIONS, {
+      required_error: "Pick a dietary restriction option",
+      invalid_type_error: "Pick a valid dietary restriction option",
+    }),
+    otherDietaryRestrictions: z.string().optional(),
+    coffeeChatInterest: z.boolean({
+      required_error:
+        "Please indicate your interest in being available for a coffee chat",
+      invalid_type_error: "Interest in coffee chat must be a boolean",
+    }),
+    askMeAbout: z.string().optional(),
+  })
+  .superRefine((values, context) => {
+    if (!values.participatingIndependently && !values.companyName.trim()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["companyName"],
+        message: "Organization name is required",
+      });
+    }
+  });
 
 export type BluePrintPartnerRegistrationValues = z.infer<
   typeof blueprintPartnerRegistrationSchema

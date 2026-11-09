@@ -166,7 +166,7 @@ export default function QuizResultsPreview() {
             </Button>
           </div>
           <Image
-            src="/assets/blueprint/quiz-staircase.png"
+            src="/assets/2026/blueprint/quiz-staircase.png"
             height={256}
             width={256}
             alt="Staircase"
@@ -200,7 +200,7 @@ export default function QuizResultsPreview() {
         </Link>
       </div>
       <Image
-        src="/assets/blueprint/quiz-staircase.png"
+        src="/assets/2026/blueprint/quiz-staircase.png"
         height={256}
         width={256}
         alt="Staircase"

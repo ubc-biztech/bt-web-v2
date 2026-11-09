@@ -27,6 +27,7 @@ import {
 } from "@/constants/questionTypes";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Image from "next/image";
+import { uploadRegistrationFile } from "@/lib/registrationUpload";
 
 const partnerEventRegistrationFormSchema = z.object({
   emailAddress: z.string().email({
@@ -96,7 +97,7 @@ export const PartnerEventRegistrationForm: React.FC<
     if (await onSubmit(data)) {
       toast({
         title: "Registration Submitted",
-        description: "Your registration has been successfully submitted.",
+        description: `Thank you for your registration for ${event?.ename}. We will send any further information to ${data.emailAddress}.`,
       });
     }
   };
@@ -108,7 +109,7 @@ export const PartnerEventRegistrationForm: React.FC<
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     try {
-      const url = await uploadFileToGoogleDrive(file, event.id);
+      const url = await uploadRegistrationFile(file, event.id);
       form.setValue(`customQuestions.${questionId}`, url);
       toast({
         title: "File uploaded successfully",
@@ -121,65 +122,6 @@ export const PartnerEventRegistrationForm: React.FC<
         description: "Please try again later.",
         variant: "destructive",
       });
-    }
-  };
-
-  const uploadFileToGoogleDrive = async (
-    file: File,
-    folderId: string,
-  ): Promise<string> => {
-    // Function to read file as base64
-    const readFileAsBase64 = (file: File): Promise<string> => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (typeof reader.result === "string") {
-            const base64 = reader.result.split(",")[1];
-            resolve(base64);
-          } else {
-            reject(new Error("Failed to read file as base64"));
-          }
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    };
-
-    try {
-      // Read file as base64
-      const rawLog = await readFileAsBase64(file);
-
-      // Prepare data to send to API
-      const dataSend = {
-        dataReq: {
-          data: rawLog,
-          name: file.name,
-          type: file.type,
-          folderId: folderId, // Changed from event.id to folderId
-        },
-        fname: "uploadFilesToGoogleDrive",
-      };
-
-      // Make the API call
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbzLif9Uypau-R54Ob-g3bs9jqWujIzfXFvZEMKx7k5m3KfZZNlPUwj-dIdKh7dMaxTotA/exec",
-        {
-          method: "POST",
-          body: JSON.stringify(dataSend),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      // Assuming the API returns a URL, otherwise adjust accordingly
-      return result.url || "";
-    } catch (error) {
-      console.error("Error in uploadFileToGoogleDrive:", error);
-      throw error;
     }
   };
 

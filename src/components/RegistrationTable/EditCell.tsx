@@ -57,7 +57,10 @@ export const EditCell: React.FC<EditCellProps> = ({
           <div className="max-w-full h-[1px] bg-divider my-3">
             <UserResponses
               questions={
-                eventData.registrationQuestions as RegistrationQuestion[]
+                (row.original.isPartner
+                  ? (eventData.partnerRegistrationQuestions ?? [])
+                  : (eventData.registrationQuestions ??
+                    [])) as RegistrationQuestion[]
               }
               responses={row.original?.dynamicResponses}
             />

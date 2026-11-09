@@ -1,0 +1,453 @@
+.shell {
+  width: 100%;
+  min-height: 100svh;
+  padding: 24px clamp(24px, 4vw, 56px) 24px;
+  background: white;
+  color: black;
+  font-family: "Schibsted Grotesk", Arial, sans-serif;
+  letter-spacing: -0.03em;
+  display: flex;
+  flex-direction: column;
+}
+.shell[data-mode="preview"] {
+  min-height: 640px;
+}
+.previewNote {
+  margin-bottom: 24px;
+  color: #606060;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+}
+.groups {
+  display: flex;
+  width: 100%;
+  margin: 0 auto;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+.groups li {
+  flex: 1;
+  min-width: 0;
+}
+.segment {
+  display: block;
+  width: 100%;
+  height: 4px;
+  border-radius: 1px;
+  background: #e5e5e5;
+}
+.groups [data-complete="true"] .segment {
+  background: black;
+}
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 8px 0 16px;
+  animation: page-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page[data-personal="true"] {
+  display: flex;
+  flex-direction: column;
+}
+.page[data-direction="backward"] {
+  animation-name: page-back;
+}
+.pageIntro {
+  margin-bottom: 20px;
+}
+.shell .title,
+.completion .title {
+  color: black !important;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 350;
+  line-height: 1.05;
+  letter-spacing: -0.05em;
+}
+.title:focus {
+  outline: none;
+}
+.sectionDescription {
+  margin-top: 12px;
+  color: #606060;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+.fields > * {
+  grid-column: 1 / -1;
+}
+.fields > [data-question-field="firstName"],
+.fields > [data-question-field="lastName"] {
+  grid-column: span 1;
+}
+.shell .textInput {
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid black;
+  border-radius: 0;
+  padding: 8px 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+  color: black;
+  transition: border-color 180ms ease;
+}
+.shell .textInput:focus {
+  border-color: #0057ff;
+  outline: none;
+  box-shadow: inset 0 -1px 0 #0057ff;
+}
+.shell .textInput::placeholder {
+  color: #a3a3a3;
+  opacity: 1;
+}
+.shell .textarea {
+  height: auto;
+  min-height: 44px;
+  resize: none;
+  overflow-y: hidden;
+}
+.shell button:focus-visible,
+.headshot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.headshot > :not(.headshotImage) {
+  width: 100%;
+}
+.headshotImage {
+  width: 96px;
+  height: 96px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin: 8px 0 0;
+}
+.actions button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  border-radius: 8px;
+  color: #0057ff;
+  background: transparent;
+  cursor: pointer;
+}
+.actions button:hover {
+  color: #0057ff;
+  background: #f2f2f2;
+}
+.actions button:focus-visible {
+  outline: 2px solid #0057ff;
+  outline-offset: 2px;
+  color: #0057ff;
+  background: #f2f2f2;
+}
+.shell .okButton,
+.shell .startButton {
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  color: white;
+  background: #0057ff;
+  cursor: pointer;
+}
+.shell .okButton {
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 64px;
+  margin-top: 0;
+}
+.shell .okButton:hover,
+.shell .startButton:hover {
+  background: #0048d6;
+}
+.shell button:disabled {
+  cursor: not-allowed;
+}
+.confirmActions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 12px 0 max(12px, env(safe-area-inset-bottom));
+  background: white;
+}
+.organization {
+  display: grid;
+  gap: 12px;
+}
+.shell .textInput:disabled {
+  color: #737373;
+  border-color: #a3a3a3;
+  cursor: not-allowed;
+}
+.independentChoice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-height: 44px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.independentChoice input {
+  width: 18px;
+  height: 18px;
+  accent-color: #0057ff;
+}
+.independentChoice input:focus-visible {
+  outline: 2px solid #0057ff;
+  outline-offset: 4px;
+}
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #606060;
+  font-size: 13px;
+}
+.orDivider::before,
+.orDivider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: #dedede;
+}
+.uploadLabel {
+  font-size: 14px;
+}
+.welcome {
+  width: 100%;
+  max-width: 1000px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+  margin: 24px auto 48px;
+  animation: page-in 300ms ease both;
+}
+.welcomeMedia {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.welcomeImage {
+  display: block;
+  width: 100%;
+  aspect-ratio: 720 / 816;
+  padding-top: 48px;
+  padding-bottom: 24px;
+  border-radius: 4px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.welcomeContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+.welcomeBody {
+  color: #606060;
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: -0.015em;
+}
+.shell .startButton {
+  margin-top: 8px;
+  padding: 12px 28px;
+}
+.completion {
+  max-width: 800px;
+  width: 100%;
+  margin: auto;
+  padding: 64px 0;
+  animation: page-in 300ms ease both;
+}
+.completion p {
+  color: #606060;
+  overflow-wrap: anywhere;
+  margin-top: 24px;
+  line-height: 1.5;
+}
+.completionImage {
+  width: min(100%, 240px);
+  height: auto;
+  margin-bottom: 32px;
+}
+.contactLink {
+  color: #0057ff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.contactLink:focus-visible {
+  outline: 2px solid #0057ff;
+  outline-offset: 4px;
+}
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.shell .reviewHeading {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0057ff;
+  text-transform: uppercase;
+  letter-spacing: -0.015em;
+  padding: 12px 0;
+  border-bottom: 1px solid rgb(0 0 0 / 0.15);
+}
+.reviewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+.reviewRow > div {
+  min-width: 0;
+}
+.reviewRow dt {
+  position: relative;
+  font-size: 14px;
+  color: #606060;
+}
+.reviewRow dt::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: black;
+}
+.reviewRow dd {
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.edit {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #0057ff;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+.edit:hover {
+  background: #f2f2f2;
+}
+.error {
+  margin-top: 24px;
+  color: #b42318;
+  font-size: 14px;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes page-back {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 767px) {
+  .shell {
+    min-height: calc(100svh - 64px);
+    scroll-margin-top: 64px;
+  }
+  .welcome {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-top: 8px;
+  }
+  .welcomeImage {
+    max-height: none;
+  }
+}
+@media (max-width: 640px) {
+  .shell {
+    padding: 20px 24px 24px;
+  }
+  .page {
+    padding-top: 8px;
+  }
+  .pageIntro {
+    margin-bottom: 20px;
+  }
+  .fields {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .fields > [data-question-field="firstName"],
+  .fields > [data-question-field="lastName"] {
+    grid-column: 1 / -1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .welcome,
+  .completion {
+    animation: none;
+  }
+  .textInput {
+    transition: none;
+  }
+}

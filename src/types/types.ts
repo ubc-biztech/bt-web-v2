@@ -18,6 +18,7 @@ export type BiztechEvent = {
   facebookUrl: string;
   deadline: string;
   registrationFormKey?: string;
+  partnerRegistrationFormKey?: string;
   registrationStatus: any;
   registrationQuestions?: RegistrationQuestion[];
   pricing: any;

@@ -20,6 +20,7 @@ const membershipPromptRoutes = new Set([
 
 const registrationRoutes = new Set([
   "/event/[eventId]/[year]/register",
+  "/event/[eventId]/[year]/register/partner",
   "/event/[eventId]/[year]/register/success",
 ]);
 

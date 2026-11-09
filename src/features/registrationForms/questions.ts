@@ -4,6 +4,11 @@ import {
   type RegistrationFormDefinition,
   type RegistrationFormKey,
 } from "./registry";
+import {
+  PARTNER_REGISTRATION_FORMS,
+  type PartnerRegistrationFormDefinition,
+  type PartnerRegistrationFormKey,
+} from "./partnerRegistry";
 
 type EventFormQuestion = {
   id: string;
@@ -48,4 +53,15 @@ export function getRegistrationQuestions(
   const definition: RegistrationFormDefinition = REGISTRATION_FORMS[key];
 
   return definition.questions ? [...definition.questions] : defaultQuestions;
+}
+
+export function getPartnerRegistrationQuestions(
+  key: PartnerRegistrationFormKey,
+  questions: RegistrationQuestion[],
+): RegistrationQuestion[] {
+  const definition: PartnerRegistrationFormDefinition =
+    PARTNER_REGISTRATION_FORMS[key];
+  return definition.configureQuestions
+    ? definition.configureQuestions(questions)
+    : questions;
 }

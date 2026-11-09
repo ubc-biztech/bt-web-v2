@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { fetchBackend } from "@/lib/db";
 import {
   getRegistrationQuestions,
+  getPartnerRegistrationQuestions,
   transformEventFormQuestions,
 } from "@/features/registrationForms/questions";
 
@@ -51,43 +52,45 @@ const CreateEventPage: NextPage = () => {
       data.customQuestions,
     );
 
-    const body = {
-      id: data.eventSlug,
-      year: data.startDate.getFullYear(),
-      ename: data.eventName,
-      description: data.description,
-      partnerDescription: data.partnerDescription,
-      capac: data.capacity,
-      elocation: data.location,
-      imageUrl: data.imageUrl,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      deadline: data.deadline,
-      pricing: {
-        members: Number(data.price) || 0,
-        ...(data.nonBizTechAllowed && {
-          nonMembers:
-            data.nonMemberPrice != null
-              ? Number(data.nonMemberPrice)
-              : Number(data.price) || 0,
-        }),
-      },
-      isPublished: false,
-      isCompleted: false,
-      eventPage: data.eventPage,
-      registrationFormKey: data.registrationFormKey,
-      registrationQuestions: getRegistrationQuestions(
-        data.registrationFormKey,
-        defaultRegistrationQuestions,
-      ),
-      partnerRegistrationQuestions: transformEventFormQuestions(
-        data.partnerCustomQuestions,
-      ),
-      isApplicationBased: data.isApplicationBased,
-      nonBizTechAllowed: data.nonBizTechAllowed,
-    };
-
     try {
+      const body = {
+        id: data.eventSlug,
+        year: data.startDate.getFullYear(),
+        ename: data.eventName,
+        description: data.description,
+        partnerDescription: data.partnerDescription,
+        capac: data.capacity,
+        elocation: data.location,
+        imageUrl: data.imageUrl,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        deadline: data.deadline,
+        pricing: {
+          members: Number(data.price) || 0,
+          ...(data.nonBizTechAllowed && {
+            nonMembers:
+              data.nonMemberPrice != null
+                ? Number(data.nonMemberPrice)
+                : Number(data.price) || 0,
+          }),
+        },
+        isPublished: false,
+        isCompleted: false,
+        eventPage: data.eventPage,
+        registrationFormKey: data.registrationFormKey,
+        partnerRegistrationFormKey: data.partnerRegistrationFormKey,
+        registrationQuestions: getRegistrationQuestions(
+          data.registrationFormKey,
+          defaultRegistrationQuestions,
+        ),
+        partnerRegistrationQuestions: getPartnerRegistrationQuestions(
+          data.partnerRegistrationFormKey,
+          transformEventFormQuestions(data.partnerCustomQuestions),
+        ),
+        isApplicationBased: data.isApplicationBased,
+        nonBizTechAllowed: data.nonBizTechAllowed,
+      };
+
       const result = await fetchBackend({
         endpoint: "/events",
         method: "POST",
