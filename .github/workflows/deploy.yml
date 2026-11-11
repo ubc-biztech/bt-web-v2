@@ -80,7 +80,7 @@ jobs:
           url=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
           echo "Deployed $url"
           if [ -n "${STAGING_ALIAS:-}" ]; then
-            vercel alias set "$url" "$STAGING_ALIAS" --token="$VERCEL_TOKEN"
+            vercel alias set "$url" "$STAGING_ALIAS" --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
           fi
         env:
           STAGING_ALIAS: ${{ vars.STAGING_ALIAS }}
