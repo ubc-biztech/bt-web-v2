@@ -5,6 +5,7 @@ import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import CompanionHome from "@/components/Companion/CompanionHome";
+import ProductPlus2026 from "@/features/product+/2026/ProductPlus2026";
 import type { Event } from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
@@ -21,7 +22,7 @@ interface EventData {
   [key: string]: any;
 }
 
-const DynamicCompanion = () => {
+const LegacyDynamicCompanion = () => {
   const router = useRouter();
   const { event, year } = router.query;
   const [email, setEmail] = useState("");
@@ -231,6 +232,16 @@ const DynamicCompanion = () => {
       </UserRegistrationContext.Provider>
     </div>
   );
+};
+
+const DynamicCompanion = () => {
+  const router = useRouter();
+
+  if (router.query.event === "product+" && router.query.year === "2026") {
+    return <ProductPlus2026 />;
+  }
+
+  return <LegacyDynamicCompanion />;
 };
 
 export default DynamicCompanion;

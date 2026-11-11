@@ -59,10 +59,6 @@
   letter-spacing: normal !important;
   margin: 8px 0 !important;
 }
-.description {
-  font-size: 16px;
-  color: theme("colors.bt-blue.100");
-}
 .wheelArea {
   position: relative;
   margin: 32px auto 0;

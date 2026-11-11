@@ -1,0 +1,71 @@
+.track {
+  position: absolute;
+  top: 50%;
+  /* The native thumb travels between these same endpoints. */
+  right: 12px;
+  left: 12px;
+  height: 8px;
+  transform: translateY(-50%);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #6150b8 var(--seek-progress),
+    rgba(255, 255, 255, 0.55) 0
+  );
+  box-shadow: inset 0 1px 3px rgba(97, 80, 184, 0.3);
+  pointer-events: none;
+}
+
+.seek {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.seek:disabled {
+  cursor: default;
+}
+.seek:focus-visible {
+  border-radius: 12px;
+  outline: 3px solid #6150b8;
+  outline-offset: 3px;
+}
+
+.seek::-webkit-slider-runnable-track {
+  height: 8px;
+  background: transparent;
+}
+
+.seek::-webkit-slider-thumb {
+  width: 24px;
+  height: 24px;
+  margin-top: -8px;
+  appearance: none;
+  box-sizing: border-box;
+  border: 2px solid #9e90d1;
+  border-radius: 50%;
+  background: linear-gradient(white, #dbd6fa);
+  box-shadow: 0 3px 8px rgba(97, 80, 184, 0.3);
+}
+
+.seek::-moz-range-track {
+  height: 8px;
+  background: transparent;
+}
+
+.seek::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  border: 2px solid #9e90d1;
+  border-radius: 50%;
+  background: linear-gradient(white, #dbd6fa);
+  box-shadow: 0 3px 8px rgba(97, 80, 184, 0.3);
+}

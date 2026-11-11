@@ -256,8 +256,8 @@ export const AttendeeEventRegistrationForm: React.FC<RegistrationFormProps> = ({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             {/* Preview column */}
-            <div className="container py-10">
-              <div className="space-y-4 p-4 max-w-lg mx-auto relative">
+            <div className="container px-4 py-6 sm:px-8 sm:py-10">
+              <div className="space-y-4 sm:p-4 max-w-lg mx-auto relative">
                 {/* Event Image */}
                 <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden relative flex items-center justify-center">
                   {event?.imageUrl ? (

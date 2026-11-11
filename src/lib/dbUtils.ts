@@ -1,9 +1,10 @@
 import { fetchBackend } from "./db";
 import { DBRegistrationStatus } from "@/types";
+import { eventRegistrationsEndpoint } from "./registrationQuery";
 
 export async function fetchRegistrationData(eventId: string, year: string) {
   let registrationData = await fetchBackend({
-    endpoint: `/registrations?eventID=${eventId}&year=${year}`,
+    endpoint: eventRegistrationsEndpoint(eventId, year),
     method: "GET",
     authenticatedCall: false,
   });
@@ -106,6 +107,12 @@ export function clearCognitoCookies() {
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/;`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=${window.location.hostname};`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=.${window.location.hostname};`;
+      if (
+        window.location.hostname === "ubcbiztech.com" ||
+        window.location.hostname.endsWith(".ubcbiztech.com")
+      ) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; domain=ubcbiztech.com;`;
+      }
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure;`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=strict;`;
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; max-age=0; path=/; secure; samesite=lax;`;

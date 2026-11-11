@@ -1,6 +1,11 @@
 import Events, { DynamicPageProps } from "@/constants/companion-events";
+import ProductPlus2026 from "@/features/product+/2026/ProductPlus2026";
+import {
+  isProductPlusPage,
+  PRODUCT_PLUS_COMPANION_PATH,
+} from "@/features/product+/2026/access";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 function matchRoute(
   pattern: string,
@@ -23,7 +28,7 @@ function matchRoute(
   return params;
 }
 
-export default function CompanionSubpage() {
+function LegacyCompanionSubpage() {
   const router = useRouter();
   const { event, year, slug } = router.query;
   const slugPath = Array.isArray(slug) ? slug.join("/") : slug;
@@ -66,4 +71,31 @@ export default function CompanionSubpage() {
   };
 
   return <PageComponent {...pageProps} />;
+}
+
+function ProductPlusSubpage() {
+  const router = useRouter();
+  const { slug } = router.query;
+  const page = Array.isArray(slug) && slug.length === 1 ? slug[0] : slug;
+  const validPage = isProductPlusPage(page);
+
+  useEffect(() => {
+    if (router.isReady && !validPage) {
+      void router.replace(PRODUCT_PLUS_COMPANION_PATH);
+    }
+  }, [router, validPage]);
+
+  if (!router.isReady || !validPage) return null;
+
+  return <ProductPlus2026 page={page} />;
+}
+
+export default function CompanionSubpage() {
+  const router = useRouter();
+
+  if (router.query.event === "product+" && router.query.year === "2026") {
+    return <ProductPlusSubpage />;
+  }
+
+  return <LegacyCompanionSubpage />;
 }

@@ -217,8 +217,11 @@ export default function Onboarding() {
       } catch {
         if (!redirected.current) {
           redirected.current = true;
+          const destination = getSafeRedirect(router.query.redirect);
           await router.replace(
-            `/login?redirect=${encodeURIComponent(getSafeRedirect(router.asPath))}`,
+            destination === "/"
+              ? "/login"
+              : `/login?redirect=${encodeURIComponent(destination)}`,
           );
         }
       }

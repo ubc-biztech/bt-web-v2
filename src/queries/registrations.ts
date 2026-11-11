@@ -10,7 +10,7 @@ export async function getUserRegistrations(
   email: string,
 ): Promise<Registration[]> {
   const response = await fetchBackend({
-    endpoint: `/registrations?email=${email}`,
+    endpoint: `/registrations?email=${encodeURIComponent(email)}`,
     method: "GET",
   });
   return response?.data || [];

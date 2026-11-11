@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LinkIcon } from "lucide-react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { CLIENT_URL } from "@/lib/dbconfig";
 import { getCompanionByEventIdYear } from "@/lib/companionHelpers";
 import { isMISNightEventId } from "@/features/registrationForms/mis-2026/constants";
@@ -38,31 +39,34 @@ const GenericSuccessPage = () => {
     }
   };
   return (
-    <div className="bg-bt-blue-600 text-white min-h-screen p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-bt-blue-600 text-white min-h-screen px-4 py-8 sm:p-8">
+      <div className="max-w-2xl mx-auto">
         {isApplicationBasedBoolean ? (
           <>
-            <h1 className="text-white text-4xl font-bold mb-4">
+            <h1 className="text-white text-[32px] sm:text-[40px] leading-tight font-bold mb-4">
               We&apos;ve got your application!
             </h1>
 
-            <div className="rounded-lg p-6 mb-8">
+            <div className="mb-8 space-y-3">
               <p className="mb-2 text-white">
-                Thanks for applying! We&apos;ll be reviewing your application
-                soon and will email you soon about your application status!
+                Thanks for applying! Your application is under review.
+                We&apos;ll email you when a decision is ready.
               </p>
-              <p className="mb-4 text-white">
-                Click here to view your application status.
-              </p>
+              <Link
+                href={`/event/${eventId}/${year}`}
+                className="inline-block text-bt-green-300 underline underline-offset-4"
+              >
+                View application status
+              </Link>
             </div>
           </>
         ) : (
           <>
-            <h1 className="text-white text-4xl font-bold mb-4">
+            <h1 className="text-white text-[32px] sm:text-[40px] leading-tight font-bold mb-4">
               See you soon!
             </h1>
 
-            <div className="rounded-lg p-6 mb-8">
+            <div className="mb-8 space-y-3">
               <p className="mb-2">
                 You&apos;ve successfully registered to the event.
               </p>
@@ -78,7 +82,7 @@ const GenericSuccessPage = () => {
         )}
 
         <div className="text-white rounded-lg">
-          <h2 className="text-white text-3xl font-bold mb-4 border-green-500">
+          <h2 className="text-white text-lg sm:text-xl leading-tight font-bold mb-4">
             What&apos;s next?
           </h2>
           {companionAvailable && (
@@ -139,7 +143,11 @@ const SuccessPage = () => {
     );
   }
 
-  return <GenericSuccessPage />;
+  return (
+    <div className="pb-8 md:pt-8 md:px-12 md:pb-12 lg:p-16">
+      <GenericSuccessPage />
+    </div>
+  );
 };
 
 export default SuccessPage;

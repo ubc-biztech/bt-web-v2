@@ -17,12 +17,7 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { randomEntryIndex, WheelEntry } from "./entries";
 import styles from "./PrizeWheel.module.css";
 
@@ -154,7 +149,9 @@ export default function PrizeWheel({
       const pool = [...eligible];
       const index = randomEntryIndex(pool.length);
       const slice = 360 / pool.length;
-      const target = (360 - (index + 0.5) * slice) % 360;
+      // Vary the landing within the winning slice, clear of its edges.
+      const position = 0.1 + (randomEntryIndex(1_000_000) / 1_000_000) * 0.8;
+      const target = (360 - (index + position) * slice) % 360;
       const startRotation = rotation;
       const distance = 360 * 6 + ((target - (startRotation % 360) + 360) % 360);
       const duration = window.matchMedia("(prefers-reduced-motion: reduce)")
@@ -236,6 +233,7 @@ export default function PrizeWheel({
     >
       <DialogContent
         ref={panel}
+        aria-describedby={undefined}
         className={`${urbanist.className} ${styles.dialog}`}
         onEscapeKeyDown={(e) => {
           if (spinning) e.preventDefault();
@@ -283,9 +281,6 @@ export default function PrizeWheel({
                 {eventName} · Attendee feedback
               </div>
               <DialogTitle className={styles.title}>Spin the wheel</DialogTitle>
-              <DialogDescription className={styles.description}>
-                Pick a winner from your attendee feedback submissions.
-              </DialogDescription>
               <div className={styles.wheelArea}>
                 <div className={styles.halo} />
                 <div className={styles.pointer} aria-hidden="true" />
@@ -367,11 +362,7 @@ export default function PrizeWheel({
                       ? winner.name
                       : "Who’s feeling lucky?"}
                 </h2>
-                <p>
-                  {winner
-                    ? "Come claim your prize!"
-                    : `${eligible.length} eligible entries`}
-                </p>
+                {!winner && <p>{eligible.length} eligible entries</p>}
               </div>
               <Button
                 variant="green"

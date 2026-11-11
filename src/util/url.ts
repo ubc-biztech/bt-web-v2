@@ -33,6 +33,20 @@ export const getSafeRedirect = (
   return path;
 };
 
+export const getLoginRedirect = (
+  redirect: string | string[] | undefined,
+  state: string | string[] | undefined,
+): string => {
+  // Amplify appends the hex-encoded custom destination to its OAuth state.
+  const customState = getQueryString(state)?.match(
+    /^[^-]+-((?:[\da-f]{2})+)$/i,
+  )?.[1];
+  const oauthRedirect = customState?.replace(/../g, (byte) =>
+    String.fromCharCode(parseInt(byte, 16)),
+  );
+  return getSafeRedirect(oauthRedirect ?? redirect);
+};
+
 export const getMembershipHref = (
   redirect: string | string[] | undefined,
 ): string => {
