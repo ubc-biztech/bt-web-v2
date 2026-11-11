@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useForm, useWatch, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Image from "next/image";
@@ -27,6 +27,11 @@ import { extractMonthDay, extractTime } from "@/util/extractDate";
 import { cn } from "@/lib/utils";
 import { getFeedbackAnswerFields } from "@/lib/feedbackGrid";
 import { FeedbackGrid } from "./FeedbackGrid";
+import {
+  getFeedbackPages,
+  getVisibleFeedbackQuestions,
+  pruneFeedbackResponses,
+} from "@/lib/feedbackBranching";
 
 type FeedbackFormValues = {
   respondentName?: string;
@@ -67,7 +72,9 @@ const createFeedbackSchema = (questions: FeedbackQuestion[]) =>
       responses: z.record(z.any()),
     })
     .superRefine((data, ctx) => {
-      for (const question of questions) {
+      for (const question of getFeedbackAnswerFields(
+        getVisibleFeedbackQuestions(questions, data.responses),
+      )) {
         const answer = data.responses?.[question.questionId];
 
         if (question.type === FeedbackQuestionTypes.SHORT_TEXT) {
@@ -206,10 +213,7 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
     () => getFeedbackAnswerFields(questions),
     [questions],
   );
-  const schema = useMemo(
-    () => createFeedbackSchema(answerFields),
-    [answerFields],
-  );
+  const schema = useMemo(() => createFeedbackSchema(questions), [questions]);
 
   const defaultResponses = useMemo(() => {
     return answerFields.reduce<Record<string, any>>((acc, question) => {
@@ -232,9 +236,68 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
   });
 
   const submitHandler: SubmitHandler<FeedbackFormValues> = async (values) => {
-    await onSubmit(values);
+    await onSubmit({
+      ...values,
+      responses: pruneFeedbackResponses(questions, values.responses),
+    });
   };
-  const responses = form.watch("responses");
+  const responses = useWatch({ control: form.control, name: "responses" });
+  const pages = getFeedbackPages(questions, responses);
+  const [pageId, setPageId] = useState("");
+  const pageIndex = Math.max(
+    0,
+    pages.findIndex((page) => page.id === pageId),
+  );
+  const page = pages[pageIndex];
+  const pageHeading = useRef<HTMLHeadingElement>(null);
+  const previousPageId = useRef(page?.id);
+  const hasSections = questions.some((question) => question.type === "SECTION");
+  const isLastPage = pageIndex === pages.length - 1;
+  const busy = isSubmitting || form.formState.isSubmitting;
+
+  useEffect(() => {
+    const visible = pruneFeedbackResponses(questions, responses);
+    const hidden = Object.keys(responses).filter((id) => !(id in visible));
+    if (hidden.length) {
+      form.unregister(hidden.map((id) => `responses.${id}` as const));
+    }
+  }, [questions, responses, form]);
+
+  useEffect(() => {
+    if (previousPageId.current !== page?.id) {
+      previousPageId.current = page?.id;
+      pageHeading.current?.focus();
+    }
+  }, [page?.id]);
+
+  const advance = async () => {
+    if (busy || !page) return;
+    if (!isLastPage) {
+      const fields = getFeedbackAnswerFields(page.questions).map(
+        ({ questionId }) => `responses.${questionId}` as const,
+      );
+      const valid = await form.trigger(
+        pageIndex === 0
+          ? ["respondentName", "respondentEmail", ...fields]
+          : fields,
+        { shouldFocus: true },
+      );
+      if (valid) setPageId(pages[pageIndex + 1].id);
+      return;
+    }
+    await form.handleSubmit(submitHandler, (errors) => {
+      const invalidPage = pages.find((candidate) =>
+        getFeedbackAnswerFields(candidate.questions).some(
+          ({ questionId }) => errors.responses?.[questionId],
+        ),
+      );
+      setPageId(
+        errors.respondentName || errors.respondentEmail
+          ? pages[0].id
+          : (invalidPage?.id ?? page.id),
+      );
+    })();
+  };
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
@@ -283,41 +346,60 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
 
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit(submitHandler)}
+              onSubmit={(event) => {
+                event.preventDefault();
+                void advance();
+              }}
               className="space-y-5"
             >
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="respondentName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your name (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Jane Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {hasSections && (
+                <div>
+                  <p className="text-sm text-bt-blue-100" aria-live="polite">
+                    Page {pageIndex + 1} of {pages.length}
+                  </p>
+                  <h3
+                    ref={pageHeading}
+                    tabIndex={-1}
+                    className="mt-1 text-xl font-semibold text-white focus:outline-none"
+                  >
+                    {page?.label}
+                  </h3>
+                </div>
+              )}
+              {pageIndex === 0 && (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="respondentName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your name (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Jane Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="respondentEmail"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="jane@domain.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  <FormField
+                    control={form.control}
+                    name="respondentEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email (optional)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="jane@domain.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
 
               <div className="space-y-4">
-                {questions.map((question, index) => {
+                {page?.questions.map((question, index) => {
                   const choices = normalizeChoices(question.choices);
                   const rawScaleMin = Number(question.scaleMin ?? 1);
                   const rawScaleMax = Number(question.scaleMax ?? 5);
@@ -548,16 +630,30 @@ export const EventFeedbackForm: React.FC<EventFeedbackFormProps> = ({
                 })}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500 sm:w-auto"
-                disabled={isSubmitting || form.formState.isSubmitting}
-              >
-                <BadgeCheck className="mr-2 h-4 w-4" />
-                {isSubmitting || form.formState.isSubmitting
-                  ? "Submitting..."
-                  : "Submit feedback"}
-              </Button>
+              <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
+                {pageIndex > 0 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => setPageId(pages[pageIndex - 1].id)}
+                  >
+                    Back
+                  </Button>
+                )}
+                <Button
+                  type="submit"
+                  className="w-full bg-bt-green-300 text-bt-blue-600 hover:bg-bt-green-500 sm:ml-auto sm:w-auto"
+                  disabled={busy}
+                >
+                  {isLastPage && <BadgeCheck className="mr-2 h-4 w-4" />}
+                  {busy
+                    ? "Submitting..."
+                    : isLastPage
+                      ? "Submit feedback"
+                      : "Continue"}
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

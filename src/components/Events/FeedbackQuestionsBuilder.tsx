@@ -19,6 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { ChevronDown, ChevronUp, Lock, Plus, Trash2 } from "lucide-react";
 import { FeedbackQuestionTypes } from "@/constants/feedbackQuestionTypes";
+import { getFeedbackConditionSources } from "@/lib/feedbackBranching";
 import { OVERALL_RATING_QUESTION_ID } from "@/constants/feedbackQuestionTypes";
 
 type FeedbackQuestionsBuilderProps = {
@@ -29,6 +30,7 @@ type FeedbackQuestionsBuilderProps = {
 };
 
 const QUESTION_TYPE_OPTIONS = [
+  { value: FeedbackQuestionTypes.SECTION, label: "Page section" },
   { value: FeedbackQuestionTypes.SHORT_TEXT, label: "Short answer" },
   { value: FeedbackQuestionTypes.LONG_TEXT, label: "Long answer" },
   { value: FeedbackQuestionTypes.MULTIPLE_CHOICE, label: "Multiple choice" },
@@ -68,7 +70,11 @@ export const FeedbackQuestionsBuilder: React.FC<
   };
 
   const moveQuestion = (index: number, direction: "up" | "down") => {
-    if (direction === "up" && index > 0) {
+    if (
+      direction === "up" &&
+      index > 0 &&
+      questions[index - 1]?.id !== OVERALL_RATING_QUESTION_ID
+    ) {
       swap(index, index - 1);
       return;
     }
@@ -134,6 +140,24 @@ export const FeedbackQuestionsBuilder: React.FC<
             questions[index]?.type || FeedbackQuestionTypes.SHORT_TEXT;
           const options = (questions[index]?.options as string[]) || [];
           const isDefault = questions[index]?.id === OVERALL_RATING_QUESTION_ID;
+          const isSection = type === FeedbackQuestionTypes.SECTION;
+          const condition = questions[index]?.showWhen;
+          const sources = getFeedbackConditionSources(
+            questions.map((q) => ({
+              ...q,
+              questionId: q.id,
+              label: q.question,
+              choices: (q.options || []).join(","),
+            })),
+            index,
+          );
+          const source = sources.find(
+            (q) => q.questionId === condition?.questionId,
+          );
+          const sourceChoices = (source?.choices || "")
+            .split(",")
+            .map((choice) => choice.trim())
+            .filter(Boolean);
           const isRequired = isDefault
             ? true
             : Boolean(questions[index]?.required);
@@ -146,7 +170,7 @@ export const FeedbackQuestionsBuilder: React.FC<
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-wide text-bt-blue-100 flex items-center gap-1.5">
-                    Question {index + 1}
+                    {isSection ? "Section" : "Question"} {index + 1}
                     {isDefault && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-bt-green-400/15 px-2 py-0.5 text-[10px] font-medium text-bt-green-300 normal-case tracking-normal">
                         <Lock className="w-2.5 h-2.5" /> Default
@@ -160,12 +184,20 @@ export const FeedbackQuestionsBuilder: React.FC<
                     <Select
                       value={type}
                       disabled={isDefault}
-                      onValueChange={(value) =>
+                      onValueChange={(value) => {
                         setValue(`${name}.${index}.type`, value, {
                           shouldDirty: true,
                           shouldValidate: true,
-                        })
-                      }
+                        });
+                        setValue(`${name}.${index}.showWhen`, undefined, {
+                          shouldDirty: true,
+                        });
+                        if (value === FeedbackQuestionTypes.SECTION) {
+                          setValue(`${name}.${index}.required`, false, {
+                            shouldDirty: true,
+                          });
+                        }
+                      }}
                     >
                       <SelectTrigger className="text-white">
                         <SelectValue placeholder="Select type" />
@@ -182,30 +214,43 @@ export const FeedbackQuestionsBuilder: React.FC<
                 </div>
 
                 <div className="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
-                  <Label
-                    htmlFor={`${name}.${index}.required`}
-                    className="text-sm text-white whitespace-nowrap"
-                  >
-                    Required
-                  </Label>
-                  <Checkbox
-                    id={`${name}.${index}.required`}
-                    checked={isRequired}
-                    disabled={isDefault}
-                    onCheckedChange={(checked) =>
-                      !isDefault &&
-                      setValue(`${name}.${index}.required`, Boolean(checked), {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }
-                  />
+                  {!isSection && (
+                    <>
+                      <Label
+                        htmlFor={`${name}.${index}.required`}
+                        className="text-sm text-white whitespace-nowrap"
+                      >
+                        Required
+                      </Label>
+                      <Checkbox
+                        id={`${name}.${index}.required`}
+                        checked={isRequired}
+                        disabled={isDefault}
+                        onCheckedChange={(checked) =>
+                          !isDefault &&
+                          setValue(
+                            `${name}.${index}.required`,
+                            Boolean(checked),
+                            {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            },
+                          )
+                        }
+                      />
+                    </>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
+                    aria-label={`Move ${isSection ? "section" : "question"} ${index + 1} up`}
                     onClick={() => moveQuestion(index, "up")}
-                    disabled={index === 0 || isDefault}
+                    disabled={
+                      index === 0 ||
+                      isDefault ||
+                      questions[index - 1]?.id === OVERALL_RATING_QUESTION_ID
+                    }
                     className="h-8 w-8"
                   >
                     <ChevronUp className="h-4 w-4" />
@@ -214,6 +259,7 @@ export const FeedbackQuestionsBuilder: React.FC<
                     type="button"
                     variant="ghost"
                     size="icon"
+                    aria-label={`Move ${isSection ? "section" : "question"} ${index + 1} down`}
                     onClick={() => moveQuestion(index, "down")}
                     disabled={index === fields.length - 1 || isDefault}
                     className="h-8 w-8"
@@ -224,6 +270,7 @@ export const FeedbackQuestionsBuilder: React.FC<
                     type="button"
                     variant="ghost"
                     size="icon"
+                    aria-label={`Delete ${isSection ? "section" : "question"} ${index + 1}`}
                     onClick={() => removeQuestion(index)}
                     disabled={isDefault}
                     className="h-8 w-8 text-bt-red-200 hover:text-bt-red-100"
@@ -240,16 +287,94 @@ export const FeedbackQuestionsBuilder: React.FC<
 
               <div className="mt-4">
                 <Label className="mb-1.5 block text-xs text-white">
-                  Prompt
+                  {isSection ? "Section title" : "Prompt"}
                 </Label>
                 <Textarea
                   rows={2}
-                  placeholder="Write the question users should answer"
+                  aria-label={`${isSection ? "Section title" : "Prompt"} ${index + 1}`}
+                  placeholder={
+                    isSection
+                      ? "e.g. Summit feedback"
+                      : "Write the question users should answer"
+                  }
                   readOnly={isDefault}
                   className={isDefault ? "opacity-70 cursor-not-allowed" : ""}
                   {...register(`${name}.${index}.question`)}
                 />
               </div>
+
+              {isSection && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-sm text-bt-blue-100">
+                    Starts a new page. All questions until the next section
+                    belong to this page. Keep shared required questions in a
+                    section shown to everyone.
+                  </p>
+                  <Label
+                    htmlFor={`${name}.${index}.showWhen`}
+                    className="block text-sm text-white"
+                  >
+                    Show this section
+                  </Label>
+                  <select
+                    id={`${name}.${index}.showWhen`}
+                    className="w-full rounded-md border border-white/20 bg-bt-blue-600 p-2 text-sm text-white"
+                    value={condition?.questionId || ""}
+                    onChange={(event) =>
+                      setValue(
+                        `${name}.${index}.showWhen`,
+                        event.target.value
+                          ? { questionId: event.target.value, values: [] }
+                          : undefined,
+                        { shouldDirty: true, shouldValidate: true },
+                      )
+                    }
+                  >
+                    <option value="">To everyone</option>
+                    {condition && !source && (
+                      <option value={condition.questionId}>
+                        Missing or moved question — choose again
+                      </option>
+                    )}
+                    {sources.map((q) => (
+                      <option key={q.questionId} value={q.questionId}>
+                        When: {q.label || "Untitled question"}
+                      </option>
+                    ))}
+                  </select>
+                  {source && (
+                    <fieldset className="space-y-2">
+                      <legend className="mb-2 text-sm text-white">
+                        Answer is any of
+                      </legend>
+                      {sourceChoices.map((choice) => (
+                        <label
+                          key={choice}
+                          className="flex items-start gap-2 text-sm text-white"
+                        >
+                          <input
+                            type="checkbox"
+                            className="mt-1 shrink-0 accent-bt-green-300"
+                            checked={condition.values.includes(choice)}
+                            onChange={(event) =>
+                              setValue(
+                                `${name}.${index}.showWhen.values`,
+                                event.target.checked
+                                  ? [...condition.values, choice]
+                                  : condition.values.filter(
+                                      (value: string) => value !== choice,
+                                    ),
+                                { shouldDirty: true, shouldValidate: true },
+                              )
+                            }
+                          />
+                          <span className="break-words">{choice}</span>
+                        </label>
+                      ))}
+                    </fieldset>
+                  )}
+                </div>
+              )}
 
               {(type === FeedbackQuestionTypes.MULTIPLE_CHOICE ||
                 type === FeedbackQuestionTypes.CHECKBOXES) && (
@@ -490,6 +615,24 @@ export const FeedbackQuestionsBuilder: React.FC<
       >
         <Plus className="h-4 w-4" />
         Add Feedback Question
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="sm:ml-3"
+        onClick={() =>
+          append({
+            id: crypto.randomUUID(),
+            type: FeedbackQuestionTypes.SECTION,
+            question: "",
+            required: false,
+            options: [],
+            grid: { rows: [], columns: [] },
+          })
+        }
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Add page section
       </Button>
     </div>
   );

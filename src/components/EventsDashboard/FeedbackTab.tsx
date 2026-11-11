@@ -5,6 +5,7 @@ import {
   BiztechEvent,
   FeedbackQuestion,
   FeedbackGridDefinition,
+  FeedbackSectionCondition,
 } from "@/types";
 import { FeedbackQuestionsBuilder } from "@/components/Events/FeedbackQuestionsBuilder";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ import {
   OVERALL_RATING_QUESTION_ID,
   DEFAULT_OVERALL_RATING_QUESTION,
 } from "@/constants/feedbackQuestionTypes";
+import { validateFeedbackBranching } from "@/lib/feedbackBranching";
 
 // types
 interface FeedbackTabProps {
@@ -59,11 +61,12 @@ type FormValues = {
 
 type FrontendFeedbackQuestion = {
   id: string;
-  type: string;
+  type: FeedbackQuestion["type"];
   question: string;
   required: boolean;
   options: string[];
   grid?: FeedbackGridDefinition;
+  showWhen?: FeedbackSectionCondition;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;
@@ -97,6 +100,7 @@ const transformToFrontend = (
   type: q.type,
   question: q.label,
   required: q.required,
+  showWhen: q.showWhen,
   grid: q.grid ?? { rows: [], columns: [] },
   options: q.choices
     ? q.choices
@@ -147,7 +151,7 @@ const normalizeGridColumns = (question: FrontendFeedbackQuestion) => {
   };
 };
 
-const transformToBackend = (q: FrontendFeedbackQuestion) => ({
+const transformToBackend = (q: FrontendFeedbackQuestion): FeedbackQuestion => ({
   type: q.type,
   questionId: q.id,
   label: q.question.trim(),
@@ -155,7 +159,8 @@ const transformToBackend = (q: FrontendFeedbackQuestion) => ({
     .map((o) => String(o).trim())
     .filter(Boolean)
     .join(","),
-  required: q.required,
+  required: q.type === "SECTION" ? false : q.required,
+  showWhen: q.type === "SECTION" ? q.showWhen : undefined,
   grid:
     q.type === "MULTIPLE_CHOICE_GRID"
       ? {
@@ -312,6 +317,21 @@ export default function FeedbackTab({
         toast({
           title: "Invalid grid",
           description: `${question.question || "Untitled question"}: ${error}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    for (const formType of ["attendee", "partner"] as const) {
+      const error = validateFeedbackBranching(
+        normalizedValues[`${formType}FeedbackQuestions`].map(
+          transformToBackend,
+        ),
+      );
+      if (error) {
+        toast({
+          title: "Invalid sections",
+          description: `${formType}: ${error}`,
           variant: "destructive",
         });
         return;

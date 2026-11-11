@@ -52,6 +52,11 @@ export type FeedbackGridDefinition = {
   columns: string[];
 };
 
+export type FeedbackSectionCondition = {
+  questionId: string;
+  values: string[];
+};
+
 export type FeedbackQuestion = {
   label: string;
   questionId: string;
@@ -61,10 +66,12 @@ export type FeedbackQuestion = {
     | "MULTIPLE_CHOICE"
     | "CHECKBOXES"
     | "LINEAR_SCALE"
-    | "MULTIPLE_CHOICE_GRID";
+    | "MULTIPLE_CHOICE_GRID"
+    | "SECTION";
   required: boolean;
   choices?: string;
   grid?: FeedbackGridDefinition;
+  showWhen?: FeedbackSectionCondition;
   scaleMin?: number;
   scaleMax?: number;
   scaleMinLabel?: string;

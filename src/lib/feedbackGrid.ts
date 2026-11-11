@@ -39,13 +39,15 @@ export function validateGridConfig(
 export function getFeedbackAnswerFields(
   questions: FeedbackQuestion[],
 ): FeedbackQuestion[] {
-  return questions.flatMap((question) =>
-    question.type === "MULTIPLE_CHOICE_GRID"
-      ? question.grid!.rows.map((row) => ({
-          ...question,
-          questionId: row.id,
-          label: `${question.label}: ${row.label}`,
-        }))
-      : [question],
-  );
+  return questions.flatMap((question) => {
+    if (question.type === "SECTION") return [];
+    if (question.type === "MULTIPLE_CHOICE_GRID") {
+      return question.grid!.rows.map((row) => ({
+        ...question,
+        questionId: row.id,
+        label: `${question.label}: ${row.label}`,
+      }));
+    }
+    return [question];
+  });
 }
