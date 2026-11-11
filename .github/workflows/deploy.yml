@@ -31,13 +31,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
           fetch-depth: 0
 
-      - if: env.TARGET == 'prod'
+      - name: Validate release tag
+        if: env.TARGET == 'prod'
+        shell: bash
         env:
           TAG: ${{ inputs.tag || github.ref_name }}
-        run: scripts/check-release.sh "$TAG"
+        # Keep validation here so older tags do not need a helper script.
+        run: |
+          set -euo pipefail
+
+          if [ -z "${TAG:-}" ]; then
+            echo "A release tag is required" >&2
+            exit 64
+          fi
+
+          tag_ref="refs/tags/$TAG"
+          if ! git rev-parse -q --verify "$tag_ref^{commit}" >/dev/null; then
+            echo "Tag '$TAG' does not exist or does not point to a commit" >&2
+            exit 1
+          fi
+
+          git fetch -q origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$tag_ref" origin/main; then
+            echo "Tag '$TAG' is not on main; refusing to deploy it to prod" >&2
+            exit 1
+          fi
+
+          echo "Tag '$TAG' is on main ($(git rev-parse --short "$tag_ref"))"
 
       - uses: actions/setup-node@v4
         with:
