@@ -6,8 +6,10 @@ import { EventFormSchema } from "@/components/Events/EventFormSchema";
 import { useToast } from "@/components/ui/use-toast";
 import { fetchBackend } from "@/lib/db";
 import { DEFAULT_REGISTRATION_FORM_KEY } from "@/features/registrationForms/registry";
+import { DEFAULT_PARTNER_REGISTRATION_FORM_KEY } from "@/features/registrationForms/partnerRegistry";
 import {
   getRegistrationQuestions,
+  getPartnerRegistrationQuestions,
   transformEventFormQuestions,
 } from "@/features/registrationForms/questions";
 import { normalizeEventPageConfig } from "@/lib/eventPageConfig";
@@ -70,6 +72,9 @@ const EditEventPage: NextPage = () => {
           isCompleted: !!data.isCompleted,
           registrationFormKey:
             data.registrationFormKey ?? DEFAULT_REGISTRATION_FORM_KEY,
+          partnerRegistrationFormKey:
+            data.partnerRegistrationFormKey ??
+            DEFAULT_PARTNER_REGISTRATION_FORM_KEY,
           eventPage: normalizeEventPageConfig(data.eventPage),
           customQuestions: Array.isArray(data.registrationQuestions)
             ? data.registrationQuestions.map(transformBackendQuestion)
@@ -123,41 +128,43 @@ const EditEventPage: NextPage = () => {
       data.customQuestions,
     );
 
-    const body = {
-      ename: data.eventName,
-      description: data.description,
-      partnerDescription: data.partnerDescription,
-      capac: data.capacity,
-      elocation: data.location,
-      imageUrl: data.imageUrl,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      deadline: data.deadline,
-      pricing: {
-        members: Number(data.price) || 0,
-        ...(data.nonBizTechAllowed && {
-          nonMembers:
-            data.nonMemberPrice != null
-              ? Number(data.nonMemberPrice)
-              : Number(data.price) || 0,
-        }),
-      },
-      registrationFormKey: data.registrationFormKey,
-      registrationQuestions: getRegistrationQuestions(
-        data.registrationFormKey,
-        defaultRegistrationQuestions,
-      ),
-      partnerRegistrationQuestions: transformEventFormQuestions(
-        data.partnerCustomQuestions,
-      ),
-      isApplicationBased: data.isApplicationBased,
-      nonBizTechAllowed: data.nonBizTechAllowed,
-      isPublished: data.isPublished,
-      isCompleted: data.isCompleted,
-      eventPage: data.eventPage,
-    };
-
     try {
+      const body = {
+        ename: data.eventName,
+        description: data.description,
+        partnerDescription: data.partnerDescription,
+        capac: data.capacity,
+        elocation: data.location,
+        imageUrl: data.imageUrl,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        deadline: data.deadline,
+        pricing: {
+          members: Number(data.price) || 0,
+          ...(data.nonBizTechAllowed && {
+            nonMembers:
+              data.nonMemberPrice != null
+                ? Number(data.nonMemberPrice)
+                : Number(data.price) || 0,
+          }),
+        },
+        registrationFormKey: data.registrationFormKey,
+        partnerRegistrationFormKey: data.partnerRegistrationFormKey,
+        registrationQuestions: getRegistrationQuestions(
+          data.registrationFormKey,
+          defaultRegistrationQuestions,
+        ),
+        partnerRegistrationQuestions: getPartnerRegistrationQuestions(
+          data.partnerRegistrationFormKey,
+          transformEventFormQuestions(data.partnerCustomQuestions),
+        ),
+        isApplicationBased: data.isApplicationBased,
+        nonBizTechAllowed: data.nonBizTechAllowed,
+        isPublished: data.isPublished,
+        isCompleted: data.isCompleted,
+        eventPage: data.eventPage,
+      };
+
       const result = await fetchBackend({
         endpoint: `/events/${eventId}/${year}`,
         method: "PATCH",
@@ -170,7 +177,14 @@ const EditEventPage: NextPage = () => {
       });
 
       // Instead of reloading, update the initialData state
-      setInitialData(data);
+      const savedData = {
+        ...data,
+        partnerCustomQuestions: body.partnerRegistrationQuestions.map(
+          transformBackendQuestion,
+        ),
+      };
+      setInitialData(savedData);
+      return savedData;
     } catch (error: any) {
       toast({
         title: "Error",

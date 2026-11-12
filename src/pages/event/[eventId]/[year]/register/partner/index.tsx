@@ -1,5 +1,6 @@
 "use client";
 import { PartnerEventRegistrationForm } from "@/components/Events/PartnerEventRegistrationForm";
+import { getPartnerRegistrationForm } from "@/features/registrationForms/partnerRegistry";
 import { QuestionTypes } from "@/constants/questionTypes";
 import { fetchBackend } from "@/lib/db";
 import { BiztechEvent } from "@/types";
@@ -12,10 +13,15 @@ import { useEffect, useState } from "react";
 export default function PartnerFormRegister() {
   const router = useRouter();
   const { eventId, year } = router.query;
-  const [event, setEvent] = useState<BiztechEvent>({} as BiztechEvent);
+  const [event, setEvent] = useState<BiztechEvent | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [userRegistered, setUserRegistered] = useState<boolean>(false);
 
   useEffect(() => {
+    let cancelled = false;
+    setEvent(null);
+    setLoadError(false);
+    setUserRegistered(false);
     const fetchEvent = async () => {
       if (!eventId || !year) {
         return;
@@ -26,14 +32,20 @@ export default function PartnerFormRegister() {
         data: undefined,
         authenticatedCall: false,
       });
-      setEvent(eventData);
+      if (!cancelled) setEvent(eventData);
     };
-    fetchEvent();
+    fetchEvent().catch(() => {
+      if (!cancelled) setLoadError(true);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [eventId, year]);
 
   const checkRegistered = async (email: string): Promise<Boolean> => {
+    if (!event) return false;
     const registrations = await fetchBackend({
-      endpoint: `/registrations?email=${email}`,
+      endpoint: `/registrations?email=${encodeURIComponent(email.toLowerCase())}`,
       method: "GET",
       authenticatedCall: false,
     });
@@ -45,8 +57,8 @@ export default function PartnerFormRegister() {
   };
 
   const cleanFormData = (data: any) => {
-    if (!event?.registrationQuestions) return;
-    for (let question of event?.registrationQuestions) {
+    if (!event?.partnerRegistrationQuestions) return;
+    for (let question of event?.partnerRegistrationQuestions) {
       if (question.type === QuestionTypes.CHECKBOX && data.customQuestions) {
         data.customQuestions[question.questionId] = cleanOtherQuestions(
           data?.customQuestions[question.questionId],
@@ -74,6 +86,7 @@ export default function PartnerFormRegister() {
         gender: data["preferredPronouns"],
         companyName: data["companyName"],
         role: data["roleAtCompany"],
+        diet: data["dietaryRestrictions"] || "None",
       },
       dynamicResponses: data["customQuestions"],
     };
@@ -116,6 +129,40 @@ export default function PartnerFormRegister() {
       </div>
     );
   };
+
+  if (loadError)
+    return (
+      <p role="alert" className="p-6 text-white">
+        Unable to load this event. Please refresh and try again.
+      </p>
+    );
+  if (!event || event.id !== eventId || String(event.year) !== year)
+    return (
+      <p role="status" className="p-6 text-white">
+        Loading registration...
+      </p>
+    );
+  const definition = getPartnerRegistrationForm(
+    event.partnerRegistrationFormKey,
+  );
+  if (!definition) {
+    return renderErrorText(
+      <p role="alert">
+        This event&apos;s partner registration form is not available. Please
+        contact an organizer.
+      </p>,
+    );
+  }
+  const CustomPartnerForm = definition.Component;
+  if (CustomPartnerForm) {
+    return (
+      <CustomPartnerForm
+        key={`${event.id};${event.year}`}
+        mode="live"
+        event={event}
+      />
+    );
+  }
 
   if (userRegistered) {
     return renderErrorText(

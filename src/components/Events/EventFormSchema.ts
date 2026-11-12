@@ -5,6 +5,10 @@ import {
   type RegistrationFormKey,
 } from "@/features/registrationForms/registry";
 import {
+  DEFAULT_PARTNER_REGISTRATION_FORM_KEY,
+  isPartnerRegistrationFormKey,
+} from "@/features/registrationForms/partnerRegistry";
+import {
   EVENT_PAGE_MODULE_TYPES,
   defaultEventPageConfig,
 } from "@/lib/eventPageConfig";
@@ -16,6 +20,14 @@ const registrationFormKeySchema = z
     "Select a valid registration form",
   )
   .default(DEFAULT_REGISTRATION_FORM_KEY);
+
+const partnerRegistrationFormKeySchema = z
+    .string()
+    .refine(
+      isPartnerRegistrationFormKey,
+      "Select a valid partner registration form",
+    )
+    .default(DEFAULT_PARTNER_REGISTRATION_FORM_KEY);
 
 const eventPageModuleSchema = z.object({
   id: z.enum(EVENT_PAGE_MODULE_TYPES),
@@ -72,6 +84,7 @@ export const eventFormSchema = z.object({
   isPublished: z.boolean().default(false),
   isCompleted: z.boolean().default(false),
   registrationFormKey: registrationFormKeySchema,
+  partnerRegistrationFormKey: partnerRegistrationFormKeySchema,
   eventPage: eventPageConfigSchema,
 
   // Arrays with defaults

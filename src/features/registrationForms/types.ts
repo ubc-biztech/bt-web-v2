@@ -8,3 +8,7 @@ export type RegistrationFormProps = {
   submitting: boolean;
   onSubmit: (payload: RegistrationPayload) => Promise<boolean>;
 };
+
+export type PartnerRegistrationFormProps =
+  | { mode: "preview" }
+  | { mode: "live"; event: BiztechEvent };

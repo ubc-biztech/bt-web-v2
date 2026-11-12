@@ -35,6 +35,10 @@ import {
   REGISTRATION_FORM_OPTIONS,
 } from "@/features/registrationForms/registry";
 import {
+  DEFAULT_PARTNER_REGISTRATION_FORM_KEY,
+  PARTNER_REGISTRATION_FORM_OPTIONS,
+} from "@/features/registrationForms/partnerRegistry";
+import {
   ArrowDown,
   ImageIcon,
   FileText,
@@ -55,7 +59,7 @@ import {
 
 interface EventFormProps {
   initialData?: Partial<EventFormSchema>;
-  onSubmit: (data: EventFormSchema) => void;
+  onSubmit: (data: EventFormSchema) => Promise<EventFormSchema | void>;
   eventId?: string; // Add this prop for constructing URLs
   eventYear?: string; // Add this prop for constructing URLs
 }
@@ -122,6 +126,7 @@ export const EventForm: React.FC<EventFormProps> = ({
       isPublished: false,
       isCompleted: false,
       registrationFormKey: DEFAULT_REGISTRATION_FORM_KEY,
+      partnerRegistrationFormKey: DEFAULT_PARTNER_REGISTRATION_FORM_KEY,
       ...initialData,
       eventPage: initialEventPage,
     },
@@ -143,6 +148,12 @@ export const EventForm: React.FC<EventFormProps> = ({
   });
   const usesCustomRegistrationForm =
     registrationFormKey !== DEFAULT_REGISTRATION_FORM_KEY;
+  const partnerRegistrationFormKey = useWatch({
+    control: form.control,
+    name: "partnerRegistrationFormKey",
+  });
+  const usesCustomPartnerRegistrationForm =
+    partnerRegistrationFormKey !== DEFAULT_PARTNER_REGISTRATION_FORM_KEY;
   const eventPageModules = useWatch({
     control: form.control,
     name: "eventPage.modules",
@@ -252,9 +263,8 @@ export const EventForm: React.FC<EventFormProps> = ({
   const handleSubmit = async (data: EventFormSchema) => {
     try {
       setIsSubmitting(true);
-      await onSubmit(data);
-      // Reset form state after successful submission
-      form.reset(data);
+      const savedData = await onSubmit(data);
+      form.reset(savedData ?? data);
     } catch (error) {
       toast({
         title: "Error",
@@ -325,10 +335,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   return (
     <div className="text-white px-4 py-6 sm:px-6 lg:px-8 max-w-[1600px] mx-auto w-full">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit, handleInvalidSubmit)}
-          className="space-y-6"
-        >
+        <div className="space-y-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
@@ -352,7 +359,12 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <Button type="submit" variant="green" className="gap-1.5">
+              <Button
+                type="submit"
+                form="event-settings-form"
+                variant="green"
+                className="gap-1.5"
+              >
                 <Save className="w-4 h-4" />
                 Save
               </Button>
@@ -437,7 +449,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             {/* Right Column — Form Sections */}
-            <div className="order-1 xl:order-2 space-y-5">
+            <form
+              id="event-settings-form"
+              onSubmit={form.handleSubmit(handleSubmit, handleInvalidSubmit)}
+              className="order-1 xl:order-2 space-y-5"
+            >
               {/* Settings */}
               <SectionCard
                 icon={<Settings className="w-4 h-4" />}
@@ -453,6 +469,11 @@ export const EventForm: React.FC<EventFormProps> = ({
                     Select the attendee registration experience for this event.
                   </p>
                 </div>
+                <FormSelect
+                  name="partnerRegistrationFormKey"
+                  label="Partner Registration Form"
+                  options={PARTNER_REGISTRATION_FORM_OPTIONS}
+                />
                 <FormCheckbox
                   name="isApplicationBased"
                   label="This is an application based event (i.e. you will accept / reject applicants)"
@@ -730,15 +751,22 @@ export const EventForm: React.FC<EventFormProps> = ({
                   name="partnerDescription"
                   label="Partner Description*"
                 />
-                <CustomQuestions
-                  control={form.control}
-                  name="partnerCustomQuestions"
-                  label="Partner Custom Questions"
-                />
+                {usesCustomPartnerRegistrationForm ? (
+                  <p className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/45 px-3 py-2 text-xs leading-5 text-bt-blue-100">
+                    This form&apos;s questions are managed in code. Select the
+                    default partner registration form to edit questions here.
+                  </p>
+                ) : (
+                  <CustomQuestions
+                    control={form.control}
+                    name="partnerCustomQuestions"
+                    label="Partner Custom Questions"
+                  />
+                )}
               </SectionCard>
-            </div>
+            </form>
           </div>
-        </form>
+        </div>
       </Form>
     </div>
   );

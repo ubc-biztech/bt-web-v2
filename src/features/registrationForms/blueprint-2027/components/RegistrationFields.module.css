@@ -1,0 +1,217 @@
+.choices {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px 24px;
+  min-width: 0;
+}
+.choices[data-columns="multiple"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.choiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  min-width: 0;
+}
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.choice {
+  position: relative;
+}
+.nativeControl {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.indicator {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid #767676;
+  border-radius: 50%;
+  background: white;
+  display: grid;
+  place-content: center;
+}
+.choices[data-multiple="true"] .indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
+}
+.nativeControl:checked + .indicator {
+  border-color: #0057ff;
+}
+.nativeControl:checked + .indicator::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #0057ff;
+}
+.choices[data-multiple="true"] .nativeControl:checked + .indicator {
+  border-color: #767676;
+}
+.choices[data-multiple="true"] .nativeControl:checked + .indicator::after {
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: #0057ff;
+}
+.choice:has(input[type="radio"]:checked) {
+  color: #0057ff;
+}
+.nativeControl:focus-visible + .indicator {
+  outline: 2px solid #0057ff;
+  outline-offset: 4px;
+}
+.other:focus {
+  outline: none;
+  box-shadow: inset 0 -1px 0 #0057ff;
+}
+.other {
+  min-width: 80px;
+  width: 160px;
+  max-width: 100%;
+  border: 0;
+  border-bottom: 1px solid black;
+  padding: 8px 0;
+  color: black;
+  background: transparent;
+  font: inherit;
+}
+.choiceRow:has(.nativeControl:checked) .other {
+  border-bottom-color: #0057ff;
+}
+.upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.upload .uploadHint {
+  flex-basis: 100%;
+  color: #606060;
+  font-size: 14px;
+}
+.uploadButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid #0057ff;
+  border-radius: 8px;
+  color: #0057ff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.uploadButton:focus-within {
+  outline: 2px solid #0057ff;
+  outline-offset: 4px;
+}
+.uploadButton:hover {
+  background: #f5f8ff;
+}
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+.fileName {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .choices[data-columns="multiple"] {
+    grid-template-columns: 1fr;
+  }
+}
+@media (forced-colors: active) {
+  .nativeControl {
+    position: static;
+    width: 24px;
+    height: 24px;
+    opacity: 1;
+    appearance: auto;
+  }
+  .indicator {
+    display: none;
+  }
+}
+.other::placeholder {
+  color: #b5b5b5;
+  opacity: 1;
+}
+.questionField {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.questionLabel::before {
+  content: "";
+  position: absolute;
+  left: -18px;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: black;
+}
+.questionField .questionLabel {
+  color: black;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-size: 18px;
+  font-weight: 350;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+.optional {
+  display: inline-block;
+  margin-left: 12px;
+  color: #606060;
+  font-family: "Schibsted Grotesk", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+.description {
+  color: #606060;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+.error {
+  color: #b42318;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

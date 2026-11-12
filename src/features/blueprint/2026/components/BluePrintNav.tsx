@@ -82,7 +82,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
         <div className="flex flex-row justify-between mx-4 mt-4">
           <Link href="/companion/blueprint/2026">
             <Image
-              src={"/assets/blueprint/blueprint-logo.png"}
+              src={"/assets/2026/blueprint/blueprint-logo.png"}
               height={72}
               width={96}
               alt="BluePrint"
@@ -129,7 +129,7 @@ export const BluePrintNav: React.FC<SideNavProps> = ({ isPartner }) => {
           <nav className="flex flex-col space-y-8 h-full">
             <Link href="/companion/blueprint/2026">
               <Image
-                src={"/assets/blueprint/blueprint-logo.png"}
+                src={"/assets/2026/blueprint/blueprint-logo.png"}
                 height={108}
                 width={164}
                 alt="BluePrint"

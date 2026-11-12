@@ -4,6 +4,7 @@ import { Building, Calendar } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventFormSchema } from "./EventFormSchema";
 import { PreviewForm } from "./PreviewForm";
+import { getPartnerRegistrationForm } from "@/features/registrationForms/partnerRegistry";
 import {
   extractTime,
   extractMonthDay,
@@ -16,6 +17,12 @@ interface EventPreviewProps {
 }
 
 export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
+  const partnerFormKey = useWatch({
+    control: form.control,
+    name: "partnerRegistrationFormKey",
+  });
+  const definition = getPartnerRegistrationForm(partnerFormKey);
+  const PartnerForm = definition?.Component;
   const imageUrl = useWatch({ control: form.control, name: "imageUrl" });
   const eventName = useWatch({ control: form.control, name: "eventName" });
   const location = useWatch({ control: form.control, name: "location" });
@@ -74,9 +81,13 @@ export const EventPreview: React.FC<EventPreviewProps> = ({ form }) => {
         </div>
       </TabsContent>
       <TabsContent value="partner">
-        <div className="bg-[#1E293B] p-4 rounded-lg">
-          <span>TBD, Partner form content goes here</span>
-        </div>
+        {PartnerForm ? (
+          <PartnerForm key={partnerFormKey} mode="preview" />
+        ) : definition ? (
+          <PreviewForm form={form} isPartnerForm />
+        ) : (
+          <p role="alert">This partner registration form is not available.</p>
+        )}
       </TabsContent>
     </Tabs>
   );

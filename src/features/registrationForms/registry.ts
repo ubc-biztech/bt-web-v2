@@ -6,6 +6,8 @@ import { MISRegistrationForm } from "./mis-2026/RegistrationForm";
 import { MIS_REGISTRATION_QUESTIONS } from "./mis-2026/Definition";
 import { HelloHacksRegistrationForm } from "./hello-hacks-2026/RegistrationForm";
 import { HELLO_HACKS_REGISTRATION_QUESTIONS } from "./hello-hacks-2026/Definition";
+import { BluePrintRegistrationForm } from "./blueprint-2027/RegistrationForm";
+import { BLUEPRINT_REGISTRATION_QUESTIONS } from "./blueprint-2027/Definition";
 
 const DefaultRegistrationForm = dynamic(() =>
   import("@/components/Events/AttendeeEventRegistrationForm").then(
@@ -35,6 +37,12 @@ export const REGISTRATION_FORMS = {
     label: "HelloHacks 2026 registration form",
     Component: HelloHacksRegistrationForm,
     questions: HELLO_HACKS_REGISTRATION_QUESTIONS,
+  },
+
+  "blueprint-2027": {
+    label: "BluePrint 2027 registration form",
+    Component: BluePrintRegistrationForm,
+    questions: BLUEPRINT_REGISTRATION_QUESTIONS,
   },
 } as const satisfies Record<string, RegistrationFormDefinition>;
 
