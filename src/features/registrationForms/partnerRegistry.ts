@@ -54,4 +54,3 @@ export function getPartnerRegistrationForm(key?: string) {
     ? PARTNER_REGISTRATION_FORMS[resolvedKey]
     : undefined;
 }
-

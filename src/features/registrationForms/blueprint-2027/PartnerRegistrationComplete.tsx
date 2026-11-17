@@ -27,7 +27,9 @@ export function PartnerRegistrationComplete({
         {preview ? "Preview complete" : "Registration submitted"}
       </h2>
       <p>
-        Thank you for your registration for BluePrint Tech Week 2027. We will send any further information to {email}. If you have any questions, please reach out to us at{" "}
+        Thank you for your registration for BluePrint Tech Week 2027. We will
+        send any further information to {email}. If you have any questions,
+        please reach out to us at{" "}
         <a
           href={`mailto:${PARTNER_CONTACT_EMAIL}`}
           className={styles.contactLink}

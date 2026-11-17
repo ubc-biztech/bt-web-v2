@@ -22,12 +22,12 @@ const registrationFormKeySchema = z
   .default(DEFAULT_REGISTRATION_FORM_KEY);
 
 const partnerRegistrationFormKeySchema = z
-    .string()
-    .refine(
-      isPartnerRegistrationFormKey,
-      "Select a valid partner registration form",
-    )
-    .default(DEFAULT_PARTNER_REGISTRATION_FORM_KEY);
+  .string()
+  .refine(
+    isPartnerRegistrationFormKey,
+    "Select a valid partner registration form",
+  )
+  .default(DEFAULT_PARTNER_REGISTRATION_FORM_KEY);
 
 const eventPageModuleSchema = z.object({
   id: z.enum(EVENT_PAGE_MODULE_TYPES),
