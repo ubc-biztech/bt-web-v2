@@ -124,6 +124,7 @@ export function DataTable({
 
   const table = useReactTable<Registration>({
     data: filteredData,
+    getRowId: (row) => row.id,
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

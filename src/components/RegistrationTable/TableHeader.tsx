@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input as SearchBar } from "@/components/RegistrationTable/Input";
+import { updateApplicationStatuses } from "./bulkApplicationStatus";
 import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
@@ -115,16 +116,22 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         fname: row.original.firstName || row.original.fname || "",
         applicationStatus: newStatus,
       }));
-      await fetchBackend({
-        endpoint: "/registrations/",
-        method: "PUT",
-        data: {
-          eventID: eventId,
-          eventYear: Number(year),
-          updates,
-        },
-        authenticatedCall: false,
-      });
+      const failed = await updateApplicationStatuses(
+        fetchBackend,
+        eventId,
+        Number(year),
+        updates,
+      );
+      if (failed.length) {
+        table.setRowSelection(
+          Object.fromEntries(failed.map((email) => [email, true])),
+        );
+        setMassUpdateError(
+          `Could not confirm updates for: ${failed.join(", ")}`,
+        );
+        await refreshTable();
+        return;
+      }
       setShowMassUpdateStatus(false);
       setNewStatus("");
       table.resetRowSelection();
@@ -248,7 +255,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             selectedRowsCount={selectedRowsCount}
             isApplicationBased={isApplicationBased}
             table={table}
-            setShowMassUpdateStatus={setShowMassUpdateStatus}
+            setShowMassUpdateStatus={(open) => {
+              setMassUpdateError(null);
+              setShowMassUpdateStatus(open);
+            }}
             setShowCreateTeam={setShowCreateTeam}
             setShowDeleteConfirm={setShowDeleteConfirm}
           />
@@ -437,7 +447,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <Button
             onClick={handleMassUpdate}
             className="text-bt-blue-400 bg-bt-green-300"
-            disabled={isSubmitting || !newStatus}
+            disabled={isSubmitting || !newStatus || !getSelectedRows().length}
           >
             {isSubmitting
               ? "Updating..."
