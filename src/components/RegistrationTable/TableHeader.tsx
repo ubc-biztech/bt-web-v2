@@ -33,6 +33,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input as SearchBar } from "@/components/RegistrationTable/Input";
+import { updateApplicationStatuses } from "@/lib/registrationQuery";
 import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
@@ -43,7 +44,6 @@ import { Label } from "@/components/ui/label";
 interface TableHeaderProps {
   table: Table<any>;
   filterButtonRef: React.RefObject<HTMLButtonElement>;
-  rowSelection: Record<string, boolean>;
   isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
   refreshTable: () => Promise<void>;
@@ -71,7 +71,6 @@ type SelectValue =
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
   filterButtonRef,
-  rowSelection,
   isQrReaderToggled,
   setQrReaderToggled,
   refreshTable,
@@ -82,7 +81,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   year,
   isApplicationBased,
 }) => {
-  const selectedRowsCount = Object.keys(rowSelection).length;
+  const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showAddAttendee, setShowAddAttendee] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
@@ -115,20 +114,24 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         fname: row.original.firstName || row.original.fname || "",
         applicationStatus: newStatus,
       }));
-      await fetchBackend({
-        endpoint: "/registrations/",
-        method: "PUT",
-        data: {
-          eventID: eventId,
-          eventYear: Number(year),
-          updates,
-        },
-        authenticatedCall: false,
+      const failed = await updateApplicationStatuses(fetchBackend, {
+        eventID: eventId,
+        eventYear: Number(year),
+        updates,
       });
+      await refreshTable();
+      if (failed.length) {
+        table.setRowSelection(
+          Object.fromEntries(failed.map((email) => [email, true])),
+        );
+        setMassUpdateError(
+          `Could not confirm updates for: ${failed.join(", ")}`,
+        );
+        return;
+      }
       setShowMassUpdateStatus(false);
       setNewStatus("");
       table.resetRowSelection();
-      await refreshTable();
     } catch (err: any) {
       console.error("Failed to mass update:", err);
       setMassUpdateError(err.message || "Failed to update registrations");
@@ -248,7 +251,10 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
             selectedRowsCount={selectedRowsCount}
             isApplicationBased={isApplicationBased}
             table={table}
-            setShowMassUpdateStatus={setShowMassUpdateStatus}
+            setShowMassUpdateStatus={(open) => {
+              setMassUpdateError(null);
+              setShowMassUpdateStatus(open);
+            }}
             setShowCreateTeam={setShowCreateTeam}
             setShowDeleteConfirm={setShowDeleteConfirm}
           />
@@ -437,7 +443,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <Button
             onClick={handleMassUpdate}
             className="text-bt-blue-400 bg-bt-green-300"
-            disabled={isSubmitting || !newStatus}
+            disabled={isSubmitting || !newStatus || !getSelectedRows().length}
           >
             {isSubmitting
               ? "Updating..."
