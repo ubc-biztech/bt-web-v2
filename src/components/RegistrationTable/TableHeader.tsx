@@ -44,7 +44,6 @@ import { Label } from "@/components/ui/label";
 interface TableHeaderProps {
   table: Table<any>;
   filterButtonRef: React.RefObject<HTMLButtonElement>;
-  rowSelection: Record<string, boolean>;
   isQrReaderToggled: boolean;
   setQrReaderToggled: Dispatch<SetStateAction<boolean>>;
   refreshTable: () => Promise<void>;
@@ -72,7 +71,6 @@ type SelectValue =
 export const TableHeader: React.FC<TableHeaderProps> = ({
   table,
   filterButtonRef,
-  rowSelection,
   isQrReaderToggled,
   setQrReaderToggled,
   refreshTable,
@@ -83,7 +81,7 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   year,
   isApplicationBased,
 }) => {
-  const selectedRowsCount = Object.keys(rowSelection).length;
+  const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showAddAttendee, setShowAddAttendee] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);

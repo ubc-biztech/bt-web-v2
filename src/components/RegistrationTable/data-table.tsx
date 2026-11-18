@@ -183,7 +183,6 @@ export function DataTable({
       <TableActionsHeader
         table={table}
         filterButtonRef={filterButtonRef}
-        rowSelection={rowSelection}
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
         refreshTable={refreshTable}
