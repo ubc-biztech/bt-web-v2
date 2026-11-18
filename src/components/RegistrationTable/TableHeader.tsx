@@ -33,7 +33,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input as SearchBar } from "@/components/RegistrationTable/Input";
-import { updateApplicationStatuses } from "./bulkApplicationStatus";
+import { updateApplicationStatuses } from "@/lib/registrationQuery";
 import { fetchBackend } from "@/lib/db";
 import { Input } from "@/components/ui/input";
 import { APPLICATION_STATUS_OPTIONS } from "@/constants/registrations";
@@ -116,12 +116,12 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         fname: row.original.firstName || row.original.fname || "",
         applicationStatus: newStatus,
       }));
-      const failed = await updateApplicationStatuses(
-        fetchBackend,
-        eventId,
-        Number(year),
+      const failed = await updateApplicationStatuses(fetchBackend, {
+        eventID: eventId,
+        eventYear: Number(year),
         updates,
-      );
+      });
+      await refreshTable();
       if (failed.length) {
         table.setRowSelection(
           Object.fromEntries(failed.map((email) => [email, true])),
@@ -129,13 +129,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
         setMassUpdateError(
           `Could not confirm updates for: ${failed.join(", ")}`,
         );
-        await refreshTable();
         return;
       }
       setShowMassUpdateStatus(false);
       setNewStatus("");
       table.resetRowSelection();
-      await refreshTable();
     } catch (err: any) {
       console.error("Failed to mass update:", err);
       setMassUpdateError(err.message || "Failed to update registrations");

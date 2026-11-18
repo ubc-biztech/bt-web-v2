@@ -1,45 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { updateApplicationStatuses } from "./bulkApplicationStatus";
+import { updateApplicationStatuses } from "../../lib/registrationQuery";
 
-const updates = ["one", "two"].map((name) => ({
-  email: name + "@example.com",
-  fname: name,
-  applicationStatus: "reviewing",
-}));
-
-test("sends both selected registrations to the bulk update route", async () => {
+test("bulk edit sends both rows and returns only the failed email", async () => {
+  const updates = ["one", "two"].map((fname) => ({
+    fname,
+    email: fname + "@example.com",
+    applicationStatus: "reviewing",
+  }));
+  const batch = { eventID: "demo", eventYear: 2026, updates };
   const failed = await updateApplicationStatuses(
-    async (options) => {
-      assert.equal(options.endpoint, "/registrations/massUpdate");
-      assert.equal(options.method, "PUT");
-      assert.deepEqual(options.data, {
-        eventID: "demo",
-        eventYear: 2026,
-        updates,
-      });
+    async ({ endpoint, method, data }) => {
+      assert.equal(endpoint, "/registrations/massUpdate");
+      assert.equal(method, "PUT");
+      assert.deepEqual(data, batch);
       return {
-        results: updates.map(({ email }) => ({ email, success: true })),
+        results: updates.map(({ email }, index) => ({
+          email,
+          success: index === 0,
+        })),
       };
     },
-    "demo",
-    2026,
-    updates,
-  );
-  assert.deepEqual(failed, []);
-});
-
-test("reports the failed registration even when the batch returns HTTP 200", async () => {
-  const failed = await updateApplicationStatuses(
-    async () => ({
-      results: [
-        { email: updates[0].email, success: true },
-        { email: updates[1].email, success: false },
-      ],
-    }),
-    "demo",
-    2026,
-    updates,
+    batch,
   );
   assert.deepEqual(failed, [updates[1].email]);
 });
