@@ -64,7 +64,7 @@ export function useMarketFeed(userId: string, eventId?: string) {
             predicate: ({ queryKey }) =>
               queryKey[0] === "btx-seed" &&
               queryKey[1] === eventId &&
-              queryKey[3] === "order",
+              (queryKey[3] === "order" || queryKey[3] === "history"),
           }),
         ]);
         if (stopped || id !== recoveryId || !navigator.onLine) return;

@@ -20,6 +20,7 @@ import { useBtxProfile } from "./accountQueries";
 import { market, type BtxRequestError, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
 import { applyLivePrices, useMarketFeed } from "./useMarketFeed";
+import { PortfolioHistory, PortfolioPage } from "./PortfolioPage";
 
 import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import styles from "./btx.module.css";
@@ -39,6 +40,7 @@ export type MarketPageProps = {
   now: number;
   userId: string;
   recovering?: boolean;
+  isAdmin: boolean | undefined;
   quoteVersion?: number | null;
   projectId?: string;
   ownProject?: string;
@@ -159,6 +161,7 @@ function MarketLayout({
                 market={marketData}
                 recovering={recovering}
                 quoteVersion={feed.quoteVersion}
+                isAdmin={auth.isPending ? undefined : isAdmin}
                 initials={initials}
                 userId={userId}
                 projectId={projectId}
@@ -263,5 +266,7 @@ export const SearchRoute = marketPage((props) => (
 ));
 export const AdminRoute = marketPage(AdminOverview, true);
 export const GrantRoute = marketPage(AdminGrants, true);
+export const PortfolioRoute = marketPage(PortfolioPage);
+export const PortfolioHistoryRoute = marketPage(PortfolioHistory);
 export const CompanyRoute = marketPage(CompanyPage);
 export default marketPage(ExchangePage);

@@ -39,7 +39,11 @@ export function BtxSidebar({
   ];
 
   if (role && role !== "Admin")
-    destinations.push({ icon: "portfolio", label: "Portfolio" });
+    destinations.push({
+      icon: "portfolio",
+      label: "Portfolio",
+      href: exchangePath + "/portfolio",
+    });
 
   destinations.push({ icon: "leaderboard", label: "Leaderboard" });
 
@@ -120,6 +124,8 @@ export function BtxSidebar({
         {destinations.map(({ icon: item, label, href }) => {
           const active =
             href === path ||
+            (item === "portfolio" &&
+              path.startsWith(exchangePath + "/portfolio/")) ||
             (href === exchangePath &&
               (path.startsWith(exchangePath + "/company/") ||
                 path === "/companion/kickstart/2026"));

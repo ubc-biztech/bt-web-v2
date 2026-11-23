@@ -136,6 +136,7 @@ function TradeForm({
   const lockedSell = onClose && !buying && !live && !ticket.order;
   return (
     <section
+      id="trade-ticket"
       aria-label="Trade ticket"
       className="flex flex-col gap-4 md:block md:space-y-5 md:rounded-3xl md:border md:border-[#324a68] md:bg-[#0d1628] md:p-5"
     >
