@@ -60,8 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
       router.query.year === "2026");
   // Only apply Kickstart fonts for Kickstart companion paths
   const isKickstartPath =
-    router.pathname.includes("/kickstart/") &&
-    router.pathname.includes("/companion");
+    isCompanionPath && router.query.event === "kickstart";
 
   const content = (
     <>
