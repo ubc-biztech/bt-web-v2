@@ -11,6 +11,7 @@ import {
 } from "recharts";
 
 import { priceHistory, type Company } from "./seedApi";
+import { money } from "./market";
 
 const ranges = { "1m": 1, "5m": 5, "15m": 15, "1h": 60, All: Infinity };
 
@@ -32,23 +33,25 @@ export function PriceChart({
   const points = (history.data ?? [])
     .filter((p) => p.ts >= now - ranges[range] * 60000)
     .sort((a, b) => a.ts - b.ts);
+  const priceChange = company.currentPriceCents - 10_000;
+  const priceUp = priceChange >= 0;
+
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-2xl">
-          ${(company.currentPriceCents / 100).toFixed(2)}
-        </span>
-        <span
-          className={
-            company.currentPriceCents >= 10000
-              ? "text-xs text-emerald-300"
-              : "text-xs text-rose-300"
-          }
-        >
-          {company.currentPriceCents >= 10000 ? "+" : ""}
-          {((company.currentPriceCents - 10000) / 100).toFixed(1)}% since seed
-        </span>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="text-2xl tabular-nums">
+            {money(company.currentPriceCents)}
+          </span>
+          <span
+            className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs ${priceUp ? "border-[#38d3a2]/40 bg-[#38d3a2]/10 text-[#38d3a2]" : "border-[#ff5c7a]/75 bg-[#ff5c7a]/10 text-[#ff5c7a]"}`}
+          >
+            <span aria-hidden="true">{priceUp ? "▲" : "▼"}</span>
+            {priceUp ? "+" : ""}
+            {(priceChange / 100).toFixed(1)}% since seed
+          </span>
+        </div>
+        <div className="ml-auto flex gap-1">
           {(Object.keys(ranges) as (keyof typeof ranges)[]).map((r) => (
             <button
               key={r}
