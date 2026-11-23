@@ -45,7 +45,11 @@ export function BtxSidebar({
       href: exchangePath + "/portfolio",
     });
 
-  destinations.push({ icon: "leaderboard", label: "Leaderboard" });
+  destinations.push({
+    icon: "leaderboard",
+    label: "Leaderboard",
+    href: exchangePath + "/leaderboard",
+  });
 
   if (role === "Team member")
     destinations.push({ icon: "company", label: "My Company" });
