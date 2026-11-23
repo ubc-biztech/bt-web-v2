@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Instrument_Sans, Space_Grotesk } from "next/font/google";
 import type { DynamicPageProps } from "@/constants/companion-events";
@@ -18,6 +18,7 @@ import {
 import { useBtxProfile } from "./accountQueries";
 import { market, type BtxRequestError, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
+import { applyLivePrices, useMarketFeed } from "./useMarketFeed";
 
 import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import styles from "./btx.module.css";
@@ -36,6 +37,7 @@ export type MarketPageProps = {
   market: Market;
   now: number;
   userId: string;
+  quoteVersion?: number | null;
   projectId?: string;
   ownProject?: string;
   initials?: string;
@@ -77,13 +79,23 @@ function MarketLayout({
     person?.email?.[0] ||
     person?.id?.[0]
   )?.toUpperCase();
-  const marketData = snapshot.data;
   // A retry can set the query back to pending before it has any data.
   const lastFailureAt =
     snapshot.errorUpdatedAt > snapshot.dataUpdatedAt
       ? snapshot.errorUpdatedAt
       : null;
   const retrySnapshot = () => void snapshot.refetch({ cancelRefetch: false });
+  const feed = useMarketFeed(adminOnly ? undefined : snapshot.data?.eventId);
+  const marketData = useMemo(
+    () => snapshot.data && applyLivePrices(snapshot.data, feed.prices),
+    [snapshot.data, feed.prices],
+  );
+  const lastUpdate =
+    marketData &&
+    Math.max(
+      marketData.serverTime,
+      ...Object.values(feed.prices).map((point) => point.ts),
+    );
   const background = adminOnly
     ? "bg-gradient-to-b from-[#15293b] to-[#0b1120] lg:pt-10"
     : "bg-[url(/assets/btx/market-background.webp)] max-md:bg-none lg:pt-[92px]";
@@ -98,6 +110,30 @@ function MarketLayout({
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 md:gap-6">
           {!marketData && (
             <MobilePageTitle title="Exchange" initials={initials} />
+          )}
+          {marketData && feed.connection === "reconnecting" && (
+            <StatusBanner
+              tone="info"
+              title="Reconnecting…"
+              description="Live prices may be out of date. Quotes will refresh when the connection returns."
+            />
+          )}
+          {marketData && feed.connection === "offline" && (
+            <StatusBanner
+              tone="warning"
+              title="You’re offline"
+              description={`Showing prices from ${new Date(lastUpdate ?? marketData.serverTime).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. Trading is paused until you’re back online.`}
+              onRetry={feed.retry}
+            />
+          )}
+          {feed.backOnline && (
+            <div className="fixed bottom-5 right-5 z-30">
+              <StatusBanner
+                tone="success"
+                title="Back online"
+                description="Prices updated just now."
+              />
+            </div>
           )}
           {adminOnly && !isAdmin ? (
             <StatusBanner
@@ -120,6 +156,7 @@ function MarketLayout({
               <Page
                 key={JSON.stringify([userId, marketData.eventId, projectId])}
                 market={marketData}
+                quoteVersion={feed.quoteVersion}
                 initials={initials}
                 userId={userId}
                 projectId={projectId}

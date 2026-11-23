@@ -16,6 +16,7 @@ export interface Company {
   seedStatus: "ACTIVE" | "ENDED" | "NOT_STARTED" | "LIVE";
   seedEndsAt?: number;
   currentPriceCents: number;
+  lastPriceTs?: number;
 }
 
 export interface Market {
@@ -111,8 +112,13 @@ export function tradeId() {
   return time.slice(0, 8) + "-" + time.slice(8) + "-7" + random.slice(15);
 }
 
+export interface PricePoint {
+  ts: number;
+  priceCents: number;
+}
+
 export async function priceHistory(projectId: string, from: number) {
-  const points: { ts: number; priceCents: number }[] = [];
+  const points: PricePoint[] = [];
   const params = new URLSearchParams({ projectId });
   let nextPageKey: string | null;
   do {

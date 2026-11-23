@@ -85,12 +85,13 @@ function TradeForm({
       ? ticket.requestQuote
       : undefined;
   const actionEnabled = ticket.orderNotFound
-    ? !ticket.busy
+    ? !ticket.busy && !ticket.paused
     : !fetchingQuote && (canConfirm ? !balanceError : ticket.canQuote);
 
   let orderLabel = preview ? "Refresh price" : "Get quote";
   if (fetchingQuote) orderLabel = "Getting price…";
   else if (ticket.busy) orderLabel = "Placing order…";
+  else if (ticket.paused) orderLabel = "Waiting for connection";
   else if (ticket.orderNotFound) orderLabel = "Retry original order";
   else if (ticket.order) orderLabel = "Checking order…";
   else if (canConfirm && preview) {
@@ -136,7 +137,11 @@ function TradeForm({
           {(["BUY", "SELL"] as const).map((s) => (
             <button
               key={s}
-              disabled={quantityLocked || (!onClose && s === "SELL" && !live)}
+              disabled={
+                ticket.paused ||
+                quantityLocked ||
+                (!onClose && s === "SELL" && !live)
+              }
               aria-pressed={side === s}
               onClick={() => ticket.changeSide(s)}
               className="flex-1 rounded-full max-md:py-[9px] max-md:leading-[normal] max-md:text-[#bdc8e3] max-md:aria-pressed:text-[#0b1120] px-5 py-2 text-[14px] font-medium capitalize lg:font-bold aria-pressed:bg-[#89dcff] aria-pressed:text-[#0a1524] disabled:opacity-40"

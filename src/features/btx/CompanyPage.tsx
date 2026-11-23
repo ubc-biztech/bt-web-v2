@@ -21,6 +21,7 @@ export function CompanyPage({
   userId,
   projectId = "",
   ownProject,
+  quoteVersion = 0,
 }: MarketPageProps) {
   const team = useCompanyTeam(projectId);
   const ticket = useTradeOrder(
@@ -29,6 +30,7 @@ export function CompanyPage({
     projectId,
     now,
     ownProject === projectId,
+    quoteVersion,
   );
   const company = ticket.company;
   if (!company)

@@ -11,6 +11,7 @@ export function useTradeOrder(
   selected: string,
   now: number,
   ownCompany: boolean,
+  quoteVersion: number | null,
 ) {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [receipt, setReceipt] = useState<api.Trade | null>(null);
@@ -60,6 +61,7 @@ export function useTradeOrder(
     ((seedOpen && side === "BUY") ||
       (market.phase === "LIVE" && !!company && now < market.eventEndsAt)) &&
     !ownCompany &&
+    quoteVersion != null &&
     Number.isSafeInteger(shares) &&
     shares > 0;
   const quote = useQuery<api.Quote, api.BtxRequestError>({
@@ -71,6 +73,7 @@ export function useTradeOrder(
       shares,
       side,
       market.phase,
+      quoteVersion,
       order?.tradeId,
     ],
     queryFn: () => api.quote(selected, shares, side),
@@ -142,7 +145,7 @@ export function useTradeOrder(
   }
 
   async function submitOrder() {
-    if (inFlight.current) return;
+    if (inFlight.current || quoteVersion == null) return;
     let next = order;
     if (next) {
       if (!orderNotFound) return;
@@ -218,6 +221,7 @@ export function useTradeOrder(
     fetchingQuote: quote.isFetching,
     quoteError: quote.error,
     ownCompany,
+    paused: quoteVersion == null,
     quantity,
     changeQuantity(value: string) {
       dismissReceipt();
