@@ -50,7 +50,7 @@ function TradeForm({
     ticket;
   const buying = side === "BUY";
   const live = market.phase === "LIVE";
-  const launching = market.phase === "IPO_LAUNCHING";
+  const launching = market.phase === "IPO_PREPARING";
   const seedUnavailable = !live && !ticket.seedOpen;
   const total = buying ? preview?.totalCostCents : preview?.proceedsCents;
 
@@ -63,19 +63,25 @@ function TradeForm({
         "INSUFFICIENT_FUNDS"
       : Number(quantity) > (holding ?? 0) && "INSUFFICIENT_SHARES");
 
-  let errorCode = ticket.quoteError;
+  const quoteErrorCode = ticket.quoteError?.data?.code;
+  let errorCode = quoteErrorCode;
+  let errorMessage = quoteErrorCode ? ticket.quoteError?.message : undefined;
   if (!errorCode) {
     if (launching) errorCode = "TRANSITION_UNAVAILABLE";
-    else if (seedUnavailable) {
+    else if (ticket.ownCompany) {
+      errorCode = "FORBIDDEN";
+      errorMessage = "You can’t trade shares in your own company.";
+    } else if (seedUnavailable) {
       errorCode =
         company.seedStatus === "NOT_STARTED"
           ? "SEED_NOT_STARTED"
           : "SEED_WINDOW_ENDED";
     } else if (balanceError) errorCode = balanceError;
   }
-  const notice = ticket.notice ?? (errorCode && stockError(errorCode));
+  const notice =
+    ticket.notice ?? (errorCode && stockError(errorCode, errorMessage));
   const retryQuote =
-    !ticket.notice && ticket.quoteError && ticket.canQuote
+    !ticket.notice && quoteErrorCode && ticket.canQuote
       ? ticket.requestQuote
       : undefined;
   const actionEnabled = ticket.orderNotFound

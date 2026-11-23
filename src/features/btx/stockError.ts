@@ -54,6 +54,9 @@ const errors = {
 
 export type StockErrorCode = keyof typeof errors;
 
-export function stockError(error: StockErrorCode): Notice {
-  return errors[error];
+export function stockError(error: StockErrorCode, message?: string): Notice {
+  const notice: Notice = errors[error];
+  return notice.description || !message
+    ? notice
+    : { ...notice, description: message };
 }

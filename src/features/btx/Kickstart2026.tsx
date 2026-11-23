@@ -6,6 +6,7 @@ import type { DynamicPageProps } from "@/constants/companion-events";
 import "@/components/ConfigureAmplify";
 import { useUserAttributes } from "@/queries/user";
 import { QueryProvider } from "@/lib/queryProvider";
+import { AdminGrants, AdminOverview } from "./AdminPage";
 import { CompanyPage } from "./CompanyPage";
 import { ExchangeCatalog, FullCatalog } from "./CompanyCatalog";
 import { marketStage } from "./market";
@@ -15,7 +16,7 @@ import {
   ExchangeRecovery,
 } from "./ExchangeOverview";
 import { useBtxProfile } from "./accountQueries";
-import { market, type Market } from "./seedApi";
+import { market, type BtxRequestError, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
 
 import { MobilePageTitle, StatusBanner } from "./BtxUI";
@@ -43,15 +44,19 @@ type Screen = ComponentType<MarketPageProps>;
 
 function MarketLayout({
   Page,
+  adminOnly,
   projectId,
 }: {
   Page: Screen;
+  adminOnly: boolean;
   projectId?: string;
 }) {
-  const { data: user } = useUserAttributes();
+  const auth = useUserAttributes();
+  const user = auth.data;
+  const isAdmin = !!user?.isAdmin;
   const userId = user?.sub ?? "";
-  const profile = useBtxProfile(userId);
-  const snapshot = useQuery({
+  const profile = useBtxProfile(userId, isAdmin);
+  const snapshot = useQuery<Market, BtxRequestError>({
     queryKey: ["btx", "snapshot"],
     queryFn: market,
     refetchInterval: 15000,
@@ -79,17 +84,29 @@ function MarketLayout({
       ? snapshot.errorUpdatedAt
       : null;
   const retrySnapshot = () => void snapshot.refetch({ cancelRefetch: false });
+  const background = adminOnly
+    ? "bg-gradient-to-b from-[#15293b] to-[#0b1120] lg:pt-10"
+    : "bg-[url(/assets/btx/market-background.webp)] max-md:bg-none lg:pt-[92px]";
   return (
     <div
       className={`${styles.btx} ${instrumentSans.variable} ${spaceGrotesk.variable} flex min-h-screen bg-[#0b1120]`}
     >
-      <BtxSidebar userId={userId} {...profile} />
-      <main className="min-w-0 flex-1 bg-[url(/assets/btx/market-background.webp)] bg-[length:100%_auto] bg-top bg-no-repeat max-md:bg-none px-6 pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] md:pb-10 md:pt-8 text-[#e6ebf6] sm:px-6 lg:px-12 lg:pt-[92px]">
+      <BtxSidebar isAdmin={isAdmin} userId={userId} {...profile} />
+      <main
+        className={`min-w-0 flex-1 bg-[length:100%_auto] bg-top bg-no-repeat px-4 pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] text-[#e6ebf6] sm:px-6 md:pb-10 md:pt-8 lg:px-12 ${background}`}
+      >
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 md:gap-6">
           {!marketData && (
             <MobilePageTitle title="Exchange" initials={initials} />
           )}
-          {marketData && marketData.eventEndsAt != null ? (
+          {adminOnly && !isAdmin ? (
+            <StatusBanner
+              tone="info"
+              title={
+                auth.isPending ? "Checking access…" : "Admin access required"
+              }
+            />
+          ) : marketData && marketData.eventEndsAt != null ? (
             <>
               {snapshot.isRefetchError && (
                 <StatusBanner
@@ -136,11 +153,15 @@ function MarketLayout({
   );
 }
 
-function marketPage(Page: Screen) {
+function marketPage(Page: Screen, adminOnly = false) {
   return function BtxRoute({ params }: Partial<DynamicPageProps>) {
     return (
       <QueryProvider>
-        <MarketLayout Page={Page} projectId={params?.projectId} />
+        <MarketLayout
+          Page={Page}
+          adminOnly={adminOnly}
+          projectId={params?.projectId}
+        />
       </QueryProvider>
     );
   };
@@ -196,5 +217,7 @@ export const CatalogRoute = marketPage(CatalogPage);
 export const SearchRoute = marketPage((props) => (
   <ExchangePage {...props} focusSearch />
 ));
+export const AdminRoute = marketPage(AdminOverview, true);
+export const GrantRoute = marketPage(AdminGrants, true);
 export const CompanyRoute = marketPage(CompanyPage);
 export default marketPage(ExchangePage);

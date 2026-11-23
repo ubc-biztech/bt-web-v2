@@ -11,19 +11,20 @@ const assets = "/assets/btx/sidebar";
 type Item = { icon: string; label: string; href?: string };
 
 export function BtxSidebar({
+  isAdmin,
   userId,
   user,
   registration,
-}: { userId: string } & ReturnType<typeof useBtxProfile>) {
-  const path = useRouter().asPath.split(/[?#]/)[0];
+}: { userId: string; isAdmin: boolean } & ReturnType<typeof useBtxProfile>) {
+  const path = useRouter().asPath.split("?")[0];
   const [expanded, setExpanded] = useState(false);
   const account = usePortfolio(
     "kickstart;2026",
     userId,
-    !!user && !user.admin && !!registration,
+    !!user && !isAdmin && !!registration,
   );
 
-  const role = user?.admin
+  const role = isAdmin
     ? "Admin"
     : registration
       ? registration.teamID
@@ -49,9 +50,17 @@ export function BtxSidebar({
 
   if (role === "Admin")
     destinations.push(
-      { icon: "grant", label: "Grant funds" },
-      { icon: "ipo", label: "Launch IPO" },
-      { icon: "admin", label: "Admin" },
+      {
+        icon: "grant",
+        label: "Grant funds",
+        href: exchangePath + "/admin/grants",
+      },
+      {
+        icon: "ipo",
+        label: "Launch IPO",
+        href: exchangePath + "/admin#launch-ipo",
+      },
+      { icon: "admin", label: "Admin", href: exchangePath + "/admin" },
     );
 
   const itemLayout = expanded
@@ -74,7 +83,7 @@ export function BtxSidebar({
         <span className="min-w-0">
           <span className="block truncate">{name}</span>
           {role && <small className="block text-slate-400">{role}</small>}
-          {!user?.admin && account.data && (
+          {!isAdmin && account.data && (
             <small className="block text-sky-300">
               {money(account.data.account.cashBalanceCents)}
             </small>
