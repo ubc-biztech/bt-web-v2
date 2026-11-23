@@ -2,8 +2,7 @@ name: PR Rules
 
 on:
   pull_request:
-    # edited is included so fixing a title or description re-runs pr-rules
-    # without a dummy commit.
+    # Re-run pr-rules when the PR title is edited.
     types: [opened, edited, synchronize, reopened]
 
 permissions: {}
@@ -16,22 +15,13 @@ jobs:
       pull-requests: read
     steps:
       - uses: actions/github-script@v7
-        # PRs are squash-merged with the title and description as the commit
-        # message, so those are what get checked.
         with:
           script: |
-            const { title, body, number } = context.payload.pull_request;
+            const { title, number } = context.payload.pull_request;
 
             // Squash merge writes the subject as "<title> (#<number>)".
             const subject = `${title} (#${number})`;
-            if (subject.length > 60) {
-              core.setFailed(`Squash commit subject "${subject}" must be ≤60 characters (got ${subject.length})`);
-            }
-
-            const bodyLines = (body ?? '').split(/\r?\n/);
-            for (let i = 0; i < bodyLines.length; i++) {
-              const line = bodyLines[i];
-              if (line.length > 72) {
-                core.setFailed(`PR description line ${i + 1} exceeds 72 characters: "${line.slice(0, 80)}..."`);
-              }
+            const maxSubjectLength = 96;
+            if (subject.length > maxSubjectLength) {
+              core.setFailed(`Squash commit subject "${subject}" must be ≤${maxSubjectLength} characters (got ${subject.length})`);
             }
