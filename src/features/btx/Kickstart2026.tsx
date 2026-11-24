@@ -7,6 +7,7 @@ import "@/components/ConfigureAmplify";
 import { useUserAttributes } from "@/queries/user";
 import { QueryProvider } from "@/lib/queryProvider";
 import { AdminGrants, AdminOverview } from "./AdminPage";
+import { BackOnlineToast, ConnectionNotice } from "./ConnectionNotice";
 import { CompanyPage } from "./CompanyPage";
 import { ExchangeCatalog, FullCatalog } from "./CompanyCatalog";
 import { marketStage } from "./market";
@@ -37,6 +38,7 @@ export type MarketPageProps = {
   market: Market;
   now: number;
   userId: string;
+  recovering?: boolean;
   quoteVersion?: number | null;
   projectId?: string;
   ownProject?: string;
@@ -96,6 +98,8 @@ function MarketLayout({
       marketData.serverTime,
       ...Object.values(feed.prices).map((point) => point.ts),
     );
+  const recovering =
+    !adminOnly && (feed.connection !== "online" || feed.backOnline);
   const background = adminOnly
     ? "bg-gradient-to-b from-[#15293b] to-[#0b1120] lg:pt-10"
     : "bg-[url(/assets/btx/market-background.webp)] max-md:bg-none lg:pt-[92px]";
@@ -105,36 +109,20 @@ function MarketLayout({
     >
       <BtxSidebar isAdmin={isAdmin} userId={userId} {...profile} />
       <main
-        className={`min-w-0 flex-1 bg-[length:100%_auto] bg-top bg-no-repeat px-4 pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] text-[#e6ebf6] sm:px-6 md:pb-10 md:pt-8 lg:px-12 ${background}`}
+        className={`min-w-0 flex-1 bg-[length:100%_auto] bg-top bg-no-repeat ${recovering ? "px-6" : "px-4"} pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] text-[#e6ebf6] sm:px-6 md:pb-10 md:pt-8 lg:px-12 ${background}`}
       >
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 md:gap-6">
           {!marketData && (
             <MobilePageTitle title="Exchange" initials={initials} />
           )}
-          {marketData && feed.connection === "reconnecting" && (
-            <StatusBanner
-              tone="info"
-              title="Reconnecting…"
-              description="Live prices may be out of date. Quotes will refresh when the connection returns."
+          {marketData && feed.connection !== "online" && (
+            <ConnectionNotice
+              connection={feed.connection}
+              lastUpdate={lastUpdate ?? marketData.serverTime}
+              retry={feed.retry}
             />
           )}
-          {marketData && feed.connection === "offline" && (
-            <StatusBanner
-              tone="warning"
-              title="You’re offline"
-              description={`Showing prices from ${new Date(lastUpdate ?? marketData.serverTime).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. Trading is paused until you’re back online.`}
-              onRetry={feed.retry}
-            />
-          )}
-          {feed.backOnline && (
-            <div className="fixed bottom-5 right-5 z-30">
-              <StatusBanner
-                tone="success"
-                title="Back online"
-                description="Prices updated just now."
-              />
-            </div>
-          )}
+          {feed.backOnline && <BackOnlineToast />}
           {adminOnly && !isAdmin ? (
             <StatusBanner
               tone="info"
@@ -144,7 +132,7 @@ function MarketLayout({
             />
           ) : marketData && marketData.eventEndsAt != null ? (
             <>
-              {snapshot.isRefetchError && (
+              {snapshot.isRefetchError && feed.connection === "online" && (
                 <StatusBanner
                   tone="warning"
                   title="Market data may be out of date"
@@ -156,6 +144,7 @@ function MarketLayout({
               <Page
                 key={JSON.stringify([userId, marketData.eventId, projectId])}
                 market={marketData}
+                recovering={recovering}
                 quoteVersion={feed.quoteVersion}
                 initials={initials}
                 userId={userId}
@@ -209,9 +198,11 @@ function ExchangePage({
   now,
   ownProject,
   initials,
+  recovering,
   focusSearch = false,
 }: MarketPageProps & { focusSearch?: boolean }) {
   const stage = marketStage(market, now);
+  const cardsOnly = recovering && stage === "live" && !focusSearch;
   return (
     <>
       <MobilePageTitle title="Exchange" initials={initials} />
@@ -226,12 +217,15 @@ function ExchangePage({
       <div
         className={`grid gap-4 md:gap-5 lg:grid-cols-[minmax(0,804fr)_minmax(0,522fr)] ${market.projects.length ? "" : "max-md:hidden"}`}
       >
-        <ExchangeOverview market={market} now={now} stage={stage} />
+        <div className={cardsOnly ? "max-md:hidden md:contents" : "contents"}>
+          <ExchangeOverview market={market} now={now} stage={stage} />
+        </div>
         <ExchangeCatalog
           projects={market.projects}
           stage={stage}
           now={now}
           ownProject={ownProject}
+          cardsOnly={cardsOnly}
           focusSearch={focusSearch}
         />
       </div>
