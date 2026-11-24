@@ -27,12 +27,16 @@ import {
 import s from "./Admin.module.css";
 
 type IpoStage = "seed" | "ready" | "launching" | "unknown" | "live";
-type IpoAttempt = { startedAt: number; queued?: boolean };
+// Five receives at the configured 120-second queue visibility timeout.
+const IPO_STALL_MS = 5 * 120_000;
+const preparedCompanies = (market: Market) =>
+  market.projects.filter((project) => project.seedSharesAtIpo != null).length;
 
-function useIpo(market: Market) {
-  const [attempt, setAttempt] = useState<IpoAttempt | null>(null);
-  const started = attempt?.startedAt;
-  const [uncertain, setUncertain] = useState(false);
+function useIpo(market: Market, userId: string) {
+  const key = `btx-ipo:${market.eventId}:${userId}`;
+  const [attempt, setAttempt] = useState(() => sessionStorage.getItem(key));
+  const [stalledAt, setStalledAt] = useState<number | null>(null);
+  const [resumeAttempt, setResumeAttempt] = useState(0);
   const [failure, setFailure] = useState("");
   const [checking, setChecking] = useState(false);
   const [checked, setChecked] = useState("");
@@ -50,12 +54,53 @@ function useIpo(market: Market) {
     refetchInterval: pending ? 3000 : false,
     retry: false,
   });
+  const prepared = preparedCompanies(market);
+  useEffect(() => {
+    if (market.phase !== "SEED" && attempt) {
+      sessionStorage.removeItem(key);
+      setAttempt(null);
+    }
+  }, [market.phase, key, attempt]);
+
+  useEffect(() => {
+    setStalledAt(null);
+    if (!preparing || snapshot.isError) return;
+    const timer = window.setTimeout(() => setStalledAt(prepared), IPO_STALL_MS);
+    return () => window.clearTimeout(timer);
+  }, [preparing, prepared, resumeAttempt, snapshot.isError]);
+
+  const canResume = preparing && !snapshot.isError && stalledAt === prepared;
   const unknown =
     pending &&
     (snapshot.isError ||
-      (!preparing &&
-        !committed &&
-        (uncertain || (!!started && Date.now() - started >= 30000))));
+      (market.phase === "SEED" && attempt === "unknown" && !posting.current));
+
+  async function resume() {
+    if (!canResume || posting.current) return;
+    posting.current = true;
+    setChecking(true);
+    setFailure("");
+    try {
+      const { data } = await snapshot.refetch({
+        cancelRefetch: false,
+        throwOnError: true,
+      });
+      if (
+        data?.eventId !== market.eventId ||
+        data.phase !== "IPO_PREPARING" ||
+        preparedCompanies(data) !== prepared
+      )
+        return;
+      setStalledAt(null);
+      setResumeAttempt((previous) => previous + 1);
+      await launchIpo();
+    } catch {
+      setFailure("Couldn’t confirm the resume request. Check IPO status.");
+    } finally {
+      posting.current = false;
+      setChecking(false);
+    }
+  }
 
   async function check() {
     setChecking(true);
@@ -68,19 +113,11 @@ function useIpo(market: Market) {
       });
       if (data?.eventId !== market.eventId) throw new Error();
       if (data.phase !== "SEED") return;
-      if (data.phase === "SEED" && !attempt?.queued && !posting.current) {
-        setAttempt(null);
-        setUncertain(false);
-        setChecked(
-          "The market is still in the seed round. An earlier launch request may still be queued.",
-        );
-      } else if (attempt?.queued) {
-        setChecked(
-          "The server accepted the launch request. The latest snapshot still shows the seed round.",
-        );
-      } else {
-        setChecked("Launch is still pending. Check again for confirmation.");
-      }
+      setChecked(
+        attempt === "queued"
+          ? "The server accepted the launch request. Waiting for preparation to start."
+          : "The launch request may still be queued. Check again for confirmation.",
+      );
     } catch {
       setFailure("Couldn’t refresh IPO status. Try checking again.");
     } finally {
@@ -93,20 +130,22 @@ function useIpo(market: Market) {
     posting.current = true;
     setFailure("");
     setChecked("");
-    setUncertain(false);
-    const request = { startedAt: Date.now() };
-    setAttempt(request);
+    sessionStorage.setItem(key, "unknown");
+    setAttempt("unknown");
     try {
       await launchIpo();
-      setAttempt({ ...request, queued: true });
-      await snapshot.refetch();
+      if (sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "queued");
+        setAttempt("queued");
+      }
     } catch (error) {
       const reason = error as BtxRequestError;
       if (reason.status && reason.status < 500 && reason.status !== 408) {
+        sessionStorage.removeItem(key);
         setAttempt(null);
         setFailure(reason.message || "Launch request declined");
       } else {
-        setUncertain(true);
+        setChecked("Couldn’t confirm the launch request. Check IPO status.");
       }
     } finally {
       posting.current = false;
@@ -119,9 +158,15 @@ function useIpo(market: Market) {
     pending,
     unknown,
     launch,
+    resume,
+    canResume,
     failure,
     check,
-    checked,
+    checked:
+      checked ||
+      (attempt === "queued"
+        ? "The server accepted the launch request. Waiting for preparation to start."
+        : ""),
     checking,
   };
 }
@@ -265,7 +310,6 @@ function IpoPanel({
     now < market.eventEndsAt;
   const canConfirm =
     canLaunch && confirmation.trim().toLowerCase() === "launch";
-  const canCheck = ipo.unknown || ipo.preparing || ipo.committed;
   const description = ipo.committed
     ? "The IPO committed. Waiting for the market snapshot to show every company’s seed shares."
     : ipo.preparing && !ipo.unknown
@@ -373,16 +417,22 @@ function IpoPanel({
               </tbody>
             </table>
           </div>
+          {ipo.failure && <StatusBanner tone="error" title={ipo.failure} />}
+          {ipo.canResume && (
+            <button
+              className={s.warm}
+              disabled={ipo.checking}
+              onClick={ipo.resume}
+            >
+              Resume IPO
+            </button>
+          )}
           <button
             className={s.warm}
-            disabled={!canCheck || ipo.checking}
+            disabled={ipo.checking}
             onClick={ipo.check}
           >
-            {ipo.checking
-              ? "Checking IPO status…"
-              : canCheck
-                ? "Check IPO status"
-                : "Launching…"}
+            {ipo.checking ? "Checking IPO status…" : "Check IPO status"}
           </button>
         </ResponsiveSheet>
       ) : (
@@ -455,7 +505,7 @@ function IpoPanel({
       {!ipo.pending && !ipo.live && ipo.checked && (
         <StatusBanner tone="info" title={ipo.checked} />
       )}
-      {!ipo.live && ipo.failure && (
+      {!ipo.live && !ipo.pending && ipo.failure && (
         <StatusBanner tone="error" title={ipo.failure} />
       )}
       <dialog className={s.dialog} ref={dialog} aria-labelledby="ipo-title">
@@ -521,7 +571,7 @@ function EventControl({
   grantsOnly = false,
 }: MarketPageProps & { grantsOnly?: boolean }) {
   const router = useRouter();
-  const ipo = useIpo(market);
+  const ipo = useIpo(market, userId);
   const active = market.projects.filter(
     (project) => windowState(project, now) === "ACTIVE",
   ).length;
