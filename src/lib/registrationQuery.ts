@@ -1,4 +1,6 @@
 import type { fetchBackend } from "@/lib/db";
+import { isRegistrationStatus } from "@/lib/registrationStatus";
+import type { DBRegistrationStatus } from "@/types";
 
 export function eventRegistrationsEndpoint(eventId: string, year: string) {
   // Encode query values so event IDs such as "product+" keep their literal +.
@@ -6,13 +8,18 @@ export function eventRegistrationsEndpoint(eventId: string, year: string) {
   return `/registrations?${query.toString()}`;
 }
 
+export type RegistrationStatusUpdate = {
+  email: string;
+  registrationStatus: DBRegistrationStatus;
+};
+
 type Batch = {
   eventID: string;
   eventYear: number;
-  updates: { email: string; fname: string; applicationStatus: string }[];
+  updates: (RegistrationStatusUpdate & { fname: string })[];
 };
 
-export async function updateApplicationStatuses(
+export async function updateRegistrationStatuses(
   request: typeof fetchBackend,
   data: Batch,
 ) {
@@ -21,11 +28,18 @@ export async function updateApplicationStatuses(
     endpoint: "/registrations/massUpdate",
     data,
   });
-  const confirmed = new Set<string>();
-  for (const { email, success } of results) {
-    if (success === true) confirmed.add(email);
+  const savedStatuses = new Map<string, DBRegistrationStatus>();
+  for (const { email, success, registrationStatus } of results) {
+    if (success === true && isRegistrationStatus(registrationStatus)) {
+      savedStatuses.set(email, registrationStatus);
+    }
   }
-  return data.updates
-    .map(({ email }) => email)
-    .filter((email) => !confirmed.has(email));
+  const confirmed: RegistrationStatusUpdate[] = [];
+  const failed: string[] = [];
+  for (const { email } of data.updates) {
+    const registrationStatus = savedStatuses.get(email);
+    if (registrationStatus) confirmed.push({ email, registrationStatus });
+    else failed.push(email);
+  }
+  return { confirmed, failed };
 }

@@ -30,13 +30,7 @@ export const TableCell = memo(
     const [showNfcPopup, setShowNfcPopup] = useState(false);
 
     useEffect(() => {
-      setValue(
-        column.id === "applicationStatus"
-          ? APPLICATION_STATUS_OPTIONS.find(
-              (option) => option.value === String(initialValue).toLowerCase(),
-            )?.label || initialValue
-          : getStatusLabel(initialValue as string),
-      );
+      setValue(initialValue);
     }, [initialValue, column.id, row.original.id]);
 
     const onBlur = async () => {
@@ -81,23 +75,18 @@ export const TableCell = memo(
 
     if (column.id === "registrationStatus" || column.id === "points") {
       if (columnMeta?.type === "select") {
-        const handleSelectChange = (newValue: string) => {
-          onSelectChange(newValue);
-        };
+        const status = typeof value === "string" ? value : "";
 
         return (
           <>
-            <Select
-              onValueChange={handleSelectChange}
-              defaultValue={initialValue as string}
-            >
+            <Select onValueChange={onSelectChange} value={status}>
               <SelectTrigger
                 className="rounded-full text-xs text-bt-blue-500 h-fit py-1.5 border-none shadow-inner-md gap-2"
                 style={{
-                  backgroundColor: getStatusColor(initialValue as string),
+                  backgroundColor: getStatusColor(status),
                 }}
               >
-                <SelectValue>{value as string}</SelectValue>
+                <SelectValue>{getStatusLabel(status)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {columnMeta.options?.map((option) => (
@@ -124,7 +113,13 @@ export const TableCell = memo(
       }
     }
 
-    return <span>{value as string}</span>;
+    const label =
+      column.id === "applicationStatus"
+        ? (APPLICATION_STATUS_OPTIONS.find(
+            (option) => option.value === String(value).toLowerCase(),
+          )?.label ?? value)
+        : getStatusLabel(value as string);
+    return <span>{label as string}</span>;
   },
   (prevProps, nextProps) => {
     return (

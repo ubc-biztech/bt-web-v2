@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { DataTableProps, SortingState, ColumnFiltersState } from "./types";
 import {
   useReactTable,
@@ -17,8 +17,6 @@ import { useColumnVisibility } from "./hooks/useColumnVisibility";
 import { createColumns } from "./columns";
 import { Registration } from "@/types/types";
 import { QrCheckIn } from "../QrScanner/QrScanner";
-import { fetchBackend } from "@/lib/db";
-import { eventRegistrationsEndpoint } from "@/lib/registrationQuery";
 import {
   isCheckedIn,
   isCancelled,
@@ -31,20 +29,21 @@ import {
 } from "@/lib/registrationStatus";
 
 export function DataTable({
-  initialData,
+  data,
+  setData,
+  refreshTable,
+  applyRegistrationStatuses,
   eventData,
   dynamicColumns = [],
   eventId,
   year,
 }: DataTableProps<Registration>) {
-  const [data, setData] = useState(initialData);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const [pageSize, setPageSize] = useState(10);
   const [isClient, setIsClient] = useState(false);
   const [isQrReaderToggled, setQrReaderToggled] = useState(false);
-  const [filteredData, setFilteredData] = useState(initialData);
   const [filterValue, setFilterValue] = useState<
     | "all"
     | "attendees"
@@ -60,19 +59,6 @@ export function DataTable({
   >("attendees");
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const refreshTable = useCallback(async () => {
-    try {
-      const registrationData = await fetchBackend({
-        endpoint: eventRegistrationsEndpoint(eventId, year),
-        method: "GET",
-        authenticatedCall: false,
-      });
-      setData(registrationData.data);
-    } catch (error) {
-      console.error("Failed to refresh table data:", error);
-    }
-  }, [eventId, year, setData]);
-
   const memoizedColumns = useMemo(
     () => createColumns(refreshTable, eventData),
     [refreshTable, eventData],
@@ -85,8 +71,8 @@ export function DataTable({
 
   const filterButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    const filtered = data.filter((attendee) => {
+  const filteredData = useMemo(() => {
+    return data.filter((attendee) => {
       switch (filterValue) {
         case "partners":
           return attendee.isPartner === true;
@@ -115,7 +101,6 @@ export function DataTable({
           );
       }
     });
-    setFilteredData(filtered);
   }, [data, filterValue]);
 
   useEffect(() => {
@@ -186,6 +171,7 @@ export function DataTable({
         isQrReaderToggled={isQrReaderToggled}
         setQrReaderToggled={setQrReaderToggled}
         refreshTable={refreshTable}
+        applyRegistrationStatuses={applyRegistrationStatuses}
         onFilterChange={setFilterValue}
         globalFilter={globalFilter}
         setGlobalFilter={setGlobalFilter}
