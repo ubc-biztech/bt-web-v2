@@ -1,3 +1,4 @@
+import typography from "./typography.module.css";
 import {
   type MarketStage,
   companyName,
@@ -25,7 +26,7 @@ const action = {
   ENDED: "Closed",
   LIVE: "Trade",
 };
-const badge = "rounded-full px-3 py-1 text-xs";
+const badge = "rounded-full px-3 py-1 text-[11px] font-medium";
 const imageArea =
   "relative grid w-full place-items-center bg-gradient-to-b from-[#1d2a50] to-[#131b32]";
 function CompanyTitle({
@@ -34,9 +35,11 @@ function CompanyTitle({
 }: Pick<CardProps, "company" | "highlight">) {
   return (
     <span className="flex flex-wrap items-center gap-2 font-medium">
-      {highlight(companyName(company))}
+      <span className={typography.display}>
+        {highlight(companyName(company))}
+      </span>
       {company.ticker && (
-        <small className="rounded-full border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 text-xs text-[#1fbef9]">
+        <small className="rounded-full border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 text-[11px] text-[#1fbef9]">
           {highlight("$" + company.ticker)}
         </small>
       )}
@@ -89,13 +92,13 @@ export function ExchangeCard({
           </span>
         )}
       </span>
-      <span className="flex flex-1 flex-col gap-2 p-3">
+      <span className="flex flex-1 flex-col gap-2 p-3 text-[15px]">
         <CompanyTitle company={company} highlight={highlight} />
-        <span className="line-clamp-2 text-xs leading-4 text-[#bdc8e3]">
+        <span className="line-clamp-2 text-[11px] font-normal leading-4 text-[#bdc8e3]">
           {company.blurb || company.description}
         </span>
       </span>
-      <span className="flex items-center justify-between gap-1 px-3 pb-3 text-sm">
+      <span className="flex items-center justify-between gap-1 px-3 pb-3 text-[12px] font-medium">
         <span>{summary}</span>
         {(!before || own) && (
           <span
@@ -130,7 +133,7 @@ export function FullCatalogCard({ company, now, own, highlight }: CardProps) {
         <CompanyPhoto logo={company.logo} emblemSize={60} />
         <span
           className={
-            "absolute left-3 top-3 font-semibold text-[#0b1424] " +
+            "absolute left-3 top-3 text-[#0b1424] " +
             badge +
             " " +
             (own || state === "NOT_STARTED"
@@ -145,17 +148,16 @@ export function FullCatalogCard({ company, now, own, highlight }: CardProps) {
         {!own && (state === "ACTIVE" || state === "LIVE") && (
           <span
             className={
-              "absolute right-4 top-3 bg-[#82c3fb] font-semibold text-[#0b1120] " +
-              badge
+              "absolute right-4 top-3 bg-[#82c3fb] text-[#0b1120] " + badge
             }
           >
             {action[state]}
           </span>
         )}
       </span>
-      <span className="flex min-h-[132px] flex-1 flex-col gap-2 p-4 text-xl">
+      <span className="flex min-h-[132px] flex-1 flex-col gap-2 p-4 text-[20px]">
         <CompanyTitle company={company} highlight={highlight} />
-        <span className="line-clamp-2 text-sm italic text-[#bdc8e3]">
+        <span className="line-clamp-2 text-[14px] italic text-[#bdc8e3]">
           {company.blurb || company.description}
         </span>
       </span>
@@ -165,13 +167,13 @@ export function FullCatalogCard({ company, now, own, highlight }: CardProps) {
             <span
               key={i}
               title={name}
-              className="grid size-6 place-items-center rounded-full border border-[#101b2d] bg-sky-600 text-xs text-white"
+              className="grid size-6 place-items-center rounded-full border border-[#101b2d] bg-sky-600 text-[12px] text-white"
             >
               {name[0]}
             </span>
           ))}
         </span>
-        <span className="text-sm">
+        <span className="text-[14px]">
           <small className="mr-2 text-[#a8b5d6]">
             {state === "LIVE" ? "Price" : "Seeded"}
           </small>

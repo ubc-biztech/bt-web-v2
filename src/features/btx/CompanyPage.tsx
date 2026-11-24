@@ -1,3 +1,4 @@
+import typography from "./typography.module.css";
 import { TradeTicket } from "./TradeTicket";
 import { compactMoney, countdown, companyName, exchangePath } from "./market";
 import { useCompanyTeam } from "./accountQueries";
@@ -10,7 +11,7 @@ import { CompanyPitch, AngledPanel, StatusBanner } from "./BtxUI";
 import { PriceChart } from "./PriceChart";
 
 const chip =
-  "inline-flex items-center rounded-full border border-[#527096] px-3 py-1 text-xs";
+  "inline-flex items-center rounded-full border border-[#527096] px-3 font-medium";
 const panel = "rounded-3xl border border-[#324a68] bg-[#0d1628]";
 
 export function CompanyPage({
@@ -62,13 +63,16 @@ export function CompanyPage({
           }
         >
           <header className="flex flex-wrap items-center gap-3">
-            <h1 className="text-[40px] font-medium leading-tight tracking-tight">
+            <h1
+              className={`${typography.display} text-[28px] font-medium leading-[normal] lg:text-[38px]`}
+            >
               {companyName(company)}
             </h1>
             {company.ticker && (
               <span
                 className={
-                  chip + " border-[#1fbef9]/50 bg-[#1fbef9]/10 text-[#1fbef9]"
+                  chip +
+                  " border-[#1fbef9]/50 bg-[#1fbef9]/10 py-1 text-[14px] text-[#1fbef9] lg:text-[11px]"
                 }
               >
                 ${company.ticker}
@@ -77,7 +81,7 @@ export function CompanyPage({
             <span
               className={
                 chip +
-                " ml-auto " +
+                " ml-auto py-1 text-[11px] " +
                 (ticket.seedOpen || live
                   ? "border-[#38d3a2]/50 bg-[#38d3a2]/10 text-[#38d3a2]"
                   : "text-[#a8b5d6]")
@@ -90,16 +94,18 @@ export function CompanyPage({
             <PriceChart company={company} now={now} ipoAt={market.ipoAt} />
           ) : (
             <div className="mt-auto space-y-5">
-              <p className="text-xs text-[#1fbef9]">
+              <p className="text-[12px] text-[#1fbef9]">
                 {ticket.seedOpen || notStarted
                   ? "No price lines in seeding. Invest off the pitch"
                   : "Price chart appears after IPO."}
               </p>
               <div className="flex flex-wrap items-baseline gap-4">
-                <span className="text-[clamp(64px,7vw,100px)] font-medium leading-none tracking-tighter tabular-nums text-white">
+                <span
+                  className={`${typography.display} text-[64px] font-medium leading-[normal] tabular-nums text-white lg:text-[96px]`}
+                >
                   {launching ? "IPO" : countdown(seedSeconds)}
                 </span>
-                <span className="text-sm">
+                <span className="text-[15px]">
                   {launching
                     ? "setting opening prices"
                     : notStarted
@@ -115,15 +121,21 @@ export function CompanyPage({
                 value={launching ? 1800 : Math.max(0, 1800 - seedSeconds)}
                 className="block h-2 w-full appearance-none overflow-hidden rounded-full border-0 bg-[#303849] [&::-webkit-progress-bar]:bg-[#303849] [&::-webkit-progress-value]:bg-[#1fbef9] [&::-moz-progress-bar]:bg-[#1fbef9]"
               />
-              <dl className="flex gap-8 text-2xl">
+              <dl className="flex gap-8 text-[24px]">
                 <div>
-                  <dt className="text-xs text-[#a8b5d6]">Seed funding</dt>
-                  <dd>{compactMoney(company.marketCapCents)}</dd>
+                  <dt className="text-[11px] text-[#a8b5d6]">Seed funding</dt>
+                  <dd className={`${typography.display} font-medium`}>
+                    {compactMoney(company.marketCapCents)}
+                  </dd>
                 </div>
                 {company.netShares != null && (
                   <div>
-                    <dt className="text-xs text-[#a8b5d6]">Shares seeded</dt>
-                    <dd>{company.netShares.toLocaleString()} / 5,000</dd>
+                    <dt className="text-[11px] text-[#a8b5d6]">
+                      Shares seeded
+                    </dt>
+                    <dd className={`${typography.display} font-medium`}>
+                      {company.netShares.toLocaleString()} / 5,000
+                    </dd>
                   </div>
                 )}
               </dl>
@@ -139,11 +151,14 @@ export function CompanyPage({
       </div>
       <AngledPanel className="space-y-4">
         <header className="flex items-center justify-between">
-          <Link className={chip + " py-2"} href={exchangePath + "/catalog"}>
+          <Link
+            className={chip + " py-2 text-[13px]"}
+            href={exchangePath + "/catalog"}
+          >
             ← Back to catalog
           </Link>
           {ticket.seedOpen && !ticket.ownCompany && (
-            <span className="rounded-full bg-[#82c3fb] px-3 py-1 text-xs font-semibold text-[#0b1120]">
+            <span className="rounded-full bg-[#82c3fb] px-3 py-1 text-[11px] font-medium text-[#0b1120]">
               Invest
             </span>
           )}
@@ -151,14 +166,22 @@ export function CompanyPage({
         <CompanyPitch company={company} />
         {(company.blurb || company.description) && (
           <section className="rounded-2xl border border-[#263850] bg-[#090f1b] p-4">
-            <h2 className="mb-2 text-xs text-[#1fbef9]">Blurb</h2>
-            <p className="text-lg">{company.blurb || company.description}</p>
+            <h2 className="mb-2 text-[16px] font-medium text-[#1fbef9] lg:text-[11px] lg:font-normal">
+              Blurb
+            </h2>
+            <p className="text-[14px] lg:font-[family-name:var(--btx-font-instrument-sans)] lg:text-[17px] lg:font-medium">
+              {company.blurb || company.description}
+            </p>
           </section>
         )}
         <section className="rounded-2xl border border-[#263850] bg-[#090f1b] p-4">
-          <h2 className="mb-4 text-xs text-[#1fbef9]">Team</h2>
+          <h2 className="mb-4 text-[16px] font-medium text-[#1fbef9] lg:text-[11px] lg:font-normal">
+            Team
+          </h2>
           {team.isLoading ? (
-            <p role="status">Loading team…</p>
+            <p role="status" className="text-[14px]">
+              Loading team…
+            </p>
           ) : team.isError ? (
             <StatusBanner
               tone="error"
@@ -170,11 +193,11 @@ export function CompanyPage({
               {team.data.map((name, index) => (
                 <li
                   key={name + index}
-                  className="flex items-center gap-3 text-sm"
+                  className="flex items-center gap-3 text-[14px] font-medium lg:text-[13px]"
                 >
                   <span
                     aria-hidden="true"
-                    className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#1fbef9] to-[#276aca] font-semibold text-white"
+                    className="grid size-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#1fbef9] to-[#276aca] text-[10px] font-bold text-white lg:text-[12px]"
                   >
                     {name
                       .split(/\s+/)
@@ -190,7 +213,7 @@ export function CompanyPage({
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-[#a8b5d6]">
+            <p className="text-[14px] text-[#a8b5d6]">
               {userId ? "No team members listed." : "Sign in to see the team."}
             </p>
           )}

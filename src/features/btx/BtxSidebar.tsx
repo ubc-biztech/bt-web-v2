@@ -66,7 +66,7 @@ export function BtxSidebar({
 
   const identity = (
     <>
-      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-sky-600 text-xs font-semibold text-white">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-sky-600 text-[12px] font-semibold text-white">
         {initials}
       </span>
       {expanded && (
@@ -120,7 +120,7 @@ export function BtxSidebar({
           </>
         );
 
-        const classes = `flex h-11 shrink-0 items-center rounded-lg text-slate-400 ${itemLayout} ${active ? "bg-sky-950 ring-1 ring-inset ring-sky-400" : ""}`;
+        const classes = `flex h-11 shrink-0 items-center rounded-lg text-[14px] text-slate-400 ${itemLayout} ${active ? "bg-sky-950 ring-1 ring-inset ring-sky-400" : ""}`;
 
         const row = href ? (
           <Link

@@ -114,7 +114,7 @@ export function StatusBanner({
   return (
     <div
       role={tone === "error" ? "alert" : "status"}
-      className="flex items-start gap-3 rounded-[14px] border px-4 py-3 text-sm text-[#E6EBF6]"
+      className="flex items-start gap-3 rounded-[14px] border px-4 py-3 text-[14px] text-[#E6EBF6]"
       style={{ backgroundColor: color + "1F", borderColor: color + "73" }}
     >
       <Image
@@ -124,10 +124,16 @@ export function StatusBanner({
         alt=""
       />
       <div>
-        <p className="font-medium">{title}</p>
-        {description && <p className="text-xs text-[#B5C1DA]">{description}</p>}
+        <p className="text-[14px] font-medium">{title}</p>
+        {description && (
+          <p className="text-[12px] text-[#B5C1DA]">{description}</p>
+        )}
         {onRetry && (
-          <button type="button" className="mt-1 underline" onClick={onRetry}>
+          <button
+            type="button"
+            className="mt-1 text-[14px] underline"
+            onClick={onRetry}
+          >
             Retry
           </button>
         )}

@@ -1,3 +1,4 @@
+import typography from "./typography.module.css";
 import { compactMoney, companyName, windowState, timeLeft } from "./market";
 import { CompanyPhoto } from "./BtxUI";
 
@@ -31,11 +32,11 @@ export function TopFunded({
       <header className="flex items-baseline justify-between gap-3">
         <h2
           id="top-funded-title"
-          className="text-lg font-medium text-[#E6EBF6]"
+          className={`${typography.display} text-[20px] font-medium text-[#E6EBF6]`}
         >
           {live ? "Top movers" : "Top funded"}
         </h2>
-        <span className="text-xs text-[#A8B5D6]">
+        <span className="text-[11px] text-[#A8B5D6]">
           {live
             ? "Since seeding"
             : final
@@ -47,7 +48,7 @@ export function TopFunded({
       </header>
 
       {leaders.length === 0 ? (
-        <p className="rounded-2xl border border-[#82C3FB]/15 bg-[#0A1429]/60 px-4 py-5 text-sm text-[#A8B5D6]">
+        <p className="rounded-2xl border border-[#82C3FB]/15 bg-[#0A1429]/60 px-4 py-5 text-[14px] text-[#A8B5D6]">
           No seed funding yet. Totals appear after the first purchase.
         </p>
       ) : (
@@ -66,15 +67,19 @@ export function TopFunded({
                   <CompanyPhoto logo={company.logo} emblemSize={20} />
                 </span>
                 <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-1 text-sm text-[#E6EBF6]">
-                    <span className="break-words">{companyName(company)}</span>
+                  <div className="flex flex-wrap items-center gap-1 text-[14px] text-[#E6EBF6]">
+                    <span
+                      className={`${typography.display} break-words text-[16px] font-medium`}
+                    >
+                      {companyName(company)}
+                    </span>
                     {company.ticker && (
-                      <span className="rounded-full border border-[#1FBEF9]/50 bg-[#1FBEF9]/10 px-2 py-0.5 text-xs text-[#1FBEF9]">
+                      <span className="rounded-full border border-[#1FBEF9]/50 bg-[#1FBEF9]/10 px-2 py-0.5 text-[11px] font-medium text-[#1FBEF9]">
                         ${company.ticker}
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-[#A8B5D6]">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#A8B5D6]">
                     <span>
                       {live
                         ? compactMoney(company.currentPriceCents)

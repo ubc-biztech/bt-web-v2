@@ -1,0 +1,9 @@
+.btx {
+  font-family: var(--btx-font-space-grotesk), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.display {
+  font-family: var(--btx-font-instrument-sans), sans-serif;
+}

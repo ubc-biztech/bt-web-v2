@@ -1,3 +1,4 @@
+import typography from "./typography.module.css";
 import {
   compactMoney,
   companyName,
@@ -19,7 +20,7 @@ const filters = {
   ENDED: "Ended",
   LIVE: "Live",
 } as const;
-const pill = "rounded-full border border-[#82C3FB]/35 px-3 py-1 text-xs";
+const pill = "rounded-full border border-[#82C3FB]/35 px-3 py-1 text-[12px]";
 type CatalogProps = {
   projects: Company[];
   focusSearch?: boolean;
@@ -87,7 +88,7 @@ function useCatalog(
         placeholder="Search companies or tickers"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full rounded-xl border border-[#82C3FB]/20 bg-[#091321] pl-12 pr-16 py-3 text-sm"
+        className="w-full rounded-xl border border-[#82C3FB]/20 bg-[#091321] pl-12 pr-16 py-3 text-[14px]"
       />
       {query && (
         <button
@@ -133,11 +134,11 @@ function useCatalog(
     <div className="col-span-full flex min-h-[287px] flex-col items-center justify-center gap-3 rounded-2xl border border-[#82C3FB]/15 bg-black/20 px-5 text-center">
       <span
         aria-hidden
-        className="grid size-14 place-items-center rounded-full border border-[#82C3FB]/40 bg-[#82C3FB]/10 text-2xl text-[#82C3FB]"
+        className="grid size-14 place-items-center rounded-full border border-[#82C3FB]/40 bg-[#82C3FB]/10 text-[28px] text-[#82C3FB]"
       >
         {query ? "?" : "0"}
       </span>
-      <h3 className="text-[22px] font-medium">
+      <h3 className={`${typography.display} text-[22px] font-medium`}>
         {query
           ? `No companies match “${search.trim()}”`
           : projects.length
@@ -145,7 +146,7 @@ function useCatalog(
             : "No companies yet"}
       </h3>
       {query && (
-        <p className="text-xs text-[#a8b5d6]">
+        <p className="text-[12px] text-[#a8b5d6]">
           Check the spelling, or try a company name or a ticker.
         </p>
       )}
@@ -160,7 +161,7 @@ function useCatalog(
           {query ? "Clear search" : "Clear filters"}
         </button>
       ) : (
-        <p className="max-w-sm text-sm text-[#A8B5D6]">
+        <p className="max-w-sm text-[14px] text-[#A8B5D6]">
           Teams appear here after they create a company and fill in its profile.
           Check back soon.
         </p>
@@ -180,7 +181,7 @@ function useCatalog(
       {preview && (
         <div className="min-h-full space-y-5 p-5 sm:p-7">
           <header className="flex items-center justify-between">
-            <span className="text-xs text-slate-400">Preview</span>
+            <span className="text-[12px] text-slate-400">Preview</span>
             <button
               aria-label="Close preview"
               className={pill}
@@ -189,43 +190,50 @@ function useCatalog(
               ×
             </button>
           </header>
-          <h2 id="catalog-preview-title" className="text-3xl">
+          <h2
+            id="catalog-preview-title"
+            className={`${typography.display} text-[38px] font-medium leading-[normal]`}
+          >
             {companyName(preview)}{" "}
             {preview.ticker && (
-              <small className="rounded-full border border-sky-400/50 px-2 py-1 align-middle text-xs text-sky-300">
+              <small className="rounded-full border border-sky-400/50 px-2 py-1 align-middle font-[family-name:var(--btx-font-space-grotesk)] text-[11px] text-sky-300">
                 ${preview.ticker}
               </small>
             )}
-            <span className={pill + " ml-2 align-middle text-sky-200"}>
+            <span className="ml-2 rounded-full border border-[#82C3FB]/35 px-3 py-1 align-middle font-[family-name:var(--btx-font-space-grotesk)] text-[11px] text-sky-200">
               {windowLabel(preview, now)}
             </span>
           </h2>
           <CompanyPitch company={preview} />
-          <p>{preview.blurb || preview.description}</p>
-          <dl className="flex flex-wrap justify-between gap-4 rounded-xl border border-white/15 p-4">
+          <p className="text-[15px]">{preview.blurb || preview.description}</p>
+          <dl className="flex flex-wrap justify-between gap-4 rounded-xl border border-white/15 p-4 text-[18px] font-medium">
             <div>
-              <dt className="text-xs text-slate-400">
+              <dt className="text-[11px] font-normal text-slate-400">
                 {preview.seedStatus === "LIVE" ? "Market cap" : "Seed funding"}
               </dt>
               <dd>{compactMoney(preview.marketCapCents)}</dd>
             </div>
             {sharesSeeded != null && (
               <div>
-                <dt className="text-xs text-[#a8b5d6]">Shares seeded</dt>
+                <dt className="text-[11px] font-normal text-[#a8b5d6]">
+                  Shares seeded
+                </dt>
                 <dd>{sharesSeeded.toLocaleString()} / 5,000</dd>
               </div>
             )}
             <div>
-              <dt className="text-xs text-[#a8b5d6]">Investors</dt>
+              <dt className="text-[11px] font-normal text-[#a8b5d6]">
+                Investors
+              </dt>
               <dd>{seedInvestors}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-400">Window</dt>
+              <dt className="text-[11px] font-normal text-slate-400">Window</dt>
               <dd>{windowLabel(preview, now)}</dd>
             </div>
           </dl>
           {windowState(preview, now) === "ACTIVE" && (
-            <p className="rounded-xl border border-sky-300/25 bg-sky-300/10 p-3 text-sm">
+            <p className="rounded-xl border border-sky-300/25 bg-sky-300/10 p-3 text-[12px]">
               Buy at a fixed {compactMoney(preview.currentPriceCents)} while the
               window is open. Selling opens at IPO. Trade from the full page.
             </p>
@@ -268,8 +276,10 @@ export function ExchangeCatalog(props: CatalogProps) {
     <>
       <AngledPanel className="space-y-3">
         <header className="flex flex-wrap items-center gap-2">
-          <h2 className="text-2xl font-medium">Catalog</h2>
-          <span className="mr-auto text-xs text-[#a8b5d6]">
+          <h2 className={`${typography.display} text-[26px] font-medium`}>
+            Catalog
+          </h2>
+          <span className="mr-auto text-[12px] text-[#a8b5d6]">
             {catalog.count}
           </span>
           <Link className={pill} href={exchangePath + "/catalog"}>
@@ -290,7 +300,11 @@ export function FullCatalog(props: CatalogProps) {
     <>
       <section className="space-y-5">
         <header className="flex flex-wrap items-center gap-2">
-          <h1 className="mr-auto text-4xl font-medium">Catalog</h1>
+          <h1
+            className={`${typography.display} mr-auto text-[48px] font-medium`}
+          >
+            Catalog
+          </h1>
           {(Object.keys(filters) as (keyof typeof filters)[])
             .filter((f) => f !== "LIVE" || props.stage === "live")
             .map((f) => (

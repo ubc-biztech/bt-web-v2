@@ -1,5 +1,6 @@
 import { useEffect, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Instrument_Sans, Space_Grotesk } from "next/font/google";
 import type { DynamicPageProps } from "@/constants/companion-events";
 
 import "@/components/ConfigureAmplify";
@@ -14,6 +15,17 @@ import { market, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
 
 import { StatusBanner } from "./BtxUI";
+import styles from "./typography.module.css";
+
+const instrumentSans = Instrument_Sans({
+  subsets: ["latin"],
+  variable: "--btx-font-instrument-sans",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--btx-font-space-grotesk",
+});
 
 export type MarketPageProps = {
   market: Market;
@@ -51,7 +63,9 @@ function MarketLayout({
 
   const marketData = snapshot.data;
   return (
-    <div className="flex min-h-screen bg-[#0b1120]">
+    <div
+      className={`${styles.btx} ${instrumentSans.variable} ${spaceGrotesk.variable} flex min-h-screen bg-[#0b1120]`}
+    >
       <BtxSidebar userId={userId} {...profile} />
       <main className="min-w-0 flex-1 bg-[url(/assets/btx/market-background.webp)] bg-[length:100%_auto] bg-top bg-no-repeat px-4 pb-10 pt-8 text-[#e6ebf6] sm:px-6 lg:px-12 lg:pt-[92px]">
         <div className="mx-auto max-w-[1600px] space-y-6">

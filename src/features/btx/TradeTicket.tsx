@@ -8,7 +8,7 @@ import { stockError } from "./stockError";
 import { usePortfolio } from "./accountQueries";
 
 const tradeButton =
-  "rounded-full bg-[#1fbef9] px-5 py-3 font-medium text-[#061323] disabled:bg-[#1e2a40] disabled:text-[#a8b5d6]";
+  "rounded-full bg-[#1fbef9] px-5 py-3 text-[15px] font-medium text-[#061323] lg:text-[14px] disabled:bg-[#1e2a40] disabled:text-[#a8b5d6]";
 
 export function TradeTicket({
   market,
@@ -100,13 +100,13 @@ export function TradeTicket({
               disabled={quantityLocked || (s === "SELL" && !live)}
               aria-pressed={side === s}
               onClick={() => ticket.changeSide(s)}
-              className="flex-1 rounded-full px-5 py-2 text-sm capitalize aria-pressed:bg-[#89dcff] aria-pressed:text-[#0a1524] disabled:opacity-40"
+              className="flex-1 rounded-full px-5 py-2 text-[14px] font-medium capitalize lg:font-bold aria-pressed:bg-[#89dcff] aria-pressed:text-[#0a1524] disabled:opacity-40"
             >
               {s.toLowerCase()}
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 rounded-xl border border-[#324a68] bg-[#080e1a] px-3 py-2 text-xs text-[#a8b5d6]">
+        <label className="flex items-center gap-2 rounded-xl border border-[#324a68] bg-[#080e1a] px-3 py-2 text-[13px] text-[#a8b5d6] lg:text-[12px]">
           <input
             type="text"
             inputMode="numeric"
@@ -120,7 +120,7 @@ export function TradeTicket({
             }}
             title="Enter a positive whole number of shares"
             disabled={quantityLocked}
-            className="w-12 bg-transparent text-lg text-white"
+            className="w-12 bg-transparent text-[22px] font-bold text-white lg:text-[18px] lg:font-medium"
           />{" "}
           shares
         </label>
@@ -131,7 +131,7 @@ export function TradeTicket({
               disabled={quantityLocked}
               aria-pressed={preset === quantity}
               onClick={() => ticket.changeQuantity(preset)}
-              className="inline-flex items-center rounded-full border border-[#527096] px-3 py-1 text-xs aria-pressed:bg-[#89dcff] aria-pressed:text-[#081121]"
+              className="inline-flex items-center rounded-full border border-[#527096] px-3 py-1 text-[13px] font-medium aria-pressed:bg-[#89dcff] aria-pressed:text-[#081121] lg:text-[12px]"
             >
               {preset}
             </button>
@@ -154,11 +154,15 @@ export function TradeTicket({
           </button>
         )}
       </div>
-      <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">
+      <dl className="grid grid-cols-2 gap-3 text-[14px] sm:grid-cols-5">
         {quoteDetails.map(([label, value]) => (
           <div key={label}>
-            <dt className="mb-1 text-xs text-[#a8b5d6]">{label}</dt>
-            <dd className={label === "Selling" ? "text-[#ffddad]" : undefined}>
+            <dt className="mb-1 text-[14px] text-[#a8b5d6] lg:text-[11px]">
+              {label}
+            </dt>
+            <dd
+              className={`font-medium lg:text-[16px] ${label === "Selling" ? "text-[#ffddad]" : ""}`}
+            >
               {fetchingQuote ? (
                 <span
                   aria-label="Loading price"

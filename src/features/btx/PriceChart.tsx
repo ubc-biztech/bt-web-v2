@@ -40,11 +40,11 @@ export function PriceChart({
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="text-2xl tabular-nums">
+          <span className="whitespace-nowrap text-[34px] font-bold leading-[normal] lg:font-[family-name:var(--btx-font-instrument-sans)] lg:text-[28px] lg:font-medium lg:tracking-[-0.56px]">
             {money(company.currentPriceCents)}
           </span>
           <span
-            className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-xs ${priceUp ? "border-[#38d3a2]/40 bg-[#38d3a2]/10 text-[#38d3a2]" : "border-[#ff5c7a]/75 bg-[#ff5c7a]/10 text-[#ff5c7a]"}`}
+            className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[14px] font-medium lg:text-[11px] ${priceUp ? "border-[#38d3a2]/40 bg-[#38d3a2]/10 text-[#38d3a2]" : "border-[#ff5c7a]/75 bg-[#ff5c7a]/10 text-[#ff5c7a]"}`}
           >
             <span aria-hidden="true">{priceUp ? "▲" : "▼"}</span>
             {priceUp ? "+" : ""}
@@ -56,7 +56,7 @@ export function PriceChart({
             <button
               key={r}
               aria-pressed={r === range}
-              className="rounded-full border border-slate-700 px-3 py-1 text-xs aria-pressed:bg-sky-300 aria-pressed:text-slate-950"
+              className="rounded-full border border-slate-700 px-3 py-1 text-[13px] font-medium aria-pressed:bg-sky-300 aria-pressed:text-slate-950 lg:text-[12px]"
               onClick={() => setRange(r)}
             >
               {r}
@@ -111,7 +111,7 @@ export function PriceChart({
           </ResponsiveContainer>
         </div>
       ) : (
-        <p className="my-auto text-sm text-slate-400">
+        <p className="my-auto text-[14px] text-slate-400">
           {history.isPending
             ? "Loading prices…"
             : history.isError

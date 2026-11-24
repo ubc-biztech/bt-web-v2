@@ -1,3 +1,4 @@
+import typography from "./typography.module.css";
 import { companyName, type MarketStage } from "./market";
 import Image from "next/image";
 import { AngledPanel } from "./BtxUI";
@@ -40,10 +41,12 @@ export function ExchangeOverview({
     <div className="flex min-w-0 flex-col gap-4">
       {market.phase === "LIVE" && featured ? (
         <section className="flex min-h-96 flex-1 flex-col gap-4 rounded-3xl border border-[#82c3fb]/25 bg-[#0d1629] p-7">
-          <h2 className="text-3xl">
+          <h2 className={`${typography.display} text-[40px] font-medium`}>
             {companyName(featured)}{" "}
             {featured.ticker && (
-              <small className="text-sm text-sky-300">${featured.ticker}</small>
+              <small className="font-[family-name:var(--btx-font-space-grotesk)] text-[11px] text-sky-300">
+                ${featured.ticker}
+              </small>
             )}
           </h2>
           <PriceChart company={featured} now={now} ipoAt={market.ipoAt} />
@@ -57,11 +60,13 @@ export function ExchangeOverview({
           }}
         >
           {!!projects.length && (
-            <h2 className="text-4xl font-medium tracking-tight xl:text-[64px] xl:leading-none">
+            <h2
+              className={`${typography.display} text-[48px] font-medium tracking-tight xl:text-[64px] xl:leading-none`}
+            >
               {title}
             </h2>
           )}
-          <p>{description}</p>
+          <p className="text-[16px]">{description}</p>
           <MarketTimeline stage={stage} />
         </section>
       )}
@@ -121,11 +126,13 @@ function MarketTimeline({ stage }: { stage: MarketStage }) {
               unoptimized
               className="mb-1 h-auto max-w-full"
             />
-            <span className={`text-xs ${current ? "text-[#1FBEF9]" : ""}`}>
+            <span className={`text-[11px] ${current ? "text-[#1FBEF9]" : ""}`}>
               0{index + 1}
             </span>
-            <p className="font-medium">{title}</p>
-            <p className="mt-1 text-xs">{detail}</p>
+            <p className={`${typography.display} text-[15px] font-medium`}>
+              {title}
+            </p>
+            <p className="mt-1 text-[12px]">{detail}</p>
           </li>
         );
       })}
@@ -166,7 +173,7 @@ export function ExchangeLoading() {
           </div>
         </div>
 
-        <p role="status" className="mt-4 text-sm">
+        <p role="status" className="mt-4 text-[14px]">
           Loading the exchange…
         </p>
       </div>
