@@ -1,14 +1,32 @@
 import Link from "next/link";
 import { exchangePath } from "./market";
 
-export function MobileNavigation({ path }: { path: string }) {
+export function MobileNavigation({
+  path,
+  teamId,
+  admin,
+}: {
+  path: string;
+  teamId?: string;
+  admin?: boolean;
+}) {
+  const ownCompanyPath = teamId
+    ? exchangePath +
+      "/company/" +
+      encodeURIComponent("kickstart;2026:" + teamId)
+    : undefined;
   const mobileTabs = [
     { icon: "exchange", label: "Exchange", href: exchangePath },
     { icon: "catalog", label: "Catalog", href: exchangePath + "/catalog" },
     { icon: "portfolio", label: "Portfolio" },
     { icon: "leaderboard", label: "Ranks" },
-    // The destination handles sign-in, eligibility, and current membership.
-    { icon: "company", label: "Company", href: exchangePath + "/my-company" },
+    admin
+      ? { icon: "admin", label: "Admin" }
+      : {
+          icon: "company",
+          label: "Company",
+          href: ownCompanyPath,
+        },
   ];
 
   return (
@@ -23,7 +41,8 @@ export function MobileNavigation({ path }: { path: string }) {
           (tab.icon === "exchange" && path === "/companion/kickstart/2026") ||
           (tab.icon === "catalog" &&
             (path === exchangePath + "/search" ||
-              path.startsWith(exchangePath + "/company/")));
+              (path.startsWith(exchangePath + "/company/") &&
+                path !== ownCompanyPath)));
         const contents = (
           <>
             <span
