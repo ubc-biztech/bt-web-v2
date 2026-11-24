@@ -40,7 +40,7 @@ import {
   teamSecondaryButton as secondaryButton,
   teamPanelClass as panelClass,
 } from "./BtxUI";
-import { TeamManagement } from "./TeamManagement";
+import { CompanyWorkspace } from "./CompanyWorkspace";
 import { exchangePath, isBtxRegistrationStatus } from "./market";
 import { market } from "./seedApi";
 import {
@@ -88,7 +88,13 @@ function TeamAccessState({
   );
 }
 
-function EligibleTeamPage({ email }: { email: string }) {
+function EligibleTeamPage({
+  email,
+  eligible,
+}: {
+  email: string;
+  eligible: boolean;
+}) {
   const queryClient = useQueryClient();
   const team = useEventTeam(KICKSTART_EVENT_ID, KICKSTART_YEAR, email, {
     staleTime: 0,
@@ -146,8 +152,10 @@ function EligibleTeamPage({ email }: { email: string }) {
     leave.isPending ||
     remove.isPending ||
     checkingTeam ||
+    team.isError ||
     sessionExpired;
   const formationOpen =
+    eligible &&
     snapshot.isSuccess &&
     formationIsOpen(snapshot.data.eventId, snapshot.data.phase);
 
@@ -373,7 +381,7 @@ function EligibleTeamPage({ email }: { email: string }) {
   }
 
   if (team.isPending) return <TeamAccessState title="Checking your team…" />;
-  if (team.isError)
+  if (team.isError && !team.data)
     return (
       <div className="space-y-4">
         <StatusBanner
@@ -393,13 +401,21 @@ function EligibleTeamPage({ email }: { email: string }) {
   return (
     <div className="space-y-4 md:space-y-5">
       {notice && <StatusBanner {...notice} />}
+      {team.isError && (
+        <StatusBanner
+          tone="warning"
+          title="Couldn’t refresh your team"
+          description="Your profile changes are still here. Reload your membership before making changes."
+          onRetry={() => void team.refetch()}
+        />
+      )}
       {sessionExpired && (
         <Button asChild className={primaryButton}>
           <Link href={teamLoginPath}>Sign in again</Link>
         </Button>
       )}
       {currentTeam || removedView ? (
-        <TeamManagement
+        <CompanyWorkspace
           key={(currentTeam ?? removedView)!.team_code}
           team={(currentTeam ?? removedView)!}
           email={email}
@@ -444,7 +460,13 @@ function EligibleTeamPage({ email }: { email: string }) {
               {email[0].toUpperCase()}
             </span>
           </header>
-          {snapshot.isPending ? (
+          {!eligible ? (
+            <StatusBanner
+              tone="warning"
+              title="Finish your KickStart registration"
+              description="A completed, accepted registration or event check-in is required to create or join a team."
+            />
+          ) : snapshot.isPending ? (
             <StatusBanner
               tone="info"
               title="Checking whether team formation is open…"
@@ -619,6 +641,11 @@ function TeamPage() {
       registration["eventID;year"] === KICKSTART_EVENT_KEY &&
       isBtxRegistrationStatus(registration.registrationStatus),
   );
+  const hasTeam = registrations.data?.some(
+    (registration) =>
+      registration["eventID;year"] === KICKSTART_EVENT_KEY &&
+      !!registration.teamID,
+  );
   const loginPath = `/login?redirect=${encodeURIComponent(getSafeRedirect(router.asPath))}`;
   let content: ReactNode;
   if (auth.isPending)
@@ -674,7 +701,7 @@ function TeamPage() {
         )}
       </div>
     );
-  else if (!eligible)
+  else if (!eligible && !hasTeam)
     content = (
       <TeamAccessState title="Finish your KickStart registration">
         <p className="text-[#b5c1da]">
@@ -686,7 +713,10 @@ function TeamPage() {
         </Button>
       </TeamAccessState>
     );
-  else content = <EligibleTeamPage key={email} email={email} />;
+  else
+    content = (
+      <EligibleTeamPage key={email} email={email} eligible={!!eligible} />
+    );
 
   return (
     <div className="flex min-h-screen bg-[#0b1120] text-[#e6ebf6]">
