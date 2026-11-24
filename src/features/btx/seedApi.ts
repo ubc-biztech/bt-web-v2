@@ -9,6 +9,7 @@ export interface Company {
   marketCapCents: number;
   netShares?: number;
   seedSharesAtIpo?: number | null;
+  seedStartedAt?: number | null;
   name?: string;
   blurb?: string;
   description?: string;
@@ -20,7 +21,7 @@ export interface Company {
 
 export interface Market {
   eventId: string;
-  phase: "SEED" | "IPO_LAUNCHING" | "LIVE";
+  phase: "SEED" | "IPO_PREPARING" | "IPO_LAUNCHING" | "LIVE";
   serverTime: number;
   ipoAt?: number | null;
   eventEndsAt: number;
