@@ -1,11 +1,13 @@
-import typography from "./typography.module.css";
+import styles from "./btx.module.css";
 import {
   type MarketStage,
   companyName,
   compactMoney,
+  percent,
   timeLeft,
   windowState,
   windowLabel,
+  windowPillTone,
 } from "./market";
 import { useCompanyTeam } from "./accountQueries";
 import type { ReactNode } from "react";
@@ -35,14 +37,96 @@ function CompanyTitle({
 }: Pick<CardProps, "company" | "highlight">) {
   return (
     <span className="flex flex-wrap items-center gap-2 font-medium">
-      <span className={typography.display}>
+      <span
+        className={
+          styles.display +
+          " max-md:font-[family-name:var(--btx-font-space-grotesk)] max-md:text-[18px]"
+        }
+      >
         {highlight(companyName(company))}
       </span>
       {company.ticker && (
-        <small className="rounded-full border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 text-[11px] text-[#1fbef9]">
+        <small className="max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:text-[13px] rounded-full border border-sky-400/50 bg-sky-400/10 px-2 py-0.5 text-[11px] text-[#1fbef9]">
           {highlight("$" + company.ticker)}
         </small>
       )}
+    </span>
+  );
+}
+
+export function MobileCatalogCard({
+  company,
+  now,
+  own,
+  highlight,
+  stage,
+}: CardProps) {
+  const state = windowState(company, now);
+  const paused = stage === "launching" || stage === "closed";
+  const active = !own && !paused && (state === "ACTIVE" || state === "LIVE");
+  let status = windowLabel(company, now);
+  if (paused) status = "Seed ended";
+  else if (stage === "waiting" && state === "NOT_STARTED")
+    status = "Opens after Kickoff";
+  else if (own && state === "ACTIVE") status = "Seeding";
+  else if (state === "ACTIVE" || state === "LIVE") status = "● " + status;
+
+  return (
+    <span className="flex w-full flex-col md:hidden">
+      <span className={imageArea + " h-[150px] overflow-hidden"}>
+        {company.logo && <CompanyPhoto logo={company.logo} emblemSize={44} />}
+        <span className="absolute inset-x-3 bottom-2.5 flex items-center justify-between">
+          <span
+            className={styles.statusPill}
+            data-tone={paused ? "ended" : windowPillTone(state)}
+          >
+            {status}
+          </span>
+          {own && (
+            <span className={styles.statusPill} data-tone="accent">
+              Your team
+            </span>
+          )}
+        </span>
+      </span>
+      <span className="flex flex-col gap-2 px-4 py-3.5">
+        <CompanyTitle company={company} highlight={highlight} />
+        <span className="text-[13px] text-[#a8b5d6]">
+          {company.blurb || company.description}
+        </span>
+        <span className="flex items-center justify-between gap-2 pt-1">
+          <span className="flex flex-col">
+            <strong className="text-[16px] font-bold">
+              {state === "NOT_STARTED"
+                ? "—"
+                : compactMoney(
+                    state === "LIVE"
+                      ? company.currentPriceCents
+                      : company.marketCapCents,
+                  )}
+            </strong>
+            <small className="text-[#9eabcb]">
+              {state === "LIVE"
+                ? percent((company.currentPriceCents - 10000) / 10000)
+                : state === "NOT_STARTED"
+                  ? "not started"
+                  : paused
+                    ? "raised"
+                    : "seeded"}
+            </small>
+          </span>
+          <span
+            className={
+              "rounded-full border px-[18px] py-[9px] text-[13px] leading-[normal] font-medium " +
+              (active
+                ? "border-[#82c3fb]/40 bg-[#1fbef9] text-[#0b1120]"
+                : "border-[#82c3fb]/15 bg-[#82c3fb]/5 text-[#9eabcb]")
+            }
+          >
+            {own ? "Yours" : paused ? "Closed" : action[state]}
+          </span>
+        </span>
+      </span>
     </span>
   );
 }

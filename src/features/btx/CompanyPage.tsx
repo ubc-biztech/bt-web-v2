@@ -1,4 +1,5 @@
-import typography from "./typography.module.css";
+import styles from "./btx.module.css";
+import { MobileTradeSheet } from "./MobileTradeSheet";
 import { TradeTicket } from "./TradeTicket";
 import { compactMoney, countdown, companyName, exchangePath } from "./market";
 import { useCompanyTeam } from "./accountQueries";
@@ -53,18 +54,38 @@ export function CompanyPage({
         : ticket.seedOpen
           ? "Seed round open"
           : "Seed round ended";
+  const unavailable =
+    ticket.ownCompany ||
+    now >= market.eventEndsAt ||
+    (!live && !ticket.seedOpen);
+  const hasOrder = !!ticket.order || !!ticket.notice;
+  const tradeAction = hasOrder
+    ? "View order"
+    : launching
+      ? "Trading paused"
+      : unavailable
+        ? "Buy unavailable"
+        : live
+          ? "Trade"
+          : "Invest";
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,804fr)_minmax(0,522fr)]">
+    <div className="grid gap-5 pb-[76px] md:pb-0 lg:grid-cols-[minmax(0,804fr)_minmax(0,522fr)]">
       <div className="flex min-w-0 flex-col gap-4">
+        <Link
+          href={exchangePath + "/catalog"}
+          className="text-[13px] font-medium text-[#89dcff] md:hidden"
+        >
+          ← Back to catalog
+        </Link>
         <section
           className={
             panel +
-            " flex min-h-[380px] flex-1 flex-col gap-5 bg-gradient-to-b from-[#15263c] to-[#0d1528] p-5 sm:p-7 lg:min-h-[560px]"
+            " max-md:contents flex md:min-h-[380px] flex-1 flex-col gap-5 bg-gradient-to-b from-[#15263c] to-[#0d1528] p-4 sm:p-7 lg:min-h-[560px]"
           }
         >
           <header className="flex flex-wrap items-center gap-3">
             <h1
-              className={`${typography.display} text-[28px] font-medium leading-[normal] lg:text-[38px]`}
+              className={`${styles.display} text-[28px] font-medium leading-[normal] lg:text-[38px]`}
             >
               {companyName(company)}
             </h1>
@@ -72,14 +93,25 @@ export function CompanyPage({
               <span
                 className={
                   chip +
-                  " border-[#1fbef9]/50 bg-[#1fbef9]/10 py-1 text-[14px] text-[#1fbef9] lg:text-[11px]"
+                  " max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:p-0 border-[#1fbef9]/50 bg-[#1fbef9]/10 py-1 text-[14px] text-[#1fbef9] lg:text-[11px]"
                 }
               >
                 ${company.ticker}
               </span>
             )}
             <span
+              data-tone={
+                launching
+                  ? "accent"
+                  : live || ticket.seedOpen
+                    ? "active"
+                    : notStarted
+                      ? "neutral"
+                      : "ended"
+              }
               className={
+                styles.statusPill +
+                " " +
                 chip +
                 " ml-auto py-1 text-[11px] " +
                 (ticket.seedOpen || live
@@ -91,40 +123,65 @@ export function CompanyPage({
             </span>
           </header>
           {live ? (
-            <PriceChart company={company} now={now} ipoAt={market.ipoAt} />
+            <div className="rounded-[20px] border border-[#82c3fb]/25 bg-[#82c3fb]/5 p-4 md:contents">
+              <PriceChart company={company} now={now} ipoAt={market.ipoAt} />
+            </div>
           ) : (
-            <div className="mt-auto space-y-5">
-              <p className="text-[12px] text-[#1fbef9]">
-                {ticket.seedOpen || notStarted
-                  ? "No price lines in seeding. Invest off the pitch"
-                  : "Price chart appears after IPO."}
-              </p>
-              <div className="flex flex-wrap items-baseline gap-4">
-                <span
-                  className={`${typography.display} text-[64px] font-medium leading-[normal] tabular-nums text-white lg:text-[96px]`}
-                >
-                  {launching ? "IPO" : countdown(seedSeconds)}
-                </span>
-                <span className="text-[15px]">
-                  {launching
-                    ? "setting opening prices"
-                    : notStarted
-                      ? "seed window, once the team starts"
-                      : ticket.seedOpen
-                        ? "left in seed window"
-                        : "seed window closed"}
-                </span>
+            <div className="max-md:contents md:mt-auto md:space-y-5">
+              {!ticket.seedOpen && (
+                <div className="md:hidden">
+                  <StatusBanner
+                    tone="warning"
+                    title={
+                      launching
+                        ? "IPO is launching"
+                        : notStarted
+                          ? "This team hasn’t started seeding"
+                          : "Seed window ended"
+                    }
+                    description={
+                      launching
+                        ? "Trading is paused for a moment while prices go live. This page will update on its own."
+                        : notStarted
+                          ? "Buying opens once a team member starts their 30-minute seed window."
+                          : "Buying has closed for this team. Selling opens when the IPO launches."
+                    }
+                  />
+                </div>
+              )}
+              <div className="flex flex-col gap-2 rounded-[20px] border border-[#89dcff]/35 bg-[#82c3fb]/5 p-4 md:contents">
+                <p className="max-md:order-last text-[12px] text-[#1fbef9]">
+                  {ticket.seedOpen || notStarted
+                    ? "No price lines in seeding. Invest off the pitch"
+                    : "Price chart appears after IPO."}
+                </p>
+                <div className="flex max-md:flex-col md:flex-wrap md:items-baseline md:gap-4">
+                  <span
+                    className={`${styles.display} max-md:font-[family-name:var(--btx-font-space-grotesk)] max-md:font-bold text-[34px] font-medium leading-[normal] md:text-[64px] tabular-nums text-white lg:text-[96px]`}
+                  >
+                    {launching ? "IPO" : countdown(seedSeconds)}
+                  </span>
+                  <span className="text-[13px] md:text-[15px]">
+                    {launching
+                      ? "setting opening prices"
+                      : notStarted
+                        ? "seed window, once the team starts"
+                        : ticket.seedOpen
+                          ? "left in seed window"
+                          : "seed window closed"}
+                  </span>
+                </div>
               </div>
               <progress
                 aria-label="Seed window elapsed"
                 max={1800}
                 value={launching ? 1800 : Math.max(0, 1800 - seedSeconds)}
-                className="block h-2 w-full appearance-none overflow-hidden rounded-full border-0 bg-[#303849] [&::-webkit-progress-bar]:bg-[#303849] [&::-webkit-progress-value]:bg-[#1fbef9] [&::-moz-progress-bar]:bg-[#1fbef9]"
+                className="hidden md:block h-2 w-full appearance-none overflow-hidden rounded-full border-0 bg-[#303849] [&::-webkit-progress-bar]:bg-[#303849] [&::-webkit-progress-value]:bg-[#1fbef9] [&::-moz-progress-bar]:bg-[#1fbef9]"
               />
-              <dl className="flex gap-8 text-[24px]">
+              <dl className="max-md:rounded-[20px] max-md:border max-md:border-[#82c3fb]/[.22] max-md:bg-[#82c3fb]/5 max-md:p-4 grid gap-3 text-[14px] max-md:[&>div]:flex max-md:[&>div]:items-center max-md:[&>div]:justify-between md:flex md:gap-8 md:text-[24px]">
                 <div>
                   <dt className="text-[11px] text-[#a8b5d6]">Seed funding</dt>
-                  <dd className={`${typography.display} font-medium`}>
+                  <dd className={`${styles.display} font-medium`}>
                     {compactMoney(company.marketCapCents)}
                   </dd>
                 </div>
@@ -133,7 +190,7 @@ export function CompanyPage({
                     <dt className="text-[11px] text-[#a8b5d6]">
                       Shares seeded
                     </dt>
-                    <dd className={`${typography.display} font-medium`}>
+                    <dd className={`${styles.display} font-medium`}>
                       {company.netShares.toLocaleString()} / 5,000
                     </dd>
                   </div>
@@ -142,15 +199,25 @@ export function CompanyPage({
             </div>
           )}
         </section>
-        <TradeTicket
-          market={market}
+        <MobileTradeSheet
           company={company}
-          userId={userId}
-          ticket={ticket}
-        />
+          live={live}
+          action={tradeAction}
+          disabled={unavailable && !hasOrder}
+        >
+          {(onClose) => (
+            <TradeTicket
+              onClose={onClose}
+              market={market}
+              company={company}
+              userId={userId}
+              ticket={ticket}
+            />
+          )}
+        </MobileTradeSheet>
       </div>
       <AngledPanel className="space-y-4">
-        <header className="flex items-center justify-between">
+        <header className="hidden items-center justify-between md:flex">
           <Link
             className={chip + " py-2 text-[13px]"}
             href={exchangePath + "/catalog"}

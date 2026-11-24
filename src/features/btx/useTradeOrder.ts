@@ -13,6 +13,7 @@ export function useTradeOrder(
   ownCompany: boolean,
 ) {
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [receipt, setReceipt] = useState<api.Trade | null>(null);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
 
@@ -74,6 +75,7 @@ export function useTradeOrder(
   useEffect(() => {
     if (!order || !confirmed || confirmed.status === "PENDING") return;
 
+    setReceipt(confirmed.status === "FILLED" ? confirmed : null);
     setNotice(
       confirmed.status === "FILLED"
         ? { tone: "success", title: "Order filled" }
@@ -103,6 +105,11 @@ export function useTradeOrder(
     (!order ||
       (retryingOrder && order.limitPriceCents === preview?.priceCents));
 
+  function dismissReceipt() {
+    setReceipt(null);
+    setNotice(null);
+  }
+
   async function confirmPurchase() {
     if (!preview || !canConfirm || lock.current) return;
     const next = order ?? {
@@ -114,9 +121,9 @@ export function useTradeOrder(
     };
 
     lock.current = true;
+    dismissReceipt();
     setBusy(true);
     setOrder(next);
-    setNotice(null);
 
     try {
       await api.placeOrder(next);
@@ -140,9 +147,11 @@ export function useTradeOrder(
 
   return {
     company,
+    receipt,
+    dismissReceipt,
     side,
     changeSide(value: api.Trade["side"]) {
-      setNotice(null);
+      dismissReceipt();
       setSide(value);
     },
     busy,
@@ -151,7 +160,7 @@ export function useTradeOrder(
     ownCompany,
     quantity,
     changeQuantity(value: string) {
-      setNotice(null);
+      dismissReceipt();
       setQuantity(value);
     },
     preview:
@@ -161,6 +170,7 @@ export function useTradeOrder(
     notice,
     order,
     orderNotFound,
+    statusUnknown: !!order && status.isError,
     seedOpen,
     quantityLocked: busy || !!order,
     canQuote: canRequestQuote && !busy && (!order || retryingOrder),

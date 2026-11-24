@@ -41,6 +41,11 @@ export function timeLeft(p: Company, now: number) {
   return countdown(Math.max(0, Math.ceil((p.seedEndsAt - now) / 1000)));
 }
 
+export function windowPillTone(state: Company["seedStatus"]) {
+  if (state === "ENDED") return "ended";
+  return state === "NOT_STARTED" ? "neutral" : "active";
+}
+
 export function windowLabel(p: Company, now: number) {
   switch (windowState(p, now)) {
     case "ACTIVE":

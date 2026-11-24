@@ -1,3 +1,4 @@
+import { MobileNavigation } from "./MobileNavigation";
 import { usePortfolio, type useBtxProfile } from "./accountQueries";
 import { money, exchangePath } from "./market";
 import { useRouter } from "next/router";
@@ -84,101 +85,108 @@ export function BtxSidebar({
   );
 
   return (
-    <nav
-      aria-label="BTX navigation"
-      className={`sticky top-0 flex h-screen shrink-0 flex-col items-center gap-1.5 overflow-y-auto border-r border-slate-800 bg-slate-950 py-6 text-slate-100 ${expanded ? "w-40 px-4 md:w-60" : "w-14 md:w-[72px]"}`}
-    >
-      <Link
-        href={exchangePath}
-        aria-label="BTX exchange"
-        className={`flex h-[54px] items-start ${expanded ? "w-full pl-1" : "justify-center"}`}
+    <>
+      <MobileNavigation
+        path={path}
+        teamId={registration?.teamID}
+        admin={!!user?.admin}
+      />
+      <nav
+        aria-label="BTX navigation"
+        className={`sticky top-0 hidden h-screen md:flex shrink-0 flex-col items-center gap-1.5 overflow-y-auto border-r border-slate-800 bg-slate-950 py-6 text-slate-100 ${expanded ? "w-40 px-4 md:w-60" : "w-14 md:w-[72px]"}`}
       >
-        <Image
-          src={expanded ? `${assets}/wordmark.svg` : `${assets}/emblem.svg`}
-          width={expanded ? 101 : 36}
-          height={expanded ? 43 : 36}
-          alt=""
-          unoptimized
-        />
-      </Link>
-      {destinations.map(({ icon: item, label, href }) => {
-        const active =
-          href === path ||
-          (href === exchangePath &&
-            (path.startsWith(exchangePath + "/company/") ||
-              path === "/companion/kickstart/2026"));
-        const content = (
-          <>
-            <span
-              aria-hidden
-              className="size-5 shrink-0 bg-white"
-              style={{
-                mask: `url(${assets}/${item}.svg) center / contain no-repeat`,
-              }}
-            />
-            {expanded && label}
-          </>
-        );
-
-        const classes = `flex h-11 shrink-0 items-center rounded-lg text-[14px] text-slate-400 ${itemLayout} ${active ? "bg-sky-950 ring-1 ring-inset ring-sky-400" : ""}`;
-
-        const row = href ? (
-          <Link
-            href={href}
-            aria-label={label}
-            title={label}
-            aria-current={active ? "page" : undefined}
-            className={classes + " hover:bg-slate-800"}
-          >
-            {content}
-          </Link>
-        ) : (
-          <button
-            disabled
-            title={label + " (coming soon)"}
-            aria-label={label}
-            className={classes}
-          >
-            {content}
-          </button>
-        );
-
-        return (
-          <div key={item} className={expanded ? "w-full" : "w-11"}>
-            {item === "grant" && (
-              <div className="mb-1.5 border-t border-slate-800" />
-            )}
-            {row}
-            {item === "search" && (
-              <div className="mt-1.5 border-t border-slate-800" />
-            )}
-          </div>
-        );
-      })}
-      <div className="mt-auto" />
-      {user && (
-        <div
-          title={[name, role].filter(Boolean).join(", ")}
-          className={`flex items-center py-2 ${itemLayout} ${expanded ? "rounded-xl border border-slate-700 bg-slate-900" : ""}`}
+        <Link
+          href={exchangePath}
+          aria-label="BTX exchange"
+          className={`flex h-[54px] items-start ${expanded ? "w-full pl-1" : "justify-center"}`}
         >
-          {identity}
-        </div>
-      )}
-      <button
-        aria-expanded={expanded}
-        aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
-        onClick={() => setExpanded(!expanded)}
-        className={`flex h-11 shrink-0 items-center text-slate-400 ${itemLayout}`}
-      >
-        <Image
-          src={expanded ? `${assets}/collapse.svg` : `${assets}/expand.svg`}
-          width={20}
-          height={20}
-          alt=""
-          unoptimized
-        />
-        {expanded && "Collapse"}
-      </button>
-    </nav>
+          <Image
+            src={expanded ? `${assets}/wordmark.svg` : `${assets}/emblem.svg`}
+            width={expanded ? 101 : 36}
+            height={expanded ? 43 : 36}
+            alt=""
+            unoptimized
+          />
+        </Link>
+        {destinations.map(({ icon: item, label, href }) => {
+          const active =
+            href === path ||
+            (href === exchangePath &&
+              (path.startsWith(exchangePath + "/company/") ||
+                path === "/companion/kickstart/2026"));
+          const content = (
+            <>
+              <span
+                aria-hidden
+                className="size-5 shrink-0 bg-white"
+                style={{
+                  mask: `url(${assets}/${item}.svg) center / contain no-repeat`,
+                }}
+              />
+              {expanded && label}
+            </>
+          );
+
+          const classes = `flex h-11 shrink-0 items-center rounded-lg text-[14px] text-slate-400 ${itemLayout} ${active ? "bg-sky-950 ring-1 ring-inset ring-sky-400" : ""}`;
+
+          const row = href ? (
+            <Link
+              href={href}
+              aria-label={label}
+              title={label}
+              aria-current={active ? "page" : undefined}
+              className={classes + " hover:bg-slate-800"}
+            >
+              {content}
+            </Link>
+          ) : (
+            <button
+              disabled
+              title={label + " (coming soon)"}
+              aria-label={label}
+              className={classes}
+            >
+              {content}
+            </button>
+          );
+
+          return (
+            <div key={item} className={expanded ? "w-full" : "w-11"}>
+              {item === "grant" && (
+                <div className="mb-1.5 border-t border-slate-800" />
+              )}
+              {row}
+              {item === "search" && (
+                <div className="mt-1.5 border-t border-slate-800" />
+              )}
+            </div>
+          );
+        })}
+        <div className="mt-auto" />
+        {user && (
+          <div
+            title={[name, role].filter(Boolean).join(", ")}
+            className={`flex items-center py-2 ${itemLayout} ${expanded ? "rounded-xl border border-slate-700 bg-slate-900" : ""}`}
+          >
+            {identity}
+          </div>
+        )}
+        <button
+          aria-expanded={expanded}
+          aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
+          onClick={() => setExpanded(!expanded)}
+          className={`flex h-11 shrink-0 items-center text-slate-400 ${itemLayout}`}
+        >
+          <Image
+            src={expanded ? `${assets}/collapse.svg` : `${assets}/expand.svg`}
+            width={20}
+            height={20}
+            alt=""
+            unoptimized
+          />
+          {expanded && "Collapse"}
+        </button>
+      </nav>
+    </>
   );
 }

@@ -1,7 +1,13 @@
+import styles from "./btx.module.css";
 import Image from "next/image";
 import type { ComponentPropsWithoutRef } from "react";
 import { companyName } from "./market";
 import type { Company } from "./seedApi";
+
+export const catalogPill =
+  "rounded-full border border-[#82C3FB]/35 px-3 py-1 text-[12px]";
+export const tradeButton =
+  "max-md:h-[52px] max-md:border max-md:border-[#82c3fb]/40 max-md:order-last max-md:w-full max-md:text-center rounded-full bg-[#1fbef9] px-5 py-3 text-[15px] font-medium text-[#061323] lg:text-[14px] disabled:bg-[#1e2a40] disabled:text-[#a8b5d6]";
 
 const corners =
   "polygon(30px 0,100% 0,100% calc(100% - 30px),calc(100% - 30px) 100%,0 100%,0 30px)";
@@ -14,11 +20,11 @@ export function AngledPanel({
   return (
     <section
       {...props}
-      className={`relative isolate min-w-0 p-[23px] ${className}`}
+      className={`relative isolate min-w-0 md:p-[23px] ${className}`}
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-[#1fbef9] to-[#e6ebf6]"
+        className="pointer-events-none absolute inset-0 -z-10 hidden md:block bg-gradient-to-r from-[#1fbef9] to-[#e6ebf6]"
         style={{ clipPath: corners }}
       >
         <span
@@ -141,5 +147,36 @@ export function StatusBanner({
         )}
       </div>
     </div>
+  );
+}
+
+export function MobilePageTitle({
+  title,
+  initials,
+  detail,
+}: {
+  title: string;
+  initials?: string;
+  detail?: string;
+}) {
+  return (
+    <header className="flex items-center justify-between md:hidden">
+      <div>
+        <h1
+          className={`${styles.display} text-[30px] font-medium leading-tight`}
+        >
+          {title}
+        </h1>
+        {detail && <p className="text-[13px] text-[#9eabcb]">{detail}</p>}
+      </div>
+      {initials && (
+        <span
+          aria-label="Your profile"
+          className="grid size-9 text-xs font-bold place-items-center rounded-full border border-[#89dcff]/50 bg-[#89dcff]/[.16] text-[#89dcff]"
+        >
+          {initials}
+        </span>
+      )}
+    </header>
   );
 }

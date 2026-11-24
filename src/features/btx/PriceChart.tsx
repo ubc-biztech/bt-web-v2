@@ -1,3 +1,4 @@
+import styles from "./btx.module.css";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -38,25 +39,31 @@ export function PriceChart({
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="max-md:contents flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="whitespace-nowrap text-[34px] font-bold leading-[normal] lg:font-[family-name:var(--btx-font-instrument-sans)] lg:text-[28px] lg:font-medium lg:tracking-[-0.56px]">
             {money(company.currentPriceCents)}
           </span>
           <span
-            className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[14px] font-medium lg:text-[11px] ${priceUp ? "border-[#38d3a2]/40 bg-[#38d3a2]/10 text-[#38d3a2]" : "border-[#ff5c7a]/75 bg-[#ff5c7a]/10 text-[#ff5c7a]"}`}
+            className={`max-md:border-0 max-md:p-0 max-md:bg-transparent inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[14px] font-medium lg:text-[11px] ${priceUp ? "border-[#38d3a2]/40 bg-[#38d3a2]/10 text-[#38d3a2]" : "border-[#ff5c7a]/75 bg-[#ff5c7a]/10 text-[#ff5c7a]"}`}
           >
             <span aria-hidden="true">{priceUp ? "▲" : "▼"}</span>
             {priceUp ? "+" : ""}
             {(priceChange / 100).toFixed(1)}% since seed
           </span>
         </div>
-        <div className="ml-auto flex gap-1">
+        <p className="order-2 text-xs text-[#9eabcb] md:hidden">
+          Seed $100 · IPO converts seed shares
+        </p>
+        <div className="max-md:order-3 md:ml-auto flex gap-1">
           {(Object.keys(ranges) as (keyof typeof ranges)[]).map((r) => (
             <button
               key={r}
               aria-pressed={r === range}
-              className="rounded-full border border-slate-700 px-3 py-1 text-[13px] font-medium aria-pressed:bg-sky-300 aria-pressed:text-slate-950 lg:text-[12px]"
+              className={
+                styles.filterChip +
+                " rounded-full border border-slate-700 px-3 py-1 text-[13px] font-medium aria-pressed:bg-sky-300 aria-pressed:text-slate-950 lg:text-[12px]"
+              }
               onClick={() => setRange(r)}
             >
               {r}
@@ -65,8 +72,15 @@ export function PriceChart({
         </div>
       </div>
       {points.length ? (
-        <div className="min-h-64 flex-1" aria-label="Price history">
-          <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+        <div
+          className="relative h-[150px] md:min-h-64 md:flex-1"
+          aria-label="Price history"
+        >
+          <ResponsiveContainer
+            className="absolute inset-0"
+            width="100%"
+            height="100%"
+          >
             <AreaChart data={points}>
               <CartesianGrid vertical={false} stroke="#24364f" />
               <XAxis

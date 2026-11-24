@@ -39,6 +39,7 @@ export interface Trade extends TradeOrder {
   status: "PENDING" | "FILLED" | "REJECTED";
   side: "BUY" | "SELL";
   createdAt: number;
+  cashDeltaCents?: number;
   rejection?: { code: StockErrorCode; message: string };
 }
 
