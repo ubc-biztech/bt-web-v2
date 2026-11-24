@@ -1,30 +1,42 @@
 import Link, { type LinkProps } from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { usePortfolio } from "./accountQueries";
-import { StatusBanner } from "./BtxUI";
+import {
+  MobileHistory,
+  MobileHoldings,
+  sellPath,
+  tradeTime,
+  SignedAmount,
+  CompanyLabel,
+  outline,
+} from "./PortfolioRows";
+import styles from "./Portfolio.module.css";
+import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import type { MarketPageProps } from "./Kickstart2026";
-import { companyName, exchangePath, money } from "./market";
-import { accountTrades, type Holding, type Market } from "./seedApi";
+import { exchangePath, money } from "./market";
+import { accountTrades } from "./seedApi";
 
 const portfolioPath = exchangePath + "/portfolio";
 const historyPath = portfolioPath + "/history";
 const panel =
-  "overflow-hidden rounded-2xl border border-[#263b56] bg-[#10192c]/90";
+  "overflow-hidden rounded-[20px] border border-[#82c3fb]/[.22] bg-[#17213f]/30";
 const cell = "px-4 py-3";
 const numeric = cell + " text-right tabular-nums";
-const outline =
-  "inline-flex rounded-full border border-[#324a68] px-3 py-1.5 text-xs disabled:opacity-40";
 const primary =
   "inline-flex rounded-full bg-[#1fbef9] px-4 py-2 text-sm font-medium text-[#081221]";
-const pageSize = 10;
+function signed(cents: number) {
+  return (cents > 0 ? "+" : "") + money(cents);
+}
 
 function PortfolioFrame({
   isAdmin,
+  initials,
   history = false,
   children,
 }: {
   isAdmin: MarketPageProps["isAdmin"];
+  initials?: string;
   history?: boolean;
   children: ReactNode;
 }) {
@@ -40,16 +52,20 @@ function PortfolioFrame({
     );
   }
 
+  const detail = history
+    ? "Every buy and sell for KickStart."
+    : "Your holdings and cash for KickStart.";
   return (
-    <div className="space-y-4">
-      <header className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-medium tracking-tight">Portfolio</h1>
-          <p className="mt-1 text-sm text-[#a8b5d6]">
-            {history
-              ? "Every buy and sell for KickStart."
-              : "Your holdings and cash for KickStart."}
-          </p>
+    <div className="mx-auto w-full max-w-[1344px] space-y-4 max-sm:px-2 md:space-y-5 lg:pt-7">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <MobilePageTitle
+          title="Portfolio"
+          detail={detail}
+          initials={initials}
+        />
+        <div className="hidden md:block">
+          <h1 className={styles.title}>Portfolio</h1>
+          <p className="mt-1 text-sm text-[#a8b5d6]">{detail}</p>
         </div>
         <nav
           aria-label="Portfolio views"
@@ -67,7 +83,7 @@ function PortfolioFrame({
                   ? "page"
                   : undefined
               }
-              className="rounded-full px-4 py-2 aria-[current=page]:bg-[#89dcff] aria-[current=page]:text-[#081221]"
+              className="flex-1 text-center rounded-full px-5 py-2 aria-[current=page]:bg-[#89dcff] aria-[current=page]:text-[#081221]"
             >
               {label}
             </Link>
@@ -79,56 +95,18 @@ function PortfolioFrame({
   );
 }
 
-function SignedAmount({
-  cents,
-  positiveSign = false,
-}: {
-  cents: number;
-  positiveSign?: boolean;
-}) {
-  const color =
-    cents > 0 ? "text-[#38d3a2]" : cents < 0 ? "text-[#ff5c7a]" : "";
-  return (
-    <span className={color}>
-      {positiveSign && cents > 0 ? "+" : ""}
-      {money(cents)}
-    </span>
-  );
-}
-
-function CompanyLabel({
-  market,
-  projectId,
-  name,
-  ticker,
-}: Pick<Holding, "projectId" | "name" | "ticker"> & { market: Market }) {
-  const listing = market.projects.find(
-    (project) => project.projectId === projectId,
-  );
-  const symbol = listing?.ticker || ticker;
-  const label = listing ? companyName(listing) : name || projectId;
-  return (
-    <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      {label}
-      {symbol && (
-        <small className="rounded-full border border-[#1fbef9]/35 bg-[#1fbef9]/10 px-2 py-0.5 text-xs text-[#1fbef9]">
-          ${symbol}
-        </small>
-      )}
-    </span>
-  );
-}
-
 function EmptyPanel({
   title,
   description,
   href,
   action,
+  icon,
 }: {
   title: string;
   description?: string;
   href?: LinkProps["href"];
   action?: string;
+  icon?: string;
 }) {
   return (
     <div
@@ -136,6 +114,14 @@ function EmptyPanel({
         panel + " grid place-items-center gap-3 px-5 py-14 text-center"
       }
     >
+      {icon && (
+        <span
+          aria-hidden
+          className="grid size-12 place-items-center rounded-full bg-[#1fbef9]/10 text-2xl text-[#89dcff]"
+        >
+          {icon}
+        </span>
+      )}
       <h2 className="text-xl font-medium">{title}</h2>
       {description && <p className="text-sm text-[#a8b5d6]">{description}</p>}
       {href && (
@@ -152,6 +138,7 @@ export function PortfolioPage({
   userId,
   isAdmin,
   now,
+  initials,
 }: MarketPageProps) {
   const result = usePortfolio(market.eventId, userId, isAdmin === false, 15000);
   const data = result.data;
@@ -159,7 +146,7 @@ export function PortfolioPage({
   const holdings = data?.holdings.filter(({ shares }) => shares > 0) ?? [];
 
   return (
-    <PortfolioFrame isAdmin={isAdmin}>
+    <PortfolioFrame isAdmin={isAdmin} initials={initials}>
       {!userId ? (
         <EmptyPanel
           title="Sign in to view your portfolio"
@@ -179,7 +166,7 @@ export function PortfolioPage({
         )
       ) : (
         <>
-          <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <dl className={styles.summary}>
             {(
               [
                 [
@@ -187,22 +174,28 @@ export function PortfolioPage({
                   data.totalPortfolioValueCents,
                   "Cash + holdings",
                 ],
-                ["Cash", data.account.cashBalanceCents, "Available to trade"],
+                [
+                  "Cash",
+                  data.account.cashBalanceCents,
+                  market.phase === "LIVE"
+                    ? "Available to trade"
+                    : "Available to buy",
+                ],
                 [
                   "Holdings value",
                   data.totalEquityValueCents,
                   holdings.length
-                    ? `${holdings.length} companies`
+                    ? `${holdings.length} ${holdings.length === 1 ? "company" : "companies"}`
                     : "No companies yet",
                 ],
                 [
                   "Total profit / loss",
                   data.totalPnlCents,
-                  `Realized ${money(data.realizedPnlCents)} · Unrealized ${money(data.unrealizedPnlCents)}`,
+                  `Realized ${signed(data.realizedPnlCents)} · Unrealized ${signed(data.unrealizedPnlCents)}`,
                 ],
               ] as const
             ).map(([label, cents, note]) => (
-              <div className={panel + " px-4 py-3"} key={label}>
+              <div className={styles.stat} key={label}>
                 <dt className="text-xs text-[#a8b5d6]">{label}</dt>
                 <dd className="my-1 text-2xl tabular-nums">
                   {label === "Total profit / loss" ? (
@@ -216,23 +209,45 @@ export function PortfolioPage({
             ))}
           </dl>
           {!holdings.length ? (
-            <EmptyPanel
-              title="No investments yet"
-              description={`You have ${money(data.account.cashBalanceCents)} to invest. Pick a company and buy your first shares.`}
-              href={exchangePath + "/catalog"}
-              action="Browse companies"
-            />
+            <>
+              <div className="md:hidden">
+                <EmptyPanel
+                  title="No holdings yet"
+                  description={
+                    market.phase === "LIVE"
+                      ? "Buy shares in a company and it will show up here."
+                      : "Invest in a company during its seed window and it will show up here."
+                  }
+                  href={exchangePath + "/catalog"}
+                  action="Browse catalog"
+                />
+              </div>
+              <div className="hidden md:block">
+                <EmptyPanel
+                  icon="$"
+                  title="No investments yet"
+                  description={`You have ${money(data.account.cashBalanceCents)} to invest. Pick a company and buy your first shares.`}
+                  href={exchangePath + "/catalog"}
+                  action="Browse companies"
+                />
+              </div>
+            </>
           ) : (
             <>
               {market.phase !== "LIVE" && (
                 <StatusBanner
                   tone="info"
                   title="Selling is locked until IPO"
-                  description="Seed shares carry over to live trading, when selling opens."
+                  description="You can buy during seed windows. Selling opens when the admin launches the IPO."
                 />
               )}
-              <div className={panel}>
-                <div className="overflow-x-auto">
+              <MobileHoldings
+                holdings={holdings}
+                market={market}
+                sellOpen={sellOpen}
+              />
+              <div className={styles.tablePanel}>
+                <div className="hidden overflow-x-auto md:block">
                   <table
                     className="w-full whitespace-nowrap text-sm"
                     aria-label="Holdings"
@@ -306,12 +321,7 @@ export function PortfolioPage({
                             {sellOpen ? (
                               <Link
                                 className={outline}
-                                href={
-                                  exchangePath +
-                                  "/company/" +
-                                  encodeURIComponent(holding.projectId) +
-                                  "?side=sell#trade-ticket"
-                                }
+                                href={sellPath(holding.projectId)}
                               >
                                 Sell
                               </Link>
@@ -326,9 +336,9 @@ export function PortfolioPage({
                     </tbody>
                   </table>
                 </div>
-                <p className="border-t border-[#263b56]/60 px-4 py-3 text-xs text-[#a8b5d6]">
-                  Cost basis includes the 2% fee. Grants increase cash and total
-                  allocation, so they don’t count as profit.
+                <p className="md:border-t border-[#263b56]/60 md:px-4 md:py-3 text-xs text-[#a8b5d6]">
+                  Cost basis includes the 2% fee. Admin grants raise your cash
+                  and total allocation, so they don’t count as profit.
                 </p>
               </div>
             </>
@@ -339,11 +349,30 @@ export function PortfolioPage({
   );
 }
 
-export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
+export function PortfolioHistory(props: MarketPageProps) {
+  const [pageSize, setPageSize] = useState(10);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 767px)");
+    const sync = () => setPageSize(query.matches ? 5 : 10);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+  return <HistoryView key={pageSize} {...props} pageSize={pageSize} />;
+}
+
+function HistoryView({
+  market,
+  userId,
+  isAdmin,
+  initials,
+  now,
+  pageSize,
+}: MarketPageProps & { pageSize: number }) {
   const [cursors, setCursors] = useState<string[]>([]);
   const cursor = cursors.at(-1);
   const result = useQuery({
-    queryKey: ["btx-seed", market.eventId, userId, "history", cursor],
+    queryKey: ["btx-seed", market.eventId, userId, "history", pageSize, cursor],
     queryFn: () => accountTrades(pageSize, cursor),
     enabled: !!userId && isAdmin === false,
     refetchInterval: ({ state }) =>
@@ -360,7 +389,7 @@ export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
     <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#263b56]/60 px-4 py-3 text-xs text-[#a8b5d6]">
       <span>
         {count
-          ? `Showing ${offset + 1}–${offset + count} transactions`
+          ? `Showing ${offset + 1}–${offset + count}${next ? "" : ` of ${offset + count}`} transactions`
           : "No transactions on this page."}
       </span>
       <nav aria-label="Trade history pages" className="flex items-center gap-2">
@@ -373,7 +402,7 @@ export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
         </button>
         <span
           aria-current="page"
-          className="rounded-full bg-[#89dcff] px-3 py-1.5 text-[#081221]"
+          className="hidden md:inline rounded-full bg-[#89dcff] px-3 py-1.5 text-[#081221]"
         >
           {cursors.length + 1}
         </span>
@@ -388,7 +417,7 @@ export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
     </footer>
   );
   return (
-    <PortfolioFrame history isAdmin={isAdmin}>
+    <PortfolioFrame history isAdmin={isAdmin} initials={initials}>
       {!userId ? (
         <EmptyPanel
           title="Sign in to view your trade history"
@@ -417,8 +446,9 @@ export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
           action="Browse companies"
         />
       ) : (
-        <div className={panel}>
-          <div className="overflow-x-auto">
+        <div className={styles.tablePanel}>
+          <MobileHistory trades={page.data} market={market} now={now} />
+          <div className="hidden overflow-x-auto md:block">
             <table
               className="w-full whitespace-nowrap text-sm"
               aria-label="Trade history"
@@ -457,12 +487,7 @@ export function PortfolioHistory({ market, userId, isAdmin }: MarketPageProps) {
                         <time
                           dateTime={new Date(trade.createdAt).toISOString()}
                         >
-                          {new Date(trade.createdAt).toLocaleString([], {
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
+                          {tradeTime(trade.createdAt, now)}
                         </time>
                       </td>
                       <td className={cell}>
