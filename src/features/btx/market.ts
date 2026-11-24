@@ -11,6 +11,14 @@ const usd = new Intl.NumberFormat("en-US", {
 });
 
 export const money = (cents: number) => usd.format(cents / 100);
+
+export const percent = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  signDisplay: "exceptZero",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+}).format;
+
 export const compactMoney = (cents: number) =>
   money(cents).replace(/\.00$/, "");
 

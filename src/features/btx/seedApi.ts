@@ -50,6 +50,8 @@ export interface TradeRequestError {
 
 export interface Quote {
   phase: Market["phase"];
+  startPriceCents: number;
+  endPriceCents: number;
   priceCents: number;
   feeCents: number;
   totalCostCents: number | null;

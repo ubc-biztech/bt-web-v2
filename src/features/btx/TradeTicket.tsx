@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import type { Company, Market } from "./seedApi";
 import type { useTradeOrder } from "./useTradeOrder";
-import { money } from "./market";
+import { money, percent } from "./market";
 import { StatusBanner } from "./BtxUI";
 import { stockError } from "./stockError";
 import { usePortfolio } from "./accountQueries";
@@ -71,12 +71,21 @@ export function TradeTicket({
   } else if (launching) orderLabel = "Trading paused";
   else if (ticket.ownCompany || seedUnavailable) orderLabel = "Buy unavailable";
 
+  const impact =
+    preview?.phase === "LIVE" &&
+    preview.startPriceCents > 0 &&
+    Number.isFinite(preview.endPriceCents)
+      ? percent(
+          (preview.endPriceCents - preview.startPriceCents) /
+            preview.startPriceCents,
+        )
+      : "—";
   const quoteDetails = [
     [
       live ? "Est. price" : "Seed price",
       money(preview?.priceCents ?? company.currentPriceCents),
     ],
-    ["Shares", "× " + quantity],
+    live ? ["Impact", impact] : ["Shares", "× " + quantity],
     ["Fee 2%", preview ? money(preview.feeCents) : "—"],
     [
       buying ? "Total debit" : "Net proceeds",
