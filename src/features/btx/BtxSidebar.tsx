@@ -98,7 +98,7 @@ export function BtxSidebar({
       <MobileNavigation
         path={path}
         teamId={registration?.teamID}
-        admin={!!user?.admin}
+        admin={isAdmin}
       />
       <nav
         aria-label="BTX navigation"

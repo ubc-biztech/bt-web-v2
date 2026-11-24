@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -96,7 +97,10 @@ export function GrantFunds({
   compact?: boolean;
 }) {
   const [requestId] = useState(() => crypto.randomUUID());
-  const [amount, setAmount] = useState("100,000");
+  const { query: route } = useRouter();
+  const [amount, setAmount] = useState(
+    () => (!compact && [route.amount].flat()[0]) || "100,000",
+  );
   const [choose, setChoose] = useState(false);
   const [selection, setSelection] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -178,14 +182,17 @@ export function GrantFunds({
         )}
       </label>
       {compact ? (
-        <div className={s.row}>
+        <Link
+          href={{ pathname: exchangePath + "/admin/grants", query: { amount } }}
+          className={s.recipient}
+        >
           <span className={s.muted}>Recipients</span>
           <strong>
             {roster.isPending
               ? "Loading investors…"
               : `All ${people.length} registered investors`}
           </strong>
-        </div>
+        </Link>
       ) : (
         <div className="rounded-xl border border-[#324e6b] bg-[#142034] p-4">
           <span className={s.muted}>
@@ -227,7 +234,7 @@ export function GrantFunds({
       {compact ? (
         fields
       ) : (
-        <div className={s.columns}>
+        <div className={s.columns + " " + s.picker}>
           <div className={s.fields}>{fields}</div>
           <div className={s.fields}>
             <input
@@ -359,6 +366,16 @@ export function GrantResults({
         title={title}
         description={batch.error || undefined}
       />
+      <dl className="grid grid-cols-2 gap-3 md:hidden">
+        <div>
+          <dt>Succeeded</dt>
+          <dd>{applied}</dd>
+        </div>
+        <div>
+          <dt>Failed</dt>
+          <dd>{failed}</dd>
+        </div>
+      </dl>
       {failed > 0 && (
         <div className={s.segment}>
           <button

@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
@@ -190,6 +191,55 @@ const clockTime = (ts: number) =>
 const openingPrice = (shares: number) =>
   Math.round(10000 * (1 + 9 * Math.min(shares / 5000, 1)));
 
+function ResponsiveSheet({
+  children,
+  title,
+  onClose,
+}: {
+  children: React.ReactNode;
+  title: string;
+  onClose?: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 767px)");
+    const sync = () => setMobile(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+  useEffect(() => {
+    if (mobile) ref.current?.showModal();
+  }, [mobile]);
+  if (!mobile) return <>{children}</>;
+  return (
+    <>
+      {!onClose && (
+        <button className={s.reopen} onClick={() => ref.current?.showModal()}>
+          {title}
+        </button>
+      )}
+      <dialog
+        ref={ref}
+        className={s.responsiveSheet}
+        aria-label={title}
+        onClose={() => {
+          if (window.matchMedia("(max-width: 767px)").matches) onClose?.();
+        }}
+      >
+        <div className={s.sheetHeader}>
+          <h2>{title}</h2>
+          <button aria-label="Close" onClick={() => ref.current?.close()}>
+            ×
+          </button>
+        </div>
+        {children}
+      </dialog>
+    </>
+  );
+}
+
 function IpoPanel({
   market,
   now,
@@ -295,7 +345,9 @@ function IpoPanel({
         </>
       )}
       {ipo.pending ? (
-        <>
+        <ResponsiveSheet
+          title={ipo.unknown ? "IPO status unknown" : "Launching IPO…"}
+        >
           <StatusBanner
             tone={ipo.unknown ? "warning" : "info"}
             title={ipo.unknown ? "IPO status unknown" : "IPO is launching"}
@@ -332,15 +384,17 @@ function IpoPanel({
                 ? "Check IPO status"
                 : "Launching…"}
           </button>
-        </>
+        </ResponsiveSheet>
       ) : (
         <>
           <div className={s.tableBox}>
             <table>
               <thead>
                 <tr>
-                  <th>Company</th>
-                  <th>Net seed shares</th>
+                  <th>
+                    Company<span className="md:hidden"> · net seed shares</span>
+                  </th>
+                  <th className="hidden md:table-cell">Net seed shares</th>
                   <th>
                     {ipo.live ? "Opening price" : "Opening price (sample)"}
                   </th>
@@ -353,8 +407,16 @@ function IpoPanel({
                     : (p.netShares ?? 0);
                   return (
                     <tr key={p.projectId}>
-                      <td>{companyName(p)}</td>
-                      <td>{shares?.toLocaleString() ?? "—"}</td>
+                      <td>
+                        {companyName(p)}
+                        <span className="md:hidden">
+                          {" "}
+                          · {shares?.toLocaleString() ?? "—"}
+                        </span>
+                      </td>
+                      <td className="hidden md:table-cell">
+                        {shares?.toLocaleString() ?? "—"}
+                      </td>
                       <td className="text-[#1fbef9]">
                         {shares != null ? money(openingPrice(shares)) : "—"}
                       </td>
@@ -416,6 +478,15 @@ function IpoPanel({
               `${active} team seed windows are still active and will close early. `}
             Trading goes live once every company is ready.
           </p>
+          {active > 0 && (
+            <div className="md:hidden">
+              <StatusBanner
+                tone="warning"
+                title="Some seed windows are still active"
+                description="Launching now will close open seed windows early."
+              />
+            </div>
+          )}
           <label className={s.field}>
             Type “launch” to confirm
             <input
@@ -433,7 +504,7 @@ function IpoPanel({
               Cancel
             </button>
             <button className={s.warm} disabled={!canConfirm}>
-              Launch IPO
+              {active > 0 ? "Launch anyway" : "Launch IPO"}
             </button>
           </div>
         </form>
@@ -446,8 +517,10 @@ function EventControl({
   market,
   userId,
   now,
+  initials,
   grantsOnly = false,
 }: MarketPageProps & { grantsOnly?: boolean }) {
+  const router = useRouter();
   const ipo = useIpo(market);
   const active = market.projects.filter(
     (project) => windowState(project, now) === "ACTIVE",
@@ -486,13 +559,38 @@ function EventControl({
 
   return (
     <div className={s.page}>
-      <h1>Event control</h1>
+      <Link className={s.exit} href={exchangePath}>
+        ← Exit admin
+      </Link>
+      <header className={s.heading}>
+        <div>
+          <h1>Event control</h1>
+          <small>KickStart 2026</small>
+        </div>
+        <span>{initials}</span>
+      </header>
+      <small className={s.adminBadge}>Admin</small>
       <Timeline stage={stage} active={active} />
-      {grantsOnly ? (
-        grantPanel
-      ) : (
-        <div className={s.columns}>
+      {grantsOnly && (
+        <ResponsiveSheet
+          title={run ? "Grant results" : "Choose recipients"}
+          onClose={() => void router.push(exchangePath + "/admin")}
+        >
           {grantPanel}
+        </ResponsiveSheet>
+      )}
+      <div className={s.columns + (grantsOnly ? " " + s.grantBackdrop : "")}>
+        {grantsOnly ? (
+          <GrantFunds
+            compact
+            roster={roster}
+            batch={batch}
+            paused={ipo.pending}
+          />
+        ) : (
+          grantPanel
+        )}
+        {(!grantsOnly || !ipo.pending) && (
           <IpoPanel
             market={market}
             now={now}
@@ -500,8 +598,8 @@ function EventControl({
             active={active}
             grantBusy={batch.sending}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

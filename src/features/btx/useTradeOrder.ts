@@ -81,7 +81,7 @@ export function useTradeOrder(
     refetchOnWindowFocus: false,
   });
   const preview = quote.data;
-  const status = useQuery<api.Trade, api.TradeRequestError>({
+  const status = useQuery<api.Trade, api.BtxRequestError>({
     queryKey: ["btx-seed", market.eventId, userId, "order", order?.tradeId],
     queryFn: () => api.tradeStatus(order!),
     enabled: !!order && !busy,
