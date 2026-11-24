@@ -54,8 +54,8 @@ export function CompanyLabel({
   const symbol = listing?.ticker || ticker;
   const label = listing ? companyName(listing) : name || projectId;
   return (
-    <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      {label}
+    <span className="inline-flex max-w-full flex-wrap items-center gap-2 whitespace-normal">
+      <span className="max-w-full [overflow-wrap:anywhere]">{label}</span>
       {symbol && (
         <small className="rounded-full border border-[#1fbef9]/35 bg-[#1fbef9]/10 px-2 py-0.5 text-xs text-[#1fbef9]">
           ${symbol}

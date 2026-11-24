@@ -196,15 +196,15 @@ export function PortfolioPage({
               ] as const
             ).map(([label, cents, note]) => (
               <div className={styles.stat} key={label}>
-                <dt className="text-xs text-[#a8b5d6]">{label}</dt>
-                <dd className="my-1 text-2xl tabular-nums">
+                <dt className="text-[12px] text-[#a8b5d6]">{label}</dt>
+                <dd className="my-1 tabular-nums">
                   {label === "Total profit / loss" ? (
                     <SignedAmount cents={cents} positiveSign />
                   ) : (
                     money(cents)
                   )}
                 </dd>
-                <dd className="text-xs text-[#a8b5d6]">{note}</dd>
+                <dd className="text-[12px] text-[#a8b5d6]">{note}</dd>
               </div>
             ))}
           </dl>

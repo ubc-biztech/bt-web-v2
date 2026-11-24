@@ -15,17 +15,21 @@
   background: rgb(23 33 63 / 30%);
 }
 .stat {
-  padding: 18px 20px;
+  container-type: inline-size;
+  padding: 18px clamp(10px, 1.4vw, 20px);
   min-height: 113px;
+  overflow-wrap: anywhere;
 }
 .stat dd:first-of-type {
-  font-size: 26px;
+  font-size: clamp(16px, 12cqi, 26px);
   font-weight: 500;
 }
 .tablePanel {
   overflow: hidden;
 }
 .tablePanel th {
+  white-space: normal;
+  font-size: 12px;
   font-weight: 500;
 }
 .tablePanel td {
