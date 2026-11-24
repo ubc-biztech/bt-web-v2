@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useId } from "react";
 import { Control, UseFieldArrayRemove } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { EventFormSchema } from "./EventFormSchema";
+import type { EventFormIssue } from "./eventFormIssues";
 import { FormSelect } from "./FormComponents/FormSelect";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormCheckbox } from "./FormComponents/FormCheckbox";
@@ -17,6 +18,7 @@ interface CustomQuestionItemProps {
   onMoveDown: () => void;
   isFirst: boolean;
   isLast: boolean;
+  issues: EventFormIssue[];
 }
 
 export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
@@ -28,9 +30,32 @@ export const CustomQuestionItem: React.FC<CustomQuestionItemProps> = ({
   onMoveDown,
   isFirst,
   isLast,
+  issues,
 }) => {
+  const errorsId = useId();
+  const inlineIssues = issues.filter(
+    ({ path }) => !path.endsWith(".type") && !path.endsWith(".question"),
+  );
   return (
-    <div className="p-6 border rounded-lg bg-[#3A4A70] space-y-4">
+    <div
+      data-event-field={`${name}.${index}`}
+      data-invalid={issues.length > 0 || undefined}
+      tabIndex={-1}
+      aria-describedby={inlineIssues.length ? errorsId : undefined}
+      className="p-6 border rounded-lg bg-[#3A4A70] space-y-4"
+    >
+      {inlineIssues.length > 0 && (
+        <ul
+          id={errorsId}
+          className="space-y-1 text-xs font-medium text-bt-red-200"
+        >
+          {inlineIssues.map(({ path, label, message }) => (
+            <li key={path}>
+              {label} — {message}
+            </li>
+          ))}
+        </ul>
+      )}
       <div className="flex items-center justify-between">
         <div className="w-1/2">
           <FormSelect

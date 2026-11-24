@@ -16,15 +16,6 @@ const CreateEventPage: NextPage = () => {
   const router = useRouter();
 
   const handleSubmit = async (data: EventFormSchema) => {
-    if (data.endDate < data.startDate) {
-      toast({
-        title: "Validation Error",
-        description: "End date must be after start date",
-        variant: "destructive",
-      });
-      return;
-    }
-
     if (data.deadline > data.startDate) {
       toast({
         title: "Warning",
@@ -105,21 +96,16 @@ const CreateEventPage: NextPage = () => {
       router.push(
         `/admin/event/${data.eventSlug}/${data.startDate.getFullYear()}/edit`,
       );
-    } catch (error: any) {
-      console.log(error);
-      if (error.status === 409) {
-        toast({
-          title: "Error",
-          description: "Event with that slug/id and year already exists",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to create event",
-          variant: "destructive",
-        });
+    } catch (error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "status" in error &&
+        error.status === 409
+      ) {
+        throw new Error("An event with this slug and year already exists");
       }
+      throw error;
     }
   };
 

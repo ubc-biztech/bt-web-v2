@@ -1,11 +1,13 @@
 import React from "react";
-import { useFieldArray, Control } from "react-hook-form";
+import { useFieldArray, useFormState, Control } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import type { EventFormSchema } from "./EventFormSchema";
+import { getEventFormIssues } from "./eventFormIssues";
 import { CustomQuestionItem } from "@/components/Events/CustomQuestionItem";
 
 interface CustomQuestionsProps {
-  control: Control<any>;
+  control: Control<EventFormSchema>;
   name: "customQuestions" | "partnerCustomQuestions";
   label: string;
 }
@@ -19,6 +21,8 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
     control,
     name,
   });
+
+  const { errors, submitCount } = useFormState({ control, name });
 
   const addCustomQuestion = () => {
     append({
@@ -48,6 +52,14 @@ export const CustomQuestions: React.FC<CustomQuestionsProps> = ({
             index={index}
             name={name}
             control={control}
+            issues={
+              submitCount
+                ? getEventFormIssues(errors[name]?.[index], [
+                    name,
+                    String(index),
+                  ])
+                : []
+            }
             remove={remove}
             onMoveUp={() => moveQuestion(index, "up")}
             onMoveDown={() => moveQuestion(index, "down")}

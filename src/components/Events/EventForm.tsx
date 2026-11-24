@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { SubmitErrorHandler, useForm, useWatch } from "react-hook-form";
+import React, { useEffect, useRef } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { EventFormSchema, eventFormSchema } from "./EventFormSchema";
+import { EventFormErrorSummary } from "./EventFormErrorSummary";
 import { FormCheckbox } from "./FormComponents/FormCheckbox";
 import { FormInput } from "./FormComponents/FormInput";
 import { FormTextarea } from "./FormComponents/FormTextarea";
@@ -29,7 +30,6 @@ import {
   type EventPageModuleType,
 } from "@/lib/eventPageConfig";
 import Link from "next/link";
-import { useEffect } from "react";
 import {
   DEFAULT_REGISTRATION_FORM_KEY,
   REGISTRATION_FORM_OPTIONS,
@@ -68,10 +68,14 @@ const SectionCard: React.FC<{
   icon: React.ReactNode;
   title: string;
   children: React.ReactNode;
-  className?: string;
-}> = ({ icon, title, children, className = "" }) => (
+  field?: string;
+  invalid?: boolean;
+}> = ({ icon, title, children, field, invalid }) => (
   <div
-    className={`rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-5 space-y-4 ${className}`}
+    data-event-field={field}
+    data-invalid={invalid || undefined}
+    tabIndex={field ? -1 : undefined}
+    className="rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-5 space-y-4"
   >
     <div className="flex items-center gap-2.5">
       <span className="text-bt-green-300">{icon}</span>
@@ -100,8 +104,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   eventId,
   eventYear,
 }) => {
-  // Add state to track if we're intentionally submitting/updating
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const editorRef = useRef<HTMLFormElement>(null);
   const initialEventPage = normalizeEventPageConfig(initialData?.eventPage);
 
   const form = useForm<EventFormSchema>({
@@ -130,7 +133,8 @@ export const EventForm: React.FC<EventFormProps> = ({
       ...initialData,
       eventPage: initialEventPage,
     },
-    mode: "onChange", // Changed from 'onBlur'
+    mode: "onChange",
+    shouldFocusError: false,
   });
 
   const imageUrl = useWatch({ control: form.control, name: "imageUrl" });
@@ -240,11 +244,12 @@ export const EventForm: React.FC<EventFormProps> = ({
     setEventPageModules([...fixedModules, ...nextWidgetModules]);
   };
 
-  // Track if form is dirty (has unsaved changes)
-  const formIsDirty =
-    form.formState.isDirty &&
-    form.formState.dirtyFields &&
-    Object.keys(form.formState.dirtyFields).length > 0;
+  const {
+    errors,
+    isDirty: formIsDirty,
+    isSubmitting,
+    submitCount,
+  } = form.formState;
 
   // Add event listener for tab/window closing
   useEffect(() => {
@@ -260,61 +265,36 @@ export const EventForm: React.FC<EventFormProps> = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [formIsDirty, isSubmitting]);
 
-  const handleSubmit = async (data: EventFormSchema) => {
+  useEffect(() => {
+    if (editorRef.current) editorRef.current.inert = isSubmitting;
+  }, [isSubmitting]);
+
+  const saveEvent = async (data: EventFormSchema) => {
     try {
-      setIsSubmitting(true);
       const savedData = await onSubmit(data);
       form.reset(savedData ?? data);
     } catch (error) {
+      const message =
+        error && typeof error === "object" && "message" in error
+          ? error.message
+          : error;
       toast({
-        title: "Error",
+        title: "Unable to save event",
         description:
-          error instanceof Error ? error.message : "Failed to create event",
+          typeof message === "string" && message
+            ? message
+            : "Try saving again.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const handleInvalidSubmit: SubmitErrorHandler<EventFormSchema> = (errors) => {
-    const firstError = Object.values(errors).find(
-      (error) => error && "message" in error && error.message,
-    );
-
-    toast({
-      title: "Unable to save event",
-      description:
-        firstError &&
-        "message" in firstError &&
-        typeof firstError.message === "string"
-          ? firstError.message
-          : "Please fix the highlighted fields and try again.",
-      variant: "destructive",
-    });
-  };
-
-  const handlePublish = async () => {
-    setIsSubmitting(true);
-    try {
-      const currentValue = form.getValues("isPublished");
-      form.setValue("isPublished", !currentValue);
-      await handleSubmit(form.getValues());
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleComplete = async () => {
-    setIsSubmitting(true);
-    try {
-      const currentValue = form.getValues("isCompleted");
-      form.setValue("isCompleted", !currentValue);
-      await handleSubmit(form.getValues());
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const handlePublish = form.handleSubmit((data) =>
+    saveEvent({ ...data, isPublished: !data.isPublished }),
+  );
+  const handleComplete = form.handleSubmit((data) =>
+    saveEvent({ ...data, isCompleted: !data.isCompleted }),
+  );
 
   const getSlugPreview = () => {
     if (initialData) {
@@ -350,23 +330,24 @@ export const EventForm: React.FC<EventFormProps> = ({
                     ? `Edit Event — ${eventName || "Untitled"}`
                     : "Create New Event"}
                 </h1>
-                <p className="text-sm text-bt-blue-100 mt-0.5">
-                  {initialData
-                    ? "Update your event details below"
-                    : "Fill in the details to create a new event"}
-                </p>
+                {formIsDirty && (
+                  <p className="mt-0.5 text-xs text-bt-blue-100">
+                    Unsaved changes
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Button
                 type="submit"
                 form="event-settings-form"
                 variant="green"
                 className="gap-1.5"
+                disabled={isSubmitting}
               >
                 <Save className="w-4 h-4" />
-                Save
+                {isSubmitting ? "Saving…" : "Save"}
               </Button>
               {initialData && (
                 <>
@@ -375,6 +356,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     variant="outline"
                     className="gap-1.5"
                     onClick={handlePublish}
+                    disabled={isSubmitting}
                   >
                     <Send className="w-4 h-4" />
                     {isPublished ? "Unpublish" : "Publish"}
@@ -384,6 +366,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                     variant="outline"
                     className="gap-1.5"
                     onClick={handleComplete}
+                    disabled={isSubmitting}
                   >
                     <CheckCircle2 className="w-4 h-4" />
                     {isCompleted ? "Mark Incomplete" : "Mark Complete"}
@@ -393,12 +376,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
           </div>
 
-          {initialData && !isPublished && formIsDirty && (
-            <div className="rounded-lg border border-bt-red-200/40 bg-bt-red-200/10 px-4 py-3 text-sm text-bt-red-200 flex items-center gap-2">
-              <span className="shrink-0">⚠️</span>
-              There are unsaved changes that have not been published yet.
-            </div>
-          )}
+          <EventFormErrorSummary
+            editorRef={editorRef}
+            errors={errors}
+            submitCount={submitCount}
+          />
 
           {initialData && (
             <div className="rounded-xl border border-bt-blue-300/30 bg-bt-blue-500/40 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -451,8 +433,10 @@ export const EventForm: React.FC<EventFormProps> = ({
             {/* Right Column — Form Sections */}
             <form
               id="event-settings-form"
-              onSubmit={form.handleSubmit(handleSubmit, handleInvalidSubmit)}
-              className="order-1 xl:order-2 space-y-5"
+              ref={editorRef}
+              noValidate
+              onSubmit={form.handleSubmit(saveEvent)}
+              className="order-1 min-w-0 space-y-5 xl:order-2 [&_[aria-invalid=true]]:border-bt-red-200 [&_[aria-invalid=true]]:ring-1 [&_[aria-invalid=true]]:ring-bt-red-200 [&_[data-invalid=true]]:border-bt-red-200"
             >
               {/* Settings */}
               <SectionCard
@@ -488,6 +472,8 @@ export const EventForm: React.FC<EventFormProps> = ({
               <SectionCard
                 icon={<ImageIcon className="w-4 h-4" />}
                 title="Cover Photo"
+                field="imageUrl"
+                invalid={submitCount > 0 && Boolean(errors.imageUrl)}
               >
                 <EventThumbnailUploader
                   value={imageUrl}
@@ -532,6 +518,8 @@ export const EventForm: React.FC<EventFormProps> = ({
               <SectionCard
                 icon={<LayoutGrid className="w-4 h-4" />}
                 title="Event Page"
+                field="eventPage"
+                invalid={submitCount > 0 && Boolean(errors.eventPage)}
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormInput
@@ -552,9 +540,10 @@ export const EventForm: React.FC<EventFormProps> = ({
                 <div className="space-y-3">
                   {EVENT_PAGE_MODULE_TYPES.map((moduleId) => {
                     const moduleDefinition = EVENT_PAGE_MODULES[moduleId];
-                    const enabledModule = orderedEventPageModules.find(
+                    const index = orderedEventPageModules.findIndex(
                       (module) => module.id === moduleId,
                     );
+                    const enabledModule = orderedEventPageModules[index];
                     const isRegistrationModule = moduleId === "registration";
                     const orderedWidgetModules = orderedEventPageModules.filter(
                       (module) => module.id !== "registration",
@@ -566,6 +555,17 @@ export const EventForm: React.FC<EventFormProps> = ({
                     return (
                       <div
                         key={moduleId}
+                        data-event-field={
+                          enabledModule
+                            ? `eventPage.modules.${index}`
+                            : undefined
+                        }
+                        data-invalid={
+                          (submitCount > 0 &&
+                            Boolean(errors.eventPage?.modules?.[index])) ||
+                          undefined
+                        }
+                        tabIndex={enabledModule ? -1 : undefined}
                         className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/50 p-4"
                       >
                         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -668,6 +668,7 @@ export const EventForm: React.FC<EventFormProps> = ({
                   <FormDatePicker
                     name="startDate"
                     label="Start Date &amp; Time*"
+                    dependentField="endDate"
                   />
                   <FormDatePicker name="endDate" label="End Date &amp; Time*" />
                 </div>
@@ -714,6 +715,16 @@ export const EventForm: React.FC<EventFormProps> = ({
               <SectionCard
                 icon={<Users className="w-4 h-4" />}
                 title="Attendee Registration Questions"
+                field="customQuestions"
+                invalid={
+                  submitCount > 0 &&
+                  Boolean(
+                    usesCustomRegistrationForm
+                      ? errors.customQuestions
+                      : (errors.customQuestions?.root ??
+                          errors.customQuestions?.message),
+                  )
+                }
               >
                 {usesCustomRegistrationForm && (
                   <p className="rounded-lg border border-bt-blue-300/20 bg-bt-blue-600/45 px-3 py-2 text-xs leading-5 text-bt-blue-100">
@@ -746,6 +757,16 @@ export const EventForm: React.FC<EventFormProps> = ({
               <SectionCard
                 icon={<Users className="w-4 h-4" />}
                 title="Partner Event Information"
+                field="partnerCustomQuestions"
+                invalid={
+                  submitCount > 0 &&
+                  Boolean(
+                    usesCustomPartnerRegistrationForm
+                      ? errors.partnerCustomQuestions
+                      : (errors.partnerCustomQuestions?.root ??
+                          errors.partnerCustomQuestions?.message),
+                  )
+                }
               >
                 <FormTextarea
                   name="partnerDescription"

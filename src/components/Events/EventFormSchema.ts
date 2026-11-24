@@ -57,7 +57,7 @@ const eventPageConfigSchema = z
   })
   .default(defaultEventPageConfig);
 
-export const eventFormSchema = z.object({
+const eventFormFields = z.object({
   // Required fields (marked with * in the UI)
   eventName: z.string().min(1, "Event name is required"),
   eventSlug: z.string().min(1, "Event slug is required"),
@@ -123,5 +123,10 @@ export const eventFormSchema = z.object({
     )
     .default([]),
 });
+
+export const eventFormSchema = eventFormFields.refine(
+  (data) => data.endDate >= data.startDate,
+  { path: ["endDate"], message: "End date must be at or after the start date" },
+);
 
 export type EventFormSchema = z.infer<typeof eventFormSchema>;
