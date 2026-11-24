@@ -3,18 +3,11 @@ import { exchangePath } from "./market";
 
 export function MobileNavigation({
   path,
-  teamId,
-  admin,
+  admin = false,
 }: {
   path: string;
-  teamId?: string;
   admin?: boolean;
 }) {
-  const ownCompanyPath = teamId
-    ? exchangePath +
-      "/company/" +
-      encodeURIComponent("kickstart;2026:" + teamId)
-    : undefined;
   const mobileTabs = [
     { icon: "exchange", label: "Exchange", href: exchangePath },
     { icon: "catalog", label: "Catalog", href: exchangePath + "/catalog" },
@@ -33,7 +26,8 @@ export function MobileNavigation({
       : {
           icon: "company",
           label: "Company",
-          href: ownCompanyPath,
+          // The destination handles sign-in, eligibility, and membership.
+          href: exchangePath + "/my-company",
         },
   ];
 
@@ -52,8 +46,7 @@ export function MobileNavigation({
           (tab.icon === "exchange" && path === "/companion/kickstart/2026") ||
           (tab.icon === "catalog" &&
             (path === exchangePath + "/search" ||
-              (path.startsWith(exchangePath + "/company/") &&
-                path !== ownCompanyPath)));
+              path.startsWith(exchangePath + "/company/")));
         const contents = (
           <>
             <span

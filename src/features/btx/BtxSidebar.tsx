@@ -8,6 +8,12 @@ import Image from "next/image";
 
 const assets = "/assets/btx/sidebar";
 
+const BTX_ROLES = {
+  ADMIN: "Admin",
+  TEAM_MEMBER: "Team member",
+  INVESTOR: "Investor",
+} as const;
+
 type Item = { icon: string; label: string; href?: string };
 
 export function BtxSidebar({
@@ -15,8 +21,13 @@ export function BtxSidebar({
   userId,
   user,
   registration,
-}: { userId: string; isAdmin: boolean } & ReturnType<typeof useBtxProfile>) {
-  const path = useRouter().asPath.split("?")[0];
+  variant = "desktop",
+}: {
+  userId: string;
+  isAdmin: boolean;
+  variant?: "desktop" | "mobile";
+} & ReturnType<typeof useBtxProfile>) {
+  const path = useRouter().asPath.split(/[?#]/)[0];
   const [expanded, setExpanded] = useState(false);
   const account = usePortfolio(
     "kickstart;2026",
@@ -25,11 +36,11 @@ export function BtxSidebar({
   );
 
   const role = isAdmin
-    ? "Admin"
+    ? BTX_ROLES.ADMIN
     : registration
       ? registration.teamID
-        ? "Team member"
-        : "Investor"
+        ? BTX_ROLES.TEAM_MEMBER
+        : BTX_ROLES.INVESTOR
       : undefined;
 
   const destinations: Item[] = [
@@ -38,7 +49,7 @@ export function BtxSidebar({
     { icon: "catalog", label: "Catalog", href: exchangePath + "/catalog" },
   ];
 
-  if (role && role !== "Admin")
+  if (role && role !== BTX_ROLES.ADMIN)
     destinations.push({
       icon: "portfolio",
       label: "Portfolio",
@@ -51,12 +62,20 @@ export function BtxSidebar({
     href: exchangePath + "/leaderboard",
   });
 
-  if (role === "Team member")
-    destinations.push({ icon: "company", label: "My Company" });
-  if (role === "Investor")
-    destinations.push({ icon: "join", label: "Join a company" });
+  // Keep the entry discoverable for admins and guests too. The destination
+  // checks verified sign-in and participant registration before allowing writes.
+  destinations.push({
+    icon: role === BTX_ROLES.TEAM_MEMBER ? "company" : "join",
+    label:
+      role === BTX_ROLES.ADMIN
+        ? "Company team"
+        : role === BTX_ROLES.TEAM_MEMBER
+          ? "My Company"
+          : "Join a company",
+    href: exchangePath + "/my-company",
+  });
 
-  if (role === "Admin")
+  if (role === BTX_ROLES.ADMIN)
     destinations.push(
       {
         icon: "grant",
@@ -68,7 +87,7 @@ export function BtxSidebar({
         label: "Launch IPO",
         href: exchangePath + "/admin#launch-ipo",
       },
-      { icon: "admin", label: "Admin", href: exchangePath + "/admin" },
+      { icon: "admin", label: BTX_ROLES.ADMIN, href: exchangePath + "/admin" },
     );
 
   const itemLayout = expanded
@@ -101,13 +120,13 @@ export function BtxSidebar({
     </>
   );
 
+  if (variant === "mobile") {
+    return <MobileNavigation path={path} admin={isAdmin} />;
+  }
+
   return (
     <>
-      <MobileNavigation
-        path={path}
-        teamId={registration?.teamID}
-        admin={isAdmin}
-      />
+      <MobileNavigation path={path} admin={isAdmin} />
       <nav
         aria-label="BTX navigation"
         className={`sticky top-0 hidden h-screen md:flex shrink-0 flex-col items-center gap-1.5 overflow-y-auto border-r border-slate-800 bg-slate-950 py-6 text-slate-100 ${expanded ? "w-40 px-4 md:w-60" : "w-14 md:w-[72px]"}`}

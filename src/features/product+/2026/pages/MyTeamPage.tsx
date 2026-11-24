@@ -430,7 +430,9 @@ export default function MyTeamPage() {
     );
   };
   const refetchTeam = () => {
-    void queryClient.invalidateQueries({ queryKey: ["productPlusTeam"] });
+    void queryClient.invalidateQueries({
+      queryKey: ["eventTeam", "product+", 2026],
+    });
   };
 
   if (team.isPending) {

@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ComponentPropsWithoutRef } from "react";
 import { companyName } from "./market";
 import type { Company } from "./seedApi";
+import { cn } from "@/lib/utils";
 
 export const catalogPill =
   "rounded-full border border-[#82C3FB]/35 px-3 py-1 text-[12px]";
@@ -12,6 +13,13 @@ export const tradeButton =
 const corners =
   "polygon(30px 0,100% 0,100% calc(100% - 30px),calc(100% - 30px) 100%,0 100%,0 30px)";
 
+export const teamPrimaryButton =
+  "h-[46px] rounded-full bg-[#1fbef9] px-6 text-[14px] text-[#071523] hover:bg-[#60d0fc] disabled:opacity-50";
+export const teamSecondaryButton =
+  "h-11 rounded-full border border-[#324a68] bg-transparent px-5 text-[14px] text-[#e6ebf6] hover:bg-[#1b2c43] hover:text-white";
+export const teamPanelClass =
+  "rounded-2xl border border-[#263850] bg-[#101a2b] p-4 [&>span[aria-hidden]]:hidden md:rounded-none md:border-0 md:bg-transparent md:p-7 md:[&>span[aria-hidden]]:block";
+
 export function AngledPanel({
   children,
   className = "",
@@ -20,7 +28,7 @@ export function AngledPanel({
   return (
     <section
       {...props}
-      className={`relative isolate min-w-0 md:p-[23px] ${className}`}
+      className={cn("relative isolate min-w-0 md:p-[23px]", className)}
     >
       <span
         aria-hidden
