@@ -15,9 +15,35 @@ export function useTradeOrder(
   const [notice, setNotice] = useState<Notice | null>(null);
   const [receipt, setReceipt] = useState<api.Trade | null>(null);
   const [busy, setBusy] = useState(false);
-  const lock = useRef(false);
-
-  const [order, setOrder] = useState<api.TradeOrder | null>(null);
+  const inFlight = useRef<api.TradeOrder | null>(null);
+  const storageKey = JSON.stringify([
+    "btx-pending-order",
+    market.eventId,
+    userId,
+  ]);
+  // undefined until restored, null when a new order can be placed.
+  const [order, setOrder] = useState<api.TradeOrder | null>();
+  useEffect(() => {
+    try {
+      const saved: api.TradeOrder | null = JSON.parse(
+        sessionStorage.getItem(storageKey) ?? "null",
+      );
+      setOrder(saved);
+      if (saved) {
+        setSide(saved.side ?? "BUY");
+        setQuantity(String(saved.shares));
+      }
+    } catch {
+      setNotice({
+        tone: "error",
+        title: "Order recovery unavailable",
+        description: "Check browser storage before placing a trade.",
+      });
+    }
+    return () => {
+      inFlight.current = null;
+    };
+  }, [storageKey]);
   const [quantity, setQuantity] = useState("10");
   const [side, setSide] = useState<api.Trade["side"]>("BUY");
   const company = market.projects.find((p) => p.projectId === selected);
@@ -27,7 +53,10 @@ export function useTradeOrder(
     company?.seedStatus === "ACTIVE" &&
     now < (company.seedEndsAt ?? 0) &&
     now < market.eventEndsAt;
-  const canRequestQuote =
+  const canQuote =
+    !!userId &&
+    order === null &&
+    !busy &&
     ((seedOpen && side === "BUY") ||
       (market.phase === "LIVE" && !!company && now < market.eventEndsAt)) &&
     !ownCompany &&
@@ -45,22 +74,14 @@ export function useTradeOrder(
       order?.tradeId,
     ],
     queryFn: () => api.quote(selected, shares, side),
-    enabled: !!userId && canRequestQuote && !order,
+    enabled: canQuote,
     retry: false,
     staleTime: 0,
     gcTime: 0,
     refetchOnWindowFocus: false,
   });
   const preview = quote.data;
-  const quoteIsCurrent =
-    canRequestQuote &&
-    preview?.projectId === selected &&
-    preview.shares === shares &&
-    preview.side === side &&
-    preview.phase === market.phase &&
-    now < preview.expiresAt;
-
-  const status = useQuery({
+  const status = useQuery<api.Trade, api.TradeRequestError>({
     queryKey: ["btx-seed", market.eventId, userId, "order", order?.tradeId],
     queryFn: () => api.tradeStatus(order!),
     enabled: !!order && !busy,
@@ -73,57 +94,83 @@ export function useTradeOrder(
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!order || !confirmed || confirmed.status === "PENDING") return;
+    if (busy || !order || !confirmed || confirmed.status === "PENDING") return;
 
-    setReceipt(confirmed.status === "FILLED" ? confirmed : null);
-    setNotice(
-      confirmed.status === "FILLED"
-        ? { tone: "success", title: "Order filled" }
-        : stockError(confirmed.rejection?.code ?? "TRADE_REJECTED"),
-    );
+    const filled = confirmed.status === "FILLED";
+    if (order.projectId === selected) {
+      setReceipt(filled ? confirmed : null);
+      setNotice(
+        filled
+          ? { tone: "success", title: "Order filled" }
+          : stockError(confirmed.rejection?.code ?? "TRADE_REJECTED"),
+      );
+    } else {
+      setQuantity("10");
+      setSide("BUY");
+      setNotice({
+        tone: filled ? "success" : "warning",
+        title: filled ? "Previous order filled" : "Previous order rejected",
+      });
+    }
+    sessionStorage.removeItem(storageKey);
     setOrder(null);
-
     void queryClient.invalidateQueries({
       queryKey: ["btx-seed", market.eventId, userId, "portfolio"],
     });
-  }, [confirmed, order, queryClient, market.eventId, userId]);
+  }, [
+    busy,
+    confirmed,
+    order,
+    storageKey,
+    selected,
+    queryClient,
+    market.eventId,
+    userId,
+  ]);
 
-  const orderNotFound =
-    status.error && "status" in status.error && status.error.status === 404;
-  const retryingOrder =
-    !!order &&
-    orderNotFound &&
-    order.projectId === selected &&
-    order.shares === shares &&
-    (order.side ?? "BUY") === side;
-
+  const orderNotFound = !!order && status.error?.status === 404;
   const canConfirm =
-    quoteIsCurrent &&
-    !busy &&
+    canQuote &&
+    preview?.phase === market.phase &&
+    now < preview.expiresAt &&
     !quote.isFetching &&
-    !quote.isError &&
-    (!order ||
-      (retryingOrder && order.limitPriceCents === preview?.priceCents));
+    !quote.isError;
 
   function dismissReceipt() {
     setReceipt(null);
     setNotice(null);
   }
 
-  async function confirmPurchase() {
-    if (!preview || !canConfirm || lock.current) return;
-    const next = order ?? {
-      projectId: selected,
-      shares,
-      tradeId: api.tradeId(),
-      side,
-      limitPriceCents: preview.priceCents,
-    };
-
-    lock.current = true;
+  async function submitOrder() {
+    if (inFlight.current) return;
+    let next = order;
+    if (next) {
+      if (!orderNotFound) return;
+    } else {
+      if (!canConfirm || !preview) return;
+      next = {
+        projectId: selected,
+        shares,
+        side,
+        tradeId: api.tradeId(),
+        limitPriceCents: preview.priceCents,
+      };
+      try {
+        if (sessionStorage.getItem(storageKey) !== null) return;
+        sessionStorage.setItem(storageKey, JSON.stringify(next));
+        setOrder(next);
+      } catch {
+        setNotice({
+          tone: "error",
+          title: "Couldn’t save the order",
+          description: "Enable browser storage and try again.",
+        });
+        return;
+      }
+    }
+    inFlight.current = next;
     dismissReceipt();
     setBusy(true);
-    setOrder(next);
 
     try {
       await api.placeOrder(next);
@@ -137,10 +184,23 @@ export function useTradeOrder(
         status !== 408 &&
         reason?.message !== "tradeId already used";
 
-      if (declined) setOrder(null);
+      // A rejection of a retry cannot settle an earlier POST still in flight.
+      if (inFlight.current !== next) return;
+      if (declined && !order) {
+        sessionStorage.removeItem(storageKey);
+        setOrder(null);
+        if (code === "LIMIT_PRICE_EXCEEDED" || code === "STALE_QUOTE")
+          void quote.refetch();
+      }
       if (code) setNotice(stockError(code));
+      else if (declined)
+        setNotice({
+          tone: "error",
+          title: order ? "Retry declined" : "Order declined",
+          description: reason?.message,
+        });
     } finally {
-      lock.current = false;
+      inFlight.current = null;
       setBusy(false);
     }
   }
@@ -163,19 +223,17 @@ export function useTradeOrder(
       dismissReceipt();
       setQuantity(value);
     },
-    preview:
-      preview?.projectId === selected && preview.side === side
-        ? preview
-        : undefined,
+    preview,
     notice,
+    priceChanged: notice === stockError("STALE_QUOTE"),
     order,
     orderNotFound,
     statusUnknown: !!order && status.isError,
     seedOpen,
-    quantityLocked: busy || !!order,
-    canQuote: canRequestQuote && !busy && (!order || retryingOrder),
+    quantityLocked: busy || order !== null,
+    canQuote,
     canConfirm,
     requestQuote: () => quote.refetch(),
-    confirmPurchase,
+    submitOrder,
   };
 }

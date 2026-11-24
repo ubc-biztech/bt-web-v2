@@ -78,16 +78,19 @@ function TradeForm({
     !ticket.notice && ticket.quoteError && ticket.canQuote
       ? ticket.requestQuote
       : undefined;
-  const actionEnabled =
-    !fetchingQuote && (canConfirm ? !balanceError : ticket.canQuote);
+  const actionEnabled = ticket.orderNotFound
+    ? !ticket.busy
+    : !fetchingQuote && (canConfirm ? !balanceError : ticket.canQuote);
 
   let orderLabel = preview ? "Refresh price" : "Get quote";
   if (fetchingQuote) orderLabel = "Getting price…";
   else if (ticket.busy) orderLabel = "Placing order…";
-  else if (ticket.order && !ticket.orderNotFound)
-    orderLabel = "Checking order…";
+  else if (ticket.orderNotFound) orderLabel = "Retry original order";
+  else if (ticket.order) orderLabel = "Checking order…";
   else if (canConfirm && preview) {
-    orderLabel = `${buying ? "Buy" : "Sell"} ${quantity} at ${money(preview.priceCents)}`;
+    orderLabel = ticket.priceChanged
+      ? `Confirm at new price · ${money(preview.priceCents)}`
+      : `${buying ? "Buy" : "Sell"} ${quantity} at ${money(preview.priceCents)}`;
   } else if (launching) orderLabel = "Trading paused";
   else if (ticket.ownCompany || seedUnavailable) orderLabel = "Buy unavailable";
 
@@ -191,7 +194,9 @@ function TradeForm({
                 className={tradeButton}
                 disabled={!actionEnabled}
                 onClick={
-                  canConfirm ? ticket.confirmPurchase : ticket.requestQuote
+                  canConfirm || ticket.orderNotFound
+                    ? ticket.submitOrder
+                    : ticket.requestQuote
                 }
               >
                 {orderLabel}
@@ -233,16 +238,23 @@ function TradeForm({
       {!lockedSell && notice && (
         <StatusBanner {...notice} onRetry={retryQuote} />
       )}
-      {ticket.order &&
-        (ticket.orderNotFound ? (
-          <StatusBanner
-            tone="warning"
-            title="Order status unavailable"
-            description="Request a fresh quote to retry with the original order ID."
-          />
-        ) : (
-          <StatusBanner tone="info" title="Checking order status…" />
-        ))}
+      {ticket.order && (
+        <StatusBanner
+          tone={ticket.statusUnknown ? "warning" : "info"}
+          title={
+            ticket.orderNotFound
+              ? "Order not found yet"
+              : ticket.statusUnknown
+                ? "Order status unavailable"
+                : "Checking order status…"
+          }
+          description={
+            ticket.order.projectId !== company.projectId
+              ? `Pending order for ${market.projects.find((p) => p.projectId === ticket.order?.projectId)?.companyName ?? ticket.order.projectId}`
+              : undefined
+          }
+        />
+      )}
     </section>
   );
 }
