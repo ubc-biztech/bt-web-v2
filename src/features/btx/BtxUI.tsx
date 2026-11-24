@@ -108,7 +108,8 @@ export function StatusBanner({
   title,
   description,
   onRetry,
-}: Notice & { onRetry?: () => void }) {
+  retrying = false,
+}: Notice & { onRetry?: () => void; retrying?: boolean }) {
   const color = colors[tone];
 
   return (
@@ -131,10 +132,11 @@ export function StatusBanner({
         {onRetry && (
           <button
             type="button"
-            className="mt-1 text-[14px] underline"
+            className="mt-1 text-[14px] underline disabled:opacity-60"
             onClick={onRetry}
+            disabled={retrying}
           >
-            Retry
+            {retrying ? "Retrying…" : "Retry"}
           </button>
         )}
       </div>

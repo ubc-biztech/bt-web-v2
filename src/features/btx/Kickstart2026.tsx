@@ -9,7 +9,11 @@ import { QueryProvider } from "@/lib/queryProvider";
 import { CompanyPage } from "./CompanyPage";
 import { ExchangeCatalog, FullCatalog } from "./CompanyCatalog";
 import { marketStage } from "./market";
-import { ExchangeOverview, ExchangeLoading } from "./ExchangeOverview";
+import {
+  ExchangeLoading,
+  ExchangeOverview,
+  ExchangeRecovery,
+} from "./ExchangeOverview";
 import { useBtxProfile } from "./accountQueries";
 import { market, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
@@ -62,6 +66,12 @@ function MarketLayout({
   }, []);
 
   const marketData = snapshot.data;
+  // A retry can set the query back to pending before it has any data.
+  const lastFailureAt =
+    snapshot.errorUpdatedAt > snapshot.dataUpdatedAt
+      ? snapshot.errorUpdatedAt
+      : null;
+  const retrySnapshot = () => void snapshot.refetch({ cancelRefetch: false });
   return (
     <div
       className={`${styles.btx} ${instrumentSans.variable} ${spaceGrotesk.variable} flex min-h-screen bg-[#0b1120]`}
@@ -70,26 +80,36 @@ function MarketLayout({
       <main className="min-w-0 flex-1 bg-[url(/assets/btx/market-background.webp)] bg-[length:100%_auto] bg-top bg-no-repeat px-4 pb-10 pt-8 text-[#e6ebf6] sm:px-6 lg:px-12 lg:pt-[92px]">
         <div className="mx-auto max-w-[1600px] space-y-6">
           {marketData && marketData.eventEndsAt != null ? (
-            <Page
-              key={JSON.stringify([userId, marketData.eventId, projectId])}
-              market={marketData}
-              userId={userId}
-              projectId={projectId}
-              now={
-                marketData.serverTime +
-                Math.max(0, clock - snapshot.dataUpdatedAt)
-              }
-              ownProject={
-                profile.registration?.teamID &&
-                marketData.eventId + ":" + profile.registration.teamID
-              }
-            />
-          ) : snapshot.isError ? (
-            <StatusBanner
-              tone="error"
-              title="Exchange unavailable"
-              description="The market data could not be loaded."
-              onRetry={() => snapshot.refetch()}
+            <>
+              {snapshot.isRefetchError && (
+                <StatusBanner
+                  tone="warning"
+                  title="Market data may be out of date"
+                  description="Showing the last available market data."
+                  onRetry={retrySnapshot}
+                  retrying={snapshot.isFetching}
+                />
+              )}
+              <Page
+                key={JSON.stringify([userId, marketData.eventId, projectId])}
+                market={marketData}
+                userId={userId}
+                projectId={projectId}
+                now={
+                  marketData.serverTime +
+                  Math.max(0, clock - snapshot.dataUpdatedAt)
+                }
+                ownProject={
+                  profile.registration?.teamID &&
+                  marketData.eventId + ":" + profile.registration.teamID
+                }
+              />
+            </>
+          ) : lastFailureAt !== null ? (
+            <ExchangeRecovery
+              lastTriedAt={lastFailureAt}
+              retrying={snapshot.isFetching}
+              onRetry={retrySnapshot}
             />
           ) : marketData ? (
             <StatusBanner

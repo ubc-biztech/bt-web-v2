@@ -146,6 +146,61 @@ function Placeholder({ className }: { className: string }) {
   );
 }
 
+export function ExchangeRecovery({
+  lastTriedAt,
+  retrying,
+  onRetry,
+}: {
+  lastTriedAt: number;
+  retrying: boolean;
+  onRetry: () => void;
+}) {
+  const lastTried = new Date(lastTriedAt);
+
+  return (
+    <section
+      aria-labelledby="btx-recovery-title"
+      className="flex flex-col items-center gap-3.5 rounded-[20px] border border-[#82c3fb]/[.22] bg-[#17213f]/30 px-5 py-14 text-center leading-[normal] sm:px-10 sm:py-24"
+    >
+      <span
+        aria-hidden="true"
+        className="grid size-14 place-items-center rounded-full border border-[#ff5c7a]/50 bg-[#ff5c7a]/[.14] text-[24px] font-bold text-[#ff5c7a]"
+      >
+        !
+      </span>
+      <div role="alert" className="space-y-3.5">
+        <h1
+          id="btx-recovery-title"
+          className={`${typography.display} text-[28px] font-medium text-[#e6ebf6]`}
+        >
+          We couldn’t load the exchange
+        </h1>
+        <p className="text-[14px] text-[#a8b5d6]">
+          We couldn’t reach BTX. Your cash and holdings are safe. Check your
+          connection and try again.
+        </p>
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        disabled={retrying}
+        className="rounded-full border border-[#82c3fb]/40 bg-[#1fbef9] px-[22px] py-[13px] text-[14px] font-medium text-[#0b1120] disabled:opacity-60"
+      >
+        {retrying ? "Trying again…" : "Try again"}
+      </button>
+      <p role="status" className="text-[12px] text-[#9eabcb]">
+        Last tried{" "}
+        <time dateTime={lastTried.toISOString()}>
+          {lastTried.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          })}
+        </time>
+      </p>
+    </section>
+  );
+}
+
 export function ExchangeLoading() {
   return (
     <div className="grid items-start gap-5 text-[#a8b5d6] lg:grid-cols-[minmax(0,804fr)_minmax(0,522fr)]">
