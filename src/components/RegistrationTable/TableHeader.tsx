@@ -81,7 +81,8 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   year,
   isApplicationBased,
 }) => {
-  const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedRowsCount = selectedRows.length;
   const [showMassUpdateStatus, setShowMassUpdateStatus] = useState(false);
   const [showAddAttendee, setShowAddAttendee] = useState(false);
   const [showCreateTeam, setShowCreateTeam] = useState(false);
@@ -94,6 +95,22 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   const [teamError, setTeamError] = useState<string | null>(null);
   const [copiedEmails, setCopiedEmails] = useState(false);
 
+  const selectedRegistrations = showMassUpdateStatus
+    ? selectedRows.map(({ id, original }) => {
+        const { basicInformation } = original;
+        const fname =
+          basicInformation?.fname || original.firstName || original.fname || "";
+        const lname =
+          basicInformation?.lname || original.lastName || original.lname || "";
+        return {
+          id,
+          email: original.id || original.email || id,
+          fname,
+          name: `${fname} ${lname}`.trim(),
+        };
+      })
+    : [];
+
   const handleSelectChange = (value: SelectValue) => {
     setSelectedValue(value);
     onFilterChange(value);
@@ -104,14 +121,14 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
   };
 
   const handleMassUpdate = async () => {
-    if (!isApplicationBased || !newStatus) return;
-    const selectedRows = getSelectedRows();
+    if (!isApplicationBased || !newStatus || !selectedRegistrations.length)
+      return;
     setIsSubmitting(true);
     setMassUpdateError(null);
     try {
-      const updates = selectedRows.map((row: any) => ({
-        email: row.original.id || row.original.email,
-        fname: row.original.firstName || row.original.fname || "",
+      const updates = selectedRegistrations.map(({ email, fname }) => ({
+        email,
+        fname,
         applicationStatus: newStatus,
       }));
       const failed = await updateApplicationStatuses(fetchBackend, {
@@ -409,27 +426,33 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           {/* divider */}
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
-          <div className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
-            {getSelectedRows().map((row, index) => (
-              <div key={index} className="bg-[#485A85] px-5 py-4 rounded-lg">
-                <span className="text-md font-600">
-                  {row.original.firstName} {row.original.lastName}
-                </span>
-                <br />
-                {row.original.email}
-              </div>
+          <ul className="space-y-4 max-h-[30vh] sm:max-h-[40vh] md:max-h-[50vh] overflow-y-auto">
+            {selectedRegistrations.map(({ id, name, email }) => (
+              <li
+                key={id}
+                className="bg-[#485A85] px-5 py-4 rounded-lg break-words text-white"
+              >
+                <p className="font-semibold">{name || email}</p>
+                {name && <p className="text-sm text-white/90">{email}</p>}
+              </li>
             ))}
-          </div>
+          </ul>
 
           <div className="w-full h-[1px] bg-[#8DA1D1] my-3" />
 
           {massUpdateError && (
-            <div className="bg-red-500/20 border border-red-500/50 text-red-300 px-3 py-2 rounded text-sm">
+            <div
+              role="alert"
+              className="bg-red-500/20 border border-red-500/50 text-red-300 px-3 py-2 rounded text-sm"
+            >
               {massUpdateError}
             </div>
           )}
           <Select onValueChange={setNewStatus} value={newStatus}>
-            <SelectTrigger className="bg-bt-blue-400 text-white">
+            <SelectTrigger
+              aria-label="Application status"
+              className="bg-bt-blue-400 text-white"
+            >
               <SelectValue placeholder="Select Status" />
             </SelectTrigger>
             <SelectContent>
@@ -443,11 +466,11 @@ export const TableHeader: React.FC<TableHeaderProps> = ({
           <Button
             onClick={handleMassUpdate}
             className="text-bt-blue-400 bg-bt-green-300"
-            disabled={isSubmitting || !newStatus || !getSelectedRows().length}
+            disabled={isSubmitting || !newStatus || selectedRowsCount === 0}
           >
             {isSubmitting
               ? "Updating..."
-              : `Update ${getSelectedRows().length} Registration${getSelectedRows().length === 1 ? "" : "s"}`}
+              : `Update ${selectedRowsCount} Registration${selectedRowsCount === 1 ? "" : "s"}`}
           </Button>
         </DialogContent>
       </Dialog>
