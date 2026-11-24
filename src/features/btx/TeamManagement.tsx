@@ -30,7 +30,7 @@ type Confirmation =
   | { action: "leave" }
   | { action: "remove"; member: TeamMember };
 
-interface TeamManagementProps {
+export interface TeamManagementProps {
   team: Team;
   email: string;
   created: boolean;
@@ -44,6 +44,8 @@ interface TeamManagementProps {
   onRemove: (member: TeamMember) => Promise<void>;
   onRefresh: () => void;
   onFindTeam: () => void;
+  companyName?: string;
+  embedded?: boolean;
 }
 
 function initials(name: string) {
@@ -70,6 +72,8 @@ export function TeamManagement({
   onRemove,
   onRefresh,
   onFindTeam,
+  companyName,
+  embedded = false,
 }: TeamManagementProps) {
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -117,21 +121,27 @@ export function TeamManagement({
   }
 
   return (
-    <div className="mx-auto max-w-[1000px] space-y-5 md:space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0 space-y-2">
-          <p className="text-[12px] text-[#1fbef9]">My company</p>
-          <h1 className="break-words text-[32px] font-medium leading-tight md:text-[44px]">
-            {team.team_name}
-          </h1>
-        </div>
-        {!removed && (
-          <span className="inline-flex items-center gap-2 rounded-full border border-[#38d3a2]/40 bg-[#38d3a2]/10 px-3 py-1 text-[12px] text-[#38d3a2]">
-            <Check size={14} aria-hidden="true" />
-            Team formed
-          </span>
-        )}
-      </header>
+    <div
+      className={
+        embedded ? "space-y-4" : "mx-auto max-w-[1000px] space-y-5 md:space-y-6"
+      }
+    >
+      {!embedded && (
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0 space-y-2">
+            <p className="text-[12px] text-[#1fbef9]">My company</p>
+            <h1 className="break-words text-[32px] font-medium leading-tight md:text-[44px]">
+              {companyName || team.team_name}
+            </h1>
+          </div>
+          {!removed && (
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#38d3a2]/40 bg-[#38d3a2]/10 px-3 py-1 text-[12px] text-[#38d3a2]">
+              <Check size={14} aria-hidden="true" />
+              Team formed
+            </span>
+          )}
+        </header>
+      )}
 
       {removed ? (
         <>
@@ -155,7 +165,7 @@ export function TeamManagement({
         </>
       ) : (
         <>
-          {created && (
+          {created && !embedded && (
             <StatusBanner
               tone="success"
               title="Company team created"
@@ -281,11 +291,13 @@ export function TeamManagement({
         </>
       )}
 
-      <Button asChild className={`${teamSecondaryButton} w-full md:w-auto`}>
-        <Link href={exchangePath + "/catalog"}>
-          Browse KickStart companies →
-        </Link>
-      </Button>
+      {!embedded && (
+        <Button asChild className={`${teamSecondaryButton} w-full md:w-auto`}>
+          <Link href={exchangePath + "/catalog"}>
+            Browse KickStart companies →
+          </Link>
+        </Button>
+      )}
 
       <AlertDialog
         open={!!confirmation && !removed}
@@ -298,7 +310,7 @@ export function TeamManagement({
             <AlertDialogTitle className="break-words text-[24px] leading-8">
               {confirmation?.action === "remove"
                 ? `Remove ${confirmation.member.name}?`
-                : `Leave ${team.team_name}?`}
+                : `Leave ${companyName || team.team_name}?`}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-[14px] leading-6 text-[#b5c1da]">
               {confirmation?.action === "remove"
