@@ -41,7 +41,6 @@ export type MarketPageProps = {
   now: number;
   userId: string;
   recovering?: boolean;
-  email?: string;
   isAdmin: boolean | undefined;
   quoteVersion?: number | null;
   projectId?: string;
@@ -166,7 +165,6 @@ function MarketLayout({
                 isAdmin={auth.isPending ? undefined : isAdmin}
                 initials={initials}
                 userId={userId}
-                email={user?.email}
                 projectId={projectId}
                 now={
                   marketData.serverTime +

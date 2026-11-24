@@ -111,7 +111,7 @@ export const market = () => read<Market>("market/snapshot", false);
 export const portfolio = () => read<Portfolio>("portfolio");
 
 export interface LeaderboardEntry {
-  index: number;
+  rank: number;
   displayName: string;
   totalPnlCents: number;
 }
@@ -120,15 +120,12 @@ interface Leaderboard {
   traders: number;
   top: LeaderboardEntry[];
   bottom: LeaderboardEntry[];
-  own: LeaderboardEntry | null;
+  own?: LeaderboardEntry | null;
   live: boolean;
 }
 
-export const getLeaderboard = (viewerId: string) =>
-  read<Leaderboard>(
-    "leaderboard?" +
-      new URLSearchParams({ viewerId, limitTop: "10", limitBottom: "5" }),
-  );
+export const getLeaderboard = () =>
+  read<Leaderboard>("leaderboard?limitTop=10&limitBottom=5");
 
 export function accountTrades(
   limit: number,

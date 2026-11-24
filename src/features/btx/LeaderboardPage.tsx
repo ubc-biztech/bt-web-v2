@@ -61,17 +61,12 @@ function InvestorName({
   );
 }
 
-export function LeaderboardPage({
-  market,
-  userId,
-  email = "",
-  isAdmin,
-}: MarketPageProps) {
+export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
   const live = market.phase === "LIVE";
   const result = useQuery({
-    queryKey: ["btx", market.eventId, "leaderboard", userId, email],
-    queryFn: () => getLeaderboard(email),
-    enabled: !!email && live,
+    queryKey: ["btx", market.eventId, "leaderboard", userId],
+    queryFn: getLeaderboard,
+    enabled: !!userId && live,
     refetchInterval: 60000,
     staleTime: 60000,
   });
@@ -86,13 +81,13 @@ export function LeaderboardPage({
   const own = board?.own;
   const top = board?.top ?? [];
   const podium = top.slice(0, 3);
-  const lastPodiumIndex = podium.at(-1)?.index ?? -1;
+  const lastPodiumRank = podium.at(-1)?.rank ?? 0;
   const entries = [...top.slice(3), ...(board?.bottom ?? [])];
   if (own) entries.push(own);
-  const byIndex = new Map(entries.map((entry) => [entry.index, entry]));
-  const rows = Array.from(byIndex.values())
-    .filter(({ index }) => index > lastPodiumIndex)
-    .sort((a, b) => a.index - b.index);
+  const byRank = new Map(entries.map((entry) => [entry.rank, entry]));
+  const rows = Array.from(byRank.values())
+    .filter(({ rank }) => rank > lastPodiumRank)
+    .sort((a, b) => a.rank - b.rank);
 
   return (
     <div className="space-y-4">
@@ -106,13 +101,13 @@ export function LeaderboardPage({
         </div>
         {rankingsOpen && own && (
           <span className="rounded-full border border-[#426181] px-3 py-1.5 text-xs">
-            Your rank · #{own.index + 1} of {board?.traders}
+            Your rank · #{own.rank} of {board?.traders}
           </span>
         )}
       </header>
       {isAdmin === undefined ? (
         <StatusBanner tone="info" title="Checking sign-in…" />
-      ) : !email ? (
+      ) : !userId ? (
         <div
           className={
             panel + " grid place-items-center gap-3 px-5 py-14 text-center"
@@ -180,14 +175,14 @@ export function LeaderboardPage({
           <div className="grid gap-3 sm:grid-cols-3">
             {podium.map((entry) => (
               <article
-                key={entry.index}
-                className={`rounded-2xl border p-5 ${medals[entry.index]}`}
+                key={entry.rank}
+                className={`rounded-2xl border p-5 ${medals[entry.rank - 1]}`}
               >
                 <h2 className="flex items-center gap-2 text-sm">
-                  <Rank number={entry.index + 1} medal />
+                  <Rank number={entry.rank} medal />
                   <InvestorName
                     entry={entry}
-                    isYou={entry.index === own?.index}
+                    isYou={entry.rank === own?.rank}
                   />
                 </h2>
                 <p className="mb-1 mt-3 text-xs text-[#a8b5d6]">
@@ -221,9 +216,9 @@ export function LeaderboardPage({
                   </thead>
                   <tbody>
                     {rows.map((entry, index) => (
-                      <Fragment key={entry.index}>
-                        {entry.index >
-                          (rows[index - 1]?.index ?? lastPodiumIndex) + 1 && (
+                      <Fragment key={entry.rank}>
+                        {entry.rank >
+                          (rows[index - 1]?.rank ?? lastPodiumRank) + 1 && (
                           <tr className="border-t border-[#263b56]/60">
                             <td
                               colSpan={3}
@@ -235,15 +230,15 @@ export function LeaderboardPage({
                           </tr>
                         )}
                         <tr
-                          className={`border-t border-[#263b56]/60 ${entry.index === own?.index ? "bg-[#1b2e45]" : ""}`}
+                          className={`border-t border-[#263b56]/60 ${entry.rank === own?.rank ? "bg-[#1b2e45]" : ""}`}
                         >
                           <td className="px-4 py-3">
-                            <Rank number={entry.index + 1} />
+                            <Rank number={entry.rank} />
                           </td>
                           <td className="px-4 py-3">
                             <InvestorName
                               entry={entry}
-                              isYou={entry.index === own?.index}
+                              isYou={entry.rank === own?.rank}
                             />
                           </td>
                           <td className="px-4 py-3 text-right">
