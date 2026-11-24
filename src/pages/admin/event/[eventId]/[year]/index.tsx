@@ -1,10 +1,13 @@
 import { useRouter } from "next/router";
 import { DataTable } from "@/components/RegistrationTable/data-table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { GetServerSideProps } from "next";
 import { fetchBackend } from "@/lib/db";
-import { eventRegistrationsEndpoint } from "@/lib/registrationQuery";
+import {
+  eventRegistrationsEndpoint,
+  type RegistrationStatusUpdate,
+} from "@/lib/registrationQuery";
 import { Button } from "@/components/ui/button";
 import { SortableHeader } from "@/components/RegistrationTable/SortableHeader";
 import { Registration } from "@/types/types";
@@ -31,19 +34,62 @@ type Props = {
   eventData: any | null;
 };
 
-export default function AdminEvent({ initialData, eventData }: Props) {
+export default function AdminEvent(props: Props) {
   const router = useRouter();
+  return (
+    <EventDashboard
+      key={`${router.query.eventId}/${router.query.year}`}
+      {...props}
+    />
+  );
+}
+
+function EventDashboard({ initialData, eventData }: Props) {
+  const router = useRouter();
+  const eventId = router.query.eventId as string;
+  const year = router.query.year as string;
   const [isLoading, setLoading] = useState(!initialData);
-  const [data, setData] = useState<Registration[] | null>(initialData);
+  const [registrations, setRegistrations] = useState(initialData ?? []);
+  const data = initialData === null ? null : registrations;
+  const readVersion = useRef(0);
   const [dynamicColumns, setDynamicColumns] = useState<
     ColumnDef<Registration>[]
   >([]);
 
+  const refreshTable = useCallback(async () => {
+    const version = ++readVersion.current;
+    try {
+      const response = await fetchBackend({
+        endpoint: eventRegistrationsEndpoint(eventId, year),
+        method: "GET",
+        authenticatedCall: false,
+      });
+      if (version === readVersion.current) setRegistrations(response.data);
+    } catch (error) {
+      console.error("Failed to refresh table data:", error);
+    }
+  }, [eventId, year]);
+
+  const applyRegistrationStatuses = (updates: RegistrationStatusUpdate[]) => {
+    if (updates.length === 0) return;
+    // A list read already in flight can predate the confirmed write.
+    readVersion.current += 1;
+    const statuses = new Map(
+      updates.map(({ email, registrationStatus }) => [
+        email,
+        registrationStatus,
+      ]),
+    );
+    setRegistrations((rows) =>
+      rows.map((row) => {
+        const registrationStatus = statuses.get(row.id);
+        return registrationStatus ? { ...row, registrationStatus } : row;
+      }),
+    );
+  };
+
   useEffect(() => {
     if (router.isReady) {
-      const eventId = router.query.eventId as string;
-      const year = router.query.year as string;
-
       if (eventId && year) {
         fetchBackend({
           endpoint: `/events/${eventId}/${year}`,
@@ -74,7 +120,7 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         });
       }
     }
-  }, [router.isReady, router.query.eventId, router.query.year]);
+  }, [router.isReady, eventId, year]);
 
   if (!router.isReady) return null;
 
@@ -130,7 +176,10 @@ export default function AdminEvent({ initialData, eventData }: Props) {
         </div>
       ) : (
         <DataTable
-          initialData={data}
+          data={data}
+          setData={setRegistrations}
+          refreshTable={refreshTable}
+          applyRegistrationStatuses={applyRegistrationStatuses}
           dynamicColumns={dynamicColumns}
           eventId={router.query.eventId as string}
           year={router.query.year as string}
