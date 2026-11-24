@@ -22,11 +22,13 @@ import { TimePickerDemo } from "@/components/ui/time-picker";
 interface FormDatePickerProps {
   name: string;
   label: string;
+  dependentField?: string;
 }
 
 export const FormDatePicker: React.FC<FormDatePickerProps> = ({
   name,
   label,
+  dependentField,
 }) => {
   const { control } = useFormContext();
   const timeZone = "America/Los_Angeles"; // Pacific Time
@@ -35,8 +37,9 @@ export const FormDatePicker: React.FC<FormDatePickerProps> = ({
     <FormField
       control={control}
       name={name}
+      rules={{ deps: dependentField }}
       render={({ field }) => (
-        <FormItem className="flex flex-col">
+        <FormItem data-event-field={name} className="flex flex-col">
           <FormLabel className="py-4">{label}</FormLabel>
           <Popover>
             <PopoverTrigger asChild>

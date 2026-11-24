@@ -28,10 +28,10 @@ const EditEventPage: NextPage = () => {
     question: q.label, // Convert back to v2 format
     required: q.required,
     options: q.choices ? q.choices.split(",") : [], // Convert string back to array
-    charLimit: q.charLimit,
+    charLimit: q.charLimit ?? undefined,
     questionImageUrl: q.questionImageUrl || "",
-    participantCap: q.participantCap,
-    isSkillsQuestion: q.isSkillsQuestion,
+    participantCap: q.participantCap ?? undefined,
+    isSkillsQuestion: q.isSkillsQuestion ?? undefined,
   });
 
   useEffect(() => {
@@ -104,17 +104,7 @@ const EditEventPage: NextPage = () => {
   }, [eventId, year, toast]);
 
   const handleSubmit = async (data: EventFormSchema) => {
-    if (!eventId || !year) return;
-
-    // Validation checks
-    if (data.endDate < data.startDate) {
-      toast({
-        title: "Validation Error",
-        description: "End date must be after start date",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!eventId || !year) throw new Error("Event details are unavailable.");
 
     if (data.deadline > data.startDate) {
       toast({
@@ -128,71 +118,62 @@ const EditEventPage: NextPage = () => {
       data.customQuestions,
     );
 
-    try {
-      const body = {
-        ename: data.eventName,
-        description: data.description,
-        partnerDescription: data.partnerDescription,
-        capac: data.capacity,
-        elocation: data.location,
-        imageUrl: data.imageUrl,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        deadline: data.deadline,
-        pricing: {
-          members: Number(data.price) || 0,
-          ...(data.nonBizTechAllowed && {
-            nonMembers:
-              data.nonMemberPrice != null
-                ? Number(data.nonMemberPrice)
-                : Number(data.price) || 0,
-          }),
-        },
-        registrationFormKey: data.registrationFormKey,
-        partnerRegistrationFormKey: data.partnerRegistrationFormKey,
-        registrationQuestions: getRegistrationQuestions(
-          data.registrationFormKey,
-          defaultRegistrationQuestions,
-        ),
-        partnerRegistrationQuestions: getPartnerRegistrationQuestions(
-          data.partnerRegistrationFormKey,
-          transformEventFormQuestions(data.partnerCustomQuestions),
-        ),
-        isApplicationBased: data.isApplicationBased,
-        nonBizTechAllowed: data.nonBizTechAllowed,
-        isPublished: data.isPublished,
-        isCompleted: data.isCompleted,
-        eventPage: data.eventPage,
-      };
+    const body = {
+      ename: data.eventName,
+      description: data.description,
+      partnerDescription: data.partnerDescription,
+      capac: data.capacity,
+      elocation: data.location,
+      imageUrl: data.imageUrl,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      deadline: data.deadline,
+      pricing: {
+        members: Number(data.price) || 0,
+        ...(data.nonBizTechAllowed && {
+          nonMembers:
+            data.nonMemberPrice != null
+              ? Number(data.nonMemberPrice)
+              : Number(data.price) || 0,
+        }),
+      },
+      registrationFormKey: data.registrationFormKey,
+      partnerRegistrationFormKey: data.partnerRegistrationFormKey,
+      registrationQuestions: getRegistrationQuestions(
+        data.registrationFormKey,
+        defaultRegistrationQuestions,
+      ),
+      partnerRegistrationQuestions: getPartnerRegistrationQuestions(
+        data.partnerRegistrationFormKey,
+        transformEventFormQuestions(data.partnerCustomQuestions),
+      ),
+      isApplicationBased: data.isApplicationBased,
+      nonBizTechAllowed: data.nonBizTechAllowed,
+      isPublished: data.isPublished,
+      isCompleted: data.isCompleted,
+      eventPage: data.eventPage,
+    };
 
-      const result = await fetchBackend({
-        endpoint: `/events/${eventId}/${year}`,
-        method: "PATCH",
-        data: body,
-      });
+    const result = await fetchBackend({
+      endpoint: `/events/${eventId}/${year}`,
+      method: "PATCH",
+      data: body,
+    });
 
-      toast({
-        title: "Success",
-        description: result.message,
-      });
+    toast({
+      title: "Event saved",
+      description: result?.message,
+    });
 
-      // Instead of reloading, update the initialData state
-      const savedData = {
-        ...data,
-        partnerCustomQuestions: body.partnerRegistrationQuestions.map(
-          transformBackendQuestion,
-        ),
-      };
-      setInitialData(savedData);
-      return savedData;
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update event",
-        variant: "destructive",
-      });
-      throw error; // Rethrow to handle in the form component
-    }
+    // Instead of reloading, update the initialData state
+    const savedData = {
+      ...data,
+      partnerCustomQuestions: body.partnerRegistrationQuestions.map(
+        transformBackendQuestion,
+      ),
+    };
+    setInitialData(savedData);
+    return savedData;
   };
 
   return (

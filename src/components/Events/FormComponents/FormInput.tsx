@@ -31,7 +31,7 @@ export const FormInput: React.FC<FormInputProps> = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem data-event-field={name}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input

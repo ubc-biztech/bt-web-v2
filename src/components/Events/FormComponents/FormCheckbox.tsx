@@ -26,7 +26,10 @@ export const FormCheckbox: React.FC<FormCheckboxProps> = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-row items-start gap-2">
+        <FormItem
+          data-event-field={name}
+          className="flex flex-row items-start gap-2"
+        >
           <FormControl>
             <Checkbox
               checked={field.value}

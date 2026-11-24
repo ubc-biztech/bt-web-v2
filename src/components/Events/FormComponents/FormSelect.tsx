@@ -33,28 +33,25 @@ export const FormSelect: React.FC<FormSelectProps> = ({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem data-event-field={name}>
           <FormLabel>{label}</FormLabel>
-          <FormControl>
-            <Select
-              onValueChange={field.onChange}
-              value={field.value?.toString() || ""} // Convert value to string and provide fallback
-            >
-              <SelectTrigger className="text-white">
+          <Select
+            onValueChange={field.onChange}
+            value={field.value?.toString() || ""}
+          >
+            <FormControl>
+              <SelectTrigger className="text-white" ref={field.ref}>
                 <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
               </SelectTrigger>
-              <SelectContent>
-                {options.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value.toString()} // Ensure value is string
-                  >
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
+            </FormControl>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value.toString()}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <FormMessage />
         </FormItem>
       )}

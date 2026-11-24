@@ -27,7 +27,7 @@ export const FormTextarea: React.FC<FormTextareaProps> = ({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem data-event-field={name}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Textarea
