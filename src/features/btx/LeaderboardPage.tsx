@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Fragment } from "react";
 import { usePortfolio } from "./accountQueries";
-import { StatusBanner } from "./BtxUI";
+import styles from "./Leaderboard.module.css";
+import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import type { MarketPageProps } from "./Kickstart2026";
 import { exchangePath, money } from "./market";
 import {
@@ -11,35 +12,23 @@ import {
   type LeaderboardEntry,
 } from "./seedApi";
 
-const panel = "rounded-2xl border border-[#263b56] bg-[#10192c]/90";
-const medals = [
-  "border-[#ffe48b]/35 bg-[#ffe48b]/10 text-[#ffddad]",
-  "border-[#c8d9f0]/35 bg-[#c8d9f0]/10 text-[#e1ebf8]",
-  "border-[#d9a77c]/35 bg-[#d9a77c]/10 text-[#f4c8a5]",
-];
+const panel = "rounded-[20px] border border-[#82c3fb]/[.22] bg-[#17213f]/30";
+const subtitle = "Ranked by total profit / loss.";
+const updateNote = " Updates about once a minute.";
 
 function Profit({ cents }: { cents: number }) {
   const color =
     cents > 0 ? "text-[#38d3a2]" : cents < 0 ? "text-[#ff5c7a]" : "";
   return (
-    <span className={color + " tabular-nums"}>
+    <span className={color + " whitespace-nowrap tabular-nums"}>
       {cents > 0 ? "+" : ""}
       {money(cents)}
     </span>
   );
 }
 
-function Rank({ number, medal = false }: { number: number; medal?: boolean }) {
-  const color = medal
-    ? medals[number - 1]
-    : "border-[#426181] bg-[#20324d] text-[#b5c1da]";
-  return (
-    <span
-      className={`inline-grid size-7 place-items-center rounded-full border text-xs ${color}`}
-    >
-      {number}
-    </span>
-  );
+function Rank({ number }: { number: number }) {
+  return <span className={styles.rank}>{number}</span>;
 }
 
 function InvestorName({
@@ -52,16 +41,17 @@ function InvestorName({
   return (
     <>
       {entry.displayName}
-      {isYou && (
-        <span className="ml-2 rounded-full bg-[#89dcff] px-2 py-0.5 text-xs text-[#081221]">
-          You
-        </span>
-      )}
+      {isYou && <span className={styles.you}>You</span>}
     </>
   );
 }
 
-export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
+export function LeaderboardPage({
+  market,
+  userId,
+  isAdmin,
+  initials,
+}: MarketPageProps) {
   const live = market.phase === "LIVE";
   const result = useQuery({
     queryKey: ["btx", market.eventId, "leaderboard", userId],
@@ -90,19 +80,27 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
     .sort((a, b) => a.rank - b.rank);
 
   return (
-    <div className="space-y-4">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-4xl font-medium tracking-tight">Leaderboard</h1>
-          <p className="mt-1 text-sm text-[#a8b5d6]">
-            Ranked by total profit / loss.
-            {rankingsOpen && " Updates about once a minute."}
+    <div className={styles.page}>
+      <header className={styles.header}>
+        <MobilePageTitle
+          title="Leaderboard"
+          detail={subtitle + updateNote}
+          initials={initials}
+        />
+        <div className="hidden md:block">
+          <h1 className={styles.title}>Leaderboard</h1>
+          <p className="mt-1 text-[14px] text-[#a8b5d6]">
+            {subtitle}
+            {rankingsOpen && updateNote}
           </p>
         </div>
         {rankingsOpen && own && (
-          <span className="rounded-full border border-[#426181] px-3 py-1.5 text-xs">
-            Your rank · #{own.rank} of {board?.traders}
-          </span>
+          <div className={styles.ownRank}>
+            <span>Your rank</span>
+            <div>
+              <strong>#{own.rank}</strong> of {board?.traders}
+            </div>
+          </div>
         )}
       </header>
       {isAdmin === undefined ? (
@@ -131,29 +129,29 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
           <StatusBanner
             tone="info"
             title="Rankings go live at IPO"
-            description="During seeding, profit and loss primarily reflect trading fees. Check back when live trading opens."
+            description="Until then, the leaderboard shows no P&L. Check back once trading opens."
           />
-          <div
-            className={
-              panel + " grid place-items-center gap-3 py-14 px-5 text-center"
-            }
-          >
-            <span
-              aria-hidden
-              className="grid size-12 place-items-center rounded-full border border-[#426181] bg-[#20324d] text-xl text-[#89dcff]"
-            >
+          <section className={styles.empty}>
+            <span aria-hidden className={styles.emptyIcon}>
               #
             </span>
-            <h2 className="text-xl font-medium">
-              The leaderboard opens at IPO
+            <h2>
+              <span className="md:hidden">No rankings yet</span>
+              <span className="hidden md:inline">
+                The leaderboard opens at IPO
+              </span>
             </h2>
+            <p className="md:hidden">
+              You’ll see where you stand as soon as live trading opens.
+            </p>
             {isAdmin === false && portfolio.data && (
-              <p className="text-sm text-[#a8b5d6]">
+              <p className="hidden md:block">
                 Your profit / loss right now is{" "}
-                <Profit cents={portfolio.data.totalPnlCents} />.
+                <Profit cents={portfolio.data.totalPnlCents} /> (fees only).
+                Check back after IPO to see where you rank.
               </p>
             )}
-          </div>
+          </section>
         </>
       ) : !board ? (
         result.isError ? (
@@ -172,36 +170,31 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
         </div>
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className={styles.podium}>
             {podium.map((entry) => (
-              <article
-                key={entry.rank}
-                className={`rounded-2xl border p-5 ${medals[entry.rank - 1]}`}
-              >
-                <h2 className="flex items-center gap-2 text-sm">
-                  <Rank number={entry.rank} medal />
+              <article key={entry.rank} data-rank={entry.rank}>
+                <Rank number={entry.rank} />
+                <h2>
                   <InvestorName
                     entry={entry}
                     isYou={entry.rank === own?.rank}
                   />
                 </h2>
-                <p className="mb-1 mt-3 text-xs text-[#a8b5d6]">
-                  Total profit / loss
-                </p>
-                <p className="text-2xl font-medium">
+                <small>Total profit / loss</small>
+                <p>
                   <Profit cents={entry.totalPnlCents} />
                 </p>
               </article>
             ))}
           </div>
-          <div className={panel + " overflow-hidden"}>
+          <div className={styles.results}>
             {!!rows.length && (
-              <div className="overflow-x-auto">
+              <div className="md:overflow-x-auto">
                 <table
                   aria-label="Investor rankings"
-                  className="w-full whitespace-nowrap text-sm"
+                  className="w-full text-[14px]"
                 >
-                  <thead className="bg-[#172339] text-left text-xs text-[#a8b5d6]">
+                  <thead className="bg-[#172339] text-left text-[12px] text-[#a8b5d6]">
                     <tr>
                       <th scope="col" className="px-4 py-3">
                         Rank
@@ -219,7 +212,7 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
                       <Fragment key={entry.rank}>
                         {entry.rank >
                           (rows[index - 1]?.rank ?? lastPodiumRank) + 1 && (
-                          <tr className="border-t border-[#263b56]/60">
+                          <tr className={styles.gap}>
                             <td
                               colSpan={3}
                               className="py-2 text-center text-[#a8b5d6]"
@@ -230,7 +223,8 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
                           </tr>
                         )}
                         <tr
-                          className={`border-t border-[#263b56]/60 ${entry.rank === own?.rank ? "bg-[#1b2e45]" : ""}`}
+                          className={styles.row}
+                          data-own={entry.rank === own?.rank}
                         >
                           <td className="px-4 py-3">
                             <Rank number={entry.rank} />
@@ -251,9 +245,10 @@ export function LeaderboardPage({ market, userId, isAdmin }: MarketPageProps) {
                 </table>
               </div>
             )}
-            <p className="border-t border-[#263b56]/60 px-4 py-3 text-xs text-[#a8b5d6]">
-              Profit / loss is cash plus holdings value minus total allocated
-              funds. Grants increase your allocation and don’t count as profit.
+            <p className={styles.note}>
+              Rank = cash + holdings − money allocated to you. Admin grants
+              don’t count as profit. Only rank, display name and profit / loss
+              are public.
             </p>
           </div>
         </>
