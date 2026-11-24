@@ -9,7 +9,6 @@ import Kickstart2026, {
   SearchRoute,
   CompanyRoute,
 } from "@/features/btx/Kickstart2026";
-import TeamRoute from "@/features/btx/TeamPage";
 import Kickstart2025 from "@/features/kickstart/2025/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 import BluePrint2026 from "@/features/blueprint/2026/BluePrint2026";
@@ -83,7 +82,6 @@ const Events: Event[] = [
       "btx/catalog": CatalogRoute,
       "btx/search": SearchRoute,
       "btx/company/[projectId]": CompanyRoute,
-      "btx/my-company": TeamRoute,
     },
     options: {
       title: "KickStart 2026",

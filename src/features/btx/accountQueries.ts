@@ -4,7 +4,6 @@ import { useUserAttributes } from "@/queries/user";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/user";
-import { isBtxRegistrationStatus } from "./market";
 
 export function useBtxProfile(userId: string) {
   const { data: user } = useQuery({
@@ -21,7 +20,7 @@ export function useBtxProfile(userId: string) {
   const registration = registrations?.find(
     (row) =>
       row["eventID;year"] === "kickstart;2026" &&
-      isBtxRegistrationStatus(row.registrationStatus),
+      row.registrationStatus === "acceptedComplete",
   ) as { teamID?: string } | undefined;
 
   return { user, registration };
