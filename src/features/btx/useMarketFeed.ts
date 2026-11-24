@@ -5,10 +5,10 @@ import type { Market, PricePoint } from "./seedApi";
 const socketUrl = process.env.NEXT_PUBLIC_BTX_WS_URL;
 const snapshotKey = ["btx", "snapshot"];
 
-type Connection = "online" | "reconnecting" | "offline";
+type Connection = "online" | "reconnecting" | "offline" | "balance-error";
 type Prices = Record<string, PricePoint>;
 
-export function useMarketFeed(eventId?: string) {
+export function useMarketFeed(userId: string, eventId?: string) {
   const client = useQueryClient();
   const retry = useRef<() => void>(() => {});
   const [connection, setConnection] = useState<Connection>("online");
@@ -29,6 +29,7 @@ export function useMarketFeed(eventId?: string) {
     const received: Prices = {};
 
     function disconnect() {
+      retry.current = connect;
       recoveryId++;
       window.clearTimeout(retryTimer);
       window.clearTimeout(connectTimer);
@@ -63,11 +64,27 @@ export function useMarketFeed(eventId?: string) {
             predicate: ({ queryKey }) =>
               queryKey[0] === "btx-seed" &&
               queryKey[1] === eventId &&
-              (queryKey[3] === "portfolio" || queryKey[3] === "order"),
+              queryKey[3] === "order",
           }),
         ]);
         if (stopped || id !== recoveryId || !navigator.onLine) return;
 
+        try {
+          await client.invalidateQueries(
+            {
+              queryKey: ["btx-seed", eventId, userId, "portfolio"],
+              exact: true,
+            },
+            { throwOnError: true },
+          );
+        } catch {
+          if (stopped || id !== recoveryId) return;
+          markInterrupted("balance-error");
+          retry.current = recover;
+          return;
+        }
+        if (stopped || id !== recoveryId || !navigator.onLine) return;
+        retry.current = connect;
         failures = 0;
         setConnection("online");
         if (interrupted) {
@@ -194,7 +211,7 @@ export function useMarketFeed(eventId?: string) {
       window.removeEventListener("online", connect);
       window.removeEventListener("offline", offline);
     };
-  }, [client, eventId]);
+  }, [client, eventId, userId]);
 
   return {
     connection,
@@ -216,13 +233,7 @@ export function applyLivePrices(market: Market, prices: Prices): Market {
       ...project,
       lastPriceTs: point.ts,
       currentPriceCents: point.priceCents,
-      marketCapCents: point.priceCents * (project.netShares ?? 0),
     };
   });
-  return changed
-    ? {
-        ...market,
-        projects: projects.sort((a, b) => b.marketCapCents - a.marketCapCents),
-      }
-    : market;
+  return changed ? { ...market, projects } : market;
 }

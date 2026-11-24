@@ -87,7 +87,10 @@ function MarketLayout({
       ? snapshot.errorUpdatedAt
       : null;
   const retrySnapshot = () => void snapshot.refetch({ cancelRefetch: false });
-  const feed = useMarketFeed(adminOnly ? undefined : snapshot.data?.eventId);
+  const feed = useMarketFeed(
+    userId,
+    adminOnly ? undefined : snapshot.data?.eventId,
+  );
   const marketData = useMemo(
     () => snapshot.data && applyLivePrices(snapshot.data, feed.prices),
     [snapshot.data, feed.prices],
@@ -115,13 +118,23 @@ function MarketLayout({
           {!marketData && (
             <MobilePageTitle title="Exchange" initials={initials} />
           )}
-          {marketData && feed.connection !== "online" && (
-            <ConnectionNotice
-              connection={feed.connection}
-              lastUpdate={lastUpdate ?? marketData.serverTime}
-              retry={feed.retry}
-            />
-          )}
+          {marketData &&
+            (feed.connection === "balance-error" ? (
+              <StatusBanner
+                tone="warning"
+                title="Couldn’t refresh your balance"
+                description="Refresh your cash and holdings to resume trading."
+                onRetry={feed.retry}
+              />
+            ) : (
+              feed.connection !== "online" && (
+                <ConnectionNotice
+                  connection={feed.connection}
+                  lastUpdate={lastUpdate ?? marketData.serverTime}
+                  retry={feed.retry}
+                />
+              )
+            ))}
           {feed.backOnline && <BackOnlineToast />}
           {adminOnly && !isAdmin ? (
             <StatusBanner

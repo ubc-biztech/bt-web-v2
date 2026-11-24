@@ -42,7 +42,11 @@ function TradeForm({
   ticket,
 }: TradeTicketProps) {
   const companyPath = useRouter().asPath;
-  const { data: portfolio } = usePortfolio(market.eventId, userId);
+  const balance = usePortfolio(market.eventId, userId);
+  const portfolio =
+    balance.isSuccess && !balance.isFetching && !ticket.paused
+      ? balance.data
+      : undefined;
   const holding = portfolio?.holdings.find(
     (h) => h.projectId === company.projectId,
   )?.shares;
@@ -86,7 +90,8 @@ function TradeForm({
       : undefined;
   const actionEnabled = ticket.orderNotFound
     ? !ticket.busy && !ticket.paused
-    : !fetchingQuote && (canConfirm ? !balanceError : ticket.canQuote);
+    : !fetchingQuote &&
+      (canConfirm ? !!portfolio && !balanceError : ticket.canQuote);
 
   let orderLabel = preview ? "Refresh price" : "Get quote";
   if (fetchingQuote) orderLabel = "Getting price…";
@@ -94,6 +99,8 @@ function TradeForm({
   else if (ticket.paused) orderLabel = "Waiting for connection";
   else if (ticket.orderNotFound) orderLabel = "Retry original order";
   else if (ticket.order) orderLabel = "Checking order…";
+  else if (canConfirm && !portfolio)
+    orderLabel = balance.isError ? "Balance unavailable" : "Checking balance…";
   else if (canConfirm && preview) {
     orderLabel = ticket.priceChanged
       ? `Confirm at new price · ${money(preview.priceCents)}`
@@ -244,6 +251,14 @@ function TradeForm({
           tone="info"
           title="Your team"
           description="You can’t invest in your own company."
+        />
+      )}
+      {balance.isError && !ticket.paused && !ticket.order && (
+        <StatusBanner
+          tone="warning"
+          title="Couldn’t refresh your balance"
+          onRetry={() => void balance.refetch()}
+          retrying={balance.isFetching}
         />
       )}
       {!lockedSell && notice && (
