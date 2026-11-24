@@ -1,6 +1,11 @@
 import type { Company, Market } from "./seedApi";
+import { DBRegistrationStatus } from "@/types/types";
 
 export const exchangePath = "/companion/kickstart/2026/btx";
+
+export const isBtxRegistrationStatus = (status: unknown) =>
+  status === DBRegistrationStatus.ACCEPTED_COMPLETE ||
+  status === DBRegistrationStatus.CHECKED_IN;
 
 export const companyName = (p: Company) =>
   p.companyName || p.name || p.projectId;
