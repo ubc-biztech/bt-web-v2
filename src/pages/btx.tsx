@@ -22,7 +22,7 @@ import {
   Area,
   ReferenceLine,
 } from "recharts";
-import { Instrument_Serif, Bricolage_Grotesque } from "next/font/google";
+import { Instrument_Serif } from "next/font/google";
 
 import { useBtxExchange } from "@/hooks/useBtxExchange";
 import { Button } from "@/components/ui/button";
@@ -36,17 +36,13 @@ import {
   ChartConfig,
 } from "@/components/ui/btx-chart";
 import { fetchBackend } from "@/lib/db";
+import { bricolageGrotesque } from "@/styles/fonts";
 
 const EVENT_ID = "kickstart";
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
-});
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 const chartConfig = {

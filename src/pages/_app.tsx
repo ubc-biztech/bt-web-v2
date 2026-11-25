@@ -5,17 +5,11 @@ import type { AppProps } from "next/app";
 import Layout from "./layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Urbanist } from "next/font/google";
+import { Instrument_Serif, Urbanist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-
-import { Bricolage_Grotesque, Instrument_Serif } from "next/font/google";
 import { QueryProvider } from "@/lib/queryProvider";
-
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  variable: "--font-bricolage",
-});
+import { bricolageGrotesque } from "@/styles/fonts";
 
 const instrument = Instrument_Serif({
   subsets: ["latin"],
@@ -145,7 +139,7 @@ export default function App({ Component, pageProps }: AppProps) {
       ) : null}
 
       <main
-        className={`${isCompanionPath && !isProductPlusPath ? "dark" : ""} ${isKickstartPath ? `${bricolage.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
+        className={`${isCompanionPath && !isProductPlusPath ? "dark" : ""} ${isKickstartPath ? `${bricolageGrotesque.variable} ${instrument.variable}` : ""} ${urbanist.className}`}
       >
         <div className={isCompanionPath ? "min-h-screen" : ""}>
           <Component {...pageProps} />

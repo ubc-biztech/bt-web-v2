@@ -17,17 +17,13 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Instrument_Serif, Bricolage_Grotesque } from "next/font/google";
+import { Instrument_Serif } from "next/font/google";
+import { bricolageGrotesque } from "@/styles/fonts";
 import type { TeamStock } from "@/types/investment";
 
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   weight: "400",
-});
-
-const bricolageGrotesque = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 const mockTeams: TeamStock[] = [
