@@ -53,7 +53,6 @@ export function useTradeOrder(
   const seedOpen =
     market.phase === "SEED" &&
     company?.seedStatus === "ACTIVE" &&
-    now < (company.seedEndsAt ?? 0) &&
     now < market.eventEndsAt;
   const canQuote =
     !!userId &&

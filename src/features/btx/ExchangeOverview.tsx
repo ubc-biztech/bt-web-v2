@@ -16,8 +16,7 @@ const seedStages = {
   },
   closed: {
     title: "Seeding is closed",
-    description:
-      "All seed windows have ended. Selling and open trading start when IPO launches on Pitch Day.",
+    description: "Companies and their seed totals are still available to browse.",
     badge: "Seeding closed",
     tone: "ended",
   },
@@ -31,7 +30,7 @@ const seedStages = {
   waiting: {
     title: "Seeding hasn’t started",
     description:
-      "Each team opens its own 30-minute seed window after kickoff. Browse the pitches while you wait.",
+      "Teams can open seed funding after kickoff. Browse the pitches while you wait.",
     badge: "Seeding not started",
     tone: "neutral",
   },
@@ -52,7 +51,7 @@ export function ExchangeOverview({
   const description =
     projects.length || (stage !== "waiting" && stage !== "live")
       ? seedStage.description
-      : "Companies show up here once teams create them. A team’s seed window starts when it chooses to start.";
+      : "Companies show up here once teams create them. Buying opens as teams start seeding.";
   const featured = projects[0];
 
   return (
@@ -134,7 +133,7 @@ function MarketTimeline({ stage }: { stage: MarketStage }) {
       "seeding",
       "Seeding",
       ipo
-        ? "Seed windows ended"
+        ? "Seed round closed"
         : stage === "open"
           ? "Now: seed round"
           : "Opens after kickoff",

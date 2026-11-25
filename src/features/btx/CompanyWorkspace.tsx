@@ -43,7 +43,7 @@ import {
   type CompanyProfileFields,
   type ProfileErrors,
 } from "./companyProfile";
-import { exchangePath, timeLeft, windowState } from "./market";
+import { exchangePath, windowState } from "./market";
 import { market, type Market, type Company } from "./seedApi";
 import {
   KICKSTART_EVENT_ID,
@@ -132,7 +132,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   const [seedConfirmation, setSeedConfirmation] = useState(false);
   const [clock, setClock] = useState(Date.now());
   const writeInFlight = useRef(false);
-  const expiryRefreshed = useRef("");
+  const expiryRefreshed = useRef(false);
   // Let profile refreshes inspect current edits without rerunning on each edit.
   const currentForm = useRef(form);
   currentForm.current = form;
@@ -233,24 +233,11 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
 
   useEffect(() => {
     // Manual refetches bypass enabled, so defer expiry reads during a write too.
-    if (action !== null) return;
-    const expiry = closed
-      ? "event"
-      : seedState === "ENDED"
-        ? `seed:${company?.seedEndsAt}`
-        : "";
-    if (!expiry || expiryRefreshed.current === expiry) return;
-    expiryRefreshed.current = expiry;
+    if (action !== null || !closed || expiryRefreshed.current) return;
+    expiryRefreshed.current = true;
     void refetchProfile();
     void refetchSnapshot();
-  }, [
-    action,
-    closed,
-    seedState,
-    company?.seedEndsAt,
-    refetchProfile,
-    refetchSnapshot,
-  ]);
+  }, [action, closed, refetchProfile, refetchSnapshot]);
 
   async function readProfile() {
     const latest = await getCompanyProfile(projectId);
@@ -417,14 +404,14 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
       );
       setNotice({
         tone: "success",
-        title: "Your seed window has started",
+        title: "Your seed round has started",
         description:
-          "The original start and end times are shown below. Company name and membership are now locked.",
+          "Investors can buy until IPO or the event cutoff. Your company name and team membership are now locked.",
       });
       await Promise.allSettled([refreshProfile(), snapshot.refetch()]);
       refreshMembership();
     } catch (error) {
-      reportWriteError(error, "Couldn’t confirm the seed window");
+      reportWriteError(error, "Couldn’t confirm seeding");
       const result = await snapshot.refetch();
       const latest =
         result.isSuccess && result.data.eventId === KICKSTART_EVENT_KEY
@@ -436,9 +423,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
       ) {
         setNotice({
           tone: "info",
-          title: "Your seed window is already recorded",
-          description:
-            "We reloaded its original times. No second window was started.",
+          title: "Your seed round has already started",
         });
       }
       await refreshProfile().catch(() => undefined);
@@ -822,19 +807,15 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
             >
               <div>
                 <p>
-                  This opens your company’s one 30-minute, buy-only seed window.
-                  It can’t be paused, restarted, or extended. Global IPO
-                  preparation can close it early.
+                  Investors can buy at the seed price until IPO preparation or
+                  the event cutoff.
                 </p>
                 <p>
                   Your company name and team membership will lock permanently.
                   Other valid profile edits remain available until the event
                   deadline.
                 </p>
-                <p>
-                  Starting uses your saved profile. Ending the seed window
-                  doesn’t start the global IPO.
-                </p>
+                <p>Starting uses your saved profile.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -903,14 +884,13 @@ function SeedRound({
   const globalIpo =
     snapshot && (snapshot.phase !== "SEED" || snapshot.ipoAt !== null);
   let title = "Start your seed round";
-  let description =
-    "Open your one 30-minute, buy-only seed window when your company is ready.";
+  let description = "Open seed funding when your company is ready.";
   if (unavailable) {
     title = "Seed status unavailable";
-    description = "Reload market status before starting a seed window.";
+    description = "Reload market status before starting seeding.";
   } else if (closed) {
     title = "The event has ended";
-    description = "A new seed window can’t be started.";
+    description = "Seed funding is closed.";
   } else if (snapshot?.phase === "LIVE") {
     title = "Global IPO is live";
     description =
@@ -920,13 +900,11 @@ function SeedRound({
     description =
       "Seeding has closed. Company name and team membership remain locked.";
   } else if (state === "ACTIVE") {
-    title = `Seeding · ${timeLeft(company!, now)} remaining`;
-    description =
-      "Investors can buy during this window. It can’t be paused, restarted, or extended.";
+    title = "Seeding is open";
+    description = "Investors can buy until IPO preparation or the event cutoff.";
   } else if (state === "ENDED") {
-    title = "Your seed window has ended";
-    description =
-      "Wait for the global IPO. Your company name and team membership remain locked; the window can’t be restarted.";
+    title = "Seed funding is closed";
+    description = "Your company name and team membership remain locked.";
   } else if (dirty)
     description =
       "Save or discard your changes before starting seeding. Starting never saves your draft automatically.";
@@ -946,14 +924,11 @@ function SeedRound({
         <p className="max-w-3xl text-[13px] leading-5 text-[#b5c1da]">
           {description}
         </p>
-        {typeof company?.seedStartedAt === "number" &&
-          typeof company.seedEndsAt === "number" && (
-            <p className="text-[12px] text-[#98a9c8]">
-              Original window:{" "}
-              {new Date(company.seedStartedAt).toLocaleString()} –{" "}
-              {new Date(company.seedEndsAt).toLocaleString()} (your local time).
-            </p>
-          )}
+        {typeof company?.seedStartedAt === "number" && (
+          <p className="text-[12px] text-[#98a9c8]">
+            Started {new Date(company.seedStartedAt).toLocaleString()}.
+          </p>
+        )}
       </div>
       {unavailable ? (
         <Button

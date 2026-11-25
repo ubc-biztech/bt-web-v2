@@ -1,5 +1,5 @@
 import styles from "./btx.module.css";
-import { compactMoney, companyName, windowState, timeLeft } from "./market";
+import { compactMoney, companyName, windowState } from "./market";
 import { CompanyPhoto } from "./BtxUI";
 
 import type { Company } from "./seedApi";
@@ -62,9 +62,7 @@ export function TopFunded({
         <ol className="grid gap-2 md:grid-cols-3">
           {leaders.map((company) => {
             const windowLabel =
-              windowState(company, now) === "ACTIVE" && company.seedEndsAt
-                ? timeLeft(company, now)
-                : "Ended";
+              windowState(company, now) === "ACTIVE" ? "Open" : "Ended";
             return (
               <li
                 key={company.projectId}

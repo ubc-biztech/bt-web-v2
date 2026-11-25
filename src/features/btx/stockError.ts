@@ -22,15 +22,15 @@ const errors = {
   },
   SEED_NOT_STARTED: {
     tone: "warning",
-    title: "Seed window hasn’t started",
+    title: "Seeding hasn’t started",
     description:
       "This team hasn’t started seeding yet. Buying opens when they do.",
   },
   SEED_WINDOW_ENDED: {
     tone: "warning",
-    title: "Seed window ended",
+    title: "Seed round closed",
     description:
-      "The 30-minute seed window for this team has closed. Buying is no longer available.",
+      "Seed funding has closed for this company.",
   },
   SELL_NOT_AVAILABLE_BEFORE_IPO: {
     tone: "info",

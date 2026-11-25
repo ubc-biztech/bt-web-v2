@@ -4,7 +4,6 @@ import {
   companyName,
   compactMoney,
   percent,
-  timeLeft,
   windowState,
   windowLabel,
   windowPillTone,
@@ -159,7 +158,7 @@ export function ExchangeCard({
       : state === "LIVE"
         ? (priceChange >= 0 ? "+" : "") + priceChange.toFixed(1) + "%"
         : state === "ACTIVE"
-          ? "● " + timeLeft(company, now)
+          ? "● Seeding open"
           : windowLabel(company, now);
   return (
     <>

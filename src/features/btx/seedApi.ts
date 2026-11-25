@@ -15,7 +15,7 @@ export interface Company {
   description?: string;
   youtubeURL?: string;
   seedStatus: "ACTIVE" | "ENDED" | "NOT_STARTED" | "LIVE";
-  seedEndsAt?: number;
+  seedEndsAt?: number | null;
   currentPriceCents: number;
   lastPriceTs?: number;
 }
