@@ -158,7 +158,11 @@ export function useMarketFeed(userId: string, eventId?: string) {
               !Number.isSafeInteger(asOf) ||
               asOf <= 0
             ) {
-              if (update.phase === "LIVE" || update.seedStatus)
+              if (
+                update.phase === "LIVE" ||
+                update.phase === "SEED" ||
+                update.seedStatus
+              )
                 void refreshSnapshot().catch(() => {});
               return;
             }

@@ -178,7 +178,7 @@ export function TeamManagement({
             <StatusBanner
               tone="warning"
               title="Team membership is locked"
-              description="This company has started seeding. Joining, leaving, and removing members stay closed even after its seed window ends. Contact an organizer for changes."
+              description="Team membership locks when a company starts seeding. Contact an organizer for changes."
             />
           ) : membershipState === "ipoLocked" ? (
             <StatusBanner

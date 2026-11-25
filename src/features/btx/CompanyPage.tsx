@@ -1,7 +1,7 @@
 import styles from "./btx.module.css";
 import { MobileTradeSheet } from "./MobileTradeSheet";
 import { TradeTicket } from "./TradeTicket";
-import { compactMoney, countdown, companyName, exchangePath } from "./market";
+import { compactMoney, companyName, exchangePath } from "./market";
 import { useCompanyTeam } from "./accountQueries";
 import { useTradeOrder } from "./useTradeOrder";
 import type { MarketPageProps } from "./Kickstart2026";
@@ -42,16 +42,10 @@ export function CompanyPage({
     return <StatusBanner tone="warning" title="Company not found" />;
   const live = market.phase === "LIVE";
   const launching = market.phase === "IPO_PREPARING";
-  const notStarted = company.seedStatus === "NOT_STARTED";
-  const seedSeconds = notStarted
-    ? 1800
-    : Math.max(
-        0,
-        Math.ceil(
-          (Math.min(company.seedEndsAt ?? now, market.eventEndsAt) - now) /
-            1000,
-        ),
-      );
+  const notStarted =
+    market.phase === "SEED" &&
+    now < market.eventEndsAt &&
+    company.seedStatus === "NOT_STARTED";
   const stage = live
     ? "Live"
     : launching
@@ -144,14 +138,14 @@ export function CompanyPage({
                         ? "IPO is launching"
                         : notStarted
                           ? "This team hasn’t started seeding"
-                          : "Seed window ended"
+                          : "Seed round closed"
                     }
                     description={
                       launching
                         ? "Trading is paused for a moment while prices go live. This page will update on its own."
                         : notStarted
-                          ? "Buying opens once a team member starts their 30-minute seed window."
-                          : "Buying has closed for this team. Selling opens when the IPO launches."
+                          ? "Buying opens once a team member starts seeding."
+                          : "Seed funding for this company is closed."
                     }
                   />
                 </div>
@@ -166,25 +160,25 @@ export function CompanyPage({
                   <span
                     className={`${styles.display} max-md:font-[family-name:var(--btx-font-space-grotesk)] max-md:font-bold text-[34px] font-medium leading-[normal] md:text-[64px] tabular-nums text-white lg:text-[96px]`}
                   >
-                    {launching ? "IPO" : countdown(seedSeconds)}
+                    {launching
+                      ? "IPO"
+                      : notStarted
+                        ? "Waiting"
+                        : ticket.seedOpen
+                          ? "Open"
+                          : "Closed"}
                   </span>
                   <span className="text-[13px] md:text-[15px]">
                     {launching
                       ? "setting opening prices"
                       : notStarted
-                        ? "seed window, once the team starts"
+                        ? "for the team to start seeding"
                         : ticket.seedOpen
-                          ? "left in seed window"
-                          : "seed window closed"}
+                          ? "for seed buys until IPO or event close"
+                          : "for seed funding"}
                   </span>
                 </div>
               </div>
-              <progress
-                aria-label="Seed window elapsed"
-                max={1800}
-                value={launching ? 1800 : Math.max(0, 1800 - seedSeconds)}
-                className="hidden md:block h-2 w-full appearance-none overflow-hidden rounded-full border-0 bg-[#303849] [&::-webkit-progress-bar]:bg-[#303849] [&::-webkit-progress-value]:bg-[#1fbef9] [&::-moz-progress-bar]:bg-[#1fbef9]"
-              />
               <dl className="max-md:rounded-[20px] max-md:border max-md:border-[#82c3fb]/[.22] max-md:bg-[#82c3fb]/5 max-md:p-4 grid gap-3 text-[14px] max-md:[&>div]:flex max-md:[&>div]:items-center max-md:[&>div]:justify-between md:flex md:gap-8 md:text-[24px]">
                 <div>
                   <dt className="text-[11px] text-[#a8b5d6]">Seed funding</dt>

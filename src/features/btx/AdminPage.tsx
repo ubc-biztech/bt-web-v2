@@ -15,13 +15,7 @@ import {
   type BtxRequestError,
   type Market,
 } from "./seedApi";
-import {
-  companyName,
-  exchangePath,
-  money,
-  timeLeft,
-  windowState,
-} from "./market";
+import { companyName, exchangePath, money, windowState } from "./market";
 import s from "./Admin.module.css";
 
 type IpoStage = "seed" | "ready" | "launching" | "unknown" | "live";
@@ -178,7 +172,7 @@ function Timeline({ stage, active }: { stage: IpoStage; active: number }) {
     [
       stage === "seed" ? "Seed round (now)" : "Seed round",
       stage === "seed"
-        ? `${active} team windows still active`
+        ? `${active} accepting seed buys`
         : stage === "unknown" || stage === "launching"
           ? "Closed on launch"
           : "Buy only, fixed price",
@@ -373,9 +367,9 @@ function ResetControl({
         >
           <h2 id="reset-title">Return the market to seed?</h2>
           <p>
-            This restores seed prices and the original seed windows for every
-            company. A settled live trade prevents the reset. You can launch the
-            IPO again later.
+            This restores seed prices and reopens funding for companies that
+            started seeding. A settled live trade prevents the reset. You can
+            launch the IPO again later.
           </p>
           <div className={s.actions}>
             <button
@@ -456,7 +450,7 @@ function IpoPanel({
         <>
           <div className={s.tableBox}>
             <div className={s.tableHeader + " " + s.row}>
-              Seed windows
+              Seed funding
               <span>
                 {active} active · {ended} ended ·{" "}
                 {projects.length - active - ended} not started
@@ -469,13 +463,6 @@ function IpoPanel({
                   return (
                     <tr key={p.projectId}>
                       <td>{companyName(p)}</td>
-                      <td className="text-right text-xs text-[#a8b5d6]">
-                        {state === "ACTIVE"
-                          ? timeLeft(p, now) + " left"
-                          : state === "ENDED" && p.seedEndsAt
-                            ? "Closed " + clockTime(p.seedEndsAt)
-                            : ""}
-                      </td>
                       <td className="text-right">
                         <span
                           className={s.badge}
@@ -503,8 +490,8 @@ function IpoPanel({
           </div>
           <StatusBanner
             tone="warning"
-            title="Some seed windows are still active"
-            description="Launching now will close open seed windows early. Review before you continue."
+            title="IPO closes seed funding for all companies"
+            description="Review the active companies before launching."
           />
         </>
       )}
@@ -665,20 +652,9 @@ function IpoPanel({
           <h2 id="ipo-title">Launch the IPO for KickStart 2026?</h2>
           <p>
             This snapshots net seed shares for {projects.length} companies, sets
-            opening prices, and ends the seed round for everyone.{" "}
-            {active > 0 &&
-              `${active} team seed windows are still active and will close early. `}
-            Trading goes live once every company is ready.
+            opening prices, and ends the seed round for everyone. Trading goes
+            live once every company is ready.
           </p>
-          {active > 0 && (
-            <div className="md:hidden">
-              <StatusBanner
-                tone="warning"
-                title="Some seed windows are still active"
-                description="Launching now will close open seed windows early."
-              />
-            </div>
-          )}
           <label className={s.field}>
             Type “launch” to confirm
             <input
@@ -696,7 +672,7 @@ function IpoPanel({
               Cancel
             </button>
             <button className={s.warm} disabled={!canConfirm}>
-              {active > 0 ? "Launch anyway" : "Launch IPO"}
+              Launch IPO
             </button>
           </div>
         </form>

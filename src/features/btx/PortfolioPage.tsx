@@ -216,7 +216,7 @@ export function PortfolioPage({
                   description={
                     market.phase === "LIVE"
                       ? "Buy shares in a company and it will show up here."
-                      : "Invest in a company during its seed window and it will show up here."
+                      : "Invest in a company during the seed round and it will show up here."
                   }
                   href={exchangePath + "/catalog"}
                   action="Browse catalog"
@@ -238,7 +238,7 @@ export function PortfolioPage({
                 <StatusBanner
                   tone="info"
                   title="Selling is locked until IPO"
-                  description="You can buy during seed windows. Selling opens when the admin launches the IPO."
+                  description="Buy once a company starts seeding. Selling opens at IPO."
                 />
               )}
               <MobileHoldings

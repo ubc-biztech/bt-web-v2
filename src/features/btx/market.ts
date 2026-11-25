@@ -35,17 +35,6 @@ export function windowState(p: Company, now: number) {
     : p.seedStatus;
 }
 
-export function countdown(seconds: number) {
-  return [Math.floor(seconds / 60), seconds % 60]
-    .map((n) => String(n).padStart(2, "0"))
-    .join(":");
-}
-
-export function timeLeft(p: Company, now: number) {
-  if (!p.seedEndsAt) return "";
-  return countdown(Math.max(0, Math.ceil((p.seedEndsAt - now) / 1000)));
-}
-
 export function windowPillTone(state: Company["seedStatus"]) {
   if (state === "ENDED") return "ended";
   return state === "NOT_STARTED" ? "neutral" : "active";
@@ -54,7 +43,7 @@ export function windowPillTone(state: Company["seedStatus"]) {
 export function windowLabel(p: Company, now: number) {
   switch (windowState(p, now)) {
     case "ACTIVE":
-      return ("Seeding " + timeLeft(p, now)).trim();
+      return "Seeding open";
     case "NOT_STARTED":
       return "Not started";
     case "ENDED":
@@ -67,12 +56,9 @@ export function windowLabel(p: Company, now: number) {
 export function marketStage(market: Market, now: number) {
   if (market.phase === "LIVE") return "live";
   if (market.phase === "IPO_PREPARING") return "launching";
+  if (market.phase !== "SEED" || now >= market.eventEndsAt) return "closed";
   const projects = market.projects;
-  const open =
-    now < market.eventEndsAt &&
-    projects.some(
-      (p) => p.seedStatus === "ACTIVE" && now < (p.seedEndsAt ?? 0),
-    );
+  const open = projects.some((p) => p.seedStatus === "ACTIVE");
   const waiting =
     !projects.length || projects.some((p) => p.seedStatus === "NOT_STARTED");
   return open ? "open" : waiting ? "waiting" : "closed";
