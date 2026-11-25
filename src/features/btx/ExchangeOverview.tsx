@@ -16,7 +16,8 @@ const seedStages = {
   },
   closed: {
     title: "Seeding is closed",
-    description: "Companies and their seed totals are still available to browse.",
+    description:
+      "Companies and their seed totals are still available to browse.",
     badge: "Seeding closed",
     tone: "ended",
   },

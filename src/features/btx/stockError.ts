@@ -29,8 +29,7 @@ const errors = {
   SEED_WINDOW_ENDED: {
     tone: "warning",
     title: "Seed round closed",
-    description:
-      "Seed funding has closed for this company.",
+    description: "Seed funding has closed for this company.",
   },
   SELL_NOT_AVAILABLE_BEFORE_IPO: {
     tone: "info",

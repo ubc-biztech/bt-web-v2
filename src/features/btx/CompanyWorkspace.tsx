@@ -901,7 +901,8 @@ function SeedRound({
       "Seeding has closed. Company name and team membership remain locked.";
   } else if (state === "ACTIVE") {
     title = "Seeding is open";
-    description = "Investors can buy until IPO preparation or the event cutoff.";
+    description =
+      "Investors can buy until IPO preparation or the event cutoff.";
   } else if (state === "ENDED") {
     title = "Seed funding is closed";
     description = "Your company name and team membership remain locked.";
