@@ -76,19 +76,11 @@ export function BtxSidebar({
   });
 
   if (role === BTX_ROLES.ADMIN)
-    destinations.push(
-      {
-        icon: "grant",
-        label: "Grant funds",
-        href: exchangePath + "/admin/grants",
-      },
-      {
-        icon: "ipo",
-        label: "Launch IPO",
-        href: exchangePath + "/admin#launch-ipo",
-      },
-      { icon: "admin", label: BTX_ROLES.ADMIN, href: exchangePath + "/admin" },
-    );
+    destinations.push({
+      icon: "admin",
+      label: "BTX Admin",
+      href: exchangePath + "/admin",
+    });
 
   const itemLayout = expanded
     ? "w-full justify-start gap-3 px-3"

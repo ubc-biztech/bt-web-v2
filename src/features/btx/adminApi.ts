@@ -33,6 +33,13 @@ export async function investors(): Promise<Investor[]> {
 export const launchIpo = () =>
   fetchBackend({ endpoint: "/btx/admin/ipo", method: "POST" });
 
+export const resetIpo = (ipoAt: number) =>
+  fetchBackend({
+    endpoint: "/btx/admin/ipo/reset",
+    method: "POST",
+    data: { ipoAt },
+  });
+
 export interface GrantBatch {
   requestId: string;
   amountCents: number;

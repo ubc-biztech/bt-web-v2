@@ -1,14 +1,12 @@
-import { useRouter } from "next/router";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { AngledPanel, StatusBanner } from "./BtxUI";
 import type { MarketPageProps } from "./Kickstart2026";
-import { launchIpo } from "./adminApi";
+import { launchIpo, resetIpo } from "./adminApi";
 import {
   GrantFunds,
   GrantResults,
-  GrantSummary,
   useGrantRun,
   useInvestors,
 } from "./GrantFunds";
@@ -46,7 +44,8 @@ function useIpo(market: Market, userId: string) {
   const live =
     committed &&
     market.projects.every((project) => project.seedSharesAtIpo != null);
-  const pending = !live && (committed || preparing || !!attempt);
+  const resetting = market.phase === "IPO_RESETTING";
+  const pending = !live && (committed || preparing || resetting || !!attempt);
   const snapshot = useQuery({
     queryKey: ["btx", "snapshot"],
     queryFn: fetchMarket,
@@ -153,6 +152,8 @@ function useIpo(market: Market, userId: string) {
   }
   return {
     live,
+    resetting,
+    refresh: () => snapshot.refetch(),
     committed,
     preparing,
     pending,
@@ -188,7 +189,7 @@ function Timeline({ stage, active }: { stage: IpoStage; active: number }) {
         : stage === "launching"
           ? "IPO (launching)"
           : stage === "ready"
-            ? "IPO (now)"
+            ? "Ready for IPO"
             : "IPO",
       stage === "seed"
         ? "Not launched"
@@ -285,6 +286,118 @@ function ResponsiveSheet({
   );
 }
 
+function ResetControl({
+  ipoAt,
+  resuming,
+  refresh,
+  disabled,
+}: {
+  ipoAt: number;
+  resuming: boolean;
+  refresh: () => Promise<unknown>;
+  disabled: boolean;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const key = `btx-reset:${ipoAt}`;
+  const [queuedAt, setQueuedAt] = useState(() =>
+    Number(sessionStorage.getItem(key)),
+  );
+  const waiting = queuedAt > 0 && Date.now() - queuedAt < IPO_STALL_MS;
+  useQuery({
+    queryKey: ["btx", "snapshot"],
+    queryFn: fetchMarket,
+    enabled: waiting,
+    refetchInterval: waiting ? 3000 : false,
+    retry: false,
+  });
+  const [target, setTarget] = useState<number | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const sending = useRef(false);
+
+  async function confirm() {
+    if (sending.current || target == null || target !== ipoAt) return;
+    sending.current = true;
+    setBusy(true);
+    setError("");
+    dialog.current?.close();
+    try {
+      await resetIpo(target);
+      const accepted = Date.now();
+      sessionStorage.setItem(key, String(accepted));
+      setQueuedAt(accepted);
+    } catch (err) {
+      setError(
+        (err as BtxRequestError).message ||
+          "Couldn’t confirm the reset. Check the market phase and retry.",
+      );
+    } finally {
+      await refresh();
+      sending.current = false;
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      {waiting && !resuming && (
+        <StatusBanner
+          tone="info"
+          title="IPO reset queued"
+          description="Orders ahead of the reset will be processed first."
+        />
+      )}
+      {error && <StatusBanner tone="error" title={error} />}
+      <button
+        className={s.outline}
+        disabled={disabled || busy || waiting}
+        onClick={() => {
+          setTarget(ipoAt);
+          dialog.current?.showModal();
+        }}
+      >
+        {busy
+          ? "Submitting reset…"
+          : waiting
+            ? "Waiting for reset…"
+            : resuming
+              ? "Resume IPO reset"
+              : "Reset IPO"}
+      </button>
+      <dialog className={s.dialog} ref={dialog} aria-labelledby="reset-title">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void confirm();
+          }}
+        >
+          <h2 id="reset-title">Return the market to seed?</h2>
+          <p>
+            This restores seed prices and the original seed windows for every
+            company. A settled live trade prevents the reset. You can launch the
+            IPO again later.
+          </p>
+          <div className={s.actions}>
+            <button
+              type="button"
+              className={s.outline}
+              onClick={() => dialog.current?.close()}
+            >
+              Cancel
+            </button>
+            <button
+              className={s.warm}
+              disabled={disabled || busy || target !== ipoAt}
+            >
+              Confirm reset
+            </button>
+          </div>
+        </form>
+      </dialog>
+    </>
+  );
+}
+
 function IpoPanel({
   market,
   now,
@@ -324,12 +437,19 @@ function IpoPanel({
   return (
     <AngledPanel id="launch-ipo" className={s.panel}>
       <header>
-        <small className="text-xs text-[#ffddad]">Action 2</small>
-        <h2>{ipo.live ? "IPO launched" : "Launch IPO"}</h2>
+        <h2>
+          {ipo.resetting
+            ? "IPO reset in progress"
+            : ipo.live
+              ? "IPO launched"
+              : "Launch IPO"}
+        </h2>
         <p>
-          {ipo.live
-            ? "Net seed shares were snapshotted and opening prices set. The market is live: buys and sells now move prices."
-            : "Takes a snapshot of net seed shares per company. The snapshot sets each opening price. The seed round closes and live trading starts."}
+          {ipo.resetting
+            ? "Trading is paused while seed prices are restored."
+            : ipo.live
+              ? "Net seed shares were snapshotted and opening prices set. The market is live: buys and sells now move prices."
+              : "Takes a snapshot of net seed shares per company. The snapshot sets each opening price. The seed round closes and live trading starts."}
         </p>
       </header>
       {!ipo.live && !ipo.pending && active > 0 && (
@@ -388,7 +508,7 @@ function IpoPanel({
           />
         </>
       )}
-      {ipo.pending ? (
+      {ipo.resetting ? null : ipo.pending ? (
         <ResponsiveSheet
           title={ipo.unknown ? "IPO status unknown" : "Launching IPO…"}
         >
@@ -502,6 +622,31 @@ function IpoPanel({
           )}
         </>
       )}
+      {market.phase === "SEED" && market.lastReset?.status === "SUCCEEDED" && (
+        <StatusBanner
+          tone="success"
+          title="IPO reset completed"
+          description="The market is back in seed."
+        />
+      )}
+      {market.lastReset?.status === "DECLINED" &&
+      market.lastReset.ipoAt === market.ipoAt ? (
+        <StatusBanner
+          tone="warning"
+          title={market.lastReset.message || "IPO reset declined"}
+        />
+      ) : (
+        (ipo.live || ipo.resetting) &&
+        market.ipoAt != null && (
+          <ResetControl
+            key={market.ipoAt}
+            ipoAt={market.ipoAt}
+            resuming={ipo.resetting}
+            refresh={ipo.refresh}
+            disabled={grantBusy}
+          />
+        )
+      )}
       {!ipo.pending && !ipo.live && ipo.checked && (
         <StatusBanner tone="info" title={ipo.checked} />
       )}
@@ -517,9 +662,6 @@ function IpoPanel({
             void ipo.launch();
           }}
         >
-          <span className={s.badge + " w-fit text-[#ffddad]"}>
-            Can’t be undone
-          </span>
           <h2 id="ipo-title">Launch the IPO for KickStart 2026?</h2>
           <p>
             This snapshots net seed shares for {projects.length} companies, sets
@@ -563,14 +705,12 @@ function IpoPanel({
   );
 }
 
-function EventControl({
+export function AdminOverview({
   market,
   userId,
   now,
   initials,
-  grantsOnly = false,
-}: MarketPageProps & { grantsOnly?: boolean }) {
-  const router = useRouter();
+}: MarketPageProps) {
   const ipo = useIpo(market, userId);
   const active = market.projects.filter(
     (project) => windowState(project, now) === "ACTIVE",
@@ -587,26 +727,6 @@ function EventControl({
           ? "seed"
           : "ready";
   const { run } = batch;
-  const grantPanel = run ? (
-    grantsOnly ? (
-      <GrantResults
-        batch={batch}
-        run={run}
-        people={roster.data ?? []}
-        paused={ipo.pending}
-      />
-    ) : (
-      <GrantSummary batch={batch} run={run} paused={ipo.pending} />
-    )
-  ) : (
-    <GrantFunds
-      compact={!grantsOnly}
-      roster={roster}
-      batch={batch}
-      paused={ipo.pending}
-    />
-  );
-
   return (
     <div className={s.page}>
       <Link className={s.exit} href={exchangePath}>
@@ -614,47 +734,32 @@ function EventControl({
       </Link>
       <header className={s.heading}>
         <div>
-          <h1>Event control</h1>
+          <h1>BTX Admin</h1>
           <small>KickStart 2026</small>
         </div>
         <span>{initials}</span>
       </header>
       <small className={s.adminBadge}>Admin</small>
-      <Timeline stage={stage} active={active} />
-      {grantsOnly && (
-        <ResponsiveSheet
-          title={run ? "Grant results" : "Choose recipients"}
-          onClose={() => void router.push(exchangePath + "/admin")}
-        >
-          {grantPanel}
-        </ResponsiveSheet>
-      )}
-      <div className={s.columns + (grantsOnly ? " " + s.grantBackdrop : "")}>
-        {grantsOnly ? (
-          <GrantFunds
-            compact
-            roster={roster}
+      {!ipo.resetting && <Timeline stage={stage} active={active} />}
+      <div className={s.fields}>
+        <IpoPanel
+          market={market}
+          now={now}
+          ipo={ipo}
+          active={active}
+          grantBusy={batch.sending}
+        />
+        {run ? (
+          <GrantResults
             batch={batch}
+            run={run}
+            people={roster.data ?? []}
             paused={ipo.pending}
           />
         ) : (
-          grantPanel
-        )}
-        {(!grantsOnly || !ipo.pending) && (
-          <IpoPanel
-            market={market}
-            now={now}
-            ipo={ipo}
-            active={active}
-            grantBusy={batch.sending}
-          />
+          <GrantFunds roster={roster} batch={batch} paused={ipo.pending} />
         )}
       </div>
     </div>
   );
-}
-
-export const AdminOverview = EventControl;
-export function AdminGrants(props: MarketPageProps) {
-  return <EventControl {...props} grantsOnly />;
 }

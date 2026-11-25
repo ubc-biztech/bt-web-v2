@@ -6,7 +6,7 @@ import type { DynamicPageProps } from "@/constants/companion-events";
 import "@/components/ConfigureAmplify";
 import { useUserAttributes } from "@/queries/user";
 import { QueryProvider } from "@/lib/queryProvider";
-import { AdminGrants, AdminOverview } from "./AdminPage";
+import { AdminOverview } from "./AdminPage";
 import { BackOnlineToast, ConnectionNotice } from "./ConnectionNotice";
 import { CompanyPage } from "./CompanyPage";
 import { ExchangeCatalog, FullCatalog } from "./CompanyCatalog";
@@ -266,7 +266,7 @@ export const SearchRoute = marketPage((props) => (
   <ExchangePage {...props} focusSearch />
 ));
 export const AdminRoute = marketPage(AdminOverview, true);
-export const GrantRoute = marketPage(AdminGrants, true);
+export const GrantRoute = AdminRoute;
 export const PortfolioRoute = marketPage(PortfolioPage);
 export const LeaderboardRoute = marketPage(LeaderboardPage);
 export const PortfolioHistoryRoute = marketPage(PortfolioHistory);
