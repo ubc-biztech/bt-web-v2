@@ -9,6 +9,7 @@ export interface Company {
   marketCapCents: number;
   netShares?: number;
   seedSharesAtIpo?: number | null;
+  seedStartedAt?: number | null;
   name?: string;
   blurb?: string;
   description?: string;
