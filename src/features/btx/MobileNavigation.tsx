@@ -21,13 +21,15 @@ export function MobileNavigation({
     { icon: "portfolio", label: "Portfolio" },
     { icon: "leaderboard", label: "Ranks" },
     admin
-      ? { icon: "admin", label: "Admin" }
+      ? { icon: "admin", label: "Admin", href: exchangePath + "/admin" }
       : {
           icon: "company",
           label: "Company",
           href: ownCompanyPath,
         },
   ];
+
+  if (path.startsWith(exchangePath + "/admin")) return null;
 
   return (
     <nav

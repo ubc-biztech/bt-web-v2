@@ -4,8 +4,9 @@ import { useUserAttributes } from "@/queries/user";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "@/lib/db";
 import { getAuthenticatedUser } from "@/lib/user";
+import { isBtxRegistrationStatus } from "./market";
 
-export function useBtxProfile(userId: string) {
+export function useBtxProfile(userId: string, isAdmin: boolean) {
   const { data: user } = useQuery({
     queryKey: ["btx", "profile", userId],
     queryFn: getAuthenticatedUser,
@@ -15,12 +16,12 @@ export function useBtxProfile(userId: string) {
 
   const email = user?.email || user?.id;
   const { data: registrations } = useUserRegistrations(
-    user?.admin ? undefined : email,
+    isAdmin ? undefined : email,
   );
   const registration = registrations?.find(
     (row) =>
       row["eventID;year"] === "kickstart;2026" &&
-      row.registrationStatus === "acceptedComplete",
+      isBtxRegistrationStatus(row.registrationStatus),
   ) as { teamID?: string } | undefined;
 
   return { user, registration };

@@ -20,7 +20,7 @@ export interface Company {
 
 export interface Market {
   eventId: string;
-  phase: "SEED" | "IPO_LAUNCHING" | "LIVE";
+  phase: "SEED" | "IPO_PREPARING" | "LIVE";
   serverTime: number;
   ipoAt?: number | null;
   eventEndsAt: number;
@@ -43,7 +43,7 @@ export interface Trade extends TradeOrder {
   rejection?: { code: StockErrorCode; message: string };
 }
 
-export interface TradeRequestError {
+export interface BtxRequestError {
   status?: number;
   message?: string;
   data?: { code?: StockErrorCode };

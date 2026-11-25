@@ -62,7 +62,7 @@ export function useTradeOrder(
     !ownCompany &&
     Number.isSafeInteger(shares) &&
     shares > 0;
-  const quote = useQuery<api.Quote, api.TradeRequestError>({
+  const quote = useQuery<api.Quote, api.BtxRequestError>({
     queryKey: [
       "btx",
       "quote",
@@ -81,7 +81,7 @@ export function useTradeOrder(
     refetchOnWindowFocus: false,
   });
   const preview = quote.data;
-  const status = useQuery<api.Trade, api.TradeRequestError>({
+  const status = useQuery<api.Trade, api.BtxRequestError>({
     queryKey: ["btx-seed", market.eventId, userId, "order", order?.tradeId],
     queryFn: () => api.tradeStatus(order!),
     enabled: !!order && !busy,
@@ -175,7 +175,7 @@ export function useTradeOrder(
     try {
       await api.placeOrder(next);
     } catch (error) {
-      const reason = error as api.TradeRequestError | undefined;
+      const reason = error as api.BtxRequestError | undefined;
       const status = reason?.status ?? 0;
       const code = reason?.data?.code;
       const declined =
@@ -216,7 +216,7 @@ export function useTradeOrder(
     },
     busy,
     fetchingQuote: quote.isFetching,
-    quoteError: quote.error?.data?.code,
+    quoteError: quote.error,
     ownCompany,
     quantity,
     changeQuantity(value: string) {

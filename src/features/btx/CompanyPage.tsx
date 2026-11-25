@@ -34,7 +34,7 @@ export function CompanyPage({
   if (!company)
     return <StatusBanner tone="warning" title="Company not found" />;
   const live = market.phase === "LIVE";
-  const launching = market.phase === "IPO_LAUNCHING";
+  const launching = market.phase === "IPO_PREPARING";
   const notStarted = company.seedStatus === "NOT_STARTED";
   const seedSeconds = notStarted
     ? 1800

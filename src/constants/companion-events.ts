@@ -5,6 +5,8 @@ import Blueprint2025 from "@/features/blueprint/2025/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
 import Kickstart2026, {
+  AdminRoute,
+  GrantRoute,
   CatalogRoute,
   SearchRoute,
   CompanyRoute,
@@ -79,6 +81,8 @@ const Events: Event[] = [
     ChildComponent: Kickstart2026,
     pages: {
       btx: Kickstart2026,
+      "btx/admin": AdminRoute,
+      "btx/admin/grants": GrantRoute,
       "btx/catalog": CatalogRoute,
       "btx/search": SearchRoute,
       "btx/company/[projectId]": CompanyRoute,

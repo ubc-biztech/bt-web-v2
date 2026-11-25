@@ -1,6 +1,11 @@
+import { DBRegistrationStatus } from "@/types/types";
 import type { Company, Market } from "./seedApi";
 
 export const exchangePath = "/companion/kickstart/2026/btx";
+
+export const isBtxRegistrationStatus = (status: unknown) =>
+  status === DBRegistrationStatus.ACCEPTED_COMPLETE ||
+  status === DBRegistrationStatus.CHECKED_IN;
 
 export const companyName = (p: Company) =>
   p.companyName || p.name || p.projectId;
@@ -61,7 +66,7 @@ export function windowLabel(p: Company, now: number) {
 
 export function marketStage(market: Market, now: number) {
   if (market.phase === "LIVE") return "live";
-  if (market.phase === "IPO_LAUNCHING") return "launching";
+  if (market.phase === "IPO_PREPARING") return "launching";
   const projects = market.projects;
   const open =
     now < market.eventEndsAt &&
