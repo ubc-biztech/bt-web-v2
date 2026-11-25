@@ -1,5 +1,5 @@
 import styles from "./btx.module.css";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   Area,
@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 
-import { priceHistory, type Company } from "./seedApi";
+import { priceHistory, type Company, type PricePoint } from "./seedApi";
 import { money } from "./market";
 
 const ranges = { "1m": 1, "5m": 5, "15m": 15, "1h": 60, All: Infinity };
@@ -26,17 +26,35 @@ export function PriceChart({
   ipoAt?: number | null;
 }) {
   const [range, setRange] = useState<keyof typeof ranges>("15m");
+  const client = useQueryClient();
+  const queryKey = ["btx", "prices", company.projectId, range];
+  const from = now - ranges[range] * 60000;
   const history = useQuery({
-    queryKey: ["btx", "prices", company.projectId, range],
-    queryFn: () => priceHistory(company.projectId, now - ranges[range] * 60000),
+    queryKey,
+    queryFn: async () => {
+      const fetched = await priceHistory(company.projectId, from);
+      const cached = client.getQueryData<PricePoint[]>(queryKey) ?? [];
+      // Keep socket points that arrived while the HTTP request was in flight.
+      const recentCached = cached.filter((point) => point.ts >= from);
+      return Array.from(
+        new Map(
+          [...recentCached, ...fetched].map((point) => [point.ts, point]),
+        ).values(),
+      );
+    },
     refetchInterval: 15000,
   });
   const points = (history.data ?? [])
-    .filter((p) => p.ts >= now - ranges[range] * 60000)
+    .filter((point) => point.ts >= from)
     .sort((a, b) => a.ts - b.ts);
   const priceChange = company.currentPriceCents - 10_000;
   const priceUp = priceChange >= 0;
 
+  // The current company price can arrive before its history point.
+  const latest = company.lastPriceTs;
+  if (latest != null && latest >= from && latest > (points.at(-1)?.ts ?? 0)) {
+    points.push({ ts: latest, priceCents: company.currentPriceCents });
+  }
   return (
     <div className="flex flex-1 flex-col gap-4">
       <div className="max-md:contents flex flex-wrap items-center justify-between gap-2">

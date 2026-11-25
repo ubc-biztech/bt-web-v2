@@ -51,3 +51,65 @@ html:has(.btx dialog[open]) {
     color: #0b1120;
   }
 }
+
+.connectionNotice {
+  --accent: 130 195 251;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgb(var(--accent) / 45%);
+  background: rgb(var(--accent) / 12%);
+}
+.connectionNotice[data-offline="true"] {
+  --accent: 255 221 173;
+}
+.connectionIcon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgb(var(--accent) / 22%);
+  color: rgb(var(--accent));
+  font-weight: bold;
+}
+.connectionToast {
+  position: fixed;
+  z-index: 30;
+  bottom: 40px;
+  left: calc(50% + 36px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 282px;
+  min-height: 43px;
+  border-radius: 999px;
+  border: 1px solid rgb(56 211 162 / 40%);
+  background: rgb(10 20 41 / 96%);
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .connectionNotice {
+    --accent: 255 221 173;
+    min-height: 75px;
+  }
+  .connectionNotice[data-offline="true"] {
+    --accent: 255 92 122;
+  }
+  .connectionToast {
+    inset-inline: 24px;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    transform: none;
+    width: auto;
+    min-height: 56px;
+    justify-content: start;
+    padding: 8px 16px;
+    border-radius: 16px;
+    background: #0f2a2a;
+  }
+}

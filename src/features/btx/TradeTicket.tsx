@@ -42,7 +42,11 @@ function TradeForm({
   ticket,
 }: TradeTicketProps) {
   const companyPath = useRouter().asPath;
-  const { data: portfolio } = usePortfolio(market.eventId, userId);
+  const balance = usePortfolio(market.eventId, userId);
+  const portfolio =
+    balance.isSuccess && !balance.isFetching && !ticket.paused
+      ? balance.data
+      : undefined;
   const holding = portfolio?.holdings.find(
     (h) => h.projectId === company.projectId,
   )?.shares;
@@ -85,14 +89,18 @@ function TradeForm({
       ? ticket.requestQuote
       : undefined;
   const actionEnabled = ticket.orderNotFound
-    ? !ticket.busy
-    : !fetchingQuote && (canConfirm ? !balanceError : ticket.canQuote);
+    ? !ticket.busy && !ticket.paused
+    : !fetchingQuote &&
+      (canConfirm ? !!portfolio && !balanceError : ticket.canQuote);
 
   let orderLabel = preview ? "Refresh price" : "Get quote";
   if (fetchingQuote) orderLabel = "Getting price…";
   else if (ticket.busy) orderLabel = "Placing order…";
+  else if (ticket.paused) orderLabel = "Waiting for connection";
   else if (ticket.orderNotFound) orderLabel = "Retry original order";
   else if (ticket.order) orderLabel = "Checking order…";
+  else if (canConfirm && !portfolio)
+    orderLabel = balance.isError ? "Balance unavailable" : "Checking balance…";
   else if (canConfirm && preview) {
     orderLabel = ticket.priceChanged
       ? `Confirm at new price · ${money(preview.priceCents)}`
@@ -136,7 +144,11 @@ function TradeForm({
           {(["BUY", "SELL"] as const).map((s) => (
             <button
               key={s}
-              disabled={quantityLocked || (!onClose && s === "SELL" && !live)}
+              disabled={
+                ticket.paused ||
+                quantityLocked ||
+                (!onClose && s === "SELL" && !live)
+              }
               aria-pressed={side === s}
               onClick={() => ticket.changeSide(s)}
               className="flex-1 rounded-full max-md:py-[9px] max-md:leading-[normal] max-md:text-[#bdc8e3] max-md:aria-pressed:text-[#0b1120] px-5 py-2 text-[14px] font-medium capitalize lg:font-bold aria-pressed:bg-[#89dcff] aria-pressed:text-[#0a1524] disabled:opacity-40"
@@ -239,6 +251,14 @@ function TradeForm({
           tone="info"
           title="Your team"
           description="You can’t invest in your own company."
+        />
+      )}
+      {balance.isError && !ticket.paused && !ticket.order && (
+        <StatusBanner
+          tone="warning"
+          title="Couldn’t refresh your balance"
+          onRetry={() => void balance.refetch()}
+          retrying={balance.isFetching}
         />
       )}
       {!lockedSell && notice && (

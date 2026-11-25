@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Instrument_Sans, Space_Grotesk } from "next/font/google";
 import type { DynamicPageProps } from "@/constants/companion-events";
@@ -7,6 +7,7 @@ import "@/components/ConfigureAmplify";
 import { useUserAttributes } from "@/queries/user";
 import { QueryProvider } from "@/lib/queryProvider";
 import { AdminGrants, AdminOverview } from "./AdminPage";
+import { BackOnlineToast, ConnectionNotice } from "./ConnectionNotice";
 import { CompanyPage } from "./CompanyPage";
 import { ExchangeCatalog, FullCatalog } from "./CompanyCatalog";
 import { marketStage } from "./market";
@@ -18,6 +19,7 @@ import {
 import { useBtxProfile } from "./accountQueries";
 import { market, type BtxRequestError, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
+import { applyLivePrices, useMarketFeed } from "./useMarketFeed";
 
 import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import styles from "./btx.module.css";
@@ -36,6 +38,8 @@ export type MarketPageProps = {
   market: Market;
   now: number;
   userId: string;
+  recovering?: boolean;
+  quoteVersion?: number | null;
   projectId?: string;
   ownProject?: string;
   initials?: string;
@@ -77,13 +81,28 @@ function MarketLayout({
     person?.email?.[0] ||
     person?.id?.[0]
   )?.toUpperCase();
-  const marketData = snapshot.data;
   // A retry can set the query back to pending before it has any data.
   const lastFailureAt =
     snapshot.errorUpdatedAt > snapshot.dataUpdatedAt
       ? snapshot.errorUpdatedAt
       : null;
   const retrySnapshot = () => void snapshot.refetch({ cancelRefetch: false });
+  const feed = useMarketFeed(
+    userId,
+    adminOnly ? undefined : snapshot.data?.eventId,
+  );
+  const marketData = useMemo(
+    () => snapshot.data && applyLivePrices(snapshot.data, feed.prices),
+    [snapshot.data, feed.prices],
+  );
+  const lastUpdate =
+    marketData &&
+    Math.max(
+      marketData.serverTime,
+      ...Object.values(feed.prices).map((point) => point.ts),
+    );
+  const recovering =
+    !adminOnly && (feed.connection !== "online" || feed.backOnline);
   const background = adminOnly
     ? "bg-gradient-to-b from-[#15293b] to-[#0b1120] lg:pt-10"
     : "bg-[url(/assets/btx/market-background.webp)] max-md:bg-none lg:pt-[92px]";
@@ -93,12 +112,30 @@ function MarketLayout({
     >
       <BtxSidebar isAdmin={isAdmin} userId={userId} {...profile} />
       <main
-        className={`min-w-0 flex-1 bg-[length:100%_auto] bg-top bg-no-repeat px-4 pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] text-[#e6ebf6] sm:px-6 md:pb-10 md:pt-8 lg:px-12 ${background}`}
+        className={`min-w-0 flex-1 bg-[length:100%_auto] bg-top bg-no-repeat ${recovering ? "px-6" : "px-4"} pb-[calc(76px+env(safe-area-inset-bottom))] pt-[max(8px,env(safe-area-inset-top))] text-[#e6ebf6] sm:px-6 md:pb-10 md:pt-8 lg:px-12 ${background}`}
       >
         <div className="mx-auto flex max-w-[1600px] flex-col gap-4 md:gap-6">
           {!marketData && (
             <MobilePageTitle title="Exchange" initials={initials} />
           )}
+          {marketData &&
+            (feed.connection === "balance-error" ? (
+              <StatusBanner
+                tone="warning"
+                title="Couldn’t refresh your balance"
+                description="Refresh your cash and holdings to resume trading."
+                onRetry={feed.retry}
+              />
+            ) : (
+              feed.connection !== "online" && (
+                <ConnectionNotice
+                  connection={feed.connection}
+                  lastUpdate={lastUpdate ?? marketData.serverTime}
+                  retry={feed.retry}
+                />
+              )
+            ))}
+          {feed.backOnline && <BackOnlineToast />}
           {adminOnly && !isAdmin ? (
             <StatusBanner
               tone="info"
@@ -108,7 +145,7 @@ function MarketLayout({
             />
           ) : marketData && marketData.eventEndsAt != null ? (
             <>
-              {snapshot.isRefetchError && (
+              {snapshot.isRefetchError && feed.connection === "online" && (
                 <StatusBanner
                   tone="warning"
                   title="Market data may be out of date"
@@ -120,6 +157,8 @@ function MarketLayout({
               <Page
                 key={JSON.stringify([userId, marketData.eventId, projectId])}
                 market={marketData}
+                recovering={recovering}
+                quoteVersion={feed.quoteVersion}
                 initials={initials}
                 userId={userId}
                 projectId={projectId}
@@ -172,9 +211,11 @@ function ExchangePage({
   now,
   ownProject,
   initials,
+  recovering,
   focusSearch = false,
 }: MarketPageProps & { focusSearch?: boolean }) {
   const stage = marketStage(market, now);
+  const cardsOnly = recovering && stage === "live" && !focusSearch;
   return (
     <>
       <MobilePageTitle title="Exchange" initials={initials} />
@@ -189,12 +230,15 @@ function ExchangePage({
       <div
         className={`grid gap-4 md:gap-5 lg:grid-cols-[minmax(0,804fr)_minmax(0,522fr)] ${market.projects.length ? "" : "max-md:hidden"}`}
       >
-        <ExchangeOverview market={market} now={now} stage={stage} />
+        <div className={cardsOnly ? "max-md:hidden md:contents" : "contents"}>
+          <ExchangeOverview market={market} now={now} stage={stage} />
+        </div>
         <ExchangeCatalog
           projects={market.projects}
           stage={stage}
           now={now}
           ownProject={ownProject}
+          cardsOnly={cardsOnly}
           focusSearch={focusSearch}
         />
       </div>

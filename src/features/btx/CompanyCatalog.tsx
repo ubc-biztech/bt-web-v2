@@ -212,7 +212,7 @@ function useCatalog(
   };
 }
 
-export function ExchangeCatalog(props: CatalogProps) {
+export function ExchangeCatalog(props: CatalogProps & { cardsOnly?: boolean }) {
   const catalog = useCatalog(props, ExchangeCard);
   return (
     <>
@@ -239,7 +239,15 @@ export function ExchangeCatalog(props: CatalogProps) {
             <span className="hidden md:inline">Full screen ↗</span>
           </Link>
         </header>
-        {catalog.searchField}
+        <div
+          className={
+            props.cardsOnly && !catalog.query
+              ? "max-md:hidden md:contents"
+              : "contents"
+          }
+        >
+          {catalog.searchField}
+        </div>
         <div
           className={`grid gap-3 md:grid-cols-2 ${catalog.query ? "" : "max-md:[&>button:nth-child(n+4)]:hidden"}`}
         >
