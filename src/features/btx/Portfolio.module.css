@@ -1,0 +1,212 @@
+.title {
+  font:
+    500 44px/1.22 var(--btx-font-instrument-sans),
+    sans-serif;
+}
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.stat,
+.tablePanel {
+  border: 1px solid rgb(130 195 251 / 22%);
+  border-radius: 20px;
+  background: rgb(23 33 63 / 30%);
+}
+.stat {
+  container-type: inline-size;
+  padding: 18px clamp(10px, 1.4vw, 20px);
+  min-height: 113px;
+  overflow-wrap: anywhere;
+}
+.stat dd:first-of-type {
+  font-size: clamp(16px, 12cqi, 26px);
+  font-weight: 500;
+}
+.tablePanel {
+  overflow: hidden;
+}
+.tablePanel th {
+  white-space: normal;
+  font-size: 12px;
+  font-weight: 500;
+}
+.tablePanel td {
+  font-size: 13px;
+}
+.tablePanel table[aria-label="Holdings"] tbody tr {
+  height: 58px;
+}
+.tablePanel table[aria-label="Trade history"] tbody tr {
+  height: 49px;
+}
+.card {
+  display: grid;
+  gap: 10px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.row > :first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.card header {
+  font-size: 15px;
+  font-weight: 500;
+}
+.card header span {
+  white-space: normal;
+}
+.card header small {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.pill {
+  flex: none;
+  border-radius: 999px;
+  border: 1px solid rgb(130 195 251 / 35%);
+  background: rgb(130 195 251 / 12%);
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #89dcff;
+  text-transform: capitalize;
+}
+.pill[data-side="BUY"] {
+  color: #38d3a2;
+  background: rgb(56 211 162 / 12%);
+}
+.pill[data-side="SELL"] {
+  color: #ffddad;
+  background: rgb(255 221 173 / 12%);
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.metrics dt {
+  color: #a8b5d6;
+  font-size: 11px;
+}
+.metrics dd {
+  font-size: 15px;
+  font-weight: 700;
+}
+@media (max-width: 767px) {
+  .tablePanel {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+  .summary,
+  .card {
+    border: 1px solid rgb(130 195 251 / 22%);
+    border-radius: 20px;
+    background: rgb(130 195 251 / 5%);
+    padding: 16px;
+  }
+  .summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stat {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    min-height: 0;
+    background: none;
+  }
+  .stat:first-child {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgb(130 195 251 / 18%);
+  }
+  .stat:first-child dd:first-of-type {
+    font-size: 34px;
+    font-weight: 700;
+  }
+  .stat:not(:first-child) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+  .stat:not(:first-child) dt,
+  .stat:not(:first-child) dd:first-of-type {
+    font-size: 14px;
+    margin: 0;
+  }
+  .stat:not(:first-child) dd:first-of-type {
+    font-weight: 700;
+  }
+  .stat:not(:first-child):not(:last-child) dd:last-child {
+    display: none;
+  }
+  .stat:last-child dd:last-child {
+    grid-column: 1/-1;
+    margin-top: 4px;
+  }
+  .tablePanel footer {
+    margin-top: 16px;
+    padding-inline: 0;
+  }
+  .card footer a,
+  .card footer button {
+    padding: 8px 18px;
+    font-size: 13px;
+  }
+}
+
+.emptyHoldings {
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  padding: 56px 40px;
+  text-align: center;
+  border: 1px solid rgb(130 195 251 / 22%);
+  border-radius: 20px;
+  background: rgb(23 33 63 / 30%);
+}
+.emptyHoldings h2 {
+  font:
+    500 26px/32px var(--btx-font-instrument-sans),
+    sans-serif;
+}
+.emptyHoldings p {
+  line-height: 18px;
+}
+.emptyHoldings a {
+  align-items: center;
+  justify-content: center;
+  width: 173px;
+  height: 46px;
+  border: 1px solid rgb(130 195 251 / 40%);
+  color: #0b1120;
+}
+
+@media (max-width: 767px) {
+  .emptyHoldings {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+    gap: 10px;
+    padding: 28px;
+    background: rgb(130 195 251 / 5%);
+  }
+  .emptyHoldings h2 {
+    font-size: 18px;
+    line-height: 23px;
+  }
+  .emptyHoldings p {
+    font-size: 13px;
+    line-height: 17px;
+  }
+  .emptyHoldings a {
+    width: 100%;
+    height: 52px;
+    font-size: 15px;
+  }
+}

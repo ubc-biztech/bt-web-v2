@@ -12,6 +12,7 @@ export function useTradeOrder(
   now: number,
   ownCompany: boolean,
   quoteVersion: number | null,
+  initialSide: api.Trade["side"] = "BUY",
 ) {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [receipt, setReceipt] = useState<api.Trade | null>(null);
@@ -45,8 +46,8 @@ export function useTradeOrder(
       inFlight.current = null;
     };
   }, [storageKey]);
-  const [quantity, setQuantity] = useState("10");
-  const [side, setSide] = useState<api.Trade["side"]>("BUY");
+  const [quantity, setQuantity] = useState(initialSide === "SELL" ? "1" : "10");
+  const [side, setSide] = useState(initialSide);
   const company = market.projects.find((p) => p.projectId === selected);
   const shares = Number(quantity);
   const seedOpen =
@@ -119,6 +120,9 @@ export function useTradeOrder(
     setOrder(null);
     void queryClient.invalidateQueries({
       queryKey: ["btx-seed", market.eventId, userId, "portfolio"],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: ["btx-seed", market.eventId, userId, "history"],
     });
   }, [
     busy,

@@ -18,7 +18,11 @@ export function MobileNavigation({
   const mobileTabs = [
     { icon: "exchange", label: "Exchange", href: exchangePath },
     { icon: "catalog", label: "Catalog", href: exchangePath + "/catalog" },
-    { icon: "portfolio", label: "Portfolio" },
+    {
+      icon: "portfolio",
+      label: "Portfolio",
+      href: admin ? undefined : exchangePath + "/portfolio",
+    },
     { icon: "leaderboard", label: "Ranks" },
     admin
       ? { icon: "admin", label: "Admin", href: exchangePath + "/admin" }
@@ -40,6 +44,7 @@ export function MobileNavigation({
         const href = tab.href;
         const active =
           href === path ||
+          (tab.icon === "portfolio" && !!href && path.startsWith(href + "/")) ||
           (tab.icon === "exchange" && path === "/companion/kickstart/2026") ||
           (tab.icon === "catalog" &&
             (path === exchangePath + "/search" ||

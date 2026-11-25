@@ -7,6 +7,7 @@ import { useTradeOrder } from "./useTradeOrder";
 import type { MarketPageProps } from "./Kickstart2026";
 
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { CompanyPitch, AngledPanel, StatusBanner } from "./BtxUI";
 
 import { PriceChart } from "./PriceChart";
@@ -23,6 +24,9 @@ export function CompanyPage({
   ownProject,
   quoteVersion = 0,
 }: MarketPageProps) {
+  const { query } = useRouter();
+  const initialSide =
+    query.side === "sell" && market.phase === "LIVE" ? "SELL" : "BUY";
   const team = useCompanyTeam(projectId);
   const ticket = useTradeOrder(
     userId,
@@ -31,6 +35,7 @@ export function CompanyPage({
     now,
     ownProject === projectId,
     quoteVersion,
+    initialSide,
   );
   const company = ticket.company;
   if (!company)

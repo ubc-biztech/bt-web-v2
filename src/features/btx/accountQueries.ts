@@ -43,11 +43,17 @@ export function useCompanyTeam(projectId: string) {
   });
 }
 
-export function usePortfolio(eventId: string, userId: string, enabled = true) {
+export function usePortfolio(
+  eventId: string,
+  userId: string,
+  enabled = true,
+  refetchInterval?: number,
+) {
   return useQuery({
     queryKey: ["btx-seed", eventId, userId, "portfolio"],
     queryFn: portfolio,
     enabled: !!userId && enabled,
     gcTime: 0,
+    refetchInterval,
   });
 }

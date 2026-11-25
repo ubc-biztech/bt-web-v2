@@ -64,9 +64,37 @@ export interface Quote {
   shares: number;
 }
 
+export interface Holding {
+  projectId: string;
+  ticker?: string;
+  name?: string;
+  shares: number;
+  costBasisCents: number;
+  currentPriceCents: number;
+  marketValueCents: number;
+  pnlCents: number;
+}
+
 interface Portfolio {
   account: { cashBalanceCents: number };
-  holdings: { projectId: string; shares: number }[];
+  holdings: Holding[];
+  totalEquityValueCents: number;
+  totalPortfolioValueCents: number;
+  realizedPnlCents: number;
+  unrealizedPnlCents: number;
+  totalPnlCents: number;
+}
+
+export interface AccountTrade extends Trade {
+  priceCents?: number;
+  feeCents?: number;
+  cashDeltaCents?: number;
+  realizedPnlCents?: number;
+}
+
+interface AccountTradesPage {
+  data: AccountTrade[];
+  nextPageKey: string | null;
 }
 
 async function read<T>(path: string, authenticatedCall = true): Promise<T> {
@@ -81,6 +109,18 @@ async function read<T>(path: string, authenticatedCall = true): Promise<T> {
 
 export const market = () => read<Market>("market/snapshot", false);
 export const portfolio = () => read<Portfolio>("portfolio");
+
+export function accountTrades(
+  limit: number,
+  cursor?: string,
+): Promise<AccountTradesPage> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set("prevPageKey", cursor);
+  return fetchBackend({
+    endpoint: "/btx/account/trades?" + params,
+    method: "GET",
+  });
+}
 
 export const quote = (projectId: string, shares: number, side: Trade["side"]) =>
   read<Quote>(
