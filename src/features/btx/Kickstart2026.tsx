@@ -21,6 +21,7 @@ import { market, type BtxRequestError, type Market } from "./seedApi";
 import { BtxSidebar } from "./BtxSidebar";
 import { applyLivePrices, useMarketFeed } from "./useMarketFeed";
 import { PortfolioHistory, PortfolioPage } from "./PortfolioPage";
+import { LeaderboardPage } from "./LeaderboardPage";
 
 import { MobilePageTitle, StatusBanner } from "./BtxUI";
 import styles from "./btx.module.css";
@@ -267,6 +268,7 @@ export const SearchRoute = marketPage((props) => (
 export const AdminRoute = marketPage(AdminOverview, true);
 export const GrantRoute = marketPage(AdminGrants, true);
 export const PortfolioRoute = marketPage(PortfolioPage);
+export const LeaderboardRoute = marketPage(LeaderboardPage);
 export const PortfolioHistoryRoute = marketPage(PortfolioHistory);
 export const CompanyRoute = marketPage(CompanyPage);
 export default marketPage(ExchangePage);

@@ -23,7 +23,11 @@ export function MobileNavigation({
       label: "Portfolio",
       href: admin ? undefined : exchangePath + "/portfolio",
     },
-    { icon: "leaderboard", label: "Ranks" },
+    {
+      icon: "leaderboard",
+      label: "Ranks",
+      href: exchangePath + "/leaderboard",
+    },
     admin
       ? { icon: "admin", label: "Admin", href: exchangePath + "/admin" }
       : {
