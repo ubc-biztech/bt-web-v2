@@ -2,7 +2,7 @@ import type { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async () => ({
   redirect: {
-    destination: "/companion/product+/2026",
+    destination: "/companion/kickstart/2026",
     permanent: false,
   },
 });

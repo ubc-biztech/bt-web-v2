@@ -90,6 +90,7 @@ export async function fetchBackend({
       throw {
         status: response.status,
         message: getErrorMessage(responseData),
+        ...(responseData?.data !== undefined && { data: responseData.data }),
       };
     }
 

@@ -4,6 +4,11 @@ import type { ProductPlusPage } from "@/features/product+/2026/access";
 import Blueprint2025 from "@/features/blueprint/2025/Blueprint2025";
 import BlueprintLogo from "@/assets/2025/blueprint/logo.png";
 import ProductXLogo from "@/assets/2025/productx/logo.png";
+import Kickstart2026, {
+  CatalogRoute,
+  SearchRoute,
+  CompanyRoute,
+} from "@/features/btx/Kickstart2026";
 import Kickstart2025 from "@/features/kickstart/2025/Kickstart2025";
 import KickstartLogo from "@/assets/2025/kickstart/logo.png";
 import BluePrint2026 from "@/features/blueprint/2026/BluePrint2026";
@@ -67,6 +72,30 @@ function createProductPlusPage(
 // - Canonical runtime routes live in `src/pages/companion/[event]/[year]`
 // - Keep shared cross-event UI in neutral folders (e.g. navigation, badges, connections).
 const Events: Event[] = [
+  {
+    eventID: "kickstart",
+    year: 2026,
+    activeUntil: new Date("2026-12-01T05:00:00Z"),
+    ChildComponent: Kickstart2026,
+    pages: {
+      btx: Kickstart2026,
+      "btx/catalog": CatalogRoute,
+      "btx/search": SearchRoute,
+      "btx/company/[projectId]": CompanyRoute,
+    },
+    options: {
+      title: "KickStart 2026",
+      BiztechLogo: "/assets/btx/sidebar/emblem.svg",
+      Logo: "/assets/btx/sidebar/wordmark.svg",
+      disableWelcomeHeader: true,
+      date: "",
+      location: "",
+      colors: { primary: "#38bdf8", background: "#020617" },
+      getScheduleData: () => [],
+      welcomeData: [],
+      headers: [],
+    },
+  },
   {
     activeUntil: new Date("2026-10-30"),
     eventID: "product+",

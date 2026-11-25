@@ -5,6 +5,7 @@ import { fetchBackend } from "@/lib/db";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import CompanionHome from "@/components/Companion/CompanionHome";
+import Kickstart2026 from "@/features/btx/Kickstart2026";
 import ProductPlus2026 from "@/features/product+/2026/ProductPlus2026";
 import type { Event } from "@/constants/companion-events";
 import { COMPANION_EMAIL_KEY } from "@/constants/companion";
@@ -235,11 +236,10 @@ const LegacyDynamicCompanion = () => {
 };
 
 const DynamicCompanion = () => {
-  const router = useRouter();
+  const { event, year } = useRouter().query;
 
-  if (router.query.event === "product+" && router.query.year === "2026") {
-    return <ProductPlus2026 />;
-  }
+  if (event === "product+" && year === "2026") return <ProductPlus2026 />;
+  if (event === "kickstart" && year === "2026") return <Kickstart2026 />;
 
   return <LegacyDynamicCompanion />;
 };

@@ -1,0 +1,53 @@
+.btx {
+  font-family: var(--btx-font-space-grotesk), sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.display {
+  font-family: var(--btx-font-instrument-sans), sans-serif;
+}
+
+html:has(.btx dialog[open]) {
+  overflow: hidden;
+}
+
+@media (max-width: 767px) {
+  .btx .statusPill {
+    --pill-rgb: 168 181 214;
+    border: 1px solid rgb(var(--pill-rgb) / 50%);
+    border-radius: 999px;
+    background: rgb(var(--pill-rgb) / 15%);
+    color: rgb(var(--pill-rgb));
+    padding: 3px 10px;
+    font:
+      500 11px / normal var(--btx-font-space-grotesk),
+      sans-serif;
+    white-space: nowrap;
+  }
+  .btx .statusPill[data-tone="active"] {
+    --pill-rgb: 56 211 162;
+  }
+  .btx .statusPill[data-tone="ended"] {
+    --pill-rgb: 255 221 173;
+  }
+  .btx .statusPill[data-tone="accent"] {
+    --pill-rgb: 31 190 249;
+  }
+  .btx .filterChip {
+    border: 1px solid rgb(130 195 251 / 30%);
+    background: rgb(130 195 251 / 6%);
+    color: #bdc8e3;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: normal;
+    white-space: nowrap;
+  }
+  .btx .filterChip[aria-pressed="true"] {
+    background: #89dcff;
+    border-color: #89dcff;
+    color: #0b1120;
+  }
+}
