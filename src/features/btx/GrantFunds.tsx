@@ -1,10 +1,9 @@
 import { useRouter } from "next/router";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AngledPanel, StatusBanner } from "./BtxUI";
 import { grant, investors, type GrantOutcome, type Investor } from "./adminApi";
-import { compactMoney, exchangePath, money } from "./market";
+import { compactMoney } from "./market";
 import s from "./Admin.module.css";
 
 interface GrantRun {
@@ -89,17 +88,15 @@ export function GrantFunds({
   roster,
   batch,
   paused,
-  compact = false,
 }: {
   roster: ReturnType<typeof useInvestors>;
   batch: Batch;
   paused: boolean;
-  compact?: boolean;
 }) {
   const [requestId] = useState(() => crypto.randomUUID());
   const { query: route } = useRouter();
   const [amount, setAmount] = useState(
-    () => (!compact && [route.amount].flat()[0]) || "100,000",
+    () => [route.amount].flat()[0] || "100,000",
   );
   const [choose, setChoose] = useState(false);
   const [selection, setSelection] = useState<string[]>([]);
@@ -126,7 +123,7 @@ export function GrantFunds({
     !validAmount ||
     !Number.isSafeInteger(total);
   const formatted = compactMoney(validAmount ? cents : 0);
-  const recipients = compact ? "everyone" : `${targets.length} investors`;
+  const recipients = `${targets.length} investor${targets.length === 1 ? "" : "s"}`;
 
   function submit() {
     if (disabled || batch.run) return;
@@ -139,33 +136,29 @@ export function GrantFunds({
   }
   const fields = (
     <>
-      {!compact && (
-        <>
-          <label className={s.field}>
-            Event
-            <input readOnly value="KickStart 2026" />
-          </label>
-          <div className={s.field}>
-            Recipients
-            <div className={s.segment}>
-              <button
-                className={s.toggle}
-                aria-pressed={!choose}
-                onClick={() => setChoose(false)}
-              >
-                All investors
-              </button>
-              <button
-                className={s.toggle}
-                aria-pressed={choose}
-                onClick={() => setChoose(true)}
-              >
-                Choose investors
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <label className={s.field}>
+        Event
+        <input readOnly value="KickStart 2026" />
+      </label>
+      <div className={s.field}>
+        Recipients
+        <div className={s.segment}>
+          <button
+            className={s.toggle}
+            aria-pressed={!choose}
+            onClick={() => setChoose(false)}
+          >
+            All investors
+          </button>
+          <button
+            className={s.toggle}
+            aria-pressed={choose}
+            onClick={() => setChoose(true)}
+          >
+            Choose investors
+          </button>
+        </div>
+      </div>
       <label className={s.field}>
         Amount per investor
         <input
@@ -181,33 +174,17 @@ export function GrantFunds({
           </small>
         )}
       </label>
-      {compact ? (
-        <Link
-          href={{ pathname: exchangePath + "/admin/grants", query: { amount } }}
-          className={s.recipient}
-        >
-          <span className={s.muted}>Recipients</span>
-          <strong>
-            {roster.isPending
-              ? "Loading investors…"
-              : `All ${people.length} registered investors`}
-          </strong>
-        </Link>
-      ) : (
-        <div className="rounded-xl border border-[#324e6b] bg-[#142034] p-4">
-          <span className={s.muted}>
-            {targets.length} investors × {formatted}
-          </span>
-          <strong>
-            {Number.isSafeInteger(total) ? compactMoney(total) : "—"} total
-          </strong>
-        </div>
-      )}
-      {!compact && (
-        <small className={s.muted}>
-          Request ID {requestId.slice(0, 8)}… is reused if you retry.
-        </small>
-      )}
+      <div className="rounded-xl border border-[#324e6b] bg-[#142034] p-4">
+        <span className={s.muted}>
+          {recipients} × {formatted}
+        </span>
+        <strong>
+          {Number.isSafeInteger(total) ? compactMoney(total) : "—"} total
+        </strong>
+      </div>
+      <small className={s.muted}>
+        Request ID {requestId.slice(0, 8)}… is reused if you retry.
+      </small>
       {roster.isError && (
         <StatusBanner
           tone="error"
@@ -216,114 +193,72 @@ export function GrantFunds({
         />
       )}
       <button className={s.primary} disabled={disabled} onClick={submit}>
-        {paused ? "Paused during IPO" : `Grant ${formatted} to ${recipients}`}
+        {paused
+          ? "Paused during IPO"
+          : `Grant ${formatted} each to ${recipients}`}
       </button>
     </>
   );
   return (
     <AngledPanel className={s.panel}>
       <header>
-        <small className={s.eyebrow}>Action 1</small>
         <h2>Grant funds</h2>
         <p>
-          {compact
-            ? "Give every investor more cash to trade with once the IPO is live."
-            : "Give investors more cash to trade with. Grants raise their cash and their allocated total, so they never count as profit."}
+          Grant an equal amount to each selected investor. Grants increase
+          available cash and allocated funds.
         </p>
       </header>
-      {compact ? (
-        fields
-      ) : (
-        <div className={s.columns + " " + s.picker}>
-          <div className={s.fields}>{fields}</div>
-          <div className={s.fields}>
-            <input
-              type="search"
-              aria-label="Search investors by name or email"
-              placeholder="Search investors by name or email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <div className={s.tableBox}>
-              <div className={s.tableHeader + " " + s.row}>
-                Investor{" "}
-                <span>
-                  {targets.length} of {people.length} selected
-                </span>
-              </div>
-              <div className="max-h-[475px] overflow-auto">
-                {visible.map((person) => (
-                  <label className={s.person} key={person.email}>
-                    <input
-                      type="checkbox"
-                      disabled={!choose || paused}
-                      checked={!choose || selection.includes(person.email)}
-                      onChange={(e) => {
-                        const { checked } = e.target;
-                        setSelection((emails) =>
-                          checked
-                            ? [...emails, person.email]
-                            : emails.filter((email) => email !== person.email),
-                        );
-                      }}
-                    />
-                    <span>
-                      {person.name}
-                      <small className={s.muted}>{person.email}</small>
-                    </span>
-                  </label>
-                ))}
-                {!visible.length && (
-                  <p className="p-4">
-                    {roster.isPending
-                      ? "Loading investors…"
-                      : "No matching investors."}
-                  </p>
-                )}
-              </div>
+
+      <div className={s.columns + " " + s.picker}>
+        <div className={s.fields}>{fields}</div>
+        <div className={s.fields}>
+          <input
+            type="search"
+            aria-label="Search investors by name or email"
+            placeholder="Search investors by name or email"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <div className={s.tableBox}>
+            <div className={s.tableHeader + " " + s.row}>
+              Investor{" "}
+              <span>
+                {targets.length} of {people.length} selected
+              </span>
+            </div>
+            <div className="max-h-[475px] overflow-auto">
+              {visible.map((person) => (
+                <label className={s.person} key={person.email}>
+                  <input
+                    type="checkbox"
+                    disabled={!choose || paused}
+                    checked={!choose || selection.includes(person.email)}
+                    onChange={(e) => {
+                      const { checked } = e.target;
+                      setSelection((emails) =>
+                        checked
+                          ? [...emails, person.email]
+                          : emails.filter((email) => email !== person.email),
+                      );
+                    }}
+                  />
+                  <span>
+                    {person.name}
+                    <small className={s.muted}>{person.email}</small>
+                  </span>
+                </label>
+              ))}
+              {!visible.length && (
+                <p className="p-4">
+                  {roster.isPending
+                    ? "Loading investors…"
+                    : "No matching investors."}
+                </p>
+              )}
             </div>
           </div>
         </div>
-      )}
-    </AngledPanel>
-  );
-}
-
-export function GrantSummary({ batch, run, paused }: GrantResultProps) {
-  const granted =
-    run.outcomes.length === run.targets.length &&
-    run.outcomes.every((row) => row.status === "APPLIED");
-  const title = granted
-    ? `Granted ${money(run.amountCents)} to ${run.targets.length} investors`
-    : batch.sending
-      ? "Sending grants…"
-      : "Review grant results";
-
-  return (
-    <AngledPanel className={s.panel}>
-      <header>
-        <small className={s.eyebrow}>Action 1</small>
-        <h2>Grant funds</h2>
-      </header>
-      <StatusBanner
-        tone={granted ? "success" : batch.sending ? "info" : "warning"}
-        title={title}
-      />
-      {granted ? (
-        <button
-          className={s.outline}
-          onClick={batch.done}
-          disabled={paused || batch.sending}
-        >
-          Grant again
-        </button>
-      ) : (
-        !batch.sending && (
-          <Link className={s.outline} href={exchangePath + "/admin/grants"}>
-            View grant results
-          </Link>
-        )
-      )}
+      </div>
     </AngledPanel>
   );
 }
@@ -347,14 +282,13 @@ export function GrantResults({
   const visible = run.targets.filter(
     (email) => all || !failed || results.get(email)?.status === "REJECTED",
   );
-  let title = `Granted ${amount} to ${applied} investors`;
+  let title = `Granted ${amount} to ${applied} investor${applied === 1 ? "" : "s"}`;
   if (batch.sending) title = "Sending grants…";
   else if (unknown) title = "Some grant outcomes are unconfirmed";
   else if (failed) title = `${failed} grant${failed === 1 ? "" : "s"} failed`;
   return (
     <AngledPanel className={s.panel}>
       <header>
-        <small className={s.eyebrow}>Action 1</small>
         <h2>Grant funds</h2>
         <p>
           Results for request {run.id.slice(0, 8)}… to {run.targets.length}{" "}

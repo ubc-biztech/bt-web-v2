@@ -22,9 +22,14 @@ export interface Company {
 
 export interface Market {
   eventId: string;
-  phase: "SEED" | "IPO_PREPARING" | "LIVE";
+  phase: "SEED" | "IPO_PREPARING" | "IPO_RESETTING" | "LIVE";
   serverTime: number;
   ipoAt?: number | null;
+  lastReset?: {
+    ipoAt: number;
+    status: "SUCCEEDED" | "DECLINED";
+    message?: string;
+  };
   eventEndsAt: number;
   projects: Company[];
 }
