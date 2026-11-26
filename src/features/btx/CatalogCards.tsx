@@ -4,9 +4,9 @@ import {
   companyName,
   compactMoney,
   percent,
-  windowState,
-  windowLabel,
-  windowPillTone,
+  listingState,
+  listingLabel,
+  listingPillTone,
 } from "./market";
 import { useCompanyTeam } from "./accountQueries";
 import type { ReactNode } from "react";
@@ -15,15 +15,13 @@ import type { Company } from "./seedApi";
 
 export type CardProps = {
   company: Company;
-  now: number;
   own: boolean;
   highlight: (value: string) => ReactNode;
-  // Compact cards also reflect the event-wide state on the landing screen.
   stage: MarketStage;
 };
 const action = {
   ACTIVE: "Invest",
-  NOT_STARTED: "Not open",
+  PAUSED: "Paused",
   ENDED: "Closed",
   LIVE: "Trade",
 };
@@ -55,20 +53,13 @@ function CompanyTitle({
 
 export function MobileCatalogCard({
   company,
-  now,
   own,
   highlight,
   stage,
 }: CardProps) {
-  const state = windowState(company, now);
-  const paused = stage === "launching" || stage === "closed";
-  const active = !own && !paused && (state === "ACTIVE" || state === "LIVE");
-  let status = windowLabel(company, now);
-  if (paused) status = "Seed ended";
-  else if (stage === "waiting" && state === "NOT_STARTED")
-    status = "Opens after Kickoff";
-  else if (own && state === "ACTIVE") status = "Seeding";
-  else if (state === "ACTIVE" || state === "LIVE") status = "● " + status;
+  const state = listingState(company, stage);
+  const open = state === "ACTIVE" || state === "LIVE";
+  const status = (open ? "● " : "") + listingLabel(state);
 
   return (
     <span className="flex w-full flex-col md:hidden">
@@ -77,7 +68,7 @@ export function MobileCatalogCard({
         <span className="absolute inset-x-3 bottom-2.5 flex items-center justify-between">
           <span
             className={styles.statusPill}
-            data-tone={paused ? "ended" : windowPillTone(state)}
+            data-tone={listingPillTone(state)}
           >
             {status}
           </span>
@@ -96,7 +87,7 @@ export function MobileCatalogCard({
         <span className="flex items-center justify-between gap-2 pt-1">
           <span className="flex flex-col">
             <strong className="text-[16px] font-bold">
-              {state === "NOT_STARTED"
+              {state === "PAUSED"
                 ? "—"
                 : compactMoney(
                     state === "LIVE"
@@ -107,22 +98,20 @@ export function MobileCatalogCard({
             <small className="text-[#9eabcb]">
               {state === "LIVE"
                 ? percent((company.currentPriceCents - 10000) / 10000)
-                : state === "NOT_STARTED"
-                  ? "not started"
-                  : paused
-                    ? "raised"
-                    : "seeded"}
+                : state === "PAUSED"
+                  ? "paused"
+                  : "seeded"}
             </small>
           </span>
           <span
             className={
               "rounded-full border px-[18px] py-[9px] text-[13px] leading-[normal] font-medium " +
-              (active
+              (!own && open
                 ? "border-[#82c3fb]/40 bg-[#1fbef9] text-[#0b1120]"
                 : "border-[#82c3fb]/15 bg-[#82c3fb]/5 text-[#9eabcb]")
             }
           >
-            {own ? "Yours" : paused ? "Closed" : action[state]}
+            {own ? "Yours" : action[state]}
           </span>
         </span>
       </span>
@@ -130,41 +119,27 @@ export function MobileCatalogCard({
   );
 }
 
-export function ExchangeCard({
-  company,
-  now,
-  own,
-  stage,
-  highlight,
-}: CardProps) {
-  const state = windowState(company, now);
-  const before = stage === "waiting" && state === "NOT_STARTED";
-  const after = stage === "closed" || stage === "launching";
+export function ExchangeCard({ company, own, stage, highlight }: CardProps) {
+  const state = listingState(company, stage);
+  const open = state === "ACTIVE" || state === "LIVE";
   const amount = compactMoney(company.marketCapCents);
   const priceChange = (company.currentPriceCents - 10000) / 100;
-  const summary = before
-    ? "Opens after Kickoff"
-    : after
-      ? company.marketCapCents
-        ? amount + " raised"
-        : "No seed round"
-      : state === "LIVE"
-        ? compactMoney(company.currentPriceCents)
-        : amount;
+  const summary =
+    state === "LIVE"
+      ? compactMoney(company.currentPriceCents)
+      : state === "PAUSED"
+        ? "—"
+        : amount + " raised";
   const status = own
     ? "Yours"
-    : after
-      ? "Seed ended"
-      : state === "LIVE"
-        ? (priceChange >= 0 ? "+" : "") + priceChange.toFixed(1) + "%"
-        : state === "ACTIVE"
-          ? "● Seeding open"
-          : windowLabel(company, now);
+    : state === "LIVE"
+      ? (priceChange >= 0 ? "+" : "") + priceChange.toFixed(1) + "%"
+      : listingLabel(state);
   return (
     <>
       <span className={imageArea + " aspect-[2.55]"}>
         <CompanyPhoto logo={company.logo} emblemSize={44} />
-        {(own || (!before && !after)) && (
+        {(own || open) && (
           <span
             className={
               "absolute right-2 top-2 border border-[#527096] bg-[#101c32] " +
@@ -183,32 +158,30 @@ export function ExchangeCard({
       </span>
       <span className="flex items-center justify-between gap-1 px-3 pb-3 text-[12px] font-medium">
         <span>{summary}</span>
-        {(!before || own) && (
-          <span
-            className={
-              badge +
-              " border border-current/30 " +
-              (own
-                ? "bg-slate-400/15 text-[#a8b5d6]"
-                : after || state === "ENDED"
-                  ? "bg-amber-300/10 text-[#ffddad]"
-                  : state === "ACTIVE" || (state === "LIVE" && priceChange >= 0)
-                    ? "bg-emerald-400/10 text-[#38d3a2]"
-                    : state === "LIVE"
-                      ? "text-[#ff5c7a]"
-                      : "text-[#a8b5d6]")
-            }
-          >
-            {status}
-          </span>
-        )}
+        <span
+          className={
+            badge +
+            " border border-current/30 " +
+            (own
+              ? "bg-slate-400/15 text-[#a8b5d6]"
+              : !open
+                ? "bg-amber-300/10 text-[#ffddad]"
+                : state === "ACTIVE" || (state === "LIVE" && priceChange >= 0)
+                  ? "bg-emerald-400/10 text-[#38d3a2]"
+                  : state === "LIVE"
+                    ? "text-[#ff5c7a]"
+                    : "text-[#a8b5d6]")
+          }
+        >
+          {status}
+        </span>
       </span>
     </>
   );
 }
 
-export function FullCatalogCard({ company, now, own, highlight }: CardProps) {
-  const state = windowState(company, now);
+export function FullCatalogCard({ company, stage, own, highlight }: CardProps) {
+  const state = listingState(company, stage);
   const team = useCompanyTeam(company.projectId);
   return (
     <>
@@ -219,14 +192,14 @@ export function FullCatalogCard({ company, now, own, highlight }: CardProps) {
             "absolute left-3 top-3 text-[#0b1424] " +
             badge +
             " " +
-            (own || state === "NOT_STARTED"
+            (own || state === "PAUSED"
               ? "bg-[#8997bc]"
               : state === "ENDED"
                 ? "bg-[#ffddad]"
                 : "bg-[#38d3a2]")
           }
         >
-          {own ? "Your team" : windowLabel(company, now)}
+          {own ? "Your team" : listingLabel(state)}
         </span>
         {!own && (state === "ACTIVE" || state === "LIVE") && (
           <span

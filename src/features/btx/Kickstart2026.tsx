@@ -240,7 +240,6 @@ function ExchangePage({
         <ExchangeCatalog
           projects={market.projects}
           stage={stage}
-          now={now}
           ownProject={ownProject}
           cardsOnly={cardsOnly}
           focusSearch={focusSearch}
@@ -255,7 +254,6 @@ function CatalogPage({ market, now, ownProject, initials }: MarketPageProps) {
     <FullCatalog
       initials={initials}
       projects={market.projects}
-      now={now}
       ownProject={ownProject}
       stage={marketStage(market, now)}
     />

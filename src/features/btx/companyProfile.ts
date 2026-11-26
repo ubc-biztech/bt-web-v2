@@ -1,7 +1,6 @@
 import { fetchBackend } from "@/lib/db";
 import { youtubeVideoId } from "@/features/product+/2026/submission/submission";
 import { companyNameError } from "./teamRules";
-import type { Company } from "./seedApi";
 
 export interface CompanyProfileFields {
   companyName: string;
@@ -143,26 +142,6 @@ export async function saveCompanyProfile(
     method: "PATCH",
     data: patch,
   });
-}
-
-export interface SeedWindow {
-  projectId: string;
-  eventId: string;
-  seedStartedAt: number;
-  seedEndsAt: number;
-  seedStatus: Company["seedStatus"];
-  serverTime: number;
-  ipoAt: number | null;
-}
-
-export async function startCompanySeeding(
-  projectId: string,
-): Promise<SeedWindow> {
-  const response = await fetchBackend({
-    endpoint: profilePath(projectId) + "/seed/start",
-    method: "POST",
-  });
-  return response.data;
 }
 
 export function profileErrorMessage(error: unknown, fallback: string): string {

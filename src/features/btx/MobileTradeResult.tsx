@@ -6,12 +6,11 @@ import { stockError } from "./stockError";
 import type { TradeTicketProps } from "./TradeTicket";
 
 export function MobileTradeResult({
-  company,
   market,
   ticket,
   onClose,
   children,
-}: Pick<TradeTicketProps, "company" | "market" | "ticket"> & {
+}: Pick<TradeTicketProps, "market" | "ticket"> & {
   onClose: () => void;
   children: ReactNode;
 }) {
@@ -62,12 +61,7 @@ export function MobileTradeResult({
       </div>
     );
   }
-  if (
-    market.phase === "SEED" &&
-    !ticket.seedOpen &&
-    !ticket.order &&
-    company.seedStatus !== "NOT_STARTED"
-  ) {
+  if (market.phase === "SEED" && !ticket.seedOpen && !ticket.order) {
     return (
       <div className="flex flex-col gap-4">
         <StatusBanner {...stockError("SEED_WINDOW_ENDED")} />

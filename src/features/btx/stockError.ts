@@ -22,9 +22,8 @@ const errors = {
   },
   SEED_NOT_STARTED: {
     tone: "warning",
-    title: "Seeding hasn’t started",
-    description:
-      "This team hasn’t started seeding yet. Buying opens when they do.",
+    title: "Seed buying unavailable",
+    description: "Refresh the market and try again.",
   },
   SEED_WINDOW_ENDED: {
     tone: "warning",
@@ -40,7 +39,7 @@ const errors = {
   TRANSITION_UNAVAILABLE: {
     tone: "warning",
     title: "Trading paused",
-    description: "Trading is paused while opening prices are set.",
+    description: "Trading resumes when the market phase changes.",
   },
   EVENT_ENDED: { tone: "warning", title: "Market closed" },
   STALE_QUOTE: priceChanged,

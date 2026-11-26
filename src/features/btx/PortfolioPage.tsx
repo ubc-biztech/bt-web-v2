@@ -231,7 +231,7 @@ export function PortfolioPage({
                 <StatusBanner
                   tone="info"
                   title="Selling is locked until IPO"
-                  description="Buy once a company starts seeding. Selling opens at IPO."
+                  description="Buy shares in a listed company during the seed round. Selling opens at IPO."
                 />
               )}
               <MobileHoldings

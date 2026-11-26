@@ -10,12 +10,11 @@ export interface Company {
   netShares?: number;
   seedSharesAtIpo?: number | null;
   seedStartedAt?: number | null;
+  isActive?: boolean;
   name?: string;
   blurb?: string;
   description?: string;
   youtubeURL?: string;
-  seedStatus: "ACTIVE" | "ENDED" | "NOT_STARTED" | "LIVE";
-  seedEndsAt?: number | null;
   currentPriceCents: number;
   lastPriceTs?: number;
 }

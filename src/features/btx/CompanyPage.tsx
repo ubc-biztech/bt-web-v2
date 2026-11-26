@@ -41,28 +41,28 @@ export function CompanyPage({
   if (!company)
     return <StatusBanner tone="warning" title="Company not found" />;
   const live = market.phase === "LIVE";
-  const launching = market.phase === "IPO_PREPARING";
-  const notStarted =
-    market.phase === "SEED" &&
-    now < market.eventEndsAt &&
-    company.seedStatus === "NOT_STARTED";
-  const stage = live
-    ? "Live"
-    : launching
-      ? "IPO launching"
-      : notStarted
-        ? "Seed not started"
+  const resetting = market.phase === "IPO_RESETTING";
+  const transitioning = resetting || market.phase === "IPO_PREPARING";
+  const stage = transitioning
+    ? resetting
+      ? "IPO reset in progress"
+      : "IPO launching"
+    : company.isActive === false
+      ? "Trading closed"
+      : live
+        ? "Live"
         : ticket.seedOpen
           ? "Seed round open"
-          : "Seed round ended";
+          : "Seed round closed";
   const unavailable =
     ticket.ownCompany ||
+    company.isActive === false ||
     now >= market.eventEndsAt ||
     (!live && !ticket.seedOpen);
   const hasOrder = !!ticket.order || !!ticket.notice;
   const tradeAction = hasOrder
     ? "View order"
-    : launching
+    : transitioning
       ? "Trading paused"
       : unavailable
         ? "Buy unavailable"
@@ -102,13 +102,11 @@ export function CompanyPage({
             )}
             <span
               data-tone={
-                launching
+                transitioning
                   ? "accent"
-                  : live || ticket.seedOpen
+                  : (live && company.isActive !== false) || ticket.seedOpen
                     ? "active"
-                    : notStarted
-                      ? "neutral"
-                      : "ended"
+                    : "ended"
               }
               className={
                 styles.statusPill +
@@ -133,49 +131,39 @@ export function CompanyPage({
                 <div className="md:hidden">
                   <StatusBanner
                     tone="warning"
-                    title={
-                      launching
-                        ? "IPO is launching"
-                        : notStarted
-                          ? "This team hasn’t started seeding"
-                          : "Seed round closed"
-                    }
+                    title={stage}
                     description={
-                      launching
-                        ? "Trading is paused for a moment while prices go live. This page will update on its own."
-                        : notStarted
-                          ? "Buying opens once a team member starts seeding."
-                          : "Seed funding for this company is closed."
+                      transitioning
+                        ? "Trading resumes when the market phase changes."
+                        : "Seed buys are unavailable for this listing."
                     }
                   />
                 </div>
               )}
               <div className="flex flex-col gap-2 rounded-[20px] border border-[#89dcff]/35 bg-[#82c3fb]/5 p-4 md:contents">
                 <p className="max-md:order-last text-[12px] text-[#1fbef9]">
-                  {ticket.seedOpen || notStarted
-                    ? "No price lines in seeding. Invest off the pitch"
+                  {ticket.seedOpen
+                    ? "Seed shares are $100. Prices move after IPO."
                     : "Price chart appears after IPO."}
                 </p>
                 <div className="flex max-md:flex-col md:flex-wrap md:items-baseline md:gap-4">
                   <span
                     className={`${styles.display} max-md:font-[family-name:var(--btx-font-space-grotesk)] max-md:font-bold text-[34px] font-medium leading-[normal] md:text-[64px] tabular-nums text-white lg:text-[96px]`}
                   >
-                    {launching
-                      ? "IPO"
-                      : notStarted
-                        ? "Waiting"
-                        : ticket.seedOpen
-                          ? "Open"
-                          : "Closed"}
+                    {transitioning
+                      ? "Paused"
+                      : ticket.seedOpen
+                        ? "Open"
+                        : "Closed"}
                   </span>
                   <span className="text-[13px] md:text-[15px]">
-                    {launching
-                      ? "setting opening prices"
-                      : notStarted
-                        ? "for the team to start seeding"
-                        : ticket.seedOpen
-                          ? "for seed buys until IPO or event close"
-                          : "for seed funding"}
+                    {transitioning
+                      ? resetting
+                        ? "while seed pricing is restored"
+                        : "while opening prices are set"
+                      : ticket.seedOpen
+                        ? "for seed buys until IPO or event close"
+                        : "for seed funding"}
                   </span>
                 </div>
               </div>
@@ -183,7 +171,7 @@ export function CompanyPage({
                 <div>
                   <dt className="text-[11px] text-[#a8b5d6]">Seed funding</dt>
                   <dd className={`${styles.display} font-medium`}>
-                    {compactMoney(company.marketCapCents)}
+                    {transitioning ? "—" : compactMoney(company.marketCapCents)}
                   </dd>
                 </div>
                 {company.netShares != null && (

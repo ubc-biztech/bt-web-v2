@@ -18,15 +18,10 @@ export type TradeTicketProps = {
 };
 
 export function TradeTicket(props: TradeTicketProps) {
-  const { onClose, market, company, ticket } = props;
+  const { onClose, market, ticket } = props;
   const form = <TradeForm {...props} />;
   return onClose ? (
-    <MobileTradeResult
-      onClose={onClose}
-      market={market}
-      company={company}
-      ticket={ticket}
-    >
+    <MobileTradeResult onClose={onClose} market={market} ticket={ticket}>
       {form}
     </MobileTradeResult>
   ) : (
@@ -54,7 +49,7 @@ function TradeForm({
     ticket;
   const buying = side === "BUY";
   const live = market.phase === "LIVE";
-  const launching = market.phase === "IPO_PREPARING";
+  const transitioning = !live && market.phase !== "SEED";
   const seedUnavailable = !live && !ticket.seedOpen;
   const total = buying ? preview?.totalCostCents : preview?.proceedsCents;
 
@@ -71,16 +66,15 @@ function TradeForm({
   let errorCode = quoteErrorCode;
   let errorMessage = quoteErrorCode ? ticket.quoteError?.message : undefined;
   if (!errorCode) {
-    if (launching) errorCode = "TRANSITION_UNAVAILABLE";
+    if (transitioning) errorCode = "TRANSITION_UNAVAILABLE";
     else if (ticket.ownCompany) {
       errorCode = "FORBIDDEN";
       errorMessage = "You can’t trade shares in your own company.";
-    } else if (seedUnavailable) {
-      errorCode =
-        company.seedStatus === "NOT_STARTED"
-          ? "SEED_NOT_STARTED"
-          : "SEED_WINDOW_ENDED";
-    } else if (balanceError) errorCode = balanceError;
+    } else if (company.isActive === false) {
+      errorCode = "FORBIDDEN";
+      errorMessage = "This listing is inactive.";
+    } else if (seedUnavailable) errorCode = "SEED_WINDOW_ENDED";
+    else if (balanceError) errorCode = balanceError;
   }
   const notice =
     ticket.notice ?? (errorCode && stockError(errorCode, errorMessage));
@@ -105,8 +99,9 @@ function TradeForm({
     orderLabel = ticket.priceChanged
       ? `Confirm at new price · ${money(preview.priceCents)}`
       : `${buying ? "Buy" : "Sell"} ${quantity} at ${money(preview.priceCents)}`;
-  } else if (launching) orderLabel = "Trading paused";
-  else if (ticket.ownCompany || seedUnavailable) orderLabel = "Buy unavailable";
+  } else if (transitioning) orderLabel = "Trading paused";
+  else if (ticket.ownCompany || seedUnavailable || company.isActive === false)
+    orderLabel = "Buy unavailable";
 
   const impact =
     preview?.phase === "LIVE" &&
@@ -119,8 +114,10 @@ function TradeForm({
       : "—";
   const quoteDetails = [
     [
-      live ? "Est. price" : "Seed price",
-      money(preview?.priceCents ?? company.currentPriceCents),
+      live ? "Est. price" : transitioning ? "Price" : "Seed price",
+      transitioning
+        ? "—"
+        : money(preview?.priceCents ?? company.currentPriceCents),
     ],
     live ? ["Impact", impact] : ["Shares", "× " + quantity],
     ["Fee 2%", preview ? money(preview.feeCents) : "—"],
