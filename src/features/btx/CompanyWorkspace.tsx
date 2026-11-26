@@ -5,16 +5,6 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { errorStatus, eventTeamQueryKey } from "@/features/events/teams";
 import { youtubeVideoId } from "@/features/product+/2026/submission/submission";
 import {
@@ -37,14 +27,13 @@ import {
   profileRequiresSignIn,
   profileValues,
   saveCompanyProfile,
-  startCompanySeeding,
   validateProfile,
   type CompanyProfile,
   type CompanyProfileFields,
   type ProfileErrors,
 } from "./companyProfile";
-import { exchangePath, windowState } from "./market";
-import { market, type Market, type Company } from "./seedApi";
+import { exchangePath, listingState, marketStage } from "./market";
+import { market, type Company } from "./seedApi";
 import {
   KICKSTART_EVENT_ID,
   KICKSTART_EVENT_KEY,
@@ -67,7 +56,7 @@ const labels: Record<keyof CompanyProfileFields, string> = {
 };
 const hints: Record<keyof CompanyProfileFields, string> = {
   companyName:
-    "Your company name locks when seeding or IPO preparation starts.",
+    "Your company name locks when it receives funding or IPO preparation starts.",
   blurb:
     "Tell investors what your company does. You can leave this blank in a draft.",
   youtubeURL:
@@ -103,12 +92,12 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   const { projectId, email, removed } = props;
   const queryClient = useQueryClient();
   const queryKey = companyProfileKey(projectId, email);
-  const [action, setAction] = useState<"save" | "seed" | null>(null);
+  const [saving, setSaving] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
   const profile = useQuery({
     queryKey,
     queryFn: readProfile,
-    enabled: action === null,
+    enabled: !saving,
     retry: false,
     staleTime: 0,
     refetchOnWindowFocus: true,
@@ -129,7 +118,6 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   } | null>(null);
   const [errors, setErrors] = useState<ProfileErrors>({});
   const [notice, setNotice] = useState<Notice>();
-  const [seedConfirmation, setSeedConfirmation] = useState(false);
   const [clock, setClock] = useState(Date.now());
   const writeInFlight = useRef(false);
   const expiryRefreshed = useRef(false);
@@ -194,28 +182,15 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
     !sessionExpired &&
     !closed;
   const canEditName = canEdit && !!profile.data?.canEditName;
-  const busy = props.busy || action !== null;
+  const busy = props.busy || saving;
   const company =
     snapshot.data?.eventId === KICKSTART_EVENT_KEY
       ? snapshot.data.projects.find((p) => p.projectId === projectId)
       : undefined;
-  const seedState = company ? windowState(company, serverNow) : undefined;
-  const marketKnown =
-    snapshot.isSuccess &&
-    snapshot.data.eventId === KICKSTART_EVENT_KEY &&
-    !!company;
-  const preIpo =
-    marketKnown &&
-    snapshot.data?.phase === "SEED" &&
-    snapshot.data.ipoAt === null;
-  const canStart =
-    canEditName &&
-    complete &&
-    !dirty &&
-    !busy &&
-    preIpo &&
-    company?.seedStartedAt === null &&
-    seedState === "NOT_STARTED";
+  const seedState =
+    snapshot.isSuccess && company
+      ? listingState(company, marketStage(snapshot.data, serverNow))
+      : undefined;
 
   useEffect(() => {
     if (!dirty) return;
@@ -228,16 +203,12 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   }, [dirty]);
 
   useEffect(() => {
-    if (!canStart && action !== "seed") setSeedConfirmation(false);
-  }, [canStart, action]);
-
-  useEffect(() => {
     // Manual refetches bypass enabled, so defer expiry reads during a write too.
-    if (action !== null || !closed || expiryRefreshed.current) return;
+    if (saving || !closed || expiryRefreshed.current) return;
     expiryRefreshed.current = true;
     void refetchProfile();
     void refetchSnapshot();
-  }, [action, closed, refetchProfile, refetchSnapshot]);
+  }, [saving, closed, refetchProfile, refetchSnapshot]);
 
   async function readProfile() {
     const latest = await getCompanyProfile(projectId);
@@ -285,19 +256,19 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
       companyName: canEditName ? values.companyName : saved.companyName,
     };
     const validation = validateProfile(submitted);
-    // Drafts may be partial. A company that has started seeding, or a complete
-    // profile locked by IPO, must stay complete. Backend validation is final.
+    // A name-locked profile that was complete must stay complete.
     const mustStayComplete =
       typeof company?.seedStartedAt === "number" ||
       company?.seedSharesAtIpo != null ||
-      (!profile.data?.canEditName && complete);
+      ((!profile.data?.canEditName || (company?.netShares ?? 0) > 0) &&
+        complete);
     if (mustStayComplete) {
       if (!submitted.blurb)
         validation.blurb =
-          "Keep a company blurb after seeding or IPO has locked the completed profile.";
+          "Keep a company blurb when the completed profile is locked.";
       if (!submitted.youtubeURL)
         validation.youtubeURL =
-          "Keep a valid YouTube pitch after seeding or IPO has locked the completed profile.";
+          "Keep a valid YouTube pitch when the completed profile is locked.";
     }
     setErrors(validation);
     if (Object.values(validation).some(Boolean)) {
@@ -317,7 +288,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
         patch[field] = submitted[field];
     if (!Object.keys(patch).length) return;
     writeInFlight.current = true;
-    setAction("save");
+    setSaving(true);
     setNotice(undefined);
     await queryClient.cancelQueries({ queryKey });
     try {
@@ -367,76 +338,11 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
       }
     } finally {
       writeInFlight.current = false;
-      setAction(null);
-    }
-  }
-
-  async function startSeeding() {
-    if (writeInFlight.current || !canStart) return;
-    writeInFlight.current = true;
-    setAction("seed");
-    setNotice(undefined);
-    await queryClient.cancelQueries({ queryKey: ["btx", "snapshot"] });
-    try {
-      const window = await startCompanySeeding(projectId);
-      queryClient.setQueryData<Market>(["btx", "snapshot"], (current) =>
-        current
-          ? {
-              ...current,
-              serverTime: window.serverTime,
-              ipoAt: window.ipoAt,
-              projects: current.projects.map((p) =>
-                p.projectId === projectId
-                  ? {
-                      ...p,
-                      seedStartedAt: window.seedStartedAt,
-                      seedEndsAt: window.seedEndsAt,
-                      seedStatus: window.seedStatus,
-                    }
-                  : p,
-              ),
-            }
-          : current,
-      );
-      // The successful start permanently locks the name, even if the reload fails.
-      queryClient.setQueryData<CompanyProfile>(queryKey, (current) =>
-        current ? { ...current, canEditName: false } : current,
-      );
-      setNotice({
-        tone: "success",
-        title: "Your seed round has started",
-        description:
-          "Investors can buy until IPO or the event cutoff. Your company name and team membership are now locked.",
-      });
-      await Promise.allSettled([refreshProfile(), snapshot.refetch()]);
-      refreshMembership();
-    } catch (error) {
-      reportWriteError(error, "Couldn’t confirm seeding");
-      const result = await snapshot.refetch();
-      const latest =
-        result.isSuccess && result.data.eventId === KICKSTART_EVENT_KEY
-          ? result.data.projects.find((p) => p.projectId === projectId)
-          : undefined;
-      if (
-        typeof latest?.seedStartedAt === "number" &&
-        Number.isFinite(latest.seedStartedAt)
-      ) {
-        setNotice({
-          tone: "info",
-          title: "Your seed round has already started",
-        });
-      }
-      await refreshProfile().catch(() => undefined);
-      refreshMembership();
-    } finally {
-      setSeedConfirmation(false);
-      writeInFlight.current = false;
-      setAction(null);
+      setSaving(false);
     }
   }
 
   const profileProblem = profileRequiresSignIn(profile.error) || sessionExpired;
-  const hasListing = !!company;
   const title = saved.companyName || props.team.team_name;
   const previewId = youtubeVideoId(draft.youtubeURL);
   const preview: Company = {
@@ -445,7 +351,6 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
     companyName: draft.companyName.trim() || "Your company",
     blurb: draft.blurb,
     youtubeURL: previewId ? `https://www.youtube.com/watch?v=${previewId}` : "",
-    seedStatus: company?.seedStatus ?? "NOT_STARTED",
     currentPriceCents: company?.currentPriceCents ?? 0,
     marketCapCents: company?.marketCapCents ?? 0,
   };
@@ -500,7 +405,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
         <StatusBanner
           tone="success"
           title="Company team created"
-          description="Share your team code, then add a blurb and YouTube pitch. You can save a draft before you’re ready to seed."
+          description="Share your team code and add a blurb and YouTube pitch so investors can learn about your company."
         />
       )}
       <ol
@@ -522,22 +427,22 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
           },
           {
             label: "Company in catalog",
-            detail: marketKnown ? "Company available" : "Checking availability",
-            done: hasListing && marketKnown,
+            detail: seedState ? "Company available" : "Checking availability",
+            done: !!seedState,
           },
           {
-            label: "Seed round",
+            label: "Funding",
             detail:
               seedState === "ACTIVE"
                 ? "Seeding now"
                 : seedState === "ENDED"
-                  ? "Window ended"
+                  ? "Closed"
                   : seedState === "LIVE"
                     ? "IPO live"
-                    : "Start when you’re ready",
-            done:
-              typeof company?.seedStartedAt === "number" ||
-              seedState === "LIVE",
+                    : seedState === "PAUSED"
+                      ? "Trading paused"
+                      : "Checking status",
+            done: seedState === "ACTIVE" || seedState === "LIVE",
           },
         ].map((step, index) => (
           <li key={step.label} className="flex min-w-0 items-start gap-3">
@@ -569,7 +474,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
             profile.error,
             "Your unsaved changes are still here. Try loading the profile again.",
           )}
-          onRetry={action === null ? () => void profile.refetch() : undefined}
+          onRetry={saving ? undefined : () => void profile.refetch()}
         />
       )}
       {profileProblem && (
@@ -594,23 +499,14 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
               ? "The event editing deadline has passed."
               : "The backend hasn’t granted editing access. Current team membership and an available company state are required. Contact an organizer if this is unexpected."
           }
-          onRetry={action === null ? () => void profile.refetch() : undefined}
+          onRetry={saving ? undefined : () => void profile.refetch()}
         />
       )}
       {profile.data && (
         <SeedRound
-          company={company}
-          snapshot={snapshot.data}
-          now={serverNow}
-          unavailable={!marketKnown}
-          complete={complete}
-          dirty={dirty}
-          canStart={canStart}
-          closed={closed}
-          removed={removed}
+          state={seedState}
           busy={busy}
           onRetry={() => void snapshot.refetch()}
-          onConfirm={() => setSeedConfirmation(true)}
         />
       )}
       <div className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] md:gap-7">
@@ -622,7 +518,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
             className="space-y-4"
             onSubmit={(event) => void save(event)}
             noValidate
-            aria-busy={action === "save"}
+            aria-busy={saving}
           >
             <h2
               id="company-profile-heading"
@@ -739,11 +635,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
                 className={`${teamPrimaryButton} order-1 md:order-3`}
                 disabled={busy || !canEdit || !dirty}
               >
-                {action === "save"
-                  ? "Saving…"
-                  : complete
-                    ? "Save changes"
-                    : "Save draft"}
+                {saving ? "Saving…" : complete ? "Save changes" : "Save draft"}
               </Button>
               <Button
                 type="button"
@@ -790,55 +682,6 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
           <TeamManagement {...props} companyName={title} busy={busy} embedded />
         </aside>
       </div>
-      <AlertDialog
-        open={seedConfirmation}
-        onOpenChange={(open) => {
-          if (action !== "seed") setSeedConfirmation(open);
-        }}
-      >
-        <AlertDialogContent className="w-[calc(100vw-32px)] max-w-[520px] rounded-2xl border-[#324a68] bg-[#101a2b] text-[#e6ebf6] sm:rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-[24px]">
-              Start your seed round?
-            </AlertDialogTitle>
-            <AlertDialogDescription
-              className="space-y-3 text-[14px] leading-6 text-[#b5c1da]"
-              asChild
-            >
-              <div>
-                <p>
-                  Investors can buy at the seed price until IPO preparation or
-                  the event cutoff.
-                </p>
-                <p>
-                  Your company name and team membership will lock permanently.
-                  Other valid profile edits remain available until the event
-                  deadline.
-                </p>
-                <p>Starting uses your saved profile.</p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-3 sm:space-x-0">
-            <AlertDialogCancel
-              className={teamSecondaryButton}
-              disabled={action === "seed"}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className={teamPrimaryButton}
-              disabled={!canStart || action === "seed"}
-              onClick={(event) => {
-                event.preventDefault();
-                void startSeeding();
-              }}
-            >
-              {action === "seed" ? "Starting…" : "Start seeding"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
@@ -854,84 +697,42 @@ function ProfileBadge({ complete }: { complete: boolean }) {
 }
 
 function SeedRound({
-  company,
-  snapshot,
-  now,
-  unavailable,
-  complete,
-  dirty,
-  canStart,
-  closed,
-  removed,
+  state,
   busy,
   onRetry,
-  onConfirm,
 }: {
-  company?: Company;
-  snapshot?: Market;
-  now: number;
-  unavailable: boolean;
-  complete: boolean;
-  dirty: boolean;
-  canStart: boolean;
-  closed: boolean;
-  removed: boolean;
+  state?: ReturnType<typeof listingState>;
   busy: boolean;
   onRetry: () => void;
-  onConfirm: () => void;
 }) {
-  const state = company && windowState(company, now);
-  const globalIpo =
-    snapshot && (snapshot.phase !== "SEED" || snapshot.ipoAt !== null);
-  let title = "Start your seed round";
-  let description = "Open seed funding when your company is ready.";
-  if (unavailable) {
-    title = "Seed status unavailable";
-    description = "Reload market status before starting seeding.";
-  } else if (closed) {
-    title = "The event has ended";
-    description = "Seed funding is closed.";
-  } else if (snapshot?.phase === "LIVE") {
-    title = "Global IPO is live";
-    description =
-      "Seeding has closed. Company name and team membership remain locked.";
-  } else if (globalIpo) {
-    title = "Global IPO preparation has started";
-    description =
-      "Seeding has closed. Company name and team membership remain locked.";
-  } else if (state === "ACTIVE") {
-    title = "Seeding is open";
-    description =
-      "Investors can buy until IPO preparation or the event cutoff.";
-  } else if (state === "ENDED") {
-    title = "Seed funding is closed";
-    description = "Your company name and team membership remain locked.";
-  } else if (dirty)
-    description =
-      "Save or discard your changes before starting seeding. Starting never saves your draft automatically.";
-  else if (!complete)
-    description =
-      "Save a company name, blurb, and valid YouTube pitch before starting seeding. Draft saves can leave the blurb or video blank.";
-  else if (removed)
-    description = "Only current team members can start seeding.";
+  const funding = {
+    ACTIVE: [
+      "Seeding is open",
+      "Investors can buy at $100 per share until IPO preparation or the event cutoff.",
+    ],
+    LIVE: ["Live trading", "Investors can buy and sell at market prices."],
+    PAUSED: [
+      "Trading paused",
+      "Trading resumes when the market phase changes.",
+    ],
+    ENDED: ["Funding closed", "This listing is closed for trading."],
+  };
+  const [title, description] = state
+    ? funding[state]
+    : ["Funding status unavailable", "Reload the market to check funding."];
   return (
     <section
       className="flex flex-col gap-4 rounded-2xl border border-[#1fbef9]/40 bg-[#101a2b]/75 p-4 md:flex-row md:items-center md:justify-between md:p-5"
-      aria-label="Seed round"
+      aria-label="Funding"
     >
       <div className="min-w-0 space-y-1">
-        <p className="text-[12px] text-[#1fbef9]">Seed round</p>
+        <p className="text-[12px] text-[#1fbef9]">Funding</p>
         <h2 className="text-[20px] font-medium tabular-nums">{title}</h2>
         <p className="max-w-3xl text-[13px] leading-5 text-[#b5c1da]">
           {description}
         </p>
-        {typeof company?.seedStartedAt === "number" && (
-          <p className="text-[12px] text-[#98a9c8]">
-            Started {new Date(company.seedStartedAt).toLocaleString()}.
-          </p>
-        )}
       </div>
-      {unavailable ? (
+      {!state && (
         <Button
           className={teamSecondaryButton}
           onClick={onRetry}
@@ -939,18 +740,6 @@ function SeedRound({
         >
           Reload status
         </Button>
-      ) : (
-        state === "NOT_STARTED" &&
-        !globalIpo &&
-        !closed && (
-          <Button
-            className={`${teamPrimaryButton} shrink-0`}
-            disabled={!canStart}
-            onClick={onConfirm}
-          >
-            Start seeding
-          </Button>
-        )
       )}
     </section>
   );

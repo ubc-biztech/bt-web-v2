@@ -28,26 +28,26 @@ export function teamMembershipState(
   snapshot:
     | { eventId: string; phase: string; ipoAt?: number | null }
     | undefined,
-  company: { seedStartedAt?: number | null; seedStatus: string } | undefined,
+  company: { seedStartedAt?: number | null; netShares?: number } | undefined,
 ): TeamMembershipState {
   if (!snapshot || snapshot.eventId !== KICKSTART_EVENT_KEY)
     return "unavailable";
   if (
-    ["IPO_PREPARING", "IPO_LAUNCHING", "LIVE"].includes(snapshot.phase) ||
+    ["IPO_PREPARING", "IPO_LAUNCHING", "IPO_RESETTING", "LIVE"].includes(
+      snapshot.phase,
+    ) ||
     (typeof snapshot.ipoAt === "number" && Number.isFinite(snapshot.ipoAt))
   )
     return "ipoLocked";
   if (snapshot.phase !== "SEED" || snapshot.ipoAt !== null || !company)
     return "unavailable";
-  // A started window never reopens membership, including after the window ends
-  // or when an inconsistent/future timestamp is still labelled NOT_STARTED.
   if (
-    typeof company.seedStartedAt === "number" &&
-    Number.isFinite(company.seedStartedAt)
+    (company.netShares ?? 0) > 0 ||
+    (typeof company.seedStartedAt === "number" &&
+      Number.isFinite(company.seedStartedAt))
   )
     return "seedLocked";
-  if (company.seedStartedAt === null && company.seedStatus === "NOT_STARTED")
-    return "open";
+  if (company.seedStartedAt === null) return "open";
   return "unavailable";
 }
 

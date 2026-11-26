@@ -10,7 +10,7 @@ const seedStages = {
   open: {
     title: "Seeding is open",
     description:
-      "Buy at a fixed price while the seed round is open. Selling opens at IPO.",
+      "Buy shares in any listed company at $100. Selling opens at IPO.",
     badge: "● Seed round open",
     tone: "active",
   },
@@ -28,12 +28,17 @@ const seedStages = {
     badge: "IPO launching",
     tone: "accent",
   },
-  waiting: {
-    title: "Seeding hasn’t started",
-    description:
-      "Teams can open seed funding after kickoff. Browse the pitches while you wait.",
-    badge: "Seeding not started",
-    tone: "neutral",
+  resetting: {
+    title: "IPO reset in progress",
+    description: "Trading is paused while seed prices are restored.",
+    badge: "Trading paused",
+    tone: "accent",
+  },
+  live: {
+    title: "Live trading",
+    description: "Companies appear here as they’re listed.",
+    badge: "Live",
+    tone: "active",
   },
 };
 
@@ -47,17 +52,17 @@ export function ExchangeOverview({
   stage: MarketStage;
 }) {
   const projects = market.projects;
-  const launching = stage === "launching";
-  const seedStage = seedStages[stage === "live" ? "waiting" : stage];
+  const transitioning = stage === "launching" || stage === "resetting";
+  const seedStage = seedStages[stage];
   const description =
-    projects.length || (stage !== "waiting" && stage !== "live")
+    projects.length || stage !== "open"
       ? seedStage.description
-      : "Companies show up here once teams create them. Buying opens as teams start seeding.";
+      : "You can invest in companies as soon as teams list them.";
   const featured = projects[0];
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      {launching && (
+      {transitioning && (
         <div className="md:hidden">
           <StatusBanner
             tone="warning"
@@ -115,38 +120,33 @@ export function ExchangeOverview({
           </div>
         </section>
       )}
-      <TopFunded
-        projects={projects}
-        now={now}
-        live={market.phase === "LIVE"}
-        final={stage === "closed" || launching}
-        launching={launching}
-      />
+      <TopFunded projects={projects} stage={stage} />
     </div>
   );
 }
 
 function MarketTimeline({ stage }: { stage: MarketStage }) {
-  const ipo = stage === "launching" || stage === "closed";
+  const ipo =
+    stage === "launching" || stage === "resetting" || stage === "closed";
   const currentStep = stage === "live" ? 2 : ipo ? 1 : 0;
   const stages = [
     [
       "seeding",
       "Seeding",
-      ipo
-        ? "Seed round closed"
-        : stage === "open"
-          ? "Now: seed round"
-          : "Opens after kickoff",
+      stage === "open"
+        ? "Now: seed round"
+        : stage === "resetting"
+          ? "Reopening after reset"
+          : "Seed round closed",
     ],
     [
       "ipo",
       "IPO",
       stage === "launching"
         ? "Launching now"
-        : stage === "closed"
-          ? "Next up: Pitch Day"
-          : "Forced on Pitch Day",
+        : stage === "resetting"
+          ? "Resetting now"
+          : "Pitch Day",
     ],
     [
       "live",

@@ -15,7 +15,13 @@ import {
   type BtxRequestError,
   type Market,
 } from "./seedApi";
-import { companyName, exchangePath, money, windowState } from "./market";
+import {
+  companyName,
+  exchangePath,
+  listingState,
+  marketStage,
+  money,
+} from "./market";
 import s from "./Admin.module.css";
 
 type IpoStage = "seed" | "ready" | "launching" | "unknown" | "live";
@@ -368,9 +374,9 @@ function ResetControl({
           <h2 id="reset-title">Return the market to seed?</h2>
           <p>
             This restores $100 seed pricing and resets the live price chart.
-            Companies that started seeding can raise funds again. Investors keep
-            their shares, cash balances, and trade history. Shares held count
-            toward the next IPO.
+            Listed companies can raise seed funding again. Investors keep their
+            shares, cash balances, and trade history. Shares held count toward
+            the next IPO.
           </p>
           <div className={s.actions}>
             <button
@@ -407,8 +413,9 @@ function IpoPanel({
   const dialog = useRef<HTMLDialogElement>(null);
   const [confirmation, setConfirmation] = useState("");
   const { projects } = market;
+  const stage = marketStage(market, now);
   const ended = projects.filter(
-    (project) => windowState(project, now) === "ENDED",
+    (project) => listingState(project, stage) === "ENDED",
   ).length;
   const canLaunch =
     !ipo.live &&
@@ -453,14 +460,13 @@ function IpoPanel({
             <div className={s.tableHeader + " " + s.row}>
               Seed funding
               <span>
-                {active} active · {ended} ended ·{" "}
-                {projects.length - active - ended} not started
+                {active} open · {ended} closed
               </span>
             </div>
             <table>
               <tbody>
                 {projects.map((p) => {
-                  const state = windowState(p, now);
+                  const state = listingState(p, stage);
                   return (
                     <tr key={p.projectId}>
                       <td>{companyName(p)}</td>
@@ -477,10 +483,10 @@ function IpoPanel({
                           }}
                         >
                           {state === "ACTIVE"
-                            ? "Active"
+                            ? "Open"
                             : state === "ENDED"
-                              ? "Ended"
-                              : "Not started"}
+                              ? "Closed"
+                              : "Paused"}
                         </span>
                       </td>
                     </tr>
@@ -689,8 +695,9 @@ export function AdminOverview({
   initials,
 }: MarketPageProps) {
   const ipo = useIpo(market, userId);
+  const fundingStage = marketStage(market, now);
   const active = market.projects.filter(
-    (project) => windowState(project, now) === "ACTIVE",
+    (project) => listingState(project, fundingStage) === "ACTIVE",
   ).length;
   const roster = useInvestors(market.eventId, userId);
   const batch = useGrantRun("btx-grant:" + market.eventId + ":" + userId);

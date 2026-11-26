@@ -1,22 +1,23 @@
 import styles from "./btx.module.css";
-import { compactMoney, companyName, windowState } from "./market";
+import {
+  compactMoney,
+  companyName,
+  listingState,
+  type MarketStage,
+} from "./market";
 import { CompanyPhoto } from "./BtxUI";
 
 import type { Company } from "./seedApi";
 
 export function TopFunded({
   projects,
-  now,
-  live,
-  final,
-  launching,
+  stage,
 }: {
   projects: Company[];
-  now: number;
-  live: boolean;
-  final: boolean;
-  launching: boolean;
+  stage: MarketStage;
 }) {
+  const live = stage === "live";
+  const transitioning = stage === "launching" || stage === "resetting";
   // Before IPO, market cap is the seed price times the number of shares bought.
   const leaders = projects
     .slice()
@@ -44,9 +45,9 @@ export function TopFunded({
         <span className="text-[11px] text-[#A8B5D6]">
           {live
             ? "Since seeding"
-            : launching
-              ? "Seed totals locked"
-              : final
+            : transitioning
+              ? "Trading paused"
+              : stage === "closed"
                 ? "Final seed totals"
                 : leaders.some((p) => p.marketCapCents > 0)
                   ? "Live seed totals"
@@ -61,8 +62,10 @@ export function TopFunded({
       ) : (
         <ol className="grid gap-2 md:grid-cols-3">
           {leaders.map((company) => {
-            const windowLabel =
-              windowState(company, now) === "ACTIVE" ? "Open" : "Ended";
+            const state = listingState(company, stage);
+            const active = live
+              ? company.currentPriceCents >= 10000
+              : state === "ACTIVE";
             return (
               <li
                 key={company.projectId}
@@ -88,56 +91,30 @@ export function TopFunded({
                     <span>
                       {live
                         ? compactMoney(company.currentPriceCents)
-                        : company.marketCapCents
-                          ? compactMoney(company.marketCapCents) + " seeded"
-                          : company.seedStatus === "NOT_STARTED"
-                            ? "Opens after kickoff"
+                        : transitioning
+                          ? "—"
+                          : company.marketCapCents
+                            ? compactMoney(company.marketCapCents) + " seeded"
                             : "No seed funding"}
                     </span>
-                    {!live && company.seedStatus === "NOT_STARTED" && (
-                      <span
-                        className={
-                          styles.statusPill +
-                          " absolute right-0 top-1/2 -translate-y-1/2 md:hidden"
-                        }
-                      >
-                        Not started
-                      </span>
-                    )}
-                    {(live || company.seedStatus !== "NOT_STARTED") && (
-                      <span
-                        data-tone={
-                          live
-                            ? company.currentPriceCents < 10000
-                              ? "ended"
-                              : "active"
-                            : windowLabel === "Ended"
-                              ? "ended"
-                              : "active"
-                        }
-                        className={
-                          styles.statusPill +
-                          " " +
-                          "max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:rounded-full max-md:bg-[#82c3fb]/10 max-md:px-2 " +
-                          ((
-                            live
-                              ? company.currentPriceCents < 10000
-                              : windowLabel === "Ended"
-                          )
-                            ? "text-[#FFDDAD]"
-                            : "text-[#38D3A2]")
-                        }
-                      >
-                        {!live && windowLabel !== "Ended" && (
-                          <span aria-hidden="true">● </span>
-                        )}
-                        {live
-                          ? ((company.currentPriceCents - 10000) / 100).toFixed(
-                              1,
-                            ) + "%"
-                          : windowLabel}
-                      </span>
-                    )}
+                    <span
+                      data-tone={active ? "active" : "ended"}
+                      className={
+                        styles.statusPill +
+                        " max-md:absolute max-md:right-0 max-md:top-1/2 max-md:-translate-y-1/2 max-md:rounded-full max-md:bg-[#82c3fb]/10 max-md:px-2 " +
+                        (active ? "text-[#38D3A2]" : "text-[#FFDDAD]")
+                      }
+                    >
+                      {live
+                        ? ((company.currentPriceCents - 10000) / 100).toFixed(
+                            1,
+                          ) + "%"
+                        : state === "ACTIVE"
+                          ? "● Open"
+                          : state === "PAUSED"
+                            ? "Paused"
+                            : "Closed"}
+                    </span>
                   </div>
                 </div>
               </li>

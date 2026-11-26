@@ -4,9 +4,9 @@ import {
   compactMoney,
   companyName,
   exchangePath,
-  windowLabel,
-  windowState,
-  windowPillTone,
+  listingLabel,
+  listingState,
+  listingPillTone,
   type MarketStage,
 } from "./market";
 import type { Company } from "./seedApi";
@@ -14,25 +14,23 @@ import styles from "./btx.module.css";
 
 export function CatalogPreview({
   company,
-  now,
   stage,
   ownProject,
   onClose,
 }: {
   company: Company;
-  now: number;
   stage: MarketStage;
   ownProject?: string;
   onClose: () => void;
 }) {
-  const state = windowState(company, now);
+  const state = listingState(company, stage);
   const companyPath =
     exchangePath + "/company/" + encodeURIComponent(company.projectId);
   const canTrade =
     company.projectId !== ownProject &&
-    (stage === "live" || (stage === "open" && state === "ACTIVE"));
+    (state === "LIVE" || state === "ACTIVE");
   const sharesSeeded =
-    company.seedStatus === "LIVE" ? company.seedSharesAtIpo : company.netShares;
+    stage === "live" ? company.seedSharesAtIpo : company.netShares;
   // Whole-share seed buys identify the investor count only at zero or one share.
   const seedInvestors =
     sharesSeeded === 0 || sharesSeeded === 1 ? sharesSeeded : "Unavailable";
@@ -65,7 +63,7 @@ export function CatalogPreview({
           </small>
         )}
         <span
-          data-tone={windowPillTone(state)}
+          data-tone={listingPillTone(state)}
           className={
             styles.statusPill +
             " max-md:mt-2 max-md:inline-block md:ml-2 rounded-full border border-[#82C3FB]/35 px-3 py-1 align-middle font-[family-name:var(--btx-font-space-grotesk)] text-[11px] text-sky-200"
@@ -74,7 +72,7 @@ export function CatalogPreview({
           {(state === "ACTIVE" || state === "LIVE") && (
             <span className="md:hidden">● </span>
           )}
-          {windowLabel(company, now)}
+          {listingLabel(state)}
         </span>
       </h2>
       <CompanyPitch company={company} />
@@ -84,9 +82,11 @@ export function CatalogPreview({
       <dl className="grid grid-cols-3 gap-2 max-md:[&>div]:rounded-xl max-md:[&>div]:border max-md:[&>div]:border-white/15 max-md:[&>div]:p-2 md:flex md:flex-wrap md:justify-between md:gap-4 md:rounded-xl md:border md:border-white/15 md:p-4 md:text-[18px] font-medium">
         <div>
           <dt className="text-[11px] font-normal text-slate-400">
-            {company.seedStatus === "LIVE" ? "Market cap" : "Seed funding"}
+            {stage === "live" ? "Market cap" : "Seed funding"}
           </dt>
-          <dd>{compactMoney(company.marketCapCents)}</dd>
+          <dd>
+            {state === "PAUSED" ? "—" : compactMoney(company.marketCapCents)}
+          </dd>
         </div>
         {sharesSeeded != null && (
           <div>
@@ -101,14 +101,14 @@ export function CatalogPreview({
           <dd>{seedInvestors}</dd>
         </div>
         <div className="hidden md:block">
-          <dt className="text-[11px] font-normal text-slate-400">Window</dt>
-          <dd>{windowLabel(company, now)}</dd>
+          <dt className="text-[11px] font-normal text-slate-400">Status</dt>
+          <dd>{listingLabel(state)}</dd>
         </div>
       </dl>
       {state === "ACTIVE" && (
         <p className="hidden md:block rounded-xl border border-sky-300/25 bg-sky-300/10 p-3 text-[12px]">
-          Buy at a fixed {compactMoney(company.currentPriceCents)} while the
-          window is open. Selling opens at IPO. Trade from the full page.
+          Buy at a fixed {compactMoney(company.currentPriceCents)} until IPO or
+          the event cutoff. Selling opens at IPO.
         </p>
       )}
       <div className="flex flex-col gap-3 md:mt-auto md:flex-row">

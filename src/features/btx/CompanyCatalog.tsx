@@ -1,6 +1,6 @@
 import { CatalogPreview } from "./CatalogPreview";
 import styles from "./btx.module.css";
-import { companyName, windowState, exchangePath } from "./market";
+import { companyName, exchangePath } from "./market";
 import { catalogPill, MobilePageTitle, AngledPanel } from "./BtxUI";
 import {
   ExchangeCard,
@@ -13,28 +13,19 @@ import { type ComponentType, useEffect, useRef, useState } from "react";
 
 import type { Company } from "./seedApi";
 
-const filters = {
-  ALL: "All",
-  ACTIVE: "Seeding now",
-  NOT_STARTED: "Not started",
-  ENDED: "Ended",
-  LIVE: "Live",
-} as const;
 type CatalogProps = {
   projects: Company[];
   focusSearch?: boolean;
   initials?: string;
   ownProject?: string;
-  now: number;
   stage: CardProps["stage"];
 };
 
 function useCatalog(
-  { projects, now, focusSearch, ownProject, stage }: CatalogProps,
+  { projects, focusSearch, ownProject, stage }: CatalogProps,
   Card: ComponentType<CardProps>,
 ) {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<keyof typeof filters>("ALL");
   const [previewId, setPreviewId] = useState("");
   const [selectedId, setSelectedId] = useState("");
   const dialog = useRef<HTMLDialogElement>(null);
@@ -46,9 +37,8 @@ function useCatalog(
   const query = search.trim().toLowerCase();
   const matches = projects.filter(
     (p) =>
-      (filter === "ALL" || windowState(p, now) === filter) &&
-      (companyName(p).toLowerCase().includes(query) ||
-        (p.ticker && ("$" + p.ticker).toLowerCase().includes(query))),
+      companyName(p).toLowerCase().includes(query) ||
+      (p.ticker && ("$" + p.ticker).toLowerCase().includes(query)),
   );
 
   function highlight(value: string) {
@@ -108,7 +98,6 @@ function useCatalog(
       const cardProps: CardProps = {
         company: p,
         own: ownProject === p.projectId,
-        now,
         highlight,
         stage,
       };
@@ -145,34 +134,26 @@ function useCatalog(
       <h3
         className={`${styles.display} text-[22px] max-md:font-[family-name:var(--btx-font-space-grotesk)] max-md:text-[18px] max-md:leading-[normal] font-medium`}
       >
-        {query
-          ? `No companies match “${search.trim()}”`
-          : projects.length
-            ? "No matching companies"
-            : "No companies yet"}
+        {query ? `No companies match “${search.trim()}”` : "No companies yet"}
       </h3>
       {query && (
         <p className="text-[13px] leading-[normal] text-[#a8b5d6]">
           Check the spelling or try a company name or ticker.
         </p>
       )}
-      {projects.length ? (
+      {query ? (
         <button
           className={
             catalogPill +
             " max-md:h-[52px] max-md:w-full max-md:border-[#82c3fb]/40 max-md:bg-[#82c3fb]/[.08] max-md:px-5 max-md:text-[15px] max-md:font-medium"
           }
-          onClick={() => {
-            if (query) clearSearch();
-            else setFilter("ALL");
-          }}
+          onClick={clearSearch}
         >
-          {query ? "Clear search" : "Clear filters"}
+          Clear search
         </button>
       ) : (
         <p className="max-w-sm text-[14px] text-[#A8B5D6]">
-          Teams appear here after they create a company and fill in its profile.
-          Check back soon.
+          Teams appear here after they create a company. Check back soon.
         </p>
       )}
     </div>
@@ -190,7 +171,6 @@ function useCatalog(
       {preview && (
         <CatalogPreview
           company={preview}
-          now={now}
           stage={stage}
           ownProject={ownProject}
           onClose={() => dialog.current?.close()}
@@ -203,8 +183,6 @@ function useCatalog(
     query,
     cards,
     drawer,
-    filter,
-    setFilter,
     count:
       (query ? matches.length + " of " : "") +
       projects.length +
@@ -276,27 +254,6 @@ export function FullCatalog(props: CatalogProps) {
             >
               Catalog
             </h1>
-            <div
-              className={`flex gap-2 overflow-x-auto ${catalog.query && catalog.filter === "ALL" ? "max-md:hidden" : ""} max-md:order-2`}
-            >
-              {(Object.keys(filters) as (keyof typeof filters)[])
-                .filter((f) => f !== "LIVE" || props.stage === "live")
-                .map((f) => (
-                  <button
-                    key={f}
-                    aria-pressed={catalog.filter === f}
-                    className={
-                      styles.filterChip +
-                      " " +
-                      catalogPill +
-                      " shrink-0 aria-pressed:bg-sky-300 aria-pressed:text-slate-950"
-                    }
-                    onClick={() => catalog.setFilter(f)}
-                  >
-                    {filters[f]}
-                  </button>
-                ))}
-            </div>
             <Link
               className={catalogPill + " hidden md:block"}
               href={exchangePath}

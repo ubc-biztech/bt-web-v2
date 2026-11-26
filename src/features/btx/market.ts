@@ -27,41 +27,35 @@ export const percent = new Intl.NumberFormat("en-US", {
 export const compactMoney = (cents: number) =>
   money(cents).replace(/\.00$/, "");
 
-export function windowState(p: Company, now: number) {
-  return p.seedStatus === "ACTIVE" &&
-    p.seedEndsAt != null &&
-    p.seedEndsAt <= now
-    ? "ENDED"
-    : p.seedStatus;
-}
-
-export function windowPillTone(state: Company["seedStatus"]) {
-  if (state === "ENDED") return "ended";
-  return state === "NOT_STARTED" ? "neutral" : "active";
-}
-
-export function windowLabel(p: Company, now: number) {
-  switch (windowState(p, now)) {
-    case "ACTIVE":
-      return "Seeding open";
-    case "NOT_STARTED":
-      return "Not started";
-    case "ENDED":
-      return "Ended";
-    case "LIVE":
-      return "Live";
-  }
-}
-
 export function marketStage(market: Market, now: number) {
   if (market.phase === "LIVE") return "live";
   if (market.phase === "IPO_PREPARING") return "launching";
-  if (market.phase !== "SEED" || now >= market.eventEndsAt) return "closed";
-  const projects = market.projects;
-  const open = projects.some((p) => p.seedStatus === "ACTIVE");
-  const waiting =
-    !projects.length || projects.some((p) => p.seedStatus === "NOT_STARTED");
-  return open ? "open" : waiting ? "waiting" : "closed";
+  if (market.phase === "IPO_RESETTING") return "resetting";
+  return market.phase === "SEED" && now < market.eventEndsAt
+    ? "open"
+    : "closed";
 }
 
 export type MarketStage = ReturnType<typeof marketStage>;
+
+export function listingState(company: Company, stage: MarketStage) {
+  if (company.isActive === false || stage === "closed") return "ENDED";
+  if (stage === "open") return "ACTIVE";
+  return stage === "live" ? "LIVE" : "PAUSED";
+}
+
+type ListingState = ReturnType<typeof listingState>;
+
+const listingLabels: Record<ListingState, string> = {
+  ACTIVE: "Seeding open",
+  ENDED: "Closed",
+  LIVE: "Live",
+  PAUSED: "Trading paused",
+};
+
+export const listingLabel = (state: ListingState) => listingLabels[state];
+
+export function listingPillTone(state: ListingState) {
+  if (state === "ENDED") return "ended";
+  return state === "PAUSED" ? "neutral" : "active";
+}

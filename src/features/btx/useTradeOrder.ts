@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import * as api from "./seedApi";
+import { listingState, marketStage } from "./market";
 import { stockError } from "./stockError";
 import type { Notice } from "./BtxUI";
 
@@ -50,16 +51,14 @@ export function useTradeOrder(
   const [side, setSide] = useState(initialSide);
   const company = market.projects.find((p) => p.projectId === selected);
   const shares = Number(quantity);
-  const seedOpen =
-    market.phase === "SEED" &&
-    company?.seedStatus === "ACTIVE" &&
-    now < market.eventEndsAt;
+  const state = company && listingState(company, marketStage(market, now));
+  const seedOpen = state === "ACTIVE";
   const canQuote =
     !!userId &&
     order === null &&
     !busy &&
     ((seedOpen && side === "BUY") ||
-      (market.phase === "LIVE" && !!company && now < market.eventEndsAt)) &&
+      (state === "LIVE" && now < market.eventEndsAt)) &&
     !ownCompany &&
     quoteVersion != null &&
     Number.isSafeInteger(shares) &&
@@ -73,6 +72,7 @@ export function useTradeOrder(
       shares,
       side,
       market.phase,
+      market.ipoAt,
       quoteVersion,
       order?.tradeId,
     ],
