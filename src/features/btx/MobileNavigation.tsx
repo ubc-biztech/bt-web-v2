@@ -14,7 +14,7 @@ export function MobileNavigation({
     {
       icon: "portfolio",
       label: "Portfolio",
-      href: admin ? undefined : exchangePath + "/portfolio",
+      href: exchangePath + "/portfolio",
     },
     {
       icon: "leaderboard",
@@ -38,42 +38,30 @@ export function MobileNavigation({
       aria-label="BTX mobile navigation"
       className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-[#324a68] bg-[#0a1429] pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      {mobileTabs.map((tab) => {
-        const href = tab.href;
+      {mobileTabs.map(({ icon, label, href }) => {
         const active =
           href === path ||
-          (tab.icon === "portfolio" && !!href && path.startsWith(href + "/")) ||
-          (tab.icon === "exchange" && path === "/companion/kickstart/2026") ||
-          (tab.icon === "catalog" &&
+          (icon === "portfolio" && path.startsWith(href + "/")) ||
+          (icon === "exchange" && path === "/companion/kickstart/2026") ||
+          (icon === "catalog" &&
             (path === exchangePath + "/search" ||
               path.startsWith(exchangePath + "/company/")));
-        const contents = (
-          <>
+        return (
+          <Link
+            key={icon}
+            href={href}
+            aria-current={active ? "page" : undefined}
+            className="flex h-[56px] min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium text-[#9eabcb] aria-[current=page]:font-bold aria-[current=page]:text-[#89dcff]"
+          >
             <span
               aria-hidden="true"
               className="size-5 bg-current"
               style={{
-                mask: `url(/assets/btx/sidebar/${tab.icon}.svg) center / contain no-repeat`,
+                mask: `url(/assets/btx/sidebar/${icon}.svg) center / contain no-repeat`,
               }}
             />
-            {tab.label}
-          </>
-        );
-        const classes =
-          "flex h-[56px] min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium text-[#9eabcb] aria-[current=page]:font-bold aria-[current=page]:text-[#89dcff] disabled:opacity-60";
-        return href ? (
-          <Link
-            key={tab.icon}
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={classes}
-          >
-            {contents}
+            {label}
           </Link>
-        ) : (
-          <button key={tab.icon} disabled className={classes}>
-            {contents}
-          </button>
         );
       })}
     </nav>

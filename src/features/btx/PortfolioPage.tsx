@@ -30,26 +30,18 @@ function signed(cents: number) {
 }
 
 function PortfolioFrame({
-  isAdmin,
+  authPending,
   initials,
   history = false,
   children,
 }: {
-  isAdmin: MarketPageProps["isAdmin"];
+  authPending: boolean;
   initials?: string;
   history?: boolean;
   children: ReactNode;
 }) {
-  if (isAdmin === undefined) {
+  if (authPending) {
     return <StatusBanner tone="info" title="Checking access…" />;
-  }
-  if (isAdmin) {
-    return (
-      <StatusBanner
-        tone="info"
-        title="Portfolio is available to participants"
-      />
-    );
   }
 
   const detail = history
@@ -140,13 +132,14 @@ export function PortfolioPage({
   now,
   initials,
 }: MarketPageProps) {
-  const result = usePortfolio(market.eventId, userId, isAdmin === false, 15000);
+  const authPending = isAdmin === undefined;
+  const result = usePortfolio(market.eventId, userId, !authPending, 15000);
   const data = result.data;
   const sellOpen = market.phase === "LIVE" && now < market.eventEndsAt;
   const holdings = data?.holdings.filter(({ shares }) => shares > 0) ?? [];
 
   return (
-    <PortfolioFrame isAdmin={isAdmin} initials={initials}>
+    <PortfolioFrame authPending={authPending} initials={initials}>
       {!userId ? (
         <EmptyPanel
           title="Sign in to view your portfolio"
@@ -369,12 +362,13 @@ function HistoryView({
   now,
   pageSize,
 }: MarketPageProps & { pageSize: number }) {
+  const authPending = isAdmin === undefined;
   const [cursors, setCursors] = useState<string[]>([]);
   const cursor = cursors.at(-1);
   const result = useQuery({
     queryKey: ["btx-seed", market.eventId, userId, "history", pageSize, cursor],
     queryFn: () => accountTrades(pageSize, cursor),
-    enabled: !!userId && isAdmin === false,
+    enabled: !!userId && !authPending,
     refetchInterval: ({ state }) =>
       state.data?.data.some((trade) => trade.status === "PENDING")
         ? 2000
@@ -417,7 +411,7 @@ function HistoryView({
     </footer>
   );
   return (
-    <PortfolioFrame history isAdmin={isAdmin} initials={initials}>
+    <PortfolioFrame history authPending={authPending} initials={initials}>
       {!userId ? (
         <EmptyPanel
           title="Sign in to view your trade history"

@@ -49,7 +49,7 @@ export function BtxSidebar({
     { icon: "catalog", label: "Catalog", href: exchangePath + "/catalog" },
   ];
 
-  if (role && role !== BTX_ROLES.ADMIN)
+  if (role)
     destinations.push({
       icon: "portfolio",
       label: "Portfolio",
