@@ -27,7 +27,7 @@ export function PriceChart({
 }) {
   const [range, setRange] = useState<keyof typeof ranges>("15m");
   const client = useQueryClient();
-  const queryKey = ["btx", "prices", company.projectId, range];
+  const queryKey = ["btx", "prices", company.projectId, ipoAt, range];
   const from = now - ranges[range] * 60000;
   const history = useQuery({
     queryKey,

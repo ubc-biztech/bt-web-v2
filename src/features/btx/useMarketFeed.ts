@@ -6,7 +6,7 @@ const socketUrl = process.env.NEXT_PUBLIC_BTX_WS_URL;
 const snapshotKey = ["btx", "snapshot"];
 
 type Connection = "online" | "reconnecting" | "offline" | "balance-error";
-type Prices = Record<string, PricePoint>;
+type Prices = Record<string, PricePoint & Pick<Market, "ipoAt">>;
 
 export function useMarketFeed(userId: string, eventId?: string) {
   const client = useQueryClient();
@@ -150,7 +150,7 @@ export function useMarketFeed(userId: string, eventId?: string) {
               update?.eventId !== eventId
             )
               return;
-            const { projectId, priceCents, asOf } = update;
+            const { projectId, priceCents, asOf, ipoAt } = update;
             if (
               typeof projectId !== "string" ||
               !Number.isSafeInteger(priceCents) ||
@@ -171,20 +171,26 @@ export function useMarketFeed(userId: string, eventId?: string) {
             const project = market?.projects.find(
               (row) => row.projectId === projectId,
             );
-            if (!project || market?.phase !== "LIVE") {
+            if (
+              !project ||
+              market?.phase !== "LIVE" ||
+              (ipoAt !== undefined && ipoAt !== market.ipoAt)
+            ) {
               void refreshSnapshot().catch(() => {});
               return;
             }
-            if (
-              asOf <=
-              Math.max(project.lastPriceTs ?? 0, received[projectId]?.ts ?? 0)
-            )
-              return;
-            const point = { ts: asOf, priceCents };
+            const previous = received[projectId];
+            const receivedAt =
+              previous?.ipoAt === market.ipoAt ? (previous?.ts ?? 0) : 0;
+            if (asOf <= Math.max(project.lastPriceTs ?? 0, receivedAt)) return;
+            const point = { ts: asOf, priceCents, ipoAt: market.ipoAt };
             received[projectId] = point;
             setPrices((previous) => ({ ...previous, [projectId]: point }));
             client.setQueriesData<PricePoint[]>(
-              { queryKey: ["btx", "prices", projectId], type: "active" },
+              {
+                queryKey: ["btx", "prices", projectId, market.ipoAt],
+                type: "active",
+              },
               (points) =>
                 points?.some(({ ts }) => ts === asOf)
                   ? points
@@ -231,7 +237,12 @@ export function applyLivePrices(market: Market, prices: Prices): Market {
   let changed = false;
   const projects = market.projects.map((project) => {
     const point = prices[project.projectId];
-    if (!point || point.ts <= (project.lastPriceTs ?? 0)) return project;
+    if (
+      !point ||
+      point.ipoAt !== market.ipoAt ||
+      point.ts <= (project.lastPriceTs ?? 0)
+    )
+      return project;
     changed = true;
     return {
       ...project,

@@ -292,7 +292,7 @@ function ResetControl({
   disabled: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
-  const key = `btx-reset:${ipoAt}`;
+  const key = `btx-reset-to-seed:${ipoAt}`;
   const [queuedAt, setQueuedAt] = useState(() =>
     Number(sessionStorage.getItem(key)),
   );
@@ -367,9 +367,10 @@ function ResetControl({
         >
           <h2 id="reset-title">Return the market to seed?</h2>
           <p>
-            This restores seed prices and reopens funding for companies that
-            started seeding. A settled live trade prevents the reset. You can
-            launch the IPO again later.
+            This restores $100 seed pricing and resets the live price chart.
+            Companies that started seeding can raise funds again. Investors keep
+            their shares, cash balances, and trade history. Shares held count
+            toward the next IPO.
           </p>
           <div className={s.actions}>
             <button
