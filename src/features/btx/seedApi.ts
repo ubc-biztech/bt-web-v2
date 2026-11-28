@@ -5,6 +5,7 @@ export interface Company {
   projectId: string;
   companyName?: string;
   logo?: string;
+  demoURL?: string;
   ticker?: string;
   marketCapCents: number;
   netShares?: number;

@@ -64,7 +64,7 @@ export function MobileCatalogCard({
   return (
     <span className="flex w-full flex-col md:hidden">
       <span className={imageArea + " h-[150px] overflow-hidden"}>
-        {company.logo && <CompanyPhoto logo={company.logo} emblemSize={44} />}
+        <CompanyPhoto logo={company.logo} emblemSize={44} />
         <span className="absolute inset-x-3 bottom-2.5 flex items-center justify-between">
           <span
             className={styles.statusPill}
