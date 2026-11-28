@@ -65,7 +65,7 @@ type ProfileTextField = (typeof profileTextFields)[number];
 const labels: Record<ProfileTextField, string> = {
   companyName: "Company name",
   blurb: "Company blurb",
-  youtubeURL: "YouTube pitch video",
+  youtubeURL: "YouTube pitch video (optional)",
   twitterURL: "Twitter/X link (optional)",
   demoURL: "Live demo link (optional)",
 };
@@ -313,14 +313,9 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
       company?.seedSharesAtIpo != null ||
       ((!profile.data?.canEditName || (company?.netShares ?? 0) > 0) &&
         complete);
-    if (mustStayComplete) {
-      if (!submitted.blurb)
-        validation.blurb =
-          "Keep a company blurb when the completed profile is locked.";
-      if (!submitted.youtubeURL)
-        validation.youtubeURL =
-          "Keep a valid YouTube pitch when the completed profile is locked.";
-    }
+    if (mustStayComplete && !submitted.blurb)
+      validation.blurb =
+        "Keep a company blurb when the completed profile is locked.";
     setErrors(validation);
     if (Object.values(validation).some(Boolean)) {
       document
@@ -477,7 +472,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
         <StatusBanner
           tone="success"
           title="Company team created"
-          description="Share your team code and add a blurb and YouTube pitch so investors can learn about your company."
+          description="Share your team code and add a blurb so investors can learn about your company."
         />
       )}
       <ol
@@ -493,7 +488,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
             done: !removed,
           },
           {
-            label: "Blurb + YouTube pitch",
+            label: "Company blurb",
             detail: complete ? "Saved" : "Complete your saved profile",
             done: complete,
           },

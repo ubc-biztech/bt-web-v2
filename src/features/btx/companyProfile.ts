@@ -105,7 +105,8 @@ export function validateProfile(profile: CompanyProfileFields): ProfileErrors {
     !errors.youtubeURL &&
     !youtubeVideoId(values.youtubeURL)
   )
-    errors.youtubeURL = "Enter an HTTPS youtube.com or youtu.be video link.";
+    errors.youtubeURL =
+      "Enter an HTTPS youtube.com or youtu.be video link, or leave it blank.";
   if (
     values.twitterURL &&
     !errors.twitterURL &&
@@ -123,7 +124,6 @@ export function profileIsComplete(profile: CompanyProfileFields): boolean {
   return Boolean(
     values.companyName &&
       values.blurb &&
-      values.youtubeURL &&
       !errors.companyName &&
       !errors.blurb &&
       !errors.youtubeURL,
