@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type FormEvent,
+} from "react";
 import Link from "next/link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
@@ -9,6 +15,7 @@ import { errorStatus, eventTeamQueryKey } from "@/features/events/teams";
 import { youtubeVideoId } from "@/features/product+/2026/submission/submission";
 import {
   AngledPanel,
+  CompanyPhoto,
   CompanyPitch,
   StatusBanner,
   type Notice,
@@ -20,13 +27,17 @@ import { TeamManagement, type TeamManagementProps } from "./TeamManagement";
 import {
   companyProfileKey,
   getCompanyProfile,
+  maxThumbnailBytes,
   profileErrorMessage,
   profileFields,
   profileIsComplete,
   profileLimits,
   profileRequiresSignIn,
+  profileTextFields,
   profileValues,
   saveCompanyProfile,
+  thumbnailTypes,
+  uploadCompanyThumbnail,
   validateProfile,
   type CompanyProfile,
   type CompanyProfileFields,
@@ -47,14 +58,18 @@ const emptyProfile: CompanyProfileFields = {
   blurb: "",
   youtubeURL: "",
   twitterURL: "",
+  demoURL: "",
+  logo: "",
 };
-const labels: Record<keyof CompanyProfileFields, string> = {
+type ProfileTextField = (typeof profileTextFields)[number];
+const labels: Record<ProfileTextField, string> = {
   companyName: "Company name",
   blurb: "Company blurb",
   youtubeURL: "YouTube pitch video",
   twitterURL: "Twitter/X link (optional)",
+  demoURL: "Live demo link (optional)",
 };
-const hints: Record<keyof CompanyProfileFields, string> = {
+const hints: Record<ProfileTextField, string> = {
   companyName:
     "Your company name locks when it receives funding or IPO preparation starts.",
   blurb:
@@ -63,6 +78,13 @@ const hints: Record<keyof CompanyProfileFields, string> = {
     "Aim for a 60-second pitch. Use a public or unlisted video; duration and visibility aren’t automatically verified.",
   twitterURL:
     "An HTTPS Twitter/X link. Leave this blank if you don’t have one.",
+  demoURL: "An HTTPS link where people can try your project.",
+};
+const placeholders: Partial<Record<ProfileTextField, string>> = {
+  companyName: "e.g. Plantry",
+  youtubeURL: "https://youtu.be/…",
+  twitterURL: "https://x.com/…",
+  demoURL: "https://…",
 };
 
 export function CompanyWorkspace(props: TeamManagementProps) {
@@ -116,9 +138,15 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
     saved: CompanyProfileFields;
     draft: CompanyProfileFields;
   } | null>(null);
+  const [thumbnail, setThumbnail] = useState<{
+    file: File;
+    preview: string;
+    uploadedUrl?: string;
+  }>();
   const [errors, setErrors] = useState<ProfileErrors>({});
   const [notice, setNotice] = useState<Notice>();
   const [clock, setClock] = useState(Date.now());
+  const thumbnailInput = useRef<HTMLInputElement>(null);
   const writeInFlight = useRef(false);
   const expiryRefreshed = useRef(false);
   // Let profile refreshes inspect current edits without rerunning on each edit.
@@ -126,6 +154,11 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   currentForm.current = form;
   const refetchProfile = profile.refetch;
   const refetchSnapshot = snapshot.refetch;
+  const thumbnailPreview = thumbnail?.preview;
+
+  useEffect(() => {
+    if (thumbnailPreview) return () => URL.revokeObjectURL(thumbnailPreview);
+  }, [thumbnailPreview]);
 
   useEffect(() => {
     if (!profile.data) return;
@@ -173,7 +206,10 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
   const saved = form?.saved ?? emptyProfile;
   const values = profileValues(draft);
   const dirty =
-    !!form && profileFields.some((field) => values[field] !== saved[field]);
+    !!form &&
+    (!!thumbnail ||
+      profileFields.some((field) => values[field] !== saved[field]));
+  const thumbnailUrl = thumbnailPreview || draft.logo;
   const complete = !!form && profileIsComplete(saved);
   const canEdit =
     !!profile.data?.canEdit &&
@@ -248,6 +284,21 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
     });
   }
 
+  function selectThumbnail(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (!file) return;
+
+    const error =
+      !thumbnailTypes.includes(file.type) ||
+      file.size === 0 ||
+      file.size > maxThumbnailBytes
+        ? "Choose a JPEG, PNG, or WebP image up to 2 MB."
+        : undefined;
+    setErrors((current) => ({ ...current, logo: error }));
+    if (!error) setThumbnail({ file, preview: URL.createObjectURL(file) });
+  }
+
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (writeInFlight.current || busy || !canEdit || !form) return;
@@ -286,13 +337,25 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
         (field !== "companyName" || canEditName)
       )
         patch[field] = submitted[field];
-    if (!Object.keys(patch).length) return;
+    if (!thumbnail && !Object.keys(patch).length) return;
     writeInFlight.current = true;
     setSaving(true);
     setNotice(undefined);
-    await queryClient.cancelQueries({ queryKey });
+    let profileWriteStarted = false;
     try {
+      await queryClient.cancelQueries({ queryKey });
+      if (thumbnail) {
+        const logo =
+          thumbnail.uploadedUrl ??
+          (await uploadCompanyThumbnail(projectId, thumbnail.file));
+        if (!thumbnail.uploadedUrl)
+          setThumbnail({ ...thumbnail, uploadedUrl: logo });
+        submitted.logo = logo;
+        patch.logo = logo;
+      }
+      profileWriteStarted = true;
       await saveCompanyProfile(projectId, patch);
+      setThumbnail(undefined);
       setForm({ saved: submitted, draft: submitted });
       queryClient.setQueryData<CompanyProfile>(queryKey, (current) =>
         current ? { ...current, ...patch } : current,
@@ -310,7 +373,13 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
         });
       }
     } catch (error) {
-      reportWriteError(error, "Couldn’t save the company profile");
+      reportWriteError(
+        error,
+        profileWriteStarted
+          ? "Couldn’t save the company profile"
+          : "Couldn’t upload the company thumbnail",
+      );
+      if (!profileWriteStarted) return;
       // A timeout can occur after a successful write. Read once, never replay PATCH.
       try {
         const latest = await refreshProfile();
@@ -321,6 +390,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
               latest[key as keyof CompanyProfileFields] === value,
           )
         ) {
+          setThumbnail(undefined);
           setForm({
             saved: profileValues(latest),
             draft: profileValues(latest),
@@ -351,6 +421,8 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
     companyName: draft.companyName.trim() || "Your company",
     blurb: draft.blurb,
     youtubeURL: previewId ? `https://www.youtube.com/watch?v=${previewId}` : "",
+    logo: thumbnailUrl,
+    demoURL: values.demoURL,
     currentPriceCents: company?.currentPriceCents ?? 0,
     marketCapCents: company?.marketCapCents ?? 0,
   };
@@ -526,7 +598,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
             >
               Company profile
             </h2>
-            {profileFields.map((field) => {
+            {profileTextFields.map((field) => {
               const id = `profile-${field}`;
               const locked =
                 field === "companyName" && !!profile.data && !canEditName;
@@ -583,13 +655,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
                       type="text"
                       inputMode={field.endsWith("URL") ? "url" : "text"}
                       autoComplete="off"
-                      placeholder={
-                        field === "youtubeURL"
-                          ? "https://youtu.be/…"
-                          : field === "twitterURL"
-                            ? "https://x.com/…"
-                            : "e.g. Plantry"
-                      }
+                      placeholder={placeholders[field]}
                     />
                   )}
                   <p
@@ -610,6 +676,85 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
                 </div>
               );
             })}
+            <div className="space-y-1.5">
+              <p className="text-[12px] text-[#b5c1da]">
+                Company thumbnail (optional)
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                {thumbnailUrl && (
+                  <div className="relative grid aspect-[2.45] w-28 shrink-0 place-items-center overflow-hidden rounded-lg bg-[#1d2a50]">
+                    <CompanyPhoto logo={thumbnailUrl} emblemSize={24} />
+                  </div>
+                )}
+                <input
+                  ref={thumbnailInput}
+                  type="file"
+                  hidden
+                  accept={thumbnailTypes.join(",")}
+                  disabled={busy || !canEdit || !form}
+                  onChange={selectThumbnail}
+                />
+                <Button
+                  id="profile-logo"
+                  type="button"
+                  className={teamSecondaryButton}
+                  disabled={busy || !canEdit || !form}
+                  onClick={() => thumbnailInput.current?.click()}
+                  aria-invalid={!!errors.logo}
+                  aria-describedby={
+                    errors.logo
+                      ? "profile-logo-hint profile-logo-error"
+                      : "profile-logo-hint"
+                  }
+                >
+                  {thumbnailUrl ? "Replace thumbnail" : "Choose thumbnail"}
+                </Button>
+                {thumbnailUrl && canEdit && (
+                  <Button
+                    type="button"
+                    className={teamSecondaryButton}
+                    disabled={busy}
+                    onClick={() => {
+                      setThumbnail(undefined);
+                      setForm((current) =>
+                        current
+                          ? {
+                              ...current,
+                              draft: { ...current.draft, logo: "" },
+                            }
+                          : current,
+                      );
+                      setErrors((current) => ({ ...current, logo: undefined }));
+                    }}
+                  >
+                    Remove thumbnail
+                  </Button>
+                )}
+              </div>
+              {thumbnail && (
+                <p
+                  role="status"
+                  className="truncate text-[12px] text-[#b5c1da]"
+                >
+                  {thumbnail.file.name}
+                </p>
+              )}
+              <p
+                id="profile-logo-hint"
+                className="text-[12px] leading-5 text-[#98a9c8]"
+              >
+                JPEG, PNG, or WebP up to 2 MB. Shown on your catalog card.
+              </p>
+              {errors.logo && (
+                <p
+                  id="profile-logo-error"
+                  role="alert"
+                  className="text-[13px] text-[#ff879a]"
+                >
+                  {errors.logo}
+                </p>
+              )}
+            </div>
             {profile.data?.eventEndsAt != null && (
               <p className="text-[12px] text-[#98a9c8]">
                 Profile editing ends{" "}
@@ -642,6 +787,7 @@ function CompanyEditor(props: TeamManagementProps & { projectId: string }) {
                 className={`${teamSecondaryButton} order-2`}
                 disabled={busy || !dirty}
                 onClick={() => {
+                  setThumbnail(undefined);
                   setForm((current) =>
                     current
                       ? { ...current, draft: { ...current.saved } }

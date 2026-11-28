@@ -1,6 +1,7 @@
 import styles from "./btx.module.css";
 import Image from "next/image";
-import type { ComponentPropsWithoutRef } from "react";
+import { useState, type ComponentPropsWithoutRef } from "react";
+import { isDemoUrl } from "./companyProfile";
 import { companyName } from "./market";
 import type { Company } from "./seedApi";
 import { cn } from "@/lib/utils";
@@ -52,9 +53,18 @@ export function CompanyPhoto({
   logo?: string;
   emblemSize: number;
 }) {
-  if (logo) {
+  const [failedLogo, setFailedLogo] = useState<string>();
+  if (logo && logo !== failedLogo) {
     return (
-      <Image src={logo} alt="" fill unoptimized className="object-cover" />
+      <Image
+        key={logo}
+        src={logo}
+        alt=""
+        fill
+        unoptimized
+        className="object-cover"
+        onError={() => setFailedLogo(logo)}
+      />
     );
   }
 
@@ -90,16 +100,31 @@ function pitchEmbed(value?: string) {
 
 export function CompanyPitch({ company }: { company: Company }) {
   const pitch = pitchEmbed(company.youtubeURL);
-  return pitch ? (
-    <iframe
-      className="aspect-video w-full rounded-2xl"
-      src={pitch}
-      title={companyName(company) + " pitch"}
-      allowFullScreen
-    />
-  ) : (
-    <div className="relative grid aspect-video overflow-hidden place-items-center rounded-2xl bg-gradient-to-br from-[#1d2a50] to-[#101829]">
-      <CompanyPhoto logo={company.logo} emblemSize={64} />
+  const demoURL = company.demoURL?.trim();
+  return (
+    <div className="flex flex-col gap-3">
+      {pitch ? (
+        <iframe
+          className="aspect-video w-full rounded-2xl"
+          src={pitch}
+          title={companyName(company) + " pitch"}
+          allowFullScreen
+        />
+      ) : (
+        <div className="relative grid aspect-video overflow-hidden place-items-center rounded-2xl bg-gradient-to-br from-[#1d2a50] to-[#101829]">
+          <CompanyPhoto logo={company.logo} emblemSize={64} />
+        </div>
+      )}
+      {demoURL && isDemoUrl(demoURL) && (
+        <a
+          className={`${catalogPill} self-start text-sky-200 hover:bg-sky-300/10`}
+          href={demoURL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View live demo <span aria-hidden="true">↗</span>
+        </a>
+      )}
     </div>
   );
 }
